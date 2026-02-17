@@ -9,9 +9,13 @@
 #include "pin_config.h"
 #include "dac.h"
 
-void dac_update() {
-  const uint16_t dacVal = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
-  Serial.printf("DAC_VOLTAGE_PIN: %u\n", dacVal);
+uint16_t currentDacVal = 0;
+
+void dac_update(uint16_t dacVal) {
+  if ( currentDacVal == dacVal ) return;
+  currentDacVal = dacVal;
+
+  Serial.printf("Setting DAC to: %u\n", dacVal);
 
   if (dacVal == 0) {
     dacDisable(DAC_PIN);

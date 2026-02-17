@@ -30,6 +30,13 @@ inline float celsiusToFahrenheit(float tempC) {
 }
 
 /**
+ * Convert Celsius to Kelvin.
+ */
+inline float celsiusToKelvin(float tempC) {
+  return tempC + 273.15f;
+}
+
+/**
  * Convert Fahrenheit to Celsius.
  */
 inline float fahrenheitToCelsius(float tempF) {

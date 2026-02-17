@@ -54,6 +54,39 @@ void test_celsiusToFahrenheit_negative(void) {
     TEST_ASSERT_FLOAT_WITHIN(0.01f, -40.0f, celsiusToFahrenheit(-40.0f));
 }
 
+void test_celsiusToFahrenheit_liquidNitrogen(void) {
+    // -196 °C == -320.8 °F
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, -320.8f, celsiusToFahrenheit(-196.0f));
+}
+
+// ── celsiusToKelvin ─────────────────────────────────────────────────────────
+
+void test_celsiusToKelvin_absoluteZero(void) {
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, celsiusToKelvin(-273.15f));
+}
+
+void test_celsiusToKelvin_freezing(void) {
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 273.15f, celsiusToKelvin(0.0f));
+}
+
+void test_celsiusToKelvin_boiling(void) {
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 373.15f, celsiusToKelvin(100.0f));
+}
+
+void test_celsiusToKelvin_bodyTemp(void) {
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 310.15f, celsiusToKelvin(37.0f));
+}
+
+void test_celsiusToKelvin_negative(void) {
+    // -40 °C == 233.15 K
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 233.15f, celsiusToKelvin(-40.0f));
+}
+
+void test_celsiusToKelvin_liquidNitrogen(void) {
+    // -196 °C == 77.15 K
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 77.15f, celsiusToKelvin(-196.0f));
+}
+
 // ── fahrenheitToCelsius ─────────────────────────────────────────────────────
 
 void test_fahrenheitToCelsius_freezing(void) {
@@ -62,6 +95,11 @@ void test_fahrenheitToCelsius_freezing(void) {
 
 void test_fahrenheitToCelsius_boiling(void) {
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f, fahrenheitToCelsius(212.0f));
+}
+
+void test_fahrenheitToCelsius_liquidNitrogen(void) {
+    // -320.8 °F == -196 °C
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, -196.0f, fahrenheitToCelsius(-320.8f));
 }
 
 // ── Round-trip consistency ──────────────────────────────────────────────────
@@ -112,8 +150,16 @@ int main(int argc, char **argv) {
     RUN_TEST(test_celsiusToFahrenheit_boiling);
     RUN_TEST(test_celsiusToFahrenheit_bodyTemp);
     RUN_TEST(test_celsiusToFahrenheit_negative);
+    RUN_TEST(test_celsiusToFahrenheit_liquidNitrogen);
+    RUN_TEST(test_celsiusToKelvin_absoluteZero);
+    RUN_TEST(test_celsiusToKelvin_freezing);
+    RUN_TEST(test_celsiusToKelvin_boiling);
+    RUN_TEST(test_celsiusToKelvin_bodyTemp);
+    RUN_TEST(test_celsiusToKelvin_negative);
+    RUN_TEST(test_celsiusToKelvin_liquidNitrogen);
     RUN_TEST(test_fahrenheitToCelsius_freezing);
     RUN_TEST(test_fahrenheitToCelsius_boiling);
+    RUN_TEST(test_fahrenheitToCelsius_liquidNitrogen);
     RUN_TEST(test_celsius_fahrenheit_roundTrip);
 
     // Config sanity

@@ -7,9 +7,9 @@
 #define DAC_H
 
 /**
- * Read the ADC feedback pin and mirror the value to the DAC output.
+ * Update the DAC output based on the ADC feedback value.
  * Drives DAC_PIN to absolute GND when the reading is zero.
  */
-void dac_update();
+void dac_update(uint16_t dacVal);
 
 #endif // DAC_H

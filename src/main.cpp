@@ -16,6 +16,7 @@
 
 #include "config.h"
 #include "temperature.h"
+#include "pin_config.h"
 #include "waveform.h"
 #include "dac.h"
 
@@ -29,6 +30,7 @@ static uint32_t previousMillis = 0;
 // =============================================================================
 void setup() {
   Serial.begin(SERIAL_BAUD);
+
   while (!Serial) delay(10);
 
   Serial.println("MAX31865 RTD + AD9833 Waveform Generator");
@@ -44,7 +46,7 @@ void setup() {
   waveform_init();
 
   Serial.println();
-  delay(1000);
+  delay(500);
 }
 
 // =============================================================================
@@ -57,8 +59,10 @@ void loop() {
     previousMillis = currentMillis;
 
     temperature_read();
-    dac_update();
     temperature_checkFaults();
+
+    const uint16_t dacVal = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
+    dac_update(dacVal);
 
     Serial.println();
   }
