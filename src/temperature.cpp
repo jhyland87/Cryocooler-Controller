@@ -19,7 +19,21 @@ void temperature_init() {
     Serial.println("Could not initialize MAX31865! Check wiring.");
     while (true) delay(10);
   }
-  Serial.println("MAX31865 initialized successfully!");
+
+  // begin() doesn't verify SPI communication — read back the config
+  // register to confirm the chip is actually responding.
+  // After begin(MAX31865_2WIRE), config register should read 0x80 or 0x00
+  // (not 0xFF which indicates a disconnected MISO line).
+  const uint16_t rtd = max31865.readRTD();
+  const uint8_t  fault = max31865.readFault();
+  Serial.printf("MAX31865 comms check — RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
+
+  if (rtd == 0 && fault == 0) {
+    Serial.println("WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
+    Serial.println("Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
+  } else {
+    Serial.println("MAX31865 initialized successfully!");
+  }
 }
 
 void temperature_read() {

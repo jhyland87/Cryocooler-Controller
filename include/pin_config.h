@@ -12,29 +12,27 @@
 // =============================================================================
 // SPI Bus (VSPI - shared by MAX31865 and AD9833)
 // =============================================================================
-#define SPI_MOSI          23    // Master Out Slave In
-#define SPI_MISO          19    // Master In Slave Out
-#define SPI_CLK           18    // SPI Clock
+#define SPI_MOSI          42    // Master Out Slave In
+#define SPI_MISO          41    // Master In Slave Out
+#define SPI_CLK           40    // SPI Clock
 
 // =============================================================================
 // MAX31865 RTD Sensor
 // =============================================================================
-#define MAX31865_CS        5    // Chip Select for MAX31865
+#define MAX31865_CS        1    // Chip Select for MAX31865 PT100
 
 // =============================================================================
 // AD9833 Waveform Generator
 // =============================================================================
-#define AD9833_CS         15    // Chip Select for AD9833
+#define AD9833_CS         7    // Chip Select for AD9833
 
 // =============================================================================
-// DAC Output
+// MCP4921 12-bit DAC (SPI)
 // =============================================================================
-#define DAC_PIN           25    // DAC output pin (GPIO25 = DAC1)
-#define DAC_VOLTAGE_PIN   34    // ADC input to read back DAC-controlled voltage
+#define MCP4921_CS         6    // Chip Select for MCP4921 dac
+#define DAC_VOLTAGE_PIN   11    // ADC input to read back DAC-controlled voltage
 
-// =============================================================================
-// Reserved / Future Use (uncomment as needed)
-// =============================================================================
-// #define DAC12BIT_CS    XX    // MCP4921 12-bit DAC Chip Select
+#define VOLTAGE_12_TEST_PIN 13
+
 
 #endif // PIN_CONFIG_H

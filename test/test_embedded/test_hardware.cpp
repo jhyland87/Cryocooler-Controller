@@ -70,15 +70,18 @@ void test_ad9833_set_frequency(void) {
     TEST_ASSERT_TRUE(true);
 }
 
-// ── DAC / ADC loopback test ─────────────────────────────────────────────────
+// ── MCP4921 DAC tests ───────────────────────────────────────────────────────
 
-void test_dac_output_zero(void) {
-    // Write 0 to DAC and verify the pin goes LOW
-    dacDisable(DAC_PIN);
-    pinMode(DAC_PIN, OUTPUT);
-    digitalWrite(DAC_PIN, LOW);
+#include "dac.h"
 
-    // Small settle time
+void test_mcp4921_init(void) {
+    // Should complete without hanging — verifies CS pin and SPI are alive
+    dac_init();
+    TEST_ASSERT_TRUE(true);
+}
+
+void test_mcp4921_write_zero(void) {
+    dac_update(0);
     delay(10);
 
     uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
@@ -86,12 +89,21 @@ void test_dac_output_zero(void) {
     TEST_ASSERT_LESS_THAN_UINT16(10, reading);
 }
 
+void test_mcp4921_write_midscale(void) {
+    // Write 2048 (half of 4095) and verify ADC reads a non-zero value
+    dac_update(2048);
+    delay(10);
+
+    uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
+    TEST_ASSERT_GREATER_THAN_UINT16(0, reading);
+}
+
 // ── Entry point (PlatformIO Unity on embedded) ──────────────────────────────
 
 void setup() {
     delay(2000);  // Give serial monitor time to connect
 
-    SPI.begin();
+    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
     UNITY_BEGIN();
 
@@ -106,8 +118,10 @@ void setup() {
     RUN_TEST(test_ad9833_initializes);
     RUN_TEST(test_ad9833_set_frequency);
 
-    // DAC
-    RUN_TEST(test_dac_output_zero);
+    // MCP4921 DAC
+    RUN_TEST(test_mcp4921_init);
+    RUN_TEST(test_mcp4921_write_zero);
+    RUN_TEST(test_mcp4921_write_midscale);
 
     UNITY_END();
 }

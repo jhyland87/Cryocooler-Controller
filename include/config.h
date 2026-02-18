@@ -37,6 +37,12 @@
 #define AD9833_FREQ_HZ    static_cast<uint16_t>(60)    // Output frequency in Hz
 
 // =============================================================================
+// MCP4921 12-bit DAC
+// =============================================================================
+#define MCP4921_MAX_VALUE  static_cast<uint16_t>(4095)  // 12-bit full scale
+#define MCP4921_SPI_SPEED  static_cast<uint32_t>(20000000)  // 20 MHz SPI clock
+
+// =============================================================================
 // ADC
 // =============================================================================
 #define ADC_RESOLUTION    static_cast<uint8_t>(8)     // ADC read resolution in bits
