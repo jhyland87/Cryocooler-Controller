@@ -45,11 +45,17 @@
 // =============================================================================
 // ADC
 // =============================================================================
-#define ADC_RESOLUTION    static_cast<uint8_t>(8)     // ADC read resolution in bits
+#define ADC_RESOLUTION    static_cast<uint8_t>(12)     // ADC read resolution in bits
+#define ADC_MIN_VOLTAGE   static_cast<uint8_t>(15)     // ADC read resolution in bits
+
+// SmoothADC configuration for DAC_VOLTAGE_PIN readback
+#define DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS static_cast<uint32_t>(5)   // sample every N ms
+#define DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES static_cast<uint8_t>(8) // warm up filter at boot
 
 // =============================================================================
 // Timing
 // =============================================================================
-#define LOOP_INTERVAL_MS  static_cast<uint32_t>(1000)  // Main loop read interval (ms)
+#define LOOP_INTERVAL_MS  static_cast<uint32_t>(200)  // Main loop read interval (ms)
 
+#define WAVE_STATUS_LED_BRIGHTNESS  static_cast<uint8_t>(10)     // ADC read resolution in bits
 #endif // CONFIG_H
