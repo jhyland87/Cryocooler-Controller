@@ -8,20 +8,22 @@
 
 #include <Adafruit_MAX31865.h>
 
+namespace temperature {
 /**
  * Initialize the MAX31865 RTD sensor.
  * Halts execution if the sensor cannot be reached.
  */
-void temperature_init();
+void init();
 
 /**
  * Read RTD resistance and temperature, print results to Serial.
  */
-void temperature_read();
+void read();
 
 /**
  * Check for MAX31865 fault conditions and report via Serial.
  */
-void temperature_checkFaults();
+void checkFaults();
+} // namespace temperature
 
 #endif // TEMPERATURE_H

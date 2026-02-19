@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 
+namespace conversions {
 /**
  * Convert a raw 15-bit RTD register value to resistance (ohms).
  *
@@ -42,5 +43,7 @@ inline float celsiusToKelvin(float tempC) {
 inline float fahrenheitToCelsius(float tempF) {
   return (tempF - 32.0f) * 5.0f / 9.0f;
 }
+
+} // namespace conversions
 
 #endif // CONVERSIONS_H

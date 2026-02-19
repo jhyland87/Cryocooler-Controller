@@ -38,7 +38,7 @@ void test_max31865_reads_nonzero_rtd(void) {
 void test_max31865_resistance_in_range(void) {
     // A PT100 at room temperature should read roughly 100-115 Ω
     uint16_t raw = max31865.readRTD();
-    float resistance = rtdRawToResistance(raw, RTD_RREF);
+    float resistance = conversions::rtdRawToResistance(raw, RTD_RREF);
     TEST_ASSERT_FLOAT_WITHIN(50.0f, 107.0f, resistance);  // 57–157 Ω
 }
 
@@ -76,12 +76,12 @@ void test_ad9833_set_frequency(void) {
 
 void test_mcp4921_init(void) {
     // Should complete without hanging — verifies CS pin and SPI are alive
-    dac_init();
+    dac::init();
     TEST_ASSERT_TRUE(true);
 }
 
 void test_mcp4921_write_zero(void) {
-    dac_update(0);
+    dac::update(0);
     delay(10);
 
     uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
@@ -91,7 +91,7 @@ void test_mcp4921_write_zero(void) {
 
 void test_mcp4921_write_midscale(void) {
     // Write 2048 (half of 4095) and verify ADC reads a non-zero value
-    dac_update(2048);
+    dac::update(2048);
     delay(10);
 
     uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));

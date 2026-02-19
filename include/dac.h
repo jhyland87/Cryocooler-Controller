@@ -8,10 +8,11 @@
 
 #include <stdint.h>
 
+namespace dac {
 /**
  * Initialize the MCP4921 DAC (configure CS pin, set output to 0).
  */
-void dac_init();
+void init();
 
 /**
  * Write a 12-bit value (0–4095) to the MCP4921.
@@ -20,6 +21,7 @@ void dac_init();
  *
  * @param dacVal  12-bit output value
  */
-void dac_update(uint16_t dacVal);
+void update(uint16_t dacVal);
+} // namespace dac
 
 #endif // DAC_H

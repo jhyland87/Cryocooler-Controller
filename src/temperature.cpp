@@ -14,7 +14,9 @@
 // Module-private sensor instance
 static Adafruit_MAX31865 max31865(MAX31865_CS);
 
-void temperature_init() {
+namespace temperature {
+
+void init() {
   if (!max31865.begin(RTD_WIRE_CONFIG)) {
     Serial.println("Could not initialize MAX31865! Check wiring.");
     while (true) delay(10);
@@ -36,11 +38,11 @@ void temperature_init() {
   }
 }
 
-void temperature_read() {
+void read() {
   const uint16_t rtd        = max31865.readRTD();
-  const float    resistance = rtdRawToResistance(rtd, RTD_RREF);
+  const float    resistance = conversions::rtdRawToResistance(rtd, RTD_RREF);
   const float    tempC      = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
-  const float    tempF      = celsiusToFahrenheit(tempC);
+  const float    tempF      = conversions::celsiusToFahrenheit(tempC);
 
   Serial.print("RTD Value: ");
   Serial.print(rtd);
@@ -53,7 +55,7 @@ void temperature_read() {
   Serial.println(" °F");
 }
 
-void temperature_checkFaults() {
+void checkFaults() {
   const uint8_t fault = max31865.readFault();
   if (fault == 0) return;
 
@@ -69,3 +71,5 @@ void temperature_checkFaults() {
 
   max31865.clearFault();
 }
+
+} // namespace temperature

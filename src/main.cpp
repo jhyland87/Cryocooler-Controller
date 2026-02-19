@@ -13,7 +13,6 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include <FastLED.h>
 #include <SmoothADC.h>
 
 #include "config.h"
@@ -22,10 +21,6 @@
 #include "waveform.h"
 #include "dac.h"
 
-
-#define NUM_LEDS 1
-#define DATA_PIN 48 // Common for onboard RGB on ESP32-S3
-CRGB leds[NUM_LEDS];
 
 static SmoothADC dacVoltageAdc;
 
@@ -63,37 +58,13 @@ void setup() {
   }
   dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-
-  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(0);
-  //pinMode(VOLTAGE_12_TEST_PIN, INPUT);
-
-  waveform_init();
+  waveform::init();
   // Initialize subsystems
-  temperature_init();
-  dac_init();
+  temperature::init();
+  dac::init();
 
   Serial.println();
   delay(500);
-}
-
-void wave_status_led_red() {
-  leds[0] = CRGB::Red4; // Set color to Red
-  Serial.println("Showing RED");
-  FastLED.setBrightness(WAVE_STATUS_LED_BRIGHTNESS);
-  FastLED.show();
-}
-
-void wave_status_led_green() {
-  leds[0] = CRGB::Green4; // Set color to Red
-  Serial.println("Showing GREEN");
-  FastLED.setBrightness(WAVE_STATUS_LED_BRIGHTNESS);
-  FastLED.show();
-}
-
-void wave_status_led_off(){
-  FastLED.setBrightness(0);
-  FastLED.show();
 }
 
 // =============================================================================
@@ -114,22 +85,22 @@ void loop() {
     const uint16_t dacVal = dacVoltageAdc.getADCVal();
     Serial.printf("DAC read voltage: %u\n", dacVal);
     if ( dacVal < ADC_MIN_VOLTAGE ){
-      wave_status_led_off();
+      waveform::statusOff();
       return ;
     }
 
     if ( voltage12 < 11) {
       Serial.printf("Voltage too low to read temp. (%d)\n", voltage12);
-      wave_status_led_red();
+      waveform::statusError();
       return ;
     }
 
-    wave_status_led_green();
-    temperature_read();
-    temperature_checkFaults();
+    waveform::statusOk();
+    temperature::read();
+    temperature::checkFaults();
 
 
-    dac_update(dacVal);
+    dac::update(dacVal);
 
 
     Serial.printf("DAC set voltage: %u\n", dacVoltageAdc.getADCVal());

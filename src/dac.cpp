@@ -25,15 +25,17 @@ static uint16_t currentDacVal = 0;
 // MCP4921 control bits: Write to DAC A | Buffered | Gain 1x | Active
 static constexpr uint16_t MCP4921_CTRL = 0x3000;
 
-void dac_init() {
+namespace dac {
+
+void init() {
   pinMode(MCP4921_CS, OUTPUT);
   digitalWrite(MCP4921_CS, HIGH);
 
   // Set output to 0 on startup
-  dac_update(0);
+  update(0);
 }
 
-void dac_update(uint16_t dacVal) {
+void update(uint16_t dacVal) {
   // Clamp to 12-bit range
   if (dacVal > MCP4921_MAX_VALUE) {
     dacVal = MCP4921_MAX_VALUE;
@@ -52,3 +54,5 @@ void dac_update(uint16_t dacVal) {
   digitalWrite(MCP4921_CS, HIGH);
   SPI.endTransaction();
 }
+
+} // namespace dac

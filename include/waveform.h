@@ -6,9 +6,18 @@
 #ifndef WAVEFORM_H
 #define WAVEFORM_H
 
+namespace waveform {
 /**
  * Initialize the AD9833 and begin generating the configured sine wave.
  */
-void waveform_init();
+void init();
+
+/**
+ * Status LED helpers (on-board WS2812).
+ */
+void statusError();
+void statusOk();
+void statusOff();
+} // namespace waveform
 
 #endif // WAVEFORM_H
