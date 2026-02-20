@@ -7,9 +7,9 @@
  *   [14]    BUF    : 1 = Buffered Vref
  *   [13]    ~GA    : 1 = 1x gain
  *   [12]    ~SHDN  : 1 = Output active
- *   [11:0]  D11–D0 : 12-bit data
+ *   [11:0]  D11-D0 : 12-bit data
  *
- * Control nibble = 0b0111 = 0x3 → top 4 bits = 0x3000
+ * Control nibble = 0b0111 -> top 4 bits = 0x3000
  */
 
 #include <Arduino.h>
@@ -20,39 +20,67 @@
 #include "config.h"
 #include "dac.h"
 
-static uint16_t currentDacVal = 0;
+static uint16_t sCurrentDacVal = 0;
 
 // MCP4921 control bits: Write to DAC A | Buffered | Gain 1x | Active
-static constexpr uint16_t MCP4921_CTRL = 0x3000;
+static constexpr uint16_t kMcp4921Ctrl = 0x3000;
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+static void writeSpi(uint16_t dacVal) {
+    if (dacVal > MCP4921_MAX_VALUE) {
+        dacVal = MCP4921_MAX_VALUE;
+    }
+    if (sCurrentDacVal == dacVal) return;
+
+    sCurrentDacVal = dacVal;
+
+    const uint16_t packet = kMcp4921Ctrl | dacVal;
+    SPI.beginTransaction(SPISettings(MCP4921_SPI_SPEED, MSBFIRST, SPI_MODE0));
+    digitalWrite(MCP4921_CS, LOW);
+    SPI.transfer16(packet);
+    digitalWrite(MCP4921_CS, HIGH);
+    SPI.endTransaction();
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 namespace dac {
 
 void init() {
-  pinMode(MCP4921_CS, OUTPUT);
-  digitalWrite(MCP4921_CS, HIGH);
-
-  // Set output to 0 on startup
-  update(0);
+    pinMode(MCP4921_CS, OUTPUT);
+    digitalWrite(MCP4921_CS, HIGH);
+    writeSpi(0);
 }
 
 void update(uint16_t dacVal) {
-  // Clamp to 12-bit range
-  if (dacVal > MCP4921_MAX_VALUE) {
-    dacVal = MCP4921_MAX_VALUE;
-  }
+    writeSpi(dacVal);
+}
 
-  if (currentDacVal == dacVal) return;
-  currentDacVal = dacVal;
+void rampToward(uint16_t target) {
+    if (target > MCP4921_MAX_VALUE) {
+        target = MCP4921_MAX_VALUE;
+    }
 
-  Serial.printf("Setting DAC to: %u\n", dacVal);
+    uint16_t next = sCurrentDacVal;
 
-  const uint16_t packet = MCP4921_CTRL | dacVal;
+    if (next < target) {
+        const uint16_t step = target - next;
+        next += (step > DAC_MAX_STEP_PER_INTERVAL) ? DAC_MAX_STEP_PER_INTERVAL : step;
+    } else if (next > target) {
+        const uint16_t step = next - target;
+        next -= (step > DAC_MAX_STEP_PER_INTERVAL) ? DAC_MAX_STEP_PER_INTERVAL : step;
+    }
 
-  SPI.beginTransaction(SPISettings(MCP4921_SPI_SPEED, MSBFIRST, SPI_MODE0));
-  digitalWrite(MCP4921_CS, LOW);
-  SPI.transfer16(packet);
-  digitalWrite(MCP4921_CS, HIGH);
-  SPI.endTransaction();
+    writeSpi(next);
+}
+
+uint16_t getCurrent() {
+    return sCurrentDacVal;
 }
 
 } // namespace dac

@@ -1,0 +1,61 @@
+/**
+ * @file telemetry.h
+ * @brief Serial Studio CSV telemetry emitter
+ *
+ * Emits one telemetry frame per call to emit() using the Serial Studio
+ * "Quick Plot" frame format:
+ *
+ *   /*<csv_fields>*\/\r\n
+ *
+ * Fields (in column order):
+ *   1  state_no       numeric state index -1 to 8
+ *   2  state_name     ASCII state label (e.g. "CoarseCooldown")
+ *   3  status_text    human-readable status description (semicolons, no commas)
+ *   4  temp_k         cold-stage temperature in Kelvin   (2 dp)
+ *   5  temp_c         cold-stage temperature in Celsius  (2 dp)
+ *   6  cooling_rate   K/min; positive = cooling          (3 dp)
+ *   7  dac_target     desired DAC count from state machine (0-4095)
+ *   8  dac_actual     current DAC output count            (0-4095)
+ *   9  rms_v          RMS voltage VDC (stub = 0.00)       (2 dp)
+ *  10  relay_normal   0 = Bypass, 1 = Normal
+ *  11  alarm_relay    0 = off,    1 = active
+ *  12  red_led        100 = ALERT (lit), 0 = OFF
+ *  13  green_led      100 = OK    (lit), 0 = OFF
+ *
+ * To visualise in Serial Studio:
+ *   - Open Serial Studio, connect at SERIAL_BAUD.
+ *   - Enable "Frame detection" with start seq "\/*" and end seq "*\/".
+ *   - Load the Cryocooler.ssproj project file.
+ */
+
+#ifndef TELEMETRY_H
+#define TELEMETRY_H
+
+#include "state_machine.h"
+
+namespace telemetry {
+
+/**
+ * Emit one Serial Studio CSV frame to Serial.
+ *
+ * @param out          State-machine output for this tick
+ * @param tempK        Current cold-stage temperature in Kelvin
+ * @param tempC        Current cold-stage temperature in Celsius
+ * @param coolingRate  Measured cooling rate in K/min
+ * @param rmsV         Measured RMS voltage in VDC
+ * @param dacActual    Current DAC output count (from dac::getCurrent())
+ * @param redLedOn     True if the FAULT (red) LED is currently lit
+ * @param greenLedOn   True if the READY (green) LED is currently lit
+ */
+void emit(const state_machine::Output& out,
+          float    tempK,
+          float    tempC,
+          float    coolingRate,
+          float    rmsV,
+          uint16_t dacActual,
+          bool     redLedOn,
+          bool     greenLedOn);
+
+} // namespace telemetry
+
+#endif // TELEMETRY_H
