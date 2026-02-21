@@ -18,9 +18,22 @@ void emit(const state_machine::Output& out,
           bool     redLedOn,
           bool     greenLedOn)
 {
+    // Convert on-state duration from ms to seconds and HH:MM:SS
+    const uint32_t durationMs  = state_machine::getOnStateDuration();
+    const uint32_t totalSec    = durationMs / 1000u;
+    const uint32_t hh          = totalSec / 3600u;
+    const uint32_t mm          = (totalSec % 3600u) / 60u;
+    const uint32_t ss          = totalSec % 60u;
+
+    char hmsBuf[12];
+    snprintf(hmsBuf, sizeof(hmsBuf), "%02lu:%02lu:%02lu",
+             static_cast<unsigned long>(hh),
+             static_cast<unsigned long>(mm),
+             static_cast<unsigned long>(ss));
+
     // Serial Studio Quick-Plot frame: /*...*/\r\n
-    // 13 CSV fields matching Cryocooler.ssproj parser
-    Serial.printf("/*%d,%s,%s,%.2f,%.2f,%.3f,%u,%u,%.2f,%u,%u,%s,%s*/\r\n",
+    // 15 CSV fields matching Cryocooler.ssproj parser
+    Serial.printf("/*%d,%s,%s,%.2f,%.2f,%.3f,%u,%u,%.2f,%u,%u,%s,%s,%lu,%s*/\r\n",
                   static_cast<int8_t>(out.state),
                   state_machine::stateName(out.state),
                   out.statusText ? out.statusText : "",
@@ -33,7 +46,9 @@ void emit(const state_machine::Output& out,
                   static_cast<uint8_t>(!out.bypassRelay),  // 1 = Normal
                   static_cast<uint8_t>(out.alarmRelay),
                   redLedOn   ? "100" : "0",
-                  greenLedOn ? "100" : "0");
+                  greenLedOn ? "100" : "0",
+                  static_cast<unsigned long>(totalSec),
+                  hmsBuf);
 }
 
 } // namespace telemetry

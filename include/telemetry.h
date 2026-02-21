@@ -21,6 +21,8 @@
  *  11  alarm_relay    0 = off,    1 = active
  *  12  red_led        100 = ALERT (lit), 0 = OFF
  *  13  green_led      100 = OK    (lit), 0 = OFF
+ *  14  on_duration_s  on-state duration in whole seconds
+ *  15  on_duration    on-state duration as HH:MM:SS (string; skipped by parser)
  *
  * To visualise in Serial Studio:
  *   - Open Serial Studio, connect at SERIAL_BAUD.

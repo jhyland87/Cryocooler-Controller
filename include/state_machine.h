@@ -44,9 +44,9 @@ enum class State : int8_t {
     Settle          = 5,
     Baseline        = 6,
     Operating       = 7,
-    Fault           = 8,
-    Unknown         = INT8_MAX,
+    Fault           = 8
 };
+
 
 /** Reason the system entered Fault state. */
 enum class FaultReason : uint8_t {
@@ -73,6 +73,9 @@ struct Output {
  * @param nowMs  Current millis()
  */
 void init(uint32_t nowMs);
+
+/** Return the duration of the current on state in milliseconds. */
+uint32_t getOnStateDuration();
 
 /**
  * Advance the state machine by one tick.

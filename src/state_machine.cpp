@@ -11,6 +11,7 @@
 #include "config.h"
 #include "conversions.h"
 #include "indicator.h"
+#include <Arduino.h>
 
 namespace state_machine {
 
@@ -22,6 +23,8 @@ static State       sState        = State::Off;
 static uint32_t    sStateEntryMs = 0;   // millis() when current state was entered
 static bool        sRunning      = false; // process is off until start() is called
 static FaultReason sFaultReason  = FaultReason::None;
+static uint32_t    sOnStateMs    = 0;   // millis() when it entered an on state
+static uint32_t    sOffStateMs   = 0;   // millis() when it entered an off state
 
 // Settle timer -- starts counting when temp enters the tolerance band
 static uint32_t sSettleStartMs     = 0;
@@ -190,6 +193,8 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 
 void init(uint32_t nowMs) {
     sRunning     = false;
+    sOnStateMs   = 0;
+    sOffStateMs  = 0;
     sFaultReason = FaultReason::None;
     enterState(State::Off, nowMs);
 }
@@ -226,10 +231,17 @@ Output update(float    tempK,
 
         // ---- Off -------------------------------------------------------
         case State::Off:
+            if (sOffStateMs == 0) {
+            sOffStateMs = nowMs;
+            }
             return buildOutput(State::Off, 0);
 
         // ---- Initialize ------------------------------------------------
         case State::Initialize:
+            if (sOnStateMs == 0) {
+                sOnStateMs = nowMs;
+                sOffStateMs = 0;
+            }
             if (elapsed >= INDICATOR_INIT_AMBER_MS) {
                 enterState(State::Idle, nowMs);
                 return buildOutput(State::Idle, 0);
@@ -238,6 +250,9 @@ Output update(float    tempK,
 
         // ---- Idle ------------------------------------------------------
         case State::Idle:
+            if (sOffStateMs == 0) {
+                sOffStateMs = nowMs;
+            }
             // Remain in Idle until start() is called externally.
             return buildOutput(State::Idle, 0);
 
@@ -319,6 +334,9 @@ Output update(float    tempK,
 
         // ---- Fault (terminal) ------------------------------------------
         case State::Fault:
+            if (sOffStateMs == 0) {
+                sOffStateMs = nowMs;
+            }
             return buildOutput(State::Fault, 0);
     }
 
@@ -334,16 +352,32 @@ bool isRunning() {
     return sRunning;
 }
 
+uint32_t getOnStateDuration(){
+    // If its not currently on, then return falsey
+    if (sOnStateMs == 0) return 0;
+
+    // If its currently off (determined by if it has a stop time), then return
+    // the difference between the stop time and the start time
+    if (sOffStateMs != 0) return sOffStateMs - sOnStateMs;
+
+    // No off state ms means its currently running. So get the time since it started.
+    return millis() - sOnStateMs;
+}
+
 void start(uint32_t nowMs) {
-    if (sState != State::Idle && sState != State::Off) return;
+    //if (sState != State::Idle && sState != State::Off) return;
+    if (sRunning == true) return;
     sRunning     = true;
+    sOnStateMs   = nowMs;
+    sOffStateMs  = 0;
     sFaultReason = FaultReason::None;
     enterState(State::CoarseCooldown, nowMs);
 }
 
 void stop(uint32_t nowMs) {
-    if (sState == State::Initialize) return;
+    if (sRunning == false) return;
     sRunning     = false;
+    if (sOffStateMs == 0) sOffStateMs = nowMs;
     sFaultReason = FaultReason::None;
     enterState(State::Idle, nowMs);
 }
@@ -351,6 +385,7 @@ void stop(uint32_t nowMs) {
 void off(uint32_t nowMs) {
     if (sState == State::Off) return;
     sRunning     = false;
+    if (sOffStateMs == 0) sOffStateMs = nowMs;
     sFaultReason = FaultReason::None;
     enterState(State::Off, nowMs);
 }
