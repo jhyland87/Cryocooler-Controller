@@ -127,6 +127,8 @@ const char* stateName(State s);
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
 
+/** Return a short ASCII status text for the current state (safe for Serial / telemetry). */
+const char* getStatusText();
 } // namespace state_machine
 
 #endif // STATE_MACHINE_H

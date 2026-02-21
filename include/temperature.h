@@ -67,6 +67,12 @@ float getCoolingRateKPerMin();
  */
 bool isStalled();
 
+/**
+ * Return the temperature as a percentage of the maximum temperature.
+ * 0% = 298K, 100% = 78K
+ */
+float getTemperatureToPercent();
+
 } // namespace temperature
 
 #endif // TEMPERATURE_H

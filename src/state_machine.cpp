@@ -410,4 +410,8 @@ const char* stateName(State s) {
     return "Unknown";
 }
 
+const char* getStatusText(){
+    return statusTextForState(getState());
+}
+
 } // namespace state_machine

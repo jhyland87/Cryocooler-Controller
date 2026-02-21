@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include "telemetry.h"
 #include "state_machine.h"
+#include "temperature.h"
 
 namespace telemetry {
 
@@ -33,10 +34,10 @@ void emit(const state_machine::Output& out,
 
     // Serial Studio Quick-Plot frame: /*...*/\r\n
     // 15 CSV fields matching Cryocooler.ssproj parser
-    Serial.printf("/*%d,%s,%s,%.2f,%.2f,%.3f,%u,%u,%.2f,%u,%u,%s,%s,%lu,%s*/\r\n",
+    Serial.printf("/*%d|%s|%s|%.2f|%.2f|%.3f|%u|%u|%.2f|%u|%u|%d|%d|%lu|%s|%.2f*/\r\n",
                   static_cast<int8_t>(out.state),
                   state_machine::stateName(out.state),
-                  out.statusText ? out.statusText : "",
+                  state_machine::getStatusText(),
                   tempK,
                   tempC,
                   coolingRate,
@@ -45,10 +46,11 @@ void emit(const state_machine::Output& out,
                   rmsV,
                   static_cast<uint8_t>(!out.bypassRelay),  // 1 = Normal
                   static_cast<uint8_t>(out.alarmRelay),
-                  redLedOn   ? "100" : "0",
-                  greenLedOn ? "100" : "0",
+                  redLedOn   ? 1 : 0,
+                  greenLedOn ? 1 : 0,
                   static_cast<unsigned long>(totalSec),
-                  hmsBuf);
+                  hmsBuf,
+                  temperature::getTemperatureToPercent());
 }
 
 } // namespace telemetry

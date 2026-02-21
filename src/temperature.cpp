@@ -137,6 +137,7 @@ float getCoolingRateKPerMin() {
 }
 
 bool isStalled() {
+  return false;
     if (sCount < 2) return false;
 
     const auto& newest = sampleAt(static_cast<uint8_t>(sCount - 1));
@@ -157,6 +158,22 @@ bool isStalled() {
     // Stalled if the drop within the window is below the minimum threshold
     const float drop = refTempK - newest.tempK;
     return (drop < STALL_MIN_DROP_K);
+}
+
+float getTemperatureToPercent()
+{
+    const float tempK = getLastTempK();
+    const float T_MAX = AMBIENT_START_K;
+    const float T_MIN = SETPOINT_K;
+
+    // Clamp temperature
+    //if (tempK >= T_MAX) return 0.0;
+    //if (tempK <= T_MIN) return 100.0;
+
+    // Linear interpolation
+    float percent = (T_MAX - tempK) / (T_MAX - T_MIN) * 100.0;
+
+    return percent;
 }
 
 } // namespace temperature
