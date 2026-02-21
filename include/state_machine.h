@@ -29,6 +29,7 @@
 #define STATE_MACHINE_H
 
 #include <stdint.h>
+#include "config.h"
 #include "indicator.h"
 
 namespace state_machine {
@@ -101,13 +102,25 @@ State getState();
 bool isRunning();
 
 /**
- * Start the cooldown process.
- * Transitions from Idle → CoarseCooldown.  Has no effect if the machine
- * is not in the Idle state (e.g. already running, or in Fault).
+ * Start (or resume) the cooldown process.
  *
- * @param nowMs  Current millis()
+ * The starting state is chosen based on the current cold-stage temperature
+ * so the system can resume correctly after a reboot without triggering
+ * spurious stall faults:
+ *
+ *   tempK >= COARSE_FINE_THRESHOLD_K  →  CoarseCooldown  (normal warm start)
+ *   tempK in setpoint band            →  Settle           (already at temperature)
+ *   tempK below setpoint band         →  Overshoot        (integrator settling)
+ *   tempK below threshold but above   →  FineCooldown
+ *     setpoint band
+ *
+ * Has no effect if the machine is already running.
+ *
+ * @param nowMs   Current millis()
+ * @param tempK   Current cold-stage temperature in Kelvin.
+ *                Defaults to AMBIENT_START_K (warm start / unknown temp).
  */
-void start(uint32_t nowMs);
+void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
 
 /**
  * Stop the cooldown process and return to Idle.

@@ -11,7 +11,6 @@
  *   - MD_AD9833
  *   - FastLED
  *   - SmoothADC
- *   - ESP32SerialCtl
  */
 
 #include <Arduino.h>
@@ -80,7 +79,7 @@ void setup() {
     // Kick off state machine in Off state
     state_machine::init(millis());
 
-    // Initialise serial command handler (ESP32SerialCtl)
+    // Initialise serial command handler
     serial_commands::init();
 
     Serial.println("Setup complete. System is Off.");

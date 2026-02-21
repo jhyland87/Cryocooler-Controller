@@ -364,14 +364,29 @@ uint32_t getOnStateDuration(){
     return millis() - sOnStateMs;
 }
 
-void start(uint32_t nowMs) {
-    //if (sState != State::Idle && sState != State::Off) return;
+void start(uint32_t nowMs, float tempK) {
     if (sRunning == true) return;
     sRunning     = true;
     sOnStateMs   = nowMs;
     sOffStateMs  = 0;
     sFaultReason = FaultReason::None;
-    enterState(State::CoarseCooldown, nowMs);
+
+    // Select the resumption state based on current cold-stage temperature.
+    // This lets the system pick up where it left off after a reboot without
+    // entering a cooldown state that would trigger a spurious stall fault.
+    if (tempK >= COARSE_FINE_THRESHOLD_K) {
+        // Warm start (or unknown temp): begin full cooldown sequence.
+        enterState(State::CoarseCooldown, nowMs);
+    } else if (overshot(tempK)) {
+        // Below the setpoint tolerance band — DAC held at 0, wait to rise.
+        enterState(State::Overshoot, nowMs);
+    } else if (inBand(tempK)) {
+        // Already within the setpoint band — skip cooldown, settle timer starts.
+        enterState(State::Settle, nowMs);
+    } else {
+        // Below the coarse/fine threshold but above the setpoint band.
+        enterState(State::FineCooldown, nowMs);
+    }
 }
 
 void stop(uint32_t nowMs) {

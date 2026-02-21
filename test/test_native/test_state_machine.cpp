@@ -436,6 +436,72 @@ void test_time_in_state_resets_again_on_stop(void) {
 }
 
 // ---------------------------------------------------------------------------
+// Reboot recovery: start() selects the correct resume state from tempK
+// ---------------------------------------------------------------------------
+
+void test_start_warm_enters_coarse_cooldown(void) {
+    // Ambient temperature → full cooldown from the top.
+    state_machine::init(0);
+    state_machine::start(100, AMBIENT_START_K);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+}
+
+void test_start_above_threshold_enters_coarse_cooldown(void) {
+    // 90 K is above COARSE_FINE_THRESHOLD_K (85 K) → CoarseCooldown.
+    state_machine::init(0);
+    state_machine::start(100, 90.0f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+}
+
+void test_start_below_threshold_enters_fine_cooldown(void) {
+    // 82 K is below COARSE_FINE_THRESHOLD_K (85 K) but above the setpoint
+    // tolerance band (> SETPOINT_K + SETPOINT_TOLERANCE_K = 80 K) → FineCooldown.
+    state_machine::init(0);
+    state_machine::start(100, 82.0f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+}
+
+void test_start_inband_enters_settle(void) {
+    // Exactly at setpoint → skip cooldown, enter Settle with relay Normal.
+    state_machine::init(0);
+    state_machine::start(100, SETPOINT_K);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
+                      static_cast<int8_t>(state_machine::getState()));
+    // Relay must be Normal (bypassRelay == false) in Settle.
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 101);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.bypassRelay);
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+void test_start_overshot_enters_overshoot(void) {
+    // 1 K below the tolerance band (< SETPOINT_K - SETPOINT_TOLERANCE_K = 76 K)
+    // → Overshoot; DAC target must be 0.
+    state_machine::init(0);
+    const float overshootTemp = SETPOINT_K - SETPOINT_TOLERANCE_K - 1.0f;
+    state_machine::start(100, overshootTemp);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Overshoot),
+                      static_cast<int8_t>(state_machine::getState()));
+    auto out = state_machine::update(overshootTemp, 0.0f, 0.0f, false, 101);
+    TEST_ASSERT_EQUAL_UINT16(0, out.dacTarget);
+}
+
+void test_start_resume_fine_no_stall_fault(void) {
+    // On a fresh reboot, stalled is always false (no history yet).
+    // Resuming into FineCooldown with a stable cold temperature must NOT fault.
+    state_machine::init(0);
+    state_machine::start(100, 82.0f);  // → FineCooldown
+    auto out = state_machine::update(82.0f, 0.0f, 0.0f, false, 101);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+// ---------------------------------------------------------------------------
 // stateName helper
 // ---------------------------------------------------------------------------
 
@@ -507,6 +573,14 @@ int main(int argc, char **argv) {
     RUN_TEST(test_time_in_state_resets_to_zero_on_transition);
     RUN_TEST(test_time_in_state_accumulates_after_transition);
     RUN_TEST(test_time_in_state_resets_again_on_stop);
+
+    // Reboot recovery / resume state selection
+    RUN_TEST(test_start_warm_enters_coarse_cooldown);
+    RUN_TEST(test_start_above_threshold_enters_coarse_cooldown);
+    RUN_TEST(test_start_below_threshold_enters_fine_cooldown);
+    RUN_TEST(test_start_inband_enters_settle);
+    RUN_TEST(test_start_overshot_enters_overshoot);
+    RUN_TEST(test_start_resume_fine_no_stall_fault);
 
     // Helpers
     RUN_TEST(test_stateName_returns_non_null);
