@@ -10,6 +10,7 @@
 #define ARDUINO_STUB_H
 
 #include <stdint.h>
+#include "Print.h"  // stub Print class (needed by serial_commands.cpp)
 
 // Stub millis() — returns a value set by the test harness
 // Default: 0, override via stub_setMillis() before each test if needed.

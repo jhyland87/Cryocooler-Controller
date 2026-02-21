@@ -3,12 +3,23 @@
  * @brief Serial Studio CSV telemetry implementation
  */
 
-#include <Arduino.h>
+// emit() depends on Serial and temperature — hardware only.
+// enable()/disable()/isEnabled() are plain flag operations and compile everywhere.
+#ifdef ARDUINO
+#  include <Arduino.h>
+#  include "temperature.h"
+#endif
+
 #include "telemetry.h"
 #include "state_machine.h"
-#include "temperature.h"
 
 namespace telemetry {
+
+static bool sEnabled = true;
+
+void disable()   { sEnabled = false; }
+void enable()    { sEnabled = true; }
+bool isEnabled() { return sEnabled; }
 
 void emit(const state_machine::Output& out,
           float    tempK,
@@ -19,6 +30,9 @@ void emit(const state_machine::Output& out,
           bool     redLedOn,
           bool     greenLedOn)
 {
+#ifdef ARDUINO
+    if (!sEnabled) return;
+
     // Convert on-state duration from ms to seconds and HH:MM:SS
     const uint32_t durationMs  = state_machine::getOnStateDuration();
     const uint32_t totalSec    = durationMs / 1000u;
@@ -51,6 +65,11 @@ void emit(const state_machine::Output& out,
                   static_cast<unsigned long>(totalSec),
                   hmsBuf,
                   temperature::getTemperatureToPercent());
+#else
+    // Suppress unused-parameter warnings in native builds.
+    (void)out; (void)tempK; (void)tempC; (void)coolingRate;
+    (void)rmsV; (void)dacActual; (void)redLedOn; (void)greenLedOn;
+#endif
 }
 
 } // namespace telemetry

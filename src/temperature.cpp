@@ -93,8 +93,8 @@ void read(uint32_t nowMs) {
     sLastTempK = tempK;
     pushSample(nowMs, tempK);
 
-    Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
-                  rtd, resistance, tempC, tempF, tempK);
+    //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
+    //              rtd, resistance, tempC, tempF, tempK);
 }
 
 void checkFaults() {

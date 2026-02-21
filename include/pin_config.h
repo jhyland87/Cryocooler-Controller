@@ -15,6 +15,7 @@
 // =============================================================================
 // SPI Bus (shared by MAX31865, AD9833, and MCP4921)
 // =============================================================================
+// Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 #define SPI_MOSI          42    // Master Out Slave In
 #define SPI_MISO          41    // Master In Slave Out
 #define SPI_CLK           40    // SPI Clock
@@ -71,5 +72,6 @@
 // On-board WS2812 RGB Status LED
 // =============================================================================
 #define STATUS_LED_PIN     48   // Common for on-board RGB on ESP32-S3 DevKit
+
 
 #endif // PIN_CONFIG_H

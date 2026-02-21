@@ -19,6 +19,9 @@
 // Stub millis() control (provided by stubs/arduino_stub.cpp)
 extern "C" void stub_setMillis(uint32_t ms);
 
+// Serial command tests (defined in test_serial_commands.cpp)
+void run_serial_command_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -457,6 +460,9 @@ int main(int argc, char **argv) {
 
     // Helpers
     RUN_TEST(test_stateName_returns_non_null);
+
+    // Serial command handler
+    run_serial_command_tests();
 
     return UNITY_END();
 }

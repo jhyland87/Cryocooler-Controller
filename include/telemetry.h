@@ -58,6 +58,9 @@ void emit(const state_machine::Output& out,
           bool     redLedOn,
           bool     greenLedOn);
 
+void disable();
+void enable();
+bool isEnabled();
 } // namespace telemetry
 
 #endif // TELEMETRY_H

@@ -11,6 +11,7 @@
  *   - MD_AD9833
  *   - FastLED
  *   - SmoothADC
+ *   - ESP32SerialCtl
  */
 
 #include <Arduino.h>
@@ -27,6 +28,7 @@
 #include "indicator.h"
 #include "state_machine.h"
 #include "telemetry.h"
+#include "serial_commands.h"
 
 // =============================================================================
 // Module-level objects
@@ -39,69 +41,6 @@ static SmoothADC dacVoltageAdc;
 // =============================================================================
 
 static uint32_t sPreviousLoopMs = 0;
-
-// =============================================================================
-// Serial command buffer (non-blocking line reader)
-// =============================================================================
-
-static constexpr uint8_t kCmdBufLen = 32;
-static char     sCmdBuf[kCmdBufLen];
-static uint8_t  sCmdIdx = 0;
-
-/**
- * Check for and process incoming serial commands (non-blocking).
- *
- * Supported commands (case-sensitive, terminated by '\n' or '\r'):
- *   start   - begin the cooldown process from Idle
- *   stop    - abort the process and return to Idle
- *   status  - print current state and running flag
- */
-static void processSerialCommands(uint32_t nowMs) {
-    while (Serial.available()) {
-        const char c = static_cast<char>(Serial.read());
-        if (c == '\n' || c == '\r') {
-            if (sCmdIdx == 0) continue;          // skip blank lines
-            sCmdBuf[sCmdIdx] = '\0';
-
-            if (strcmp(sCmdBuf, "start") == 0) {
-                if (state_machine::isRunning()) {
-                    Serial.println("Already running.");
-                } else if (state_machine::getState() != state_machine::State::Idle && state_machine::getState() != state_machine::State::Off) {
-                    Serial.println("Cannot start: not in Idle or Off state.");
-                } else {
-                    state_machine::start(nowMs);
-                    Serial.println("Process started.");
-                }
-            } else if (strcmp(sCmdBuf, "stop") == 0) {
-                if (state_machine::getState() == state_machine::State::Idle &&
-                    !state_machine::isRunning()) {
-                    Serial.println("Already stopped.");
-                } else {
-                    state_machine::stop(nowMs);
-                    Serial.println("Process stopped.");
-                }
-            } else if (strcmp(sCmdBuf, "status") == 0) {
-                Serial.printf("State: %s (%u)  Running: %s\n",
-                    state_machine::stateName(state_machine::getState()),
-                    static_cast<uint8_t>(state_machine::getState()),
-                    state_machine::isRunning() ? "yes" : "no");
-            } else if (strcmp(sCmdBuf, "off") == 0) {
-                if (state_machine::getState() == state_machine::State::Off) {
-                    Serial.println("System is already off.");
-                } else {
-                    state_machine::off(nowMs);
-                    Serial.println("System turned off.");
-                }
-            } else {
-                Serial.printf("Unknown command: %s\n", sCmdBuf);
-                Serial.println("Commands: start, stop, status");
-            }
-            sCmdIdx = 0;
-        } else if (sCmdIdx < (kCmdBufLen - 1)) {
-            sCmdBuf[sCmdIdx++] = c;
-        }
-    }
-}
 
 // =============================================================================
 // Setup
@@ -138,11 +77,14 @@ void setup() {
     relay::init();
     indicator::init();
 
-    // Kick off state machine in Initialize state
+    // Kick off state machine in Off state
     state_machine::init(millis());
 
-    Serial.println("Setup complete. System is in Idle (stopped).");
-    Serial.println("Commands: start, stop, status\n");
+    // Initialise serial command handler (ESP32SerialCtl)
+    serial_commands::init();
+
+    Serial.println("Setup complete. System is Off.");
+    Serial.println("Type 'help' for available commands.\n");
 }
 
 // =============================================================================
@@ -155,8 +97,8 @@ void loop() {
 
     const uint32_t nowMs = millis();
 
-    // Process incoming serial commands (start / stop / status)
-    processSerialCommands(nowMs);
+    // Process incoming serial commands (non-blocking)
+    serial_commands::service();
 
     // Indicator LEDs update every loop for accurate flash timing
     indicator::update(nowMs);
