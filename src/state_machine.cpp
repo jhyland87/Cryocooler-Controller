@@ -414,4 +414,8 @@ const char* getStatusText(){
     return statusTextForState(getState());
 }
 
+const uint32_t getTimeInState(){
+    return millis() - sStateEntryMs;
+}
+
 } // namespace state_machine

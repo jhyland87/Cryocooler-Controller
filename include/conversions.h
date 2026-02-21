@@ -9,7 +9,9 @@
 #ifndef CONVERSIONS_H
 #define CONVERSIONS_H
 
+#include <Arduino.h>
 #include <stdint.h>
+
 
 namespace conversions {
 
@@ -78,6 +80,19 @@ inline uint16_t tempKToDacValue(float tempK,
     if (raw < 0)                         return 0;
     if (raw > static_cast<int32_t>(maxDac)) return maxDac;
     return static_cast<uint16_t>(raw);
+}
+
+inline void msToHHMMSS(uint32_t durationMs, char *hmsBuf)
+{
+    const uint32_t totalSec = durationMs / 1000u;
+    const uint32_t hh       = totalSec / 3600u;
+    const uint32_t mm       = (totalSec % 3600u) / 60u;
+    const uint32_t ss       = totalSec % 60u;
+
+    snprintf(hmsBuf, sizeof(hmsBuf), "%02lu:%02lu:%02lu",
+            static_cast<unsigned long>(hh),
+            static_cast<unsigned long>(mm),
+            static_cast<unsigned long>(ss));
 }
 
 } // namespace conversions

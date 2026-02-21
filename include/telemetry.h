@@ -41,22 +41,8 @@ namespace telemetry {
  * Emit one Serial Studio CSV frame to Serial.
  *
  * @param out          State-machine output for this tick
- * @param tempK        Current cold-stage temperature in Kelvin
- * @param tempC        Current cold-stage temperature in Celsius
- * @param coolingRate  Measured cooling rate in K/min
- * @param rmsV         Measured RMS voltage in VDC
- * @param dacActual    Current DAC output count (from dac::getCurrent())
- * @param redLedOn     True if the FAULT (red) LED is currently lit
- * @param greenLedOn   True if the READY (green) LED is currently lit
  */
-void emit(const state_machine::Output& out,
-          float    tempK,
-          float    tempC,
-          float    coolingRate,
-          float    rmsV,
-          uint16_t dacActual,
-          bool     redLedOn,
-          bool     greenLedOn);
+void emit(const state_machine::Output& out);
 
 void disable();
 void enable();

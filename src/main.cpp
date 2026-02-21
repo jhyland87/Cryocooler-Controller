@@ -135,6 +135,5 @@ void loop() {
     dac::rampToward(out.dacTarget);
 
     // ---- 4. Telemetry ---------------------------------------------------
-    telemetry::emit(out, tempK, tempC, coolingRate, rmsV, dac::getCurrent(),
-                    indicator::isFaultOn(), indicator::isReadyOn());
+    telemetry::emit(out);
 }

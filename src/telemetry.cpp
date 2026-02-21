@@ -5,13 +5,13 @@
 
 // emit() depends on Serial and temperature — hardware only.
 // enable()/disable()/isEnabled() are plain flag operations and compile everywhere.
-#ifdef ARDUINO
-#  include <Arduino.h>
-#  include "temperature.h"
-#endif
-
+#include <Arduino.h>
+#include "temperature.h"
 #include "telemetry.h"
 #include "state_machine.h"
+#include "rms.h"
+#include "dac.h"
+#include "conversions.h"
 
 namespace telemetry {
 
@@ -21,19 +21,12 @@ void disable()   { sEnabled = false; }
 void enable()    { sEnabled = true; }
 bool isEnabled() { return sEnabled; }
 
-void emit(const state_machine::Output& out,
-          float    tempK,
-          float    tempC,
-          float    coolingRate,
-          float    rmsV,
-          uint16_t dacActual,
-          bool     redLedOn,
-          bool     greenLedOn)
+void emit(const state_machine::Output& out)
 {
 #ifdef ARDUINO
     if (!sEnabled) return;
 
-    // Convert on-state duration from ms to seconds and HH:MM:SS
+    const uint16_t dacActual   = dac::getCurrent();
     const uint32_t durationMs  = state_machine::getOnStateDuration();
     const uint32_t totalSec    = durationMs / 1000u;
     const uint32_t hh          = totalSec / 3600u;
@@ -52,17 +45,17 @@ void emit(const state_machine::Output& out,
                   static_cast<int8_t>(out.state),
                   state_machine::stateName(out.state),
                   state_machine::getStatusText(),
-                  tempK,
-                  tempC,
-                  coolingRate,
+                  temperature::getLastTempK(),
+                  temperature::getLastTempC(),
+                  temperature::getCoolingRateKPerMin(),
                   static_cast<unsigned>(out.dacTarget),
                   static_cast<unsigned>(dacActual),
-                  rmsV,
+                  rms::getVoltage(),
                   static_cast<uint8_t>(!out.bypassRelay),  // 1 = Normal
                   static_cast<uint8_t>(out.alarmRelay),
-                  redLedOn   ? 1 : 0,
-                  greenLedOn ? 1 : 0,
-                  static_cast<unsigned long>(totalSec),
+                  indicator::isFaultOn(),
+                  indicator::isReadyOn(),
+                  static_cast<unsigned long>(durationMs),
                   hmsBuf,
                   temperature::getTemperatureToPercent());
 #else
