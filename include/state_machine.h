@@ -130,8 +130,11 @@ FaultReason getFaultReason();
 /** Return a short ASCII status text for the current state (safe for Serial / telemetry). */
 const char* getStatusText();
 
-/** Return the duration of the current state in milliseconds. */
-const uint32_t getTimeInState();
+/**
+ * Return how long the machine has been in its current state, in milliseconds.
+ * The counter resets to zero on every state transition.
+ */
+uint32_t getTimeInState();
 
 } // namespace state_machine
 

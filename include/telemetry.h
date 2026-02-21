@@ -7,22 +7,24 @@
  *
  *   /*<csv_fields>*\/\r\n
  *
- * Fields (in column order):
- *   1  state_no       numeric state index -1 to 8
- *   2  state_name     ASCII state label (e.g. "CoarseCooldown")
- *   3  status_text    human-readable status description (semicolons, no commas)
- *   4  temp_k         cold-stage temperature in Kelvin   (2 dp)
- *   5  temp_c         cold-stage temperature in Celsius  (2 dp)
- *   6  cooling_rate   K/min; positive = cooling          (3 dp)
- *   7  dac_target     desired DAC count from state machine (0-4095)
- *   8  dac_actual     current DAC output count            (0-4095)
- *   9  rms_v          RMS voltage VDC (stub = 0.00)       (2 dp)
- *  10  relay_normal   0 = Bypass, 1 = Normal
- *  11  alarm_relay    0 = off,    1 = active
- *  12  red_led        100 = ALERT (lit), 0 = OFF
- *  13  green_led      100 = OK    (lit), 0 = OFF
- *  14  on_duration_s  on-state duration in whole seconds
- *  15  on_duration    on-state duration as HH:MM:SS (string; skipped by parser)
+ * Fields (in column order, pipe-delimited):
+ *   1  state_no         numeric state index -1 to 8
+ *   2  state_name       ASCII state label (e.g. "CoarseCooldown")
+ *   3  status_text      human-readable status description
+ *   4  temp_k           cold-stage temperature in Kelvin   (2 dp)
+ *   5  temp_c           cold-stage temperature in Celsius  (2 dp)
+ *   6  cooling_rate     K/min; positive = cooling          (3 dp)
+ *   7  dac_target       desired DAC count from state machine (0-4095)
+ *   8  dac_actual       current DAC output count            (0-4095)
+ *   9  rms_v            RMS voltage VDC                     (2 dp)
+ *  10  relay_normal     0 = Bypass, 1 = Normal
+ *  11  alarm_relay      0 = off,    1 = active
+ *  12  red_led          1 = FAULT LED lit, 0 = off
+ *  13  green_led        1 = READY LED lit, 0 = off
+ *  14  on_duration_ms   total on-state duration in milliseconds
+ *  15  on_duration      total on-state duration as HH:MM:SS
+ *  16  cooldown_pct     cooldown progress 0–100 %           (2 dp)
+ *  17  time_in_state    time spent in the current state as HH:MM:SS
  *
  * To visualise in Serial Studio:
  *   - Open Serial Studio, connect at SERIAL_BAUD.

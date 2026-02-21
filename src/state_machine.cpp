@@ -414,7 +414,7 @@ const char* getStatusText(){
     return statusTextForState(getState());
 }
 
-const uint32_t getTimeInState(){
+uint32_t getTimeInState() {
     return millis() - sStateEntryMs;
 }
 

@@ -393,6 +393,49 @@ void test_on_duration_increases_while_running(void) {
 }
 
 // ---------------------------------------------------------------------------
+// getTimeInState
+// ---------------------------------------------------------------------------
+
+void test_time_in_state_zero_at_init(void) {
+    // init() enters Off at t=0 with millis()=0, so duration is 0.
+    state_machine::init(0);
+    stub_setMillis(0);
+    TEST_ASSERT_EQUAL_UINT32(0, state_machine::getTimeInState());
+}
+
+void test_time_in_state_grows_while_in_same_state(void) {
+    state_machine::init(0);
+    stub_setMillis(2500);
+    TEST_ASSERT_EQUAL_UINT32(2500, state_machine::getTimeInState());
+}
+
+void test_time_in_state_resets_to_zero_on_transition(void) {
+    // start() transitions Off → CoarseCooldown at t=100; timer resets.
+    state_machine::init(0);
+    stub_setMillis(100);
+    state_machine::start(100);
+    TEST_ASSERT_EQUAL_UINT32(0, state_machine::getTimeInState());
+}
+
+void test_time_in_state_accumulates_after_transition(void) {
+    state_machine::init(0);
+    stub_setMillis(100);
+    state_machine::start(100);   // CoarseCooldown entered at t=100
+    stub_setMillis(750);
+    TEST_ASSERT_EQUAL_UINT32(650, state_machine::getTimeInState());
+}
+
+void test_time_in_state_resets_again_on_stop(void) {
+    state_machine::init(0);
+    state_machine::start(100);   // CoarseCooldown @ 100
+    state_machine::stop(600);    // Idle @ 600; timer resets
+    stub_setMillis(600);
+    TEST_ASSERT_EQUAL_UINT32(0, state_machine::getTimeInState());
+    stub_setMillis(900);
+    TEST_ASSERT_EQUAL_UINT32(300, state_machine::getTimeInState());
+}
+
+// ---------------------------------------------------------------------------
 // stateName helper
 // ---------------------------------------------------------------------------
 
@@ -457,6 +500,13 @@ int main(int argc, char **argv) {
     // On-state duration
     RUN_TEST(test_on_duration_zero_when_off);
     RUN_TEST(test_on_duration_increases_while_running);
+
+    // Time in current state
+    RUN_TEST(test_time_in_state_zero_at_init);
+    RUN_TEST(test_time_in_state_grows_while_in_same_state);
+    RUN_TEST(test_time_in_state_resets_to_zero_on_transition);
+    RUN_TEST(test_time_in_state_accumulates_after_transition);
+    RUN_TEST(test_time_in_state_resets_again_on_stop);
 
     // Helpers
     RUN_TEST(test_stateName_returns_non_null);
