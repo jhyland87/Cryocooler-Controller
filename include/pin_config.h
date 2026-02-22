@@ -66,12 +66,25 @@
 
 // READY indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
-#define READY_IND_PIN      14
+// NOTE: previously 14; reassigned to ACS712_CURRENT_PIN — update wiring accordingly.
+#define READY_IND_PIN      15
+
+// =============================================================================
+// ACS712 AC Current Sensor (back-EMF / overstroke detection)
+// =============================================================================
+// Analog output of the ACS712-05B 5 A module connected to the AC output line
+// (post-amplifier, 0–120 V AC).  If the module is powered from 5 V, install
+// a resistor divider (e.g. 3.3 kΩ / 6.8 kΩ) on the output so the signal
+// stays within the ESP32-S3 ADC input range of 0–3.3 V.
+#define ACS712_CURRENT_PIN 14
 
 // =============================================================================
 // On-board WS2812 RGB Status LED
 // =============================================================================
 #define STATUS_LED_PIN     48   // Common for on-board RGB on ESP32-S3 DevKit
+
+#define ONE_WIRE_BUS  4
+
 
 
 #endif // PIN_CONFIG_H

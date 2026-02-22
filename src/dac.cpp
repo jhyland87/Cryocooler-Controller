@@ -20,10 +20,10 @@
 #include "config.h"
 #include "dac.h"
 
-static uint16_t sCurrentDacVal = 0;
+static uint16_t currentDacVal = 0;
 
 // MCP4921 control bits: Write to DAC A | Buffered | Gain 1x | Active
-static constexpr uint16_t kMcp4921Ctrl = 0x3000;
+static constexpr uint16_t MCP4921_CTRL_BITS = 0x3000;
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -33,11 +33,11 @@ static void writeSpi(uint16_t dacVal) {
     if (dacVal > MCP4921_MAX_VALUE) {
         dacVal = MCP4921_MAX_VALUE;
     }
-    if (sCurrentDacVal == dacVal) return;
+    if (currentDacVal == dacVal) return;
 
-    sCurrentDacVal = dacVal;
+    currentDacVal = dacVal;
 
-    const uint16_t packet = kMcp4921Ctrl | dacVal;
+    const uint16_t packet = MCP4921_CTRL_BITS | dacVal;
     SPI.beginTransaction(SPISettings(MCP4921_SPI_SPEED, MSBFIRST, SPI_MODE0));
     digitalWrite(MCP4921_CS, LOW);
     SPI.transfer16(packet);
@@ -66,7 +66,7 @@ void rampToward(uint16_t target) {
         target = MCP4921_MAX_VALUE;
     }
 
-    uint16_t next = sCurrentDacVal;
+    uint16_t next = currentDacVal;
 
     if (next < target) {
         const uint16_t step = target - next;
@@ -80,7 +80,7 @@ void rampToward(uint16_t target) {
 }
 
 uint16_t getCurrent() {
-    return sCurrentDacVal;
+    return currentDacVal;
 }
 
 } // namespace dac

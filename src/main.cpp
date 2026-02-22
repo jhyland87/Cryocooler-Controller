@@ -39,7 +39,7 @@ static SmoothADC dacVoltageAdc;
 // Timing state
 // =============================================================================
 
-static uint32_t sPreviousLoopMs = 0;
+static uint32_t previousLoopMs = 0;
 
 // =============================================================================
 // Setup
@@ -103,14 +103,15 @@ void loop() {
     indicator::update(nowMs);
 
     // Main control tick at LOOP_INTERVAL_MS cadence
-    if ((nowMs - sPreviousLoopMs) < LOOP_INTERVAL_MS) {
+    if ((nowMs - previousLoopMs) < LOOP_INTERVAL_MS) {
         return;
     }
-    sPreviousLoopMs = nowMs;
+    previousLoopMs = nowMs;
 
     // ---- 1. Read sensors ------------------------------------------------
     temperature::read(nowMs);
     rms::read();
+    rms::readCurrent();
 
     const float tempK       = temperature::getLastTempK();
     const float tempC       = temperature::getLastTempC();
@@ -121,7 +122,9 @@ void loop() {
     temperature::checkFaults();
 
     // ---- 2. Advance state machine ---------------------------------------
-    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs);
+    const bool overstroke = rms::hasOverstroke();
+    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke);
+    if (overstroke) { rms::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
     relay::setBypass(!out.bypassRelay);   // setBypass(true) = Normal

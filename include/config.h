@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 
+
 // =============================================================================
 // Serial
 // =============================================================================
@@ -22,6 +23,11 @@
 // =============================================================================
 // RTD Sensor (MAX31865)
 // =============================================================================
+
+
+#define ANALOG_RESOLUTION 12
+
+#define DS18B20_VREF 3.3
 
 // Reference resistor on the MAX31865 breakout.
 // Use 430.0 for PT100, 4300.0 for PT1000 (adjust to measured value).
@@ -145,6 +151,65 @@
 
 // Main loop read/update interval (milliseconds).
 #define LOOP_INTERVAL_MS  static_cast<uint32_t>(200)
+
+// =============================================================================
+// ACS712 AC Current Sensor — Overstroke (Back-EMF Spike) Detection
+// =============================================================================
+
+// Sensitivity of the ACS712-05B module in mV per amp.
+// Nominal 185 mV/A; adjust to the measured value of your specific module.
+#define ACS712_SENSITIVITY_MV_PER_A   185.0f
+
+// ADC supply voltage on the ESP32-S3 (3.3 V rail).
+// Passed to the RobTillaart ACS712 constructor so it can convert ADC counts
+// to millivolts correctly.
+#define ACS712_ADC_VOLTS              3.3f
+
+// Maximum ADC output value for the configured resolution.
+// For ADC_RESOLUTION = 12 this is (2^12) − 1 = 4095.
+#define ACS712_ADC_MAX_VALUE          static_cast<uint16_t>((1u << ADC_RESOLUTION) - 1u)
+
+// EMA smoothing factor for the current baseline (0 < α ≤ 1).
+// Smaller values track more slowly so brief spikes stand out more.
+#define OVERSTROKE_EMA_ALPHA          0.08f
+
+// Number of readCurrent() calls used to prime the EMA before spike
+// detection is armed.  At LOOP_INTERVAL_MS = 200 ms this is ~4 seconds.
+#define OVERSTROKE_PRIME_READINGS     static_cast<uint8_t>(20)
+
+// A reading is flagged as a spike when the instantaneous current exceeds
+// the running EMA baseline by more than this many amps.
+#define OVERSTROKE_CURRENT_THRESHOLD_A  2.0f
+
+// Minimum time between consecutive overstroke detections (milliseconds).
+// Prevents a single physical event from generating many consecutive flags.
+#define OVERSTROKE_DEBOUNCE_MS        static_cast<uint32_t>(2000)
+
+// ESP32 ADC attenuation for ACS712_CURRENT_PIN.
+// MUST match the supply voltage / voltage-divider configuration (see rms.cpp).
+// This constant is applied via analogSetPinAttenuation() before sSensor.begin()
+// so that calibration and live readings always use the same ADC full-scale range.
+//
+//   ADC_0db  → 0 – 1.1 V  (not usable; ACS712 output always exceeds this)
+//   ADC_6db  → 0 – 2.2 V  (best resolution; clips at ~4.5 A on 3.3 V supply
+//                           or ~4.1 A on 5 V supply + 3.3 kΩ / 6.8 kΩ divider)
+//   ADC_11db → 0 – 3.3 V  (full 5 A range; default safe choice)
+#ifdef ARDUINO
+#  define ACS712_ADC_ATTENUATION  ADC_11db
+#endif
+
+// =============================================================================
+// DAC Backoff (response to overstroke events)
+// =============================================================================
+
+// DAC counts to subtract from the target for each confirmed backoff event.
+// At MCP4921_MAX_VALUE = 4095, each step is ~4.9 % of full scale.
+#define BACKOFF_DAC_STEP              static_cast<uint16_t>(200)
+
+// Total number of backoff events allowed before the state machine enters a
+// dedicated Fault state.  The cumulative DAC reduction at this point is
+// BACKOFF_MAX_COUNT × BACKOFF_DAC_STEP counts.
+#define BACKOFF_MAX_COUNT             static_cast<uint8_t>(10)
 
 // =============================================================================
 // Indicator LED

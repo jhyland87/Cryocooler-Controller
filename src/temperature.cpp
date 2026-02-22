@@ -8,6 +8,8 @@
 
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -18,42 +20,49 @@
 // Module-private types and state
 // ---------------------------------------------------------------------------
 
+
 struct TempSample {
     uint32_t timestampMs;
     float    tempK;
+    float    ambientTempC;
 };
 
 static Adafruit_MAX31865 max31865(MAX31865_CS);
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
-static TempSample  sHistory[TEMP_HISTORY_SIZE];
-static uint8_t     sHead         = 0;   // index of next write position
-static uint8_t     sCount        = 0;   // number of valid samples stored
-static float       sLastTempK    = 0.0f;
-static float       sLastTempC    = 0.0f;
+static TempSample  history[TEMP_HISTORY_SIZE];
+static uint8_t     head         = 0;   // index of next write position
+static uint8_t     count        = 0;   // number of valid samples stored
+static float       lastTempK    = 0.0f;
+static float       lastTempC    = 0.0f;
+static float       lastAmbientTempC = 0.0f;
 
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-static void pushSample(uint32_t nowMs, float tempK) {
-    sHistory[sHead].timestampMs = nowMs;
-    sHistory[sHead].tempK       = tempK;
-    sHead = static_cast<uint8_t>((sHead + 1) % TEMP_HISTORY_SIZE);
-    if (sCount < TEMP_HISTORY_SIZE) {
-        ++sCount;
+static void pushSample(uint32_t nowMs, float tempK, float ambientTempC) {
+    history[head].timestampMs = nowMs;
+    history[head].tempK       = tempK;
+    history[head].ambientTempC = ambientTempC;
+    head = static_cast<uint8_t>((head + 1) % TEMP_HISTORY_SIZE);
+    if (count < TEMP_HISTORY_SIZE) {
+        ++count;
     }
 }
 
 /**
  * Return a reference to the sample at logical index @p i
- * (0 = oldest, sCount-1 = newest).
+ * (0 = oldest, count-1 = newest).
  */
 static const TempSample& sampleAt(uint8_t i) {
-    // oldest slot in the ring is (sHead - sCount + i) mod SIZE
+    // oldest slot in the ring is (head - count + i) mod SIZE
     auto idx = static_cast<uint8_t>(
-        (sHead + TEMP_HISTORY_SIZE - sCount + i) % TEMP_HISTORY_SIZE);
-    return sHistory[idx];
+        (head + TEMP_HISTORY_SIZE - count + i) % TEMP_HISTORY_SIZE);
+    return history[idx];
 }
 
 // ---------------------------------------------------------------------------
@@ -80,21 +89,34 @@ void init() {
     } else {
         Serial.println("MAX31865 initialized successfully!");
     }
+
+    analogReadResolution(12);
+    sensors.begin();
 }
 
 void read(uint32_t nowMs) {
-    const uint16_t rtd        = max31865.readRTD();
-    const float    resistance = conversions::rtdRawToResistance(rtd, RTD_RREF);
-    const float    tempC      = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
-    const float    tempK      = conversions::celsiusToKelvin(tempC);
-    const float    tempF      = conversions::celsiusToFahrenheit(tempC);
+    const uint16_t rtd          = max31865.readRTD();
+    const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
+    const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
+    const float    tempK        = conversions::celsiusToKelvin(tempC);
+    const float    tempF        = conversions::celsiusToFahrenheit(tempC);
+    const float    ambientTempC = readAmbientTemperature();
 
-    sLastTempC = tempC;
-    sLastTempK = tempK;
-    pushSample(nowMs, tempK);
+    lastTempC = tempC;
+    lastTempK = tempK;
+    lastAmbientTempC = ambientTempC;
+    pushSample(nowMs, tempK, ambientTempC);
 
     //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
     //              rtd, resistance, tempC, tempF, tempK);
+}
+
+float readAmbientTemperature() {
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    if (sensors.getDeviceCount() > 0) {
+        return sensors.getTempCByIndex(0);
+    }
+    return 0.0f;
 }
 
 void checkFaults() {
@@ -114,18 +136,22 @@ void checkFaults() {
 }
 
 float getLastTempK() {
-    return sLastTempK;
+    return lastTempK;
 }
 
 float getLastTempC() {
-    return sLastTempC;
+    return lastTempC;
+}
+
+float getLastAmbientTempC() {
+    return lastAmbientTempC;
 }
 
 float getCoolingRateKPerMin() {
-    if (sCount < 2) return 0.0f;
+    if (count < 2) return 0.0f;
 
     const auto& oldest = sampleAt(0);
-    const auto& newest = sampleAt(static_cast<uint8_t>(sCount - 1));
+    const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
 
     const uint32_t dtMs = newest.timestampMs - oldest.timestampMs;
     if (dtMs == 0) return 0.0f;
@@ -138,16 +164,16 @@ float getCoolingRateKPerMin() {
 
 bool isStalled() {
   return false;
-    if (sCount < 2) return false;
+    if (count < 2) return false;
 
-    const auto& newest = sampleAt(static_cast<uint8_t>(sCount - 1));
+    const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
     const uint32_t windowStart = (newest.timestampMs >= STALL_DETECT_WINDOW_MS)
                                  ? newest.timestampMs - STALL_DETECT_WINDOW_MS
                                  : 0;
 
     // Find the oldest sample within the detection window
     float refTempK = newest.tempK;
-    for (uint8_t i = 0; i < sCount; ++i) {
+    for (uint8_t i = 0; i < count; ++i) {
         const auto& s = sampleAt(i);
         if (s.timestampMs >= windowStart) {
             refTempK = s.tempK;

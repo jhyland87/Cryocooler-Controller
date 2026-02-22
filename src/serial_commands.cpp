@@ -25,9 +25,9 @@ namespace serial_commands {
 // Line buffer (non-blocking accumulator)
 // ---------------------------------------------------------------------------
 
-static constexpr uint8_t kMaxLineLen = 80;
-static char    sLineBuf[kMaxLineLen + 1];
-static uint8_t sLineLen = 0;
+static constexpr uint8_t MAX_LINE_LEN = 80;
+static char    lineBuf[MAX_LINE_LEN + 1];
+static uint8_t lineLen = 0;
 
 // ---------------------------------------------------------------------------
 // Command handler type and dispatch table
@@ -41,7 +41,7 @@ struct Command {
     const char* help;
 };
 
-// Forward declaration so handleHelp can reference kCommands below.
+// Forward declaration so handleHelp can reference commands below.
 static void handleHelp(Print& out);
 
 // ---------------------------------------------------------------------------
@@ -131,10 +131,10 @@ static void handleBoard(Print& out) {
 }
 
 // ---------------------------------------------------------------------------
-// Command table  (handleHelp defined below so it can iterate kCommands)
+// Command table  (handleHelp defined below so it can iterate commands)
 // ---------------------------------------------------------------------------
 
-static const Command kCommands[] = {
+static const Command commands[] = {
     {"start",  handleStart,  "Begin the cooldown process (from Off or Idle)"},
     {"stop",   handleStop,   "Abort the process and return to Idle"},
     {"off",    handleOff,    "Power off the system entirely"},
@@ -145,15 +145,15 @@ static const Command kCommands[] = {
     {"telemetry on", handleTelemetryOn, "Enable telemetry"},
 };
 
-static constexpr uint8_t kCommandCount =
-    static_cast<uint8_t>(sizeof(kCommands) / sizeof(kCommands[0]));
+static constexpr uint8_t COMMAND_COUNT =
+    static_cast<uint8_t>(sizeof(commands) / sizeof(commands[0]));
 
 static void handleHelp(Print& out) {
     out.println("[OK] Available commands:");
-    for (uint8_t i = 0; i < kCommandCount; ++i) {
+    for (uint8_t i = 0; i < COMMAND_COUNT; ++i) {
         char line[80];
         snprintf(line, sizeof(line), "  %-16s  %s",
-                 kCommands[i].name, kCommands[i].help);
+                 commands[i].name, commands[i].help);
         out.println(line);
     }
 }
@@ -170,12 +170,12 @@ void processLine(const char* line, Print& out) {
     // Match commands by prefix: the command name must exactly fill the start of
     // the line, followed by end-of-string, a space, or a tab.  This naturally
     // handles multi-word command names like "telemetry off" — longer/more-specific
-    // names must appear before shorter prefixes in kCommands to take precedence.
-    for (uint8_t i = 0; i < kCommandCount; ++i) {
-        const size_t nameLen = strlen(kCommands[i].name);
-        if (strncmp(kCommands[i].name, line, nameLen) == 0 &&
+    // names must appear before shorter prefixes in commands to take precedence.
+    for (uint8_t i = 0; i < COMMAND_COUNT; ++i) {
+        const size_t nameLen = strlen(commands[i].name);
+        if (strncmp(commands[i].name, line, nameLen) == 0 &&
             (line[nameLen] == '\0' || line[nameLen] == ' ' || line[nameLen] == '\t')) {
-            kCommands[i].handler(out);
+            commands[i].handler(out);
             return;
         }
     }
@@ -191,8 +191,8 @@ void processLine(const char* line, Print& out) {
 }
 
 void init() {
-    sLineLen    = 0;
-    sLineBuf[0] = '\0';
+    lineLen    = 0;
+    lineBuf[0] = '\0';
 }
 
 void service() {
@@ -201,15 +201,15 @@ void service() {
         const char c = static_cast<char>(Serial.read());
         if (c == '\r') { continue; }
         if (c == '\n') {
-            sLineBuf[sLineLen] = '\0';
-            if (sLineLen > 0) {
-                processLine(sLineBuf, Serial);
+            lineBuf[lineLen] = '\0';
+            if (lineLen > 0) {
+                processLine(lineBuf, Serial);
             }
-            sLineLen = 0;
-        } else if (sLineLen < kMaxLineLen) {
-            sLineBuf[sLineLen++] = c;
+            lineLen = 0;
+        } else if (lineLen < MAX_LINE_LEN) {
+            lineBuf[lineLen++] = c;
         }
-        // Characters beyond kMaxLineLen are silently dropped until next newline.
+        // Characters beyond MAX_LINE_LEN are silently dropped until next newline.
     }
 #endif
 }

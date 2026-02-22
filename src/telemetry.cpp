@@ -15,16 +15,16 @@
 
 namespace telemetry {
 
-static bool sEnabled = true;
+static bool enabled = true;
 
-void disable()   { sEnabled = false; }
-void enable()    { sEnabled = true; }
-bool isEnabled() { return sEnabled; }
+void disable()   { enabled = false; }
+void enable()    { enabled = true; }
+bool isEnabled() { return enabled; }
 
 void emit(const state_machine::Output& out)
 {
 #ifdef ARDUINO
-    if (!sEnabled) return;
+    if (!enabled) return;
 
     const uint16_t dacActual  = dac::getCurrent();
 
@@ -47,13 +47,14 @@ void emit(const state_machine::Output& out)
              static_cast<unsigned long>(stateSec % 60u));
 
     // Serial Studio Quick-Plot frame: /*...*/\r\n
-    // 17 pipe-delimited fields matching Cryocooler.ssproj parser
-    Serial.printf("/*%d|%s|%s|%.2f|%.2f|%.3f|%u|%u|%.2f|%u|%u|%d|%d|%lu|%s|%.2f|%s*/\r\n",
+    // 19 pipe-delimited fields matching Cryocooler.ssproj parser
+    Serial.printf("/*%d|%s|%s|%.2f|%.2f|%.2f|%.3f|%u|%u|%.2f|%u|%u|%d|%d|%lu|%s|%.2f|%s|%.2f|%u*/\r\n",
                   static_cast<int8_t>(out.state),           //  1 state_no
                   state_machine::stateName(out.state),       //  2 state_name
                   state_machine::getStatusText(),            //  3 status_text
                   temperature::getLastTempK(),               //  4 temp_k
                   temperature::getLastTempC(),               //  5 temp_c
+                  temperature::getLastAmbientTempC(),        //  6 ambient_temp_c
                   temperature::getCoolingRateKPerMin(),      //  6 cooling_rate
                   static_cast<unsigned>(out.dacTarget),      //  7 dac_target
                   static_cast<unsigned>(dacActual),          //  8 dac_actual
@@ -65,7 +66,9 @@ void emit(const state_machine::Output& out)
                   static_cast<unsigned long>(durationMs),   // 14 on_duration_ms
                   hmsBuf,                                    // 15 on_duration HH:MM:SS
                   temperature::getTemperatureToPercent(),   // 16 cooldown_percent
-                  tisHmsBuf);                                // 17 time_in_state HH:MM:SS
+                  tisHmsBuf,                                 // 17 time_in_state HH:MM:SS
+                  rms::getCurrentA(),                        // 18 current_a (amps)
+                  static_cast<unsigned>(out.backoffCount));  // 19 backoff_count
 #else
     (void)out;
 #endif

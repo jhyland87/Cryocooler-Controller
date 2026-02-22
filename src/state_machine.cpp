@@ -19,36 +19,40 @@ namespace state_machine {
 // Module state
 // ---------------------------------------------------------------------------
 
-static State       sState        = State::Off;
-static uint32_t    sStateEntryMs = 0;   // millis() when current state was entered
-static bool        sRunning      = false; // process is off until start() is called
-static FaultReason sFaultReason  = FaultReason::None;
-static uint32_t    sOnStateMs    = 0;   // millis() when it entered an on state
-static uint32_t    sOffStateMs   = 0;   // millis() when it entered an off state
+static State       currentState    = State::Off;
+static uint32_t    currentStateEntryMs = 0;   // millis() when current state was entered
+static bool        running         = false; // process is off until start() is called
+static FaultReason faultReason     = FaultReason::None;
+static uint32_t    onStateMs       = 0;   // millis() when it entered an on state
+static uint32_t    offStateMs      = 0;   // millis() when it entered an off state
 
 // Settle timer -- starts counting when temp enters the tolerance band
-static uint32_t sSettleStartMs     = 0;
-static bool     sSettleTimerActive = false;
+static uint32_t settleStartMs     = 0;
+static bool     settleTimerActive = false;
+
+// Back-EMF backoff tracking
+static uint16_t backoffCount      = 0;   // total backoff events in this run
+static uint16_t backoffDacOffset  = 0;   // cumulative DAC reduction (counts)
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
 static void enterState(State s, uint32_t nowMs) {
-    sState        = s;
-    sStateEntryMs = nowMs;
+    currentState        = s;
+    currentStateEntryMs = nowMs;
     if (s != State::Settle) {
-        sSettleTimerActive = false;
-        sSettleStartMs     = 0;
+        settleTimerActive = false;
+        settleStartMs     = 0;
     }
     if (s != State::Fault) {
-        sFaultReason = FaultReason::None;
+        faultReason = FaultReason::None;
     }
 }
 
 static void enterFault(FaultReason reason, uint32_t nowMs) {
-    sFaultReason = reason;
-    sRunning     = false;
+    faultReason = reason;
+    running     = false;
     enterState(State::Fault, nowMs);
 }
 
@@ -65,9 +69,10 @@ static const char* statusTextForState(State s) {
         case State::Baseline:       return "Cold stage temperature has settled; collecting baseline data";
         case State::Operating:      return "System is operating normally; checking for deviations from baseline";
         case State::Fault:
-            switch (sFaultReason) {
+            switch (faultReason) {
                 case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
                 case FaultReason::TemperatureStall: return "Fault: Temperature stalled during cooldown";
+                case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
                 default:                            return "Fault: Unknown reason";
             }
     }
@@ -116,11 +121,19 @@ static uint16_t cooldownDacTarget(float tempK, float coolingRate) {
 static Output buildOutput(State s, uint16_t dacTarget) {
     using Mode = indicator::Mode;
 
+    // Apply accumulated backoff reduction (floor at 0).
+    if (backoffDacOffset > 0 && dacTarget > 0) {
+        dacTarget = (backoffDacOffset >= dacTarget)
+                        ? static_cast<uint16_t>(0)
+                        : static_cast<uint16_t>(dacTarget - backoffDacOffset);
+    }
+
     Output o{};
-    o.state      = s;
-    o.dacTarget  = dacTarget;
-    o.alarmRelay = false;
-    o.statusText = statusTextForState(s);
+    o.state        = s;
+    o.dacTarget    = dacTarget;
+    o.alarmRelay   = false;
+    o.statusText   = statusTextForState(s);
+    o.backoffCount = backoffCount;
 
     switch (s) {
         case State::Off:
@@ -192,10 +205,12 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 // ---------------------------------------------------------------------------
 
 void init(uint32_t nowMs) {
-    sRunning     = false;
-    sOnStateMs   = 0;
-    sOffStateMs  = 0;
-    sFaultReason = FaultReason::None;
+    running          = false;
+    onStateMs        = 0;
+    offStateMs       = 0;
+    faultReason      = FaultReason::None;
+    backoffCount     = 0;
+    backoffDacOffset = 0;
     enterState(State::Off, nowMs);
 }
 
@@ -203,20 +218,37 @@ Output update(float    tempK,
               float    coolingRate,
               float    rmsVoltage,
               bool     stalled,
-              uint32_t nowMs)
+              uint32_t nowMs,
+              bool     overstroke)
 {
     // ------------------------------------------------------------------
     // Global fault checks (fire from any non-Fault state)
     // ------------------------------------------------------------------
-    if (sState != State::Fault) {
+    if (currentState != State::Fault) {
         if (rmsVoltage > RMS_MAX_VOLTAGE_VDC) {
             enterFault(FaultReason::RmsOvervoltage, nowMs);
             return buildOutput(State::Fault, 0);
         }
-        if ((sState == State::CoarseCooldown ||
-             sState == State::FineCooldown) && stalled) {
+        if ((currentState == State::CoarseCooldown ||
+             currentState == State::FineCooldown) && stalled) {
             enterFault(FaultReason::TemperatureStall, nowMs);
             return buildOutput(State::Fault, 0);
+        }
+
+        // Back-EMF overstroke: increment backoff counter and apply DAC
+        // reduction.  After BACKOFF_MAX_COUNT events the system faults.
+        if (overstroke && running) {
+            ++backoffCount;
+            // Accumulate DAC reduction; cap at full-scale to stay in uint16_t.
+            const uint32_t newOffset = static_cast<uint32_t>(backoffDacOffset)
+                                       + static_cast<uint32_t>(BACKOFF_DAC_STEP);
+            backoffDacOffset = (newOffset > MCP4921_MAX_VALUE)
+                                    ? static_cast<uint16_t>(MCP4921_MAX_VALUE)
+                                    : static_cast<uint16_t>(newOffset);
+            if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
+                enterFault(FaultReason::TooManyBackoffs, nowMs);
+                return buildOutput(State::Fault, 0);
+            }
         }
     }
 
@@ -225,22 +257,22 @@ Output update(float    tempK,
     // Each branch MUST return the new state's buildOutput after calling
     // enterState() so the caller always sees the current state.
     // ------------------------------------------------------------------
-    const uint32_t elapsed = nowMs - sStateEntryMs;
+    const uint32_t elapsed = nowMs - currentStateEntryMs;
 
-    switch (sState) {
+    switch (currentState) {
 
         // ---- Off -------------------------------------------------------
         case State::Off:
-            if (sOffStateMs == 0) {
-            sOffStateMs = nowMs;
+            if (offStateMs == 0) {
+            offStateMs = nowMs;
             }
             return buildOutput(State::Off, 0);
 
         // ---- Initialize ------------------------------------------------
         case State::Initialize:
-            if (sOnStateMs == 0) {
-                sOnStateMs = nowMs;
-                sOffStateMs = 0;
+            if (onStateMs == 0) {
+                onStateMs = nowMs;
+                offStateMs = 0;
             }
             if (elapsed >= INDICATOR_INIT_AMBER_MS) {
                 enterState(State::Idle, nowMs);
@@ -250,8 +282,8 @@ Output update(float    tempK,
 
         // ---- Idle ------------------------------------------------------
         case State::Idle:
-            if (sOffStateMs == 0) {
-                sOffStateMs = nowMs;
+            if (offStateMs == 0) {
+                offStateMs = nowMs;
             }
             // Remain in Idle until start() is called externally.
             return buildOutput(State::Idle, 0);
@@ -306,13 +338,13 @@ Output update(float    tempK,
 
             if (!stable) {
                 // Drifted out of band -- reset timer
-                sSettleTimerActive = false;
-                sSettleStartMs     = 0;
+                settleTimerActive = false;
+                settleStartMs     = 0;
             } else {
-                if (!sSettleTimerActive) {
-                    sSettleTimerActive = true;
-                    sSettleStartMs     = nowMs;
-                } else if ((nowMs - sSettleStartMs) >= SETTLE_DURATION_MS) {
+                if (!settleTimerActive) {
+                    settleTimerActive = true;
+                    settleStartMs     = nowMs;
+                } else if ((nowMs - settleStartMs) >= SETTLE_DURATION_MS) {
                     enterState(State::Baseline, nowMs);
                     return buildOutput(State::Baseline, 0);
                 }
@@ -334,8 +366,8 @@ Output update(float    tempK,
 
         // ---- Fault (terminal) ------------------------------------------
         case State::Fault:
-            if (sOffStateMs == 0) {
-                sOffStateMs = nowMs;
+            if (offStateMs == 0) {
+                offStateMs = nowMs;
             }
             return buildOutput(State::Fault, 0);
     }
@@ -345,31 +377,33 @@ Output update(float    tempK,
 }
 
 State getState() {
-    return sState;
+    return currentState;
 }
 
 bool isRunning() {
-    return sRunning;
+    return running;
 }
 
 uint32_t getOnStateDuration(){
     // If its not currently on, then return falsey
-    if (sOnStateMs == 0) return 0;
+    if (onStateMs == 0) return 0;
 
     // If its currently off (determined by if it has a stop time), then return
     // the difference between the stop time and the start time
-    if (sOffStateMs != 0) return sOffStateMs - sOnStateMs;
+    if (offStateMs != 0) return offStateMs - onStateMs;
 
     // No off state ms means its currently running. So get the time since it started.
-    return millis() - sOnStateMs;
+    return millis() - onStateMs;
 }
 
 void start(uint32_t nowMs, float tempK) {
-    if (sRunning == true) return;
-    sRunning     = true;
-    sOnStateMs   = nowMs;
-    sOffStateMs  = 0;
-    sFaultReason = FaultReason::None;
+    if (running == true) return;
+    running          = true;
+    onStateMs        = nowMs;
+    offStateMs       = 0;
+    faultReason      = FaultReason::None;
+    backoffCount     = 0;
+    backoffDacOffset = 0;
 
     // Select the resumption state based on current cold-stage temperature.
     // This lets the system pick up where it left off after a reboot without
@@ -390,23 +424,23 @@ void start(uint32_t nowMs, float tempK) {
 }
 
 void stop(uint32_t nowMs) {
-    if (sRunning == false) return;
-    sRunning     = false;
-    if (sOffStateMs == 0) sOffStateMs = nowMs;
-    sFaultReason = FaultReason::None;
+    if (running == false) return;
+    running     = false;
+    if (offStateMs == 0) offStateMs = nowMs;
+    faultReason = FaultReason::None;
     enterState(State::Idle, nowMs);
 }
 
 void off(uint32_t nowMs) {
-    if (sState == State::Off) return;
-    sRunning     = false;
-    if (sOffStateMs == 0) sOffStateMs = nowMs;
-    sFaultReason = FaultReason::None;
+    if (currentState == State::Off) return;
+    running     = false;
+    if (offStateMs == 0) offStateMs = nowMs;
+    faultReason = FaultReason::None;
     enterState(State::Off, nowMs);
 }
 
 FaultReason getFaultReason() {
-    return sFaultReason;
+    return faultReason;
 }
 
 const char* stateName(State s) {
@@ -430,7 +464,7 @@ const char* getStatusText(){
 }
 
 uint32_t getTimeInState() {
-    return millis() - sStateEntryMs;
+    return millis() - currentStateEntryMs;
 }
 
 } // namespace state_machine

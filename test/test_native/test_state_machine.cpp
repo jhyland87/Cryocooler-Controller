@@ -502,6 +502,71 @@ void test_start_resume_fine_no_stall_fault(void) {
 }
 
 // ---------------------------------------------------------------------------
+// Back-EMF backoff: overstroke detection → DAC reduction → fault
+// ---------------------------------------------------------------------------
+
+void test_overstroke_increments_backoff_count(void) {
+    // One overstroke while running: backoffCount in Output should be 1.
+    const uint32_t tStart = initAndStart();
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1, true);
+    TEST_ASSERT_EQUAL_UINT16(1, out.backoffCount);
+}
+
+void test_overstroke_reduces_dac_target(void) {
+    // The DAC target after one backoff must be reduced by exactly BACKOFF_DAC_STEP
+    // compared to the same temperature without a backoff.
+    const uint32_t tStart = initAndStart();
+    const auto baseOut    = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1, false);
+    const auto backoffOut = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 2, true);
+
+    // Both calls see the same temperature so the nominal target is identical.
+    // After one BACKOFF_DAC_STEP reduction the effective target must be lower.
+    const uint16_t expected = (baseOut.dacTarget >= BACKOFF_DAC_STEP)
+                                  ? static_cast<uint16_t>(baseOut.dacTarget - BACKOFF_DAC_STEP)
+                                  : 0u;
+    TEST_ASSERT_EQUAL_UINT16(expected, backoffOut.dacTarget);
+}
+
+void test_overstroke_triggers_fault_at_max_count(void) {
+    // After exactly BACKOFF_MAX_COUNT overstroke events the machine must enter
+    // Fault with reason TooManyBackoffs.
+    const uint32_t tStart = initAndStart();
+    state_machine::Output out{};
+    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT; ++i) {
+        out = state_machine::update(200.0f, 0.5f, 0.0f, false,
+                                    tStart + 1u + i, true);
+    }
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_TRUE(out.alarmRelay);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::TooManyBackoffs),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_overstroke_ignored_when_not_running(void) {
+    // An overstroke event while in Off state must be silently ignored.
+    state_machine::init(0);
+    auto out = state_machine::update(295.0f, 0.0f, 0.0f, false, 1, true);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+void test_backoff_count_resets_on_start(void) {
+    // Accumulate backoffs up to (MAX - 1) so we stay just below the fault
+    // threshold.  After stop() + start() the count must reset to zero.
+    const uint32_t tStart = initAndStart();
+    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT - 1u; ++i) {
+        state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1u + i, true);
+    }
+    state_machine::stop(tStart + 500u);
+    state_machine::start(tStart + 600u);
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 601u, false);
+    TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+}
+
+// ---------------------------------------------------------------------------
 // stateName helper
 // ---------------------------------------------------------------------------
 
@@ -581,6 +646,13 @@ int main(int argc, char **argv) {
     RUN_TEST(test_start_inband_enters_settle);
     RUN_TEST(test_start_overshot_enters_overshoot);
     RUN_TEST(test_start_resume_fine_no_stall_fault);
+
+    // Back-EMF backoff
+    RUN_TEST(test_overstroke_increments_backoff_count);
+    RUN_TEST(test_overstroke_reduces_dac_target);
+    RUN_TEST(test_overstroke_triggers_fault_at_max_count);
+    RUN_TEST(test_overstroke_ignored_when_not_running);
+    RUN_TEST(test_backoff_count_resets_on_start);
 
     // Helpers
     RUN_TEST(test_stateName_returns_non_null);

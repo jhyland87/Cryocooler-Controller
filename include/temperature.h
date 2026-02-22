@@ -33,6 +33,14 @@ void init();
  */
 void read(uint32_t nowMs);
 
+float readAmbientTemperature();
+
+/**
+ * Return the most recently measured ambient temperature in Celsius.
+ * Returns 0.0f before the first successful read.
+ */
+float getLastAmbientTempC();
+
 /**
  * Check for MAX31865 fault conditions and report via Serial.
  * Clears the fault register after reading.

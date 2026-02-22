@@ -25,6 +25,8 @@
  *  15  on_duration      total on-state duration as HH:MM:SS
  *  16  cooldown_pct     cooldown progress 0–100 %           (2 dp)
  *  17  time_in_state    time spent in the current state as HH:MM:SS
+ *  18  current_a        ACS712 AC RMS current in amps             (2 dp)
+ *  19  backoff_count    cumulative back-EMF backoff events this run
  *
  * To visualise in Serial Studio:
  *   - Open Serial Studio, connect at SERIAL_BAUD.

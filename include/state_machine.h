@@ -54,6 +54,7 @@ enum class FaultReason : uint8_t {
     None              = 0,
     RmsOvervoltage    = 1,
     TemperatureStall  = 2,
+    TooManyBackoffs   = 3,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
 };
 
 /** Aggregate output produced by update() each loop. */
@@ -65,6 +66,7 @@ struct Output {
     indicator::Mode  faultIndMode;    ///< desired mode for FAULT indicator
     indicator::Mode  readyIndMode;    ///< desired mode for READY indicator
     const char*      statusText;      ///< human-readable status description
+    uint16_t         backoffCount;    ///< cumulative back-EMF backoff events since start()
 };
 
 /**
@@ -87,13 +89,18 @@ uint32_t getOnStateDuration();
  * @param stalled      True when stall-detection window has expired without a
  *                     sufficient temperature drop
  * @param nowMs        Current millis()
+ * @param overstroke   True when the ACS712 detected a back-EMF current spike
+ *                     this tick.  Triggers a DAC backoff and increments the
+ *                     backoff counter in the returned Output.  Defaults to
+ *                     false for backward compatibility.
  * @return             Output struct with all actuator targets for this tick
  */
 Output update(float    tempK,
               float    coolingRate,
               float    rmsVoltage,
               bool     stalled,
-              uint32_t nowMs);
+              uint32_t nowMs,
+              bool     overstroke = false);
 
 /** Return the current state without advancing the machine. */
 State getState();

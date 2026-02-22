@@ -50,7 +50,7 @@
     "decoder": 0,
     "frameDetection": 1,
     "frameEnd": "*/",
-    "frameParser": "/**\n * Cryocooler Controller Telemetry Parser\n *\n * Parses CSV telemetry frames from the ESP32-S3 cryocooler controller.\n *\n * INPUT FORMAT (15 CSV fields):\n *   state_no,state_name,status_text,temp_k,temp_c,cooling_rate,\n *   dac_target,dac_actual,rms_v,relay_normal,alarm_relay,\n *   red_led,green_led,on_duration_s,on_duration_hms\n *\n * Example:\n *   2,CoarseCooldown,Cooling; cold stage is above 85K,250.00,-23.15,0.800,1200,1195,0.00,0,0,100,0,3661,01:01:01\n *\n * OUTPUT ARRAY (14 elements):\n *   [stateNo, stateName, stateNameNum, tempK, tempC, coolingRate,\n *    dacTarget, dacActual, rmsV, relayNormal, alarmRelay,\n *    redLed, greenLed, onDurationSec]\n *\n * Note: Frame delimiters are stripped by Serial Studio.\n *       state_name is converted to numeric (0-8) via lookup.\n *       status_text (field 2) is a string and is skipped.\n *       on_duration_hms (field 14) is a string and is skipped.\n *       red_led/green_led: 100 = on, 0 = off.\n */\n\nconst stateNameToNumber = {\n    \"Off\":            -1,\n    \"Initialize\":     0,\n    \"Idle\":           1,\n    \"CoarseCooldown\": 2,\n    \"FineCooldown\":   3,\n    \"Overshoot\":      4,\n    \"Settle\":         5,\n    \"Baseline\":       6,\n    \"Operating\":      7,\n    \"Fault\":          8\n};\n\nfunction parse(frame) {\n    const fields = frame.split(\"|\");\n    if (fields.length < 15) return [];\n\n    const stateNo           = parseInt(fields[0]);\n    const stateName         = fields[1].trim();\n    const stateNameNum      = stateNameToNumber.hasOwnProperty(stateName)\n                                ? stateNameToNumber[stateName]\n                                : stateNo;\n    const stateText             = fields[2];\n    // fields[2] = status_text (string, skipped)\n    const tempK             = parseFloat(fields[3]);\n    const tempC             = parseFloat(fields[4]);\n    const coolingRate       = parseFloat(fields[5]);\n    const dacTarget         = parseFloat(fields[6]);\n    const dacActual         = parseFloat(fields[7]);\n    const rmsV              = parseFloat(fields[8]);\n    const relayNormal       = parseInt(fields[9]);\n    const alarmRelay        = parseInt(fields[10]);\n    const redLed            = parseInt(fields[11]);\n    const greenLed          = parseInt(fields[12]);\n    const onDurationSec     = parseInt(fields[13]);\n    const onDuration        = fields[14];\n    const cooldownPercent   = fields[15];\n    const timeInState       = fields[16];\n    // fields[14] = on_duration_hms (string, skipped)\n\n    return [\n        stateNo,\n        stateName,\n        stateNameNum,\n        tempK,\n        tempC,\n        coolingRate,\n        dacTarget,\n        dacActual,\n        rmsV,\n        relayNormal,\n        alarmRelay,\n        redLed,\n        greenLed,\n        onDurationSec,\n        onDuration,\n        stateText,\n        cooldownPercent,\n        timeInState\n    ];\n}\n",
+    "frameParser": "/**\n * Cryocooler Controller Telemetry Parser\n *\n * Parses CSV telemetry frames from the ESP32-S3 cryocooler controller.\n *\n * INPUT FORMAT (15 CSV fields):\n *   state_no,state_name,status_text,temp_k,temp_c,cooling_rate,\n *   dac_target,dac_actual,rms_v,relay_normal,alarm_relay,\n *   red_led,green_led,on_duration_s,on_duration_hms\n *\n * Example:\n *   2,CoarseCooldown,Cooling; cold stage is above 85K,250.00,-23.15,0.800,1200,1195,0.00,0,0,100,0,3661,01:01:01\n *\n * OUTPUT ARRAY (14 elements):\n *   [stateNo, stateName, stateNameNum, tempK, tempC, coolingRate,\n *    dacTarget, dacActual, rmsV, relayNormal, alarmRelay,\n *    redLed, greenLed, onDurationSec]\n *\n * Note: Frame delimiters are stripped by Serial Studio.\n *       state_name is converted to numeric (0-8) via lookup.\n *       status_text (field 2) is a string and is skipped.\n *       on_duration_hms (field 14) is a string and is skipped.\n *       red_led/green_led: 100 = on, 0 = off.\n */\n\nconst stateNameToNumber = {\n    \"Off\":            -1,\n    \"Initialize\":     0,\n    \"Idle\":           1,\n    \"CoarseCooldown\": 2,\n    \"FineCooldown\":   3,\n    \"Overshoot\":      4,\n    \"Settle\":         5,\n    \"Baseline\":       6,\n    \"Operating\":      7,\n    \"Fault\":          8\n};\n\nfunction parse(frame) {\n    const fields = frame.split(\"|\");\n    if (fields.length < 15) return [];\n\n    const stateNo           = parseInt(fields[0]);\n    const stateName         = fields[1].trim();\n    const stateNameNum      = stateNameToNumber.hasOwnProperty(stateName)\n                                ? stateNameToNumber[stateName]\n                                : stateNo;\n    const stateText             = fields[2];\n    // fields[2] = status_text (string, skipped)\n    const tempK             = parseFloat(fields[3]);\n    const tempC             = parseFloat(fields[4]);\n    const ambientTempC      = parseFloat(fields[5]);\n    const coolingRate       = parseFloat(fields[6]);\n    const dacTarget         = parseFloat(fields[7]);\n    const dacActual         = parseFloat(fields[8]);\n    const rmsV              = parseFloat(fields[9]);\n    const relayNormal       = parseInt(fields[10]);\n    const alarmRelay        = parseInt(fields[11]);\n    const redLed            = parseInt(fields[12]);\n    const greenLed          = parseInt(fields[13]);\n    const onDurationSec     = parseInt(fields[14]);\n    const onDuration        = fields[15];\n    const cooldownPercent   = fields[16];\n    const timeInState       = fields[17];\n    // fields[14] = on_duration_hms (string, skipped)\n\n    return [\n        stateNo,\n        stateName,\n        stateNameNum,\n        tempK,\n        tempC,\n        coolingRate,\n        dacTarget,\n        dacActual,\n        rmsV,\n        relayNormal,\n        alarmRelay,\n        redLed,\n        greenLed,\n        onDurationSec,\n        onDuration,\n        stateText,\n        cooldownPercent,\n        timeInState,\n        ambientTempC\n    ];\n}\n",
     "frameStart": "/*",
     "groups": [
         {
@@ -128,6 +128,31 @@
                     "widget": "gauge",
                     "widgetMax": 2,
                     "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "alarmEnabled": false,
+                    "alarmHigh": 80,
+                    "alarmLow": 20,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": true,
+                    "index": 19,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "overviewDisplay": true,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Ambient Temp",
+                    "units": "°C",
+                    "value": "--.--",
+                    "widget": "gauge",
+                    "widgetMax": 35,
+                    "widgetMin": 15,
                     "xAxis": -1
                 }
             ],

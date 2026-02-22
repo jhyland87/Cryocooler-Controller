@@ -20,26 +20,26 @@
 // Module constants
 // ---------------------------------------------------------------------------
 
-static constexpr uint8_t kLedCount = 1;
+static constexpr uint8_t LED_COUNT = 1;
 
 // ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
 
-static CRGB sLeds[kLedCount];
+static CRGB leds[LED_COUNT];
 
-static indicator::Mode sFaultMode = indicator::Mode::Off;
-static indicator::Mode sReadyMode = indicator::Mode::Off;
+static indicator::Mode faultMode = indicator::Mode::Off;
+static indicator::Mode readyMode = indicator::Mode::Off;
 
 // Per-indicator flash state
-static bool     sFaultLedOn   = false;
-static bool     sReadyLedOn   = false;
-static uint32_t sFaultLastMs  = 0;
-static uint32_t sReadyLastMs  = 0;
+static bool     faultLedOn   = false;
+static bool     readyLedOn   = false;
+static uint32_t faultLastMs  = 0;
+static uint32_t readyLastMs  = 0;
 
 // Cached result of last update() — used by isFaultOn() / isReadyOn()
-static bool     sFaultOnCached = false;
-static bool     sReadyOnCached = false;
+static bool     faultOnCached = false;
+static bool     readyOnCached = false;
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -118,9 +118,9 @@ static CRGB modeToColour(indicator::Mode mode) {
 namespace indicator {
 
 void init() {
-    FastLED.addLeds<WS2812, STATUS_LED_PIN, GRB>(sLeds, kLedCount);
+    FastLED.addLeds<WS2812, STATUS_LED_PIN, GRB>(leds, LED_COUNT);
     FastLED.setBrightness(WAVE_STATUS_LED_BRIGHTNESS);
-    sLeds[0] = CRGB::Black;
+    leds[0] = CRGB::Black;
     FastLED.show();
 
     // Discrete indicator pins
@@ -131,28 +131,28 @@ void init() {
 }
 
 void setFaultMode(Mode mode) {
-    if (mode != sFaultMode) {
-        sFaultMode  = mode;
-        sFaultLedOn = false;
-        sFaultLastMs = 0;
+    if (mode != faultMode) {
+        faultMode  = mode;
+        faultLedOn = false;
+        faultLastMs = 0;
     }
 }
 
 void setReadyMode(Mode mode) {
-    if (mode != sReadyMode) {
-        sReadyMode  = mode;
-        sReadyLedOn = false;
-        sReadyLastMs = 0;
+    if (mode != readyMode) {
+        readyMode  = mode;
+        readyLedOn = false;
+        readyLastMs = 0;
     }
 }
 
 void update(uint32_t nowMs) {
-    const bool faultOn = evalMode(sFaultMode, sFaultLedOn, sFaultLastMs, nowMs);
-    const bool readyOn = evalMode(sReadyMode, sReadyLedOn, sReadyLastMs, nowMs);
+    const bool faultOn = evalMode(faultMode, faultLedOn, faultLastMs, nowMs);
+    const bool readyOn = evalMode(readyMode, readyLedOn, readyLastMs, nowMs);
 
     // Cache for isFaultOn() / isReadyOn()
-    sFaultOnCached = faultOn;
-    sReadyOnCached = readyOn;
+    faultOnCached = faultOn;
+    readyOnCached = readyOn;
 
     // Discrete LEDs (active HIGH)
     digitalWrite(FAULT_IND_PIN, faultOn ? HIGH : LOW);
@@ -164,22 +164,22 @@ void update(uint32_t nowMs) {
         // Both active simultaneously: show amber
         colour = CRGB(255, 80, 0);
     } else if (faultOn) {
-        colour = modeToColour(sFaultMode);
+        colour = modeToColour(faultMode);
     } else if (readyOn) {
-        colour = modeToColour(sReadyMode);
+        colour = modeToColour(readyMode);
     }
 
-    sLeds[0] = colour;
+    leds[0] = colour;
     FastLED.setBrightness(WAVE_STATUS_LED_BRIGHTNESS);
     FastLED.show();
 }
 
 bool isFaultOn() {
-    return sFaultOnCached;
+    return faultOnCached;
 }
 
 bool isReadyOn() {
-    return sReadyOnCached;
+    return readyOnCached;
 }
 
 } // namespace indicator
