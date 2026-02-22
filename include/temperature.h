@@ -41,6 +41,8 @@ float readAmbientTemperature();
  */
 float getLastAmbientTempC();
 
+float getLastTempCBelowAmbient();
+
 /**
  * Check for MAX31865 fault conditions and report via Serial.
  * Clears the fault register after reading.

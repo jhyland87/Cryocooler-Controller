@@ -18,6 +18,10 @@
 #include "serial_commands.h"
 #include "state_machine.h"
 #include "telemetry.h"
+#include "temperature.h"
+#include "rms.h"
+#include "dac.h"
+#include "indicator.h"
 
 namespace serial_commands {
 
@@ -130,19 +134,90 @@ static void handleBoard(Print& out) {
 #endif
 }
 
+static void handleDashboard(Print& out) {
+    // On-state duration as HH:MM:SS (state_machine available on all platforms)
+    const uint32_t durationMs = state_machine::getOnStateDuration();
+    const uint32_t durSec     = durationMs / 1000u;
+    char hmsBuf[12];
+    snprintf(hmsBuf, sizeof(hmsBuf), "%02lu:%02lu:%02lu",
+             static_cast<unsigned long>(durSec / 3600u),
+             static_cast<unsigned long>((durSec % 3600u) / 60u),
+             static_cast<unsigned long>(durSec % 60u));
+
+    char buf[96];
+
+    out.println("[OK] --- Cryocooler Dashboard ---");
+
+    snprintf(buf, sizeof(buf), "  State           : %s (%d) | running: %s",
+             state_machine::stateName(state_machine::getState()),
+             static_cast<int8_t>(state_machine::getState()),
+             state_machine::isRunning() ? "yes" : "no");
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  On duration     : %s", hmsBuf);
+    out.println(buf);
+
+#ifdef ARDUINO
+    // Hardware sensor readings — not available in the native test build.
+    out.println("  --- Temperature ---");
+    snprintf(buf, sizeof(buf), "  Cold stage      : %.2f C  /  %.2f K",
+             temperature::getLastTempC(), temperature::getLastTempK());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Ambient         : %.2f C",
+             temperature::getLastAmbientTempC());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Below ambient   : %.2f C",
+             temperature::getLastTempCBelowAmbient());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f K/min",
+             temperature::getCoolingRateKPerMin());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Cooldown        : %.1f %%",
+             temperature::getTemperatureToPercent());
+    out.println(buf);
+
+    out.println("  --- Electrical ---");
+    snprintf(buf, sizeof(buf), "  Current         : %.3f A",
+             rms::getCurrentA());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Voltage (RMS)   : %.2f V",
+             rms::getVoltage());
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  DAC output      : %u",
+             static_cast<unsigned>(dac::getCurrent()));
+    out.println(buf);
+
+    out.println("  --- Indicators ---");
+    snprintf(buf, sizeof(buf), "  Fault LED       : %s",
+             indicator::isFaultOn() ? "ON" : "off");
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Ready LED       : %s",
+             indicator::isReadyOn() ? "ON" : "off");
+    out.println(buf);
+#endif // ARDUINO
+}
+
 // ---------------------------------------------------------------------------
 // Command table  (handleHelp defined below so it can iterate commands)
 // ---------------------------------------------------------------------------
 
 static const Command commands[] = {
-    {"start",  handleStart,  "Begin the cooldown process (from Off or Idle)"},
-    {"stop",   handleStop,   "Abort the process and return to Idle"},
-    {"off",    handleOff,    "Power off the system entirely"},
-    {"status", handleStatus, "Print current state and running flag"},
-    {"board",  handleBoard,  "Print compile-time board/platform info"},
-    {"help",   handleHelp,   "Show available commands"},
+    {"start",         handleStart,        "Begin the cooldown process (from Off or Idle)"},
+    {"stop",          handleStop,         "Abort the process and return to Idle"},
+    {"off",           handleOff,          "Power off the system entirely"},
+    {"status",        handleStatus,       "Print current state and running flag"},
+    {"dashboard",     handleDashboard,    "Print a full snapshot of all system values"},
+    {"board",         handleBoard,        "Print compile-time board/platform info"},
+    {"help",          handleHelp,         "Show available commands"},
     {"telemetry off", handleTelemetryOff, "Disable telemetry"},
-    {"telemetry on", handleTelemetryOn, "Enable telemetry"},
+    {"telemetry on",  handleTelemetryOn,  "Enable telemetry"},
 };
 
 static constexpr uint8_t COMMAND_COUNT =

@@ -147,6 +147,10 @@ float getLastAmbientTempC() {
     return lastAmbientTempC;
 }
 
+float getLastTempCBelowAmbient() {
+    return lastAmbientTempC - lastTempC;
+}
+
 float getCoolingRateKPerMin() {
     if (count < 2) return 0.0f;
 

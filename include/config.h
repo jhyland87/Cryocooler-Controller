@@ -183,7 +183,7 @@
 
 // Minimum time between consecutive overstroke detections (milliseconds).
 // Prevents a single physical event from generating many consecutive flags.
-#define OVERSTROKE_DEBOUNCE_MS        static_cast<uint32_t>(2000)
+#define OVERSTROKE_DEBOUNCE_MS        static_cast<uint32_t>(200)
 
 // ESP32 ADC attenuation for ACS712_CURRENT_PIN.
 // MUST match the supply voltage / voltage-divider configuration (see rms.cpp).
