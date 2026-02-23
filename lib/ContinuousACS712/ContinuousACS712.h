@@ -1,6 +1,6 @@
 #pragma once
 //
-//  ACS712_nonblocking.h
+//  ContinuousACS712.h
 //
 //  Non-blocking ACS712 sampling helper.
 //  Designed to be driven from Arduino's loop() without busy-waiting.
@@ -9,14 +9,14 @@
 #include <Arduino.h>
 
 
-class ACS712_nonblocking
+class ContinuousACS712
 {
 public:
   //  TYPE   mV per Ampere
   //  5A        185.0
   //  20A       100.0
   //  30A        66.0
-  ACS712_nonblocking(uint8_t analogPin, float volts = 5.0f, uint16_t maxADC = 1023, float mVperAmpere = 100.0f);
+  ContinuousACS712(uint8_t analogPin, float volts = 5.0f, uint16_t maxADC = 1023, float mVperAmpere = 100.0f);
 
   // If you use an external ADC, provide a read function here.
   void setADC(uint16_t (*readFn)(uint8_t), float volts, uint16_t maxADC);

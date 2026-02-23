@@ -1,11 +1,11 @@
 //
-//  ACS712_nonblocking.cpp
+//  ContinuousACS712.cpp
 //
 
-#include "ACS712_nonblocking.h"
+#include "ContinuousACS712.h"
 
 
-ACS712_nonblocking::ACS712_nonblocking(uint8_t analogPin, float volts, uint16_t maxADC, float mVperAmpere)
+ContinuousACS712::ContinuousACS712(uint8_t analogPin, float volts, uint16_t maxADC, float mVperAmpere)
   : pin_(analogPin),
     maxADC_(maxADC),
     mVperAmpere_(mVperAmpere)
@@ -19,7 +19,7 @@ ACS712_nonblocking::ACS712_nonblocking(uint8_t analogPin, float volts, uint16_t 
 }
 
 
-void ACS712_nonblocking::setADC(uint16_t (*readFn)(uint8_t), float volts, uint16_t maxADC)
+void ContinuousACS712::setADC(uint16_t (*readFn)(uint8_t), float volts, uint16_t maxADC)
 {
   readADC_ = readFn;
 
@@ -30,33 +30,33 @@ void ACS712_nonblocking::setADC(uint16_t (*readFn)(uint8_t), float volts, uint16
 }
 
 
-void ACS712_nonblocking::suppressNoise(bool flag)
+void ContinuousACS712::suppressNoise(bool flag)
 {
   suppressNoise_ = flag;
 }
 
 
-uint16_t ACS712_nonblocking::setMidPoint(uint16_t midPoint)
+uint16_t ContinuousACS712::setMidPoint(uint16_t midPoint)
 {
   if (midPoint <= maxADC_) midPoint_ = (int)midPoint;
   return (uint16_t)midPoint_;
 }
 
 
-uint16_t ACS712_nonblocking::getMidPoint() const
+uint16_t ContinuousACS712::getMidPoint() const
 {
   return (uint16_t)midPoint_;
 }
 
 
-uint16_t ACS712_nonblocking::resetMidPoint()
+uint16_t ContinuousACS712::resetMidPoint()
 {
   midPoint_ = (int)(maxADC_ / 2);
   return (uint16_t)midPoint_;
 }
 
 
-void ACS712_nonblocking::setmVperAmp(float mVperAmpere)
+void ContinuousACS712::setmVperAmp(float mVperAmpere)
 {
   if (mVperAmpere <= 0) return;
   mVperAmpere_ = mVperAmpere;
@@ -64,73 +64,73 @@ void ACS712_nonblocking::setmVperAmp(float mVperAmpere)
 }
 
 
-float ACS712_nonblocking::getmVperAmp() const
+float ContinuousACS712::getmVperAmp() const
 {
   return mVperAmpere_;
 }
 
 
-float ACS712_nonblocking::getmAPerStep() const
+float ContinuousACS712::getmAPerStep() const
 {
   return mAPerStep_;
 }
 
 
-void ACS712_nonblocking::setOffsetmA(float offsetmA)
+void ContinuousACS712::setOffsetmA(float offsetmA)
 {
   offsetmA_ = offsetmA;
 }
 
 
-float ACS712_nonblocking::getOffsetmA() const
+float ContinuousACS712::getOffsetmA() const
 {
   return offsetmA_;
 }
 
 
-void ACS712_nonblocking::setClampZero(bool clampToZero)
+void ContinuousACS712::setClampZero(bool clampToZero)
 {
   clampZero_ = clampToZero;
 }
 
 
-bool ACS712_nonblocking::getClampZero() const
+bool ContinuousACS712::getClampZero() const
 {
   return clampZero_;
 }
 
 
-void ACS712_nonblocking::setUseMeanCenter(bool useMeanCenter)
+void ContinuousACS712::setUseMeanCenter(bool useMeanCenter)
 {
   useMeanCenter_ = useMeanCenter;
 }
 
 
-bool ACS712_nonblocking::getUseMeanCenter() const
+bool ContinuousACS712::getUseMeanCenter() const
 {
   return useMeanCenter_;
 }
 
 
-void ACS712_nonblocking::setNoiseFloormA(float noiseFloormA)
+void ContinuousACS712::setNoiseFloormA(float noiseFloormA)
 {
   noiseFloormA_ = noiseFloormA;
 }
 
 
-float ACS712_nonblocking::getNoiseFloormA() const
+float ContinuousACS712::getNoiseFloormA() const
 {
   return noiseFloormA_;
 }
 
 
-uint16_t ACS712_nonblocking::readRaw()
+uint16_t ContinuousACS712::readRaw()
 {
   return analogRead16_(pin_);
 }
 
 
-void ACS712_nonblocking::beginContinuousRMS(float timeConstantMs, uint32_t minSampleIntervalUs)
+void ContinuousACS712::beginContinuousRMS(float timeConstantMs, uint32_t minSampleIntervalUs)
 {
   if (timeConstantMs <= 0) timeConstantMs = 1.0f;
   if (minSampleIntervalUs == 0) minSampleIntervalUs = 1;
@@ -149,19 +149,19 @@ void ACS712_nonblocking::beginContinuousRMS(float timeConstantMs, uint32_t minSa
 }
 
 
-void ACS712_nonblocking::stopContinuousRMS()
+void ContinuousACS712::stopContinuousRMS()
 {
   cont_.enabled = false;
 }
 
 
-bool ACS712_nonblocking::continuousEnabled() const
+bool ContinuousACS712::continuousEnabled() const
 {
   return cont_.enabled;
 }
 
 
-bool ACS712_nonblocking::updateContinuousRMS()
+bool ContinuousACS712::updateContinuousRMS()
 {
   if (!cont_.enabled) return false;
 
@@ -215,31 +215,31 @@ bool ACS712_nonblocking::updateContinuousRMS()
 }
 
 
-float ACS712_nonblocking::continuousmA() const
+float ContinuousACS712::continuousmA() const
 {
   return cont_.resultmA;
 }
 
 
-float ACS712_nonblocking::continuousmAUncorrected() const
+float ContinuousACS712::continuousmAUncorrected() const
 {
   return cont_.resultmAUncorrected;
 }
 
 
-uint16_t ACS712_nonblocking::continuousMinRaw() const
+uint16_t ContinuousACS712::continuousMinRaw() const
 {
   return cont_.minRaw;
 }
 
 
-uint16_t ACS712_nonblocking::continuousMaxRaw() const
+uint16_t ContinuousACS712::continuousMaxRaw() const
 {
   return cont_.maxRaw;
 }
 
 
-void ACS712_nonblocking::beginMidPointCalibration(uint16_t samples)
+void ContinuousACS712::beginMidPointCalibration(uint16_t samples)
 {
   if (samples == 0) samples = 1;
 
@@ -256,7 +256,7 @@ void ACS712_nonblocking::beginMidPointCalibration(uint16_t samples)
 }
 
 
-bool ACS712_nonblocking::updateMidPointCalibration()
+bool ContinuousACS712::updateMidPointCalibration()
 {
   if (!midCal_.active) return midCal_.available;
 
@@ -287,25 +287,25 @@ bool ACS712_nonblocking::updateMidPointCalibration()
 }
 
 
-bool ACS712_nonblocking::midPointCalibrationBusy() const
+bool ContinuousACS712::midPointCalibrationBusy() const
 {
   return midCal_.active;
 }
 
 
-bool ACS712_nonblocking::midPointCalibrationAvailable() const
+bool ContinuousACS712::midPointCalibrationAvailable() const
 {
   return midCal_.available;
 }
 
 
-uint16_t ACS712_nonblocking::midPointCalibrationResult() const
+uint16_t ContinuousACS712::midPointCalibrationResult() const
 {
   return midCal_.result;
 }
 
 
-void ACS712_nonblocking::beginACSampling(float frequencyHz, uint16_t cycles)
+void ContinuousACS712::beginACSampling(float frequencyHz, uint16_t cycles)
 {
   if (frequencyHz <= 0) frequencyHz = 60.0f;
   uint32_t periodUs = (uint32_t)round(1000000.0f / frequencyHz);
@@ -326,7 +326,7 @@ void ACS712_nonblocking::beginACSampling(float frequencyHz, uint16_t cycles)
 }
 
 
-bool ACS712_nonblocking::updateACSampling()
+bool ContinuousACS712::updateACSampling()
 {
   if (!acSampling_.active) return acSampling_.available;
 
@@ -401,38 +401,38 @@ bool ACS712_nonblocking::updateACSampling()
 }
 
 
-bool ACS712_nonblocking::busy() const
+bool ContinuousACS712::busy() const
 {
   return acSampling_.active;
 }
 
 
-bool ACS712_nonblocking::available() const
+bool ContinuousACS712::available() const
 {
   return acSampling_.available;
 }
 
 
-float ACS712_nonblocking::resultmA() const
+float ContinuousACS712::resultmA() const
 {
   return acSampling_.resultmA;
 }
 
 
-float ACS712_nonblocking::resultmAUncorrected() const
+float ContinuousACS712::resultmAUncorrected() const
 {
   return acSampling_.resultmAUncorrected;
 }
 
 
-void ACS712_nonblocking::cancel()
+void ContinuousACS712::cancel()
 {
   acSampling_.active    = false;
   acSampling_.available = false;
 }
 
 
-uint16_t ACS712_nonblocking::analogRead16_(uint8_t pin)
+uint16_t ContinuousACS712::analogRead16_(uint8_t pin)
 {
   if (readADC_ != nullptr) return readADC_(pin);
   return (uint16_t)analogRead(pin);

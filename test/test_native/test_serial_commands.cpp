@@ -226,38 +226,38 @@ void test_sc_board_returns_ok() {
 }
 
 // ---------------------------------------------------------------------------
-// dashboard
+// summary
 // ---------------------------------------------------------------------------
 
-void test_sc_dashboard_returns_ok() {
+void test_sc_summary_returns_ok() {
     resetAll();
     Print p;
-    serial_commands::processLine("dashboard", p);
+    serial_commands::processLine("summary", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
 }
 
-void test_sc_dashboard_contains_state_name() {
+void test_sc_summary_contains_state_name() {
     resetAll();
     Print p;
-    serial_commands::processLine("dashboard", p);
+    serial_commands::processLine("summary", p);
     // In Off state the machine reports "Off"
     TEST_ASSERT_TRUE(p.contains("Off"));
 }
 
-void test_sc_dashboard_shows_running_status() {
+void test_sc_summary_shows_running_status() {
     resetAll();
     state_machine::start(100);
     Print p;
-    serial_commands::processLine("dashboard", p);
+    serial_commands::processLine("summary", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_TRUE(p.contains("yes"));  // running: yes
 }
 
-void test_sc_help_lists_dashboard() {
+void test_sc_help_lists_summary() {
     resetAll();
     Print p;
     serial_commands::processLine("help", p);
-    TEST_ASSERT_TRUE(p.contains("dashboard"));
+    TEST_ASSERT_TRUE(p.contains("summary"));
 }
 
 // ---------------------------------------------------------------------------
@@ -327,15 +327,15 @@ void run_serial_command_tests() {
 
     // help
     RUN_TEST(test_sc_help_lists_all_commands);
-    RUN_TEST(test_sc_help_lists_dashboard);
+    RUN_TEST(test_sc_help_lists_summary);
 
     // board
     RUN_TEST(test_sc_board_returns_ok);
 
-    // dashboard
-    RUN_TEST(test_sc_dashboard_returns_ok);
-    RUN_TEST(test_sc_dashboard_contains_state_name);
-    RUN_TEST(test_sc_dashboard_shows_running_status);
+    // summary
+    RUN_TEST(test_sc_summary_returns_ok);
+    RUN_TEST(test_sc_summary_contains_state_name);
+    RUN_TEST(test_sc_summary_shows_running_status);
 
     // telemetry on / off
     RUN_TEST(test_sc_telemetry_off_disables);

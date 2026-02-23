@@ -13,8 +13,17 @@
  * The small EMA alpha (OVERSTROKE_EMA_ALPHA) means the baseline tracks the
  * slowly-evolving steady-state current while brief spikes stand out clearly.
  *
- * Hardware note (ACS712-05B supply voltage and ADC attenuation):
+ * ── ACS712 measurement ──────────────────────────────────────────────────────
+ * The custom ContinuousACS712 library is used in continuous-RMS mode.
+ * updateContinuousRMS() is called every loop tick; it samples the ADC,
+ * updates an EMA of mean and mean-square, and returns in microseconds.
+ * There is no blocking wait — sampling is spread across loop iterations.
  *
+ * Mean-centering (useMeanCenter = true, the default) computes RMS relative
+ * to the running mean, so no explicit midpoint calibration is required and
+ * the result is robust against supply-voltage drift.
+ *
+ * ── Hardware note (ACS712-05B supply voltage and ADC attenuation) ────────────
  *   Option A — 3.3 V supply (recommended):
  *     Power the ACS712 from the ESP32's 3.3 V rail.  The output then spans
  *     ~0.33 V – 2.97 V (zero-current = 1.65 V, sensitivity ~122 mV/A).
@@ -28,13 +37,12 @@
  *     ADC_6db clips at 2.2 V (≈ 4.1 A) but gives better spike resolution.
  *
  *   The attenuation constant ACS712_ADC_ATTENUATION (config.h) is applied
- *   to ACS712_CURRENT_PIN before sensor.autoMidPoint() so the zero-offset
- *   calibration always uses the same range as the live readings.
+ *   to ACS712_CURRENT_PIN in init() before the sensor is started.
  */
 
 #ifdef ARDUINO
 #  include <Arduino.h>
-#  include <ACS712.h>
+#  include "ContinuousACS712.h"
 #else
 // Native (host-PC) build: Arduino.h stub provides millis().
 #  include "Arduino.h"
@@ -49,19 +57,21 @@
 // ---------------------------------------------------------------------------
 
 static float    voltage          = 0.0f;   // RMS voltage (stub, always 0)
-static float    currentA         = 0.0f;   // latest ACS712 reading
-static float    currentEmaA      = 0.0f;   // EMA baseline of AC current
-static uint8_t  primeCount       = 0;      // readings collected so far for priming
+static float    currentA         = 0.0f;   // latest ACS712 reading in amps
+static float    currentEmaA      = 0.0f;   // slow-tracking EMA for overstroke baseline
+static uint8_t  primeCount       = 0;      // readings collected for EMA priming
 static bool     overstrokeFlag   = false;  // set on spike; cleared by caller
 static uint32_t lastOverstrokeMs = 0;      // timestamp of most recent event
 
 #ifdef ARDUINO
-// RobTillaart ACS712 — 5 A sensor on ESP32-S3 (3.3 V supply, 12-bit ADC).
+// ContinuousACS712 — 5 A sensor on ESP32-S3 (3.3 V supply, 12-bit ADC).
+// Mean-centering is on by default: the running mean tracks the zero-current
+// offset automatically, so no explicit midpoint calibration is required.
 // Constructor: (analogPin, volts, maxADC, mVperAmpere)
-static ACS712 sensor(ACS712_CURRENT_PIN,
-                      ACS712_ADC_VOLTS,
-                      ACS712_ADC_MAX_VALUE,
-                      ACS712_SENSITIVITY_MV_PER_A);
+static ContinuousACS712 sensor(ACS712_CURRENT_PIN,
+                                  ACS712_ADC_VOLTS,
+                                  ACS712_ADC_MAX_VALUE,
+                                  ACS712_SENSITIVITY_MV_PER_A);
 #endif
 
 namespace rms {
@@ -75,16 +85,15 @@ void init() {
     lastOverstrokeMs = 0;
 
 #ifdef ARDUINO
-    // Set ADC input attenuation BEFORE autoMidPoint() so that calibration
+    // Set ADC input attenuation BEFORE starting the sensor so that all
     // samples are captured using the same full-scale range as live readings.
     // See config.h for available choices and voltage/resolution trade-offs.
     analogSetPinAttenuation(ACS712_CURRENT_PIN, ACS712_ADC_ATTENUATION);
 
-    // Auto-calibrate the zero-current midpoint over one full AC cycle.
-    // The AC output MUST be off (zero load current) when this is called.
-    // Blocks ~2 cycles (~33 ms at AD9833_FREQ_HZ = 60 Hz) — acceptable
-    // during initialisation; not an issue for the main loop.
-    sensor.autoMidPoint(AD9833_FREQ_HZ, 1);
+    // Start continuous non-blocking RMS mode.
+    // Default tau = 250 ms, minSampleIntervalUs = 200 µs.
+    // Mean-centering handles zero-current offset drift; no calibration needed.
+    sensor.beginContinuousRMS();
 #endif
 }
 
@@ -99,16 +108,16 @@ float getVoltage() {
 
 void readCurrent() {
 #ifdef ARDUINO
-    // mA_AC_sampling computes true RMS via Σ(sample²) over one full cycle
-    // (~16.7 ms at 60 Hz).  This is more robust than mA_AC() for compressor
-    // loads whose current waveform may deviate from a pure sine.  The blocking
-    // duration is bounded and predictable — not an arbitrary delay().
-    // Result is in milliamps; divide by 1000 to convert to amps.
-    const float current = sensor.mA_AC_sampling(AD9833_FREQ_HZ, 1) / 1000.0f;
+    // Tick the continuous EMA — returns immediately (< 50 µs) if the minimum
+    // sample interval has not yet elapsed; no blocking wait.
+    sensor.updateContinuousRMS();
+
+    // continuousmA() returns milliamps; convert to amps.
+    const float current = sensor.continuousmA() / 1000.0f;
     currentA = current;
 
-    // Prime phase: seed the EMA with direct readings so the baseline
-    // converges quickly and spike detection is not armed prematurely.
+    // Prime phase: seed the overstroke EMA baseline with the first few
+    // readings so spike detection is not armed prematurely.
     if (primeCount < OVERSTROKE_PRIME_READINGS) {
         currentEmaA = current;
         ++primeCount;
