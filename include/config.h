@@ -227,4 +227,10 @@
 // Duration of the AMBER power-on flash during Initialize (state 0).
 #define INDICATOR_INIT_AMBER_MS     static_cast<uint32_t>(1500)
 
+// =============================================================================
+// HTTP API
+// =============================================================================
+
+#define HTTP_API_PORT static_cast<uint16_t>(80)
+
 #endif // CONFIG_H

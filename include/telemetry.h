@@ -1,62 +1,84 @@
 /**
  * @file telemetry.h
- * @brief Serial Studio CSV telemetry emitter
+ * @brief Serial Studio CSV telemetry emitter and frame store.
  *
- * Emits one telemetry frame per call to emit() using the Serial Studio
- * "Quick Plot" frame format:
+ * emit() snapshots all module state into a FrameBuilder, transmits it to
+ * Serial in Serial Studio wire format, and retains the frame so that other
+ * modules can read the same data in other formats via getLastFrame() /
+ * fillJson().
  *
- *   /*<csv_fields>*\/\r\n
+ * ── Serial Studio wire format ───────────────────────────────────────────────
+ *   Frame:  /*<pipe-delimited values>*\/\r\n
+ *   To visualise in Serial Studio:
+ *     - Connect at SERIAL_BAUD.
+ *     - Enable "Frame detection" with start seq "\/*" and end seq "*\/".
+ *     - Load the Cryocooler.ssproj project file.
  *
- * Fields (in column order, pipe-delimited):
- *   1  state_no              numeric state index -1 to 8
- *   2  state_name            ASCII state label (e.g. "CoarseCooldown")
- *   3  status_text           human-readable status description
- *   4  temp_k                cold-stage temperature in Kelvin        (2 dp)
- *   5  temp_c                cold-stage temperature in Celsius       (2 dp)
- *   6  ambient_temp_c        room temperature from DS18S20 in °C     (2 dp)
- *   7  cooling_rate          K/min; positive = cooling               (3 dp)
- *   8  dac_target            desired DAC count from state machine (0-4095)
- *   9  dac_actual            current DAC output count             (0-4095)
- *  10  rms_v                 RMS voltage VDC                         (2 dp)
- *  11  relay_normal          0 = Bypass, 1 = Normal
- *  12  alarm_relay           0 = off,    1 = active
- *  13  red_led               1 = FAULT LED lit, 0 = off
- *  14  green_led             1 = READY LED lit, 0 = off
- *  15  on_duration_ms        total on-state duration in milliseconds
- *  16  on_duration           total on-state duration as HH:MM:SS
- *  17  cooldown_pct          cooldown progress 0–100 %               (2 dp)
- *  18  time_in_state         time spent in the current state as HH:MM:SS
- *  19  current_a             ACS712 AC RMS current in amps           (2 dp)
- *  20  backoff_count         cumulative back-EMF backoff events this run
- *  21  delta_below_ambient_c ambient_temp_c − cold_stage_temp_c      (2 dp)
- *  22  voltage_v             device supply voltage in V               (2 dp)
- *  23  voltage_raw           raw ADC voltage reading                  (2 dp)
- *  24  waveform_status       AD9833 waveform output status
- *  25  frequency_hz          AD9833 output frequency in Hz            (2 dp)
- *
- * To visualise in Serial Studio:
- *   - Open Serial Studio, connect at SERIAL_BAUD.
- *   - Enable "Frame detection" with start seq "\/*" and end seq "*\/".
- *   - Load the Cryocooler.ssproj project file.
+ * ── Fields (pipe-delimited, in column order) ────────────────────────────────
+ *   #   Key name                Type    Description
+ *   1   state_no                int     numeric state index -1 to 8
+ *   2   state_name              string  ASCII state label (e.g. "CoarseCooldown")
+ *   3   status_text             string  human-readable status description
+ *   4   temp_k                  float   cold-stage temperature in Kelvin        (2 dp)
+ *   5   temp_c                  float   cold-stage temperature in Celsius       (2 dp)
+ *   6   ambient_temp_c          float   room temperature from DS18S20 in °C    (2 dp)
+ *   7   cooling_rate            float   K/min; positive = cooling              (3 dp)
+ *   8   dac_target              uint    desired DAC count from state machine (0-4095)
+ *   9   dac_actual              uint    current DAC output count             (0-4095)
+ *  10   rms_v                   float   RMS voltage VDC                        (2 dp)
+ *  11   relay_normal            uint    0 = Bypass, 1 = Normal
+ *  12   alarm_relay             uint    0 = off,    1 = active
+ *  13   red_led                 int     1 = FAULT LED lit, 0 = off
+ *  14   green_led               int     1 = READY LED lit, 0 = off
+ *  15   on_duration_ms          ulong   total on-state duration in milliseconds
+ *  16   on_duration             string  total on-state duration as HH:MM:SS
+ *  17   cooldown_pct            float   cooldown progress 0–100 %              (2 dp)
+ *  18   time_in_state           string  time spent in the current state as HH:MM:SS
+ *  19   current_a               float   ACS712 AC RMS current in amps          (2 dp)
+ *  20   backoff_count           uint    cumulative back-EMF backoff events this run
+ *  21   delta_below_ambient_c   float   ambient_temp_c − cold_stage_temp_c     (2 dp)
+ *  22   voltage_v               float   device supply voltage in V              (2 dp)
+ *  23   voltage_raw             float   raw ADC voltage reading                 (2 dp)
+ *  24   waveform_status         uint    AD9833 waveform output status
+ *  25   frequency_hz            float   AD9833 output frequency in Hz           (2 dp)
  */
 
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
+#include "frame_builder.h"
 #include "state_machine.h"
 
 namespace telemetry {
 
 /**
- * Emit one Serial Studio CSV frame to Serial.
+ * Emit one telemetry frame to Serial in Serial Studio wire format and store
+ * it as the last frame (accessible via getLastFrame() / fillJson()).
  *
- * @param out          State-machine output for this tick
+ * @param out  State-machine output for this tick.
  */
 void emit(const state_machine::Output& out);
+
+/**
+ * Return a const reference to the most recently emitted frame.
+ *
+ * The returned reference is valid until the next call to emit().
+ * Before the first emit() the frame is empty (fieldCount() == 0).
+ */
+const FrameBuilder& getLastFrame();
+
+/**
+ * Populate @p doc with the most recently emitted frame as a JSON object.
+ *
+ * Equivalent to getLastFrame().fillJson(doc).
+ * Any existing content in @p doc is cleared first.
+ */
+void fillJson(JsonDocument& doc);
 
 void disable();
 void enable();
 bool isEnabled();
+
 } // namespace telemetry
 
 #endif // TELEMETRY_H

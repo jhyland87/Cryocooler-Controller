@@ -29,6 +29,7 @@
 #include "telemetry.h"
 #include "serial_commands.h"
 #include "device.h"
+#include "http_api.h"
 
 // =============================================================================
 // Module-level objects
@@ -76,6 +77,7 @@ void setup() {
     rms::init();
     relay::init();
     indicator::init();
+    http_api::init();
 
     // Kick off state machine in Off state
     state_machine::init(millis());
@@ -138,6 +140,9 @@ void loop() {
 
     // Ramp DAC toward the state-machine target (rate-limited in dac.cpp)
     dac::rampToward(out.dacTarget);
+
+    // ---- 4. HTTP API ---------------------------------------------------
+    http_api::service();
 
     // ---- 4. Telemetry ---------------------------------------------------
     telemetry::emit(out);

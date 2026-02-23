@@ -1,81 +1,65 @@
 /**
  * @file telemetry.cpp
- * @brief Serial Studio CSV telemetry implementation
+ * @brief Serial Studio CSV telemetry implementation.
+ *
+ * emit() captures a snapshot of all module state into a FrameBuilder, sends
+ * it to Serial in Serial Studio wire format, and stores it as lastFrame_ so
+ * that other modules (e.g. http_api) can serve the same data in other formats
+ * (JSON, etc.) without re-reading hardware registers.
  */
 
-// emit() depends on Serial and hardware modules — target only.
-// enable()/disable()/isEnabled() are plain flag operations and compile everywhere.
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include "frame_builder.h"
 #include "temperature.h"
 #include "telemetry.h"
 #include "state_machine.h"
 #include "rms.h"
 #include "dac.h"
+#include "indicator.h"
 #include "conversions.h"
 #include "waveform.h"
 #include "device.h"
 
 // ---------------------------------------------------------------------------
-// FrameBuilder — incremental Serial Studio frame assembler
-//
-// Builds a /*field1|field2|...*/\r\n frame into a fixed stack buffer.
-// Each call to field() appends one value with its printf format, inserting
-// the pipe delimiter automatically.  send() closes and transmits the frame.
-//
-// Usage:
-//   FrameBuilder frame;
-//   frame.field("%d",   myInt)        // field 1
-//        .field("%.2f", myFloat)      // field 2
-//        ...;
-//   frame.send(Serial);
-// ---------------------------------------------------------------------------
-
-class FrameBuilder {
-public:
-    static constexpr size_t CAPACITY = 512;
-
-    FrameBuilder() : pos_(2) {
-        buf_[0] = '/';
-        buf_[1] = '*';
-    }
-
-    template<typename... Args>
-    FrameBuilder& field(const char* fmt, Args&&... args) {
-        if (pos_ > 2) {
-            if (pos_ < CAPACITY - 1) buf_[pos_++] = '|';
-        }
-        int n = snprintf(buf_ + pos_, CAPACITY - pos_, fmt,
-                         std::forward<Args>(args)...);
-        if (n > 0) pos_ += static_cast<size_t>(n);
-        return *this;
-    }
-
-    void send(Print& out) {
-        snprintf(buf_ + pos_, CAPACITY - pos_, "*/\r\n");
-        out.print(buf_);
-    }
-
-private:
-    char   buf_[CAPACITY];
-    size_t pos_;
-};
-
+// Module state
 // ---------------------------------------------------------------------------
 
 namespace telemetry {
 
-static bool enabled = true;
+static bool         enabled    = true;
+static FrameBuilder lastFrame_;   // always holds the most recently emitted frame
+
+// ---------------------------------------------------------------------------
+// Enable / disable
+// ---------------------------------------------------------------------------
 
 void disable()   { enabled = false; }
 void enable()    { enabled = true; }
 bool isEnabled() { return enabled; }
+
+// ---------------------------------------------------------------------------
+// Frame access
+// ---------------------------------------------------------------------------
+
+const FrameBuilder& getLastFrame() {
+    return lastFrame_;
+}
+
+void fillJson(JsonDocument& doc) {
+    lastFrame_.fillJson(doc);
+}
+
+// ---------------------------------------------------------------------------
+// Emit
+// ---------------------------------------------------------------------------
 
 void emit(const state_machine::Output& out)
 {
 #ifdef ARDUINO
     if (!enabled) return;
 
-    const uint16_t dacActual  = dac::getCurrent();
+    const uint16_t dacActual = dac::getCurrent();
 
     // On-state duration (total time running since start())
     const uint32_t durationMs = state_machine::getOnStateDuration();
@@ -95,36 +79,38 @@ void emit(const state_machine::Output& out)
              static_cast<unsigned long>((stateSec % 3600u) / 60u),
              static_cast<unsigned long>(stateSec % 60u));
 
-    // Build and send the Serial Studio Quick-Plot frame: /*field1|field2|...*/\r\n
-    // To add a field: append one .field(fmt, value) call and update telemetry.h.
-    FrameBuilder frame;
-    frame
-        .field("%d",   static_cast<int8_t>(out.state))             //  1 state_no
-        .field("%s",   state_machine::stateName(out.state))        //  2 state_name
-        .field("%s",   state_machine::getStatusText())             //  3 status_text
-        .field("%.2f", temperature::getLastTempK())                //  4 temp_k
-        .field("%.2f", temperature::getLastTempC())                //  5 temp_c
-        .field("%.2f", temperature::getLastAmbientTempC())         //  6 ambient_temp_c
-        .field("%.3f", temperature::getCoolingRateKPerMin())       //  7 cooling_rate
-        .field("%u",   static_cast<unsigned>(out.dacTarget))       //  8 dac_target
-        .field("%u",   static_cast<unsigned>(dacActual))           //  9 dac_actual
-        .field("%.2f", rms::getVoltage())                          // 10 rms_v
-        .field("%u",   static_cast<uint8_t>(!out.bypassRelay))     // 11 relay_normal (1=Normal)
-        .field("%u",   static_cast<uint8_t>(out.alarmRelay))       // 12 alarm_relay
-        .field("%d",   indicator::isFaultOn())                     // 13 red_led
-        .field("%d",   indicator::isReadyOn())                     // 14 green_led
-        .field("%lu",  static_cast<unsigned long>(durationMs))     // 15 on_duration_ms
-        .field("%s",   hmsBuf)                                     // 16 on_duration HH:MM:SS
-        .field("%.2f", temperature::getTemperatureToPercent())     // 17 cooldown_pct
-        .field("%s",   tisHmsBuf)                                  // 18 time_in_state HH:MM:SS
-        .field("%.2f", rms::getCurrentA())                         // 19 current_a
-        .field("%u",   static_cast<unsigned>(out.backoffCount))    // 20 backoff_count
-        .field("%.2f", temperature::getLastTempCBelowAmbient())    // 21 delta_below_ambient_c
-        .field("%.2f", device::getVoltage())                       // 22 voltage_v
-        .field("%.2f", device::getVoltageRaw())                    // 23 voltage_raw
-        .field("%u",   waveform::getStatus())                      // 24 waveform_status
-        .field("%.2f", waveform::getFrequency());                  // 25 frequency_hz
-    frame.send(Serial);
+    // Build the frame.
+    // To add a field: append one .field(name, fmt, value) call here AND
+    // update the field list in telemetry.h.
+    lastFrame_.reset();
+    lastFrame_
+        .field("state_no",              "%d",   static_cast<int8_t>(out.state))             //  1
+        .field("state_name",            "%s",   state_machine::stateName(out.state))         //  2
+        .field("status_text",           "%s",   state_machine::getStatusText())              //  3
+        .field("temp_k",                "%.2f", temperature::getLastTempK())                 //  4
+        .field("temp_c",                "%.2f", temperature::getLastTempC())                 //  5
+        .field("ambient_temp_c",        "%.2f", temperature::getLastAmbientTempC())          //  6
+        .field("cooling_rate",          "%.3f", temperature::getCoolingRateKPerMin())        //  7
+        .field("dac_target",            "%u",   static_cast<unsigned>(out.dacTarget))        //  8
+        .field("dac_actual",            "%u",   static_cast<unsigned>(dacActual))            //  9
+        .field("rms_v",                 "%.2f", rms::getVoltage())                           // 10
+        .field("relay_normal",          "%u",   static_cast<uint8_t>(!out.bypassRelay))      // 11
+        .field("alarm_relay",           "%u",   static_cast<uint8_t>(out.alarmRelay))        // 12
+        .field("red_led",               "%d",   indicator::isFaultOn())                      // 13
+        .field("green_led",             "%d",   indicator::isReadyOn())                      // 14
+        .field("on_duration_ms",        "%lu",  static_cast<unsigned long>(durationMs))      // 15
+        .field("on_duration",           "%s",   hmsBuf)                                      // 16
+        .field("cooldown_pct",          "%.2f", temperature::getTemperatureToPercent())      // 17
+        .field("time_in_state",         "%s",   tisHmsBuf)                                   // 18
+        .field("current_a",             "%.2f", rms::getCurrentA())                          // 19
+        .field("backoff_count",         "%u",   static_cast<unsigned>(out.backoffCount))     // 20
+        .field("delta_below_ambient_c", "%.2f", temperature::getLastTempCBelowAmbient())     // 21
+        .field("voltage_v",             "%.2f", device::getVoltage())                        // 22
+        .field("voltage_raw",           "%.2f", device::getVoltageRaw())                     // 23
+        .field("waveform_status",       "%u",   waveform::getStatus())                       // 24
+        .field("frequency_hz",          "%.2f", waveform::getFrequency());                   // 25
+
+    lastFrame_.sendSerial(Serial);
 #else
     (void)out;
 #endif
