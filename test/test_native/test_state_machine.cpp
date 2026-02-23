@@ -22,6 +22,9 @@ extern "C" void stub_setMillis(uint32_t ms);
 // Serial command tests (defined in test_serial_commands.cpp)
 void run_serial_command_tests();
 
+// FrameBuilder tests (defined in test_frame_builder.cpp)
+void run_frame_builder_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -578,6 +581,239 @@ void test_stateName_returns_non_null(void) {
 }
 
 // ---------------------------------------------------------------------------
+// stateName: exact string values for every state
+// ---------------------------------------------------------------------------
+
+void test_stateName_off_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Off",
+        state_machine::stateName(state_machine::State::Off));
+}
+
+void test_stateName_initialize_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Initialize",
+        state_machine::stateName(state_machine::State::Initialize));
+}
+
+void test_stateName_idle_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Idle",
+        state_machine::stateName(state_machine::State::Idle));
+}
+
+void test_stateName_coarse_cooldown_string(void) {
+    TEST_ASSERT_EQUAL_STRING("CoarseCooldown",
+        state_machine::stateName(state_machine::State::CoarseCooldown));
+}
+
+void test_stateName_fine_cooldown_string(void) {
+    TEST_ASSERT_EQUAL_STRING("FineCooldown",
+        state_machine::stateName(state_machine::State::FineCooldown));
+}
+
+void test_stateName_overshoot_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Overshoot",
+        state_machine::stateName(state_machine::State::Overshoot));
+}
+
+void test_stateName_settle_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Settle",
+        state_machine::stateName(state_machine::State::Settle));
+}
+
+void test_stateName_baseline_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Baseline",
+        state_machine::stateName(state_machine::State::Baseline));
+}
+
+void test_stateName_operating_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Operating",
+        state_machine::stateName(state_machine::State::Operating));
+}
+
+void test_stateName_fault_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Fault",
+        state_machine::stateName(state_machine::State::Fault));
+}
+
+// ---------------------------------------------------------------------------
+// Settle state: timer boundary and reset behaviour
+// ---------------------------------------------------------------------------
+
+/**
+ * The Settle timer starts on the first in-band update() call.
+ * One tick before SETTLE_DURATION_MS the machine must still be in Settle.
+ */
+void test_settle_does_not_transition_just_before_timer(void) {
+    state_machine::init(0);
+    state_machine::start(0, SETPOINT_K);   // enters Settle directly
+
+    // First in-band call starts the settle timer at t = 1.
+    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+
+    // One tick before expiry: elapsed = SETTLE_DURATION_MS - 1 → stay in Settle.
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+                                     SETTLE_DURATION_MS);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
+                      static_cast<int8_t>(out.state));
+}
+
+/**
+ * If temperature drifts out of band the settle timer resets.
+ * After re-entering the band the full SETTLE_DURATION_MS must elapse again
+ * before the transition to Baseline fires.
+ */
+void test_settle_timer_resets_when_out_of_band(void) {
+    state_machine::init(0);
+    state_machine::start(0, SETPOINT_K);
+
+    // Start settle timer at t = 1.
+    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+
+    // Drift out of band — timer resets.
+    state_machine::update(COARSE_FINE_THRESHOLD_K, 0.0f, 0.0f, false, 100);
+
+    // Re-enter band at t = 200 — timer restarts from here.
+    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 200);
+
+    // One tick before the restarted timer would fire: must still be Settle.
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+                                     200 + SETTLE_DURATION_MS - 1);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
+                      static_cast<int8_t>(out.state));
+}
+
+// ---------------------------------------------------------------------------
+// Settle → Baseline → Operating: relay and timer boundaries
+// ---------------------------------------------------------------------------
+
+/**
+ * Helper: advance from Off through Settle into Baseline.
+ * Returns the nowMs timestamp at which Baseline was entered.
+ */
+static uint32_t advanceToBaseline() {
+    state_machine::init(0);
+    state_machine::start(0, SETPOINT_K);            // → Settle at t = 0
+
+    // Start settle timer at t = 1, then fire it.
+    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+    const uint32_t baselineEntryMs = 1u + SETTLE_DURATION_MS;
+    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, baselineEntryMs);
+    return baselineEntryMs;
+}
+
+void test_baseline_uses_normal_relay(void) {
+    const uint32_t baselineEntry = advanceToBaseline();
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+                                     baselineEntry + 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Baseline),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.bypassRelay);
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+/** One tick before BASELINE_DURATION_MS expires the machine must stay in Baseline. */
+void test_baseline_does_not_transition_just_before_timer(void) {
+    const uint32_t baselineEntry = advanceToBaseline();
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+                                     baselineEntry + BASELINE_DURATION_MS - 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Baseline),
+                      static_cast<int8_t>(out.state));
+}
+
+void test_operating_uses_normal_relay(void) {
+    const uint32_t baselineEntry = advanceToBaseline();
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+                                     baselineEntry + BASELINE_DURATION_MS);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Operating),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.bypassRelay);
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+// ---------------------------------------------------------------------------
+// off() from non-Idle states
+// ---------------------------------------------------------------------------
+
+void test_off_from_running_coarse(void) {
+    // off() must work even when the machine is actively running (CoarseCooldown).
+    const uint32_t tStart = initAndStart();
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+    state_machine::off(tStart + 100u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_FALSE(state_machine::isRunning());
+}
+
+void test_off_from_fault_clears_fault_reason(void) {
+    // off() is the only way out of Fault (stop() is a no-op when running==false).
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    state_machine::off(tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::None),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+// ---------------------------------------------------------------------------
+// Stall detection: only active in CoarseCooldown and FineCooldown
+// ---------------------------------------------------------------------------
+
+void test_stall_in_fine_triggers_fault(void) {
+    const uint32_t tStart = initAndStart();
+
+    // Transition to FineCooldown.
+    state_machine::update(COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f,
+                           false, tStart + 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    // Stall while in FineCooldown → Fault(TemperatureStall).
+    auto out = state_machine::update(COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f,
+                                      true, tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::TemperatureStall),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_stall_in_settle_does_not_fault(void) {
+    // Stall is only checked in CoarseCooldown and FineCooldown.
+    // In Settle (reached by resuming at setpoint) it must be silently ignored.
+    state_machine::init(0);
+    state_machine::start(0, SETPOINT_K);   // → Settle directly
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, true, 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+// ---------------------------------------------------------------------------
+// Overstroke ignored while already in Fault
+// ---------------------------------------------------------------------------
+
+void test_overstroke_ignored_in_fault(void) {
+    // Fault blocks the entire global-fault / overstroke section of update().
+    const uint32_t tStart = initAndStart();
+    // Trigger a fault.
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    // Overstroke while in Fault — must not change state or increment backoffCount.
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 2u, true);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+    TEST_ASSERT_TRUE(out.alarmRelay);
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -654,11 +890,46 @@ int main(int argc, char **argv) {
     RUN_TEST(test_overstroke_ignored_when_not_running);
     RUN_TEST(test_backoff_count_resets_on_start);
 
-    // Helpers
+    // stateName: non-null (existing smoke test)
     RUN_TEST(test_stateName_returns_non_null);
+
+    // stateName: exact string values for every state
+    RUN_TEST(test_stateName_off_string);
+    RUN_TEST(test_stateName_initialize_string);
+    RUN_TEST(test_stateName_idle_string);
+    RUN_TEST(test_stateName_coarse_cooldown_string);
+    RUN_TEST(test_stateName_fine_cooldown_string);
+    RUN_TEST(test_stateName_overshoot_string);
+    RUN_TEST(test_stateName_settle_string);
+    RUN_TEST(test_stateName_baseline_string);
+    RUN_TEST(test_stateName_operating_string);
+    RUN_TEST(test_stateName_fault_string);
+
+    // Settle timer boundary
+    RUN_TEST(test_settle_does_not_transition_just_before_timer);
+    RUN_TEST(test_settle_timer_resets_when_out_of_band);
+
+    // Baseline / Operating: relay and timer boundaries
+    RUN_TEST(test_baseline_uses_normal_relay);
+    RUN_TEST(test_baseline_does_not_transition_just_before_timer);
+    RUN_TEST(test_operating_uses_normal_relay);
+
+    // off() from non-Idle states
+    RUN_TEST(test_off_from_running_coarse);
+    RUN_TEST(test_off_from_fault_clears_fault_reason);
+
+    // Stall detection scope
+    RUN_TEST(test_stall_in_fine_triggers_fault);
+    RUN_TEST(test_stall_in_settle_does_not_fault);
+
+    // Overstroke ignored in Fault
+    RUN_TEST(test_overstroke_ignored_in_fault);
 
     // Serial command handler
     run_serial_command_tests();
+
+    // FrameBuilder
+    run_frame_builder_tests();
 
     return UNITY_END();
 }
