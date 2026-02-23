@@ -41,6 +41,17 @@ public:
   void  setClampZero(bool clampToZero);
   bool  getClampZero() const;
 
+  // Centering mode for RMS calculation.
+  // - Fixed midpoint: uses midPoint_ as the center (ACS712-style).
+  // - Mean centered: uses the measured mean as the center (robust for CT modules / drifting offsets).
+  void  setUseMeanCenter(bool useMeanCenter);
+  bool  getUseMeanCenter() const;
+
+  // Optional deadband after correction (offset/clamp).
+  // If corrected RMS is below this threshold, output is forced to 0.
+  void  setNoiseFloormA(float noiseFloormA);
+  float getNoiseFloormA() const;
+
   // Quick non-blocking helpers for debugging/calibration.
   uint16_t readRaw();
 
@@ -52,6 +63,18 @@ public:
   bool     midPointCalibrationBusy() const;
   bool     midPointCalibrationAvailable() const;
   uint16_t midPointCalibrationResult() const;
+
+  // Continuous RMS mode (plotter-friendly).
+  // Updates an RMS estimate continuously using an exponential moving average (EMA) of sample^2.
+  // Call beginContinuousRMS(), then call updateContinuousRMS() from loop() as often as possible.
+  void     beginContinuousRMS(float timeConstantMs = 250.0f, uint32_t minSampleIntervalUs = 200);
+  void     stopContinuousRMS();
+  bool     continuousEnabled() const;
+  bool     updateContinuousRMS();        // returns true when a new sample was processed
+  float    continuousmA() const;         // corrected (offset/clamped)
+  float    continuousmAUncorrected() const;
+  uint16_t continuousMinRaw() const;     // min raw since beginContinuousRMS()
+  uint16_t continuousMaxRaw() const;     // max raw since beginContinuousRMS()
 
   // Non-blocking equivalent of ACS712::mA_AC_sampling().
   // Call beginACSampling(), then call updateACSampling() repeatedly from loop().
@@ -76,6 +99,8 @@ private:
   bool     suppressNoise_ = false;
   float    offsetmA_ = 0.0f;
   bool     clampZero_ = true;
+  bool     useMeanCenter_ = true;
+  float    noiseFloormA_ = 0.0f;
 
   uint16_t (*readADC_)(uint8_t) = nullptr;
 
@@ -88,8 +113,9 @@ private:
     uint32_t periodUs = 0;
     uint32_t cycleStartUs = 0;
     uint32_t samples = 0;
-    float    sumSquared = 0;
-    float    sumRms = 0;
+    float    sum = 0;          // sum of raw readings (ADC steps)
+    float    sumSquares = 0;   // sum of raw^2 (ADC steps^2)
+    float    sumRms = 0;       // sum of per-cycle RMS (ADC steps)
     float    resultmA = 0;
     float    resultmAUncorrected = 0;
   } acSampling_;
@@ -103,5 +129,20 @@ private:
     uint64_t total = 0;
     uint16_t result = 0;
   } midCal_;
+
+  struct
+  {
+    bool     enabled = false;
+    float    tauUs = 250000.0f;
+    uint32_t minIntervalUs = 200;
+    uint32_t lastSampleUs = 0;
+    bool     initialized = false;
+    float    mean = 0.0f;        // EMA of raw (ADC steps)
+    float    meanSquare = 0.0f;  // EMA of raw^2 (ADC steps^2)
+    float    resultmA = 0.0f;
+    float    resultmAUncorrected = 0.0f;
+    uint16_t minRaw = 0xFFFF;
+    uint16_t maxRaw = 0;
+  } cont_;
 };
 

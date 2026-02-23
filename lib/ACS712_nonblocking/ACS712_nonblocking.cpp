@@ -100,9 +100,142 @@ bool ACS712_nonblocking::getClampZero() const
 }
 
 
+void ACS712_nonblocking::setUseMeanCenter(bool useMeanCenter)
+{
+  useMeanCenter_ = useMeanCenter;
+}
+
+
+bool ACS712_nonblocking::getUseMeanCenter() const
+{
+  return useMeanCenter_;
+}
+
+
+void ACS712_nonblocking::setNoiseFloormA(float noiseFloormA)
+{
+  noiseFloormA_ = noiseFloormA;
+}
+
+
+float ACS712_nonblocking::getNoiseFloormA() const
+{
+  return noiseFloormA_;
+}
+
+
 uint16_t ACS712_nonblocking::readRaw()
 {
   return analogRead16_(pin_);
+}
+
+
+void ACS712_nonblocking::beginContinuousRMS(float timeConstantMs, uint32_t minSampleIntervalUs)
+{
+  if (timeConstantMs <= 0) timeConstantMs = 1.0f;
+  if (minSampleIntervalUs == 0) minSampleIntervalUs = 1;
+
+  cont_.enabled       = true;
+  cont_.tauUs         = timeConstantMs * 1000.0f;
+  cont_.minIntervalUs = minSampleIntervalUs;
+  cont_.lastSampleUs  = micros();
+  cont_.initialized   = false;
+  cont_.mean          = 0.0f;
+  cont_.meanSquare    = 0.0f;
+  cont_.resultmA      = 0.0f;
+  cont_.resultmAUncorrected = 0.0f;
+  cont_.minRaw        = 0xFFFF;
+  cont_.maxRaw        = 0;
+}
+
+
+void ACS712_nonblocking::stopContinuousRMS()
+{
+  cont_.enabled = false;
+}
+
+
+bool ACS712_nonblocking::continuousEnabled() const
+{
+  return cont_.enabled;
+}
+
+
+bool ACS712_nonblocking::updateContinuousRMS()
+{
+  if (!cont_.enabled) return false;
+
+  const uint32_t now = micros();
+  const uint32_t dtUs = (uint32_t)(now - cont_.lastSampleUs);
+  if (dtUs < cont_.minIntervalUs) return false;
+
+  cont_.lastSampleUs = now;
+
+  const uint16_t readingA = analogRead16_(pin_);
+  uint16_t reading = readingA;
+  if (suppressNoise_)
+  {
+    const uint16_t readingB = analogRead16_(pin_);
+    reading = (uint16_t)((readingA + readingB) / 2);
+  }
+
+  if (reading < cont_.minRaw) cont_.minRaw = reading;
+  if (reading > cont_.maxRaw) cont_.maxRaw = reading;
+
+  const float x = (float)reading;
+  const float x2 = x * x;
+
+  if (!cont_.initialized)
+  {
+    cont_.mean        = x;
+    cont_.meanSquare  = x2;
+    cont_.initialized = true;
+  }
+  else
+  {
+    const float dt = (float)dtUs;
+    const float alpha = dt / (cont_.tauUs + dt);  // stable for variable dt
+    cont_.mean       += alpha * (x - cont_.mean);
+    cont_.meanSquare += alpha * (x2 - cont_.meanSquare);
+  }
+
+  const float center = useMeanCenter_ ? cont_.mean : (float)midPoint_;
+  float rms2 = cont_.meanSquare - (2.0f * center * cont_.mean) + (center * center);
+  if (rms2 < 0.0f) rms2 = 0.0f;
+
+  const float rmsSteps = sqrt(rms2);
+  float mA = rmsSteps * mAPerStep_;
+
+  cont_.resultmAUncorrected = mA;
+  mA -= offsetmA_;
+  if (clampZero_ && (mA < 0.0f)) mA = 0.0f;
+  if (noiseFloormA_ > 0.0f && (mA < noiseFloormA_)) mA = 0.0f;
+  cont_.resultmA = mA;
+  return true;
+}
+
+
+float ACS712_nonblocking::continuousmA() const
+{
+  return cont_.resultmA;
+}
+
+
+float ACS712_nonblocking::continuousmAUncorrected() const
+{
+  return cont_.resultmAUncorrected;
+}
+
+
+uint16_t ACS712_nonblocking::continuousMinRaw() const
+{
+  return cont_.minRaw;
+}
+
+
+uint16_t ACS712_nonblocking::continuousMaxRaw() const
+{
+  return cont_.maxRaw;
 }
 
 
@@ -187,7 +320,8 @@ void ACS712_nonblocking::beginACSampling(float frequencyHz, uint16_t cycles)
   acSampling_.periodUs        = periodUs;
   acSampling_.cycleStartUs    = micros();
   acSampling_.samples         = 0;
-  acSampling_.sumSquared      = 0;
+  acSampling_.sum             = 0;
+  acSampling_.sumSquares      = 0;
   acSampling_.sumRms          = 0;
 }
 
@@ -210,8 +344,9 @@ bool ACS712_nonblocking::updateACSampling()
     }
 
     acSampling_.samples++;
-    const float currentSteps = (float)((int)reading - midPoint_);
-    acSampling_.sumSquared += (currentSteps * currentSteps);
+    const float x = (float)reading;
+    acSampling_.sum        += x;
+    acSampling_.sumSquares += x * x;
     return false;
   }
 
@@ -227,11 +362,19 @@ bool ACS712_nonblocking::updateACSampling()
     }
 
     acSampling_.samples = 1;
-    const float currentSteps = (float)((int)reading - midPoint_);
-    acSampling_.sumSquared = (currentSteps * currentSteps);
+    const float x = (float)reading;
+    acSampling_.sum        = x;
+    acSampling_.sumSquares = x * x;
   }
 
-  acSampling_.sumRms += sqrt(acSampling_.sumSquared / acSampling_.samples);
+  const float invN = 1.0f / (float)acSampling_.samples;
+  const float mean = acSampling_.sum * invN;
+  const float meanSq = acSampling_.sumSquares * invN;
+  const float center = useMeanCenter_ ? mean : (float)midPoint_;
+  float rms2 = meanSq - (2.0f * center * mean) + (center * center);
+  if (rms2 < 0.0f) rms2 = 0.0f;
+
+  acSampling_.sumRms += sqrt(rms2);
   acSampling_.completedCycles++;
 
   if (acSampling_.completedCycles >= acSampling_.targetCycles)
@@ -242,6 +385,7 @@ bool ACS712_nonblocking::updateACSampling()
     acSampling_.resultmAUncorrected = mA;
     mA -= offsetmA_;
     if (clampZero_ && (mA < 0.0f)) mA = 0.0f;
+    if (noiseFloormA_ > 0.0f && (mA < noiseFloormA_)) mA = 0.0f;
 
     acSampling_.resultmA  = mA;
     acSampling_.active    = false;
@@ -251,7 +395,8 @@ bool ACS712_nonblocking::updateACSampling()
 
   acSampling_.cycleStartUs = now;
   acSampling_.samples      = 0;
-  acSampling_.sumSquared   = 0;
+  acSampling_.sum          = 0;
+  acSampling_.sumSquares   = 0;
   return false;
 }
 

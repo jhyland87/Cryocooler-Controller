@@ -6,10 +6,10 @@
  * LED / indicator control has moved to indicator.h.
  */
 
-#ifndef WAVEFORM_H
-#define WAVEFORM_H
+#ifndef DEVICE_H
+#define DEVICE_H
 
-namespace waveform {
+namespace device {
 
 /**
  * Initialize the AD9833 and begin generating the configured sine wave.
@@ -18,10 +18,9 @@ void init();
 
 void service();
 
-int16_t getStatus();
+float getVoltage();
 
-float getFrequency();
+int16_t getVoltageRaw();
+} // namespace device
 
-} // namespace waveform
-
-#endif // WAVEFORM_H
+#endif // DEVICE_H

@@ -134,7 +134,7 @@ static void handleBoard(Print& out) {
 #endif
 }
 
-static void handleDashboard(Print& out) {
+static void handleSummary(Print& out) {
     // On-state duration as HH:MM:SS (state_machine available on all platforms)
     const uint32_t durationMs = state_machine::getOnStateDuration();
     const uint32_t durSec     = durationMs / 1000u;
@@ -146,7 +146,7 @@ static void handleDashboard(Print& out) {
 
     char buf[96];
 
-    out.println("[OK] --- Cryocooler Dashboard ---");
+    out.println("[OK] --- Cryocooler Summary ---");
 
     snprintf(buf, sizeof(buf), "  State           : %s (%d) | running: %s",
              state_machine::stateName(state_machine::getState()),
@@ -213,7 +213,7 @@ static const Command commands[] = {
     {"stop",          handleStop,         "Abort the process and return to Idle"},
     {"off",           handleOff,          "Power off the system entirely"},
     {"status",        handleStatus,       "Print current state and running flag"},
-    {"dashboard",     handleDashboard,    "Print a full snapshot of all system values"},
+    {"summary",       handleSummary,      "Print a full snapshot of all system values"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
     {"telemetry off", handleTelemetryOff, "Disable telemetry"},

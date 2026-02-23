@@ -39,7 +39,7 @@
 // =============================================================================
 // 12 V Rail Monitor
 // =============================================================================
-#define VOLTAGE_12_TEST_PIN  13   // ADC input - voltage divider on 12 V rail
+#define VOLTAGE_12_TEST_PIN  10   // ADC input - voltage divider on 12 V rail
 
 // =============================================================================
 // Relays
@@ -48,11 +48,11 @@
 // Bypass relay - driven HIGH to switch to Normal mode (states 5-7).
 // Driven LOW (or not driven) = Bypass mode (default / safe state).
 // TODO: assign to actual wired GPIO before deployment.
-#define BYPASS_RELAY_PIN   10
+#define BYPASS_RELAY_PIN   11
 
 // Alarm relay - driven HIGH in Fault state (8) to signal an external alarm.
 // TODO: assign to actual wired GPIO before deployment.
-#define ALARM_RELAY_PIN    11
+#define ALARM_RELAY_PIN    12
 
 // =============================================================================
 // Discrete Indicator Outputs
@@ -62,12 +62,12 @@
 
 // FAULT indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
-#define FAULT_IND_PIN      12
+#define FAULT_IND_PIN      13
 
 // READY indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
 // NOTE: previously 14; reassigned to ACS712_CURRENT_PIN — update wiring accordingly.
-#define READY_IND_PIN      15
+#define READY_IND_PIN      LED_BUILTIN
 
 // =============================================================================
 // ACS712 AC Current Sensor (back-EMF / overstroke detection)

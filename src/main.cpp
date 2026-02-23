@@ -28,6 +28,7 @@
 #include "state_machine.h"
 #include "telemetry.h"
 #include "serial_commands.h"
+#include "device.h"
 
 // =============================================================================
 // Module-level objects
@@ -91,6 +92,8 @@ void setup() {
 // =============================================================================
 
 void loop() {
+    device::service();
+    waveform::service();
     // Service smoothed ADC every iteration (non-blocking)
     dacVoltageAdc.serviceADCPin();
 

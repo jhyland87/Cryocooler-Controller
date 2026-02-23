@@ -29,6 +29,10 @@
  *  19  current_a             ACS712 AC RMS current in amps           (2 dp)
  *  20  backoff_count         cumulative back-EMF backoff events this run
  *  21  delta_below_ambient_c ambient_temp_c − cold_stage_temp_c      (2 dp)
+ *  22  voltage_v             device supply voltage in V               (2 dp)
+ *  23  voltage_raw           raw ADC voltage reading                  (2 dp)
+ *  24  waveform_status       AD9833 waveform output status
+ *  25  frequency_hz          AD9833 output frequency in Hz            (2 dp)
  *
  * To visualise in Serial Studio:
  *   - Open Serial Studio, connect at SERIAL_BAUD.
