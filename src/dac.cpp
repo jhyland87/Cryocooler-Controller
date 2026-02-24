@@ -45,6 +45,30 @@ static void writeSpi(uint16_t dacVal) {
     SPI.endTransaction();
 }
 
+/**
+ * Rate-limited ramp toward target using the specified step size.
+ *
+ * @param target    Desired 12-bit output value (0-4095)
+ * @param maxStep   Maximum step size per call (e.g., DAC_MAX_STEP_PER_INTERVAL)
+ */
+static void rampTowardInternal(uint16_t target, uint16_t maxStep) {
+    if (target > MCP4921_MAX_VALUE) {
+        target = MCP4921_MAX_VALUE;
+    }
+
+    uint16_t next = currentDacVal;
+
+    if (next < target) {
+        const uint16_t step = target - next;
+        next += (step > maxStep) ? maxStep : step;
+    } else if (next > target) {
+        const uint16_t step = next - target;
+        next -= (step > maxStep) ? maxStep : step;
+    }
+
+    writeSpi(next);
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -62,21 +86,11 @@ void update(uint16_t dacVal) {
 }
 
 void rampToward(uint16_t target) {
-    if (target > MCP4921_MAX_VALUE) {
-        target = MCP4921_MAX_VALUE;
-    }
+    rampTowardInternal(target, DAC_MAX_STEP_PER_INTERVAL);
+}
 
-    uint16_t next = currentDacVal;
-
-    if (next < target) {
-        const uint16_t step = target - next;
-        next += (step > DAC_MAX_STEP_PER_INTERVAL) ? DAC_MAX_STEP_PER_INTERVAL : step;
-    } else if (next > target) {
-        const uint16_t step = next - target;
-        next -= (step > DAC_MAX_STEP_PER_INTERVAL) ? DAC_MAX_STEP_PER_INTERVAL : step;
-    }
-
-    writeSpi(next);
+void rampTowardShutdown(uint16_t target) {
+    rampTowardInternal(target, DAC_SHUTDOWN_STEP_PER_INTERVAL);
 }
 
 uint16_t getCurrent() {

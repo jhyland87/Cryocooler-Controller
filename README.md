@@ -1,6 +1,6 @@
 # ESP32-S3 Cryocooler Controller
 
-Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryogenic cooler. The controller manages a compressor-driven cold stage through nine operational states — from a cold start at room temperature (~295 K) down to an operating setpoint of 78 K — while enforcing thermal safety limits, detecting back-EMF current spikes, streaming live telemetry to Serial Studio, and serving real-time data as JSON over WiFi.
+Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryogenic cooler. The controller manages a compressor-driven cold stage through ten operational states — from a cold start at room temperature (~295 K) down to an operating setpoint of 78 K, with a graceful shutdown sequence — while enforcing thermal safety limits, detecting back-EMF current spikes, streaming live telemetry to Serial Studio, and serving real-time data as JSON over WiFi.
 
 ---
 
@@ -76,24 +76,30 @@ The core of the controller. Ingests sensor readings every 200 ms and outputs a c
 | 5 | Settle | Near setpoint; Normal relay engages | Flash Fast Red | Flash Fast Green | Holds | Normal |
 | 6 | Baseline | Collecting pre-run baseline (5 min) | Off | Solid Green | Holds | Normal |
 | 7 | Operating | Normal cryogenic operation | Off | Solid Green | Holds | Normal |
-| 8 | Fault | Any fault condition | Solid Red | Off | 0 | Bypass + Alarm |
+| 8 | Shutdown | Graceful shutdown; DAC ramps down (~5 s) | Off | Off | Ramps→0 | Bypass |
+| 127 | Fault | Any fault condition (terminal state) | Solid Red | Off | 0 | Bypass + Alarm |
 
 **Transition triggers:**
 
 ```
-Off      ──[start()]──► CoarseCooldown (or FineCooldown / Overshoot / Settle,
-                        depending on current temperature)
-Initialize ──[auto]──► Idle
-Idle     ──[start()]──► CoarseCooldown
-Coarse   ──[temp < 85 K]──► FineCooldown
-Fine     ──[temp ≤ setpoint + tolerance]──► Overshoot
-Fine     ──[temp in setpoint band]──► Settle
-Overshoot──[temp in setpoint band]──► Settle
-Settle   ──[stable for 60 s]──► Baseline
-Baseline ──[5 min elapsed]──► Operating
-Any      ──[RMS overvoltage | temp stall | too many backoffs]──► Fault
-Any      ──[stop()]──► Idle
-Any      ──[off()]──► Off
+Off         ──[start()]──► CoarseCooldown (or FineCooldown / Overshoot / Settle,
+                            depending on current temperature)
+Initialize  ──[auto]──► Idle
+Idle        ──[start()]──► CoarseCooldown
+Coarse      ──[temp < 85 K]──► FineCooldown
+Fine        ──[temp ≤ setpoint + tolerance]──► Overshoot
+Fine        ──[temp in setpoint band]──► Settle
+Overshoot   ──[temp in setpoint band]──► Settle
+Settle      ──[stable for 60 s]──► Baseline
+Baseline    ──[5 min elapsed]──► Operating
+Any         ──[RMS overvoltage | temp stall | too many backoffs]──► Fault
+Coarse/Fine ──[stop()]──► Shutdown
+Overshoot   ──[stop()]──► Shutdown
+Settle      ──[stop()]──► Shutdown
+Baseline    ──[stop()]──► Shutdown
+Operating   ──[stop()]──► Shutdown
+Shutdown    ──[~5 s elapsed]──► Idle
+Any         ──[off()]──► Off
 ```
 
 **Back-EMF backoff:** When the ACS712 detects a current spike exceeding the EMA baseline by `OVERSTROKE_CURRENT_THRESHOLD_A` (2 A), the DAC target is decremented by `BACKOFF_DAC_STEP` (200 counts). After `BACKOFF_MAX_COUNT` (10) cumulative events the machine enters Fault.
@@ -107,9 +113,12 @@ Any      ──[off()]──► Off
 | `SETPOINT_TOLERANCE_K` | 2.0 K | Band around setpoint for settle/overshoot logic |
 | `SETTLE_DURATION_MS` | 60 000 ms | Time stable before advancing to Baseline |
 | `BASELINE_DURATION_MS` | 300 000 ms | Baseline collection window |
+| `SHUTDOWN_DURATION_MS` | 5 000 ms | Duration of graceful shutdown sequence |
 | `STALL_DETECT_WINDOW_MS` | 600 000 ms | Stall detection observation window (10 min) |
 | `STALL_MIN_DROP_K` | 2.0 K | Minimum drop required within the window |
 | `MAX_COOLDOWN_RATE_K_PER_MIN` | 1.0 K/min | Maximum allowed cooling rate |
+| `DAC_MAX_STEP_PER_INTERVAL` | 5 counts | Normal ramp rate limiter (smooth cooldown) |
+| `DAC_SHUTDOWN_STEP_PER_INTERVAL` | 200 counts | Fast ramp rate for shutdown sequence |
 
 ---
 
@@ -148,10 +157,11 @@ Houses two independent measurements on the AC output line:
 
 ### `dac`
 
-Drives the MCP4921 12-bit DAC over SPI to set the compressor power level (0 – 4095 counts). Provides two write modes:
+Drives the MCP4921 12-bit DAC over SPI to set the compressor power level (0 – 4095 counts). Provides three write modes:
 
 - `update(val)` — immediate write; skips SPI if value unchanged
-- `rampToward(target)` — increments/decrements by at most `DAC_MAX_STEP_PER_INTERVAL` (5 counts) per call, enforcing a maximum power slew rate (~164 s for a full-scale ramp at 200 ms ticks)
+- `rampToward(target)` — increments/decrements by at most `DAC_MAX_STEP_PER_INTERVAL` (5 counts) per call, enforcing a smooth power ramp (~164 s for full-scale at 200 ms ticks)
+- `rampTowardShutdown(target)` — fast ramp using `DAC_SHUTDOWN_STEP_PER_INTERVAL` (200 counts) per call for graceful shutdown (~4 s full-scale descent). Prevents motor stress without abrupt voltage spikes
 
 ---
 
@@ -226,7 +236,7 @@ telemetry::fillJson(doc)           // convenience wrapper → JsonDocument
 
 | # | Key | Type | Description |
 |---|-----|------|-------------|
-| 1 | `state_no` | int | State index (−1 to 8) |
+| 1 | `state_no` | int | State index (−1 to 127, with Fault = 127) |
 | 2 | `state_name` | string | State label (e.g. `"CoarseCooldown"`) |
 | 3 | `status_text` | string | Human-readable status |
 | 4 | `temp_k` | float | Cold-stage temperature (K) |

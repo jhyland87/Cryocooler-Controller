@@ -138,8 +138,13 @@ void loop() {
     indicator::setFaultMode(out.faultIndMode);
     indicator::setReadyMode(out.readyIndMode);
 
-    // Ramp DAC toward the state-machine target (rate-limited in dac.cpp)
-    dac::rampToward(out.dacTarget);
+    // Ramp DAC toward the state-machine target (rate-limited in dac.cpp).
+    // Use fast shutdown ramp during Shutdown state, normal ramp otherwise.
+    if (out.state == state_machine::State::Shutdown) {
+        dac::rampTowardShutdown(out.dacTarget);
+    } else {
+        dac::rampToward(out.dacTarget);
+    }
 
     // ---- 4. HTTP API ---------------------------------------------------
     http_api::service();

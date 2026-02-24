@@ -21,8 +21,31 @@ extern "C" {
 uint32_t millis(void);
 void     stub_setMillis(uint32_t ms);
 
+// GPIO stubs
+void     pinMode(uint8_t pin, uint8_t mode);
+void     digitalWrite(uint8_t pin, uint8_t val);
+
 #ifdef __cplusplus
 }
 #endif
+
+// SPI stub class (minimal C++ interface)
+class SPISettings {
+public:
+    SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)
+        : clock_(clock), bitOrder_(bitOrder), dataMode_(dataMode) {}
+    uint32_t clock_;
+    uint8_t bitOrder_;
+    uint8_t dataMode_;
+};
+
+class SPIClass {
+public:
+    void beginTransaction(SPISettings settings);
+    void endTransaction(void);
+    uint16_t transfer16(uint16_t data);
+};
+
+extern SPIClass SPI;
 
 #endif // ARDUINO_STUB_H

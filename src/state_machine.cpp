@@ -68,6 +68,7 @@ static const char* statusTextForState(State s) {
         case State::Settle:         return "Cold stage temperature is settling; circuits switched to Normal";
         case State::Baseline:       return "Cold stage temperature has settled; collecting baseline data";
         case State::Operating:      return "System is operating normally; checking for deviations from baseline";
+        case State::Shutdown:       return "Gracefully shutting down; ramping DAC to zero";
         case State::Fault:
             switch (faultReason) {
                 case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
@@ -188,6 +189,12 @@ static Output buildOutput(State s, uint16_t dacTarget) {
             o.bypassRelay  = false;   // Normal
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::SolidGreen;
+            break;
+
+        case State::Shutdown:
+            o.bypassRelay  = true;    // Return to Bypass during shutdown
+            o.faultIndMode = Mode::Off;
+            o.readyIndMode = Mode::Off;
             break;
 
         case State::Fault:
@@ -364,6 +371,17 @@ Output update(float    tempK,
         case State::Operating:
             return buildOutput(State::Operating, 0);
 
+        // ---- Shutdown --------------------------------------------------
+        case State::Shutdown:
+            // DAC target is 0; rampToward() in main.cpp gradually reduces
+            // the output over time using the configured ramp rate, preventing
+            // abrupt motor stress or voltage spikes.
+            if (elapsed >= SHUTDOWN_DURATION_MS) {
+                enterState(State::Idle, nowMs);
+                return buildOutput(State::Idle, 0);
+            }
+            return buildOutput(State::Shutdown, 0);
+
         // ---- Fault (terminal) ------------------------------------------
         case State::Fault:
             if (offStateMs == 0) {
@@ -428,7 +446,7 @@ void stop(uint32_t nowMs) {
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
-    enterState(State::Idle, nowMs);
+    enterState(State::Shutdown, nowMs);
 }
 
 void off(uint32_t nowMs) {
@@ -454,6 +472,7 @@ const char* stateName(State s) {
         case State::Settle:         return "Settle";
         case State::Baseline:       return "Baseline";
         case State::Operating:      return "Operating";
+        case State::Shutdown:       return "Shutdown";
         case State::Fault:          return "Fault";
     }
     return "Unknown";

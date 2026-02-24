@@ -38,9 +38,25 @@ void update(uint16_t dacVal);
 void rampToward(uint16_t target);
 
 /**
+ * Fast rate-limited step toward a target DAC value (used during shutdown).
+ *
+ * Each call moves the current output at most DAC_SHUTDOWN_STEP_PER_INTERVAL
+ * counts in the direction of @p target.  This allows rapid shutdown (few
+ * seconds) without stressing the motor, while still being gradual enough
+ * to prevent voltage spikes.
+ *
+ * The actual SPI write is only issued when the value changes.
+ *
+ * @param target  Desired 12-bit output value (0-4095)
+ */
+void rampTowardShutdown(uint16_t target);
+
+/**
  * Return the current DAC output value (last value written to hardware).
  */
 uint16_t getCurrent();
+
+
 
 } // namespace dac
 

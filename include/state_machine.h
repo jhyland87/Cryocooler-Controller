@@ -2,17 +2,19 @@
  * @file state_machine.h
  * @brief Cryocooler system state machine
  *
- * Implements the nine-state control sequence:
+ * Implements the ten-state control sequence:
  *
- *   0  Initialize   - Power-up: AMBER flash, relay Bypass, DAC = 0
- *   1  Idle         - Warm / standby: FAULT RED, relay Bypass, DAC = 0
- *   2  CoarseCooldown - Cooling above 85 K: FAULT flash fast RED, ramp DAC
- *   3  FineCooldown   - Cooling below 85 K: + READY flash slow GREEN
- *   4  Overshoot      - Below setpoint, integrator settling: READY flash fast GREEN
- *   5  Settle         - Near setpoint, Normal relay engaged
- *   6  Baseline       - Collecting baseline: READY ON GREEN
- *   7  Operating      - Normal run: READY ON GREEN
- *   8  Fault          - Any fault condition: FAULT ON RED, alarm relay active
+ *   -1 Off           - System powered down (not running)
+ *    0 Initialize    - Power-up: AMBER flash, relay Bypass, DAC = 0
+ *    1 Idle          - Warm / standby: FAULT RED, relay Bypass, DAC = 0
+ *    2 CoarseCooldown - Cooling above 85 K: FAULT flash fast RED, ramp DAC
+ *    3 FineCooldown   - Cooling below 85 K: + READY flash slow GREEN
+ *    4 Overshoot      - Below setpoint, integrator settling: READY flash fast GREEN
+ *    5 Settle         - Near setpoint, Normal relay engaged
+ *    6 Baseline       - Collecting baseline: READY ON GREEN
+ *    7 Operating      - Normal run: READY ON GREEN
+ *    8 Shutdown       - Graceful stop: ramp DAC to 0 over ~5 seconds, then → Idle
+ *  127 Fault          - Any fault condition: FAULT ON RED, alarm relay active (terminal state)
  *
  * Transition inputs on every update() call:
  *   - tempK          : current cold-stage temperature in Kelvin
@@ -45,7 +47,8 @@ enum class State : int8_t {
     Settle          = 5,
     Baseline        = 6,
     Operating       = 7,
-    Fault           = 8
+    Shutdown        = 8,
+    Fault           = 127
 };
 
 

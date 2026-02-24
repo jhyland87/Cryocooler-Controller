@@ -61,6 +61,10 @@
 // At LOOP_INTERVAL_MS = 200 ms, a step of 5 gives a full-scale ramp in ~164 s.
 #define DAC_MAX_STEP_PER_INTERVAL  static_cast<uint16_t>(5)
 
+// DAC step size during shutdown sequence (ramp down much faster than ramp up).
+// At LOOP_INTERVAL_MS = 200 ms, a step of 200 gives a full-scale ramp in ~4 s.
+#define DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)
+
 // =============================================================================
 // ADC
 // =============================================================================
@@ -144,6 +148,14 @@
 // Duration of the Baseline (6) data-collection state before advancing to
 // Operating (7).
 #define BASELINE_DURATION_MS static_cast<uint32_t>(300000)   // 5 minutes
+
+// =============================================================================
+// Shutdown Sequence
+// =============================================================================
+
+// Duration of the Shutdown (9) state during which the DAC ramps to 0
+// before returning to Idle. Prevents motor stress from abrupt stops.
+#define SHUTDOWN_DURATION_MS static_cast<uint32_t>(5000)     // 5 s
 
 // =============================================================================
 // Timing

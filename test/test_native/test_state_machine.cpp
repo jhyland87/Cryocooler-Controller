@@ -72,6 +72,8 @@ static uint32_t initAndStart() {
 
 /**
  * Helper: init, start, then stop — ending in Idle.
+ * Since stop() now transitions to Shutdown first, this helper advances through
+ * the shutdown duration to reach Idle.
  *
  * @return  The nowMs timestamp at which Idle was entered.
  */
@@ -79,7 +81,11 @@ static uint32_t initStartAndStop() {
     const uint32_t tStart = initAndStart();
     const uint32_t tStop  = tStart + 1000;
     state_machine::stop(tStop);
-    return tStop;
+    // Shutdown lasts SHUTDOWN_DURATION_MS; advance past it to reach Idle
+    const uint32_t tIdle = tStop + SHUTDOWN_DURATION_MS;
+    stub_setMillis(tIdle);
+    state_machine::update(295.0f, 0.0f, 0.0f, false, tIdle);
+    return tIdle;
 }
 
 // ---------------------------------------------------------------------------
@@ -185,11 +191,13 @@ void test_start_ignored_when_already_running(void) {
 }
 
 void test_stop_returns_to_idle(void) {
+    // NOTE: stop() now enters Shutdown state first, which then transitions to Idle
+    // after SHUTDOWN_DURATION_MS. This test verifies the immediate transition to Shutdown.
     const uint32_t tStart = initAndStart();
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
                       static_cast<int8_t>(state_machine::getState()));
     state_machine::stop(tStart + 1000);
-    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
                       static_cast<int8_t>(state_machine::getState()));
     TEST_ASSERT_FALSE(state_machine::isRunning());
 }
@@ -629,6 +637,11 @@ void test_stateName_operating_string(void) {
         state_machine::stateName(state_machine::State::Operating));
 }
 
+void test_stateName_shutdown_string(void) {
+    TEST_ASSERT_EQUAL_STRING("Shutdown",
+        state_machine::stateName(state_machine::State::Shutdown));
+}
+
 void test_stateName_fault_string(void) {
     TEST_ASSERT_EQUAL_STRING("Fault",
         state_machine::stateName(state_machine::State::Fault));
@@ -727,6 +740,56 @@ void test_operating_uses_normal_relay(void) {
                       static_cast<int8_t>(out.state));
     TEST_ASSERT_FALSE(out.bypassRelay);
     TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+// ---------------------------------------------------------------------------
+// State: Shutdown
+// ---------------------------------------------------------------------------
+
+void test_stop_enters_shutdown(void) {
+    // stop() from a running state should transition to Shutdown, not Idle
+    const uint32_t tStart = initAndStart();
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+    state_machine::stop(tStart + 1000);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_FALSE(state_machine::isRunning());
+}
+
+void test_shutdown_returns_dac_zero(void) {
+    // Shutdown state should target DAC = 0 to allow rampToward() to gradually reduce
+    const uint32_t tStart = initAndStart();
+    state_machine::stop(tStart + 1000);
+    const auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, tStart + 1001);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(0, out.dacTarget);
+}
+
+void test_shutdown_uses_bypass_relay(void) {
+    const uint32_t tStart = initAndStart();
+    state_machine::stop(tStart + 1000);
+    const auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, tStart + 1001);
+    TEST_ASSERT_TRUE(out.bypassRelay);
+}
+
+void test_shutdown_duration_then_transitions_to_idle(void) {
+    const uint32_t tStart = initAndStart();
+    state_machine::stop(tStart + 1000);
+    // Just before SHUTDOWN_DURATION_MS elapses, should still be in Shutdown
+    const uint32_t beforeExpiry = tStart + 1000 + SHUTDOWN_DURATION_MS - 1;
+    stub_setMillis(beforeExpiry);
+    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, beforeExpiry);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
+                      static_cast<int8_t>(out.state));
+
+    // After SHUTDOWN_DURATION_MS elapses, should transition to Idle
+    const uint32_t afterExpiry = tStart + 1000 + SHUTDOWN_DURATION_MS;
+    stub_setMillis(afterExpiry);
+    out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, afterExpiry);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(out.state));
 }
 
 // ---------------------------------------------------------------------------
@@ -841,6 +904,12 @@ int main(int argc, char **argv) {
     RUN_TEST(test_off_from_idle);
     RUN_TEST(test_off_ignored_when_already_off);
 
+    // Shutdown state
+    RUN_TEST(test_stop_enters_shutdown);
+    RUN_TEST(test_shutdown_returns_dac_zero);
+    RUN_TEST(test_shutdown_uses_bypass_relay);
+    RUN_TEST(test_shutdown_duration_then_transitions_to_idle);
+
     // CoarseCooldown
     RUN_TEST(test_coarse_cooldown_output);
     RUN_TEST(test_coarse_dac_increases_as_temp_drops);
@@ -903,6 +972,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_stateName_settle_string);
     RUN_TEST(test_stateName_baseline_string);
     RUN_TEST(test_stateName_operating_string);
+    RUN_TEST(test_stateName_shutdown_string);
     RUN_TEST(test_stateName_fault_string);
 
     // Settle timer boundary
