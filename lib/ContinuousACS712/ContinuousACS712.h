@@ -75,6 +75,29 @@ public:
   float    continuousmAUncorrected() const;
   uint16_t continuousMinRaw() const;     // min raw since beginContinuousRMS()
   uint16_t continuousMaxRaw() const;     // max raw since beginContinuousRMS()
+  uint16_t continuousLastRaw() const;    // last raw sample used by updateContinuousRMS()
+  float    continuousMeanRaw() const;    // EMA mean of raw ADC steps
+  float    continuousRmsSteps() const;   // RMS in ADC steps around selected center
+
+  // Spike tracking over previous N values.
+  // Maintains a rolling baseline (mean/stddev) of the previous windowSize values and
+  // reports how far the current value deviates from that baseline.
+  //
+  // Notes:
+  // - Baseline excludes the current value (it uses "previous N").
+  // - The tracked stream is the corrected mA output (after offset/clamp/noise floor).
+  void     beginSpikeTracking(uint16_t windowSize = 50);
+  void     stopSpikeTracking();
+  bool     spikeTrackingEnabled() const;
+  bool     spikeTrackingReady() const;     // true once we've collected at least windowSize samples
+  float    spikeBaselineMean() const;      // mean of previous window (mA)
+  float    spikeBaselineStdDev() const;    // stddev of previous window (mA)
+  float    spikeDelta() const;             // current - baselineMean (mA)
+  float    spikeZScore() const;            // delta / stddev (unitless); 0 if stddev is 0
+  bool     spikeActive() const;            // true while spike condition is met
+  void     setSpikeThresholdZ(float z);    // default 3.0; if <= 0, disables z-threshold
+  void     setSpikeThresholdDelta(float delta_mA);  // default 0; if <= 0, disables delta-threshold
+  void     setSpikeDetectNegative(bool detectNegative);  // default false (positive spikes only)
 
   // Non-blocking equivalent of ACS712::mA_AC_sampling().
   // Call beginACSampling(), then call updateACSampling() repeatedly from loop().
@@ -89,6 +112,7 @@ public:
 
 private:
   uint16_t analogRead16_(uint8_t pin);
+  void     spikeUpdate_(float currentmA);
 
   uint8_t  pin_;
   uint16_t maxADC_;
@@ -143,6 +167,28 @@ private:
     float    resultmAUncorrected = 0.0f;
     uint16_t minRaw = 0xFFFF;
     uint16_t maxRaw = 0;
+    uint16_t lastRaw = 0;
+    float    lastRmsSteps = 0.0f;
   } cont_;
+
+  static constexpr uint16_t kMaxSpikeWindow = 256;
+  struct
+  {
+    bool     enabled = false;
+    uint16_t windowSize = 0;
+    uint16_t count = 0;
+    uint16_t index = 0;
+    float    sum = 0.0f;
+    float    sumSquares = 0.0f;
+    float    lastMean = 0.0f;
+    float    lastStdDev = 0.0f;
+    float    lastDelta = 0.0f;
+    float    lastZ = 0.0f;
+    bool     active = false;
+    float    thresholdZ = 3.0f;
+    float    thresholdDelta = 0.0f;
+    bool     detectNegative = false;
+    float    buffer[kMaxSpikeWindow] = {0};
+  } spike_;
 };
 

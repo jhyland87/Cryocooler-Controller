@@ -130,6 +130,178 @@ uint16_t ContinuousACS712::readRaw()
 }
 
 
+void ContinuousACS712::beginSpikeTracking(uint16_t windowSize)
+{
+  if (windowSize == 0) windowSize = 1;
+  if (windowSize > kMaxSpikeWindow) windowSize = kMaxSpikeWindow;
+
+  spike_.enabled    = true;
+  spike_.windowSize = windowSize;
+  spike_.count      = 0;
+  spike_.index      = 0;
+  spike_.sum        = 0.0f;
+  spike_.sumSquares = 0.0f;
+  spike_.lastMean   = 0.0f;
+  spike_.lastStdDev = 0.0f;
+  spike_.lastDelta  = 0.0f;
+  spike_.lastZ      = 0.0f;
+  spike_.active     = false;
+  for (uint16_t i = 0; i < windowSize; ++i)
+  {
+    spike_.buffer[i] = 0.0f;
+  }
+}
+
+
+void ContinuousACS712::stopSpikeTracking()
+{
+  spike_.enabled = false;
+}
+
+
+bool ContinuousACS712::spikeTrackingEnabled() const
+{
+  return spike_.enabled;
+}
+
+
+bool ContinuousACS712::spikeTrackingReady() const
+{
+  return spike_.enabled && (spike_.count >= spike_.windowSize);
+}
+
+
+float ContinuousACS712::spikeBaselineMean() const
+{
+  return spike_.lastMean;
+}
+
+
+float ContinuousACS712::spikeBaselineStdDev() const
+{
+  return spike_.lastStdDev;
+}
+
+
+float ContinuousACS712::spikeDelta() const
+{
+  return spike_.lastDelta;
+}
+
+
+float ContinuousACS712::spikeZScore() const
+{
+  return spike_.lastZ;
+}
+
+
+bool ContinuousACS712::spikeActive() const
+{
+  return spike_.enabled && spike_.active;
+}
+
+
+void ContinuousACS712::setSpikeThresholdZ(float z)
+{
+  spike_.thresholdZ = z;
+}
+
+
+void ContinuousACS712::setSpikeThresholdDelta(float delta_mA)
+{
+  spike_.thresholdDelta = delta_mA;
+}
+
+
+void ContinuousACS712::setSpikeDetectNegative(bool detectNegative)
+{
+  spike_.detectNegative = detectNegative;
+}
+
+
+void ContinuousACS712::spikeUpdate_(float currentmA)
+{
+  if (!spike_.enabled || spike_.windowSize == 0) return;
+
+  // Baseline uses previous samples only (exclude currentmA).
+  const uint16_t n = spike_.count;
+  bool active = false;
+  if (n >= 2)
+  {
+    const float invN = 1.0f / (float)n;
+    const float mean = spike_.sum * invN;
+    const float meanSq = spike_.sumSquares * invN;
+    float var = meanSq - (mean * mean);
+    if (var < 0.0f) var = 0.0f;
+    const float stddev = sqrt(var);
+
+    spike_.lastMean   = mean;
+    spike_.lastStdDev = stddev;
+    spike_.lastDelta  = currentmA - mean;
+    spike_.lastZ      = (stddev > 0.0f) ? (spike_.lastDelta / stddev) : 0.0f;
+
+    const float deltaCheck = spike_.detectNegative ? fabsf(spike_.lastDelta) : spike_.lastDelta;
+    const float zCheck     = spike_.detectNegative ? fabsf(spike_.lastZ)     : spike_.lastZ;
+
+    const bool zEnabled = (spike_.thresholdZ > 0.0f);
+    const bool dEnabled = (spike_.thresholdDelta > 0.0f);
+
+    if (zEnabled && (zCheck >= spike_.thresholdZ)) active = true;
+    if (dEnabled && (deltaCheck >= spike_.thresholdDelta)) active = true;
+  }
+  else if (n == 1)
+  {
+    const float mean = spike_.sum;
+    spike_.lastMean   = mean;
+    spike_.lastStdDev = 0.0f;
+    spike_.lastDelta  = currentmA - mean;
+    spike_.lastZ      = 0.0f;
+
+    const float deltaCheck = spike_.detectNegative ? fabsf(spike_.lastDelta) : spike_.lastDelta;
+    const bool dEnabled = (spike_.thresholdDelta > 0.0f);
+    if (dEnabled && (deltaCheck >= spike_.thresholdDelta)) active = true;
+  }
+  else
+  {
+    spike_.lastMean   = 0.0f;
+    spike_.lastStdDev = 0.0f;
+    spike_.lastDelta  = 0.0f;
+    spike_.lastZ      = 0.0f;
+  }
+
+  // Becomes true while the condition holds; returns to false automatically.
+  // Only arm once we have a full baseline window.
+  if (spikeTrackingReady())
+  {
+    spike_.active = active;
+  }
+  else
+  {
+    spike_.active = false;
+  }
+
+  // Push current sample into ring buffer.
+  if (spike_.count < spike_.windowSize)
+  {
+    spike_.buffer[spike_.index] = currentmA;
+    spike_.sum += currentmA;
+    spike_.sumSquares += currentmA * currentmA;
+    spike_.count++;
+    spike_.index++;
+    if (spike_.index >= spike_.windowSize) spike_.index = 0;
+    return;
+  }
+
+  const float old = spike_.buffer[spike_.index];
+  spike_.buffer[spike_.index] = currentmA;
+  spike_.sum += currentmA - old;
+  spike_.sumSquares += (currentmA * currentmA) - (old * old);
+
+  spike_.index++;
+  if (spike_.index >= spike_.windowSize) spike_.index = 0;
+}
+
+
 void ContinuousACS712::beginContinuousRMS(float timeConstantMs, uint32_t minSampleIntervalUs)
 {
   if (timeConstantMs <= 0) timeConstantMs = 1.0f;
@@ -179,6 +351,7 @@ bool ContinuousACS712::updateContinuousRMS()
     reading = (uint16_t)((readingA + readingB) / 2);
   }
 
+  cont_.lastRaw = reading;
   if (reading < cont_.minRaw) cont_.minRaw = reading;
   if (reading > cont_.maxRaw) cont_.maxRaw = reading;
 
@@ -204,6 +377,7 @@ bool ContinuousACS712::updateContinuousRMS()
   if (rms2 < 0.0f) rms2 = 0.0f;
 
   const float rmsSteps = sqrt(rms2);
+  cont_.lastRmsSteps = rmsSteps;
   float mA = rmsSteps * mAPerStep_;
 
   cont_.resultmAUncorrected = mA;
@@ -211,6 +385,7 @@ bool ContinuousACS712::updateContinuousRMS()
   if (clampZero_ && (mA < 0.0f)) mA = 0.0f;
   if (noiseFloormA_ > 0.0f && (mA < noiseFloormA_)) mA = 0.0f;
   cont_.resultmA = mA;
+  spikeUpdate_(mA);
   return true;
 }
 
@@ -236,6 +411,24 @@ uint16_t ContinuousACS712::continuousMinRaw() const
 uint16_t ContinuousACS712::continuousMaxRaw() const
 {
   return cont_.maxRaw;
+}
+
+
+uint16_t ContinuousACS712::continuousLastRaw() const
+{
+  return cont_.lastRaw;
+}
+
+
+float ContinuousACS712::continuousMeanRaw() const
+{
+  return cont_.mean;
+}
+
+
+float ContinuousACS712::continuousRmsSteps() const
+{
+  return cont_.lastRmsSteps;
 }
 
 
@@ -388,6 +581,7 @@ bool ContinuousACS712::updateACSampling()
     if (noiseFloormA_ > 0.0f && (mA < noiseFloormA_)) mA = 0.0f;
 
     acSampling_.resultmA  = mA;
+    spikeUpdate_(mA);
     acSampling_.active    = false;
     acSampling_.available = true;
     return true;

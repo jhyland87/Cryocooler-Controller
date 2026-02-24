@@ -90,7 +90,13 @@ void init() {
         Serial.println("MAX31865 initialized successfully!");
     }
 
-    analogReadResolution(12);
+
+    /* The `analog` function is not explicitly defined in the provided code snippet. However, in
+    Arduino programming, the `analogReadResolution()` function is used to set the resolution of the
+    analog-to-digital converter (ADC) on the microcontroller. This function is typically used to
+    specify the number of bits used for the ADC conversion, which affects the range and precision of
+    analog readings taken from analog pins. */
+    //analogReadResolution(12);
     sensors.begin();
 }
 

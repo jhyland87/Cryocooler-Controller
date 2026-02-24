@@ -27,7 +27,7 @@
 
 #define ANALOG_RESOLUTION 12
 
-#define DS18B20_VREF 3.3
+#define DS18B20_VREF      3.3f
 
 // Reference resistor on the MAX31865 breakout.
 // Use 430.0 for PT100, 4300.0 for PT1000 (adjust to measured value).
