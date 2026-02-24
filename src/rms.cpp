@@ -14,7 +14,7 @@
  * slowly-evolving steady-state current while brief spikes stand out clearly.
  *
  * ── ACS712 measurement ──────────────────────────────────────────────────────
- * The custom ContinuousACS712 library is used in continuous-RMS mode.
+ * The custom ContinuousZMCT103C library is used in continuous-RMS mode.
  * updateContinuousRMS() is called every loop tick; it samples the ADC,
  * updates an EMA of mean and mean-square, and returns in microseconds.
  * There is no blocking wait — sampling is spread across loop iterations.
@@ -42,7 +42,7 @@
 
 #ifdef ARDUINO
 #  include <Arduino.h>
-#  include "ContinuousACS712.h"
+#  include "ContinuousZMCT103C.h"
 #else
 // Native (host-PC) build: Arduino.h stub provides millis().
 #  include "Arduino.h"
@@ -64,11 +64,11 @@ static bool     overstrokeFlag   = false;  // set on spike; cleared by caller
 static uint32_t lastOverstrokeMs = 0;      // timestamp of most recent event
 
 #ifdef ARDUINO
-// ContinuousACS712 — 5 A sensor on ESP32-S3 (3.3 V supply, 12-bit ADC).
+// ContinuousZMCT103C — 5 A sensor on ESP32-S3 (3.3 V supply, 12-bit ADC).
 // Mean-centering is on by default: the running mean tracks the zero-current
 // offset automatically, so no explicit midpoint calibration is required.
 // Constructor: (analogPin, volts, maxADC, mVperAmpere)
-static ContinuousACS712 sensor(ACS712_CURRENT_PIN,
+static ContinuousZMCT103C sensor(ACS712_CURRENT_PIN,
                                   ACS712_ADC_VOLTS,
                                   ACS712_ADC_MAX_VALUE,
                                   ACS712_SENSITIVITY_MV_PER_A);

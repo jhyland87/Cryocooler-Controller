@@ -140,7 +140,7 @@ Houses two independent measurements on the AC output line:
 
 **1. RMS-to-DC converter** (`read()` / `getVoltage()`) — currently stubbed at 0 V. Reserved for a future hardware driver. Triggers a Fault if voltage exceeds `RMS_MAX_VOLTAGE_VDC` (120 V).
 
-**2. ACS712-05B current sensor** (`readCurrent()` / `getCurrentA()`) — uses the custom `ContinuousACS712` library in continuous non-blocking RMS mode. `updateContinuousRMS()` is called every 200 ms tick and updates an exponential moving average of mean and mean-square. Mean-centering (`useMeanCenter = true`, the default) eliminates the need for explicit zero-current calibration.
+**2. ACS712-05B current sensor** (`readCurrent()` / `getCurrentA()`) — uses the custom `ContinuousZMCT103C` library in continuous non-blocking RMS mode. `updateContinuousRMS()` is called every 200 ms tick and updates an exponential moving average of mean and mean-square. Mean-centering (`useMeanCenter = true`, the default) eliminates the need for explicit zero-current calibration.
 
 **Overstroke (back-EMF) detection:** A separate slow-tracking EMA (`OVERSTROKE_EMA_ALPHA = 0.08`) forms the baseline. A current reading that exceeds `baseline + OVERSTROKE_CURRENT_THRESHOLD_A` fires `hasOverstroke()`, subject to `OVERSTROKE_DEBOUNCE_MS`. The EMA is primed for `OVERSTROKE_PRIME_READINGS` (20) ticks on startup to prevent false triggers.
 
@@ -329,7 +329,7 @@ setup()
  ├─ waveform::init()     ── configure AD9833, start 60 Hz sine output
  ├─ temperature::init()  ── configure MAX31865, verify RTD connection
  ├─ dac::init()          ── configure MCP4921 CS pin, set DAC to 0
- ├─ rms::init()          ── set ADC attenuation, begin ContinuousACS712
+ ├─ rms::init()          ── set ADC attenuation, begin ContinuousZMCT103C
  ├─ relay::init()        ── both relays to LOW (Bypass + alarm off)
  ├─ indicator::init()    ── configure GPIO pins, WS2812 driver
  ├─ http_api::init()     ── connect WiFi, start mDNS ("esp32.local"), start HTTP server
@@ -359,7 +359,7 @@ loop()
      ├─ 1. Read sensors
      │   ├─ temperature::read(nowMs)   ── RTD + DS18B20, update ring buffer
      │   ├─ rms::read()               ── RMS voltage (stub)
-     │   ├─ rms::readCurrent()        ── tick ContinuousACS712 EMA, check overstroke
+     │   ├─ rms::readCurrent()        ── tick ContinuousZMCT103C EMA, check overstroke
      │   └─ temperature::checkFaults() ── read and clear MAX31865 fault register
      │
      ├─ 2. Advance state machine
@@ -398,7 +398,7 @@ loop()
 | `milesburton/DallasTemperature` | DS18B20 ambient sensor |
 | `bblanchon/ArduinoJson` | JSON serialisation (HTTP API + FrameBuilder) |
 
-The `ContinuousACS712` library lives in `lib/ContinuousACS712/` and is picked up automatically by PlatformIO.
+The `ContinuousZMCT103C` library lives in `lib/ContinuousZMCT103C/` and is picked up automatically by PlatformIO.
 
 ### WiFi credentials
 
