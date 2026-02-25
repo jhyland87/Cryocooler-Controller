@@ -14,6 +14,8 @@
 
 #include <stdint.h>
 
+#include "pin_config.h"
+#include "arduino_secrets.h"
 
 // =============================================================================
 // Serial
@@ -244,5 +246,7 @@
 // =============================================================================
 
 #define HTTP_API_PORT static_cast<uint16_t>(80)
+
+#define WS_PORT static_cast<uint16_t>(8080)
 
 #endif // CONFIG_H

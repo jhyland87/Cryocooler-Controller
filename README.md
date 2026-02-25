@@ -452,8 +452,8 @@ The `ContinuousZMCT103C` library lives in `lib/ContinuousZMCT103C/` and is picke
 Create `src/arduino_secrets.h` (excluded from version control):
 
 ```cpp
-#define SECRET_SSID "your-network-name"
-#define SECRET_PASS "your-password"
+#define WIFI_SSID "your-network-name"
+#define WIFI_PASS "your-password"
 ```
 
 ### Key tuning parameters (`config.h`)

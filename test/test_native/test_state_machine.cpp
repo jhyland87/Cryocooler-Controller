@@ -25,6 +25,9 @@ void run_serial_command_tests();
 // FrameBuilder tests (defined in test_frame_builder.cpp)
 void run_frame_builder_tests();
 
+// Dashboard tests (defined in test_ss_dashboard.cpp)
+void run_dashboard_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1000,6 +1003,9 @@ int main(int argc, char **argv) {
 
     // FrameBuilder
     run_frame_builder_tests();
+
+    // SS Dashboard library
+    run_dashboard_tests();
 
     return UNITY_END();
 }

@@ -26,9 +26,10 @@
 #include "indicator.h"
 #include "state_machine.h"
 #include "telemetry.h"
-#include "serial_commands.h"
+#include "commands.h"
 #include "device.h"
-#include "http_api.h"
+//#include "http_api.h"
+#include "dashboard.h"
 
 // =============================================================================
 // Module-level objects
@@ -60,6 +61,8 @@ void setup() {
     // Shared SPI bus
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
+    dashboard::init();
+
     // Smooth DAC voltage readback
     dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
     dacVoltageAdc.enable();
@@ -76,13 +79,13 @@ void setup() {
     rms::init();
     relay::init();
     indicator::init();
-    http_api::init();
+    //http_api::init();
 
     // Kick off state machine in Off state
     state_machine::init(millis());
 
     // Initialise serial command handler
-    serial_commands::init();
+    commands::init();
 
     Serial.println("Setup complete. System is Off.");
     Serial.println("Type 'help' for available commands.\n");
@@ -101,7 +104,7 @@ void loop() {
     const uint32_t nowMs = millis();
 
     // Process incoming serial commands (non-blocking)
-    serial_commands::service();
+    commands::service();
 
     // Indicator LEDs update every loop for accurate flash timing
     indicator::update(nowMs);
@@ -146,8 +149,9 @@ void loop() {
     }
 
     // ---- 4. HTTP API ---------------------------------------------------
-    http_api::service();
+    //http_api::service();
 
     // ---- 4. Telemetry ---------------------------------------------------
     telemetry::emit(out);
+    dashboard::service();
 }
