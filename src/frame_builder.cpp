@@ -39,12 +39,12 @@ void FrameBuilder::sendSerial(Print& out) const {
         pos += n;
     };
 
-    append("/*", 2u);
+    //append("/*", 2u);
     for (uint8_t i = 0u; i < count_; ++i) {
-        if (i > 0u) { append("|", 1u); }
+        if (i > 0u) { append("\t", 2u); }
         append(fields_[i].str, strlen(fields_[i].str));
     }
-    append("*/\r\n", 4u);
+    append("\r\n", 2u);
 
     out.write(reinterpret_cast<const uint8_t*>(buf), pos);
 }
