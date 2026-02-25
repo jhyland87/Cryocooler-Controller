@@ -82,6 +82,21 @@ void init() {
     Serial.println("HTTP server started");
 }
 
+IPAddress getIPAddress() {
+    return WiFi.localIP();
+}
+
+String getMacAddress() {
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    return String(mac[0], HEX) + ":" + String(mac[1], HEX) + ":" + String(mac[2], HEX) + ":" + String(mac[3], HEX) + ":" + String(mac[4], HEX) + ":" + String(mac[5], HEX);
+}
+
+String getSSID() {
+    return WiFi.SSID();
+}
+
+
 void service() {
     server.handleClient();
 }

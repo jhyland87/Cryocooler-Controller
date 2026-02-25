@@ -39,6 +39,16 @@ public:
 
     // ----- Arduino Print interface (minimal) -----
 
+    /** Binary write — mirrors Arduino's Print::write(buf, size). */
+    size_t write(const uint8_t* buf, size_t n) {
+        const size_t avail = kCapacity - 1 - _len;
+        const size_t copy  = (n < avail) ? n : avail;
+        memcpy(_buf + _len, buf, copy);
+        _len += copy;
+        _buf[_len] = '\0';
+        return copy;
+    }
+
     size_t print(const char* s) {
         if (!s) { return 0; }
         const size_t n     = strlen(s);

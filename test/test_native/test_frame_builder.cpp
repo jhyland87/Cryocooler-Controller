@@ -348,6 +348,69 @@ void test_fb_chaining_returns_same_object(void) {
 }
 
 // ---------------------------------------------------------------------------
+// fillJson — dotted key names produce nested objects
+// ---------------------------------------------------------------------------
+
+void test_fb_json_dotted_two_levels(void) {
+    FrameBuilder fb;
+    JsonDocument doc;
+    fb.field("foo.bar", "%d", static_cast<int>(42));
+    fb.fillJson(doc);
+    TEST_ASSERT_TRUE(doc["foo"].is<JsonObject>());
+    TEST_ASSERT_EQUAL_INT(42, doc["foo"]["bar"].as<int>());
+}
+
+void test_fb_json_dotted_three_levels(void) {
+    FrameBuilder fb;
+    JsonDocument doc;
+    fb.field("a.b.c", "%.1f", 1.5f);
+    fb.fillJson(doc);
+    TEST_ASSERT_TRUE(doc["a"].is<JsonObject>());
+    TEST_ASSERT_TRUE(doc["a"]["b"].is<JsonObject>());
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 1.5f, doc["a"]["b"]["c"].as<float>());
+}
+
+void test_fb_json_dotted_shared_parent_reused(void) {
+    // "foo.bar" and "foo.baz" must share one "foo" object, not create two.
+    FrameBuilder fb;
+    JsonDocument doc;
+    fb.field("foo.bar", "%d", static_cast<int>(1))
+      .field("foo.baz", "%d", static_cast<int>(2));
+    fb.fillJson(doc);
+    TEST_ASSERT_EQUAL(1, doc.size());   // one top-level key: "foo"
+    TEST_ASSERT_EQUAL_INT(1, doc["foo"]["bar"].as<int>());
+    TEST_ASSERT_EQUAL_INT(2, doc["foo"]["baz"].as<int>());
+}
+
+void test_fb_json_dotted_and_flat_coexist(void) {
+    FrameBuilder fb;
+    JsonDocument doc;
+    fb.field("flat",    "%d",   static_cast<int>(10))
+      .field("grp.val", "%.1f", 3.0f);
+    fb.fillJson(doc);
+    TEST_ASSERT_EQUAL(2, doc.size());   // "flat" and "grp"
+    TEST_ASSERT_EQUAL_INT(10, doc["flat"].as<int>());
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 3.0f, doc["grp"]["val"].as<float>());
+}
+
+void test_fb_json_dotted_string_value(void) {
+    FrameBuilder fb;
+    JsonDocument doc;
+    fb.field("status.text", "%s", "Running");
+    fb.fillJson(doc);
+    TEST_ASSERT_EQUAL_STRING("Running", doc["status"]["text"].as<const char*>());
+}
+
+void test_fb_serial_dotted_name_unaffected(void) {
+    // sendSerial emits only the formatted value; dots in the name are irrelevant.
+    FrameBuilder fb;
+    Print p;
+    fb.field("foo.bar", "%d", static_cast<int>(7));
+    fb.sendSerial(p);
+    TEST_ASSERT_EQUAL_STRING("/*7*/\r\n", p.str());
+}
+
+// ---------------------------------------------------------------------------
 // Entry point — called from test_state_machine.cpp::main()
 // ---------------------------------------------------------------------------
 
@@ -393,7 +456,7 @@ void run_frame_builder_tests() {
     RUN_TEST(test_fb_serial_no_leading_pipe);
     RUN_TEST(test_fb_serial_after_reset);
 
-    // fillJson
+    // fillJson — flat keys
     RUN_TEST(test_fb_json_empty_frame_is_empty_object);
     RUN_TEST(test_fb_json_float_field_stored_as_number);
     RUN_TEST(test_fb_json_signed_field_stored_as_number);
@@ -402,6 +465,14 @@ void run_frame_builder_tests() {
     RUN_TEST(test_fb_json_all_fields_present);
     RUN_TEST(test_fb_json_clears_previous_content);
     RUN_TEST(test_fb_json_bool_stored_as_zero_or_one);
+
+    // fillJson — dotted key names (nested objects)
+    RUN_TEST(test_fb_json_dotted_two_levels);
+    RUN_TEST(test_fb_json_dotted_three_levels);
+    RUN_TEST(test_fb_json_dotted_shared_parent_reused);
+    RUN_TEST(test_fb_json_dotted_and_flat_coexist);
+    RUN_TEST(test_fb_json_dotted_string_value);
+    RUN_TEST(test_fb_serial_dotted_name_unaffected);
 
     // Chaining
     RUN_TEST(test_fb_chaining_returns_same_object);

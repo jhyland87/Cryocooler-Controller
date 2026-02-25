@@ -20,6 +20,13 @@
   */
  void service();
 
+
+IPAddress getIPAddress();
+
+String getMacAddress();
+
+String getSSID();
+
  } // namespace http_api
 
  #endif // HTTP_API_H

@@ -12,18 +12,8 @@
 #ifndef PIN_CONFIG_H
 #define PIN_CONFIG_H
 
-// =============================================================================
-// SPI Bus (shared by MAX31865, AD9833, and MCP4921)
-// =============================================================================
-// Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
-#define SPI_MOSI          42    // Master Out Slave In
-#define SPI_MISO          41    // Master In Slave Out
-#define SPI_CLK           40    // SPI Clock
 
-// =============================================================================
-// One-Wire Bus for DS18B20 temperature sensor
-// =============================================================================
-#define ONE_WIRE_BUS      4
+#define RGB_LED_PIN 38
 
 // =============================================================================
 // MAX31865 RTD Sensor
@@ -31,20 +21,34 @@
 #define MAX31865_CS        1    // Chip Select for MAX31865 PT100
 
 // =============================================================================
-// AD9833 Waveform Generator
+// One-Wire Bus for DS18B20 temperature sensor
 // =============================================================================
-#define AD9833_CS          7    // Chip Select for AD9833
+#define ONE_WIRE_BUS      4
+
+
+// =============================================================================
+// ADC input to read back DAC-controlled voltage (for manual congtrol)
+// =============================================================================
+#define DAC_VOLTAGE_PIN    5
 
 // =============================================================================
 // MCP4921 12-bit DAC (SPI)
 // =============================================================================
 #define MCP4921_CS         6    // Chip Select for MCP4921 DAC
-#define DAC_VOLTAGE_PIN    9    // ADC input to read back DAC-controlled voltage
+
+// =============================================================================
+// AD9833 Waveform Generator
+// =============================================================================
+#define AD9833_CS          7    // Chip Select for AD9833
+
+#define SDA_PIN            8
+#define SCL_PIN            9
 
 // =============================================================================
 // 12 V Rail Monitor
 // =============================================================================
 #define VOLTAGE_12_TEST_PIN  10   // ADC1 input - voltage divider on 12 V rail
+
 
 // =============================================================================
 // Relays
@@ -72,7 +76,11 @@
 // READY indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
 // NOTE: previously 14; reassigned to ACS712_CURRENT_PIN — update wiring accordingly.
-#define READY_IND_PIN      LED_BUILTIN
+// WARNING: do NOT use LED_BUILTIN here. On this board LED_BUILTIN resolves to
+// RGB_BUILTIN (GPIO 48), and the ESP32 Arduino core's io_pin_remap.h silently
+// redirects any digitalWrite() on RGB_BUILTIN to rgbLedWrite(), which fires
+// the RMT peripheral and interferes with the real status LED on GPIO 38.
+#define READY_IND_PIN      15
 
 // =============================================================================
 // ACS712 AC Current Sensor (back-EMF / overstroke detection)
@@ -84,9 +92,19 @@
 #define ACS712_CURRENT_PIN 14
 
 // =============================================================================
+// SPI Bus (shared by MAX31865, AD9833, and MCP4921)
+// =============================================================================
+// Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
+// or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
+#define SPI_CLK           40    // SPI Clock
+#define SPI_MISO          41    // Master In Slave Out
+#define SPI_MOSI          42    // Master Out Slave In
+
+// =============================================================================
 // On-board WS2812 RGB Status LED
 // =============================================================================
-#define STATUS_LED_PIN     48   // Common for on-board RGB on ESP32-S3 DevKit
+#define STATUS_LED_PIN     RGB_LED_PIN   // Common for on-board RGB on ESP32-S3 DevKit
+
 
 
 

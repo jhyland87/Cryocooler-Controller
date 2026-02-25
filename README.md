@@ -14,9 +14,10 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Waveform generator | AD9833 DDS | SPI (CS: GPIO 7) | 60 Hz sine wave for compressor |
 | DAC | MCP4921 12-bit | SPI (CS: GPIO 6) | Compressor power control |
 | Current sensor | ACS712-05B | ADC (GPIO 14) | Back-EMF spike detection |
+| IMU | QMI8658 | I²C (SDA: GPIO 8, SCL: GPIO 9) | Vibration / overstroke detection |
 | 12 V rail monitor | Resistor divider | ADC (GPIO 10) | Supply voltage monitoring |
 | DAC voltage readback | — | ADC (GPIO 9) | DAC output verification |
-| Status LED | WS2812 RGB | GPIO 48 | Fault / Ready indication |
+| Status LED | WS2812 RGB | GPIO 38 | Fault / Ready indication |
 | Bypass relay | — | GPIO 11 | Normal / Bypass switching |
 | Alarm relay | — | GPIO 12 | External fault signalling |
 
@@ -47,12 +48,12 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 Modules (each a C++ namespace):
 
-  temperature ──► state_machine ──► relay
-  rms         ──►               ──► dac
-                                ──► indicator
-                                    │
-                            telemetry / FrameBuilder ──► Serial Studio
-                                                     ──► http_api (JSON)
+  temperature   ──► state_machine ──► relay
+  rms           ──►               ──► dac
+  accelerometer ──►               ──► indicator
+                                      │
+                              telemetry / FrameBuilder ──► Serial Studio
+                                                       ──► http_api (JSON)
 ```
 
 ---
@@ -143,6 +144,28 @@ Internally maintains a ring buffer of `TEMP_HISTORY_SIZE` (20) timestamped sampl
 
 ---
 
+### `accelerometer`
+
+Drives the QMI8658 6-DOF IMU over I²C (SDA: GPIO 8, SCL: GPIO 9). On `init()` the sensor is configured at 1000 Hz ODR for both accelerometer (±8 g) and gyroscope (±512 dps), then a one-time blocking calibration collects 1000 samples to compute per-axis offsets (gravity is removed from the Z accel offset). No `delay()` calls are used — the calibration loop spins on `readSensorData()` which returns false when no new sample is ready.
+
+Each `service()` call applies calibration offsets, runs a first-order low-pass filter (`α = 0.1`), computes roll/pitch (from filtered accel) and yaw (open-loop gyro integration), and checks for motion. All computed values are stored as module state and accessible via getters.
+
+**Motion / overstroke detection:** A reading is classified as motion when the acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2` (2.0) or the gyroscope magnitude exceeds `GYRO_THRESHOLD_DPS` (10.0). The flag clears automatically after `MOTION_TIMEOUT_MS` (2000 ms) of stillness.
+
+| Function | Returns |
+|----------|---------|
+| `isInitialized()` | True if the sensor was found and configured |
+| `isMotionDetected()` | True while motion is active |
+| `hasOverstroke()` | Alias for `isMotionDetected()` — matches `rms::hasOverstroke()` contract |
+| `getRoll()` | Roll angle in degrees |
+| `getPitch()` | Pitch angle in degrees |
+| `getYaw()` | Yaw angle in degrees (open-loop gyro integration; drifts over time) |
+| `getAccelMag()` | Calibrated acceleration magnitude in m/s² (unfiltered) |
+| `getGyroMag()` | Calibrated gyroscope magnitude in deg/s (unfiltered) |
+| `getTemperature()` | IMU die temperature in °C |
+
+---
+
 ### `rms`
 
 Houses two independent measurements on the AC output line:
@@ -184,7 +207,7 @@ Both pins are driven LOW during `init()`, ensuring a safe-default state at boot.
 
 ### `indicator`
 
-Drives the on-board WS2812 RGB LED (GPIO 48) and optional discrete FAULT/READY digital outputs according to the state machine's requested `Mode` enum. All flash timing is non-blocking — `update(nowMs)` is called every loop iteration regardless of the 200 ms gate.
+Drives the on-board WS2812 RGB LED (GPIO 38) and optional discrete FAULT/READY digital outputs according to the state machine's requested `Mode` enum. All flash timing is non-blocking — `update(nowMs)` is called every loop iteration regardless of the 200 ms gate.
 
 | Mode | Colour | Rate |
 |------|--------|------|
@@ -218,14 +241,14 @@ The C++ type of the value argument is detected at compile time (`if constexpr`) 
 
 | Method | Output |
 |--------|--------|
-| `sendSerial(Print&)` | `/*v1\|v2\|...\|v25*/\r\n` (Serial Studio wire format) |
+| `sendSerial(Print&)` | `/*v1\|v2\|...\|v35*/\r\n` (Serial Studio wire format) |
 | `fillJson(JsonDocument&)` | `{"name": typed_value, ...}` — numbers as JSON numbers, strings as JSON strings |
 
 ---
 
 ### `telemetry`
 
-Calls `FrameBuilder` each 200 ms tick to snapshot all 25 module values, sends the frame to Serial, and stores it as `lastFrame_`. Other modules retrieve the stored frame without re-reading hardware:
+Calls `FrameBuilder` each 200 ms tick to snapshot all 35 module values, sends the frame to Serial, and stores it as `lastFrame_`. Other modules retrieve the stored frame without re-reading hardware:
 
 ```cpp
 telemetry::getLastFrame()          // const FrameBuilder& — full frame access
@@ -261,6 +284,16 @@ telemetry::fillJson(doc)           // convenience wrapper → JsonDocument
 | 23 | `voltage_raw` | float | Raw ADC voltage reading |
 | 24 | `waveform_status` | uint | AD9833 status code |
 | 25 | `frequency_hz` | float | AD9833 output frequency (Hz) |
+| 26 | `accel.roll_deg` | float | IMU roll angle (°) |
+| 27 | `accel.pitch_deg` | float | IMU pitch angle (°) |
+| 28 | `accel.yaw_deg` | float | IMU yaw angle — open-loop gyro integration (°) |
+| 29 | `accel.accel_mag` | float | Acceleration magnitude (m/s²) |
+| 30 | `accel.gyro_mag` | float | Gyroscope magnitude (deg/s) |
+| 31 | `accel.temp_c` | float | IMU die temperature (°C) |
+| 32 | `accel.motion` | uint | 1 = motion / overstroke detected, 0 = still |
+| 33 | `accel.x` | float | Filtered X-axis acceleration (m/s²) |
+| 34 | `accel.y` | float | Filtered Y-axis acceleration (m/s²) |
+| 35 | `accel.z` | float | Filtered Z-axis acceleration (m/s²) |
 
 To add a field: append one `.field(name, fmt, value)` call to `emit()` in `telemetry.cpp` and add a row to the table above.
 
@@ -340,6 +373,7 @@ setup()
  ├─ temperature::init()  ── configure MAX31865, verify RTD connection
  ├─ dac::init()          ── configure MCP4921 CS pin, set DAC to 0
  ├─ rms::init()          ── set ADC attenuation, begin ContinuousZMCT103C
+ ├─ accelerometer::init() ── configure QMI8658, calibrate offsets (~1 s)
  ├─ relay::init()        ── both relays to LOW (Bypass + alarm off)
  ├─ indicator::init()    ── configure GPIO pins, WS2812 driver
  ├─ http_api::init()     ── connect WiFi, start mDNS ("esp32.local"), start HTTP server
@@ -361,6 +395,7 @@ loop()
  │   ├─ device::service()           ── service ADC EMA for 12 V rail
  │   ├─ waveform::service()         ── service AD9833 driver state machine
  │   ├─ dacVoltageAdc.service()     ── service smoothed DAC voltage ADC
+ │   ├─ accelerometer::service()    ── read IMU, update orientation + motion state
  │   ├─ serial_commands::service()  ── accumulate serial bytes, dispatch lines
  │   └─ indicator::update(nowMs)    ── advance flash timers, write LEDs
  │
@@ -373,7 +408,8 @@ loop()
      │   └─ temperature::checkFaults() ── read and clear MAX31865 fault register
      │
      ├─ 2. Advance state machine
-     │   └─ state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke)
+     │   └─ state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs,
+     │                            rms::hasOverstroke() || accelerometer::hasOverstroke())
      │       └─ returns Output { state, dacTarget, bypassRelay, alarmRelay,
      │                           faultIndMode, readyIndMode, statusText, backoffCount }
      │
@@ -407,6 +443,7 @@ loop()
 | `majicdesigns/MD_AD9833` | DDS waveform generator |
 | `milesburton/DallasTemperature` | DS18B20 ambient sensor |
 | `bblanchon/ArduinoJson` | JSON serialisation (HTTP API + FrameBuilder) |
+| `QMI8658` | 6-DOF IMU driver |
 
 The `ContinuousZMCT103C` library lives in `lib/ContinuousZMCT103C/` and is picked up automatically by PlatformIO.
 

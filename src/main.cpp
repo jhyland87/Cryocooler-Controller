@@ -9,7 +9,6 @@
  * Required Libraries (platformio.ini lib_deps):
  *   - Adafruit MAX31865
  *   - MD_AD9833
- *   - FastLED
  *   - SmoothADC
  */
 

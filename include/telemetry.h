@@ -41,6 +41,16 @@
  *  23   voltage_raw             float   raw ADC voltage reading                 (2 dp)
  *  24   waveform_status         uint    AD9833 waveform output status
  *  25   frequency_hz            float   AD9833 output frequency in Hz           (2 dp)
+ *  26   accel.roll_deg          float   IMU roll  angle in degrees              (2 dp)
+ *  27   accel.pitch_deg         float   IMU pitch angle in degrees              (2 dp)
+ *  28   accel.yaw_deg           float   IMU yaw   angle in degrees (gyro integ) (2 dp)
+ *  29   accel.accel_mag         float   Acceleration magnitude in m/s²          (2 dp)
+ *  30   accel.gyro_mag          float   Gyroscope  magnitude in deg/s           (2 dp)
+ *  31   accel.temp_c            float   IMU die temperature in °C               (1 dp)
+ *  32   accel.motion            uint    1 = motion/overstroke detected, 0 = still
+ *  33   accel.x                 float   Filtered X-axis acceleration in m/s²    (3 dp)
+ *  34   accel.y                 float   Filtered Y-axis acceleration in m/s²    (3 dp)
+ *  35   accel.z                 float   Filtered Z-axis acceleration in m/s²    (3 dp)
  */
 
 #ifndef TELEMETRY_H
