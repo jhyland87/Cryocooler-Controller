@@ -1,6 +1,6 @@
 /**
  * @file device.h
- * @brief Device voltage monitoring interface.
+ * @brief Handles data about the overall system (`system` was taken as a module name, obv).
  */
 
 #ifndef DEVICE_H

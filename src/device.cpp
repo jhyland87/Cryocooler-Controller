@@ -1,6 +1,6 @@
 /**
- * @file waveform.cpp
- * @brief AD9833 DDS waveform generator implementation
+ * @file device.cpp
+ * @brief Device voltage monitoring implementation
  */
 
 #include <Arduino.h>

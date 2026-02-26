@@ -272,6 +272,24 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .alarmEnabled   = true,
         .overviewDisplay = true,
     },
+    {
+        .title          = "Cooling Pump",
+        .units          = "",
+        .telemetryKey   = "cooling.pump_on",
+        .index          = 36,
+        .widgetMin      = 0,     .widgetMax = 100,
+        .led            = true,  .ledHigh = 1,
+        .overviewDisplay = true,
+    },
+    {
+        .title          = "Cooling Fans",
+        .units          = "",
+        .telemetryKey   = "cooling.fan_on",
+        .index          = 37,
+        .widgetMin      = 0,     .widgetMax = 100,
+        .led            = true,  .ledHigh = 1,
+        .overviewDisplay = true,
+    },
 };
 
 // ═════════════════════════════════════════════════════════════════════════════

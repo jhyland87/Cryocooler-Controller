@@ -21,6 +21,7 @@
 #include "conversions.h"
 #include "waveform.h"
 #include "device.h"
+#include "cooling.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -143,7 +144,12 @@ void emit(const state_machine::Output& out)
         .field("accel.motion",                      "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected())) // 32
         .field("accel.x",                           "%.3f", accelerometer::getAccelX())                  // 33
         .field("accel.y",                           "%.3f", accelerometer::getAccelY())                  // 34
-        .field("accel.z",                           "%.3f", accelerometer::getAccelZ());                 // 35
+        .field("accel.z",                           "%.3f", accelerometer::getAccelZ())                  // 35
+        .field("cooling.pump_on",                   "%u",   static_cast<uint8_t>(cooling::isCoolingPumpOn())) // 36
+        .field("cooling.fan_on",                    "%u",   static_cast<uint8_t>(cooling::isCoolingFanOn())) // 37
+        .field("cooling.temperature_c",             "%.2f", cooling::getCoolantTemperature())             // 38
+        .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())               // 39
+        .field("cooling.fan_rpm",                   "%.2f", cooling::getFanRPM());                       // 40
 
     // Serial output: full frame or delta (changed fields only).
     // fillJson() / getLastFrame() always use lastFrame_ — never delta-filtered.

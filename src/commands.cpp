@@ -24,6 +24,7 @@
 #include "rms.h"
 #include "dac.h"
 #include "indicator.h"
+#include "cooling.h"
 #ifdef ARDUINO
 #include "dashboard.h"
 #endif
@@ -123,6 +124,17 @@ static void handleDashboardOn(Print& out) {
     out.println("[OK] Dashboard enabled");
 }
 #endif
+
+
+static void handleCoolingOn(Print& out) {
+    cooling::enable();
+    out.println("[OK] Cooling enabled");
+}
+
+static void handleCoolingOff(Print& out) {
+    cooling::disable();
+    out.println("[OK] Cooling disabled");
+}
 
 static void handleBoard(Print& out) {
     out.println("[OK] Board info:");
@@ -241,13 +253,15 @@ static const Command kCommands[] = {
     {"telemetry delta on",  handleTelemetryDeltaOn,  "Emit only changed values each tick"},
     {"telemetry off",       handleTelemetryOff,      "Disable telemetry output"},
     {"telemetry on",        handleTelemetryOn,       "Enable telemetry output"},
+    {"cooling on",          handleCoolingOn,          "Enable cooling system"},
+    {"cooling off",         handleCoolingOff,         "Disable cooling system"},
 #ifdef ARDUINO
     {"dashboard off", handleDashboardOff, "Disable dashboard TCP broadcasts"},
     {"dashboard on",  handleDashboardOn,  "Enable dashboard TCP broadcasts"},
 #endif
 };
 
-static constexpr uint8_t kCommandCount =
+static const uint8_t kCommandCount =
     static_cast<uint8_t>(sizeof(kCommands) / sizeof(kCommands[0]));
 
 static void handleHelp(Print& out) {
