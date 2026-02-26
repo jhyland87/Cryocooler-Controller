@@ -10,6 +10,7 @@
 #include <Adafruit_MAX31865.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <RunningAverage.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -37,6 +38,11 @@ static uint8_t     count        = 0;   // number of valid samples stored
 static float       lastTempK    = 0.0f;
 static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
+
+// Running average over computed cooling-rate values to smooth out sensor noise.
+// Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
+// of the ring-buffer window, giving a much steadier readout.
+static RunningAverage coolingRateAvg(15);
 
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -74,7 +80,7 @@ namespace temperature {
 
 module::InitStatus init() {
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
-        Serial.println("[temperature] Could not initialize MAX31865! Check wiring.");
+        Serial.println(F("[temperature] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
@@ -84,10 +90,10 @@ module::InitStatus init() {
     Serial.printf("[temperature] MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
 
     if (rtd == 0 && fault == 0) {
-        Serial.println("[temperature] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
-        Serial.println("[temperature] Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
+        Serial.println(F("[temperature] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0)."));
+        Serial.println(F("[temperature] Check CS, CLK, SDI, SDO wiring and 3.3V supply."));
     } else {
-        Serial.println("[temperature] MAX31865 initialized successfully!");
+        Serial.println(F("[temperature] MAX31865 initialized successfully!"));
     }
 
     sensors.begin();
@@ -107,6 +113,19 @@ void read(uint32_t nowMs) {
     lastAmbientTempC = ambientTempC;
     pushSample(nowMs, tempK, ambientTempC);
 
+    // Feed the freshly computed ring-buffer rate into the running average so
+    // that getCoolingRateKPerMin() returns a smoothed value.
+    if (count >= 2) {
+        const auto& oldest = sampleAt(0);
+        const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
+        const uint32_t dtMs = newest.timestampMs - oldest.timestampMs;
+        if (dtMs > 0) {
+            const float dTempK    = oldest.tempK - newest.tempK;
+            const float dtMinutes = static_cast<float>(dtMs) / 60000.0f;
+            coolingRateAvg.addValue(dTempK / dtMinutes);
+        }
+    }
+
     //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
     //              rtd, resistance, tempC, tempF, tempK);
 }
@@ -125,12 +144,12 @@ void checkFaults() {
 
     Serial.printf("Fault detected! Code: 0x%02X\n", fault);
 
-    if (fault & MAX31865_FAULT_HIGHTHRESH)  Serial.println("  - RTD High Threshold");
-    if (fault & MAX31865_FAULT_LOWTHRESH)   Serial.println("  - RTD Low Threshold");
-    if (fault & MAX31865_FAULT_REFINLOW)    Serial.println("  - REFIN- > 0.85 x Bias");
-    if (fault & MAX31865_FAULT_REFINHIGH)   Serial.println("  - REFIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_RTDINLOW)    Serial.println("  - RTDIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_OVUV)        Serial.println("  - Under/Over voltage");
+    if (fault & MAX31865_FAULT_HIGHTHRESH)  Serial.println(F("  - RTD High Threshold"));
+    if (fault & MAX31865_FAULT_LOWTHRESH)   Serial.println(F("  - RTD Low Threshold"));
+    if (fault & MAX31865_FAULT_REFINLOW)    Serial.println(F("  - REFIN- > 0.85 x Bias"));
+    if (fault & MAX31865_FAULT_REFINHIGH)   Serial.println(F("  - REFIN- < 0.85 x Bias - FORCE- open"));
+    if (fault & MAX31865_FAULT_RTDINLOW)    Serial.println(F("  - RTDIN- < 0.85 x Bias - FORCE- open"));
+    if (fault & MAX31865_FAULT_OVUV)        Serial.println(F("  - Under/Over voltage"));
 
     max31865.clearFault();
 }
@@ -152,18 +171,10 @@ float getLastTempCBelowAmbient() {
 }
 
 float getCoolingRateKPerMin() {
-    if (count < 2) return 0.0f;
-
-    const auto& oldest = sampleAt(0);
-    const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
-
-    const uint32_t dtMs = newest.timestampMs - oldest.timestampMs;
-    if (dtMs == 0) return 0.0f;
-
-    // Positive result = temperature is decreasing (cooling)
-    const float dTempK    = oldest.tempK - newest.tempK;
-    const float dtMinutes = static_cast<float>(dtMs) / 60000.0f;
-    return dTempK / dtMinutes;
+    // Return the running average of ring-buffer cooling rates for a smooth
+    // readout.  Falls back to 0 until the first value has been added.
+    if (coolingRateAvg.getCount() == 0) return 0.0f;
+    return coolingRateAvg.getAverage();
 }
 
 bool isStalled() {

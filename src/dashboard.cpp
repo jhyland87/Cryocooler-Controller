@@ -33,7 +33,7 @@
 #include <ArduinoJson.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-
+#include <ESPmDNS.h>
 #include "dashboard.h"
 #include "dashboard_config.h"
 #include "config.h"
@@ -131,7 +131,7 @@ static void removeClient(AsyncClient* c) {
 // ─── AsyncTCP event callbacks ─────────────────────────────────────────────────
 
 static void onClientDisconnect(void* /*arg*/, AsyncClient* c) {
-    Serial.printf("[dashboard] Client %s disconnected\n",
+    Serial.printf(F("[dashboard] Client %s disconnected\n"),
                   c->remoteIP().toString().c_str());
     removeClient(c);
 }
@@ -157,7 +157,7 @@ static void onClientData(void* /*arg*/, AsyncClient* c, void* data, size_t len) 
 
     if (end == 0) return;
 
-    Serial.printf("[dashboard] Client %s cmd: %s\n",
+    Serial.printf(F("[dashboard] Client %s cmd: %s\n"),
                   c->remoteIP().toString().c_str(), buf);
 
     // Dispatch — response is sent back over the same TCP connection.
@@ -176,12 +176,12 @@ static void onNewClient(void* /*arg*/, AsyncClient* c) {
             c->onDisconnect(&onClientDisconnect, nullptr);
             c->onError(&onClientError, nullptr);
             c->onData(&onClientData, nullptr);
-            Serial.printf("[dashboard] Client %s connected\n",
+            Serial.printf(F("[dashboard] Client %s connected\n"),
                           c->remoteIP().toString().c_str());
             return;
         }
     }
-    Serial.println("[dashboard] Max clients reached, rejecting connection");
+    Serial.println(F("[dashboard] Max clients reached, rejecting connection"));
     c->close();
 }
 
@@ -247,7 +247,7 @@ static void dashboardTask(void* /*arg*/) {
 
         const size_t len = ssDashboard.serialize(txBuf, kTxBufSize);
         if (len == 0) {
-            Serial.println("[dashboard] serialize() returned 0 — frame dropped");
+            Serial.println(F("[dashboard] serialize() returned 0 — frame dropped"));
             continue;
         }
 
@@ -276,7 +276,7 @@ module::InitStatus init() {
     setupWifi();
 
     if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("[dashboard] WiFi failed to connect — dashboard disabled.");
+        Serial.println(F("[dashboard] WiFi failed to connect — dashboard disabled."));
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -300,18 +300,26 @@ module::InitStatus init() {
 // ─── WiFi setup ──────────────────────────────────────────────────────────────
 
 void setupWifi() {
+    WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     // I keep getting AUTH_EXPIRE errors, so I'm going to set the tx power to 8.5dBm to see if it helps.
     WiFi.setTxPower(WIFI_POWER_8_5dBm);
-    Serial.print("[dashboard] Connecting to WiFi");
+    Serial.printf(F("[dashboard] Connecting to WiFi"));
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
-        Serial.print(".");
-    }
+        Serial.print(F("."));    }
     Serial.println();
-    Serial.printf("[dashboard] Connected — IP: %s\n",
-                  WiFi.localIP().toString().c_str());
+    Serial.printf("[dashboard] Connected — IP: %s\n", WiFi.localIP().toString().c_str());
+
+    if (!MDNS.begin(HOSTNAME)) { // Set hostname
+        Serial.println(F("[dashboard] Error setting up MDNS responder!"));
+    } else {
+        Serial.printf("[dashboard] mDNS responder started: %s.local", HOSTNAME);
+    }
+
+    MDNS.addService("http", "tcp", HTTP_API_PORT);
+    MDNS.addService("ws", "tcp", WS_PORT);
 }
 
 // ─── TCP server setup ─────────────────────────────────────────────────────────

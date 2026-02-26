@@ -265,7 +265,7 @@ static const uint8_t kCommandCount =
     static_cast<uint8_t>(sizeof(kCommands) / sizeof(kCommands[0]));
 
 static void handleHelp(Print& out) {
-    out.println("[OK] Available commands:");
+    out.println(F("[OK] Available commands:"));
     for (uint8_t i = 0; i < kCommandCount; ++i) {
         char line[80];
         snprintf(line, sizeof(line), "  %-16s  %s",

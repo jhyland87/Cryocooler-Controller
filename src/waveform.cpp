@@ -33,11 +33,11 @@ void service() {
 
     if (voltageV < 11.5f) {
         if (mode != MD_AD9833::MODE_OFF) {
-            Serial.println("Voltage too low for proper sine wave, turning off DDS");
+            Serial.println(F("Voltage too low for proper sine wave, turning off DDS"));
             ad9833.setMode(MD_AD9833::MODE_OFF);
         }
     } else if (mode != MD_AD9833::MODE_SINE) {
-        Serial.println("Voltage has returned to normal, turning on DDS");
+        Serial.println(F("Voltage has returned to normal, turning on DDS"));
         ad9833.setMode(MD_AD9833::MODE_SINE);
     }
 }

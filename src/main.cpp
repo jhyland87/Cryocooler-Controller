@@ -60,7 +60,7 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
     }
 
     if (status == module::MODULE_INIT_SUCCESS) {
-        Serial.println("OK");
+        Serial.println(F("OK"));
     } else {
         Serial.printf("FAILED (status %d)\n", static_cast<int>(status));
     }
@@ -83,8 +83,8 @@ void setup() {
     // Wait for USB-CDC serial port (ESP32-S3 native USB).
     while (!Serial) delay(10);
 
-    Serial.println("Cryocooler Controller -- starting up");
-    Serial.println("=====================================");
+    Serial.println(F("Cryocooler Controller -- starting up"));
+    Serial.println(F("====================================="));
 
     // Shared buses — initialize once here, before any module that needs them.
     // The ESP32-S3 framework may call Wire.begin() silently in initVariant();
@@ -124,8 +124,8 @@ void setup() {
 
     initModule("commands",      [] { return commands::init(); });
 
-    Serial.println("\nSetup complete. System is Off.");
-    Serial.println("Type 'help' for available commands.\n");
+    Serial.println(F("\nSetup complete. System is Off."));
+    Serial.println(F("Type 'help' for available commands."));
 }
 
 // =============================================================================
