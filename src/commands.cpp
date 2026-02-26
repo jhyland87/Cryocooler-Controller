@@ -102,6 +102,16 @@ static void handleTelemetryOn(Print& out) {
     out.println("[OK] Telemetry enabled");
 }
 
+static void handleTelemetryDeltaOff(Print& out) {
+    telemetry::disableDelta();
+    out.println("[OK] Telemetry delta mode disabled (full frame each emit)");
+}
+
+static void handleTelemetryDeltaOn(Print& out) {
+    telemetry::enableDelta();
+    out.println("[OK] Telemetry delta mode enabled (only changed values emitted)");
+}
+
 #ifdef ARDUINO
 static void handleDashboardOff(Print& out) {
     dashboard::disable();
@@ -225,8 +235,12 @@ static const Command kCommands[] = {
     {"summary",       handleSummary,      "Print a full snapshot of all system values"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
-    {"telemetry off", handleTelemetryOff, "Disable telemetry output"},
-    {"telemetry on",  handleTelemetryOn,  "Enable telemetry output"},
+    // "telemetry delta ..." must precede "telemetry on/off" so the longer
+    // prefix is matched first by the linear scan in processLine().
+    {"telemetry delta off", handleTelemetryDeltaOff, "Emit full frame each tick (default)"},
+    {"telemetry delta on",  handleTelemetryDeltaOn,  "Emit only changed values each tick"},
+    {"telemetry off",       handleTelemetryOff,      "Disable telemetry output"},
+    {"telemetry on",        handleTelemetryOn,       "Enable telemetry output"},
 #ifdef ARDUINO
     {"dashboard off", handleDashboardOff, "Disable dashboard TCP broadcasts"},
     {"dashboard on",  handleDashboardOn,  "Enable dashboard TCP broadcasts"},
@@ -275,9 +289,10 @@ void processLine(const char* line, Print& out) {
     out.println(msg);
 }
 
-void init() {
+module::InitStatus init() {
     lineLen    = 0;
     lineBuf[0] = '\0';
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void service() {

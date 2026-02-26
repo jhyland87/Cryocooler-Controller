@@ -10,14 +10,17 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
 
+#include "module.h"
+
 namespace dashboard {
 
 /**
  * Initialise WiFi, build the dashboard JSON, start the TCP server, and
  * launch the background FreeRTOS task that handles all broadcasting.
  * Call once from setup().
+ * @return MODULE_INIT_SUCCESS on success, MODULE_INIT_HARDWARE_ERROR if WiFi fails.
  */
-void init();
+module::InitStatus init();
 
 /**
  * No-op compatibility stub — the dashboard task is self-scheduling.
@@ -37,6 +40,19 @@ bool isEnabled();
 // Internal — called from init(); defined in dashboard.cpp.
 void setupWifi();
 void setupServer();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return dashboard::init(); }
+    /** No-op: the FreeRTOS task self-schedules.  Call from loop() harmlessly. */
+    static void service()    { dashboard::service(); }
+    static void enable()     { dashboard::enable(); }
+    static void disable()    { dashboard::disable(); }
+    static bool isEnabled()  { return dashboard::isEnabled(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace dashboard
 

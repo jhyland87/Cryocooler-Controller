@@ -15,8 +15,9 @@ static int  voltageRaw       = 0;
 
 namespace device {
 
-void init() {
+module::InitStatus init() {
     analogReadResolution(ADC_RESOLUTION);
+    return module::MODULE_INIT_SUCCESS;
 }
 
 

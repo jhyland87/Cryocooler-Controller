@@ -169,7 +169,7 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
     {
         .title          = "Current",
         .units          = "Amps",
-        .telemetryKey   = "rms.current_a",
+        .telemetryKey   = "rms.mA",
         .index          = 19,
         .widgetMin      = 0,     .widgetMax = 100,
         .graph          = true,
@@ -284,8 +284,8 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .units          = "m/s\xC2\xB2",  // m/s²
         .telemetryKey   = "accel.x",
         .index          = 33,
-        .widgetMin      = -20,   .widgetMax = 20,
-        .plotMin        = -20,   .plotMax   = 20,
+        //.widgetMin      = -2,   .widgetMax = 2,
+        //.plotMin        = -2,   .plotMax   = 2,
         .graph          = true,  .log = true,
     },
     {
@@ -293,8 +293,8 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.y",
         .index          = 34,
-        .widgetMin      = -20,   .widgetMax = 20,
-        .plotMin        = -20,   .plotMax   = 20,
+        //.widgetMin      = -2,   .widgetMax = 2,
+        //.plotMin        = -2,   .plotMax   = 2,
         .graph          = true,  .log = true,
     },
     {
@@ -302,8 +302,8 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.z",
         .index          = 35,
-        .widgetMin      = -20,   .widgetMax = 20,
-        .plotMin        = -20,   .plotMax   = 20,
+        //.widgetMin      = -20,   .widgetMax = 20,
+        //.plotMin        = -20,   .plotMax   = 20,
         .graph          = true,  .log = true,
     },
     {
@@ -311,9 +311,11 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.accel_mag",
         .index          = 29,
+        .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,     .widgetMax = 20,
         .plotMin        = 0,     .plotMax   = 20,
         .graph          = true,  .log = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Motion / Overstroke",

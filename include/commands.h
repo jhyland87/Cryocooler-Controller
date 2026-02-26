@@ -33,13 +33,18 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "module.h"
+
 // Forward declaration — resolved by <Arduino.h> on target, Print.h stub on native.
 class Print;
 
 namespace commands {
 
-/** Initialise the serial line buffer.  Call after Serial.begin(). */
-void init();
+/**
+ * Initialise the serial line buffer.  Call after Serial.begin().
+ * @return MODULE_INIT_SUCCESS always.
+ */
+module::InitStatus init();
 
 /**
  * Non-blocking serial service call.  Reads available bytes from Serial,
@@ -57,6 +62,17 @@ void service();
  * @param out   Output stream for the response (Serial, AsyncClientPrint, stub…).
  */
 void processLine(const char* line, Print& out);
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+struct Module : ModuleBase<Module> {
+    /** Initialise the serial line buffer.  Call after Serial.begin(). */
+    static module::InitStatus init() { return commands::init(); }
+    /** Read and dispatch available serial bytes (non-blocking). */
+    static void service()            { commands::service(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace commands
 

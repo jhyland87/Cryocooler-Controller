@@ -28,6 +28,7 @@
 #define RMS_H
 
 #include <stdint.h>
+#include "module.h"
 
 namespace rms {
 
@@ -39,8 +40,9 @@ namespace rms {
  * Initialise both the RMS-to-DC converter stub and the ACS712 sensor.
  * On hardware, calibrates the ACS712 zero-current offset via begin().
  * Must be called once in setup() before read() or readCurrent().
+ * @return MODULE_INIT_SUCCESS always.
  */
-void init();
+module::InitStatus init();
 
 // ---------------------------------------------------------------------------
 // RMS voltage (STUBBED — hardware driver pending)
@@ -81,6 +83,24 @@ bool hasOverstroke();
  * Call this immediately after reading hasOverstroke() == true.
  */
 void clearOverstroke();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// rms exposes two distinct reads — read() for voltage and readCurrent() for
+// the ACS712 — which main.cpp calls at specific points in the control tick
+// (after sensor reads, before state machine).  Collapsing both into a single
+// service() call would alter their relative ordering with respect to other
+// subsystems, so Module::service() is intentionally left as a no-op.
+//
+// Call rms::read() and rms::readCurrent() explicitly in loop().
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return rms::init(); }
+    // service() — inherited no-op; read() and readCurrent() are called
+    // explicitly at the correct points in the main control tick.
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace rms
 

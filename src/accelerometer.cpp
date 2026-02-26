@@ -17,6 +17,7 @@
  */
 
 #include <QMI8658.h>
+#include <Wire.h>
 #include <math.h>
 #include "accelerometer.h"
 #include "pin_config.h"
@@ -135,12 +136,20 @@ static void checkMotion(float accelMag, float gyroMag) {
 // Public API
 // ---------------------------------------------------------------------------
 
-void init() {
+module::InitStatus init() {
+    // ESP32 Arduino (and its initVariant()) may start Wire before our code runs.
+    // The new ESP-IDF 5.x I2C driver raises ESP_ERR_INVALID_STATE on the first
+    // transaction if begin() is called on an already-running bus.  Tearing down
+    // and re-starting here guarantees a clean driver state regardless of what
+    // the framework did, without needing a public "isStarted()" check.
+    Wire.end();
+    Wire.begin(SDA_PIN, SCL_PIN);
+
     if (!imu.begin(SDA_PIN, SCL_PIN)) {
         // Hardware not present; mark uninitialised and return.
         // All getters will return 0 / false.
         initialized_ = false;
-        return;
+        return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }
 
     imu.setAccelRange(QMI8658_ACCEL_RANGE_8G);
@@ -153,6 +162,7 @@ void init() {
 
     performCalibration();
     initialized_ = true;
+    return module::InitStatus::MODULE_INIT_SUCCESS;
 }
 
 void service() {

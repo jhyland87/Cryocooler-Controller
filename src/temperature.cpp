@@ -15,6 +15,7 @@
 #include "config.h"
 #include "temperature.h"
 #include "conversions.h"
+#include "module.h"
 
 // ---------------------------------------------------------------------------
 // Module-private types and state
@@ -71,33 +72,26 @@ static const TempSample& sampleAt(uint8_t i) {
 
 namespace temperature {
 
-void init() {
+module::InitStatus init() {
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
-        Serial.println("Could not initialize MAX31865! Check wiring.");
-        // Non-blocking: continue anyway; the state machine will see tempK == 0
-        // and should fault if appropriate.
-        return;
+        Serial.println("[temperature] Could not initialize MAX31865! Check wiring.");
+        // State machine will see tempK == 0 and fault if appropriate.
+        return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
     const uint16_t rtd   = max31865.readRTD();
     const uint8_t  fault = max31865.readFault();
-    Serial.printf("MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
+    Serial.printf("[temperature] MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
 
     if (rtd == 0 && fault == 0) {
-        Serial.println("WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
-        Serial.println("Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
+        Serial.println("[temperature] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
+        Serial.println("[temperature] Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
     } else {
-        Serial.println("MAX31865 initialized successfully!");
+        Serial.println("[temperature] MAX31865 initialized successfully!");
     }
 
-
-    /* The `analog` function is not explicitly defined in the provided code snippet. However, in
-    Arduino programming, the `analogReadResolution()` function is used to set the resolution of the
-    analog-to-digital converter (ADC) on the microcontroller. This function is typically used to
-    specify the number of bits used for the ADC conversion, which affects the range and precision of
-    analog readings taken from analog pins. */
-    //analogReadResolution(12);
     sensors.begin();
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void read(uint32_t nowMs) {

@@ -9,18 +9,31 @@
 #ifndef WAVEFORM_H
 #define WAVEFORM_H
 
+#include "module.h"
+
 namespace waveform {
 
 /**
  * Initialize the AD9833 and begin generating the configured sine wave.
+ * @return MODULE_INIT_SUCCESS always (the AD9833 has no readable ID register
+ *         to confirm presence; the waveform output is the implicit check).
  */
-void init();
+module::InitStatus init();
 
 void service();
 
 int16_t getStatus();
 
 float getFrequency();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return waveform::init(); }
+    static void service()            { waveform::service(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace waveform
 

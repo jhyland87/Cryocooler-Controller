@@ -27,6 +27,10 @@
 #define INDICATOR_H
 
 #include <stdint.h>
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+#include "module.h"
 
 namespace indicator {
 
@@ -45,8 +49,9 @@ enum class Mode : uint8_t {
 /**
  * Initialize GPIO pins and the WS2812 driver.
  * Must be called once in setup().
+ * @return MODULE_INIT_SUCCESS always.
  */
-void init();
+module::InitStatus init();
 
 /**
  * Set the desired display mode for the FAULT indicator.
@@ -79,6 +84,24 @@ bool isFaultOn();
  * Only valid after update() has been called for the current tick.
  */
 bool isReadyOn();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// update() requires a nowMs argument for accurate flash timing, so
+// Module::service() samples millis() internally.
+//
+// Guarded by #ifdef ARDUINO because millis() is not available in native
+// (host) unit-test builds.
+
+#ifdef ARDUINO
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return indicator::init(); }
+    /** Calls indicator::update(millis()) — must be called every loop tick. */
+    static void service() { indicator::update(millis()); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
+#endif // ARDUINO
 
 } // namespace indicator
 

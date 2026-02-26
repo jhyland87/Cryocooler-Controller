@@ -1,26 +1,37 @@
 /**
- * @file waveform.h
- * @brief AD9833 DDS waveform generator interface
- *
- * Manages the AD9833 sine-wave output only.
- * LED / indicator control has moved to indicator.h.
+ * @file device.h
+ * @brief Device voltage monitoring interface.
  */
 
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#include <stdint.h>
+#include "module.h"
+
 namespace device {
 
 /**
- * Initialize the AD9833 and begin generating the configured sine wave.
+ * Initialize the voltage monitoring ADC resolution.
+ * @return MODULE_INIT_SUCCESS always.
  */
-void init();
+module::InitStatus init();
 
 void service();
 
 float getVoltage();
 
 int16_t getVoltageRaw();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return device::init(); }
+    static void service()            { device::service(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
+
 } // namespace device
 
 #endif // DEVICE_H

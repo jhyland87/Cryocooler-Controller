@@ -34,7 +34,7 @@
  *  16   on_duration             string  total on-state duration as HH:MM:SS
  *  17   cooldown_pct            float   cooldown progress 0–100 %              (2 dp)
  *  18   time_in_state           string  time spent in the current state as HH:MM:SS
- *  19   current_a               float   ACS712 AC RMS current in amps          (2 dp)
+ *  19   rms.amps                 float   ACS712 AC RMS current in amps          (2 dp)
  *  20   backoff_count           uint    cumulative back-EMF backoff events this run
  *  21   delta_below_ambient_c   float   ambient_temp_c − cold_stage_temp_c     (2 dp)
  *  22   voltage_v               float   device supply voltage in V              (2 dp)
@@ -58,6 +58,7 @@
 
 #include "frame_builder.h"
 #include "state_machine.h"
+#include "module.h"
 
 namespace telemetry {
 
@@ -88,6 +89,42 @@ void fillJson(JsonDocument& doc);
 void disable();
 void enable();
 bool isEnabled();
+
+/**
+ * Enable delta mode: emit() writes only the fields whose value has changed
+ * since the previous frame to Serial.  fillJson() / getLastFrame() are
+ * unaffected — they always return the complete current frame.
+ */
+void enableDelta();
+
+/**
+ * Disable delta mode: emit() writes the full frame to Serial (default).
+ */
+void disableDelta();
+
+/** Return true while delta mode is active. */
+bool isDeltaEnabled();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// telemetry::emit() has a non-standard signature (requires the state-machine
+// Output struct), so it cannot map directly to a standard service() call.
+// Module::service() is therefore a no-op; emit() must be called explicitly
+// from the main control tick after the state machine has been advanced.
+//
+// enable() / disable() / isEnabled() are forwarded so the Module struct can
+// be used with the optional toggling interface.
+
+struct Module : ModuleBase<Module> {
+    /** Telemetry requires no hardware setup; always succeeds immediately. */
+    static module::InitStatus init() { return module::MODULE_INIT_SUCCESS; }
+    // service() — inherited no-op; emit() is called explicitly from loop().
+    static void enable()     { telemetry::enable(); }
+    static void disable()    { telemetry::disable(); }
+    static bool isEnabled()  { return telemetry::isEnabled(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace telemetry
 

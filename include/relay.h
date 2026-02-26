@@ -13,12 +13,15 @@
 #ifndef RELAY_H
 #define RELAY_H
 
+#include "module.h"
+
 namespace relay {
 
 /**
  * Initialize relay GPIO pins (outputs, defaulting to Bypass / alarm-off).
+ * @return MODULE_INIT_SUCCESS always (GPIO init cannot fail).
  */
-void init();
+module::InitStatus init();
 
 /**
  * Switch the bypass relay.
@@ -31,6 +34,19 @@ void setBypass(bool normal);
  * @param active  true = alarm on (HIGH), false = alarm off (LOW).
  */
 void setAlarm(bool active);
+
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// relay is a pure actuator module — it has no periodic loop work.
+// Module::service() inherits the default no-op from ModuleBase.
+// Relay state is driven by the state machine via setBypass() / setAlarm().
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return relay::init(); }
+    // service() — inherited no-op from ModuleBase; relay is state-machine driven.
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace relay
 

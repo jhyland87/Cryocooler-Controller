@@ -46,6 +46,74 @@ void FrameBuilder::sendSerial(Print& out) const {
     }
     append("\r\n", 2u);
 
+
+    out.write(reinterpret_cast<const uint8_t*>(buf), pos);
+}
+
+// ---------------------------------------------------------------------------
+// Delta serial output — only changed fields, "name=value  name=value\r\n"
+//
+// A static BSS buffer is used (rather than a stack allocation) because the
+// worst-case size — MAX_FIELDS × (field-name + "=" + VALUE_BUF_SIZE + "  ")
+// plus "\r\n\0" — exceeds what is safe to allocate on the ESP32 task stack.
+// emit() is called from a single FreeRTOS task so there is no reentrancy risk.
+// ---------------------------------------------------------------------------
+
+void FrameBuilder::sendSerialDelta(Print& out, const FrameBuilder& prev,
+                                   const char* const* passiveFields,
+                                   uint8_t            passiveCount) const {
+    // Helper: true if field name appears in the passive list.
+    auto isPassive = [&](const char* name) -> bool {
+        for (uint8_t j = 0u; j < passiveCount; ++j) {
+            if (passiveFields[j] && strcmp(name, passiveFields[j]) == 0) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // ── Phase 1: decide whether to emit anything ────────────────────────────
+    // At least one *non-passive* field must have changed; otherwise the entire
+    // output is suppressed (even changed passive fields are silent on their own).
+    bool anyActiveChange = false;
+    for (uint8_t i = 0u; i < count_; ++i) {
+        const bool changed = (i >= prev.count_) ||
+                             (strcmp(fields_[i].str, prev.fields_[i].str) != 0);
+        if (changed && !isPassive(fields_[i].name)) {
+            anyActiveChange = true;
+            break;
+        }
+    }
+    if (!anyActiveChange) { return; }
+
+    // ── Phase 2: assemble and write all changed fields (passive included) ───
+    // Worst-case: every field changed.
+    // Per field: name (≤ VALUE_BUF_SIZE) + "=" + str (≤ VALUE_BUF_SIZE) + "  "
+    static char buf[static_cast<size_t>(MAX_FIELDS) * (2u * VALUE_BUF_SIZE + 3u) + 3u];
+
+    size_t pos        = 0u;
+    bool   firstToken = true;
+
+    auto append = [&](const char* s, size_t n) {
+        if (pos + n >= sizeof(buf)) { return; }
+        memcpy(buf + pos, s, n);
+        pos += n;
+    };
+
+    for (uint8_t i = 0u; i < count_; ++i) {
+        const bool changed = (i >= prev.count_) ||
+                             (strcmp(fields_[i].str, prev.fields_[i].str) != 0);
+        if (!changed) { continue; }
+
+        if (!firstToken) { append("  ", 2u); }
+        firstToken = false;
+
+        append(fields_[i].name, strlen(fields_[i].name));
+        append("=", 1u);
+        append(fields_[i].str,  strlen(fields_[i].str));
+    }
+
+    append("\r\n", 2u);
     out.write(reinterpret_cast<const uint8_t*>(buf), pos);
 }
 

@@ -132,6 +132,39 @@ public:
     void sendSerial(Print& out) const;
 
     /**
+     * Transmit only the fields whose formatted value has changed since @p prev.
+     *
+     * Output format (when output is triggered):
+     *   name=value  name=value  ...\r\n
+     * If nothing is emitted, no bytes are written (not even a line ending).
+     *
+     * Fields are compared by position index using their pre-formatted strings.
+     * Fields present in this frame but absent in @p prev are always treated as
+     * changed (i.e. the first call when @p prev is an empty FrameBuilder emits
+     * every field).
+     *
+     * ── Passive fields ──────────────────────────────────────────────────────
+     * @p passiveFields is an optional list of field names that will NOT trigger
+     * output on their own.  If the only changed fields are passive, nothing is
+     * written.  Once a non-passive field has changed (triggering output), all
+     * changed fields — passive or not — are included in that line.
+     *
+     * Typical use: high-churn counters like "status.time_in_state" that change
+     * every tick and would otherwise produce noise when nothing meaningful has
+     * changed.
+     *
+     * @param passiveFields  Array of field-name C-strings to treat as passive.
+     *                       Pass nullptr (default) to disable passive filtering.
+     * @param passiveCount   Number of entries in @p passiveFields (default 0).
+     *
+     * @note Only the serial output path is affected.  fillJson() / getLastFrame()
+     *       always return the full frame regardless of delta mode.
+     */
+    void sendSerialDelta(Print& out, const FrameBuilder& prev,
+                         const char* const* passiveFields = nullptr,
+                         uint8_t            passiveCount  = 0) const;
+
+    /**
      * Populate @p doc with one key/value pair per field.
      *
      * Numeric fields (Signed, Unsigned, Float) are written as JSON numbers.

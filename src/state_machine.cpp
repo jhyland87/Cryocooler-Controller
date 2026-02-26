@@ -211,7 +211,7 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 // Public API
 // ---------------------------------------------------------------------------
 
-void init(uint32_t nowMs) {
+module::InitStatus init(uint32_t nowMs) {
     running          = false;
     onStateMs        = 0;
     offStateMs       = 0;
@@ -219,6 +219,7 @@ void init(uint32_t nowMs) {
     backoffCount     = 0;
     backoffDacOffset = 0;
     enterState(State::Off, nowMs);
+    return module::MODULE_INIT_SUCCESS;
 }
 
 Output update(float    tempK,

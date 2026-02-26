@@ -93,6 +93,10 @@ private:
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 static constexpr uint32_t   kBroadcastIntervalMs = 1000;
+// Transmit buffer.  Must be larger than the compact serialised dashboard JSON
+// (use estimateSize() to measure).  Pretty mode is NOT used for live streaming
+// because pretty output is ~3–4× larger; 16 KB comfortably holds the compact
+// frame (~10–11 KB for a typical cryocooler config).
 static constexpr size_t     kTxBufSize           = 16384;
 static constexpr uint8_t    kMaxClients          = 4;
 
@@ -268,8 +272,14 @@ void service() {}
 
 // ─── init() ──────────────────────────────────────────────────────────────────
 
-void init() {
+module::InitStatus init() {
     setupWifi();
+
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("[dashboard] WiFi failed to connect — dashboard disabled.");
+        return module::MODULE_INIT_HARDWARE_ERROR;
+    }
+
     ssDashboard.begin();
     setupServer();
 
@@ -284,6 +294,7 @@ void init() {
         nullptr,
         0  // Core 0
     );
+    return module::MODULE_INIT_SUCCESS;
 }
 
 // ─── WiFi setup ──────────────────────────────────────────────────────────────

@@ -76,7 +76,7 @@ static ContinuousZMCT103C sensor(ACS712_CURRENT_PIN,
 
 namespace rms {
 
-void init() {
+module::InitStatus init() {
     voltage          = 0.0f;
     currentA         = 0.0f;
     currentEmaA      = 0.0f;
@@ -85,9 +85,17 @@ void init() {
     lastOverstrokeMs = 0;
 
 #ifdef ARDUINO
-    // Set ADC input attenuation BEFORE starting the sensor so that all
-    // samples are captured using the same full-scale range as live readings.
-    // See config.h for available choices and voltage/resolution trade-offs.
+    // ESP32 Arduino 3.x (ESP-IDF 5.x) uses lazy ADC unit initialisation —
+    // the oneshot driver handle for an ADC unit is only created on the first
+    // analogRead() for a pin in that unit.  analogSetPinAttenuation() requires
+    // the unit to already be open, so we do a priming read here to open the
+    // ADC2 handle before configuring attenuation.  The discarded value is fine
+    // since the EMA in readCurrent() absorbs the first OVERSTROKE_PRIME_READINGS
+    // samples regardless.
+    (void)analogRead(ACS712_CURRENT_PIN);
+
+    // Set ADC input attenuation so that all samples use the same full-scale
+    // range as live readings.  See config.h for the available choices.
     analogSetPinAttenuation(ACS712_CURRENT_PIN, ACS712_ADC_ATTENUATION);
 
     // Start continuous non-blocking RMS mode.
@@ -95,6 +103,7 @@ void init() {
     // Mean-centering handles zero-current offset drift; no calibration needed.
     sensor.beginContinuousRMS();
 #endif
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void read() {

@@ -7,13 +7,15 @@
 #define DAC_H
 
 #include <stdint.h>
+#include "module.h"
 
 namespace dac {
 
 /**
  * Initialize the MCP4921 DAC (configure CS pin, set output to 0).
+ * @return MODULE_INIT_SUCCESS always (GPIO init cannot fail).
  */
-void init();
+module::InitStatus init();
 
 /**
  * Write a 12-bit value (0-4095) directly to the MCP4921.
@@ -56,7 +58,18 @@ void rampTowardShutdown(uint16_t target);
  */
 uint16_t getCurrent();
 
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// dac is a pure actuator module — it has no independent periodic loop work.
+// Module::service() inherits the default no-op from ModuleBase.
+// Output is driven by the state machine via rampToward() / rampTowardShutdown().
 
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return dac::init(); }
+    // service() — inherited no-op from ModuleBase; dac is state-machine driven.
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace dac
 

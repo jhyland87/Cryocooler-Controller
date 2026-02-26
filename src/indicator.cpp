@@ -151,7 +151,7 @@ static RgbColor modeToColour(indicator::Mode mode)
 
 namespace indicator {
 
-void init()
+module::InitStatus init()
 {
     // rgbLedWrite() initialises the RMT channel on first call — no explicit
     // setup required beyond the call itself.
@@ -161,6 +161,7 @@ void init()
     pinMode(READY_IND_PIN, OUTPUT);
     digitalWrite(FAULT_IND_PIN, LOW);
     digitalWrite(READY_IND_PIN, LOW);
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void setFaultMode(Mode mode)

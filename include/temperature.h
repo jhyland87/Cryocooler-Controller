@@ -15,14 +15,16 @@
 #define TEMPERATURE_H
 
 #include <stdint.h>
+#include "module.h"
 
 namespace temperature {
 
 /**
  * Initialize the MAX31865 RTD sensor.
  * Prints a diagnostic message to Serial.
+ * @return MODULE_INIT_SUCCESS if begin() succeeds, MODULE_INIT_HARDWARE_ERROR otherwise.
  */
-void init();
+module::InitStatus init();
 
 /**
  * Read RTD resistance and temperature from hardware.
@@ -82,6 +84,26 @@ bool isStalled();
  * 0% = 298K, 100% = 78K
  */
 float getTemperatureToPercent();
+
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// read() accepts a nowMs argument so cooling-rate history is correctly
+// timestamped and remains directly testable on native builds with injected
+// time values.
+//
+// Module::service() samples millis() internally, which is correct for the
+// Arduino loop() context.  Guarded by #ifdef ARDUINO because millis() is not
+// available in native (host) unit-test builds — those call read(nowMs) directly.
+
+#ifdef ARDUINO
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return temperature::init(); }
+    /** Calls temperature::read(millis()) — must be called every loop tick. */
+    static void service() { temperature::read(millis()); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
+#endif // ARDUINO
 
 } // namespace temperature
 

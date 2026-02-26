@@ -14,6 +14,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <Wire.h>
 #include <SmoothADC.h>
 
 #include "config.h"
@@ -30,12 +31,41 @@
 #include "device.h"
 //#include "http_api.h"
 #include "dashboard.h"
+#include "accelerometer.h"
 
 // =============================================================================
 // Module-level objects
 // =============================================================================
 
 static SmoothADC dacVoltageAdc;
+
+// =============================================================================
+// Init helper
+// =============================================================================
+
+/**
+ * Call initFn() until it stops returning MODULE_INIT_IN_PROGRESS, then log
+ * the outcome.  Returns the final InitStatus.
+ *
+ * Example:
+ *   initModule("accelerometer", [] { return accelerometer::init(); });
+ */
+template<typename Fn>
+static module::InitStatus initModule(const char* name, Fn&& initFn) {
+    Serial.printf("[init] %-20s ... ", name);
+
+    module::InitStatus status = initFn();
+    while (status == module::MODULE_INIT_IN_PROGRESS) {
+        status = initFn();
+    }
+
+    if (status == module::MODULE_INIT_SUCCESS) {
+        Serial.println("OK");
+    } else {
+        Serial.printf("FAILED (status %d)\n", static_cast<int>(status));
+    }
+    return status;
+}
 
 // =============================================================================
 // Timing state
@@ -56,14 +86,22 @@ void setup() {
     Serial.println("Cryocooler Controller -- starting up");
     Serial.println("=====================================");
 
-    analogReadResolution(ADC_RESOLUTION);
-
-    // Shared SPI bus
+    // Shared buses — initialize once here, before any module that needs them.
+    // The ESP32-S3 framework may call Wire.begin() silently in initVariant();
+    // owning the call explicitly here prevents double-init surprises.
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+    Wire.begin(SDA_PIN, SCL_PIN);
 
-    dashboard::init();
+    // ── Module initialisation ────────────────────────────────────────────────
+    // Each call blocks until the module is no longer IN_PROGRESS, then logs
+    // OK or FAILED.  Failures are non-fatal here; the state machine will
+    // detect missing sensor data and transition to Fault as appropriate.
 
-    // Smooth DAC voltage readback
+    initModule("device",        [] { return device::init(); });
+    initModule("accelerometer", [] { return accelerometer::init(); });
+    initModule("dashboard",     [] { return dashboard::init(); });
+
+    // Smooth DAC voltage readback ADC (not a module — inline init)
     dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
     dacVoltageAdc.enable();
     dacVoltageAdc.setPeriod(0);
@@ -72,22 +110,20 @@ void setup() {
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    // Peripherals
-    waveform::init();
-    temperature::init();
-    dac::init();
-    rms::init();
-    relay::init();
-    indicator::init();
-    //http_api::init();
+    initModule("waveform",      [] { return waveform::init(); });
+    initModule("temperature",   [] { return temperature::init(); });
+    initModule("dac",           [] { return dac::init(); });
+    initModule("rms",           [] { return rms::init(); });
+    initModule("relay",         [] { return relay::init(); });
+    initModule("indicator",     [] { return indicator::init(); });
+    //initModule("http_api",    [] { return http_api::init(); });
 
-    // Kick off state machine in Off state
-    state_machine::init(millis());
+    // state_machine::init() takes nowMs — wrap in a lambda
+    initModule("state_machine", [] { return state_machine::init(millis()); });
 
-    // Initialise serial command handler
-    commands::init();
+    initModule("commands",      [] { return commands::init(); });
 
-    Serial.println("Setup complete. System is Off.");
+    Serial.println("\nSetup complete. System is Off.");
     Serial.println("Type 'help' for available commands.\n");
 }
 
@@ -97,6 +133,7 @@ void setup() {
 
 void loop() {
     device::service();
+    accelerometer::service();
     waveform::service();
     // Service smoothed ADC every iteration (non-blocking)
     dacVoltageAdc.serviceADCPin();

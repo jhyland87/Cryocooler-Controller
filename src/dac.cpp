@@ -75,10 +75,11 @@ static void rampTowardInternal(uint16_t target, uint16_t maxStep) {
 
 namespace dac {
 
-void init() {
+module::InitStatus init() {
     pinMode(MCP4921_CS, OUTPUT);
     digitalWrite(MCP4921_CS, HIGH);
     writeSpi(0);
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void update(uint16_t dacVal) {

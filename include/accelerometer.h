@@ -2,6 +2,7 @@
 #define ACCELEROMETER_H
 
 #include <stdint.h>
+#include "module.h"
 
 namespace accelerometer {
 
@@ -14,7 +15,7 @@ namespace accelerometer {
  * Safe to call if hardware is absent — isInitialized() will return false
  * and all getters will return 0 / false.
  */
-void init();
+module::InitStatus init();
 
 /**
  * Read one sensor sample, update filter / orientation / motion state.
@@ -52,6 +53,15 @@ float getAccelZ();       ///< Filtered acceleration on Z axis in m/s² (calibrat
 float getAccelMag();     ///< Acceleration magnitude in m/s² (calibrated, unfiltered)
 float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
 float getTemperature();  ///< IMU die temperature in °C
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return accelerometer::init(); }
+    static void service()            { accelerometer::service(); }
+};
+
+ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace accelerometer
 

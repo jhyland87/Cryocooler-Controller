@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include "config.h"
 #include "indicator.h"
+#include "module.h"
 
 namespace state_machine {
 
@@ -77,8 +78,9 @@ struct Output {
  * Must be called once in setup() with the current millis().
  *
  * @param nowMs  Current millis()
+ * @return MODULE_INIT_SUCCESS always (pure in-memory initialisation).
  */
-void init(uint32_t nowMs);
+module::InitStatus init(uint32_t nowMs);
 
 /** Return the duration of the current on state in milliseconds. */
 uint32_t getOnStateDuration();
