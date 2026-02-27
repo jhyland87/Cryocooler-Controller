@@ -37,7 +37,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Temperature in Kelvin (gauge)
         .title          = "Cold Head Temp (K)",
         .units          = "K",
-        .telemetryKey   = "cold_head.k",
+        .telemetryKey   = "cold_head.temp_k",
         .index          = 4,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 60,    .widgetMax  = 300,
@@ -50,7 +50,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Temperature in Celsius (graph only)
         .title          = "Cold Head Temp (C)",
         .units          = "\xC2\xB0" "C",    // °C  (UTF-8)
-        .telemetryKey   = "cold_head.c",
+        .telemetryKey   = "cold_head.temp_c",
         .index          = 5,
         //.widgetMin      = -220,  .widgetMax = 30,
         //.plotMin        = -220,  .plotMax   = 30,
@@ -73,7 +73,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Ambient temperature
         .title          = "Ambient Temp",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "cold_head.ambient_c",
+        .telemetryKey   = "cold_head.ambient_temp_c",
         .index          = 6,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 15,    .widgetMax = 35,
@@ -162,15 +162,15 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "Backoff count",
         .units          = "",
         .telemetryKey   = "status.backoff_count",
-        .index          = 20,
+        //.index          = 20,
         //.widgetMin      = 0,     .widgetMax = 100,
         //.led            = true,  .ledHigh = 2,
     },
     {
         .title          = "Current",
-        .units          = "Amps",
-        .telemetryKey   = "rms.mA",
-        .index          = 19,
+        .units          = "A",
+        .telemetryKey   = "rms.current_a",
+        // .index          = 19,
         //.widgetMin      = 0,     .widgetMax = 100,
         .graph          = true,
     },
@@ -184,112 +184,89 @@ static const ss::DatasetCfg kStatusDatasets[] = {
     {
         .title          = "Status ID",
         .units          = "",
-        .telemetryKey   = "state.id",
-        .index          = 1,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "state.id"
     },
     {
         .title          = "Status",
         .units          = "",
-        .telemetryKey   = "state.name",
-        .index          = 2,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "state.name"
     },
     {
         .title          = "Description",
         .units          = "",
-        .telemetryKey   = "state.status_text",
-        .index          = 3,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "state.status_text"
     },
     {
         .title          = "Time in state",
         .units          = "",
-        .telemetryKey   = "status.time_in_state",
-        .index          = 18,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "status.time_in_state"
     },
     {
         .title          = "On Duration Ms",
         .units          = "",
-        .telemetryKey   = "status.on_duration_ms",
-        .index          = 15,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "status.on_duration_ms"
     },
     {
         .title          = "On Duration",
         .units          = "",
-        .telemetryKey   = "status.on_duration",
-        .index          = 16,
-        //.widgetMin      = 0,     .widgetMax = 100,
+        .telemetryKey   = "status.on_duration"
     },
     {
         .title          = "FAULT",
         .units          = "",
         .telemetryKey   = "indicator.fault",
-        .index          = 13,
-        //.widgetMin      = 0,     .widgetMax = 100,
         .led            = true,  .ledHigh = 1,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "READY",
         .units          = "",
         .telemetryKey   = "indicator.ready",
-        .index          = 14,
-        //.widgetMin      = 0,     .widgetMax = 100,
         .led            = true,  .ledHigh = 1,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Cold Head Temp (C)",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "cold_head.c",
-        .index          = 5,
-        //.widgetMin      = 0,     .widgetMax = 100,
-        //.plotMin        = -220,  .plotMax   = 50,
+        .telemetryKey   = "cold_head.temp_c",
         .graph          = true,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Cold Head Temp (K)",
         .units          = "K",
-        .telemetryKey   = "cold_head.k",
-        .index          = 4,
+        .telemetryKey   = "cold_head.temp_k",
         .widgetMin      = 0,     .widgetMax = 100,
         .plotMin        = 75,    .plotMax   = 295,
         .graph          = true,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Cooldown Percent",
         .units          = "%",
         .telemetryKey   = "cold_head.cooldown_pct",
-        .index          = 17,
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,
         .alarmLow       = 0,     .alarmHigh = 100,
         .alarmEnabled   = true,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Cooling Pump",
         .units          = "",
         .telemetryKey   = "cooling.pump_on",
-        .index          = 36,
         .widgetMin      = 0,     .widgetMax = 100,
         .led            = true,  .ledHigh = 1,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
     {
         .title          = "Cooling Fans",
         .units          = "",
         .telemetryKey   = "cooling.fan_speed",
-        .index          = 37,
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,
         .led            = true,  .ledHigh = 1,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
 };
 
@@ -302,37 +279,26 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .title          = "Accel X",
         .units          = "m/s\xC2\xB2",  // m/s²
         .telemetryKey   = "accel.x",
-        .index          = 33,
-        //.widgetMin      = -2,   .widgetMax = 2,
-        //.plotMin        = -2,   .plotMax   = 2,
-        .graph          = true,  .log = true,
+        .graph          = true,  .log = true
     },
     {
         .title          = "Accel Y",
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.y",
-        .index          = 34,
-        //.widgetMin      = -2,   .widgetMax = 2,
-        //.plotMin        = -2,   .plotMax   = 2,
-        .graph          = true,  .log = true,
+        .graph          = true,  .log = true
     },
     {
         .title          = "Accel Z",
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.z",
-        .index          = 35,
-        //.widgetMin      = -20,   .widgetMax = 20,
-        //.plotMin        = -20,   .plotMax   = 20,
-        .graph          = true,  .log = true,
+        .graph          = true,  .log = true
     },
     {
         .title          = "Accel Magnitude",
         .units          = "m/s\xC2\xB2",
         .telemetryKey   = "accel.accel_mag",
-        .index          = 29,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,     .widgetMax = 20,
-        //.plotMin        = 0,     .plotMax   = 20,
         .graph          = true,  .log = true,
         .overviewDisplay = true
     },
@@ -340,14 +306,13 @@ static const ss::DatasetCfg kAccelDatasets[] = {
         .title          = "Motion / Overstroke",
         .units          = "",
         .telemetryKey   = "accel.motion",
-        .index          = 32,
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,     .widgetMax = 1,
         .plotMin        = 0,     .plotMax   = 1,
         .alarmLow       = 0,     .alarmHigh = 1,
         .alarmEnabled   = true,
         .led            = true,  .ledHigh = 1,
-        .overviewDisplay = true,
+        .overviewDisplay = true
     },
 };
 

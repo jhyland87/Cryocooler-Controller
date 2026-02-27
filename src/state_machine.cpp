@@ -19,20 +19,20 @@ namespace state_machine {
 // Module state
 // ---------------------------------------------------------------------------
 
-static State       currentState    = State::Off;
-static uint32_t    currentStateEntryMs = 0;   // millis() when current state was entered
-static bool        running         = false; // process is off until start() is called
-static FaultReason faultReason     = FaultReason::None;
-static uint32_t    onStateMs       = 0;   // millis() when it entered an on state
-static uint32_t    offStateMs      = 0;   // millis() when it entered an off state
+static State       currentState         = State::Off;
+static uint32_t    currentStateEntryMs  = 0;   // millis() when current state was entered
+static bool        running              = false; // process is off until start() is called
+static FaultReason faultReason          = FaultReason::None;
+static uint32_t    onStateMs            = 0;   // millis() when it entered an on state
+static uint32_t    offStateMs           = 0;   // millis() when it entered an off state
 
 // Settle timer -- starts counting when temp enters the tolerance band
-static uint32_t settleStartMs     = 0;
-static bool     settleTimerActive = false;
+static uint32_t settleStartMs           = 0;
+static bool     settleTimerActive       = false;
 
 // Back-EMF backoff tracking
-static uint16_t backoffCount      = 0;   // total backoff events in this run
-static uint16_t backoffDacOffset  = 0;   // cumulative DAC reduction (counts)
+static uint16_t backoffCount            = 0;   // total backoff events in this run
+static uint16_t backoffDacOffset        = 0;   // cumulative DAC reduction (counts)
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -211,14 +211,14 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 // Public API
 // ---------------------------------------------------------------------------
 
-module::InitStatus init(uint32_t nowMs) {
+module::InitStatus init() {
     running          = false;
     onStateMs        = 0;
     offStateMs       = 0;
     faultReason      = FaultReason::None;
     backoffCount     = 0;
     backoffDacOffset = 0;
-    enterState(State::Off, nowMs);
+    enterState(State::Off, millis());
     return module::MODULE_INIT_SUCCESS;
 }
 

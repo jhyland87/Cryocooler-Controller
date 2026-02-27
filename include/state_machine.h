@@ -75,12 +75,11 @@ struct Output {
 
 /**
  * Initialise the state machine.
- * Must be called once in setup() with the current millis().
+ * Must be called once in setup()
  *
- * @param nowMs  Current millis()
  * @return MODULE_INIT_SUCCESS always (pure in-memory initialisation).
  */
-module::InitStatus init(uint32_t nowMs);
+module::InitStatus init();
 
 /** Return the duration of the current on state in milliseconds. */
 uint32_t getOnStateDuration();

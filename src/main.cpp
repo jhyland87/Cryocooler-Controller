@@ -149,8 +149,7 @@ void setupModules(){
     }
     //initModule("http_api",    [] { return http_api::init(); });
 
-    // state_machine::init() takes nowMs — wrap in a lambda
-    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::init(millis()); });
+    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::init(); });
     if (stateMachineStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
         return;

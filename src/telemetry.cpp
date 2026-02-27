@@ -111,12 +111,12 @@ void emit(const state_machine::Output& out)
     lastFrame_.reset();
     lastFrame_
         .field("state.id",                          "%d",   static_cast<int8_t>(out.state))             //  1
-        .field("state.name",                        "%.2f",   state_machine::stateName(out.state))         //  2
+        .field("state.name",                        "%.2f", state_machine::stateName(out.state))         //  2
         .field("state.status_text",                 "%s",   state_machine::getStatusText())              //  3
-        .field("temperature.k",                     "%.2f", cold_head::getLastTempK())                 //  4
-        .field("temperature.c",                     "%.2f", cold_head::getLastTempC())                 //  5
-        .field("temperature.ambient_c",             "%.2f", cold_head::getLastAmbientTempC())          //  6
-        .field("temperature.cooling_rate",          "%.3f", cold_head::getCoolingRateKPerMin())        //  7
+        .field("cold_head.temp_k",                  "%.2f", cold_head::getLastTempK())                 //  4
+        .field("cold_head.temp_c",                  "%.2f", cold_head::getLastTempC())                 //  5
+        .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())          //  6
+        .field("cold_head.cooling_rate",            "%.3f", cold_head::getCoolingRateKPerMin())        //  7
         .field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))        //  8
         .field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))            //  9
         .field("rms.voltage",                       "%.2f", rms::getVoltage())                           // 10
@@ -128,11 +128,11 @@ void emit(const state_machine::Output& out)
         .field("status.on_duration",                "%s",   hmsBuf)                                      // 16
         .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())      // 17
         .field("status.time_in_state",              "%s",   tisHmsBuf)                                   // 18
-        .field("rms.amps",                          "%.2f", rms::getCurrentA())                          // 19
+        .field("rms.current_a",                     "%.2f", rms::getCurrentA())                          // 19
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))     // 20
         .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())     // 21
-        .field("voltage.v",                         "%.2f", device::getVoltage())                        // 22
-        .field("voltage.raw",                       "%.2f", device::getVoltageRaw())                     // 23
+        .field("system.voltage_v",                  "%.2f", device::getVoltage())                        // 22
+        .field("system.voltage_raw_v",              "%.2f", device::getVoltageRaw())                     // 23
         .field("waveform.status",                   "%u",   waveform::getStatus())                       // 24
         .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())                    // 25
         .field("accel.roll_deg",                    "%.2f", accelerometer::getRoll())                    // 26
@@ -147,9 +147,10 @@ void emit(const state_machine::Output& out)
         .field("accel.z",                           "%.3f", accelerometer::getAccelZ())                  // 35
         //.field("cooling.pump_on",                   "%u",   static_cast<uint8_t>(cooling::isCoolingPumpOn())) // 36
         //.field("cooling.fan_on",                    "%u",   static_cast<uint8_t>(cooling::isCoolingFanOn())) // 37
-        .field("cooling.temperature_c",             "%.2f", cooling::getCoolantTemperature())             // 38
+        .field("cooling.temp_c",                    "%.2f", cooling::getCoolantTemperature())             // 38
         .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())               // 39
-        .field("cooling.fan_speed",                 "%u", cooling::getFanSpeed());                       // 40
+        .field("cooling.fan_speed",                 "%u",   cooling::getFanSpeed())                       // 40
+        .field("rms.voltage_v",                     "%.2f", rms::getVoltage());                           // 41
 
     // Serial output: full frame or delta (changed fields only).
     // fillJson() / getLastFrame() always use lastFrame_ — never delta-filtered.
