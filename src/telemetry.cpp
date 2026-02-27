@@ -12,7 +12,7 @@
 #include <ArduinoJson.h>
 #include "accelerometer.h"
 #include "frame_builder.h"
-#include "temperature.h"
+#include "cold_head.h"
 #include "telemetry.h"
 #include "state_machine.h"
 #include "rms.h"
@@ -113,10 +113,10 @@ void emit(const state_machine::Output& out)
         .field("state.id",                          "%d",   static_cast<int8_t>(out.state))             //  1
         .field("state.name",                        "%.2f",   state_machine::stateName(out.state))         //  2
         .field("state.status_text",                 "%s",   state_machine::getStatusText())              //  3
-        .field("temperature.k",                     "%.2f", temperature::getLastTempK())                 //  4
-        .field("temperature.c",                     "%.2f", temperature::getLastTempC())                 //  5
-        .field("temperature.ambient_c",             "%.2f", temperature::getLastAmbientTempC())          //  6
-        .field("temperature.cooling_rate",          "%.3f", temperature::getCoolingRateKPerMin())        //  7
+        .field("temperature.k",                     "%.2f", cold_head::getLastTempK())                 //  4
+        .field("temperature.c",                     "%.2f", cold_head::getLastTempC())                 //  5
+        .field("temperature.ambient_c",             "%.2f", cold_head::getLastAmbientTempC())          //  6
+        .field("temperature.cooling_rate",          "%.3f", cold_head::getCoolingRateKPerMin())        //  7
         .field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))        //  8
         .field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))            //  9
         .field("rms.voltage",                       "%.2f", rms::getVoltage())                           // 10
@@ -126,11 +126,11 @@ void emit(const state_machine::Output& out)
         .field("indicator.ready",                   "%d",   indicator::isReadyOn())                      // 14
         .field("status.on_duration_ms",             "%lu",  static_cast<unsigned long>(durationMs))      // 15
         .field("status.on_duration",                "%s",   hmsBuf)                                      // 16
-        .field("temperature.cooldown_pct",          "%.2f", temperature::getTemperatureToPercent())      // 17
+        .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())      // 17
         .field("status.time_in_state",              "%s",   tisHmsBuf)                                   // 18
         .field("rms.amps",                          "%.2f", rms::getCurrentA())                          // 19
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))     // 20
-        .field("temperature.delta_below_ambient_c", "%.2f", temperature::getLastTempCBelowAmbient())     // 21
+        .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())     // 21
         .field("voltage.v",                         "%.2f", device::getVoltage())                        // 22
         .field("voltage.raw",                       "%.2f", device::getVoltageRaw())                     // 23
         .field("waveform.status",                   "%u",   waveform::getStatus())                       // 24

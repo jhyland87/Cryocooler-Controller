@@ -20,7 +20,11 @@ namespace waveform {
  */
 module::InitStatus init();
 
-void service();
+/**
+ * Adjust the DDS output mode based on supply voltage.
+ * @return SERVICE_OK always.
+ */
+module::ServiceStatus service();
 
 int16_t getStatus();
 
@@ -29,8 +33,8 @@ float getFrequency();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return waveform::init(); }
-    static void service()            { waveform::service(); }
+    static module::InitStatus    init()    { return waveform::init(); }
+    static module::ServiceStatus service() { return waveform::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

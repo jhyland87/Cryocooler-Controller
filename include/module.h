@@ -21,13 +21,13 @@
  *
  *   namespace accelerometer {
  *
- *   module::InitStatus init();
- *   void service();
+ *   module::InitStatus    init();
+ *   module::ServiceStatus service();
  *   float getRoll();
  *
  *   struct Module : ModuleBase<Module> {
- *       static module::InitStatus init() { return accelerometer::init(); }
- *       static void service()            { accelerometer::service(); }
+ *       static module::InitStatus    init()    { return accelerometer::init(); }
+ *       static module::ServiceStatus service() { return accelerometer::service(); }
  *   };
  *
  *   ASSERT_MODULE_INTERFACE(Module);
@@ -41,10 +41,11 @@
  *       Called once from setup().  Must not block (except during startup).
  *       No default — every module must define its own initialisation.
  *
- *   static void service()
+ *   static module::ServiceStatus service()
  *       Called every loop() tick.  Must not block.
- *       Default: no-op (acceptable for FreeRTOS-task-driven modules such as
- *       dashboard, which manages its own schedule internally).
+ *       Returns SERVICE_OK, SERVICE_SKIPPED, or SERVICE_ERROR.
+ *       Default: SERVICE_SKIPPED (acceptable for FreeRTOS-task-driven modules
+ *       such as dashboard, which manages its own schedule internally).
  *
  * ── Optional interface (all defaulted by ModuleBase) ─────────────────────────
  *
@@ -82,6 +83,12 @@ namespace module {
         MODULE_INIT_TIMEOUT          = 6,  ///< init() exceeded its allowed time budget
         MODULE_INIT_UNKNOWN_ERROR    = 7,  ///< catch-all for unexpected failures
     } InitStatus;
+
+    typedef enum {
+        MODULE_SERVICE_OK      = 0,  ///< ran and produced valid output this tick
+        MODULE_SERVICE_SKIPPED = 1,  ///< skipped this tick (time-gated, disabled, no new data, etc.)
+        MODULE_SERVICE_ERROR   = 2,  ///< a recoverable error occurred; output may be stale
+    } ServiceStatus;
 }
 /**
  * Curiously Recurring Template Pattern (CRTP) mixin.
@@ -90,7 +97,7 @@ namespace module {
  *
  *   struct Module : ModuleBase<Module> {
  *       static module::InitStatus init() { ... }  // required — no default provided
- *       static void service() { ... }  // override if loop work is needed
+ *       static module::ServiceStatus service() { ... }  // override if loop work is needed
  *   };
  */
 template<typename Derived>
@@ -102,9 +109,10 @@ struct ModuleBase {
 
     /**
      * Non-blocking periodic service call — pump state machines, read sensors, etc.
-     * Default: no-op.  Override in Derived if the module has loop work to do.
+     * Default: no-op returning SKIPPED.  Override in Derived if the module has
+     * loop work to do.
      */
-    static void service() {}
+    static module::ServiceStatus service() { return module::MODULE_SERVICE_SKIPPED; }
 
     /**
      * Re-enable module output / broadcasting.
@@ -146,8 +154,12 @@ struct has_init<T, std::void_t<
 
 template<typename T, typename = void>
 struct has_service : std::false_type {};
+/** True only when T::service() exists AND returns module::ServiceStatus. */
 template<typename T>
-struct has_service<T, std::void_t<decltype(T::service())>> : std::true_type {};
+struct has_service<T, std::void_t<
+    std::enable_if_t<
+        std::is_same_v<decltype(T::service()), module::ServiceStatus>
+    >>> : std::true_type {};
 
 template<typename T, typename = void>
 struct has_enable : std::false_type {};
@@ -170,7 +182,7 @@ struct has_isEnabled<T, std::void_t<decltype(T::isEnabled())>> : std::true_type 
 template<typename T>
 constexpr bool has_init = detail::has_init<T>::value;
 
-/** True if T provides `static void service()`. */
+/** True if T provides `static module::ServiceStatus service()`. */
 template<typename T>
 constexpr bool has_service = detail::has_service<T>::value;
 
@@ -185,8 +197,8 @@ constexpr bool has_isEnabled = detail::has_isEnabled<T>::value;
 
 /**
  * True if T satisfies the minimum Module contract:
- *   - static module::InitStatus init()
- *   - static void service()
+ *   - static module::InitStatus    init()
+ *   - static module::ServiceStatus service()
  */
 template<typename T>
 constexpr bool is_module = has_init<T> && has_service<T>;
@@ -197,7 +209,7 @@ constexpr bool is_module = has_init<T> && has_service<T>;
 
 /**
  * Emit a descriptive compile-time error if T does not satisfy the minimum
- * Module interface (static module::InitStatus init() + static void service()).
+ * Module interface (static module::InitStatus init() + static module::ServiceStatus service()).
  *
  * Place this immediately after the closing brace of your Module struct,
  * still inside the enclosing namespace:
@@ -207,4 +219,5 @@ constexpr bool is_module = has_init<T> && has_service<T>;
 #define ASSERT_MODULE_INTERFACE(T)                                              \
     static_assert(module_traits::is_module<T>,                                 \
         #T " does not satisfy the Module interface: "                           \
-           "must provide static module::InitStatus init() and static void service()")
+           "must provide static module::InitStatus init() "                     \
+           "and static module::ServiceStatus service()")

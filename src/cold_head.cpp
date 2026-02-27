@@ -1,9 +1,9 @@
 /**
- * @file temperature.cpp
- * @brief MAX31865 RTD temperature sensor implementation
+ * @file cold_head.cpp
+ * @brief MAX31865 RTD cold_head sensor implementation
  *
  * Maintains a ring buffer of (timestamp, tempK) samples for cooling-rate
- * calculation and temperature-stall detection.
+ * calculation and cold_head-stall detection.
  */
 
 #include <Arduino.h>
@@ -14,7 +14,7 @@
 
 #include "pin_config.h"
 #include "config.h"
-#include "temperature.h"
+#include "cold_head.h"
 #include "conversions.h"
 #include "module.h"
 
@@ -76,24 +76,24 @@ static const TempSample& sampleAt(uint8_t i) {
 // Public API
 // ---------------------------------------------------------------------------
 
-namespace temperature {
+namespace cold_head {
 
 module::InitStatus init() {
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
-        Serial.println(F("[temperature] Could not initialize MAX31865! Check wiring."));
+        Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
     const uint16_t rtd   = max31865.readRTD();
     const uint8_t  fault = max31865.readFault();
-    Serial.printf("[temperature] MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
+    Serial.printf("[cold_head] MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
 
     if (rtd == 0 && fault == 0) {
-        Serial.println(F("[temperature] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0)."));
-        Serial.println(F("[temperature] Check CS, CLK, SDI, SDO wiring and 3.3V supply."));
+        Serial.println(F("[cold_head] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0)."));
+        Serial.println(F("[cold_head] Check CS, CLK, SDI, SDO wiring and 3.3V supply."));
     } else {
-        Serial.println(F("[temperature] MAX31865 initialized successfully!"));
+        Serial.println(F("[cold_head] MAX31865 initialized successfully!"));
     }
 
     sensors.begin();
@@ -217,4 +217,4 @@ float getTemperatureToPercent()
     return percent;
 }
 
-} // namespace temperature
+} // namespace cold_head

@@ -1,23 +1,17 @@
 /**
- * @file temperature.h
- * @brief MAX31865 RTD temperature sensor interface
+ * @file cold_head.h
+ * @brief Cold-head temperature sensor interface
  *
- * In addition to reading the sensor, this module maintains a rolling sample
- * history used by the state machine for:
- *   - Cooling-rate calculation (to enforce the 10 C/10 min limit)
- *   - Temperature-stall detection (fault trigger)
- *
- * This header is free of Adafruit / hardware includes and may be safely
- * included from unit tests compiled on the host PC.
+ * Manages the MAX31865 RTD sensor connected to the cold head.
  */
 
-#ifndef TEMPERATURE_H
-#define TEMPERATURE_H
+#ifndef COLD_HEAD_H
+#define COLD_HEAD_H
 
 #include <stdint.h>
 #include "module.h"
 
-namespace temperature {
+namespace cold_head {
 
 /**
  * Initialize the MAX31865 RTD sensor.
@@ -97,14 +91,14 @@ float getTemperatureToPercent();
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return temperature::init(); }
+    static module::InitStatus init() { return cold_head::init(); }
     /** Calls temperature::read(millis()) — must be called every loop tick. */
-    static void service() { temperature::read(millis()); }
+    static module::ServiceStatus service() { cold_head::read(millis()); return module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);
 #endif // ARDUINO
 
-} // namespace temperature
+} // namespace cold_head
 
-#endif // TEMPERATURE_H
+#endif // COLD_HEAD_H

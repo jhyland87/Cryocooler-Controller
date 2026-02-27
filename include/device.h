@@ -17,7 +17,11 @@ namespace device {
  */
 module::InitStatus init();
 
-void service();
+/**
+ * Sample the supply voltage ADC and update internal state.
+ * @return SERVICE_OK always.
+ */
+module::ServiceStatus service();
 
 float getVoltage();
 
@@ -26,8 +30,8 @@ int16_t getVoltageRaw();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return device::init(); }
-    static void service()            { device::service(); }
+    static module::InitStatus    init()    { return device::init(); }
+    static module::ServiceStatus service() { return device::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

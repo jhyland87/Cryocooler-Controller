@@ -19,9 +19,11 @@ module::InitStatus init();
 
 /**
  * Read one sensor sample, update filter / orientation / motion state.
- * Must be called every main-loop tick.  No-op if isInitialized() == false.
+ * Must be called every main-loop tick.
+ * @return SERVICE_OK      — sample read and processed normally.
+ *         SERVICE_SKIPPED — module not initialized, or no new sample ready this tick.
  */
-void service();
+module::ServiceStatus service();
 
 // ---------------------------------------------------------------------------
 // Status
@@ -57,8 +59,8 @@ float getTemperature();  ///< IMU die temperature in °C
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return accelerometer::init(); }
-    static void service()            { accelerometer::service(); }
+    static module::InitStatus    init()    { return accelerometer::init(); }
+    static module::ServiceStatus service() { return accelerometer::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

@@ -20,7 +20,7 @@
 #include "commands.h"
 #include "state_machine.h"
 #include "telemetry.h"
-#include "temperature.h"
+#include "cold_head.h"
 #include "rms.h"
 #include "dac.h"
 #include "indicator.h"
@@ -223,25 +223,25 @@ static void handleSummary(const char* /*args*/, Print& out) {
     out.println(buf);
 
 #ifdef ARDUINO
-    out.println("  --- Temperature ---");
+    out.println("  --- Cold Head ---");
     snprintf(buf, sizeof(buf), "  Cold stage      : %.2f C  /  %.2f K",
-             temperature::getLastTempC(), temperature::getLastTempK());
+             cold_head::getLastTempC(), cold_head::getLastTempK());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Ambient         : %.2f C",
-             temperature::getLastAmbientTempC());
+             cold_head::getLastAmbientTempC());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Below ambient   : %.2f C",
-             temperature::getLastTempCBelowAmbient());
+             cold_head::getLastTempCBelowAmbient());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f K/min",
-             temperature::getCoolingRateKPerMin());
+             cold_head::getCoolingRateKPerMin());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Cooldown        : %.1f %%",
-             temperature::getTemperatureToPercent());
+             cold_head::getTemperatureToPercent());
     out.println(buf);
 
     out.println("  --- Electrical ---");
@@ -347,7 +347,7 @@ module::InitStatus init() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-void service() {
+module::ServiceStatus service() {
 #ifdef ARDUINO
     while (Serial.available()) {
         const char c = static_cast<char>(Serial.read());
@@ -364,6 +364,7 @@ void service() {
         // Characters beyond kMaxLineLen are silently dropped until next newline.
     }
 #endif
+    return module::MODULE_SERVICE_OK;
 }
 
 } // namespace commands

@@ -40,31 +40,30 @@ module::InitStatus init() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-void service() {
+module::ServiceStatus service() {
   const uint32_t nowMs = millis();
   if (nowMs - lastCheckCycleMs < COOLING_CHECK_CYCLE_MS) {
-    return;
+    return module::MODULE_SERVICE_SKIPPED;
   }
   lastCheckCycleMs = nowMs;
 
-
-  // If the coolnt temp is dipped below the min, then disable the cooling system.
+  // If the coolant temp is dipped below the min, then disable the cooling system.
   if (getCoolantTemperature() < COOLING_OFF_BELOW_COOLANT_TEMP && isEnabled()) {
     disable();
-    return;
+    return module::MODULE_SERVICE_OK;
   }
 
-  if ( fanSpeed_ == 0 && !coolingPumpOn_ && enabled_) {
+  if (fanSpeed_ == 0 && !coolingPumpOn_ && enabled_) {
     enabled_ = false;
   }
 
   // If the cryocooler has turned on and autostart is enabled, then enable the cooling system
-  // (regardless of the temperature of the coolant);
+  // (regardless of the temperature of the coolant).
   if (!isEnabled() && state_machine::isRunning() && COOLING_AUTOSTART_ENABLED) {
     enable();
   }
 
-
+  return module::MODULE_SERVICE_OK;
 }
 
 bool isCoolingPumpOn() {

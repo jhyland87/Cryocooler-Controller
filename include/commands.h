@@ -53,8 +53,9 @@ module::InitStatus init();
  * Non-blocking serial service call.  Reads available bytes from Serial,
  * accumulates them into a line buffer, and calls processLine() on each
  * newline.  Call every loop() iteration.
+ * @return SERVICE_OK always (non-blocking; no failure mode).
  */
-void service();
+module::ServiceStatus service();
 
 /**
  * Parse and dispatch one null-terminated command line.
@@ -70,9 +71,9 @@ void processLine(const char* line, Print& out);
 
 struct Module : ModuleBase<Module> {
     /** Initialise the serial line buffer.  Call after Serial.begin(). */
-    static module::InitStatus init() { return commands::init(); }
+    static module::InitStatus    init()    { return commands::init(); }
     /** Read and dispatch available serial bytes (non-blocking). */
-    static void service()            { commands::service(); }
+    static module::ServiceStatus service() { return commands::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

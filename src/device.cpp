@@ -21,12 +21,13 @@ module::InitStatus init() {
 }
 
 
-void service() {
+module::ServiceStatus service() {
     voltageRaw = analogRead(VOLTAGE_12_TEST_PIN);
     // Scale the raw voltage to the actual voltage (given the voltage divider ratio);
     voltageV = map(voltageRaw, 0, 4095, 0, 19200)/1000.0f;
     //Serial.print(voltageRaw);
     //Serial.printf(" - Voltage: %.3f V (%d raw)\n", voltageV, voltageRaw);
+    return module::MODULE_SERVICE_OK;
 }
 
 float getVoltage() {

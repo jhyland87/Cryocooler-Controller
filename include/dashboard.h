@@ -25,8 +25,9 @@ module::InitStatus init();
 /**
  * No-op compatibility stub — the dashboard task is self-scheduling.
  * Safe (and harmless) to call from loop() on every tick.
+ * @return SERVICE_SKIPPED always (work is done by the FreeRTOS task).
  */
-void service();
+module::ServiceStatus service();
 
 /** Enable dashboard broadcasts (default: enabled). */
 void enable();
@@ -38,18 +39,18 @@ void disable();
 bool isEnabled();
 
 // Internal — called from init(); defined in dashboard.cpp.
-void setupWifi();
-void setupServer();
+bool setupWifi();
+bool setupServer();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return dashboard::init(); }
+    static module::InitStatus    init()    { return dashboard::init(); }
     /** No-op: the FreeRTOS task self-schedules.  Call from loop() harmlessly. */
-    static void service()    { dashboard::service(); }
-    static void enable()     { dashboard::enable(); }
-    static void disable()    { dashboard::disable(); }
-    static bool isEnabled()  { return dashboard::isEnabled(); }
+    static module::ServiceStatus service() { return dashboard::service(); }
+    static void enable()                   { dashboard::enable(); }
+    static void disable()                  { dashboard::disable(); }
+    static bool isEnabled()                { return dashboard::isEnabled(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

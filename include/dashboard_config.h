@@ -4,7 +4,7 @@
  *
  * Defines the groups, datasets, and actions that make up the Serial Studio
  * dashboard.  Each dataset's telemetryKey is the dot-separated field name
- * used in FrameBuilder / telemetry.h (e.g. "temperature.k", "dac.target").
+ * used in FrameBuilder / telemetry.h (e.g. "cold_head.k", "dac.target").
  *
  * The index field is the 1-based column position in the Serial Studio
  * pipe-delimited frame.  It must stay in sync with telemetry.cpp field order.
@@ -35,9 +35,9 @@ static const ss::ActionCfg kActions[] = {
 
 static const ss::DatasetCfg kTempDatasets[] = {
     {   // Temperature in Kelvin (gauge)
-        .title          = "Temperature",
+        .title          = "Cold Head Temp (K)",
         .units          = "K",
-        .telemetryKey   = "temperature.k",
+        .telemetryKey   = "cold_head.k",
         .index          = 4,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 60,    .widgetMax  = 300,
@@ -48,9 +48,9 @@ static const ss::DatasetCfg kTempDatasets[] = {
         .overviewDisplay = true,
     },
     {   // Temperature in Celsius (graph only)
-        .title          = "Temperature",
+        .title          = "Cold Head Temp (C)",
         .units          = "\xC2\xB0" "C",    // °C  (UTF-8)
-        .telemetryKey   = "temperature.c",
+        .telemetryKey   = "cold_head.c",
         .index          = 5,
         //.widgetMin      = -220,  .widgetMax = 30,
         //.plotMin        = -220,  .plotMax   = 30,
@@ -60,7 +60,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Cooling rate
         .title          = "Cooling Rate",
         .units          = "K/min",
-        .telemetryKey   = "temperature.cooling_rate",
+        .telemetryKey   = "cold_head.cooling_rate",
         .index          = 7,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,     .widgetMax = 2,
@@ -73,7 +73,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Ambient temperature
         .title          = "Ambient Temp",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "temperature.ambient_c",
+        .telemetryKey   = "cold_head.ambient_c",
         .index          = 6,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 15,    .widgetMax = 35,
@@ -83,7 +83,7 @@ static const ss::DatasetCfg kTempDatasets[] = {
     {   // Delta below ambient
         .title          = "Temp below ambient",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "temperature.delta_below_ambient_c",
+        .telemetryKey   = "cold_head.delta_below_ambient_c",
         .index          = 21,
         //.widgetMin      = 0,     .widgetMax = 100,
         .graph          = true,
@@ -242,9 +242,9 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .overviewDisplay = true,
     },
     {
-        .title          = "Temperature (C)",
+        .title          = "Cold Head Temp (C)",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "temperature.c",
+        .telemetryKey   = "cold_head.c",
         .index          = 5,
         //.widgetMin      = 0,     .widgetMax = 100,
         //.plotMin        = -220,  .plotMax   = 50,
@@ -252,9 +252,9 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .overviewDisplay = true,
     },
     {
-        .title          = "Temperature (K)",
+        .title          = "Cold Head Temp (K)",
         .units          = "K",
-        .telemetryKey   = "temperature.k",
+        .telemetryKey   = "cold_head.k",
         .index          = 4,
         .widgetMin      = 0,     .widgetMax = 100,
         .plotMin        = 75,    .plotMax   = 295,
@@ -264,7 +264,7 @@ static const ss::DatasetCfg kStatusDatasets[] = {
     {
         .title          = "Cooldown Percent",
         .units          = "%",
-        .telemetryKey   = "temperature.cooldown_pct",
+        .telemetryKey   = "cold_head.cooldown_pct",
         .index          = 17,
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,
@@ -357,7 +357,7 @@ static const ss::DatasetCfg kAccelDatasets[] = {
 
 static const ss::GroupCfg kGroups[] = {
     {
-        .title        = "Temperature",
+        .title        = "Cold Head Temp",
         .widget       = ss::GroupWidget::Multiplot,
         .datasets     = kTempDatasets,
         .datasetCount = static_cast<uint8_t>(sizeof(kTempDatasets) / sizeof(kTempDatasets[0])),

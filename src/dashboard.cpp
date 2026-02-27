@@ -268,20 +268,22 @@ bool isEnabled() { return enabled_; }
  * No-op: the dashboard task manages its own schedule.
  * Kept so call sites in loop() compile without changes.
  */
-void service() {}
+module::ServiceStatus service() { return module::MODULE_SERVICE_SKIPPED; }
 
 // ─── init() ──────────────────────────────────────────────────────────────────
 
 module::InitStatus init() {
-    setupWifi();
-
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println(F("[dashboard] WiFi failed to connect — dashboard disabled."));
-        return module::MODULE_INIT_HARDWARE_ERROR;
+    if (!setupWifi()) {
+        return module::MODULE_INIT_CONFIG_ERROR;
     }
 
-    ssDashboard.begin();
-    setupServer();
+    if (!ssDashboard.begin()) {
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
+    }
+
+    if (!setupServer()) {
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
+    }
 
     // Pin the dashboard task to Core 0 (the WiFi/TCPIP core) so that
     // tcpip_api_call() round-trips never block the Arduino loop on Core 1.
@@ -299,17 +301,17 @@ module::InitStatus init() {
 
 // ─── WiFi setup ──────────────────────────────────────────────────────────────
 
-void setupWifi() {
+bool setupWifi() {
+    WiFi.disconnect(true); // Clear old configurations
+
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    // I keep getting AUTH_EXPIRE errors, so I'm going to set the tx power to 8.5dBm to see if it helps.
-    //WiFi.setTxPower(WIFI_POWER_8_5dBm);
-    Serial.printf(F("[dashboard] Connecting to WiFi"));
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(F("."));    }
-    Serial.println();
+    if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
+        Serial.println(F("[dashboard] Failed to connect to WiFi"));
+        return false;
+    }
+
     Serial.printf("[dashboard] Connected — IP: %s\n", WiFi.localIP().toString().c_str());
 
     if (!MDNS.begin(HOSTNAME)) { // Set hostname
@@ -320,15 +322,18 @@ void setupWifi() {
 
     MDNS.addService("http", "tcp", HTTP_API_PORT);
     MDNS.addService("ws", "tcp", WS_PORT);
+
+    return true;
 }
 
 // ─── TCP server setup ─────────────────────────────────────────────────────────
 
-void setupServer() {
+bool setupServer() {
     tcpServer.onClient(&onNewClient, nullptr);
     tcpServer.begin();
     Serial.printf("[dashboard] TCP server listening on port %u\n",
                   static_cast<unsigned>(WS_PORT));
+    return true;
 }
 
 } // namespace dashboard

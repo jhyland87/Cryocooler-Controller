@@ -27,7 +27,7 @@ module::InitStatus init() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-void service() {
+module::ServiceStatus service() {
     float voltageV = device::getVoltage();
     mode_t mode = ad9833.getMode();
 
@@ -40,6 +40,7 @@ void service() {
         Serial.println(F("Voltage has returned to normal, turning on DDS"));
         ad9833.setMode(MD_AD9833::MODE_SINE);
     }
+    return module::MODULE_SERVICE_OK;
 }
 
 int16_t getStatus(){

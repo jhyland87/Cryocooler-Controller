@@ -97,7 +97,7 @@ bool isReadyOn();
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return indicator::init(); }
     /** Calls indicator::update(millis()) — must be called every loop tick. */
-    static void service() { indicator::update(millis()); }
+    static module::ServiceStatus service() { indicator::update(millis()); return module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

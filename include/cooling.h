@@ -17,7 +17,12 @@ namespace cooling {
  */
 module::InitStatus init();
 
-void service();
+/**
+ * Periodic cooling-system tick.
+ * @return SERVICE_OK      — ran and updated state normally.
+ *         SERVICE_SKIPPED — called before the check interval elapsed.
+ */
+module::ServiceStatus service();
 
 bool isCoolingPumpOn();
 
@@ -38,11 +43,11 @@ bool isEnabled();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return cooling::init(); }
-    static void service()            { cooling::service(); }
-    static void enable()             { cooling::enable(); }
-    static void disable()            { cooling::disable(); }
-    static bool isEnabled()          { return cooling::isEnabled(); }
+    static module::InitStatus    init()    { return cooling::init(); }
+    static module::ServiceStatus service() { return cooling::service(); }
+    static void enable()                   { cooling::enable(); }
+    static void disable()                  { cooling::disable(); }
+    static bool isEnabled()                { return cooling::isEnabled(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

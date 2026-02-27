@@ -137,15 +137,13 @@ static void checkMotion(float accelMag, float gyroMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // ESP32 Arduino (and its initVariant()) may start Wire before our code runs.
-    // The new ESP-IDF 5.x I2C driver raises ESP_ERR_INVALID_STATE on the first
-    // transaction if begin() is called on an already-running bus.  Tearing down
-    // and re-starting here guarantees a clean driver state regardless of what
-    // the framework did, without needing a public "isStarted()" check.
-    Wire.end();
-    Wire.begin(SDA_PIN, SCL_PIN);
-
-    if (!imu.begin(SDA_PIN, SCL_PIN)) {
+    // Wire.begin(SDA_PIN, SCL_PIN) is already called in setup().
+    // The QMI8658 library's begin() calls Wire.begin() again internally;
+    // on ESP-IDF 5.x this logs a harmless "Bus already started" warning.
+    // Do NOT call Wire.end() here — it tears down the bus for all I2C
+    // peripherals and the library's subsequent begin() (without pin args)
+    // may not restore the correct SDA/SCL assignment.
+    if (!imu.begin(Wire)) {
         // Hardware not present; mark uninitialised and return.
         // All getters will return 0 / false.
         initialized_ = false;
@@ -165,11 +163,11 @@ module::InitStatus init() {
     return module::InitStatus::MODULE_INIT_SUCCESS;
 }
 
-void service() {
-    if (!initialized_) { return; }
+module::ServiceStatus service() {
+    if (!initialized_) { return module::MODULE_SERVICE_SKIPPED; }
 
     QMI8658_Data data;
-    if (!imu.readSensorData(data)) { return; }
+    if (!imu.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
 
     // Apply calibration offsets
     const float ax = data.accelX - accelOffsetX_;
@@ -198,6 +196,7 @@ void service() {
     imuTemp_  = data.temperature;
 
     checkMotion(accelMag_, gyroMag_);
+    return module::MODULE_SERVICE_OK;
 }
 
 bool  isInitialized()    { return initialized_;    }
