@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstddef>
+#include <cstdint>
 
 class Print {
 public:

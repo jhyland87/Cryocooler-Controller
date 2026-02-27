@@ -105,6 +105,13 @@
 // =============================================================================
 #define STATUS_LED_PIN     RGB_LED_PIN   // Common for on-board RGB on ESP32-S3 DevKit
 
+// =============================================================================
+// Cooling PWM and Tacho pins
+// =============================================================================
+#define COOLING_INHIBIT_PIN   21
+#define COOLING_FAN_PWM_PIN   18
+
+#define COOLING_FAN_TACHO_PIN 5
 
 
 

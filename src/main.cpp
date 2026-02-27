@@ -99,8 +99,8 @@ void setup() {
 
     initModule("device",        [] { return device::init(); });
     initModule("accelerometer", [] { return accelerometer::init(); });
-    initModule("dashboard",     [] { return dashboard::init(); });
     initModule("cooling",       [] { return cooling::init(); });
+    initModule("dashboard",     [] { return dashboard::init(); });
 
     // Smooth DAC voltage readback ADC (not a module — inline init)
     dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);

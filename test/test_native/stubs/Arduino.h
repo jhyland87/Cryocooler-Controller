@@ -29,6 +29,12 @@ void     digitalWrite(uint8_t pin, uint8_t val);
 }
 #endif
 
+// F() macro: in Arduino, places string literals in flash memory.
+// In native tests it is a no-op — string literals already live in RAM.
+#ifndef F
+#  define F(str) (str)
+#endif
+
 // SPI stub class (minimal C++ interface)
 class SPISettings {
 public:

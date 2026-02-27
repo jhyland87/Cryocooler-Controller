@@ -13,6 +13,7 @@
 #include "serial_commands.h"
 #include "state_machine.h"
 #include "telemetry.h"
+#include "cooling.h"
 
 extern "C" void stub_setMillis(uint32_t ms);
 
@@ -25,6 +26,7 @@ static void resetAll() {
     state_machine::init(0);
     serial_commands::init();
     telemetry::enable();  // always start with telemetry on
+    cooling::disable();   // reset fan speed and enabled state
 }
 
 // ---------------------------------------------------------------------------
@@ -294,6 +296,70 @@ void test_sc_telemetry_off_idempotent() {
 }
 
 // ---------------------------------------------------------------------------
+// cooling fan <N>
+// ---------------------------------------------------------------------------
+
+void test_sc_cooling_fan_sets_speed() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan 40", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_UINT8(40u, cooling::getFanSpeed());
+}
+
+void test_sc_cooling_fan_zero_turns_off_fan() {
+    resetAll();
+    cooling::setFanSpeed(75);  // pre-set non-zero
+    Print p;
+    serial_commands::processLine("cooling fan 0", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_UINT8(0u, cooling::getFanSpeed());
+}
+
+void test_sc_cooling_fan_100_percent() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan 100", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_UINT8(100u, cooling::getFanSpeed());
+}
+
+void test_sc_cooling_fan_no_arg_returns_error() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+}
+
+void test_sc_cooling_fan_out_of_range_returns_error() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan 101", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    // Fan speed must not have changed.
+    TEST_ASSERT_EQUAL_UINT8(0u, cooling::getFanSpeed());
+}
+
+void test_sc_cooling_fan_non_numeric_returns_error() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan abc", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_EQUAL_UINT8(0u, cooling::getFanSpeed());
+}
+
+void test_sc_cooling_fan_does_not_match_cooling_on() {
+    // Sending "cooling fan 50" must not accidentally trigger "cooling on".
+    resetAll();
+    Print p;
+    serial_commands::processLine("cooling fan 50", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    // cooling::enable() sets the pump on; it should NOT have been called.
+    TEST_ASSERT_FALSE(cooling::isCoolingPumpOn());
+    TEST_ASSERT_EQUAL_UINT8(50u, cooling::getFanSpeed());
+}
+
+// ---------------------------------------------------------------------------
 // Entry point called by the shared test runner in test_state_machine.cpp
 // ---------------------------------------------------------------------------
 
@@ -341,4 +407,13 @@ void run_serial_command_tests() {
     RUN_TEST(test_sc_telemetry_off_disables);
     RUN_TEST(test_sc_telemetry_on_enables);
     RUN_TEST(test_sc_telemetry_off_idempotent);
+
+    // cooling fan <N>
+    RUN_TEST(test_sc_cooling_fan_sets_speed);
+    RUN_TEST(test_sc_cooling_fan_zero_turns_off_fan);
+    RUN_TEST(test_sc_cooling_fan_100_percent);
+    RUN_TEST(test_sc_cooling_fan_no_arg_returns_error);
+    RUN_TEST(test_sc_cooling_fan_out_of_range_returns_error);
+    RUN_TEST(test_sc_cooling_fan_non_numeric_returns_error);
+    RUN_TEST(test_sc_cooling_fan_does_not_match_cooling_on);
 }

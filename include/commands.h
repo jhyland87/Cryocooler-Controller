@@ -8,17 +8,20 @@
  *     callback with an AsyncClientPrint as the output stream.
  *
  * Available commands:
- *   start          - Begin the cooldown process (from Off or Idle)
- *   stop           - Abort the process and return to Idle
- *   off            - Power off the system entirely
- *   status         - Print current state and running flag
- *   summary        - Print a full snapshot of all system values
- *   board          - Print compile-time board/platform info
- *   help           - List available commands
- *   telemetry off  - Disable telemetry
- *   telemetry on   - Enable telemetry
- *   dashboard off  - Disable dashboard TCP broadcasts
- *   dashboard on   - Enable dashboard TCP broadcasts
+ *   start                - Begin the cooldown process (from Off or Idle)
+ *   stop                 - Abort the process and return to Idle
+ *   off                  - Power off the system entirely
+ *   status               - Print current state and running flag
+ *   summary              - Print a full snapshot of all system values
+ *   board                - Print compile-time board/platform info
+ *   help                 - List available commands
+ *   telemetry off        - Disable telemetry
+ *   telemetry on         - Enable telemetry
+ *   dashboard off        - Disable dashboard TCP broadcasts
+ *   dashboard on         - Enable dashboard TCP broadcasts
+ *   cooling fan <0-100>  - Set cooling fan speed (percentage)
+ *   cooling on           - Enable cooling system
+ *   cooling off          - Disable cooling system
  *
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().

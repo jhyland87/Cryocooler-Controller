@@ -27,9 +27,9 @@ float getCoolantTemperature();
 
 float getCoolantFlowRate();
 
-float getFanRPM();
+uint8_t getFanSpeed();
 
-void setFanRPM(float rpm);
+void setFanSpeed(uint8_t speedPercentage, bool force = false);
 
 void enable();
 void disable();

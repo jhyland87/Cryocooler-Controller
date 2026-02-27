@@ -304,7 +304,7 @@ void setupWifi() {
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     // I keep getting AUTH_EXPIRE errors, so I'm going to set the tx power to 8.5dBm to see if it helps.
-    WiFi.setTxPower(WIFI_POWER_8_5dBm);
+    //WiFi.setTxPower(WIFI_POWER_8_5dBm);
     Serial.printf(F("[dashboard] Connecting to WiFi"));
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);

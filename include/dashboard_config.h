@@ -284,8 +284,9 @@ static const ss::DatasetCfg kStatusDatasets[] = {
     {
         .title          = "Cooling Fans",
         .units          = "",
-        .telemetryKey   = "cooling.fan_on",
+        .telemetryKey   = "cooling.fan_speed",
         .index          = 37,
+        .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,
         .led            = true,  .ledHigh = 1,
         .overviewDisplay = true,

@@ -256,12 +256,13 @@
 // =============================================================================
 
 // The frequency at which the cooling system will check the coolant temperature.
-#define COOLANT_CHECK_CYCLE_MS static_cast<uint32_t>(1000)
+#define COOLING_CHECK_CYCLE_MS static_cast<uint32_t>(1000)
 
-#define COOLANT_AUTOSTART_ENABLED true
+#define COOLING_AUTOSTART_ENABLED true
 
 // If the cryocooler is in an OFF state, and the coolant temperature dips below
 // this value then just turn off the cooling fans and pump.
-#define COOLANT_OFF_BELOW_TEMP 30.0f
+// This is the temp of the coolant
+#define COOLING_OFF_BELOW_COOLANT_TEMP 30.0f
 
 #endif // CONFIG_H

@@ -12,37 +12,55 @@ namespace cooling {
 
 static volatile bool    enabled_ = false;
 static volatile bool    coolingPumpOn_ = false;
-static volatile bool    coolingFanOn_ = false;
 static volatile float    coolantTemperature_ = 0.0f;
 static volatile float    coolantFlowRate_ = 0.0f;
-static volatile float    fanRPM_ = 0.0f;
+static volatile uint8_t    fanSpeed_ = 0;
+static volatile bool    forceFanSpeed_ = false;
+const int freq = 25000;
+const int resolution = 8;
+const long interval = 1000;  // Calculate RPM every 1 second
+volatile int pulseCount = 0;
+void IRAM_ATTR countPulses() {
+  pulseCount = pulseCount+1;
+}
+
+
 uint32_t lastCheckCycleMs = millis();
 
 module::InitStatus init() {
+  pinMode(COOLING_INHIBIT_PIN, OUTPUT);
+  digitalWrite(COOLING_INHIBIT_PIN, LOW);
+
+  ledcAttach(COOLING_FAN_PWM_PIN, freq, resolution);
+  setFanSpeed(0); // Force fan to 0% on startup
+
+  pinMode(COOLING_FAN_TACHO_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(COOLING_FAN_TACHO_PIN), countPulses, FALLING);
+
     return module::MODULE_INIT_SUCCESS;
 }
 
 void service() {
   const uint32_t nowMs = millis();
-  if (nowMs - lastCheckCycleMs < COOLANT_CHECK_CYCLE_MS) {
+  if (nowMs - lastCheckCycleMs < COOLING_CHECK_CYCLE_MS) {
     return;
   }
   lastCheckCycleMs = nowMs;
 
 
   // If the coolnt temp is dipped below the min, then disable the cooling system.
-  if (getCoolantTemperature() < COOLANT_OFF_BELOW_TEMP && isEnabled()) {
+  if (getCoolantTemperature() < COOLING_OFF_BELOW_COOLANT_TEMP && isEnabled()) {
     disable();
     return;
   }
 
-  if ( !coolingFanOn_ && !coolingPumpOn_ && enabled_) {
+  if ( fanSpeed_ == 0 && !coolingPumpOn_ && enabled_) {
     enabled_ = false;
   }
 
   // If the cryocooler has turned on and autostart is enabled, then enable the cooling system
   // (regardless of the temperature of the coolant);
-  if (!Module::isEnabled() && state_machine::isRunning() && COOLANT_AUTOSTART_ENABLED) {
+  if (!isEnabled() && state_machine::isRunning() && COOLING_AUTOSTART_ENABLED) {
     enable();
   }
 
@@ -54,7 +72,7 @@ bool isCoolingPumpOn() {
 }
 
 bool isCoolingFanOn() {
-  return coolingFanOn_;
+  return fanSpeed_ > 0;
 }
 
 float getCoolantTemperature() {
@@ -65,17 +83,33 @@ float getCoolantFlowRate() {
   return coolantFlowRate_;
 }
 
-float getFanRPM() {
-  return fanRPM_;
+uint8_t getFanSpeed() {
+  return (pulseCount / 2) * 60 / interval;
 }
 
-void setFanRPM(float rpm) {
-  fanRPM_ = rpm;
+void setFanSpeed(uint8_t percentage, bool force) {
+  if (forceFanSpeed_ && !force) {
+    return;
+  }
+  forceFanSpeed_ = force;
+  fanSpeed_ = constrain(percentage, 0, 100);
+  int duty = map(fanSpeed_, 0, 100, 0, 255);
+  ledcWrite(COOLING_FAN_PWM_PIN, duty);
 }
 
+void enable()    {
+  enabled_ = true;
+  coolingPumpOn_ = true;
+  digitalWrite(COOLING_INHIBIT_PIN, HIGH);
+  setFanSpeed(25);
+}
 
-void enable()    { enabled_ = true; coolingPumpOn_ = true; coolingFanOn_ = true; }
-void disable()   { enabled_ = false; coolingPumpOn_ = false; coolingFanOn_ = false; }
+void disable()   {
+  enabled_ = false;
+  coolingPumpOn_ = false;
+  digitalWrite(COOLING_INHIBIT_PIN, LOW);
+  setFanSpeed(0);
+}
 bool isEnabled() { return enabled_; }
 
 } // namespace cooling
