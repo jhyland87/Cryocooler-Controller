@@ -27,11 +27,18 @@ float getVoltage();
 
 int16_t getVoltageRaw();
 
+/**
+ * Get the initialization status of the device.
+ * @return The initialization status of the device.
+ */
+module::InitStatus getInitStatus();
+
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
     static module::InitStatus    init()    { return device::init(); }
     static module::ServiceStatus service() { return device::service(); }
+    static module::InitStatus    getInitStatus() { return device::getInitStatus(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

@@ -13,11 +13,14 @@
 static float    voltageV         = 0.0f;
 static int  voltageRaw       = 0;
 
+static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
+
 namespace device {
 
 module::InitStatus init() {
     analogReadResolution(ADC_RESOLUTION);
-    return module::MODULE_INIT_SUCCESS;
+    initStatus = module::MODULE_INIT_SUCCESS;
+    return initStatus;
 }
 
 
@@ -36,6 +39,10 @@ float getVoltage() {
 
 int16_t getVoltageRaw() {
     return voltageRaw;
+}
+
+module::InitStatus getInitStatus() {
+    return initStatus;
 }
 
 } // namespace device
