@@ -193,7 +193,7 @@ module::ServiceStatus service() {
     // Magnitudes from unfiltered data for spike sensitivity
     accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
     gyroMag_  = sqrtf(gx*gx + gy*gy + gz*gz);
-    imuTemp_  = 12.34F; //data.temperature;
+    imuTemp_  = data.temperature;
 
     checkMotion(accelMag_, gyroMag_);
     return module::MODULE_SERVICE_OK;

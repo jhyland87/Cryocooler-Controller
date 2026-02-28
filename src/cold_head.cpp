@@ -215,6 +215,10 @@ bool isStalled() {
     return (drop < STALL_MIN_DROP_K);
 }
 
+float getLastAmbientTempC(){
+    return lastAmbientTempC;
+}
+
 float getTemperatureToPercent()
 {
     const float tempK = getLastTempK();
