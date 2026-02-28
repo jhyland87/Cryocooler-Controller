@@ -1,5 +1,5 @@
 /**
- * @file device.h
+ * @file sysinfo.h
  * @brief Handles data about the overall system (`system` was taken as a module name, obv).
  */
 
@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include "module.h"
 
-namespace device {
+namespace sysinfo {
 
 /**
  * Initialize the voltage monitoring ADC resolution.
@@ -27,22 +27,17 @@ float getVoltage();
 
 int16_t getVoltageRaw();
 
-/**
- * Get the initialization status of the device.
- * @return The initialization status of the device.
- */
-module::InitStatus getInitStatus();
+float getAmbientTemperature();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return device::init(); }
-    static module::ServiceStatus service() { return device::service(); }
-    static module::InitStatus    getInitStatus() { return device::getInitStatus(); }
+    static module::InitStatus    init()    { return _initStatus    = sysinfo::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = sysinfo::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);
 
-} // namespace device
+} // namespace sysinfo
 
 #endif // DEVICE_H

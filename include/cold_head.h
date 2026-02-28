@@ -29,7 +29,7 @@ module::InitStatus init();
  */
 void read(uint32_t nowMs);
 
-float readAmbientTemperature();
+//float readAmbientTemperature();
 
 /**
  * Return the most recently measured ambient temperature in Celsius.
@@ -38,6 +38,7 @@ float readAmbientTemperature();
 float getLastAmbientTempC();
 
 float getLastTempCBelowAmbient();
+
 
 /**
  * Check for MAX31865 fault conditions and report via Serial.
@@ -73,6 +74,8 @@ float getCoolingRateKPerMin();
  */
 bool isStalled();
 
+bool checkDependencies();
+
 /**
  * Return the temperature as a percentage of the maximum temperature.
  * 0% = 298K, 100% = 78K
@@ -91,9 +94,9 @@ float getTemperatureToPercent();
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return cold_head::init(); }
+    static module::InitStatus init() { return _initStatus = cold_head::init(); }
     /** Calls temperature::read(millis()) — must be called every loop tick. */
-    static module::ServiceStatus service() { cold_head::read(millis()); return module::MODULE_SERVICE_OK; }
+    static module::ServiceStatus service() { cold_head::read(millis()); return _serviceStatus = module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

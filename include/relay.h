@@ -42,7 +42,7 @@ void setAlarm(bool active);
 // Relay state is driven by the state machine via setBypass() / setAlarm().
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return relay::init(); }
+    static module::InitStatus init() { return _initStatus = relay::init(); }
     // service() — inherited no-op from ModuleBase; relay is state-machine driven.
 };
 

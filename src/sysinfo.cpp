@@ -1,5 +1,5 @@
 /**
- * @file device.cpp
+ * @file sysinfo.cpp
  * @brief Device voltage monitoring implementation
  */
 
@@ -7,20 +7,18 @@
 
 #include "pin_config.h"
 #include "config.h"
-#include "device.h"
+#include "sysinfo.h"
+#include "accelerometer.h"
 
 // System voltage in volts
 static float    voltageV         = 0.0f;
 static int  voltageRaw       = 0;
 
-static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
-
-namespace device {
+namespace sysinfo {
 
 module::InitStatus init() {
     analogReadResolution(ADC_RESOLUTION);
-    initStatus = module::MODULE_INIT_SUCCESS;
-    return initStatus;
+    return module::MODULE_INIT_SUCCESS;
 }
 
 
@@ -41,8 +39,7 @@ int16_t getVoltageRaw() {
     return voltageRaw;
 }
 
-module::InitStatus getInitStatus() {
-    return initStatus;
+float getAmbientTemperature() {
+    return accelerometer::getTemperature();
 }
-
-} // namespace device
+} // namespace sysinfo

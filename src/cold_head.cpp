@@ -8,8 +8,6 @@
 
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include <RunningAverage.h>
 
 #include "pin_config.h"
@@ -17,7 +15,7 @@
 #include "cold_head.h"
 #include "conversions.h"
 #include "module.h"
-
+#include "accelerometer.h"
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -38,6 +36,7 @@ static uint8_t     count        = 0;   // number of valid samples stored
 static float       lastTempK    = 0.0f;
 static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
+static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -45,8 +44,8 @@ static float       lastAmbientTempC = 0.0f;
 static RunningAverage coolingRateAvg(15);
 
 
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
+//OneWire oneWire(ONE_WIRE_BUS);
+//DallasTemperature sensors(&oneWire);
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -79,10 +78,16 @@ static const TempSample& sampleAt(uint8_t i) {
 namespace cold_head {
 
 module::InitStatus init() {
+    if (!checkDependencies()) {
+        initStatus = module::MODULE_INIT_DEPENDENCY_ERROR;
+        return initStatus;
+    }
+
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
         Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
-        return module::MODULE_INIT_HARDWARE_ERROR;
+        initStatus = module::MODULE_INIT_HARDWARE_ERROR;
+        return initStatus;
     }
 
     const uint16_t rtd   = max31865.readRTD();
@@ -96,8 +101,9 @@ module::InitStatus init() {
         Serial.println(F("[cold_head] MAX31865 initialized successfully!"));
     }
 
-    sensors.begin();
-    return module::MODULE_INIT_SUCCESS;
+    //sensors.begin();
+    initStatus = module::MODULE_INIT_SUCCESS;
+    return initStatus;
 }
 
 void read(uint32_t nowMs) {
@@ -106,7 +112,7 @@ void read(uint32_t nowMs) {
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
     const float    tempK        = conversions::celsiusToKelvin(tempC);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
-    const float    ambientTempC = readAmbientTemperature();
+    const float    ambientTempC = accelerometer::getTemperature();
 
     lastTempC = tempC;
     lastTempK = tempK;
@@ -130,12 +136,20 @@ void read(uint32_t nowMs) {
     //              rtd, resistance, tempC, tempF, tempK);
 }
 
-float readAmbientTemperature() {
-    sensors.requestTemperatures(); // Send the command to get temperatures
-    if (sensors.getDeviceCount() > 0) {
-        return sensors.getTempCByIndex(0);
+// float readAmbientTemperature() {
+//     sensors.requestTemperatures(); // Send the command to get temperatures
+//     if (sensors.getDeviceCount() > 0) {
+//         return sensors.getTempCByIndex(0);
+//     }
+//     return 0.0f;
+// }
+
+bool checkDependencies() {
+    if (!accelerometer::isInitialized()) {
+        Serial.println(F("[cold_head] Dependency check failed - Accelerometer not initialized!"));
+        return false;
     }
-    return 0.0f;
+    return true;
 }
 
 void checkFaults() {
@@ -162,9 +176,9 @@ float getLastTempC() {
     return lastTempC;
 }
 
-float getLastAmbientTempC() {
-    return lastAmbientTempC;
-}
+// float getLastAmbientTempC() {
+//     return lastAmbientTempC;
+// }
 
 float getLastTempCBelowAmbient() {
     return lastAmbientTempC - lastTempC;
@@ -199,6 +213,10 @@ bool isStalled() {
     // Stalled if the drop within the window is below the minimum threshold
     const float drop = refTempK - newest.tempK;
     return (drop < STALL_MIN_DROP_K);
+}
+
+float getLastAmbientTempC(){
+    return lastAmbientTempC;
 }
 
 float getTemperatureToPercent()

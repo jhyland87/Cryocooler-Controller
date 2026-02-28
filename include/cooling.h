@@ -43,8 +43,8 @@ bool isEnabled();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return cooling::init(); }
-    static module::ServiceStatus service() { return cooling::service(); }
+    static module::InitStatus    init()    { return _initStatus    = cooling::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = cooling::service(); }
     static void enable()                   { cooling::enable(); }
     static void disable()                  { cooling::disable(); }
     static bool isEnabled()                { return cooling::isEnabled(); }

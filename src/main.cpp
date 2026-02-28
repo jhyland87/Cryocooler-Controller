@@ -13,11 +13,10 @@
  */
 
 #include <Arduino.h>
-#include <SPI.h>
-#include <Wire.h>
 #include <SmoothADC.h>
 
 #include "config.h"
+#include "hardware.h"
 #include "pin_config.h"
 #include "cold_head.h"
 #include "waveform.h"
@@ -28,7 +27,7 @@
 #include "state_machine.h"
 #include "telemetry.h"
 #include "commands.h"
-#include "device.h"
+#include "sysinfo.h"
 #include "cooling.h"
 #include "dashboard.h"
 #include "accelerometer.h"
@@ -52,7 +51,7 @@ static SmoothADC dacVoltageAdc;
  */
 template<typename Fn>
 static module::InitStatus initModule(const char* name, Fn&& initFn) {
-    Serial.printf("[init] %-20s ... ", name);
+    Serial.printf("[%s] Initialising ... \n", name);
 
     module::InitStatus status = initFn();
     while (status == module::MODULE_INIT_IN_PROGRESS) {
@@ -60,9 +59,9 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
     }
 
     if (status == module::MODULE_INIT_SUCCESS) {
-        Serial.println(F("OK"));
+        Serial.printf("[%s] Initialisation complete\n", name);
     } else {
-        Serial.printf("FAILED (status %d)\n", static_cast<int>(status));
+        Serial.printf("[%s] FAILED (status %d)\n", name, static_cast<int>(status));
     }
     return status;
 }
@@ -80,26 +79,26 @@ void setupModules(){
     // OK or FAILED.  Failures are non-fatal here; the state machine will
     // detect missing sensor data and transition to Fault as appropriate.
 
-    auto deviceStatus =  initModule("device",        [] { return device::init(); });
-    if (deviceStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Device initialization failed (status %d). Halting startup.\n", static_cast<int>(deviceStatus));
+    auto sysinfoStatus =  initModule("sysinfo",        [] { return sysinfo::Module::init(); });
+    if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Sysinfo initialization failed (status %d). Halting startup.\n", static_cast<int>(sysinfoStatus));
         return;
     }
 
-    auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::init(); });
+    auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::Module::init(); });
     if (accelerometerStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Accelerometer initialization failed (status %d) — continuing without IMU.\n", static_cast<int>(accelerometerStatus));
+        Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n", static_cast<int>(accelerometerStatus));
     }
 
-    auto coolingStatus = initModule("cooling",       [] { return cooling::init(); });
+    auto coolingStatus = initModule("cooling",       [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Cooling initialization failed (status %d). Halting startup.", static_cast<int>(coolingStatus));
+        Serial.printf("[init] Cooling initialization failed (status %d). Halting startup.\n", static_cast<int>(coolingStatus));
         return;
     }
 
-    auto dashboardStatus = initModule("dashboard",     [] { return dashboard::init(); });
+    auto dashboardStatus = initModule("dashboard",     [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
+        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
     }
 
     // Smooth DAC voltage readback ADC (not a module — inline init)
@@ -112,53 +111,58 @@ void setupModules(){
 
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto waveformStatus = initModule("waveform",      [] { return waveform::init(); });
+    auto waveformStatus = initModule("waveform",      [] { return waveform::Module::init(); });
     if (waveformStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Waveform initialization failed (status %d). Halting startup.\n", static_cast<int>(waveformStatus));
+        Serial.printf("[init] Waveform initialization failed (status %d). Halting startup.\n", static_cast<int>(waveformStatus));
         return;
     }
 
-    auto cold_headStatus = initModule("cold_head",   [] { return cold_head::init(); });
+    auto cold_headStatus = initModule("cold_head",   [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Cold head initialization failed (status %d). Halting startup.\n", static_cast<int>(cold_headStatus));
+        Serial.printf("[init] Cold head initialization failed (status %d). Halting startup.\n", static_cast<int>(cold_headStatus));
         return;
     }
 
-    auto dacStatus = initModule("dac",           [] { return dac::init(); });
+    auto dacStatus = initModule("dac",           [] { return dac::Module::init(); });
     if (dacStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("DAC initialization failed (status %d). Halting startup.\n", static_cast<int>(dacStatus));
+        Serial.printf("[init] DAC initialization failed (status %d). Halting startup.\n", static_cast<int>(dacStatus));
         return;
     }
 
-    auto rmsStatus = initModule("rms",           [] { return rms::init(); });
+    auto rmsStatus = initModule("rms",           [] { return rms::Module::init(); });
     if (rmsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("RMS initialization failed (status %d). Halting startup.\n", static_cast<int>(rmsStatus));
+        Serial.printf("[init] RMS initialization failed (status %d). Halting startup.\n", static_cast<int>(rmsStatus));
         return;
     }
 
-    auto relayStatus = initModule("relay",         [] { return relay::init(); });
+    auto relayStatus = initModule("relay",         [] { return relay::Module::init(); });
     if (relayStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Relay initialization failed (status %d). Halting startup.\n", static_cast<int>(relayStatus));
+        Serial.printf("[init] Relay initialization failed (status %d). Halting startup.\n", static_cast<int>(relayStatus));
         return;
     }
 
-    auto indicatorStatus = initModule("indicator",     [] { return indicator::init(); });
+    auto indicatorStatus = initModule("indicator",     [] { return indicator::Module::init(); });
     if (indicatorStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Indicator initialization failed (status %d). Halting startup.\n", static_cast<int>(indicatorStatus));
+        Serial.printf("[init] Indicator initialization failed (status %d). Halting startup.\n", static_cast<int>(indicatorStatus));
         return;
     }
     //initModule("http_api",    [] { return http_api::init(); });
 
-    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::init(); });
+    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::Module::init(); });
     if (stateMachineStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
+        Serial.printf("[init] State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
         return;
     }
 
-    auto commandsStatus = initModule("commands",      [] { return commands::init(); });
+    auto commandsStatus = initModule("commands",      [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
+        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
     }
+
+    // telemetry has no hardware setup but we call Module::init() to record a
+    // valid InitStatus so the mod.telemetry.init field in the telemetry frame
+    // reflects the actual state rather than NOT_STARTED.
+    telemetry::Module::init();
 
     setupComplete = true;
 }
@@ -171,17 +175,20 @@ void setup() {
 
     // Wait for USB-CDC serial port (ESP32-S3 native USB).
     while (!Serial) delay(10);
-    delay(2000);
+    delay(3000);
 
     Serial.println(F("Cryocooler Controller -- starting up"));
     Serial.println(F("====================================="));
 
-    // Shared buses — initialize once here, before any module that needs them.
-    // The ESP32-S3 framework may call Wire.begin() silently in initVariant();
-    // owning the call explicitly here prevents double-init surprises.
-    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
-    Wire.begin(SDA_PIN, SCL_PIN);
-
+    // Initialise shared buses before any module that needs them.
+    // hardware::init() owns the single GuardedWire and SPIClass instances;
+    // modules access them via hardware::i2c() / hardware::spi() rather than
+    // the global Wire / SPI singletons.
+    if (initModule("hardware", [] { return hardware::Module::init(); })
+            != module::MODULE_INIT_SUCCESS) {
+        Serial.println(F("Hardware bus init failed. Halting."));
+        return;
+    }
 
     setupModules();
 
@@ -191,7 +198,7 @@ void setup() {
     }
 
 
-    Serial.printf("\nSetup complete. System is Off. (status %d)", static_cast<int>(device::getInitStatus()));
+    Serial.printf("\nSetup complete. System is Off. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
 
     Serial.println(F("Type 'help' for available commands."));
 }
@@ -208,16 +215,16 @@ void loop() {
     // modules are still serviced regardless so the control loop keeps running.
     // Silence SERVICE_SKIPPED — it is the normal outcome for time-gated modules.
 
-    if (device::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] device service error"));
+    if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] sysinfo service error"));
     }
-    if (accelerometer::service() == module::MODULE_SERVICE_ERROR) {
+    if (accelerometer::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] accelerometer service error"));
     }
-    if (waveform::service() == module::MODULE_SERVICE_ERROR) {
+    if (waveform::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] waveform service error"));
     }
-    if (cooling::service() == module::MODULE_SERVICE_ERROR) {
+    if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] cooling service error"));
     }
 
@@ -227,7 +234,7 @@ void loop() {
     const uint32_t nowMs = millis();
 
     // Process incoming serial commands (non-blocking)
-    if (commands::service() == module::MODULE_SERVICE_ERROR) {
+    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] commands service error"));
     }
 
@@ -278,5 +285,5 @@ void loop() {
 
     // ---- 5. Telemetry ---------------------------------------------------
     telemetry::emit(out);
-    dashboard::service();
+    dashboard::Module::service();
 }

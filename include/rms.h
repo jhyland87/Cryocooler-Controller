@@ -95,7 +95,7 @@ void clearOverstroke();
 // Call rms::read() and rms::readCurrent() explicitly in loop().
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return rms::init(); }
+    static module::InitStatus init() { return _initStatus = rms::init(); }
     // service() — inherited no-op; read() and readCurrent() are called
     // explicitly at the correct points in the main control tick.
 };

@@ -17,9 +17,9 @@
  */
 
 #include <QMI8658.h>
-#include <Wire.h>
 #include <math.h>
 #include "accelerometer.h"
+#include "hardware.h"
 #include "pin_config.h"
 
 namespace accelerometer {
@@ -137,15 +137,15 @@ static void checkMotion(float accelMag, float gyroMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // Wire.begin(SDA_PIN, SCL_PIN) is already called in setup().
-    // The QMI8658 library's begin() calls Wire.begin() again internally;
-    // on ESP-IDF 5.x this logs a harmless "Bus already started" warning.
-    // Do NOT call Wire.end() here — it tears down the bus for all I2C
-    // peripherals and the library's subsequent begin() (without pin args)
-    // may not restore the correct SDA/SCL assignment.
-    if (!imu.begin(Wire)) {
-        // Hardware not present; mark uninitialised and return.
-        // All getters will return 0 / false.
+    // Pass the shared bus from hardware::i2c().  The vendored QMI8658 library
+    // (lib/QMI8658) has its internal Wire.begin() call removed, so the bus
+    // is initialised exactly once by hardware::init() and never re-entered.
+    if (!imu.begin(hardware::i2c())) {
+        // Device did not respond.  Run a full bus scan so the serial log
+        // shows exactly what (if anything) is present — distinguishes a
+        // wiring/pull-up issue from a driver/address mismatch.
+        log_e("[accelerometer] QMI8658 not found — scanning I2C bus:");
+        hardware::scanI2c();
         initialized_ = false;
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }

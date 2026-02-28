@@ -12,8 +12,11 @@
 #include "conversions.h"
 #include "indicator.h"
 #include <Arduino.h>
+#include "esp_log.h"
 
 namespace state_machine {
+
+static constexpr char TAG[] = "state_machine";
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -39,18 +42,22 @@ static uint16_t backoffDacOffset        = 0;   // cumulative DAC reduction (coun
 // ---------------------------------------------------------------------------
 
 static void enterState(State s, uint32_t nowMs) {
+    ESP_LOGD(TAG, "Entering state %s", stateName(s));
     currentState        = s;
     currentStateEntryMs = nowMs;
     if (s != State::Settle) {
         settleTimerActive = false;
         settleStartMs     = 0;
+        ESP_LOGD(TAG, "Settle timer cleared");
     }
     if (s != State::Fault) {
         faultReason = FaultReason::None;
+        ESP_LOGD(TAG, "Fault reason cleared");
     }
 }
 
 static void enterFault(FaultReason reason, uint32_t nowMs) {
+    ESP_LOGD(TAG, "Entering fault state %d", static_cast<int>(reason));
     faultReason = reason;
     running     = false;
     enterState(State::Fault, nowMs);
@@ -229,6 +236,7 @@ Output update(float    tempK,
               uint32_t nowMs,
               bool     overstroke)
 {
+    ESP_LOGD(TAG, "Updating state machine (tempK = %.2f, coolingRate = %.2f, rmsVoltage = %.2f, stalled = %d, overstroke = %d)", tempK, coolingRate, rmsVoltage, stalled, overstroke);
     // ------------------------------------------------------------------
     // Global fault checks (fire from any non-Fault state)
     // ------------------------------------------------------------------
@@ -423,7 +431,7 @@ void start(uint32_t nowMs, float tempK) {
     faultReason      = FaultReason::None;
     backoffCount     = 0;
     backoffDacOffset = 0;
-
+    ESP_LOGD(TAG, "Starting state machine (tempK = %.2f)", tempK);
     // Select the resumption state based on current cold-stage temperature.
     // This lets the system pick up where it left off after a reboot without
     // entering a cooldown state that would trigger a spurious stall fault.
@@ -447,6 +455,7 @@ void stop(uint32_t nowMs) {
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
+    ESP_LOGD(TAG, "Stopping state machine");
     enterState(State::Shutdown, nowMs);
 }
 
@@ -455,6 +464,7 @@ void off(uint32_t nowMs) {
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
+    ESP_LOGD(TAG, "Turning off state machine");
     enterState(State::Off, nowMs);
 }
 

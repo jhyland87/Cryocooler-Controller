@@ -7,8 +7,12 @@
 #include "state_machine.h"
 #include "cooling.h"
 #include "config.h"
+#include "esp_log.h"
+
 
 namespace cooling {
+
+static constexpr char TAG[] = "cooling";
 
 static volatile bool    enabled_ = false;
 static volatile bool    coolingPumpOn_ = false;
@@ -41,6 +45,7 @@ module::InitStatus init() {
 }
 
 module::ServiceStatus service() {
+  //ESP_LOGD(TAG, "Checking cooling system");
   const uint32_t nowMs = millis();
   if (nowMs - lastCheckCycleMs < COOLING_CHECK_CYCLE_MS) {
     return module::MODULE_SERVICE_SKIPPED;
@@ -88,15 +93,18 @@ uint8_t getFanSpeed() {
 
 void setFanSpeed(uint8_t percentage, bool force) {
   if (forceFanSpeed_ && !force) {
+    ESP_LOGD(TAG, "Fan speed already set to %d, not changing (force = %d)", fanSpeed_, force);
     return;
   }
   forceFanSpeed_ = force;
-  fanSpeed_ = constrain(percentage, 0, 100);
-  int duty = map(fanSpeed_, 0, 100, 0, 255);
+  fanSpeed_ = constrain(percentage, 0, COOLING_FAN_MAX_SPEED);
+  int duty = map(fanSpeed_, 0, COOLING_FAN_MAX_SPEED, 0, 255);
+  ESP_LOGD(TAG, "Setting fan speed to %d (duty = %d, force = %d)", fanSpeed_, duty, force);
   ledcWrite(COOLING_FAN_PWM_PIN, duty);
 }
 
 void enable()    {
+  ESP_LOGD(TAG, "Enabling cooling system");
   enabled_ = true;
   coolingPumpOn_ = true;
   digitalWrite(COOLING_INHIBIT_PIN, HIGH);
@@ -104,6 +112,7 @@ void enable()    {
 }
 
 void disable()   {
+  ESP_LOGD(TAG, "Disabling cooling system");
   enabled_ = false;
   coolingPumpOn_ = false;
   digitalWrite(COOLING_INHIBIT_PIN, LOW);

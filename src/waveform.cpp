@@ -10,7 +10,7 @@
 #include "config.h"
 #include "waveform.h"
 #include "module.h"
-#include "device.h"
+#include "sysinfo.h"
 
 static MD_AD9833 ad9833(AD9833_CS);
 
@@ -28,7 +28,7 @@ module::InitStatus init() {
 }
 
 module::ServiceStatus service() {
-    float voltageV = device::getVoltage();
+    float voltageV = sysinfo::getVoltage();
     mode_t mode = ad9833.getMode();
 
     if (voltageV < 11.5f) {

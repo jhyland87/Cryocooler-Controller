@@ -29,7 +29,10 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <time.h>
 #include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include "web_content.h"
 #include <ArduinoJson.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -114,6 +117,7 @@ static constexpr uint32_t   kChunkPauseMs        = 5;
 static volatile bool    enabled_ = true;
 static ss::Dashboard    ssDashboard(dashboard_config::kDashboardCfg);
 static AsyncServer      tcpServer(WS_PORT);
+static AsyncWebServer   httpServer(HTTP_API_PORT);
 static char             txBuf[kTxBufSize];
 
 // Client slot array.  Slots are nulled inside disconnect/error callbacks
@@ -234,7 +238,7 @@ static void dashboardTask(void* /*arg*/) {
 
         // Check for any connected client before doing expensive work.
         bool anyConnected = false;
-        for (const auto* c : clients_) {
+        for (auto* c : clients_) {
             if (c && c->connected()) { anyConnected = true; break; }
         }
         if (!anyConnected) continue;
@@ -284,7 +288,6 @@ module::InitStatus init() {
     if (!setupServer()) {
         return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
-
     // Pin the dashboard task to Core 0 (the WiFi/TCPIP core) so that
     // tcpip_api_call() round-trips never block the Arduino loop on Core 1.
     xTaskCreatePinnedToCore(
@@ -302,7 +305,7 @@ module::InitStatus init() {
 // ─── WiFi setup ──────────────────────────────────────────────────────────────
 
 bool setupWifi() {
-    WiFi.disconnect(true); // Clear old configurations
+    //WiFi.disconnect(true); // Clear old configurations
 
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
@@ -317,11 +320,17 @@ bool setupWifi() {
     if (!MDNS.begin(HOSTNAME)) { // Set hostname
         Serial.println(F("[dashboard] Error setting up MDNS responder!"));
     } else {
-        Serial.printf("[dashboard] mDNS responder started: %s.local", HOSTNAME);
+        Serial.printf("[dashboard] mDNS responder started: %s.local\n", HOSTNAME);
     }
 
     MDNS.addService("http", "tcp", HTTP_API_PORT);
     MDNS.addService("ws", "tcp", WS_PORT);
+
+    // Kick off SNTP sync in the background.  time(nullptr) returns 0 until
+    // the first sync completes (typically a few seconds after WiFi connects),
+    // then switches to the real Unix epoch — no explicit wait needed.
+    configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+    Serial.println(F("[dashboard] SNTP sync started (UTC)"));
 
     return true;
 }
@@ -333,6 +342,41 @@ bool setupServer() {
     tcpServer.begin();
     Serial.printf("[dashboard] TCP server listening on port %u\n",
                   static_cast<unsigned>(WS_PORT));
+
+    // Static files embedded at compile time by scripts/embed_web.py.
+    // No LittleFS partition needed — files are served directly from flash.
+    httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {
+        r->send(200, "text/html", k_index_html);
+    });
+    httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* r) {
+        r->send(200, "text/html", k_index_html);
+    });
+    httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* r) {
+        r->send(200, "text/css", k_style_css);
+    });
+    httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* r) {
+        r->send(200, "application/javascript", k_app_js);
+    });
+
+    // GET /api/telemetry — latest telemetry snapshot as flat JSON.
+    // The buffer is static: ESPAsyncWebServer callbacks run serialised in the
+    // lwIP TCPIP task, so there is no concurrent access risk for a single route.
+    httpServer.on("/api/telemetry", HTTP_GET, [](AsyncWebServerRequest* request) {
+        static char jsonBuf[8192];
+        JsonDocument doc;
+        telemetry::fillJson(doc);
+        const size_t len = serializeJson(doc, jsonBuf, sizeof(jsonBuf));
+        if (len == 0 || len >= sizeof(jsonBuf)) {
+            request->send(500, "application/json", "{\"error\":\"serialization failed\"}");
+            return;
+        }
+        request->send(200, "application/json", jsonBuf);
+    });
+
+    httpServer.begin();
+
+    Serial.printf("[dashboard] HTTP server listening on port %u\n",
+                  static_cast<unsigned>(HTTP_API_PORT));
     return true;
 }
 

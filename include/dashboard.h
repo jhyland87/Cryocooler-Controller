@@ -45,9 +45,9 @@ bool setupServer();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return dashboard::init(); }
+    static module::InitStatus    init()    { return _initStatus    = dashboard::init(); }
     /** No-op: the FreeRTOS task self-schedules.  Call from loop() harmlessly. */
-    static module::ServiceStatus service() { return dashboard::service(); }
+    static module::ServiceStatus service() { return _serviceStatus = dashboard::service(); }
     static void enable()                   { dashboard::enable(); }
     static void disable()                  { dashboard::disable(); }
     static bool isEnabled()                { return dashboard::isEnabled(); }

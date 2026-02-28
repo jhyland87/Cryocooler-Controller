@@ -71,20 +71,18 @@ static const ss::DatasetCfg kTempDatasets[] = {
         .overviewDisplay = true,
     },
     {   // Ambient temperature
-        .title          = "Ambient Temp",
+        .title          = "Ambient Temp (C)",
         .units          = "\xC2\xB0" "C",
         .telemetryKey   = "cold_head.ambient_temp_c",
-        .index          = 6,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 15,    .widgetMax = 35,
-        .graph          = true,
+        .graph          = true, .log = true,
         .overviewDisplay = true,
     },
     {   // Delta below ambient
         .title          = "Temp below ambient",
         .units          = "\xC2\xB0" "C",
         .telemetryKey   = "cold_head.delta_below_ambient_c",
-        .index          = 21,
         //.widgetMin      = 0,     .widgetMax = 100,
         .graph          = true,
     },
@@ -97,23 +95,21 @@ static const ss::DatasetCfg kTempDatasets[] = {
 static const ss::DatasetCfg kDacDatasets[] = {
     {
         .title          = "DAC Target",
-        .units          = "",
+        .units          = "V",
         .telemetryKey   = "dac.target",
-        .index          = 8,
         .widget         = ss::WidgetType::Bar,
-        .widgetMin      = 0,     .widgetMax = 4095,
-        //.plotMin        = 0,     .plotMax   = 4095,
+        .widgetMin      = 0,     .widgetMax = 10,
+        .plotMin        = 0,     .plotMax   = 10,
         .graph          = true,  .log = true,
         .overviewDisplay = true,
     },
     {
         .title          = "DAC Actual",
-        .units          = "",
+        .units          = "V",
         .telemetryKey   = "dac.actual",
-        .index          = 9,
         .widget         = ss::WidgetType::Bar,
-        .widgetMin      = 0,     .widgetMax = 4095,
-        //.plotMin        = 0,     .plotMax   = 4095,
+        .widgetMin      = 0,     .widgetMax = 10,
+        .plotMin        = 0,     .plotMax   = 10,
         .graph          = true,  .log = true,
     },
 };
@@ -127,7 +123,6 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "RMS Voltage",
         .units          = "VDC",
         .telemetryKey   = "rms.voltage",
-        .index          = 10,
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,     .widgetMax = 150,
         //.plotMin        = 0,     .plotMax   = 150,
@@ -140,7 +135,6 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "Relay Normal",
         .units          = "",
         .telemetryKey   = "relay.normal",
-        .index          = 11,
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,     .widgetMax = 1,
         .plotMin        = 0,     .plotMax   = 1,
@@ -151,7 +145,6 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "Alarm Relay",
         .units          = "",
         .telemetryKey   = "relay.alarm",
-        .index          = 12,
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,     .widgetMax = 1,
         .plotMin        = 0,     .plotMax   = 1,
@@ -180,7 +173,39 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
 // Group 4 — Overall Status (datagrid)
 // ═════════════════════════════════════════════════════════════════════════════
 
+static const ss::DatasetCfg kModuleStatusDatasets[] = {
+    {
+        .title          = "System Info",
+        .units          = "",
+        .telemetryKey   = "mod.sysinfo.service"
+    },
+    {
+        .title          = "Cooling",
+        .units          = "",
+        .telemetryKey   = "mod.cooling.service"
+    },
+    {
+        .title          = "Cold Head",
+        .units          = "",
+        .telemetryKey   = "mod.cold_head.service"
+    },
+    {
+        .title          = "Waveform",
+        .units          = "",
+        .telemetryKey   = "mod.waveform.service"
+    },
+    {
+        .title          = "Accelerometer",
+        .units          = "",
+        .telemetryKey   = "mod.accelerometer.service"
+    }
+};
 static const ss::DatasetCfg kStatusDatasets[] = {
+    {
+        .title          = "Timestamp",
+        .units          = "",
+        .telemetryKey   = "timestamp.local"
+    },
     {
         .title          = "Status ID",
         .units          = "",
@@ -202,8 +227,8 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .telemetryKey   = "status.time_in_state"
     },
     {
-        .title          = "On Duration Ms",
-        .units          = "",
+        .title          = "On Duration",
+        .units          = "ms",
         .telemetryKey   = "status.on_duration_ms"
     },
     {
@@ -226,14 +251,14 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .overviewDisplay = true
     },
     {
-        .title          = "Cold Head Temp (C)",
+        .title          = "Cold Head Temp",
         .units          = "\xC2\xB0" "C",
         .telemetryKey   = "cold_head.temp_c",
         .graph          = true,
         .overviewDisplay = true
     },
     {
-        .title          = "Cold Head Temp (K)",
+        .title          = "Cold Head Temp",
         .units          = "K",
         .telemetryKey   = "cold_head.temp_k",
         .widgetMin      = 0,     .widgetMax = 100,
@@ -261,7 +286,7 @@ static const ss::DatasetCfg kStatusDatasets[] = {
     },
     {
         .title          = "Cooling Fans",
-        .units          = "",
+        .units          = "%",
         .telemetryKey   = "cooling.fan_speed",
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,
@@ -278,25 +303,28 @@ static const ss::DatasetCfg kAccelDatasets[] = {
     {
         .title          = "Accel X",
         .units          = "m/s\xC2\xB2",  // m/s²
-        .telemetryKey   = "accel.x",
+        .telemetryKey   = "accelerometer.x",
+        //.index          = 33,
+        .widgetMin      = -2,   .widgetMax = 2,
+        .plotMin        = -2,   .plotMax   = 2,
         .graph          = true,  .log = true
     },
     {
         .title          = "Accel Y",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accel.y",
+        .telemetryKey   = "accelerometer.y",
         .graph          = true,  .log = true
     },
     {
         .title          = "Accel Z",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accel.z",
+        .telemetryKey   = "accelerometer.z",
         .graph          = true,  .log = true
     },
     {
         .title          = "Accel Magnitude",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accel.accel_mag",
+        .telemetryKey   = "accelerometer.accel_mag",
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,     .widgetMax = 20,
         .graph          = true,  .log = true,
@@ -305,7 +333,7 @@ static const ss::DatasetCfg kAccelDatasets[] = {
     {
         .title          = "Motion / Overstroke",
         .units          = "",
-        .telemetryKey   = "accel.motion",
+        .telemetryKey   = "accelerometer.motion",
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,     .widgetMax = 1,
         .plotMin        = 0,     .plotMax   = 1,
@@ -344,6 +372,12 @@ static const ss::GroupCfg kGroups[] = {
         .widget       = ss::GroupWidget::Datagrid,
         .datasets     = kStatusDatasets,
         .datasetCount = static_cast<uint8_t>(sizeof(kStatusDatasets) / sizeof(kStatusDatasets[0])),
+    },
+    {
+        .title        = "Module Status",
+        .widget       = ss::GroupWidget::Datagrid,
+        .datasets     = kModuleStatusDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(kModuleStatusDatasets) / sizeof(kModuleStatusDatasets[0])),
     },
     {
         .title        = "Accelerometer",

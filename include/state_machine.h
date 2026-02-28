@@ -160,6 +160,19 @@ const char* getStatusText();
  */
 uint32_t getTimeInState();
 
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// state_machine::update() requires sensor inputs so it cannot map to service().
+// Module::service() inherits the default no-op; update() is called explicitly
+// from the main control tick with the current sensor snapshot.
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return _initStatus = state_machine::init(); }
+    // service() — inherited no-op; update() is called explicitly from loop().
+};
+
+ASSERT_MODULE_INTERFACE(Module);
+
 } // namespace state_machine
 
 #endif // STATE_MACHINE_H
