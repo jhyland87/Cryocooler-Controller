@@ -33,8 +33,8 @@ float getFrequency();
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return waveform::init(); }
-    static module::ServiceStatus service() { return waveform::service(); }
+    static module::InitStatus    init()    { return _initStatus    = waveform::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = waveform::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

@@ -362,7 +362,7 @@ bool setupServer() {
     // The buffer is static: ESPAsyncWebServer callbacks run serialised in the
     // lwIP TCPIP task, so there is no concurrent access risk for a single route.
     httpServer.on("/api/telemetry", HTTP_GET, [](AsyncWebServerRequest* request) {
-        static char jsonBuf[4096];
+        static char jsonBuf[8192];
         JsonDocument doc;
         telemetry::fillJson(doc);
         const size_t len = serializeJson(doc, jsonBuf, sizeof(jsonBuf));

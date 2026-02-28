@@ -117,7 +117,7 @@ bool isDeltaEnabled();
 
 struct Module : ModuleBase<Module> {
     /** Telemetry requires no hardware setup; always succeeds immediately. */
-    static module::InitStatus init() { return module::MODULE_INIT_SUCCESS; }
+    static module::InitStatus init() { return _initStatus = module::MODULE_INIT_SUCCESS; }
     // service() — inherited no-op; emit() is called explicitly from loop().
     static void enable()     { telemetry::enable(); }
     static void disable()    { telemetry::disable(); }

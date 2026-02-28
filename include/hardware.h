@@ -63,4 +63,16 @@ namespace hardware {
      */
     uint8_t scanI2c(uint32_t timeoutMs = 10);
 
+// ── Module interface ──────────────────────────────────────────────────────────
+//
+// hardware provides shared I2C and SPI buses; all other modules depend on it.
+// No periodic service work is needed — bus handles remain valid indefinitely.
+
+struct Module : ModuleBase<Module> {
+    static module::InitStatus init() { return _initStatus = hardware::init(); }
+    // service() — inherited no-op; bus handles require no periodic maintenance.
+};
+
+ASSERT_MODULE_INTERFACE(Module);
+
 } // namespace hardware

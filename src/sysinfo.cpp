@@ -14,14 +14,11 @@
 static float    voltageV         = 0.0f;
 static int  voltageRaw       = 0;
 
-static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
-
 namespace sysinfo {
 
 module::InitStatus init() {
     analogReadResolution(ADC_RESOLUTION);
-    initStatus = module::MODULE_INIT_SUCCESS;
-    return initStatus;
+    return module::MODULE_INIT_SUCCESS;
 }
 
 
@@ -41,11 +38,6 @@ float getVoltage() {
 int16_t getVoltageRaw() {
     return voltageRaw;
 }
-
-module::InitStatus getInitStatus() {
-    return initStatus;
-}
-
 
 float getAmbientTemperature() {
     return accelerometer::getTemperature();

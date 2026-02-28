@@ -23,6 +23,10 @@
 #include "waveform.h"
 #include "sysinfo.h"
 #include "cooling.h"
+#include "hardware.h"
+#include "relay.h"
+#include "commands.h"
+#include "dashboard.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -147,20 +151,50 @@ void emit(const state_machine::Output& out)
         .field("system.voltage_raw_v",              "%.2f", sysinfo::getVoltageRaw())
         .field("waveform.status",                   "%u",   waveform::getStatus())
         .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
-        .field("accel.roll_deg",                    "%.2f", accelerometer::getRoll())
-        .field("accel.pitch_deg",                   "%.2f", accelerometer::getPitch())
-        .field("accel.yaw_deg",                     "%.2f", accelerometer::getYaw())
-        .field("accel.accel_mag",                   "%.2f", accelerometer::getAccelMag())
-        .field("accel.gyro_mag",                    "%.2f", accelerometer::getGyroMag())
-        .field("accel.temp_c",                      "%.1f", accelerometer::getTemperature())
-        .field("accel.motion",                      "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected()))
-        .field("accel.x",                           "%.3f", accelerometer::getAccelX())
-        .field("accel.y",                           "%.3f", accelerometer::getAccelY())
-        .field("accel.z",                           "%.3f", accelerometer::getAccelZ())
+        .field("accelerometer.roll_deg",            "%.2f", accelerometer::getRoll())
+        .field("accelerometer.pitch_deg",           "%.2f", accelerometer::getPitch())
+        .field("accelerometer.yaw_deg",             "%.2f", accelerometer::getYaw())
+        .field("accelerometer.accel_mag",           "%.2f", accelerometer::getAccelMag())
+        .field("accelerometer.gyro_mag",            "%.2f", accelerometer::getGyroMag())
+        .field("accelerometer.temp_c",              "%.1f", accelerometer::getTemperature())
+        .field("accelerometer.motion",              "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected()))
+        .field("accelerometer.x",                   "%.3f", accelerometer::getAccelX())
+        .field("accelerometer.y",                   "%.3f", accelerometer::getAccelY())
+        .field("accelerometer.z",                   "%.3f", accelerometer::getAccelZ())
+        .field("cooling.status",                    "%d",   cooling::isEnabled())
         .field("cooling.temp_c",                    "%.2f", cooling::getCoolantTemperature())
         .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())
         .field("cooling.fan_speed",                 "%u",   cooling::getFanSpeed())
-        .field("rms.voltage_v",                     "%.2f", rms::getVoltage());
+        .field("rms.voltage_v",                     "%.2f", rms::getVoltage())
+        // ── Module init / service status ─────────────────────────────────────
+        .field("mod.hardware.init",                 "%s",   module::initStatusName(hardware::Module::getInitStatus()))
+        .field("mod.hardware.service",              "%s",   module::serviceStatusName(hardware::Module::getServiceStatus()))
+        .field("mod.sysinfo.init",                  "%s",   module::initStatusName(sysinfo::Module::getInitStatus()))
+        .field("mod.sysinfo.service",               "%s",   module::serviceStatusName(sysinfo::Module::getServiceStatus()))
+        .field("mod.accelerometer.init",            "%s",   module::initStatusName(accelerometer::Module::getInitStatus()))
+        .field("mod.accelerometer.service",         "%s",   module::serviceStatusName(accelerometer::Module::getServiceStatus()))
+        .field("mod.cooling.init",                  "%s",   module::initStatusName(cooling::Module::getInitStatus()))
+        .field("mod.cooling.service",               "%s",   module::serviceStatusName(cooling::Module::getServiceStatus()))
+        .field("mod.dashboard.init",                "%s",   module::initStatusName(dashboard::Module::getInitStatus()))
+        .field("mod.dashboard.service",             "%s",   module::serviceStatusName(dashboard::Module::getServiceStatus()))
+        .field("mod.waveform.init",                 "%s",   module::initStatusName(waveform::Module::getInitStatus()))
+        .field("mod.waveform.service",              "%s",   module::serviceStatusName(waveform::Module::getServiceStatus()))
+        .field("mod.cold_head.init",                "%s",   module::initStatusName(cold_head::Module::getInitStatus()))
+        .field("mod.cold_head.service",             "%s",   module::serviceStatusName(cold_head::Module::getServiceStatus()))
+        .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))
+        .field("mod.dac.service",                   "%s",   module::serviceStatusName(dac::Module::getServiceStatus()))
+        .field("mod.rms.init",                      "%s",   module::initStatusName(rms::Module::getInitStatus()))
+        .field("mod.rms.service",                   "%s",   module::serviceStatusName(rms::Module::getServiceStatus()))
+        .field("mod.relay.init",                    "%s",   module::initStatusName(relay::Module::getInitStatus()))
+        .field("mod.relay.service",                 "%s",   module::serviceStatusName(relay::Module::getServiceStatus()))
+        .field("mod.indicator.init",                "%s",   module::initStatusName(indicator::Module::getInitStatus()))
+        .field("mod.indicator.service",             "%s",   module::serviceStatusName(indicator::Module::getServiceStatus()))
+        .field("mod.state_machine.init",            "%s",   module::initStatusName(state_machine::Module::getInitStatus()))
+        .field("mod.state_machine.service",         "%s",   module::serviceStatusName(state_machine::Module::getServiceStatus()))
+        .field("mod.commands.init",                 "%s",   module::initStatusName(commands::Module::getInitStatus()))
+        .field("mod.commands.service",              "%s",   module::serviceStatusName(commands::Module::getServiceStatus()))
+        .field("mod.telemetry.init",                "%s",   module::initStatusName(telemetry::Module::getInitStatus()))
+        .field("mod.telemetry.service",             "%s",   module::serviceStatusName(telemetry::Module::getServiceStatus()));
 
     // Serial output: full frame or delta (changed fields only).
     // fillJson() / getLastFrame() always use lastFrame_ — never delta-filtered.

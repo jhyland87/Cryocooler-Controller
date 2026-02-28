@@ -29,18 +29,11 @@ int16_t getVoltageRaw();
 
 float getAmbientTemperature();
 
-/**
- * Get the initialization status of the sysinfo.
- * @return The initialization status of the sysinfo.
- */
-module::InitStatus getInitStatus();
-
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return sysinfo::init(); }
-    static module::ServiceStatus service() { return sysinfo::service(); }
-    static module::InitStatus    getInitStatus() { return sysinfo::getInitStatus(); }
+    static module::InitStatus    init()    { return _initStatus    = sysinfo::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = sysinfo::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

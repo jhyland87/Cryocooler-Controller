@@ -36,6 +36,7 @@ static uint8_t     count        = 0;   // number of valid samples stored
 static float       lastTempK    = 0.0f;
 static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
+static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -78,13 +79,15 @@ namespace cold_head {
 
 module::InitStatus init() {
     if (!checkDependencies()) {
-        return module::MODULE_INIT_DEPENDENCY_ERROR;
+        initStatus = module::MODULE_INIT_DEPENDENCY_ERROR;
+        return initStatus;
     }
 
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
         Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
-        return module::MODULE_INIT_HARDWARE_ERROR;
+        initStatus = module::MODULE_INIT_HARDWARE_ERROR;
+        return initStatus;
     }
 
     const uint16_t rtd   = max31865.readRTD();
@@ -99,7 +102,8 @@ module::InitStatus init() {
     }
 
     //sensors.begin();
-    return module::MODULE_INIT_SUCCESS;
+    initStatus = module::MODULE_INIT_SUCCESS;
+    return initStatus;
 }
 
 void read(uint32_t nowMs) {

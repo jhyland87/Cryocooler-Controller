@@ -93,9 +93,9 @@ float getTemperatureToPercent();
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return cold_head::init(); }
+    static module::InitStatus init() { return _initStatus = cold_head::init(); }
     /** Calls temperature::read(millis()) — must be called every loop tick. */
-    static module::ServiceStatus service() { cold_head::read(millis()); return module::MODULE_SERVICE_OK; }
+    static module::ServiceStatus service() { cold_head::read(millis()); return _serviceStatus = module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

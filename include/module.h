@@ -72,23 +72,83 @@
 
 // ─── CRTP base ────────────────────────────────────────────────────────────────
 
+// ─── X-macro tables ───────────────────────────────────────────────────────────
+//
+// Each row is  X(ENUMERATOR_SUFFIX, "human readable label").
+// The enum value, the name function, and the doxygen comment are all derived
+// from this single definition — add or rename a value here and everywhere
+// else updates automatically.
+//
+// Usage pattern:
+//   #define X(name, label) MODULE_INIT_##name,
+//   MODULE_INIT_STATUS(X)
+//   #undef X
+
+/** InitStatus values.  Shared by the enum definition and initStatusName(). */
+#define MODULE_INIT_STATUS(X) \
+    X(NOT_STARTED,      "not started",      "init() has not been called yet")                         \
+    X(IN_PROGRESS,      "in progress",      "init() is still running (calibration, WiFi, etc.)")      \
+    X(SUCCESS,          "success",          "init() completed successfully")                           \
+    X(HARDWARE_ERROR,   "hardware error",   "hardware device failed to respond (I2C/SPI NACK, etc.)") \
+    X(DEPENDENCY_ERROR, "dependency error", "a required dependency (bus, other module) is unavailable") \
+    X(CONFIG_ERROR,     "config error",     "invalid or missing configuration")                        \
+    X(TIMEOUT,          "timeout",          "init() exceeded its allowed time budget")                 \
+    X(UNKNOWN_ERROR,    "unknown error",    "catch-all for unexpected failures")
+
+/** ServiceStatus values.  Shared by the enum definition and serviceStatusName(). */
+#define MODULE_SERVICE_STATUS(X) \
+    X(OK,      "ok",      "ran and produced valid output this tick")                      \
+    X(SKIPPED, "skipped", "skipped this tick (time-gated, disabled, no new data, etc.)") \
+    X(ERROR,   "error",   "a recoverable error occurred; output may be stale")
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
 namespace module {
     typedef enum {
-        MODULE_INIT_NOT_STARTED      = 0,  ///< init() has not been called yet
-        MODULE_INIT_IN_PROGRESS      = 1,  ///< init() is still running (calibration, WiFi, etc.)
-        MODULE_INIT_SUCCESS          = 2,  ///< init() completed successfully
-        MODULE_INIT_HARDWARE_ERROR   = 3,  ///< hardware device failed to respond (I2C/SPI NACK, etc.)
-        MODULE_INIT_DEPENDENCY_ERROR = 4,  ///< a required dependency (bus, other module) is unavailable
-        MODULE_INIT_CONFIG_ERROR     = 5,  ///< invalid or missing configuration
-        MODULE_INIT_TIMEOUT          = 6,  ///< init() exceeded its allowed time budget
-        MODULE_INIT_UNKNOWN_ERROR    = 7,  ///< catch-all for unexpected failures
+#define X(name, label, doc) MODULE_INIT_##name,
+        MODULE_INIT_STATUS(X)
+#undef X
     } InitStatus;
 
     typedef enum {
-        MODULE_SERVICE_OK      = 0,  ///< ran and produced valid output this tick
-        MODULE_SERVICE_SKIPPED = 1,  ///< skipped this tick (time-gated, disabled, no new data, etc.)
-        MODULE_SERVICE_ERROR   = 2,  ///< a recoverable error occurred; output may be stale
+#define X(name, label, doc) MODULE_SERVICE_##name,
+        MODULE_SERVICE_STATUS(X)
+#undef X
     } ServiceStatus;
+
+    /**
+     * Return a human-readable label for an InitStatus value.
+     * The common "MODULE_INIT_" prefix and underscores are stripped; the result
+     * is lower-case (e.g. MODULE_INIT_NOT_STARTED → "not started").
+     *
+     * The switch is generated from MODULE_INIT_STATUS — add new values there,
+     * not here.
+     */
+    inline const char* initStatusName(InitStatus s) {
+        switch (s) {
+#define X(name, label, doc) case MODULE_INIT_##name: return label;
+            MODULE_INIT_STATUS(X)
+#undef X
+            default: return "unknown";
+        }
+    }
+
+    /**
+     * Return a human-readable label for a ServiceStatus value.
+     * The common "MODULE_SERVICE_" prefix is stripped; the result is lower-case
+     * (e.g. MODULE_SERVICE_SKIPPED → "skipped").
+     *
+     * The switch is generated from MODULE_SERVICE_STATUS — add new values there,
+     * not here.
+     */
+    inline const char* serviceStatusName(ServiceStatus s) {
+        switch (s) {
+#define X(name, label, doc) case MODULE_SERVICE_##name: return label;
+            MODULE_SERVICE_STATUS(X)
+#undef X
+            default: return "unknown";
+        }
+    }
 }
 /**
  * Curiously Recurring Template Pattern (CRTP) mixin.
@@ -132,7 +192,25 @@ struct ModuleBase {
      */
     static bool isEnabled() { return true; }
 
+    /**
+     * Return the InitStatus produced by the most recent init() call.
+     * Defaults to NOT_STARTED before init() has been called.
+     */
+    static module::InitStatus getInitStatus() { return _initStatus; }
+
+    /**
+     * Return the ServiceStatus produced by the most recent service() call.
+     * Defaults to SKIPPED for modules that inherit the no-op service().
+     */
+    static module::ServiceStatus getServiceStatus() { return _serviceStatus; }
+
 protected:
+    /// Cached result of the last init() call.  Written by Module::init() via `return _initStatus = ns::init()`.
+    static inline module::InitStatus    _initStatus    = module::MODULE_INIT_NOT_STARTED;
+
+    /// Cached result of the last service() call.  Written by Module::service() via `return _serviceStatus = ns::service()`.
+    static inline module::ServiceStatus _serviceStatus = module::MODULE_SERVICE_SKIPPED;
+
     // Non-polymorphic base — prevent accidental deletion through a base pointer.
     ~ModuleBase() = default;
 };

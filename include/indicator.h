@@ -95,9 +95,9 @@ bool isReadyOn();
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return indicator::init(); }
+    static module::InitStatus init() { return _initStatus = indicator::init(); }
     /** Calls indicator::update(millis()) — must be called every loop tick. */
-    static module::ServiceStatus service() { indicator::update(millis()); return module::MODULE_SERVICE_OK; }
+    static module::ServiceStatus service() { indicator::update(millis()); return _serviceStatus = module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

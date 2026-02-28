@@ -71,9 +71,9 @@ void processLine(const char* line, Print& out);
 
 struct Module : ModuleBase<Module> {
     /** Initialise the serial line buffer.  Call after Serial.begin(). */
-    static module::InitStatus    init()    { return commands::init(); }
+    static module::InitStatus    init()    { return _initStatus    = commands::init(); }
     /** Read and dispatch available serial bytes (non-blocking). */
-    static module::ServiceStatus service() { return commands::service(); }
+    static module::ServiceStatus service() { return _serviceStatus = commands::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

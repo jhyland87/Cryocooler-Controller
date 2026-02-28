@@ -59,8 +59,8 @@ float getTemperature();  ///< IMU die temperature in °C
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return accelerometer::init(); }
-    static module::ServiceStatus service() { return accelerometer::service(); }
+    static module::InitStatus    init()    { return _initStatus    = accelerometer::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = accelerometer::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

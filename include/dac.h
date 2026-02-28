@@ -65,7 +65,7 @@ uint16_t getCurrent();
 // Output is driven by the state machine via rampToward() / rampTowardShutdown().
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus init() { return dac::init(); }
+    static module::InitStatus init() { return _initStatus = dac::init(); }
     // service() — inherited no-op from ModuleBase; dac is state-machine driven.
 };
 

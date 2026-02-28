@@ -260,6 +260,9 @@
 
 #define COOLING_AUTOSTART_ENABLED true
 
+// Max speed in percent
+#define COOLING_FAN_MAX_SPEED 20
+
 // If the cryocooler is in an OFF state, and the coolant temperature dips below
 // this value then just turn off the cooling fans and pump.
 // This is the temp of the coolant
