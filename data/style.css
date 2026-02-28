@@ -1,3 +1,4 @@
+
 body {
   font-family: monospace;
   background: #1a1a2e;
@@ -57,6 +58,15 @@ td {
   font-size: .88em;
   text-align: left;
 }
+td:empty::before {
+  content: "empty";
+  color: #8080805e;
+  font-style: italic;
+}
+
+td.centered {
+  text-align: center;
+}
 
 td:first-child {
   color: #aaa;
@@ -72,3 +82,4 @@ td:last-child {
 .fault { color: #ff4444; }
 .ready { color: #44cc44; }
 .warn  { color: #ffaa00; }
+

@@ -78,28 +78,44 @@ void setupModules(){
     // Each call blocks until the module is no longer IN_PROGRESS, then logs
     // OK or FAILED.  Failures are non-fatal here; the state machine will
     // detect missing sensor data and transition to Fault as appropriate.
+    //
+    // telemetry::emitSafe() is called after every step so the dashboard and
+    // serial monitor show startup progress in real time: module status fields
+    // flip from "not started" → "success" (or an error label) as each module
+    // completes, and data fields populate as soon as their source module is up.
+    bool initFailureDetected = false;
 
-    auto sysinfoStatus =  initModule("sysinfo",        [] { return sysinfo::Module::init(); });
+    auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
+    if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
+    }
+
+    // telemetry has no hardware setup but we call Module::init() to record a
+    // valid InitStatus so the mod.telemetry.init field in the telemetry frame
+    // reflects the actual state rather than NOT_STARTED.
+    telemetry::Module::init();
+    telemetry::emitSafe();
+
+    auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
     if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Sysinfo initialization failed (status %d). Halting startup.\n", static_cast<int>(sysinfoStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
     auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::Module::init(); });
     if (accelerometerStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n", static_cast<int>(accelerometerStatus));
     }
+    telemetry::emitSafe();
 
-    auto coolingStatus = initModule("cooling",       [] { return cooling::Module::init(); });
+    auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cooling initialization failed (status %d). Halting startup.\n", static_cast<int>(coolingStatus));
+        telemetry::emitSafe();
         return;
     }
-
-    auto dashboardStatus = initModule("dashboard",     [] { return dashboard::Module::init(); });
-    if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
-    }
+    telemetry::emitSafe();
 
     // Smooth DAC voltage readback ADC (not a module — inline init)
     dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
@@ -108,63 +124,66 @@ void setupModules(){
     for (uint8_t i = 0; i < DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES; ++i) {
         dacVoltageAdc.serviceADCPin();
     }
-
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto waveformStatus = initModule("waveform",      [] { return waveform::Module::init(); });
+    auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
     if (waveformStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Waveform initialization failed (status %d). Halting startup.\n", static_cast<int>(waveformStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto cold_headStatus = initModule("cold_head",   [] { return cold_head::Module::init(); });
+    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cold head initialization failed (status %d). Halting startup.\n", static_cast<int>(cold_headStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto dacStatus = initModule("dac",           [] { return dac::Module::init(); });
+    auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
     if (dacStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] DAC initialization failed (status %d). Halting startup.\n", static_cast<int>(dacStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto rmsStatus = initModule("rms",           [] { return rms::Module::init(); });
+    auto rmsStatus = initModule("rms", [] { return rms::Module::init(); });
     if (rmsStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] RMS initialization failed (status %d). Halting startup.\n", static_cast<int>(rmsStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto relayStatus = initModule("relay",         [] { return relay::Module::init(); });
+    auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
     if (relayStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Relay initialization failed (status %d). Halting startup.\n", static_cast<int>(relayStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto indicatorStatus = initModule("indicator",     [] { return indicator::Module::init(); });
+    auto indicatorStatus = initModule("indicator", [] { return indicator::Module::init(); });
     if (indicatorStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Indicator initialization failed (status %d). Halting startup.\n", static_cast<int>(indicatorStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
+
     //initModule("http_api",    [] { return http_api::init(); });
 
     auto stateMachineStatus = initModule("state_machine", [] { return state_machine::Module::init(); });
     if (stateMachineStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
-        return;
+        initFailureDetected = true;
     }
+    telemetry::emitSafe();
 
-    auto commandsStatus = initModule("commands",      [] { return commands::Module::init(); });
+    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
     }
+    telemetry::emitSafe();
 
-    // telemetry has no hardware setup but we call Module::init() to record a
-    // valid InitStatus so the mod.telemetry.init field in the telemetry frame
-    // reflects the actual state rather than NOT_STARTED.
-    telemetry::Module::init();
-
-    setupComplete = true;
+    setupComplete = !initFailureDetected;
 }
 // =============================================================================
 // Setup

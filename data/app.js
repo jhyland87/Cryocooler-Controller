@@ -1,7 +1,20 @@
+
 const GROUP_ORDER = [
-  'state', 'cold_head', 'dac', 'rms', 'relay',
-  'indicator', 'status', 'cooling', 'waveform', 'system', 'accel'
+  'timestamp',
+  'state',
+  'cold_head',
+  'dac',
+  'rms',
+  'relay',
+  'indicator',
+  'status',
+  'cooling',
+  'waveform',
+  'system',
+  'accelerometer'
 ];
+
+
 
 function groupOf(key) {
   const i = key.indexOf('.');
@@ -35,6 +48,33 @@ function objectToTable(obj) {
     : v}</td></tr>`).join('');
 }
 
+const overrides = {};
+
+overrides['mod'] = (key, mods) => {
+
+  let ret = `<table>
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>init</th>
+      <th>service</th>
+    </tr>
+  </thead>
+  <tbody>`;
+
+  for(const [svc, svcStatus] of Object.entries(mods)){
+    ret += `<tr><td>${svc}</td>`;
+
+    for( const [svcName, svcVal] of Object.entries(svcStatus)){
+      ret+= `<td class="centered">${svcVal}</td>`;
+    }
+    ret += `</tr>`;
+  }
+  ret += `</tbody></table>`
+
+  return ret
+}
+
 async function refresh() {
   try {
     const data = await (await fetch('/api/telemetry')).json();
@@ -51,12 +91,18 @@ async function refresh() {
 
     document.getElementById('dash').innerHTML = [...ordered, ...extra].map(g => {
       const rows = groups[g].map(([key, value]) => {
+        if ( typeof overrides[key] === 'function'){
+          return overrides[key](key, value);
+        }
+
         //const display = key === 'timestamp' ? formatEpoch(value) : value;
+        if ( typeof value === 'object'){
+          return objectToTable(value)
+        }
+
         return `<tr>
           <td>${fieldOf(key)}</td>
-          <td class="${cssClass(key, value)}">${typeof value === 'object'
-            ? objectToTable(value)
-            : display}</td>
+          <td class="${cssClass(key, value)}">${objectToTable(value)}</td>
         </tr>`;
       }).join('');
       return `<div class="group">
@@ -88,3 +134,4 @@ function setRefresh() {
 // Initial load + start auto-refresh
 refresh();
 timer = setInterval(refresh, 1000);
+

@@ -38,6 +38,7 @@ static bool         enabled      = true;
 static bool         deltaEnabled = true;
 static FrameBuilder lastFrame_;   // always holds the most recently emitted frame
 static FrameBuilder prevFrame_;   // copy of the frame before the last emit (for delta)
+static FrameBuilder safeFrame_;   // scratch frame used by fillJsonSafe() during startup
 
 // ---------------------------------------------------------------------------
 // Passive-field list for delta mode
@@ -81,6 +82,285 @@ const FrameBuilder& getLastFrame() {
 
 void fillJson(JsonDocument& doc) {
     lastFrame_.fillJson(doc);
+}
+
+// ---------------------------------------------------------------------------
+// buildStartupFrame — shared helper for fillJsonSafe() and emitSafe()
+//
+// Populates @p frame with a full snapshot of current module state.
+// For each module that has not yet completed init(), its data fields are
+// written as empty strings so the dashboard structure is always complete.
+// Module init/service status fields are always written with their real values
+// so startup progress is visible.
+//
+// Called only from ARDUINO builds; guard with #ifdef at call sites.
+// ---------------------------------------------------------------------------
+
+static void buildStartupFrame(FrameBuilder& frame)
+{
+    frame.reset();
+
+    const auto ready = [](module::InitStatus s) {
+        return s == module::MODULE_INIT_SUCCESS;
+    };
+
+    const bool smReady        = ready(state_machine::Module::getInitStatus());
+    const bool coldHeadReady  = ready(cold_head::Module::getInitStatus());
+    const bool dacReady       = ready(dac::Module::getInitStatus());
+    const bool rmsReady       = ready(rms::Module::getInitStatus());
+    const bool indicatorReady = ready(indicator::Module::getInitStatus());
+    const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
+    const bool waveformReady  = ready(waveform::Module::getInitStatus());
+    const bool accelReady     = ready(accelerometer::Module::getInitStatus());
+    const bool coolingReady   = ready(cooling::Module::getInitStatus());
+
+    // ── Timestamps (always valid) ──────────────────────────────────────────
+    const time_t now = time(nullptr);
+    char localBuf[20];
+    strftime(localBuf, sizeof(localBuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+
+    frame
+        .field("timestamp.epoch", "%lld", static_cast<int64_t>(now))
+        .field("timestamp.local", "%s",   localBuf);
+
+    // ── State machine ──────────────────────────────────────────────────────
+    if (smReady) {
+        const auto st = state_machine::getState();
+
+        const uint32_t durationMs = state_machine::getOnStateDuration();
+        const uint32_t durSec     = durationMs / 1000u;
+        char hmsBuf[12];
+        snprintf(hmsBuf, sizeof(hmsBuf), "%02lu:%02lu:%02lu",
+                 static_cast<unsigned long>(durSec / 3600u),
+                 static_cast<unsigned long>((durSec % 3600u) / 60u),
+                 static_cast<unsigned long>(durSec % 60u));
+
+        const uint32_t stateMs  = state_machine::getTimeInState();
+        const uint32_t stateSec = stateMs / 1000u;
+        char tisHmsBuf[12];
+        snprintf(tisHmsBuf, sizeof(tisHmsBuf), "%02lu:%02lu:%02lu",
+                 static_cast<unsigned long>(stateSec / 3600u),
+                 static_cast<unsigned long>((stateSec % 3600u) / 60u),
+                 static_cast<unsigned long>(stateSec % 60u));
+
+        frame
+            .field("state.id",              "%d",  static_cast<int8_t>(st))
+            .field("state.name",            "%s",  state_machine::stateName(st))
+            .field("state.status_text",      "%s",  state_machine::getStatusText())
+            .field("status.on_duration_ms", "%lu", static_cast<unsigned long>(durationMs))
+            .field("status.on_duration",    "%s",  hmsBuf)
+            .field("status.time_in_state",  "%s",  tisHmsBuf);
+    } else {
+        frame
+            .field("state.id",              "%s", "")
+            .field("state.name",            "%s", "")
+            .field("state.status_text",      "%s", "")
+            .field("status.on_duration_ms", "%s", "")
+            .field("status.on_duration",    "%s", "")
+            .field("status.time_in_state",  "%s", "");
+    }
+    // backoff_count comes from the state-machine Output struct produced by
+    // update(); no standalone getter exists, so always emit "" here.
+    frame.field("status.backoff_count", "%s", "");
+
+    // relay fields — relay has no state getters; driven entirely by the
+    // state-machine Output struct, so always emit "" during safe path.
+    frame
+        .field("relay.normal", "%s", "")
+        .field("relay.alarm",  "%s", "");
+
+    // ── DAC ───────────────────────────────────────────────────────────────
+    if (dacReady) {
+        frame
+            .field("dac.target", "%s",  "")  // target is in Output only
+            .field("dac.actual", "%u",  static_cast<unsigned>(dac::getCurrent()));
+    } else {
+        frame
+            .field("dac.target", "%s", "")
+            .field("dac.actual", "%s", "");
+    }
+
+    // ── Cold head ─────────────────────────────────────────────────────────
+    if (coldHeadReady) {
+        frame
+            .field("cold_head.temp_k",                "%.2f", cold_head::getLastTempK())
+            .field("cold_head.temp_c",                "%.2f", cold_head::getLastTempC())
+            .field("cold_head.cooling_rate",          "%.3f", cold_head::getCoolingRateKPerMin())
+            .field("cold_head.cooldown_pct",          "%.2f", cold_head::getTemperatureToPercent())
+            .field("cold_head.delta_below_ambient_c", "%.2f", cold_head::getLastTempCBelowAmbient())
+            .field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC());
+    } else {
+        frame
+            .field("cold_head.temp_k",                "%s", "")
+            .field("cold_head.temp_c",                "%s", "")
+            .field("cold_head.cooling_rate",          "%s", "")
+            .field("cold_head.cooldown_pct",          "%s", "")
+            .field("cold_head.delta_below_ambient_c", "%s", "")
+            .field("cold_head.ambient_temp_c",        "%s", "");
+    }
+
+    // ── RMS ───────────────────────────────────────────────────────────────
+    if (rmsReady) {
+        frame
+            .field("rms.voltage",   "%.2f", rms::getVoltage())
+            .field("rms.current_a", "%.2f", rms::getCurrentA())
+            .field("rms.voltage_v", "%.2f", rms::getVoltage());
+    } else {
+        frame
+            .field("rms.voltage",   "%s", "")
+            .field("rms.current_a", "%s", "")
+            .field("rms.voltage_v", "%s", "");
+    }
+
+    // ── Indicator ─────────────────────────────────────────────────────────
+    if (indicatorReady) {
+        frame
+            .field("indicator.fault", "%d", indicator::isFaultOn())
+            .field("indicator.ready", "%d", indicator::isReadyOn());
+    } else {
+        frame
+            .field("indicator.fault", "%s", "")
+            .field("indicator.ready", "%s", "");
+    }
+
+    // ── Sysinfo ───────────────────────────────────────────────────────────
+    if (sysinfoReady) {
+        frame
+            .field("system.voltage_v",     "%.2f", sysinfo::getVoltage())
+            .field("system.voltage_raw_v", "%.2f", sysinfo::getVoltageRaw());
+    } else {
+        frame
+            .field("system.voltage_v",     "%s", "")
+            .field("system.voltage_raw_v", "%s", "");
+    }
+
+    // ── Waveform ──────────────────────────────────────────────────────────
+    if (waveformReady) {
+        frame
+            .field("waveform.status",       "%u",   waveform::getStatus())
+            .field("waveform.frequency_hz", "%.2f", waveform::getFrequency());
+    } else {
+        frame
+            .field("waveform.status",       "%s", "")
+            .field("waveform.frequency_hz", "%s", "");
+    }
+
+    // ── Accelerometer ─────────────────────────────────────────────────────
+    if (accelReady) {
+        frame
+            .field("accelerometer.roll_deg",  "%.2f", accelerometer::getRoll())
+            .field("accelerometer.pitch_deg", "%.2f", accelerometer::getPitch())
+            .field("accelerometer.yaw_deg",   "%.2f", accelerometer::getYaw())
+            .field("accelerometer.accel_mag", "%.2f", accelerometer::getAccelMag())
+            .field("accelerometer.gyro_mag",  "%.2f", accelerometer::getGyroMag())
+            .field("accelerometer.temp_c",    "%.1f", accelerometer::getTemperature())
+            .field("accelerometer.motion",    "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected()))
+            .field("accelerometer.x",         "%.3f", accelerometer::getAccelX())
+            .field("accelerometer.y",         "%.3f", accelerometer::getAccelY())
+            .field("accelerometer.z",         "%.3f", accelerometer::getAccelZ());
+    } else {
+        frame
+            .field("accelerometer.roll_deg",  "%s", "")
+            .field("accelerometer.pitch_deg", "%s", "")
+            .field("accelerometer.yaw_deg",   "%s", "")
+            .field("accelerometer.accel_mag", "%s", "")
+            .field("accelerometer.gyro_mag",  "%s", "")
+            .field("accelerometer.temp_c",    "%s", "")
+            .field("accelerometer.motion",    "%s", "")
+            .field("accelerometer.x",         "%s", "")
+            .field("accelerometer.y",         "%s", "")
+            .field("accelerometer.z",         "%s", "");
+    }
+
+    // ── Cooling ───────────────────────────────────────────────────────────
+    if (coolingReady) {
+        frame
+            .field("cooling.status",        "%d",   cooling::isEnabled())
+            .field("cooling.temp_c",        "%.2f", cooling::getCoolantTemperature())
+            .field("cooling.flow_rate_lpm", "%.2f", cooling::getCoolantFlowRate())
+            .field("cooling.fan_speed",     "%u",   cooling::getFanSpeed());
+    } else {
+        frame
+            .field("cooling.status",        "%s", "")
+            .field("cooling.temp_c",        "%s", "")
+            .field("cooling.flow_rate_lpm", "%s", "")
+            .field("cooling.fan_speed",     "%s", "");
+    }
+
+    // ── Module init / service status (always real) ─────────────────────────
+    frame
+        .field("mod.hardware.init",             "%s", module::initStatusName(hardware::Module::getInitStatus()))
+        .field("mod.hardware.service",          "%s", module::serviceStatusName(hardware::Module::getServiceStatus()))
+        .field("mod.sysinfo.init",              "%s", module::initStatusName(sysinfo::Module::getInitStatus()))
+        .field("mod.sysinfo.service",           "%s", module::serviceStatusName(sysinfo::Module::getServiceStatus()))
+        .field("mod.accelerometer.init",        "%s", module::initStatusName(accelerometer::Module::getInitStatus()))
+        .field("mod.accelerometer.service",     "%s", module::serviceStatusName(accelerometer::Module::getServiceStatus()))
+        .field("mod.cooling.init",              "%s", module::initStatusName(cooling::Module::getInitStatus()))
+        .field("mod.cooling.service",           "%s", module::serviceStatusName(cooling::Module::getServiceStatus()))
+        .field("mod.dashboard.init",            "%s", module::initStatusName(dashboard::Module::getInitStatus()))
+        .field("mod.dashboard.service",         "%s", module::serviceStatusName(dashboard::Module::getServiceStatus()))
+        .field("mod.waveform.init",             "%s", module::initStatusName(waveform::Module::getInitStatus()))
+        .field("mod.waveform.service",          "%s", module::serviceStatusName(waveform::Module::getServiceStatus()))
+        .field("mod.cold_head.init",            "%s", module::initStatusName(cold_head::Module::getInitStatus()))
+        .field("mod.cold_head.service",         "%s", module::serviceStatusName(cold_head::Module::getServiceStatus()))
+        .field("mod.dac.init",                  "%s", module::initStatusName(dac::Module::getInitStatus()))
+        .field("mod.dac.service",               "%s", module::serviceStatusName(dac::Module::getServiceStatus()))
+        .field("mod.rms.init",                  "%s", module::initStatusName(rms::Module::getInitStatus()))
+        .field("mod.rms.service",               "%s", module::serviceStatusName(rms::Module::getServiceStatus()))
+        .field("mod.relay.init",                "%s", module::initStatusName(relay::Module::getInitStatus()))
+        .field("mod.relay.service",             "%s", module::serviceStatusName(relay::Module::getServiceStatus()))
+        .field("mod.indicator.init",            "%s", module::initStatusName(indicator::Module::getInitStatus()))
+        .field("mod.indicator.service",         "%s", module::serviceStatusName(indicator::Module::getServiceStatus()))
+        .field("mod.state_machine.init",        "%s", module::initStatusName(state_machine::Module::getInitStatus()))
+        .field("mod.state_machine.service",     "%s", module::serviceStatusName(state_machine::Module::getServiceStatus()))
+        .field("mod.commands.init",             "%s", module::initStatusName(commands::Module::getInitStatus()))
+        .field("mod.commands.service",          "%s", module::serviceStatusName(commands::Module::getServiceStatus()))
+        .field("mod.telemetry.init",            "%s", module::initStatusName(telemetry::Module::getInitStatus()))
+        .field("mod.telemetry.service",         "%s", module::serviceStatusName(telemetry::Module::getServiceStatus()));
+}
+
+// ---------------------------------------------------------------------------
+// fillJsonSafe — always safe, even before the first emit()
+// ---------------------------------------------------------------------------
+
+void fillJsonSafe(JsonDocument& doc)
+{
+#ifdef ARDUINO
+    // Fast path: emit() has run at least once, so lastFrame_ is fully populated.
+    if (lastFrame_.fieldCount() > 0) {
+        lastFrame_.fillJson(doc);
+        return;
+    }
+
+    // Slow path: setup still in progress.  Build a live snapshot and serve it.
+    buildStartupFrame(safeFrame_);
+    safeFrame_.fillJson(doc);
+#else
+    (void)doc;
+#endif
+}
+
+// ---------------------------------------------------------------------------
+// emitSafe — startup telemetry pulse, one call per initModule() completion
+//
+// Builds a full startup-safe frame into lastFrame_ (so the dashboard fast-path
+// picks it up on its next tick) and emits it to Serial in the same wire format
+// as emit().  This lets Serial Studio / the serial monitor show each module
+// coming online as it happens, rather than waiting for setup to complete.
+//
+// prevFrame_ is updated so the first real emit() delta only reports the fields
+// that actually changed during the final setup step.
+// ---------------------------------------------------------------------------
+
+void emitSafe()
+{
+#ifdef ARDUINO
+    if (!enabled) return;
+
+    buildStartupFrame(lastFrame_);
+    lastFrame_.sendSerial(Serial);
+    prevFrame_ = lastFrame_;
+#endif
 }
 
 // ---------------------------------------------------------------------------

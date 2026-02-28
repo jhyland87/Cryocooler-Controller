@@ -245,8 +245,12 @@ static void dashboardTask(void* /*arg*/) {
 
         // Snapshot telemetry from Core 1.  Stale values are acceptable for
         // a monitoring display; a full mutex would add latency for no gain.
+        // fillJsonSafe() is used so the dashboard is populated immediately on
+        // connect, even while other modules are still initialising: fields from
+        // unready modules are emitted as empty strings rather than blocking the
+        // whole frame.
         JsonDocument telemetry;
-        telemetry::fillJson(telemetry);
+        telemetry::fillJsonSafe(telemetry);
         ssDashboard.update(telemetry);
 
         const size_t len = ssDashboard.serialize(txBuf, kTxBufSize);
@@ -361,10 +365,12 @@ bool setupServer() {
     // GET /api/telemetry — latest telemetry snapshot as flat JSON.
     // The buffer is static: ESPAsyncWebServer callbacks run serialised in the
     // lwIP TCPIP task, so there is no concurrent access risk for a single route.
+    // fillJsonSafe() is used so the endpoint returns a fully-structured response
+    // even during startup, with empty strings for modules not yet initialised.
     httpServer.on("/api/telemetry", HTTP_GET, [](AsyncWebServerRequest* request) {
         static char jsonBuf[8192];
         JsonDocument doc;
-        telemetry::fillJson(doc);
+        telemetry::fillJsonSafe(doc);
         const size_t len = serializeJson(doc, jsonBuf, sizeof(jsonBuf));
         if (len == 0 || len >= sizeof(jsonBuf)) {
             request->send(500, "application/json", "{\"error\":\"serialization failed\"}");

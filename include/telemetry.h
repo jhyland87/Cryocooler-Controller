@@ -86,6 +86,40 @@ const FrameBuilder& getLastFrame();
  */
 void fillJson(JsonDocument& doc);
 
+/**
+ * Populate @p doc with telemetry, safe to call at any time — including during
+ * startup before emit() has been called.
+ *
+ * Fast path: if emit() has been called at least once, delegates to fillJson()
+ * and returns the real frame.
+ *
+ * Slow path (startup / setup failed): builds a JSON snapshot directly from
+ * each module's current state.  Modules whose init() has not yet succeeded
+ * have their data fields emitted as empty strings so the dashboard structure
+ * is always fully populated.  Module init/service status fields are always
+ * present and always reflect the real current status.
+ */
+void fillJsonSafe(JsonDocument& doc);
+
+/**
+ * Emit one startup-progress telemetry frame to Serial and update lastFrame_.
+ *
+ * Intended to be called from setupModules() immediately after each
+ * initModule() completes so that Serial Studio / the serial monitor shows
+ * each module coming online in real time, and the dashboard fast-path
+ * (fillJsonSafe) serves fresh data on its next 1 Hz tick.
+ *
+ * Uses the same module-ready checks as fillJsonSafe(): initialized modules
+ * contribute real sensor values; uninitialized modules emit empty strings.
+ * Module init/service status fields are always real.
+ *
+ * prevFrame_ is updated so the first real emit() delta only reports
+ * genuinely new changes from the final init step onward.
+ *
+ * No-op when telemetry is disabled.
+ */
+void emitSafe();
+
 void disable();
 void enable();
 bool isEnabled();
