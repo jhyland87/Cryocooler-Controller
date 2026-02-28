@@ -32,7 +32,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 │                              main.cpp                                   │
 │  setup()                          loop()                                │
 │  ├─ SPI.begin()                   ├─ [every iteration]                 │
-│  ├─ waveform::init()              │   ├─ device::service()             │
+│  ├─ waveform::init()              │   ├─ sysinfo::service()             │
 │  ├─ temperature::init()           │   ├─ waveform::service()           │
 │  ├─ dac::init()                   │   ├─ dacVoltageAdc.service()       │
 │  ├─ rms::init()                   │   ├─ serial_commands::service()    │
@@ -220,7 +220,7 @@ Drives the on-board WS2812 RGB LED (GPIO 38) and optional discrete FAULT/READY d
 
 ---
 
-### `device`
+### `sysinfo`
 
 Reads the 12 V supply rail via an ADC-connected resistor divider (GPIO 10) with EMA smoothing. Exposes `getVoltage()` (scaled V) and `getVoltageRaw()` (raw ADC count). `service()` is called every loop iteration.
 
@@ -392,7 +392,7 @@ The loop runs in two tiers: **every iteration** (unconstrained, ~microsecond cad
 loop()
  │
  ├─ [every iteration]
- │   ├─ device::service()           ── service ADC EMA for 12 V rail
+ │   ├─ sysinfo::service()           ── service ADC EMA for 12 V rail
  │   ├─ waveform::service()         ── service AD9833 driver state machine
  │   ├─ dacVoltageAdc.service()     ── service smoothed DAC voltage ADC
  │   ├─ accelerometer::service()    ── read IMU, update orientation + motion state

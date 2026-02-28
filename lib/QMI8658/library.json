@@ -1,0 +1,44 @@
+{
+  "name": "QMI8658",
+  "version": "1.0.1",
+  "description": "A comprehensive library for the QMI8658 6-axis Inertial Measurement Unit (IMU) sensor. Features: 3-axis accelerometer and gyroscope readings, temperature sensor, configurable measurement ranges and output data rates, multiple unit options (m/s² or mg for acceleration, rad/s or dps for gyroscope), wake-on-motion functionality, flexible precision control, and I2C communication with custom pin configuration. Compatible with ESP32, Arduino, RP2040, and other microcontrollers.",
+  "keywords": [
+    "imu",
+    "sensor",
+    "accelerometer", 
+    "gyroscope",
+    "qmi8658",
+    "i2c",
+    "motion",
+    "temperature",
+    "arduino",
+    "esp32",
+    "rp2040"
+  ],
+  "authors": [
+    {
+      "name": "Lahav Gahali",
+      "maintainer": true
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lahavg/QMI8658-Arduino-Library.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/lahavg/QMI8658-Arduino-Library",
+  "dependencies": {
+    "Wire": "*"
+  },
+  "frameworks": ["arduino", "espidf"],
+  "platforms": ["atmelavr", "espressif32", "espressif8266", "rp2040", "atmelsam"],
+  "headers": ["QMI8658.h"],
+  "examples": [
+    "examples/QMI8658_Basic/QMI8658_Basic.ino",
+    "examples/QMI8658_Advanced/QMI8658_Advanced.ino", 
+    "examples/QMI8658_WakeOnMotion/QMI8658_WakeOnMotion.ino"
+  ],
+  "export": {
+    "include": ["src", "examples", "README.md", "LICENSE", "library.properties", "keywords.txt"]
+  }
+}

@@ -1,0 +1,74 @@
+body {
+  font-family: monospace;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+#status {
+  font-size: .8em;
+  color: #888;
+  margin-bottom: 18px;
+}
+
+#controls {
+  margin-bottom: 14px;
+  font-size: .85em;
+  color: #aaa;
+}
+
+#dash {
+  display: grid;
+  /*grid-template-columns: 1fr 1fr;*/
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0 28px;
+  align-items: start;   /* groups don't stretch to fill row height */
+}
+
+.group {
+  margin-bottom: 18px;
+}
+
+.gt {
+  color: #00d4ff;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+  padding-bottom: 3px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  font-size: .8em;
+  letter-spacing: 1px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td {
+  padding: 3px 8px;
+  border: 1px solid #2a2a4a;
+  font-size: .88em;
+  text-align: left;
+}
+
+td:first-child {
+  color: #aaa;
+  text-align: right;
+  width: 30%;
+}
+
+td:last-child {
+  text-align: left;
+  font-weight: bold;
+}
+
+.fault { color: #ff4444; }
+.ready { color: #44cc44; }
+.warn  { color: #ffaa00; }

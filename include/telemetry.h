@@ -37,7 +37,7 @@
  *  19   rms.amps                 float   ACS712 AC RMS current in amps          (2 dp)
  *  20   backoff_count           uint    cumulative back-EMF backoff events this run
  *  21   delta_below_ambient_c   float   ambient_temp_c − cold_stage_temp_c     (2 dp)
- *  22   voltage_v               float   device supply voltage in V              (2 dp)
+ *  22   voltage_v               float   sysinfo supply voltage in V              (2 dp)
  *  23   voltage_raw             float   raw ADC voltage reading                 (2 dp)
  *  24   waveform_status         uint    AD9833 waveform output status
  *  25   frequency_hz            float   AD9833 output frequency in Hz           (2 dp)

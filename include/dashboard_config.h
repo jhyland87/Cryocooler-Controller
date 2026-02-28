@@ -70,16 +70,16 @@ static const ss::DatasetCfg kTempDatasets[] = {
         .graph          = true,  .log = true,
         .overviewDisplay = true,
     },
-    {   // Ambient temperature
-        .title          = "Ambient Temp",
-        .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "cold_head.ambient_temp_c",
-        .index          = 6,
-        .widget         = ss::WidgetType::Gauge,
-        .widgetMin      = 15,    .widgetMax = 35,
-        .graph          = true,
-        .overviewDisplay = true,
-    },
+    // {   // Ambient temperature
+    //     .title          = "Ambient Temp",
+    //     .units          = "\xC2\xB0" "C",
+    //     .telemetryKey   = "cold_head.ambient_temp_c",
+    //     .index          = 6,
+    //     .widget         = ss::WidgetType::Gauge,
+    //     .widgetMin      = 15,    .widgetMax = 35,
+    //     .graph          = true,
+    //     .overviewDisplay = true,
+    // },
     {   // Delta below ambient
         .title          = "Temp below ambient",
         .units          = "\xC2\xB0" "C",
@@ -182,6 +182,11 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
 
 static const ss::DatasetCfg kStatusDatasets[] = {
     {
+        .title          = "Timestamp",
+        .units          = "",
+        .telemetryKey   = "timestamp.local"
+    },
+    {
         .title          = "Status ID",
         .units          = "",
         .telemetryKey   = "state.id"
@@ -202,8 +207,8 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .telemetryKey   = "status.time_in_state"
     },
     {
-        .title          = "On Duration Ms",
-        .units          = "",
+        .title          = "On Duration",
+        .units          = "ms",
         .telemetryKey   = "status.on_duration_ms"
     },
     {
@@ -226,14 +231,14 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .overviewDisplay = true
     },
     {
-        .title          = "Cold Head Temp (C)",
+        .title          = "Cold Head Temp",
         .units          = "\xC2\xB0" "C",
         .telemetryKey   = "cold_head.temp_c",
         .graph          = true,
         .overviewDisplay = true
     },
     {
-        .title          = "Cold Head Temp (K)",
+        .title          = "Cold Head Temp",
         .units          = "K",
         .telemetryKey   = "cold_head.temp_k",
         .widgetMin      = 0,     .widgetMax = 100,
@@ -261,7 +266,7 @@ static const ss::DatasetCfg kStatusDatasets[] = {
     },
     {
         .title          = "Cooling Fans",
-        .units          = "",
+        .units          = "%",
         .telemetryKey   = "cooling.fan_speed",
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,     .widgetMax = 100,

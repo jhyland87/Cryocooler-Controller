@@ -9,6 +9,7 @@
  */
 
 #include <Arduino.h>
+#include <time.h>
 #include <ArduinoJson.h>
 #include "accelerometer.h"
 #include "frame_builder.h"
@@ -20,7 +21,7 @@
 #include "indicator.h"
 #include "conversions.h"
 #include "waveform.h"
-#include "device.h"
+#include "sysinfo.h"
 #include "cooling.h"
 
 // ---------------------------------------------------------------------------
@@ -48,6 +49,8 @@ static const char* const kPassiveFields[] = {
     "status.time_in_state",   // resets on state change; ticks every second otherwise
     "status.on_duration",     // ticks every second while running
     "status.on_duration_ms",  // ticks every millisecond while running
+    "timestamp.epoch",
+    "timestamp.local"
 };
 static constexpr uint8_t kPassiveFieldCount =
     static_cast<uint8_t>(sizeof(kPassiveFields) / sizeof(kPassiveFields[0]));
@@ -105,17 +108,26 @@ void emit(const state_machine::Output& out)
              static_cast<unsigned long>((stateSec % 3600u) / 60u),
              static_cast<unsigned long>(stateSec % 60u));
 
+    const time_t now = time(nullptr);
+    char localBuf[20];
+    strftime(localBuf, sizeof(localBuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+
     // Build the frame.
     // To add a field: append one .field(name, fmt, value) call here AND
     // update the field list in telemetry.h.
     lastFrame_.reset();
     lastFrame_
-        .field("state.id",                          "%d",   static_cast<int8_t>(out.state))
-        .field("state.name",                        "%.2f", state_machine::stateName(out.state))
+        // Unix epoch seconds (UTC).  Populated by SNTP once WiFi syncs;
+        // returns 0 until the first sync completes.  Replace with RTC read
+        // when hardware is available.
+        .field("timestamp.epoch",                  "%lld", static_cast<int64_t>(time(nullptr)))
+        .field("timestamp.local",                  "%s",   localBuf)
+        .field("state.id",                         "%d",   static_cast<int8_t>(out.state))
+        .field("state.name",                       "%s",   state_machine::stateName(out.state))
         .field("state.status_text",                 "%s",   state_machine::getStatusText())
         .field("cold_head.temp_k",                  "%.2f", cold_head::getLastTempK())
         .field("cold_head.temp_c",                  "%.2f", cold_head::getLastTempC())
-        .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
+        //.field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("cold_head.cooling_rate",            "%.3f", cold_head::getCoolingRateKPerMin())
         .field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))
         .field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
@@ -131,8 +143,8 @@ void emit(const state_machine::Output& out)
         .field("rms.current_a",                     "%.2f", rms::getCurrentA())
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
         .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
-        .field("system.voltage_v",                  "%.2f", device::getVoltage())
-        .field("system.voltage_raw_v",              "%.2f", device::getVoltageRaw())
+        .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
+        .field("system.voltage_raw_v",              "%.2f", sysinfo::getVoltageRaw())
         .field("waveform.status",                   "%u",   waveform::getStatus())
         .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
         .field("accel.roll_deg",                    "%.2f", accelerometer::getRoll())

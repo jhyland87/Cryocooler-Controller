@@ -228,9 +228,9 @@ static void handleSummary(const char* /*args*/, Print& out) {
              cold_head::getLastTempC(), cold_head::getLastTempK());
     out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  Ambient         : %.2f C",
-             cold_head::getLastAmbientTempC());
-    out.println(buf);
+    // snprintf(buf, sizeof(buf), "  Ambient         : %.2f C",
+    //          cold_head::getLastAmbientTempC());
+    // out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Below ambient   : %.2f C",
              cold_head::getLastTempCBelowAmbient());

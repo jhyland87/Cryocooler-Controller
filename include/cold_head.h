@@ -29,13 +29,13 @@ module::InitStatus init();
  */
 void read(uint32_t nowMs);
 
-float readAmbientTemperature();
+//float readAmbientTemperature();
 
 /**
  * Return the most recently measured ambient temperature in Celsius.
  * Returns 0.0f before the first successful read.
  */
-float getLastAmbientTempC();
+//float getLastAmbientTempC();
 
 float getLastTempCBelowAmbient();
 
@@ -72,6 +72,8 @@ float getCoolingRateKPerMin();
  * is responsible for checking this only when actively cooling.
  */
 bool isStalled();
+
+bool checkDependencies();
 
 /**
  * Return the temperature as a percentage of the maximum temperature.

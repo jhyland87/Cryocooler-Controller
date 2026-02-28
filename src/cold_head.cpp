@@ -8,8 +8,6 @@
 
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include <RunningAverage.h>
 
 #include "pin_config.h"
@@ -17,7 +15,7 @@
 #include "cold_head.h"
 #include "conversions.h"
 #include "module.h"
-
+#include "accelerometer.h"
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -45,8 +43,8 @@ static float       lastAmbientTempC = 0.0f;
 static RunningAverage coolingRateAvg(15);
 
 
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
+//OneWire oneWire(ONE_WIRE_BUS);
+//DallasTemperature sensors(&oneWire);
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -79,6 +77,10 @@ static const TempSample& sampleAt(uint8_t i) {
 namespace cold_head {
 
 module::InitStatus init() {
+    if (!checkDependencies()) {
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
+    }
+
     if (!max31865.begin(RTD_WIRE_CONFIG)) {
         Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
@@ -96,7 +98,7 @@ module::InitStatus init() {
         Serial.println(F("[cold_head] MAX31865 initialized successfully!"));
     }
 
-    sensors.begin();
+    //sensors.begin();
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -106,7 +108,7 @@ void read(uint32_t nowMs) {
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
     const float    tempK        = conversions::celsiusToKelvin(tempC);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
-    const float    ambientTempC = readAmbientTemperature();
+    const float    ambientTempC = accelerometer::getTemperature();
 
     lastTempC = tempC;
     lastTempK = tempK;
@@ -130,12 +132,20 @@ void read(uint32_t nowMs) {
     //              rtd, resistance, tempC, tempF, tempK);
 }
 
-float readAmbientTemperature() {
-    sensors.requestTemperatures(); // Send the command to get temperatures
-    if (sensors.getDeviceCount() > 0) {
-        return sensors.getTempCByIndex(0);
+// float readAmbientTemperature() {
+//     sensors.requestTemperatures(); // Send the command to get temperatures
+//     if (sensors.getDeviceCount() > 0) {
+//         return sensors.getTempCByIndex(0);
+//     }
+//     return 0.0f;
+// }
+
+bool checkDependencies() {
+    if (!accelerometer::isInitialized()) {
+        Serial.println(F("[cold_head] Dependency check failed - Accelerometer not initialized!"));
+        return false;
     }
-    return 0.0f;
+    return true;
 }
 
 void checkFaults() {
@@ -162,9 +172,9 @@ float getLastTempC() {
     return lastTempC;
 }
 
-float getLastAmbientTempC() {
-    return lastAmbientTempC;
-}
+// float getLastAmbientTempC() {
+//     return lastAmbientTempC;
+// }
 
 float getLastTempCBelowAmbient() {
     return lastAmbientTempC - lastTempC;
