@@ -51,6 +51,20 @@ module::InitStatus init();
 /** Sample and cache the latest RMS output voltage (stub: always 0 V). */
 void read();
 
+/**
+ * Inject mock sensor readings directly into the module's cached state without
+ * touching any hardware.  Call every control tick instead of read() +
+ * readCurrent() when the sensors are not physically present.
+ *
+ * After this call, getVoltage(), getCurrentA(), and hasOverstroke() all return
+ * the injected values until the next real read() / readCurrent() is called.
+ *
+ * @param voltage    RMS voltage in VDC
+ * @param currentA   AC current in amps
+ * @param overstroke True to assert the overstroke flag
+ */
+void setLastReadings(float voltage, float currentA, bool overstroke);
+
 /** Return the most recently measured RMS voltage in VDC (stub: 0.0f). */
 float getVoltage();
 

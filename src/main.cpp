@@ -31,6 +31,7 @@
 #include "cooling.h"
 #include "dashboard.h"
 #include "accelerometer.h"
+#include "sensor_mock.h"
 
 // =============================================================================
 // Module-level objects
@@ -84,6 +85,12 @@ void setupModules(){
     // flip from "not started" → "success" (or an error label) as each module
     // completes, and data fields populate as soon as their source module is up.
     bool initFailureDetected = false;
+
+
+    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
+    if (commandsStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
+    }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
@@ -177,12 +184,6 @@ void setupModules(){
     }
     telemetry::emitSafe();
 
-    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
-    if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
-    }
-    telemetry::emitSafe();
-
     setupComplete = !initFailureDetected;
 }
 // =============================================================================
@@ -227,15 +228,50 @@ void setup() {
 // =============================================================================
 
 void loop() {
-    if (!setupComplete) { return; }
+    // One-time banner on the very first loop() iteration.
+    // Lets the user know the loop has started and the console is ready —
+    // i.e. this is the right moment to start typing commands.
+    static bool sLoopStarted = false;
+    if (!sLoopStarted) {
+        sLoopStarted = true;
+        // Drain any characters that arrived in the USB RX buffer during setup
+        // so they don't accidentally dispatch stale commands.
+        while (Serial.available()) { Serial.read(); }
+        Serial.println();
+        Serial.println(F(">>> Serial console active. Type 'help' for commands. <<<"));
+        Serial.println(F("    (setup may have partially failed — check status above)"));
+        Serial.println();
+    }
+
+    // Serial command processing runs unconditionally so the console is always
+    // reachable — even when setup failed due to missing hardware.
+    // (The TCP/Serial-Studio path calls processLine() directly and is
+    //  unaffected by the setupComplete gate below.)
+    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] commands service error"));
+    }
+
+    // Full control loop runs when setup succeeded, OR when mock mode is
+    // active (hardware-free FSM testing with injected sensor values).
+    // Modules that failed to initialise return SERVICE_ERROR from service()
+    // without crashing, so it is safe to call them in mock mode.
+    if (!setupComplete && !sensor_mock::isActive()) { return; }
+
+    // Determine mock mode up-front — used to gate hardware-dependent services.
+    const bool mockActive = sensor_mock::isActive();
 
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all
     // modules are still serviced regardless so the control loop keeps running.
     // Silence SERVICE_SKIPPED — it is the normal outcome for time-gated modules.
+    //
+    // In mock mode, hardware-coupled modules (sysinfo → INA260) are skipped to
+    // prevent I2C error floods when the sensor is not physically present.
 
-    if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] sysinfo service error"));
+    if (!mockActive) {
+        if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
+            Serial.println(F("[loop] sysinfo service error"));
+        }
     }
     if (accelerometer::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] accelerometer service error"));
@@ -252,11 +288,6 @@ void loop() {
 
     const uint32_t nowMs = millis();
 
-    // Process incoming serial commands (non-blocking)
-    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] commands service error"));
-    }
-
     // Indicator LEDs update every loop for accurate flash timing
     indicator::update(nowMs);
 
@@ -267,21 +298,34 @@ void loop() {
     previousLoopMs = nowMs;
 
     // ---- 1. Read sensors ------------------------------------------------
-    cold_head::read(nowMs);
-    rms::read();
-    rms::readCurrent();
+    // In mock mode: inject the mock overrides into each module's cached state
+    // without touching any hardware (no SPI, no I2C).  The modules' getters
+    // then return the injected values normally — no ternaries needed below.
+    // In real mode: run the hardware reads that update those same caches.
+    if (mockActive) {
+        const sensor_mock::Overrides& mo = sensor_mock::get();
+        cold_head::setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled);
+        rms::setLastReadings(mo.rmsVoltage, mo.currentA, mo.overstroke);
+    } else {
+        cold_head::read(nowMs);
+        rms::read();
+        rms::readCurrent();
+        cold_head::checkFaults();
+    }
 
+    // Read cached values — same getters regardless of mock/real mode.
     const float tempK       = cold_head::getLastTempK();
     const float tempC       = cold_head::getLastTempC();
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
     const float rmsV        = rms::getVoltage();
-
-    cold_head::checkFaults();
+    const bool  overstroke  = rms::hasOverstroke();
 
     // ---- 2. Advance state machine ---------------------------------------
-    const bool overstroke = rms::hasOverstroke();
     const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke);
+    // Clear edge-triggered overstroke flag after the state machine has consumed
+    // it.  In real mode the flag was set by readCurrent(); in mock mode it was
+    // set by setLastReadings().  Either way, clear it so it fires only once.
     if (overstroke) { rms::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------

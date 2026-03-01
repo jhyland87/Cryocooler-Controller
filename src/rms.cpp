@@ -111,6 +111,12 @@ void read() {
     voltage = 0.0f;
 }
 
+void setLastReadings(float rmsVoltage, float rmsCurrentA, bool overstroke) {
+    voltage        = rmsVoltage;
+    currentA       = rmsCurrentA;
+    overstrokeFlag = overstroke;
+}
+
 float getVoltage() {
     return voltage;
 }

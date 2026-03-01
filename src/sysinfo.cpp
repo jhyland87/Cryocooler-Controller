@@ -5,11 +5,13 @@
 
 #include <Arduino.h>
 #include <Adafruit_INA260.h>
-
+#include <Wire.h>
+#include <esp32-hal-i2c.h>
 #include "pin_config.h"
 #include "config.h"
 #include "sysinfo.h"
 #include "accelerometer.h"
+
 
 // System voltage in volts
 static float    voltageV         = 0.0f;
@@ -22,12 +24,31 @@ Adafruit_INA260 ina260 = Adafruit_INA260();
 
 
 module::InitStatus init() {
-    if (!ina260.begin()) {
-        Serial.println("[sysinfo] Couldn't find INA260 chip");
-        while (1);
+    int retries = 0;
+    Serial.println(F("[sysinfo] Looking for INA260 chip..."));
+    if ( i2cIsInit(INA260_I2CADDR_DEFAULT)) {
+        Serial.println(F("[sysinfo] I2C bus already open, trying to reuse it"));
+        while (!ina260.begin(INA260_I2CADDR_DEFAULT, &Wire) && retries < 10) {
+            //Serial.print(".");
+            retries++;
+            delay(100);
+        }
+    }
+    else {
+        while (!ina260.begin() && retries < 10) {
+            //Serial.print(".");
+            retries++;
+            delay(100);
+        }
     }
 
-    Serial.println("[sysinfo] INA260 found and initialized");
+
+    if (retries == 10) {
+        Serial.println(F("[sysinfo] INA260 chip not found"));
+        return module::MODULE_INIT_HARDWARE_ERROR;
+    }
+
+    Serial.println(F("[sysinfo] INA260 chip found and initialized"));
     analogReadResolution(ADC_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }

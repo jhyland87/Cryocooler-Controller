@@ -38,6 +38,13 @@ static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
 static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 
+// Mock injection state — set by setLastReadings(), cleared by read().
+// When active, getCoolingRateKPerMin() and isStalled() return these values
+// directly instead of computing from the ring buffer.
+static bool  sMockInjected    = false;
+static float sMockCoolingRate = 0.0f;
+static bool  sMockStalled     = false;
+
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
 // of the ring-buffer window, giving a much steadier readout.
@@ -107,6 +114,7 @@ module::InitStatus init() {
 }
 
 void read(uint32_t nowMs) {
+    sMockInjected = false;   // real read supersedes any prior mock injection
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
@@ -134,6 +142,18 @@ void read(uint32_t nowMs) {
 
     //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
     //              rtd, resistance, tempC, tempF, tempK);
+}
+
+void setLastReadings(uint32_t nowMs, float tempK,
+                     float coolingRateKPerMin, bool stalled) {
+    lastTempK         = tempK;
+    lastTempC         = tempK - 273.15f;
+    sMockCoolingRate  = coolingRateKPerMin;
+    sMockStalled      = stalled;
+    sMockInjected     = true;
+    // Push a timestamped sample so the ring buffer stays current;
+    // this lets real stall / rate code pick up correctly if mock is disabled.
+    pushSample(nowMs, tempK, lastAmbientTempC);
 }
 
 // float readAmbientTemperature() {
@@ -185,6 +205,7 @@ float getLastTempCBelowAmbient() {
 }
 
 float getCoolingRateKPerMin() {
+    if (sMockInjected) return sMockCoolingRate;
     // Return the running average of ring-buffer cooling rates for a smooth
     // readout.  Falls back to 0 until the first value has been added.
     if (coolingRateAvg.getCount() == 0) return 0.0f;
@@ -192,7 +213,8 @@ float getCoolingRateKPerMin() {
 }
 
 bool isStalled() {
-  return false;
+    if (sMockInjected) return sMockStalled;
+    return false;
     if (count < 2) return false;
 
     const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));

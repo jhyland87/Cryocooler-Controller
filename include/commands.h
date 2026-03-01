@@ -22,6 +22,16 @@
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)
  *   cooling on           - Enable cooling system
  *   cooling off          - Disable cooling system
+ *   mock                 - Print current mock sensor values and active state
+ *   mock enable          - Activate sensor mock mode (bypass real hardware)
+ *   mock disable         - Deactivate sensor mock mode (return to hardware)
+ *   mock temp <K>        - Set cold-stage temperature (Kelvin)
+ *   mock rate <K/min>    - Set cooling rate (negative = cooling down)
+ *   mock rms <V>         - Set back-EMF RMS voltage
+ *   mock current <A>     - Set INA260 current
+ *   mock voltage <V>     - Set INA260 bus voltage
+ *   mock stall <0|1>     - Set temperature-stall flag
+ *   mock stroke <0|1>    - Set back-EMF overstroke flag
  *
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().

@@ -27,6 +27,8 @@
 #include "cooling.h"
 #ifdef ARDUINO
 #include "dashboard.h"
+#include "mock_commands.h"
+#include "sensor_mock.h"
 #endif
 
 namespace commands {
@@ -67,9 +69,32 @@ static void handleStart(const char* /*args*/, Print& out) {
         out.println("[ERR] Cannot start: not in Idle or Off state");
         return;
     }
+    // Use mock temperature when active so the FSM picks the right entry
+    // state (coarse vs fine vs settle) even without real hardware.
+    // Native test builds fall back to the header default (AMBIENT_START_K).
+#ifdef ARDUINO
+    const float tempK = sensor_mock::isActive()
+                            ? sensor_mock::get().tempK
+                            : cold_head::getLastTempK();
+    state_machine::start(millis(), tempK);
+#else
     state_machine::start(millis());
+#endif
     out.println("[OK] Process started");
 }
+
+#ifdef ARDUINO
+static void handleReinit(const char* /*args*/, Print& out) {
+    // Reset the FSM back to the Off state.  Useful after a fault, or when
+    // entering mock mode mid-session without rebooting.
+    state_machine::Module::init();
+    char buf[72];
+    snprintf(buf, sizeof(buf), "[OK] FSM reinitialized — state: %s | mock: %s",
+             state_machine::stateName(state_machine::getState()),
+             sensor_mock::isActive() ? "ACTIVE" : "inactive");
+    out.println(buf);
+}
+#endif
 
 static void handleStop(const char* /*args*/, Print& out) {
     if (!state_machine::isRunning()) {
@@ -291,6 +316,9 @@ static const Command kCommands[] = {
     {"summary",       handleSummary,      "Print a full snapshot of all system values"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
+#ifdef ARDUINO
+    {"reinit",        handleReinit,       "Reset FSM to Off state (use with mock mode)"},
+#endif
     // "telemetry delta ..." must precede "telemetry on/off" so the longer
     // prefix is matched first by the linear scan in processLine().
     {"telemetry delta off", handleTelemetryDeltaOff, "Emit full frame each tick (default)"},
@@ -304,6 +332,9 @@ static const Command kCommands[] = {
 #ifdef ARDUINO
     {"dashboard off", handleDashboardOff, "Disable dashboard TCP broadcasts"},
     {"dashboard on",  handleDashboardOn,  "Enable dashboard TCP broadcasts"},
+    // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
+    // Must follow any more-specific "mock ..." entries if those are ever added.
+    {"mock",          mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
 #endif
 };
 
