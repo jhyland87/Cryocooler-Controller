@@ -4,6 +4,7 @@
  */
 
 #include <Arduino.h>
+#include <Adafruit_INA260.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -12,22 +13,30 @@
 
 // System voltage in volts
 static float    voltageV         = 0.0f;
-static int  voltageRaw       = 0;
+static float    currentA         = 0.0f;
+static float    powerW           = 0.0f;
 
 namespace sysinfo {
 
+Adafruit_INA260 ina260 = Adafruit_INA260();
+
+
 module::InitStatus init() {
+    if (!ina260.begin()) {
+        Serial.println("[sysinfo] Couldn't find INA260 chip");
+        while (1);
+    }
+
+    Serial.println("[sysinfo] INA260 found and initialized");
     analogReadResolution(ADC_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }
 
 
 module::ServiceStatus service() {
-    voltageRaw = analogRead(VOLTAGE_12_TEST_PIN);
-    // Scale the raw voltage to the actual voltage (given the voltage divider ratio);
-    voltageV = map(voltageRaw, 0, 4095, 0, 19200)/1000.0f;
-    //Serial.print(voltageRaw);
-    //Serial.printf(" - Voltage: %.3f V (%d raw)\n", voltageV, voltageRaw);
+    voltageV = ina260.readBusVoltage()/1000.0f;
+    currentA = ina260.readCurrent()/1000.0f;
+    powerW = ina260.readPower()/1000.0f;
     return module::MODULE_SERVICE_OK;
 }
 
@@ -35,8 +44,12 @@ float getVoltage() {
     return voltageV;
 }
 
-int16_t getVoltageRaw() {
-    return voltageRaw;
+float getCurrent() {
+    return currentA;
+}
+
+float getPower() {
+    return powerW;
 }
 
 float getAmbientTemperature() {

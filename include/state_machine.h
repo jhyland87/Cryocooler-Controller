@@ -37,19 +37,45 @@
 
 namespace state_machine {
 
-/** System states as per design spec. */
+/**
+ * X-macro table for all system states.
+ * Each row:  X(enumerator, int8_t value, short name, status text)
+ *
+ * The status text for State::Fault is dynamic (it depends on the active
+ * FaultReason) and is handled separately in statusTextForState() inside
+ * state_machine.cpp.  nullptr is used here as an explicit sentinel; it is
+ * never returned to callers at runtime.
+ *
+ * Usage patterns
+ * ──────────────
+ * Generate the enum body:
+ *   #define X(name, value, sname, status) name = value,
+ *   STATE_MACHINE_STATES(X)
+ *   #undef X
+ *
+ * Generate a name-lookup switch:
+ *   #define X(name, value, sname, status) case State::name: return sname;
+ *   STATE_MACHINE_STATES(X)
+ *   #undef X
+ */
+#define STATE_MACHINE_STATES(X)                                                                                              \
+    X(Off,            -1,  "Off",            "System is off")                                                            \
+    X(Initialize,      0,  "Initialize",     "Initial power up state")                                                   \
+    X(Idle,            1,  "Idle",           "Cold stage is warm; dewar is not cooling")                                 \
+    X(CoarseCooldown,  2,  "CoarseCooldown", "Cooling; cold stage is above 85K")                                         \
+    X(FineCooldown,    3,  "FineCooldown",   "Cooling; cold stage is below 85K")                                         \
+    X(Overshoot,       4,  "Overshoot",      "Cold stage is cooler than set point; integrator is settling")              \
+    X(Settle,          5,  "Settle",         "Cold stage temperature is settling; circuits switched to Normal")           \
+    X(Baseline,        6,  "Baseline",       "Cold stage temperature has settled; collecting baseline data")              \
+    X(Operating,       7,  "Operating",      "System is operating normally; checking for deviations from baseline")      \
+    X(Shutdown,        8,  "Shutdown",       "Gracefully shutting down; ramping DAC to zero")                            \
+    X(Fault,         127,  "Fault",          nullptr)   /* status text is computed at runtime — see statusTextForState() */
+
+/** System states as per design spec.  Generated from STATE_MACHINE_STATES. */
 enum class State : int8_t {
-    Off             = -1,
-    Initialize      = 0,
-    Idle            = 1,
-    CoarseCooldown  = 2,
-    FineCooldown    = 3,
-    Overshoot       = 4,
-    Settle          = 5,
-    Baseline        = 6,
-    Operating       = 7,
-    Shutdown        = 8,
-    Fault           = 127
+#define X(name, value, sname, status) name = value,
+    STATE_MACHINE_STATES(X)
+#undef X
 };
 
 
@@ -75,11 +101,14 @@ struct Output {
 
 /**
  * Initialise the state machine.
- * Must be called once in setup()
+ * Must be called once in setup(); may also be called between tests to reset
+ * all internal state.
  *
+ * @param nowMs  Current millis() at the time of initialisation (defaults to 0
+ *               so native unit tests that call init(0) compile without change).
  * @return MODULE_INIT_SUCCESS always (pure in-memory initialisation).
  */
-module::InitStatus init();
+module::InitStatus init(uint32_t nowMs = 0);
 
 /** Return the duration of the current on state in milliseconds. */
 uint32_t getOnStateDuration();
@@ -105,6 +134,7 @@ Output update(float    tempK,
               bool     stalled,
               uint32_t nowMs,
               bool     overstroke = false);
+
 
 /** Return the current state without advancing the machine. */
 State getState();
@@ -145,8 +175,18 @@ void stop(uint32_t nowMs);
 
 void off(uint32_t nowMs);
 
-/** Return a short ASCII name for a state (safe for Serial / telemetry). */
-const char* stateName(State s);
+/**
+ * Return a short ASCII name for a state (safe for Serial / telemetry).
+ * Generated from STATE_MACHINE_STATES — add or rename states there, not here.
+ */
+inline const char* stateName(State s) {
+    switch (s) {
+#define X(name, value, sname, status) case State::name: return sname;
+        STATE_MACHINE_STATES(X)
+#undef X
+    }
+    return "Unknown";
+}
 
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();

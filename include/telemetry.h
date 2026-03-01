@@ -61,7 +61,6 @@
 #include "module.h"
 
 namespace telemetry {
-
 /**
  * Emit one telemetry frame to Serial in Serial Studio wire format and store
  * it as the last frame (accessible via getLastFrame() / fillJson()).
@@ -151,7 +150,7 @@ bool isDeltaEnabled();
 
 struct Module : ModuleBase<Module> {
     /** Telemetry requires no hardware setup; always succeeds immediately. */
-    static module::InitStatus init() { return _initStatus = module::MODULE_INIT_SUCCESS; }
+    static module::InitStatus init() { telemetry::disable();return module::MODULE_INIT_SUCCESS; }
     // service() — inherited no-op; emit() is called explicitly from loop().
     static void enable()     { telemetry::enable(); }
     static void disable()    { telemetry::disable(); }

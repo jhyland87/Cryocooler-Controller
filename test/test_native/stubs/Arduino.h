@@ -10,7 +10,35 @@
 #define ARDUINO_STUB_H
 
 #include <stdint.h>
+#include <cstdarg>   // va_list — needed by SerialStub::printf
+#include <cstdlib>   // free, malloc, realloc — used by Fsm.cpp
+#include <cstring>   // memset, memcpy — commonly needed by Arduino libs
 #include "Print.h"  // stub Print class (needed by serial_commands.cpp)
+
+// ─── Serial stub ─────────────────────────────────────────────────────────────
+// Provides no-op implementations of the Serial methods used in source files.
+// This lets code that calls Serial.printf() / Serial.println() etc. compile and
+// link in native (host) test builds without scattering #ifdef ARDUINO guards
+// through every debug print site.
+class SerialStub {
+public:
+    void begin(unsigned long /*baud*/) {}
+
+    // printf — variadic, matches Arduino's HardwareSerial::printf signature.
+    int printf(const char* /*fmt*/, ...) { return 0; }  // NOLINT
+
+    // print / println overloads (templated to accept any type).
+    template<typename T> size_t print(T)   { return 0; }
+    template<typename T> size_t println(T) { return 0; }
+    size_t println() { return 0; }
+
+    // Stream interface — used by the command handler.
+    int  available() { return 0; }
+    int  read()      { return -1; }
+    void flush()     {}
+};
+
+extern SerialStub Serial;
 
 // Stub millis() — returns a value set by the test harness
 // Default: 0, override via stub_setMillis() before each test if needed.

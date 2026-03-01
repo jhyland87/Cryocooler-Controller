@@ -25,7 +25,9 @@ module::ServiceStatus service();
 
 float getVoltage();
 
-int16_t getVoltageRaw();
+float getCurrent();
+
+float getPower();
 
 float getAmbientTemperature();
 

@@ -1,8 +1,22 @@
 /**
  * @file state_machine.cpp
- * @brief Cryocooler system state machine implementation
+ * @brief Cryocooler system state machine — implemented with jonblack/arduino-fsm.
  *
- * Pure logic -- no Serial.print, no hardware calls.
+ * Architecture
+ * ============
+ * The arduino-fsm library manages state objects and event-driven transitions.
+ * Each state has an on_enter callback that records the active state enum value
+ * and entry timestamp.  All transition decisions that depend on sensor readings
+ * (temperature, RMS voltage, stall flag) are evaluated inside update(), which
+ * calls Fsm::trigger() with the appropriate event and then calls
+ * Fsm::run_machine() to execute on_state callbacks.
+ *
+ * Timed transitions (Baseline→Operating, Shutdown→Idle, Initialize→Idle)
+ * are also driven from update() using the injected nowMs argument rather than
+ * add_timed_transition() so that native unit tests — which stub millis() at 0
+ * and pass explicit timestamps — behave identically to the embedded target.
+ *
+ * Pure logic — no Serial.print, no hardware calls.
  * All inputs are injected via update(); all outputs are returned in the
  * Output struct so that callers (main.cpp) handle I/O.
  */
@@ -13,79 +27,99 @@
 #include "indicator.h"
 #include <Arduino.h>
 #include "esp_log.h"
+#include <Fsm.h>
 
 namespace state_machine {
 
 static constexpr char TAG[] = "state_machine";
 
 // ---------------------------------------------------------------------------
+// Events — passed to Fsm::trigger()
+// ---------------------------------------------------------------------------
+enum : int {
+    // Control events (fired by start() / stop() / off())
+    EVT_START_COARSE    =  1,  ///< start() when tempK >= COARSE_FINE_THRESHOLD_K
+    EVT_START_FINE      =  2,  ///< start() when below threshold but above setpoint band
+    EVT_START_SETTLE    =  3,  ///< start() when already in setpoint band
+    EVT_START_OVERSHOOT =  4,  ///< start() when below setpoint band
+    EVT_STOP            =  5,  ///< stop() from a running state → Shutdown
+    EVT_POWER_OFF       =  6,  ///< off() from any state → Off
+
+    // Condition events (fired by update() each tick)
+    EVT_BELOW_COARSE    =  7,  ///< CoarseCooldown → FineCooldown
+    EVT_ABOVE_COARSE    =  8,  ///< FineCooldown → CoarseCooldown
+    EVT_OVERSHOT        =  9,  ///< FineCooldown → Overshoot
+    EVT_IN_BAND         = 10,  ///< Fine/Overshoot → Settle
+    EVT_SETTLE_DONE     = 11,  ///< Settle → Baseline   (settle timer expired)
+    EVT_INIT_DONE       = 12,  ///< Initialize → Idle   (amber-flash timer expired)
+    EVT_BASELINE_DONE   = 13,  ///< Baseline → Operating (baseline timer expired)
+    EVT_SHUTDOWN_DONE   = 14,  ///< Shutdown → Idle      (shutdown timer expired)
+
+    // Fault events
+    EVT_FAULT_RMS       = 15,  ///< RMS overvoltage from any non-Fault state
+    EVT_FAULT_STALL     = 16,  ///< Temperature stall in Coarse or Fine cooldown
+    EVT_FAULT_BACKOFFS  = 17,  ///< Too many back-EMF backoff events
+};
+
+// ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
+static State        currentState        = State::Off;
+static uint32_t     currentStateEntryMs = 0;
+static bool         running             = false;
+static FaultReason  faultReason         = FaultReason::None;
+static uint32_t     onStateMs           = 0;
+static uint32_t     offStateMs          = 0;
 
-static State       currentState         = State::Off;
-static uint32_t    currentStateEntryMs  = 0;   // millis() when current state was entered
-static bool        running              = false; // process is off until start() is called
-static FaultReason faultReason          = FaultReason::None;
-static uint32_t    onStateMs            = 0;   // millis() when it entered an on state
-static uint32_t    offStateMs           = 0;   // millis() when it entered an off state
-
-// Settle timer -- starts counting when temp enters the tolerance band
-static uint32_t settleStartMs           = 0;
-static bool     settleTimerActive       = false;
+// Settle timer — managed manually in update() so nowMs (not millis()) drives it
+static uint32_t     settleStartMs       = 0;
+static bool         settleTimerActive   = false;
 
 // Back-EMF backoff tracking
-static uint16_t backoffCount            = 0;   // total backoff events in this run
-static uint16_t backoffDacOffset        = 0;   // cumulative DAC reduction (counts)
+static uint16_t     backoffCount        = 0;
+static uint16_t     backoffDacOffset    = 0;
+
+// Injected timestamp — set before every trigger() call so on_enter callbacks
+// can capture the correct entry time without calling millis() directly.
+static uint32_t     sNowMs             = 0;
+
+// ---------------------------------------------------------------------------
+// Forward declarations for FSM state callbacks
+// ---------------------------------------------------------------------------
+static void onEnterOff();
+static void onEnterInitialize();
+static void onEnterIdle();
+static void onEnterCoarseCooldown();
+static void onEnterFineCooldown();
+static void onEnterOvershoot();
+static void onEnterSettle();
+static void onEnterBaseline();
+static void onEnterOperating();
+static void onEnterShutdown();
+static void onEnterFault();
+
+// ---------------------------------------------------------------------------
+// Library ::State objects
+// Qualified as ::State to avoid shadowing the state_machine::State enum.
+// ---------------------------------------------------------------------------
+static ::State sFsmOff       (onEnterOff,             nullptr, nullptr);
+static ::State sFsmInit      (onEnterInitialize,      nullptr, nullptr);
+static ::State sFsmIdle      (onEnterIdle,            nullptr, nullptr);
+static ::State sFsmCoarse    (onEnterCoarseCooldown,  nullptr, nullptr);
+static ::State sFsmFine      (onEnterFineCooldown,    nullptr, nullptr);
+static ::State sFsmOvershoot (onEnterOvershoot,       nullptr, nullptr);
+static ::State sFsmSettle    (onEnterSettle,          nullptr, nullptr);
+static ::State sFsmBaseline  (onEnterBaseline,        nullptr, nullptr);
+static ::State sFsmOperating (onEnterOperating,       nullptr, nullptr);
+static ::State sFsmShutdown  (onEnterShutdown,        nullptr, nullptr);
+static ::State sFsmFault     (onEnterFault,           nullptr, nullptr);
+
+// Heap-allocated so it can be fully reset between test cases via init().
+static Fsm* fsm = nullptr;
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
-
-static void enterState(State s, uint32_t nowMs) {
-    ESP_LOGD(TAG, "Entering state %s", stateName(s));
-    currentState        = s;
-    currentStateEntryMs = nowMs;
-    if (s != State::Settle) {
-        settleTimerActive = false;
-        settleStartMs     = 0;
-        ESP_LOGD(TAG, "Settle timer cleared");
-    }
-    if (s != State::Fault) {
-        faultReason = FaultReason::None;
-        ESP_LOGD(TAG, "Fault reason cleared");
-    }
-}
-
-static void enterFault(FaultReason reason, uint32_t nowMs) {
-    ESP_LOGD(TAG, "Entering fault state %d", static_cast<int>(reason));
-    faultReason = reason;
-    running     = false;
-    enterState(State::Fault, nowMs);
-}
-
-/** Return the status description string for a given state. */
-static const char* statusTextForState(State s) {
-    switch (s) {
-        case State::Off:            return "System is off";
-        case State::Initialize:     return "Initial power up state";
-        case State::Idle:           return "Cold stage is warm; dewar is not cooling";
-        case State::CoarseCooldown: return "Cooling; cold stage is above 85K";
-        case State::FineCooldown:   return "Cooling; cold stage is below 85K";
-        case State::Overshoot:      return "Cold stage is cooler than set point; integrator is settling";
-        case State::Settle:         return "Cold stage temperature is settling; circuits switched to Normal";
-        case State::Baseline:       return "Cold stage temperature has settled; collecting baseline data";
-        case State::Operating:      return "System is operating normally; checking for deviations from baseline";
-        case State::Shutdown:       return "Gracefully shutting down; ramping DAC to zero";
-        case State::Fault:
-            switch (faultReason) {
-                case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
-                case FaultReason::TemperatureStall: return "Fault: Temperature stalled during cooldown";
-                case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
-                default:                            return "Fault: Unknown reason";
-            }
-    }
-    return "Unknown state";
-}
 
 /** True when the cold stage temperature is within the setpoint tolerance band. */
 static bool inBand(float tempK) {
@@ -95,31 +129,42 @@ static bool inBand(float tempK) {
 
 /** True when the cold stage has clearly overshot (gone below) the setpoint. */
 static bool overshot(float tempK) {
-    return (tempK < (SETPOINT_K - SETPOINT_TOLERANCE_K));
+    return tempK < (SETPOINT_K - SETPOINT_TOLERANCE_K);
 }
 
 /**
  * Compute the target DAC value for cooldown states.
- *
- * The output is proportional to how far the temperature has dropped from
- * AMBIENT_START_K toward SETPOINT_K.  The coolingRate guard freezes the
- * target (no further increase) when the stage is already cooling faster
- * than the configured limit.
+ * Proportional to how far the temperature has dropped from AMBIENT_START_K
+ * toward SETPOINT_K.
  */
 static uint16_t cooldownDacTarget(float tempK, float coolingRate) {
-    const uint16_t proportional = conversions::tempKToDacValue(
-        tempK,
-        AMBIENT_START_K,
-        SETPOINT_K,
-        MCP4921_MAX_VALUE);
+    Serial.printf("cooldownDacTarget() tempK=%.2f coolingRate=%.2f\n", tempK, coolingRate);
+    (void)coolingRate;   // rate guard reserved for future use
+    return conversions::tempKToDacValue(
+        tempK, AMBIENT_START_K, SETPOINT_K, MCP4921_MAX_VALUE);
+}
 
-    // Hold target when cooling rate already exceeds the limit so that the
-    // DAC ramp does not push temperature down any faster.
-    if (coolingRate > MAX_COOLDOWN_RATE_K_PER_MIN) {
-        return proportional;
+/**
+ * Return the human-readable status string for a state.
+ * State::Fault is resolved dynamically from faultReason before the
+ * macro-generated switch, which carries nullptr for the Fault row.
+ * All other states are generated from STATE_MACHINE_STATES.
+ */
+static const char* statusTextForState(State s) {
+    if (s == State::Fault) {
+        switch (faultReason) {
+            case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
+            case FaultReason::TemperatureStall: return "Fault: Temperature stalled during cooldown";
+            case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
+            default:                            return "Fault: Unknown reason";
+        }
     }
-
-    return proportional;
+    switch (s) {
+#define X(name, value, sname, status) case State::name: return status;
+        STATE_MACHINE_STATES(X)
+#undef X
+    }
+    return "Unknown state";
 }
 
 /**
@@ -199,7 +244,7 @@ static Output buildOutput(State s, uint16_t dacTarget) {
             break;
 
         case State::Shutdown:
-            o.bypassRelay  = true;    // Return to Bypass during shutdown
+            o.bypassRelay  = true;
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::Off;
             break;
@@ -215,17 +260,147 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 }
 
 // ---------------------------------------------------------------------------
+// on_enter callbacks — invoked synchronously by Fsm::make_transition()
+// ---------------------------------------------------------------------------
+
+/**
+ * Common housekeeping executed on every state entry.
+ * Updates currentState and records the entry timestamp from sNowMs (which must
+ * be set by the caller before trigger() is invoked).
+ */
+static void setStateEntry(State s) {
+    Serial.printf("[SM] -> %s\n", stateName(s));
+    ESP_LOGD(TAG, "Entering state %s", stateName(s));
+    currentState        = s;
+    currentStateEntryMs = sNowMs;
+    // Clear settle timer for every state except Settle itself.
+    if (s != State::Settle) {
+        settleTimerActive = false;
+        settleStartMs     = 0;
+    }
+    // Preserve faultReason when entering Fault; clear it for all other states.
+    if (s != State::Fault) {
+        faultReason = FaultReason::None;
+    }
+}
+
+static void onEnterOff()            { setStateEntry(State::Off); }
+static void onEnterInitialize()     { setStateEntry(State::Initialize); }
+static void onEnterIdle()           { setStateEntry(State::Idle); }
+static void onEnterCoarseCooldown() { setStateEntry(State::CoarseCooldown); }
+static void onEnterFineCooldown()   { setStateEntry(State::FineCooldown); }
+static void onEnterOvershoot()      { setStateEntry(State::Overshoot); }
+static void onEnterSettle()         { setStateEntry(State::Settle); }
+static void onEnterBaseline()       { setStateEntry(State::Baseline); }
+static void onEnterOperating()      { setStateEntry(State::Operating); }
+static void onEnterShutdown()       { setStateEntry(State::Shutdown); }
+
+static void onEnterFault() {
+    setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
+    running = false;
+    if (offStateMs == 0) offStateMs = sNowMs;
+}
+
+// ---------------------------------------------------------------------------
+// FSM construction — called once per init()
+// ---------------------------------------------------------------------------
+
+static void buildFsm() {
+    Serial.printf("buildFsm()\n");
+    // ── Start events from Off and Idle ────────────────────────────────────
+    // start() selects the correct resume state based on the current temperature.
+    ::State* startableStates[] = { &sFsmOff, &sFsmIdle };
+    for (auto* from : startableStates) {
+        fsm->add_transition(from, &sFsmCoarse,    EVT_START_COARSE,    nullptr);
+        fsm->add_transition(from, &sFsmFine,      EVT_START_FINE,      nullptr);
+        fsm->add_transition(from, &sFsmSettle,    EVT_START_SETTLE,    nullptr);
+        fsm->add_transition(from, &sFsmOvershoot, EVT_START_OVERSHOOT, nullptr);
+    }
+
+    // ── Initialize → Idle ─────────────────────────────────────────────────
+    // Timer driven in update() using nowMs (not add_timed_transition).
+    fsm->add_transition(&sFsmInit, &sFsmIdle, EVT_INIT_DONE, nullptr);
+
+    // ── Cooldown transitions ───────────────────────────────────────────────
+    fsm->add_transition(&sFsmCoarse,    &sFsmFine,      EVT_BELOW_COARSE, nullptr);
+    fsm->add_transition(&sFsmFine,      &sFsmCoarse,    EVT_ABOVE_COARSE, nullptr);
+    fsm->add_transition(&sFsmFine,      &sFsmOvershoot, EVT_OVERSHOT,     nullptr);
+    fsm->add_transition(&sFsmFine,      &sFsmSettle,    EVT_IN_BAND,      nullptr);
+    fsm->add_transition(&sFsmOvershoot, &sFsmSettle,    EVT_IN_BAND,      nullptr);
+
+    // ── Settle → Baseline (timer-driven in update()) ──────────────────────
+    fsm->add_transition(&sFsmSettle,   &sFsmBaseline,  EVT_SETTLE_DONE,  nullptr);
+
+    // ── Baseline → Operating (timer-driven in update()) ───────────────────
+    fsm->add_transition(&sFsmBaseline, &sFsmOperating, EVT_BASELINE_DONE, nullptr);
+
+    // ── Shutdown → Idle (timer-driven in update()) ────────────────────────
+    fsm->add_transition(&sFsmShutdown, &sFsmIdle,      EVT_SHUTDOWN_DONE, nullptr);
+
+    // ── Stop: all running states → Shutdown ───────────────────────────────
+    ::State* stoppableStates[] = {
+        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating
+    };
+    for (auto* from : stoppableStates) {
+        fsm->add_transition(from, &sFsmShutdown, EVT_STOP, nullptr);
+    }
+
+    // ── Fault: RMS overvoltage from every non-Fault state ─────────────────
+    ::State* allNonFaultStates[] = {
+        &sFsmOff, &sFsmInit, &sFsmIdle,
+        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown
+    };
+    for (auto* from : allNonFaultStates) {
+        fsm->add_transition(from, &sFsmFault, EVT_FAULT_RMS, nullptr);
+    }
+
+    // ── Fault: temperature stall only in cooldown states ──────────────────
+    fsm->add_transition(&sFsmCoarse, &sFsmFault, EVT_FAULT_STALL, nullptr);
+    fsm->add_transition(&sFsmFine,   &sFsmFault, EVT_FAULT_STALL, nullptr);
+
+    // ── Fault: too many backoffs from any running state ────────────────────
+    for (auto* from : stoppableStates) {
+        fsm->add_transition(from, &sFsmFault, EVT_FAULT_BACKOFFS, nullptr);
+    }
+
+    // ── Power-off: any state → Off ─────────────────────────────────────────
+    ::State* powerOffableStates[] = {
+        &sFsmInit, &sFsmIdle,
+        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating,
+        &sFsmShutdown, &sFsmFault
+    };
+    for (auto* from : powerOffableStates) {
+        fsm->add_transition(from, &sFsmOff, EVT_POWER_OFF, nullptr);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
-module::InitStatus init() {
+module::InitStatus init(uint32_t nowMs) {
+    Serial.printf("init()\n");
+    sNowMs           = nowMs;
     running          = false;
     onStateMs        = 0;
     offStateMs       = 0;
     faultReason      = FaultReason::None;
     backoffCount     = 0;
     backoffDacOffset = 0;
-    enterState(State::Off, millis());
+    settleTimerActive= false;
+    settleStartMs    = 0;
+
+    delete fsm;
+    fsm = new Fsm(&sFsmOff);
+    buildFsm();
+
+    // First run_machine() call initialises the library (sets m_initialized,
+    // fires onEnterOff) so that subsequent trigger() calls are not no-ops.
+    fsm->run_machine();
+
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -236,171 +411,138 @@ Output update(float    tempK,
               uint32_t nowMs,
               bool     overstroke)
 {
-    ESP_LOGD(TAG, "Updating state machine (tempK = %.2f, coolingRate = %.2f, rmsVoltage = %.2f, stalled = %d, overstroke = %d)", tempK, coolingRate, rmsVoltage, stalled, overstroke);
+    //Serial.printf("update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
+             //tempK, coolingRate, rmsVoltage, stalled, overstroke);
+    ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
+             tempK, coolingRate, rmsVoltage, stalled, overstroke);
+
+    sNowMs = nowMs;
+
     // ------------------------------------------------------------------
-    // Global fault checks (fire from any non-Fault state)
+    // 1. Global fault checks — fire from any non-Fault state
     // ------------------------------------------------------------------
     if (currentState != State::Fault) {
         if (rmsVoltage > RMS_MAX_VOLTAGE_VDC) {
-            enterFault(FaultReason::RmsOvervoltage, nowMs);
-            return buildOutput(State::Fault, 0);
-        }
-        if ((currentState == State::CoarseCooldown ||
-             currentState == State::FineCooldown) && stalled) {
-            enterFault(FaultReason::TemperatureStall, nowMs);
-            return buildOutput(State::Fault, 0);
-        }
+            faultReason = FaultReason::RmsOvervoltage;
+            Serial.printf("Fault: RMS voltage exceeded safe limit\n");
+            fsm->trigger(EVT_FAULT_RMS);
 
-        // Back-EMF overstroke: increment backoff counter and apply DAC
-        // reduction.  After BACKOFF_MAX_COUNT events the system faults.
-        if (overstroke && running) {
+        } else if ((currentState == State::CoarseCooldown ||
+                    currentState == State::FineCooldown) && stalled) {
+            faultReason = FaultReason::TemperatureStall;
+            Serial.printf("Fault: Temperature stalled during cooldown\n");
+            fsm->trigger(EVT_FAULT_STALL);
+
+        } else if (overstroke && running) {
             ++backoffCount;
-            // Accumulate DAC reduction; cap at full-scale to stay in uint16_t.
-            const uint32_t newOffset = static_cast<uint32_t>(backoffDacOffset)
-                                       + static_cast<uint32_t>(BACKOFF_DAC_STEP);
-            backoffDacOffset = (newOffset > MCP4921_MAX_VALUE)
-                                    ? static_cast<uint16_t>(MCP4921_MAX_VALUE)
-                                    : static_cast<uint16_t>(newOffset);
+            const uint32_t newOffset =
+                static_cast<uint32_t>(backoffDacOffset) +
+                static_cast<uint32_t>(BACKOFF_DAC_STEP);
+            backoffDacOffset = (newOffset > static_cast<uint32_t>(MCP4921_MAX_VALUE))
+                                   ? static_cast<uint16_t>(MCP4921_MAX_VALUE)
+                                   : static_cast<uint16_t>(newOffset);
             if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
-                enterFault(FaultReason::TooManyBackoffs, nowMs);
-                return buildOutput(State::Fault, 0);
+                faultReason = FaultReason::TooManyBackoffs;
+                Serial.printf("Fault: Too many back-EMF stroke events; output backed off\n");
+                fsm->trigger(EVT_FAULT_BACKOFFS);
             }
         }
     }
 
     // ------------------------------------------------------------------
-    // Per-state transition logic
-    // Each branch MUST return the new state's buildOutput after calling
-    // enterState() so the caller always sees the current state.
+    // 2. Per-state conditional and timed transitions
+    //    Skipped if this tick already transitioned to Fault above.
     // ------------------------------------------------------------------
-    const uint32_t elapsed = nowMs - currentStateEntryMs;
+    if (currentState != State::Fault) {
+        const uint32_t elapsed = nowMs - currentStateEntryMs;
 
-    switch (currentState) {
+        switch (currentState) {
 
-        // ---- Off -------------------------------------------------------
-        case State::Off:
-            if (offStateMs == 0) {
-            offStateMs = nowMs;
-            }
-            return buildOutput(State::Off, 0);
+            case State::Initialize:
+                if (elapsed >= INDICATOR_INIT_AMBER_MS) {
+                    Serial.printf("Triggering EVT_INIT_DONE\n");
+                    fsm->trigger(EVT_INIT_DONE);
+                }
+                break;
 
-        // ---- Initialize ------------------------------------------------
-        case State::Initialize:
-            if (onStateMs == 0) {
-                onStateMs = nowMs;
-                offStateMs = 0;
-            }
-            if (elapsed >= INDICATOR_INIT_AMBER_MS) {
-                enterState(State::Idle, nowMs);
-                return buildOutput(State::Idle, 0);
-            }
-            return buildOutput(State::Initialize, 0);
+            case State::CoarseCooldown:
+                if (tempK < COARSE_FINE_THRESHOLD_K) {
+                    Serial.printf("Triggering EVT_BELOW_COARSE\n");
+                    fsm->trigger(EVT_BELOW_COARSE);
+                }
+                break;
 
-        // ---- Idle ------------------------------------------------------
-        case State::Idle:
-            if (offStateMs == 0) {
-                offStateMs = nowMs;
-            }
-            // Remain in Idle until start() is called externally.
-            return buildOutput(State::Idle, 0);
+            case State::FineCooldown:
+                if (tempK > COARSE_FINE_THRESHOLD_K) {
+                    Serial.printf("Triggering EVT_ABOVE_COARSE\n");
+                    fsm->trigger(EVT_ABOVE_COARSE);
+                }
+                else if (overshot(tempK)) {
+                    Serial.printf("Triggering EVT_OVERSHOT\n");
+                    fsm->trigger(EVT_OVERSHOT);
+                }
+                else if (inBand(tempK)) {
+                    Serial.printf("Triggering EVT_IN_BAND\n");
+                    fsm->trigger(EVT_IN_BAND);
+                }
+                break;
 
-        // ---- Coarse Cooldown -------------------------------------------
-        case State::CoarseCooldown: {
-            const uint16_t target = cooldownDacTarget(tempK, coolingRate);
-            if (tempK < COARSE_FINE_THRESHOLD_K) {
-                enterState(State::FineCooldown, nowMs);
-                return buildOutput(State::FineCooldown, target);
-            }
-            return buildOutput(State::CoarseCooldown, target);
-        }
+            case State::Overshoot:
+                if (inBand(tempK)) {
+                    Serial.printf("Triggering EVT_IN_BAND\n");
+                    fsm->trigger(EVT_IN_BAND);
+                }
+                break;
 
-        // ---- Fine Cooldown ---------------------------------------------
-        case State::FineCooldown: {
-            // Temperature bounced back above threshold: return to Coarse
-            if (tempK > COARSE_FINE_THRESHOLD_K) {
-                const uint16_t target = cooldownDacTarget(tempK, coolingRate);
-                enterState(State::CoarseCooldown, nowMs);
-                return buildOutput(State::CoarseCooldown, target);
-            }
-
-            // Clear overshoot: below the tolerance band
-            if (overshot(tempK)) {
-                enterState(State::Overshoot, nowMs);
-                return buildOutput(State::Overshoot, 0);
-            }
-
-            // Reached setpoint band without overshoot: skip Overshoot, go to Settle
-            if (inBand(tempK)) {
-                enterState(State::Settle, nowMs);
-                return buildOutput(State::Settle, 0);
-            }
-
-            const uint16_t target = cooldownDacTarget(tempK, coolingRate);
-            return buildOutput(State::FineCooldown, target);
-        }
-
-        // ---- Overshoot -------------------------------------------------
-        case State::Overshoot:
-            // DAC stays at 0; wait for temperature to rise back into band
-            if (inBand(tempK)) {
-                enterState(State::Settle, nowMs);
-                return buildOutput(State::Settle, 0);
-            }
-            return buildOutput(State::Overshoot, 0);
-
-        // ---- Settle ----------------------------------------------------
-        case State::Settle: {
-            const bool stable = inBand(tempK);
-
-            if (!stable) {
-                // Drifted out of band -- reset timer
-                settleTimerActive = false;
-                settleStartMs     = 0;
-            } else {
-                if (!settleTimerActive) {
+            case State::Settle:
+                if (!inBand(tempK)) {
+                    // Drifted out of band — reset the settle timer.
+                    settleTimerActive = false;
+                    settleStartMs     = 0;
+                } else if (!settleTimerActive) {
                     settleTimerActive = true;
                     settleStartMs     = nowMs;
                 } else if ((nowMs - settleStartMs) >= SETTLE_DURATION_MS) {
-                    enterState(State::Baseline, nowMs);
-                    return buildOutput(State::Baseline, 0);
+                    Serial.printf("Triggering EVT_SETTLE_DONE\n");
+                    fsm->trigger(EVT_SETTLE_DONE);
                 }
-            }
-            return buildOutput(State::Settle, 0);
+                break;
+
+            case State::Baseline:
+                if (elapsed >= BASELINE_DURATION_MS) {
+                    Serial.printf("Triggering EVT_BASELINE_DONE\n");
+                    fsm->trigger(EVT_BASELINE_DONE);
+                }
+                break;
+
+            case State::Shutdown:
+                if (elapsed >= SHUTDOWN_DURATION_MS) {
+                    Serial.printf("Triggering EVT_SHUTDOWN_DONE\n");
+                    fsm->trigger(EVT_SHUTDOWN_DONE);
+                }
+                break;
+
+            default:
+                break;
         }
-
-        // ---- Baseline --------------------------------------------------
-        case State::Baseline:
-            if (elapsed >= BASELINE_DURATION_MS) {
-                enterState(State::Operating, nowMs);
-                return buildOutput(State::Operating, 0);
-            }
-            return buildOutput(State::Baseline, 0);
-
-        // ---- Operating -------------------------------------------------
-        case State::Operating:
-            return buildOutput(State::Operating, 0);
-
-        // ---- Shutdown --------------------------------------------------
-        case State::Shutdown:
-            // DAC target is 0; rampToward() in main.cpp gradually reduces
-            // the output over time using the configured ramp rate, preventing
-            // abrupt motor stress or voltage spikes.
-            if (elapsed >= SHUTDOWN_DURATION_MS) {
-                enterState(State::Idle, nowMs);
-                return buildOutput(State::Idle, 0);
-            }
-            return buildOutput(State::Shutdown, 0);
-
-        // ---- Fault (terminal) ------------------------------------------
-        case State::Fault:
-            if (offStateMs == 0) {
-                offStateMs = nowMs;
-            }
-            return buildOutput(State::Fault, 0);
     }
 
-    // Unreachable -- satisfy the compiler
-    return buildOutput(State::Fault, 0);
+    // ------------------------------------------------------------------
+    // 3. Advance the FSM (fires on_state callbacks; on_state is null for
+    //    all states so this is primarily here to satisfy the library contract
+    //    and to keep m_initialized consistent).
+    // ------------------------------------------------------------------
+    fsm->run_machine();
+
+    // ------------------------------------------------------------------
+    // 4. Compute DAC target and assemble output
+    // ------------------------------------------------------------------
+    uint16_t dacTarget = 0;
+    if (currentState == State::CoarseCooldown ||
+        currentState == State::FineCooldown) {
+        dacTarget = cooldownDacTarget(tempK, coolingRate);
+    }
+    return buildOutput(currentState, dacTarget);
 }
 
 State getState() {
@@ -411,86 +553,70 @@ bool isRunning() {
     return running;
 }
 
-uint32_t getOnStateDuration(){
-    // If its not currently on, then return falsey
+uint32_t getOnStateDuration() {
     if (onStateMs == 0) return 0;
-
-    // If its currently off (determined by if it has a stop time), then return
-    // the difference between the stop time and the start time
     if (offStateMs != 0) return offStateMs - onStateMs;
-
-    // No off state ms means its currently running. So get the time since it started.
     return millis() - onStateMs;
 }
 
 void start(uint32_t nowMs, float tempK) {
-    if (running == true) return;
+    Serial.printf("start() tempK=%.2f\n", tempK);
+    if (running) return;
     running          = true;
+    sNowMs           = nowMs;
     onStateMs        = nowMs;
     offStateMs       = 0;
     faultReason      = FaultReason::None;
     backoffCount     = 0;
     backoffDacOffset = 0;
-    ESP_LOGD(TAG, "Starting state machine (tempK = %.2f)", tempK);
-    // Select the resumption state based on current cold-stage temperature.
-    // This lets the system pick up where it left off after a reboot without
-    // entering a cooldown state that would trigger a spurious stall fault.
+
+    ESP_LOGD(TAG, "start() tempK=%.2f", tempK);
+
+    // Select the resumption state based on the current cold-stage temperature
+    // so the system can resume correctly after a reboot.
     if (tempK >= COARSE_FINE_THRESHOLD_K) {
-        // Warm start (or unknown temp): begin full cooldown sequence.
-        enterState(State::CoarseCooldown, nowMs);
+        fsm->trigger(EVT_START_COARSE);
     } else if (overshot(tempK)) {
-        // Below the setpoint tolerance band — DAC held at 0, wait to rise.
-        enterState(State::Overshoot, nowMs);
+        Serial.printf("Triggering EVT_START_OVERSHOOT\n");
+        fsm->trigger(EVT_START_OVERSHOOT);
     } else if (inBand(tempK)) {
-        // Already within the setpoint band — skip cooldown, settle timer starts.
-        enterState(State::Settle, nowMs);
+        Serial.printf("Triggering EVT_START_SETTLE\n");
+        fsm->trigger(EVT_START_SETTLE);
     } else {
-        // Below the coarse/fine threshold but above the setpoint band.
-        enterState(State::FineCooldown, nowMs);
+        Serial.printf("Triggering EVT_START_FINE\n");
+        fsm->trigger(EVT_START_FINE);
     }
 }
 
 void stop(uint32_t nowMs) {
-    if (running == false) return;
-    running     = false;
+    Serial.printf("stop()\n");
+    if (!running) return;
+    running = false;
+    sNowMs  = nowMs;
     if (offStateMs == 0) offStateMs = nowMs;
-    faultReason = FaultReason::None;
-    ESP_LOGD(TAG, "Stopping state machine");
-    enterState(State::Shutdown, nowMs);
+    ESP_LOGD(TAG, "stop()");
+    Serial.printf("Triggering EVT_STOP\n");
+    fsm->trigger(EVT_STOP);
 }
 
 void off(uint32_t nowMs) {
+    Serial.printf("off()\n");
     if (currentState == State::Off) return;
+    sNowMs      = nowMs;
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
-    ESP_LOGD(TAG, "Turning off state machine");
-    enterState(State::Off, nowMs);
+    ESP_LOGD(TAG, "off()");
+    Serial.printf("Triggering EVT_POWER_OFF\n");
+    fsm->trigger(EVT_POWER_OFF);
 }
 
 FaultReason getFaultReason() {
     return faultReason;
 }
 
-const char* stateName(State s) {
-    switch (s) {
-        case State::Off:            return "Off";
-        case State::Initialize:     return "Initialize";
-        case State::Idle:           return "Idle";
-        case State::CoarseCooldown: return "CoarseCooldown";
-        case State::FineCooldown:   return "FineCooldown";
-        case State::Overshoot:      return "Overshoot";
-        case State::Settle:         return "Settle";
-        case State::Baseline:       return "Baseline";
-        case State::Operating:      return "Operating";
-        case State::Shutdown:       return "Shutdown";
-        case State::Fault:          return "Fault";
-    }
-    return "Unknown";
-}
-
-const char* getStatusText(){
-    return statusTextForState(getState());
+const char* getStatusText() {
+    return statusTextForState(currentState);
 }
 
 uint32_t getTimeInState() {

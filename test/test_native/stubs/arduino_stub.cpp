@@ -52,3 +52,6 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 
 // Global SPI instance
 SPIClass SPI;
+
+// Global Serial stub instance
+SerialStub Serial;

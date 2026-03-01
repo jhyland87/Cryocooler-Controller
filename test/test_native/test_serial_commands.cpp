@@ -14,6 +14,7 @@
 #include "state_machine.h"
 #include "telemetry.h"
 #include "cooling.h"
+#include "config.h"
 
 extern "C" void stub_setMillis(uint32_t ms);
 
@@ -84,10 +85,16 @@ void test_sc_start_from_off_succeeds() {
 
 void test_sc_start_from_idle_succeeds() {
     resetAll();
-    state_machine::start(100);    // CoarseCooldown
-    state_machine::stop(200);     // → Idle
+    state_machine::start(100);    // → CoarseCooldown
+    state_machine::stop(200);     // → Shutdown (not Idle directly)
+    // Advance through the Shutdown duration so the state machine reaches Idle.
+    const uint32_t tIdle = 200 + SHUTDOWN_DURATION_MS;
+    stub_setMillis(tIdle);
+    state_machine::update(295.0f, 0.0f, 0.0f, false, tIdle);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(state_machine::getState()));
     Print p;
-    stub_setMillis(300);
+    stub_setMillis(tIdle + 100);
     serial_commands::processLine("start", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
@@ -117,7 +124,8 @@ void test_sc_stop_when_running_succeeds() {
     serial_commands::processLine("stop", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_FALSE(state_machine::isRunning());
-    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+    // stop() enters Shutdown first; Idle is only reached after SHUTDOWN_DURATION_MS.
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
                       static_cast<int8_t>(state_machine::getState()));
 }
 

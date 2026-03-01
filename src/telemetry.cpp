@@ -64,6 +64,7 @@ static constexpr uint8_t kPassiveFieldCount =
 // Enable / disable
 // ---------------------------------------------------------------------------
 
+
 void disable()        { enabled      = false; }
 void enable()         { enabled      = true;  }
 bool isEnabled()      { return enabled;        }
@@ -227,11 +228,13 @@ static void buildStartupFrame(FrameBuilder& frame)
     if (sysinfoReady) {
         frame
             .field("system.voltage_v",     "%.2f", sysinfo::getVoltage())
-            .field("system.voltage_raw_v", "%.2f", sysinfo::getVoltageRaw());
+            .field("system.current_a",    "%.2f", sysinfo::getCurrent())
+            .field("system.power_w",      "%.2f", sysinfo::getPower());
     } else {
         frame
             .field("system.voltage_v",     "%s", "")
-            .field("system.voltage_raw_v", "%s", "");
+            .field("system.current_a",    "%s", "")
+            .field("system.power_w",      "%s", "");
     }
 
     // ── Waveform ──────────────────────────────────────────────────────────
@@ -429,7 +432,8 @@ void emit(const state_machine::Output& out)
         .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
         .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
-        .field("system.voltage_raw_v",              "%.2f", sysinfo::getVoltageRaw())
+        .field("system.current_a",                  "%.2f", sysinfo::getCurrent())
+        .field("system.power_w",                    "%.2f", sysinfo::getPower())
         .field("waveform.status",                   "%u",   waveform::getStatus())
         .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
         .field("accelerometer.roll_deg",            "%.2f", accelerometer::getRoll())

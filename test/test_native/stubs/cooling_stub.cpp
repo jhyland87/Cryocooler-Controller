@@ -15,8 +15,8 @@ namespace cooling {
 static uint8_t sLastFanSpeed = 0;
 static bool    sEnabled      = false;
 
-module::InitStatus init()  { return module::MODULE_INIT_SUCCESS; }
-void service()             {}
+module::InitStatus    init()    { return module::MODULE_INIT_SUCCESS; }
+module::ServiceStatus service() { return module::MODULE_SERVICE_OK; }
 
 void    enable()           { sEnabled = true; }
 void    disable()          { sEnabled = false; sLastFanSpeed = 0; }
@@ -28,7 +28,8 @@ float   getCoolantTemperature()  { return 0.0f; }
 float   getCoolantFlowRate()     { return 0.0f; }
 uint8_t getFanSpeed()            { return sLastFanSpeed; }
 
-void setFanSpeed(uint8_t percentage) {
+void setFanSpeed(uint8_t percentage, bool force) {
+    (void)force;
     sLastFanSpeed = percentage;
 }
 

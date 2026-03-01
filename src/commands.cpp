@@ -33,9 +33,12 @@ namespace commands {
 
 // ─── Line buffer (serial accumulator) ────────────────────────────────────────
 
-static constexpr uint8_t kMaxLineLen = 80;
-static char    lineBuf[kMaxLineLen + 1];
-static uint8_t lineLen = 0;
+static constexpr uint8_t  kMaxLineLen       = 80;
+static constexpr uint32_t kCommandTimeoutMs = 100;  ///< dispatch after this many ms with no new byte
+
+static char     lineBuf[kMaxLineLen + 1];
+static uint8_t  lineLen    = 0;
+static uint32_t lastCharMs = 0;  ///< millis() of the most recently buffered printable byte
 
 // ─── Command handler type and dispatch table ──────────────────────────────────
 
@@ -97,11 +100,19 @@ static void handleStatus(const char* /*args*/, Print& out) {
 
 static void handleTelemetryOff(const char* /*args*/, Print& out) {
     telemetry::disable();
+#ifdef ARDUINO
+    // Also silence the TCP dashboard stream — both transports carry telemetry.
+    // Use `dashboard on` to re-enable the TCP stream independently if needed.
+    dashboard::disable();
+#endif
     out.println("[OK] Telemetry disabled");
 }
 
 static void handleTelemetryOn(const char* /*args*/, Print& out) {
     telemetry::enable();
+#ifdef ARDUINO
+    dashboard::enable();
+#endif
     out.println("[OK] Telemetry enabled");
 }
 
@@ -351,17 +362,30 @@ module::ServiceStatus service() {
 #ifdef ARDUINO
     while (Serial.available()) {
         const char c = static_cast<char>(Serial.read());
-        if (c == '\r') continue;
-        if (c == '\n') {
-            lineBuf[lineLen] = '\0';
+        if (c == '\r' || c == '\n') {
+            // Accept \r, \n, and \r\n line endings.
+            // For \r\n: \r processes the line; the following \n sees an empty
+            // buffer (lineLen == 0) and is a no-op — no double dispatch.
             if (lineLen > 0) {
+                lineBuf[lineLen] = '\0';
                 processLine(lineBuf, Serial);
+                lineLen = 0;
             }
-            lineLen = 0;
         } else if (lineLen < kMaxLineLen) {
             lineBuf[lineLen++] = c;
+            lastCharMs = millis();
         }
         // Characters beyond kMaxLineLen are silently dropped until next newline.
+    }
+
+    // Timeout-based dispatch: if bytes accumulated but no line terminator
+    // arrived within kCommandTimeoutMs, treat the buffer as a complete command.
+    // Handles monitors / tools (e.g. PlatformIO IDE with "None" EOL) that send
+    // the full string as one USB-CDC packet without appending \r or \n.
+    if (lineLen > 0 && (millis() - lastCharMs) >= kCommandTimeoutMs) {
+        lineBuf[lineLen] = '\0';
+        processLine(lineBuf, Serial);
+        lineLen = 0;
     }
 #endif
     return module::MODULE_SERVICE_OK;
