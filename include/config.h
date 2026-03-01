@@ -99,6 +99,17 @@
 #define RMS_MAX_VOLTAGE_VDC  120.0f
 
 // =============================================================================
+// System Voltage Safety
+// =============================================================================
+
+// Minimum allowable DC system supply voltage (V).
+// Dropping below this threshold from any state immediately transitions the
+// system to Fault (LowSystemVoltage).  Pass 0.0f to update() when no
+// measurement is available — a value of 0.0f is treated as "not monitored"
+// and will never trigger this fault.
+#define MIN_SYSTEM_VOLTAGE_VDC  11.5f
+
+// =============================================================================
 // Temperature Thresholds (Kelvin)
 // =============================================================================
 
@@ -267,5 +278,15 @@
 // this value then just turn off the cooling fans and pump.
 // This is the temp of the coolant
 #define COOLING_OFF_BELOW_COOLANT_TEMP 30.0f
+
+// =============================================================================
+// Telemetry related config
+// =============================================================================
+
+#define TELEMETRY_ENABLED true
+
+// If the telemetry is enabled, emit the telemetry when the cryocooler is in an IDLE state.
+// (TELEMETRY_ENABLED must be true for this to work)
+#define EMIT_TELEMETRY_WHEN_IDLE true
 
 #endif // CONFIG_H

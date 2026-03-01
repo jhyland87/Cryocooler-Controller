@@ -965,6 +965,183 @@ void test_delay_from_fault_is_ignored(void) {
 }
 
 // ---------------------------------------------------------------------------
+// Fault: low system voltage — triggers from any non-Fault state
+// ---------------------------------------------------------------------------
+
+void test_low_voltage_from_off_triggers_fault(void) {
+    // Even in the Off state a low-voltage reading must immediately fault.
+    state_machine::init(0);
+    auto out = state_machine::update(295.0f, 0.0f, 0.0f, false, 1,
+                                     false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_TRUE(out.alarmRelay);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::LowSystemVoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_low_voltage_from_idle_triggers_fault(void) {
+    const uint32_t tIdle = initStartAndStop();
+    auto out = state_machine::update(295.0f, 0.0f, 0.0f, false, tIdle + 1,
+                                     false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::LowSystemVoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_low_voltage_from_coarse_triggers_fault(void) {
+    const uint32_t tStart = initAndStart();
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1,
+                                     false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_TRUE(out.alarmRelay);
+    TEST_ASSERT_EQUAL_UINT16(0, out.dacTarget);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::LowSystemVoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_low_voltage_from_delay_triggers_fault(void) {
+    const uint32_t t0 = 1000;
+    state_machine::init(t0);
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 1,
+                                     false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::LowSystemVoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_low_voltage_zero_does_not_trigger_fault(void) {
+    // 0.0f is the "not monitored" sentinel — must never trigger LowSystemVoltage.
+    const uint32_t tStart = initAndStart();
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1,
+                                     false, 0.0f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+void test_low_voltage_exactly_at_minimum_does_not_trigger_fault(void) {
+    // Exactly at the threshold is OK — only *below* the threshold faults.
+    const uint32_t tStart = initAndStart();
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1,
+                                     false, static_cast<float>(MIN_SYSTEM_VOLTAGE_VDC));
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_FALSE(out.alarmRelay);
+}
+
+void test_low_voltage_fault_status_text(void) {
+    const uint32_t tStart = initAndStart();
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1,
+                                     false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_NOT_NULL(out.statusText);
+    TEST_ASSERT_NOT_NULL(strstr(out.statusText, "Fault:"));
+    TEST_ASSERT_NOT_NULL(strstr(out.statusText, "voltage"));
+}
+
+// ---------------------------------------------------------------------------
+// clearFault(): exits Fault → Idle, resets fault reason and backoff state
+// ---------------------------------------------------------------------------
+
+void test_clear_fault_transitions_to_idle(void) {
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    state_machine::clearFault(tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(state_machine::getState()));
+}
+
+void test_clear_fault_resets_fault_reason(void) {
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::RmsOvervoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+
+    state_machine::clearFault(tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::None),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_clear_fault_resets_backoff_state(void) {
+    // Accumulate backoffs up to (MAX - 1), trigger a fault via RMS, then clear.
+    // After clear the backoff count reported by the next update() must be 0.
+    const uint32_t tStart = initAndStart();
+    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT - 1u; ++i) {
+        state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1u + i, true);
+    }
+    // Now trigger fault via RMS.
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 100u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    state_machine::clearFault(tStart + 101u);
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 102u);
+    // backoffCount in Output must have been reset to 0 by onExitFault().
+    TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+}
+
+void test_clear_fault_leaves_running_false(void) {
+    // After clearFault() the operator must call start() explicitly; the machine
+    // must not resume automatically.
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    state_machine::clearFault(tStart + 2u);
+    TEST_ASSERT_FALSE(state_machine::isRunning());
+}
+
+void test_clear_fault_ignored_when_not_in_fault(void) {
+    // clearFault() must be a no-op when the machine is not in State::Fault.
+    const uint32_t tStart = initAndStart();
+    state_machine::clearFault(tStart + 1u);
+    // Still in CoarseCooldown — the call must have had no effect.
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+}
+
+void test_clear_fault_then_start_resumes_cooldown(void) {
+    // After clearFault() → Idle, calling start() must resume the process.
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, RMS_MAX_VOLTAGE_VDC + 1.0f,
+                           false, tStart + 1u);
+    state_machine::clearFault(tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(state_machine::getState()));
+
+    state_machine::start(tStart + 3u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_TRUE(state_machine::isRunning());
+}
+
+void test_clear_low_voltage_fault_transitions_to_idle(void) {
+    // LowSystemVoltage fault can also be cleared with clearFault().
+    const uint32_t tStart = initAndStart();
+    state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1u,
+                           false, MIN_SYSTEM_VOLTAGE_VDC - 0.1f);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::LowSystemVoltage),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+
+    state_machine::clearFault(tStart + 2u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(state_machine::getState()));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::None),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -1012,6 +1189,24 @@ int main(int argc, char **argv) {
     RUN_TEST(test_stall_in_coarse_triggers_fault);
     RUN_TEST(test_stall_in_idle_does_not_trigger_fault);
     RUN_TEST(test_fault_stays_in_fault);
+
+    // Fault: low system voltage
+    RUN_TEST(test_low_voltage_from_off_triggers_fault);
+    RUN_TEST(test_low_voltage_from_idle_triggers_fault);
+    RUN_TEST(test_low_voltage_from_coarse_triggers_fault);
+    RUN_TEST(test_low_voltage_from_delay_triggers_fault);
+    RUN_TEST(test_low_voltage_zero_does_not_trigger_fault);
+    RUN_TEST(test_low_voltage_exactly_at_minimum_does_not_trigger_fault);
+    RUN_TEST(test_low_voltage_fault_status_text);
+
+    // clearFault()
+    RUN_TEST(test_clear_fault_transitions_to_idle);
+    RUN_TEST(test_clear_fault_resets_fault_reason);
+    RUN_TEST(test_clear_fault_resets_backoff_state);
+    RUN_TEST(test_clear_fault_leaves_running_false);
+    RUN_TEST(test_clear_fault_ignored_when_not_in_fault);
+    RUN_TEST(test_clear_fault_then_start_resumes_cooldown);
+    RUN_TEST(test_clear_low_voltage_fault_transitions_to_idle);
 
     // Relay
     RUN_TEST(test_coarse_uses_bypass_relay);

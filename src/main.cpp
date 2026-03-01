@@ -320,9 +320,11 @@ void loop() {
     const bool  stalled     = cold_head::isStalled();
     const float rmsV        = rms::getVoltage();
     const bool  overstroke  = rms::hasOverstroke();
+    const float sysVoltage  = mockActive ? sensor_mock::get().voltageV
+                                         : sysinfo::getVoltage();
 
     // ---- 2. Advance state machine ---------------------------------------
-    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke);
+    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
     // Clear edge-triggered overstroke flag after the state machine has consumed
     // it.  In real mode the flag was set by readCurrent(); in mock mode it was
     // set by setLastReadings().  Either way, clear it so it fires only once.

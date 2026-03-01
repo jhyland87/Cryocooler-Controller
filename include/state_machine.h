@@ -15,7 +15,7 @@
  *    7 Operating      - Normal run: READY ON GREEN
  *    8 Shutdown       - Graceful stop: ramp DAC to 0 over ~5 seconds, then → Idle
  *    9 Delay          - Timed wait: hold for N ms, then advance to configured next state
- *  127 Fault          - Any fault condition: FAULT ON RED, alarm relay active (terminal state)
+ *  127 Fault          - Any fault condition: FAULT flash fast RED, alarm relay active (terminal state)
  *
  * Transition inputs on every update() call:
  *   - tempK          : current cold-stage temperature in Kelvin
@@ -87,6 +87,7 @@ enum class FaultReason : uint8_t {
     RmsOvervoltage    = 1,
     TemperatureStall  = 2,
     TooManyBackoffs   = 3,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
+    LowSystemVoltage  = 4,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
 };
 
 /** Aggregate output produced by update() each loop. */
@@ -118,24 +119,30 @@ uint32_t getOnStateDuration();
 /**
  * Advance the state machine by one tick.
  *
- * @param tempK        Current cold-stage temperature in Kelvin
- * @param coolingRate  Measured cooling rate in K/min (positive = cooling)
- * @param rmsVoltage   Measured RMS voltage in VDC (stub returns 0)
- * @param stalled      True when stall-detection window has expired without a
- *                     sufficient temperature drop
- * @param nowMs        Current millis()
- * @param overstroke   True when the ACS712 detected a back-EMF current spike
- *                     this tick.  Triggers a DAC backoff and increments the
- *                     backoff counter in the returned Output.  Defaults to
- *                     false for backward compatibility.
- * @return             Output struct with all actuator targets for this tick
+ * @param tempK         Current cold-stage temperature in Kelvin
+ * @param coolingRate   Measured cooling rate in K/min (positive = cooling)
+ * @param rmsVoltage    Measured RMS voltage in VDC (stub returns 0)
+ * @param stalled       True when stall-detection window has expired without a
+ *                      sufficient temperature drop
+ * @param nowMs         Current millis()
+ * @param overstroke    True when the ACS712 detected a back-EMF current spike
+ *                      this tick.  Triggers a DAC backoff and increments the
+ *                      backoff counter in the returned Output.  Defaults to
+ *                      false for backward compatibility.
+ * @param systemVoltage DC supply voltage in volts.  Pass 0.0f (default) when
+ *                      no measurement is available — 0.0f is treated as "not
+ *                      monitored" and never triggers the LowSystemVoltage fault.
+ *                      Any positive value below MIN_SYSTEM_VOLTAGE_VDC
+ *                      immediately transitions to Fault from any state.
+ * @return              Output struct with all actuator targets for this tick
  */
 Output update(float    tempK,
               float    coolingRate,
               float    rmsVoltage,
               bool     stalled,
               uint32_t nowMs,
-              bool     overstroke = false);
+              bool     overstroke    = false,
+              float    systemVoltage = 0.0f);
 
 
 /** Return the current state without advancing the machine. */
@@ -166,14 +173,28 @@ bool isRunning();
 void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
 
 /**
- * Stop the cooldown process and return to Idle.
+ * Stop the cooldown process and return to Idle via the Shutdown ramp.
  * DAC target drops to 0, relay returns to Bypass.
- * Has no effect during Initialize.  When called from Fault the machine
- * is reset to Idle (fault is cleared).
+ * Has no effect during Initialize or when the machine is not running.
  *
  * @param nowMs  Current millis()
  */
 void stop(uint32_t nowMs);
+
+/**
+ * Clear an active fault and return the machine to Idle.
+ *
+ * This is the only path out of State::Fault (other than off()).
+ * On exit from Fault the following actions are taken:
+ *   - faultReason is reset to FaultReason::None
+ *   - backoff counter and DAC offset are reset to zero
+ *   - running flag is left false (operator must call start() to resume)
+ *
+ * Has no effect when the machine is not in State::Fault.
+ *
+ * @param nowMs  Current millis()
+ */
+void clearFault(uint32_t nowMs);
 
 /**
  * Enter the generic Delay state for a fixed duration, then advance to

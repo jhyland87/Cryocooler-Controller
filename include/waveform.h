@@ -26,15 +26,27 @@ module::InitStatus init();
  */
 module::ServiceStatus service();
 
-int16_t getStatus();
-
 float getFrequency();
+
+void enable();
+
+void disable();
+
+bool isEnabled();
+
+mode_t getWaveformMode();
+
+float getRMSVoltage();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
     static module::InitStatus    init()    { return _initStatus    = waveform::init(); }
     static module::ServiceStatus service() { return _serviceStatus = waveform::service(); }
+    static void enable()                   { waveform::enable(); }
+    static void disable()                  { waveform::disable(); }
+    static bool isEnabled()                { return waveform::isEnabled(); }
+
 };
 
 ASSERT_MODULE_INTERFACE(Module);

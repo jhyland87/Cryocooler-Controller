@@ -240,7 +240,7 @@ static void buildStartupFrame(FrameBuilder& frame)
     // ── Waveform ──────────────────────────────────────────────────────────
     if (waveformReady) {
         frame
-            .field("waveform.status",       "%u",   waveform::getStatus())
+            .field("waveform.status",       "%u",   waveform::isEnabled())
             .field("waveform.frequency_hz", "%.2f", waveform::getFrequency());
     } else {
         frame
@@ -434,7 +434,7 @@ void emit(const state_machine::Output& out)
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
         .field("system.current_a",                  "%.2f", sysinfo::getCurrent())
         .field("system.power_w",                    "%.2f", sysinfo::getPower())
-        .field("waveform.status",                   "%u",   waveform::getStatus())
+        .field("waveform.status",                   "%u",   waveform::isEnabled())
         .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
         .field("accelerometer.roll_deg",            "%.2f", accelerometer::getRoll())
         .field("accelerometer.pitch_deg",           "%.2f", accelerometer::getPitch())

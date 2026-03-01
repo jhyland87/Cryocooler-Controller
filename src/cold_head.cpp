@@ -16,6 +16,7 @@
 #include "conversions.h"
 #include "module.h"
 #include "accelerometer.h"
+#include "sensor_mock.h"
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -41,9 +42,9 @@ static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 // Mock injection state — set by setLastReadings(), cleared by read().
 // When active, getCoolingRateKPerMin() and isStalled() return these values
 // directly instead of computing from the ring buffer.
-static bool  sMockInjected    = false;
-static float sMockCoolingRate = 0.0f;
-static bool  sMockStalled     = false;
+static bool  mockInjected    = false;
+static float mockCoolingRate = 0.0f;
+static bool  mockStalled     = false;
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -85,12 +86,12 @@ static const TempSample& sampleAt(uint8_t i) {
 namespace cold_head {
 
 module::InitStatus init() {
-    if (!checkDependencies()) {
+    if (!checkDependencies() && !sensor_mock::isActive()) {
         initStatus = module::MODULE_INIT_DEPENDENCY_ERROR;
         return initStatus;
     }
 
-    if (!max31865.begin(RTD_WIRE_CONFIG)) {
+    if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
         Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
         initStatus = module::MODULE_INIT_HARDWARE_ERROR;
@@ -114,7 +115,7 @@ module::InitStatus init() {
 }
 
 void read(uint32_t nowMs) {
-    sMockInjected = false;   // real read supersedes any prior mock injection
+    mockInjected = false;   // real read supersedes any prior mock injection
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
@@ -148,9 +149,9 @@ void setLastReadings(uint32_t nowMs, float tempK,
                      float coolingRateKPerMin, bool stalled) {
     lastTempK         = tempK;
     lastTempC         = tempK - 273.15f;
-    sMockCoolingRate  = coolingRateKPerMin;
-    sMockStalled      = stalled;
-    sMockInjected     = true;
+    mockCoolingRate   = coolingRateKPerMin;
+    mockStalled       = stalled;
+    mockInjected      = true;
     // Push a timestamped sample so the ring buffer stays current;
     // this lets real stall / rate code pick up correctly if mock is disabled.
     pushSample(nowMs, tempK, lastAmbientTempC);
@@ -165,7 +166,7 @@ void setLastReadings(uint32_t nowMs, float tempK,
 // }
 
 bool checkDependencies() {
-    if (!accelerometer::isInitialized()) {
+    if (!accelerometer::isInitialized() && !sensor_mock::isActive()) {
         Serial.println(F("[cold_head] Dependency check failed - Accelerometer not initialized!"));
         return false;
     }
@@ -205,7 +206,7 @@ float getLastTempCBelowAmbient() {
 }
 
 float getCoolingRateKPerMin() {
-    if (sMockInjected) return sMockCoolingRate;
+    if (mockInjected) return mockCoolingRate;
     // Return the running average of ring-buffer cooling rates for a smooth
     // readout.  Falls back to 0 until the first value has been added.
     if (coolingRateAvg.getCount() == 0) return 0.0f;
@@ -213,7 +214,7 @@ float getCoolingRateKPerMin() {
 }
 
 bool isStalled() {
-    if (sMockInjected) return sMockStalled;
+    if (mockInjected) return mockStalled;
     return false;
     if (count < 2) return false;
 

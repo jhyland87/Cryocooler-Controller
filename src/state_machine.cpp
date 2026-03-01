@@ -56,9 +56,13 @@ enum : int {
     EVT_SHUTDOWN_DONE   = 14,  ///< Shutdown → Idle      (shutdown timer expired)
 
     // Fault events
-    EVT_FAULT_RMS       = 15,  ///< RMS overvoltage from any non-Fault state
-    EVT_FAULT_STALL     = 16,  ///< Temperature stall in Coarse or Fine cooldown
-    EVT_FAULT_BACKOFFS  = 17,  ///< Too many back-EMF backoff events
+    EVT_FAULT_RMS         = 15,  ///< RMS overvoltage from any non-Fault state
+    EVT_FAULT_STALL       = 16,  ///< Temperature stall in Coarse or Fine cooldown
+    EVT_FAULT_BACKOFFS    = 17,  ///< Too many back-EMF backoff events
+    EVT_FAULT_LOW_VOLTAGE = 21,  ///< DC supply voltage below MIN_SYSTEM_VOLTAGE_VDC
+
+    // Fault-clear event
+    EVT_FAULT_CLEARED   = 22,  ///< clearFault() → Idle (resets fault reason & backoffs)
 
     // Delay state events
     EVT_ENTER_DELAY     = 18,  ///< Enter Delay state (fired by startDelay())
@@ -107,6 +111,7 @@ static void onEnterOperating();
 static void onEnterShutdown();
 static void onEnterDelay();
 static void onEnterFault();
+static void onExitFault();
 
 // ---------------------------------------------------------------------------
 // Library ::State objects
@@ -123,7 +128,7 @@ static ::State sFsmBaseline  (onEnterBaseline,        nullptr, nullptr);
 static ::State sFsmOperating (onEnterOperating,       nullptr, nullptr);
 static ::State sFsmShutdown  (onEnterShutdown,        nullptr, nullptr);
 static ::State sFsmDelay     (onEnterDelay,           nullptr, nullptr);
-static ::State sFsmFault     (onEnterFault,           nullptr, nullptr);
+static ::State sFsmFault     (onEnterFault,           nullptr, onExitFault);
 
 // Heap-allocated so it can be fully reset between test cases via init().
 static Fsm* fsm = nullptr;
@@ -167,6 +172,7 @@ static const char* statusTextForState(State s) {
             case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
             case FaultReason::TemperatureStall: return "Fault: Temperature stalled during cooldown";
             case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
+            case FaultReason::LowSystemVoltage: return "Fault: DC system voltage below minimum threshold";
             default:                            return "Fault: Unknown reason";
         }
     }
@@ -323,6 +329,21 @@ static void onEnterFault() {
     if (offStateMs == 0) offStateMs = sNowMs;
 }
 
+/**
+ * Called by the FSM whenever the machine leaves State::Fault.
+ * Resets all fault-related and backoff state so the system starts clean
+ * on the next start() call.
+ */
+static void onExitFault() {
+    Serial.printf("[SM] Fault cleared (was: %d); resetting backoff state\n",
+                  static_cast<int>(faultReason));
+    ESP_LOGD(TAG, "Fault cleared (reason %d); backoffCount=%u dacOffset=%u reset",
+             static_cast<int>(faultReason), backoffCount, backoffDacOffset);
+    faultReason      = FaultReason::None;
+    backoffCount     = 0;
+    backoffDacOffset = 0;
+}
+
 // ---------------------------------------------------------------------------
 // FSM construction — called once per init()
 // ---------------------------------------------------------------------------
@@ -380,6 +401,12 @@ static void buildFsm() {
         fsm->add_transition(from, &sFsmFault, EVT_FAULT_RMS, nullptr);
     }
 
+    // ── Fault: low system voltage from every non-Fault state ──────────────
+    // Mirrors EVT_FAULT_RMS — any state can immediately fault on low voltage.
+    for (auto* from : allNonFaultStates) {
+        fsm->add_transition(from, &sFsmFault, EVT_FAULT_LOW_VOLTAGE, nullptr);
+    }
+
     // ── Fault: temperature stall only in cooldown states ──────────────────
     fsm->add_transition(&sFsmCoarse, &sFsmFault, EVT_FAULT_STALL, nullptr);
     fsm->add_transition(&sFsmFine,   &sFsmFault, EVT_FAULT_STALL, nullptr);
@@ -388,6 +415,10 @@ static void buildFsm() {
     for (auto* from : stoppableStates) {
         fsm->add_transition(from, &sFsmFault, EVT_FAULT_BACKOFFS, nullptr);
     }
+
+    // ── Fault clear: Fault → Idle (fired by clearFault()) ─────────────────
+    // onExitFault() resets faultReason, backoff counter, and DAC offset.
+    fsm->add_transition(&sFsmFault, &sFsmIdle, EVT_FAULT_CLEARED, nullptr);
 
     // ── Power-off: any state → Off ─────────────────────────────────────────
     ::State* powerOffableStates[] = {
@@ -450,12 +481,13 @@ Output update(float    tempK,
               float    rmsVoltage,
               bool     stalled,
               uint32_t nowMs,
-              bool     overstroke)
+              bool     overstroke,
+              float    systemVoltage)
 {
     //Serial.printf("update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
              //tempK, coolingRate, rmsVoltage, stalled, overstroke);
-    ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
-             tempK, coolingRate, rmsVoltage, stalled, overstroke);
+    //ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
+             //tempK, coolingRate, rmsVoltage, stalled, overstroke);
 
     sNowMs = nowMs;
 
@@ -467,6 +499,12 @@ Output update(float    tempK,
             faultReason = FaultReason::RmsOvervoltage;
             Serial.printf("Fault: RMS voltage exceeded safe limit\n");
             fsm->trigger(EVT_FAULT_RMS);
+
+        } else if (systemVoltage > 0.0f && systemVoltage < MIN_SYSTEM_VOLTAGE_VDC) {
+            faultReason = FaultReason::LowSystemVoltage;
+            Serial.printf("Fault: DC system voltage %.2fV below minimum %.2fV\n",
+                          systemVoltage, static_cast<float>(MIN_SYSTEM_VOLTAGE_VDC));
+            fsm->trigger(EVT_FAULT_LOW_VOLTAGE);
 
         } else if ((currentState == State::CoarseCooldown ||
                     currentState == State::FineCooldown) && stalled) {
@@ -650,6 +688,17 @@ void stop(uint32_t nowMs) {
     ESP_LOGD(TAG, "stop()");
     Serial.printf("Triggering EVT_STOP\n");
     fsm->trigger(EVT_STOP);
+}
+
+void clearFault(uint32_t nowMs) {
+    if (currentState != State::Fault) return;
+    Serial.printf("clearFault()\n");
+    ESP_LOGD(TAG, "clearFault()");
+    sNowMs = nowMs;
+    // onExitFault() fires synchronously inside trigger() → make_transition(),
+    // resetting faultReason, backoffCount, and backoffDacOffset before Idle
+    // is entered.  running remains false; the operator must call start() to resume.
+    fsm->trigger(EVT_FAULT_CLEARED);
 }
 
 void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {

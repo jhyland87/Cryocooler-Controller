@@ -15,8 +15,12 @@
 static MD_AD9833 ad9833(AD9833_CS);
 
 
-namespace waveform {
+// System voltage in volts
+static float     rmsVoltage     = 0.0f;
+static mode_t    waveformMode   = MD_AD9833::MODE_OFF;
+static float     frequency      = 0.0f;
 
+namespace waveform {
 module::InitStatus init() {
     ad9833.begin();
     ad9833.setMode(MD_AD9833::MODE_SINE);
@@ -28,28 +32,33 @@ module::InitStatus init() {
 }
 
 module::ServiceStatus service() {
-    float voltageV = sysinfo::getVoltage();
-    mode_t mode = ad9833.getMode();
+    rmsVoltage = sysinfo::getVoltage();
+    waveformMode = ad9833.getMode();
+    frequency = ad9833.getFrequency(MD_AD9833::CHAN_0);
 
-    if (voltageV < 11.5f) {
-        if (mode != MD_AD9833::MODE_OFF) {
-            Serial.printf("Voltage too low (%f V) for proper sine wave, turning off DDS\n", voltageV);
-            ad9833.setMode(MD_AD9833::MODE_OFF);
-        }
-    } else if (mode != MD_AD9833::MODE_SINE) {
-        Serial.printf("Voltage has returned to normal (%f V), turning on DDS\n", voltageV);
-        ad9833.setMode(MD_AD9833::MODE_SINE);
-    }
-    return module::MODULE_SERVICE_OK;
+   return module::MODULE_SERVICE_OK;
 }
 
-int16_t getStatus(){
-    return ad9833.getMode() == MD_AD9833::MODE_OFF ? 0 : 1;
+void disable(){
+    ad9833.setMode(MD_AD9833::MODE_OFF);
+}
+bool isEnabled(){
+    return waveformMode != MD_AD9833::MODE_OFF;
+}
+void enable(){
+    ad9833.setMode(MD_AD9833::MODE_SINE);
 }
 
 float getFrequency(){
-    return ad9833.getFrequency(MD_AD9833::CHAN_0);
+    return frequency;
 }
 
+mode_t getWaveformMode(){
+    return waveformMode;
+}
+
+float getRMSVoltage(){
+    return rmsVoltage;
+}
 
 } // namespace waveform

@@ -8,6 +8,7 @@
 #include "cooling.h"
 #include "config.h"
 #include "esp_log.h"
+#include "sensor_mock.h"
 
 
 namespace cooling {
@@ -41,7 +42,7 @@ module::InitStatus init() {
   pinMode(COOLING_FAN_TACHO_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(COOLING_FAN_TACHO_PIN), countPulses, FALLING);
 
-    return module::MODULE_INIT_SUCCESS;
+  return module::MODULE_INIT_SUCCESS;
 }
 
 module::ServiceStatus service() {
@@ -52,21 +53,21 @@ module::ServiceStatus service() {
   }
   lastCheckCycleMs = nowMs;
 
-  // If the coolant temp is dipped below the min, then disable the cooling system.
-  if (getCoolantTemperature() < COOLING_OFF_BELOW_COOLANT_TEMP && isEnabled()) {
-    disable();
-    return module::MODULE_SERVICE_OK;
-  }
+  // // If the coolant temp is dipped below the min, then disable the cooling system.
+  // if (getCoolantTemperature() < COOLING_OFF_BELOW_COOLANT_TEMP && isEnabled()) {
+  //   disable();
+  //   return module::MODULE_SERVICE_OK;
+  // }
 
-  if (fanSpeed_ == 0 && !coolingPumpOn_ && enabled_) {
-    enabled_ = false;
-  }
+  // if (fanSpeed_ == 0 && !coolingPumpOn_ && enabled_) {
+  //   enabled_ = false;
+  // }
 
-  // If the cryocooler has turned on and autostart is enabled, then enable the cooling system
-  // (regardless of the temperature of the coolant).
-  if (!isEnabled() && state_machine::isRunning() && COOLING_AUTOSTART_ENABLED) {
-    enable();
-  }
+  // // If the cryocooler has turned on and autostart is enabled, then enable the cooling system
+  // // (regardless of the temperature of the coolant).
+  // if (!isEnabled() && state_machine::isRunning() && COOLING_AUTOSTART_ENABLED) {
+  //   enable();
+  // }
 
   return module::MODULE_SERVICE_OK;
 }
@@ -88,6 +89,9 @@ float getCoolantFlowRate() {
 }
 
 uint8_t getFanSpeed() {
+  if ( sensor_mock::isActive() ) {
+    return fanSpeed_;
+  }
   return (pulseCount / 2) * 60 / interval;
 }
 
