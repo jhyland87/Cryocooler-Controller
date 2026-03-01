@@ -59,6 +59,11 @@ enum : int {
     EVT_FAULT_RMS       = 15,  ///< RMS overvoltage from any non-Fault state
     EVT_FAULT_STALL     = 16,  ///< Temperature stall in Coarse or Fine cooldown
     EVT_FAULT_BACKOFFS  = 17,  ///< Too many back-EMF backoff events
+
+    // Delay state events
+    EVT_ENTER_DELAY     = 18,  ///< Enter Delay state (fired by startDelay())
+    EVT_DELAY_TO_IDLE   = 19,  ///< Delay → Idle  (fired when delay timer expires)
+    EVT_DELAY_TO_COARSE = 20,  ///< Delay → CoarseCooldown (fired when delay timer expires)
 };
 
 // ---------------------------------------------------------------------------
@@ -79,6 +84,10 @@ static bool         settleTimerActive   = false;
 static uint16_t     backoffCount        = 0;
 static uint16_t     backoffDacOffset    = 0;
 
+// Delay state configuration — set by startDelay() before EVT_ENTER_DELAY fires.
+static uint32_t     sDelayMs           = 0;  ///< duration to hold in Delay state
+static int          sDelayNextEvent    = EVT_DELAY_TO_IDLE; ///< event fired when timer expires
+
 // Injected timestamp — set before every trigger() call so on_enter callbacks
 // can capture the correct entry time without calling millis() directly.
 static uint32_t     sNowMs             = 0;
@@ -96,6 +105,7 @@ static void onEnterSettle();
 static void onEnterBaseline();
 static void onEnterOperating();
 static void onEnterShutdown();
+static void onEnterDelay();
 static void onEnterFault();
 
 // ---------------------------------------------------------------------------
@@ -112,6 +122,7 @@ static ::State sFsmSettle    (onEnterSettle,          nullptr, nullptr);
 static ::State sFsmBaseline  (onEnterBaseline,        nullptr, nullptr);
 static ::State sFsmOperating (onEnterOperating,       nullptr, nullptr);
 static ::State sFsmShutdown  (onEnterShutdown,        nullptr, nullptr);
+static ::State sFsmDelay     (onEnterDelay,           nullptr, nullptr);
 static ::State sFsmFault     (onEnterFault,           nullptr, nullptr);
 
 // Heap-allocated so it can be fully reset between test cases via init().
@@ -249,6 +260,12 @@ static Output buildOutput(State s, uint16_t dacTarget) {
             o.readyIndMode = Mode::Off;
             break;
 
+        case State::Delay:
+            o.bypassRelay  = true;
+            o.faultIndMode = Mode::SolidAmber;
+            o.readyIndMode = Mode::SolidAmber;
+            break;
+
         case State::Fault:
             o.bypassRelay  = true;
             o.alarmRelay   = true;
@@ -295,6 +312,11 @@ static void onEnterBaseline()       { setStateEntry(State::Baseline); }
 static void onEnterOperating()      { setStateEntry(State::Operating); }
 static void onEnterShutdown()       { setStateEntry(State::Shutdown); }
 
+static void onEnterDelay() {
+    setStateEntry(State::Delay);
+    Serial.printf("[SM] Delay for %lu ms\n", static_cast<unsigned long>(sDelayMs));
+}
+
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
     running = false;
@@ -338,19 +360,21 @@ static void buildFsm() {
     fsm->add_transition(&sFsmShutdown, &sFsmIdle,      EVT_SHUTDOWN_DONE, nullptr);
 
     // ── Stop: all running states → Shutdown ───────────────────────────────
+    // Delay is included so stop() can interrupt a pending wait.
     ::State* stoppableStates[] = {
         &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmDelay
     };
     for (auto* from : stoppableStates) {
         fsm->add_transition(from, &sFsmShutdown, EVT_STOP, nullptr);
     }
 
     // ── Fault: RMS overvoltage from every non-Fault state ─────────────────
+    // Delay is included so an RMS spike during a wait causes a fault.
     ::State* allNonFaultStates[] = {
         &sFsmOff, &sFsmInit, &sFsmIdle,
         &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown, &sFsmDelay
     };
     for (auto* from : allNonFaultStates) {
         fsm->add_transition(from, &sFsmFault, EVT_FAULT_RMS, nullptr);
@@ -370,11 +394,26 @@ static void buildFsm() {
         &sFsmInit, &sFsmIdle,
         &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
         &sFsmSettle, &sFsmBaseline, &sFsmOperating,
-        &sFsmShutdown, &sFsmFault
+        &sFsmShutdown, &sFsmDelay, &sFsmFault
     };
     for (auto* from : powerOffableStates) {
         fsm->add_transition(from, &sFsmOff, EVT_POWER_OFF, nullptr);
     }
+
+    // ── Delay entry: from all non-Fault, non-Delay states ─────────────────
+    // Called by startDelay() via EVT_ENTER_DELAY.
+    ::State* delayableStates[] = {
+        &sFsmOff, &sFsmInit, &sFsmIdle,
+        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
+        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown
+    };
+    for (auto* from : delayableStates) {
+        fsm->add_transition(from, &sFsmDelay, EVT_ENTER_DELAY, nullptr);
+    }
+
+    // ── Delay exit: timer-driven in update() ──────────────────────────────
+    fsm->add_transition(&sFsmDelay, &sFsmIdle,   EVT_DELAY_TO_IDLE,   nullptr);
+    fsm->add_transition(&sFsmDelay, &sFsmCoarse, EVT_DELAY_TO_COARSE, nullptr);
 }
 
 // ---------------------------------------------------------------------------
@@ -392,6 +431,8 @@ module::InitStatus init(uint32_t nowMs) {
     backoffDacOffset = 0;
     settleTimerActive= false;
     settleStartMs    = 0;
+    sDelayMs         = 0;
+    sDelayNextEvent  = EVT_DELAY_TO_IDLE;
 
     delete fsm;
     fsm = new Fsm(&sFsmOff);
@@ -434,6 +475,8 @@ Output update(float    tempK,
             fsm->trigger(EVT_FAULT_STALL);
 
         } else if (overstroke && running) {
+            Serial.printf("Backoff count: %d\n", backoffCount);
+            // @todo: add a delay here to prevent the backoff count from being incremented too quickly
             ++backoffCount;
             const uint32_t newOffset =
                 static_cast<uint32_t>(backoffDacOffset) +
@@ -446,6 +489,9 @@ Output update(float    tempK,
                 Serial.printf("Fault: Too many back-EMF stroke events; output backed off\n");
                 fsm->trigger(EVT_FAULT_BACKOFFS);
             }
+        }
+        else {
+            // @todo: clear overstroke flag if overstroke has been false for a while
         }
     }
 
@@ -519,6 +565,13 @@ Output update(float    tempK,
                 if (elapsed >= SHUTDOWN_DURATION_MS) {
                     Serial.printf("Triggering EVT_SHUTDOWN_DONE\n");
                     fsm->trigger(EVT_SHUTDOWN_DONE);
+                }
+                break;
+
+            case State::Delay:
+                if (elapsed >= sDelayMs) {
+                    Serial.printf("Triggering delay exit event %d\n", sDelayNextEvent);
+                    fsm->trigger(sDelayNextEvent);
                 }
                 break;
 
@@ -597,6 +650,19 @@ void stop(uint32_t nowMs) {
     ESP_LOGD(TAG, "stop()");
     Serial.printf("Triggering EVT_STOP\n");
     fsm->trigger(EVT_STOP);
+}
+
+void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
+    if (currentState == State::Fault) return;
+    sDelayMs = durationMs;
+    switch (nextState) {
+        case State::CoarseCooldown: sDelayNextEvent = EVT_DELAY_TO_COARSE; break;
+        default:                    sDelayNextEvent = EVT_DELAY_TO_IDLE;   break;
+    }
+    sNowMs = nowMs;
+    Serial.printf("startDelay() durationMs=%lu nextEvent=%d\n",
+                  static_cast<unsigned long>(durationMs), sDelayNextEvent);
+    fsm->trigger(EVT_ENTER_DELAY);
 }
 
 void off(uint32_t nowMs) {

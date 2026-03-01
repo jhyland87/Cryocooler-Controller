@@ -14,6 +14,7 @@
  *    6 Baseline       - Collecting baseline: READY ON GREEN
  *    7 Operating      - Normal run: READY ON GREEN
  *    8 Shutdown       - Graceful stop: ramp DAC to 0 over ~5 seconds, then → Idle
+ *    9 Delay          - Timed wait: hold for N ms, then advance to configured next state
  *  127 Fault          - Any fault condition: FAULT ON RED, alarm relay active (terminal state)
  *
  * Transition inputs on every update() call:
@@ -69,6 +70,7 @@ namespace state_machine {
     X(Baseline,        6,  "Baseline",       "Cold stage temperature has settled; collecting baseline data")              \
     X(Operating,       7,  "Operating",      "System is operating normally; checking for deviations from baseline")      \
     X(Shutdown,        8,  "Shutdown",       "Gracefully shutting down; ramping DAC to zero")                            \
+    X(Delay,           9,  "Delay",          "Timed wait; will advance to next state after delay expires")               \
     X(Fault,         127,  "Fault",          nullptr)   /* status text is computed at runtime — see statusTextForState() */
 
 /** System states as per design spec.  Generated from STATE_MACHINE_STATES. */
@@ -172,6 +174,25 @@ void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
  * @param nowMs  Current millis()
  */
 void stop(uint32_t nowMs);
+
+/**
+ * Enter the generic Delay state for a fixed duration, then advance to
+ * @p nextState automatically.
+ *
+ * Supported destinations:
+ *   State::Idle           — return to standby after the wait
+ *   State::CoarseCooldown — resume cooling from the top of the ramp
+ *
+ * Any other @p nextState value is treated as State::Idle.
+ *
+ * Can be called from any non-Fault state.  Has no effect if the machine
+ * is currently in State::Fault.
+ *
+ * @param nowMs       Current millis()
+ * @param durationMs  How long to hold in the Delay state (milliseconds)
+ * @param nextState   The state to enter when the delay expires
+ */
+void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState = State::Idle);
 
 void off(uint32_t nowMs);
 

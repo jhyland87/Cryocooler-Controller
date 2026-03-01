@@ -880,6 +880,91 @@ void test_overstroke_ignored_in_fault(void) {
 }
 
 // ---------------------------------------------------------------------------
+// Delay state
+// ---------------------------------------------------------------------------
+
+/** Returns a millisecond timestamp just after init() so tests can use it. */
+static uint32_t initState() {
+    state_machine::init(1000);
+    return 1000;
+}
+
+void test_delay_from_off_enters_delay_state(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 1);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Delay),
+                      static_cast<int8_t>(out.state));
+}
+
+void test_delay_output_uses_bypass_relay(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 1);
+    TEST_ASSERT_TRUE(out.bypassRelay);
+}
+
+void test_delay_output_indicators_are_solid_amber(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 1);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(indicator::Mode::SolidAmber),
+                      static_cast<uint8_t>(out.faultIndMode));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(indicator::Mode::SolidAmber),
+                      static_cast<uint8_t>(out.readyIndMode));
+}
+
+void test_delay_dac_target_is_zero(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 1);
+    TEST_ASSERT_EQUAL_UINT16(0, out.dacTarget);
+}
+
+void test_delay_does_not_expire_just_before_timer(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    // Advance to just before the deadline.
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 499);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Delay),
+                      static_cast<int8_t>(out.state));
+}
+
+void test_delay_expires_and_transitions_to_idle(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 500, state_machine::State::Idle);
+    // Hold just before expiry.
+    state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 499);
+    // Cross the threshold.
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 500);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(out.state));
+}
+
+void test_delay_expires_and_transitions_to_coarse(void) {
+    const uint32_t t0 = initState();
+    state_machine::startDelay(t0, 200, state_machine::State::CoarseCooldown);
+    state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 199);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 200);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(out.state));
+}
+
+void test_delay_from_fault_is_ignored(void) {
+    const uint32_t t0 = initState();
+    // Trigger a fault first.
+    state_machine::start(t0, 300.0f);
+    state_machine::update(300.0f, 0.0f, RMS_MAX_VOLTAGE_VDC + 1.0f, false, t0 + 1);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(state_machine::getState()));
+    // startDelay() must be a no-op in Fault.
+    state_machine::startDelay(t0 + 2, 100, state_machine::State::Idle);
+    auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, t0 + 3);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -997,6 +1082,16 @@ int main(int argc, char **argv) {
 
     // Overstroke ignored in Fault
     RUN_TEST(test_overstroke_ignored_in_fault);
+
+    // Delay state
+    RUN_TEST(test_delay_from_off_enters_delay_state);
+    RUN_TEST(test_delay_output_uses_bypass_relay);
+    RUN_TEST(test_delay_output_indicators_are_solid_amber);
+    RUN_TEST(test_delay_dac_target_is_zero);
+    RUN_TEST(test_delay_does_not_expire_just_before_timer);
+    RUN_TEST(test_delay_expires_and_transitions_to_idle);
+    RUN_TEST(test_delay_expires_and_transitions_to_coarse);
+    RUN_TEST(test_delay_from_fault_is_ignored);
 
     // Serial command handler
     run_serial_command_tests();

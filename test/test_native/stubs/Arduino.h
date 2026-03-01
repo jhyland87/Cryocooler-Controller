@@ -63,6 +63,24 @@ void     digitalWrite(uint8_t pin, uint8_t val);
 #  define F(str) (str)
 #endif
 
+// Arduino digital I/O constants
+static constexpr uint8_t HIGH   = 1;
+static constexpr uint8_t LOW    = 0;
+static constexpr uint8_t INPUT  = 0;
+static constexpr uint8_t OUTPUT = 1;
+
+// Additional Arduino stubs needed by hardware library dependencies.
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+uint8_t  digitalRead(uint8_t /*pin*/);
+void     delayMicroseconds(unsigned int /*us*/);
+
+#ifdef __cplusplus
+}
+#endif
+
 // SPI stub class (minimal C++ interface)
 class SPISettings {
 public:

@@ -35,6 +35,15 @@ void digitalWrite(uint8_t pin, uint8_t val) {
     (void)val;
 }
 
+uint8_t digitalRead(uint8_t pin) {
+    (void)pin;
+    return 0;
+}
+
+void delayMicroseconds(unsigned int us) {
+    (void)us;
+}
+
 } // extern "C"
 
 // SPI stub implementation
@@ -52,6 +61,10 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 
 // Global SPI instance
 SPIClass SPI;
+
+// Global Wire instance (I2C stub)
+#include "Wire.h"
+TwoWire Wire;
 
 // Global Serial stub instance
 SerialStub Serial;
