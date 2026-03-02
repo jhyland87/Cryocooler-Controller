@@ -16,7 +16,7 @@
 #include "cold_head.h"
 #include "conversions.h"
 #include "module.h"
-#include "accelerometer.h"
+#include "imu.h"
 #include "sensor_mock.h"
 #include "hardware.h"
 // ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ void read(uint32_t nowMs) {
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
     const float    tempK        = conversions::celsiusToKelvin(tempC);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
-    const float    ambientTempC = accelerometer::getTemperature();
+    const float    ambientTempC = imu::getTemperature();
 
     lastTempC = tempC;
     lastTempK = tempK;
@@ -213,7 +213,7 @@ void setLastReadings(uint32_t nowMs, float tempK,
 // }
 
 bool checkDependencies() {
-    if (!accelerometer::isInitialized() && !sensor_mock::isActive()) {
+    if (!imu::isInitialized() && !sensor_mock::isActive()) {
         Serial.println(F("[cold_head] Dependency check failed - Accelerometer not initialized!"));
         return false;
     }

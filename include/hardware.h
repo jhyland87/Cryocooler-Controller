@@ -20,7 +20,7 @@
  *   hardware::init();
  *
  *   // In any module that needs I2C:
- *   imu.begin(hardware::i2c());
+ *   sensor.begin(hardware::i2c());
  */
 
 #pragma once

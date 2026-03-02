@@ -11,12 +11,12 @@
 #include <Arduino.h>
 #include <time.h>
 #include <ArduinoJson.h>
-#include "accelerometer.h"
+#include "imu.h"
 #include "frame_builder.h"
 #include "cold_head.h"
 #include "telemetry.h"
 #include "state_machine.h"
-#include "dac.h"
+//#include "dac.h"
 #include "indicator.h"
 #include "conversions.h"
 #include "waveform.h"
@@ -26,6 +26,7 @@
 #include "relay.h"
 #include "commands.h"
 #include "dashboard.h"
+#include "amplifier.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -106,12 +107,12 @@ static void buildStartupFrame(FrameBuilder& frame)
 
     const bool smReady        = ready(state_machine::Module::getInitStatus());
     const bool coldHeadReady  = ready(cold_head::Module::getInitStatus());
-    const bool dacReady       = ready(dac::Module::getInitStatus());
-    //const bool rmsReady       = ready(rms::Module::getInitStatus());
+    //const bool dacReady       = ready(dac::Module::getInitStatus());
+    const bool amplifierReady = ready(amplifier::Module::getInitStatus());
     const bool indicatorReady = ready(indicator::Module::getInitStatus());
     const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
     const bool waveformReady  = ready(waveform::Module::getInitStatus());
-    const bool accelReady     = ready(accelerometer::Module::getInitStatus());
+    const bool accelReady     = ready(imu::Module::getInitStatus());
     const bool coolingReady   = ready(cooling::Module::getInitStatus());
 
     // ── Timestamps (always valid) ──────────────────────────────────────────
@@ -169,17 +170,26 @@ static void buildStartupFrame(FrameBuilder& frame)
         .field("relay.normal", "%s", "")
         .field("relay.alarm",  "%s", "");
 
-    // ── DAC ───────────────────────────────────────────────────────────────
-    if (dacReady) {
+    // // ── DAC ───────────────────────────────────────────────────────────────
+    // if (dacReady) {
+    //     frame
+    //         .field("dac.target", "%s",  "")  // target is in Output only
+    //         .field("dac.actual", "%u",  static_cast<unsigned>(dac::getCurrent()));
+    // } else {
+    //     frame
+    //         .field("dac.target", "%s", "")
+    //         .field("dac.actual", "%s", "");
+    // }
+
+    // ── Amplifier ───────────────────────────────────────────────────────────
+    if (amplifierReady) {
         frame
-            .field("dac.target", "%s",  "")  // target is in Output only
-            .field("dac.actual", "%u",  static_cast<unsigned>(dac::getCurrent()));
+            .field("amplifier.voltage_v", "%.2f", amplifier::getLastRmsVoltageV())
+            .field("amplifier.current_a", "%.2f", amplifier::getLastRmsCurrentA());
     } else {
         frame
-            .field("dac.target", "%s", "")
-            .field("dac.actual", "%s", "");
-    }
-
+            .field("amplifier.voltage_v", "%s", "")
+            .field("amplifier.current_a", "%s", "");
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
         frame
@@ -240,42 +250,42 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("system.power_w",      "%s", "");
     }
 
-    // ── Waveform ──────────────────────────────────────────────────────────
-    if (waveformReady) {
-        frame
-            .field("waveform.status",       "%u",   waveform::isEnabled())
-            .field("waveform.frequency_hz", "%.2f", waveform::getFrequency());
-    } else {
-        frame
-            .field("waveform.status",       "%s", "")
-            .field("waveform.frequency_hz", "%s", "");
-    }
+    // // ── Waveform ──────────────────────────────────────────────────────────
+    // if (waveformReady) {
+    //     frame
+    //         .field("waveform.status",       "%u",   waveform::isEnabled())
+    //         .field("waveform.frequency_hz", "%.2f", waveform::getFrequency());
+    // } else {
+    //     frame
+    //         .field("waveform.status",       "%s", "")
+    //         .field("waveform.frequency_hz", "%s", "");
+    // }
 
     // ── Accelerometer ─────────────────────────────────────────────────────
     if (accelReady) {
         frame
-            .field("accelerometer.roll_deg",  "%.2f", accelerometer::getRoll())
-            .field("accelerometer.pitch_deg", "%.2f", accelerometer::getPitch())
-            .field("accelerometer.yaw_deg",   "%.2f", accelerometer::getYaw())
-            .field("accelerometer.accel_mag", "%.2f", accelerometer::getAccelMag())
-            .field("accelerometer.gyro_mag",  "%.2f", accelerometer::getGyroMag())
-            .field("accelerometer.temp_c",    "%.1f", accelerometer::getTemperature())
-            .field("accelerometer.motion",    "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected()))
-            .field("accelerometer.x",         "%.3f", accelerometer::getAccelX())
-            .field("accelerometer.y",         "%.3f", accelerometer::getAccelY())
-            .field("accelerometer.z",         "%.3f", accelerometer::getAccelZ());
+            .field("imu.roll_deg",  "%.2f", imu::getRoll())
+            .field("imu.pitch_deg", "%.2f", imu::getPitch())
+            .field("imu.yaw_deg",   "%.2f", imu::getYaw())
+            .field("imu.accel_mag", "%.2f", imu::getAccelMag())
+            .field("imu.gyro_mag",  "%.2f", imu::getGyroMag())
+            .field("imu.temp_c",    "%.1f", imu::getTemperature())
+            .field("imu.motion",    "%u",   static_cast<uint8_t>(imu::isMotionDetected()))
+            .field("imu.x",         "%.3f", imu::getAccelX())
+            .field("imu.y",         "%.3f", imu::getAccelY())
+            .field("imu.z",         "%.3f", imu::getAccelZ());
     } else {
         frame
-            .field("accelerometer.roll_deg",  "%s", "")
-            .field("accelerometer.pitch_deg", "%s", "")
-            .field("accelerometer.yaw_deg",   "%s", "")
-            .field("accelerometer.accel_mag", "%s", "")
-            .field("accelerometer.gyro_mag",  "%s", "")
-            .field("accelerometer.temp_c",    "%s", "")
-            .field("accelerometer.motion",    "%s", "")
-            .field("accelerometer.x",         "%s", "")
-            .field("accelerometer.y",         "%s", "")
-            .field("accelerometer.z",         "%s", "");
+            .field("imu.roll_deg",  "%s", "")
+            .field("imu.pitch_deg", "%s", "")
+            .field("imu.yaw_deg",   "%s", "")
+            .field("imu.accel_mag", "%s", "")
+            .field("imu.gyro_mag",  "%s", "")
+            .field("imu.temp_c",    "%s", "")
+            .field("imu.motion",    "%s", "")
+            .field("imu.x",         "%s", "")
+            .field("imu.y",         "%s", "")
+            .field("imu.z",         "%s", "");
     }
 
     // ── Cooling ───────────────────────────────────────────────────────────
@@ -299,18 +309,20 @@ static void buildStartupFrame(FrameBuilder& frame)
         .field("mod.hardware.service",          "%s", module::serviceStatusName(hardware::Module::getServiceStatus()))
         .field("mod.sysinfo.init",              "%s", module::initStatusName(sysinfo::Module::getInitStatus()))
         .field("mod.sysinfo.service",           "%s", module::serviceStatusName(sysinfo::Module::getServiceStatus()))
-        .field("mod.accelerometer.init",        "%s", module::initStatusName(accelerometer::Module::getInitStatus()))
-        .field("mod.accelerometer.service",     "%s", module::serviceStatusName(accelerometer::Module::getServiceStatus()))
+        .field("mod.imu.init",                  "%s", module::initStatusName(imu::Module::getInitStatus()))
+        .field("mod.imu.service",               "%s", module::serviceStatusName(imu::Module::getServiceStatus()))
+        .field("mod.amplifier.init",            "%s", module::initStatusName(amplifier::Module::getInitStatus()))
+        .field("mod.amplifier.service",         "%s", module::serviceStatusName(amplifier::Module::getServiceStatus()))
         .field("mod.cooling.init",              "%s", module::initStatusName(cooling::Module::getInitStatus()))
         .field("mod.cooling.service",           "%s", module::serviceStatusName(cooling::Module::getServiceStatus()))
         .field("mod.dashboard.init",            "%s", module::initStatusName(dashboard::Module::getInitStatus()))
         .field("mod.dashboard.service",         "%s", module::serviceStatusName(dashboard::Module::getServiceStatus()))
-        .field("mod.waveform.init",             "%s", module::initStatusName(waveform::Module::getInitStatus()))
-        .field("mod.waveform.service",          "%s", module::serviceStatusName(waveform::Module::getServiceStatus()))
+        // .field("mod.waveform.init",             "%s", module::initStatusName(waveform::Module::getInitStatus()))
+        // .field("mod.waveform.service",          "%s", module::serviceStatusName(waveform::Module::getServiceStatus()))
         .field("mod.cold_head.init",            "%s", module::initStatusName(cold_head::Module::getInitStatus()))
         .field("mod.cold_head.service",         "%s", module::serviceStatusName(cold_head::Module::getServiceStatus()))
-        .field("mod.dac.init",                  "%s", module::initStatusName(dac::Module::getInitStatus()))
-        .field("mod.dac.service",               "%s", module::serviceStatusName(dac::Module::getServiceStatus()))
+        // .field("mod.dac.init",                  "%s", module::initStatusName(dac::Module::getInitStatus()))
+        // .field("mod.dac.service",               "%s", module::serviceStatusName(dac::Module::getServiceStatus()))
         .field("mod.relay.init",                "%s", module::initStatusName(relay::Module::getInitStatus()))
         .field("mod.relay.service",             "%s", module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",            "%s", module::initStatusName(indicator::Module::getInitStatus()))
@@ -376,7 +388,7 @@ void emit(const state_machine::Output& out)
 #ifdef ARDUINO
     if (!enabled) return;
 
-    const uint16_t dacActual = dac::getCurrent();
+    //const uint16_t dacActual = dac::getCurrent();
 
     // On-state duration (total time running since start())
     const uint32_t durationMs = state_machine::getOnStateDuration();
@@ -417,8 +429,8 @@ void emit(const state_machine::Output& out)
         .field("cold_head.temp_c",                  "%.2f", cold_head::getLastTempC())
         //.field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("cold_head.cooling_rate",            "%.3f", cold_head::getCoolingRateKPerMin())
-        .field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))
-        .field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
+        //.field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))
+        //.field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
         .field("cold_head.voltage_v",               "%.2f", cold_head::getLastRmsVoltageV())
         .field("cold_head.current_a",               "%.2f", cold_head::getLastRmsCurrentA())
         .field("relay.normal",                      "%u",   static_cast<uint8_t>(!out.bypassRelay))
@@ -427,6 +439,8 @@ void emit(const state_machine::Output& out)
         .field("indicator.ready",                   "%d",   indicator::isReadyOn())
         .field("status.on_duration_ms",             "%lu",  static_cast<unsigned long>(durationMs))
         .field("status.on_duration",                "%s",   hmsBuf)
+        .field("amplifier.voltage_v",               "%.2f", amplifier::getLastRmsVoltageV())
+        .field("amplifier.current_a",               "%.2f", amplifier::getLastRmsCurrentA())
         .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
@@ -435,18 +449,18 @@ void emit(const state_machine::Output& out)
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
         .field("system.current_a",                  "%.2f", sysinfo::getCurrent())
         .field("system.power_w",                    "%.2f", sysinfo::getPower())
-        .field("waveform.status",                   "%u",   waveform::isEnabled())
-        .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
-        .field("accelerometer.roll_deg",            "%.2f", accelerometer::getRoll())
-        .field("accelerometer.pitch_deg",           "%.2f", accelerometer::getPitch())
-        .field("accelerometer.yaw_deg",             "%.2f", accelerometer::getYaw())
-        .field("accelerometer.accel_mag",           "%.2f", accelerometer::getAccelMag())
-        .field("accelerometer.gyro_mag",            "%.2f", accelerometer::getGyroMag())
-        .field("accelerometer.temp_c",              "%.1f", accelerometer::getTemperature())
-        .field("accelerometer.motion",              "%u",   static_cast<uint8_t>(accelerometer::isMotionDetected()))
-        .field("accelerometer.x",                   "%.3f", accelerometer::getAccelX())
-        .field("accelerometer.y",                   "%.3f", accelerometer::getAccelY())
-        .field("accelerometer.z",                   "%.3f", accelerometer::getAccelZ())
+        // .field("waveform.status",                   "%u",   waveform::isEnabled())
+        // .field("waveform.frequency_hz",             "%.2f", waveform::getFrequency())
+        .field("imu.roll_deg",                      "%.2f", imu::getRoll())
+        .field("imu.pitch_deg",                     "%.2f", imu::getPitch())
+        .field("imu.yaw_deg",                       "%.2f", imu::getYaw())
+        .field("imu.accel_mag",                     "%.2f", imu::getAccelMag())
+        .field("imu.gyro_mag",                      "%.2f", imu::getGyroMag())
+        .field("imu.temp_c",                        "%.1f", imu::getTemperature())
+        .field("imu.motion",                        "%u",   static_cast<uint8_t>(imu::isMotionDetected()))
+        .field("imu.x",                             "%.3f", imu::getAccelX())
+        .field("imu.y",                             "%.3f", imu::getAccelY())
+        .field("imu.z",                             "%.3f", imu::getAccelZ())
         .field("cooling.status",                    "%d",   cooling::isEnabled())
         .field("cooling.temp_c",                    "%.2f", cooling::getCoolantTemperature())
         .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())
@@ -456,8 +470,8 @@ void emit(const state_machine::Output& out)
         .field("mod.hardware.service",              "%s",   module::serviceStatusName(hardware::Module::getServiceStatus()))
         .field("mod.sysinfo.init",                  "%s",   module::initStatusName(sysinfo::Module::getInitStatus()))
         .field("mod.sysinfo.service",               "%s",   module::serviceStatusName(sysinfo::Module::getServiceStatus()))
-        .field("mod.accelerometer.init",            "%s",   module::initStatusName(accelerometer::Module::getInitStatus()))
-        .field("mod.accelerometer.service",         "%s",   module::serviceStatusName(accelerometer::Module::getServiceStatus()))
+        .field("mod.imu.init",                      "%s",   module::initStatusName(imu::Module::getInitStatus()))
+        .field("mod.imu.service",                   "%s",   module::serviceStatusName(imu::Module::getServiceStatus()))
         .field("mod.cooling.init",                  "%s",   module::initStatusName(cooling::Module::getInitStatus()))
         .field("mod.cooling.service",               "%s",   module::serviceStatusName(cooling::Module::getServiceStatus()))
         .field("mod.dashboard.init",                "%s",   module::initStatusName(dashboard::Module::getInitStatus()))
@@ -466,8 +480,8 @@ void emit(const state_machine::Output& out)
         .field("mod.waveform.service",              "%s",   module::serviceStatusName(waveform::Module::getServiceStatus()))
         .field("mod.cold_head.init",                "%s",   module::initStatusName(cold_head::Module::getInitStatus()))
         .field("mod.cold_head.service",             "%s",   module::serviceStatusName(cold_head::Module::getServiceStatus()))
-        .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))
-        .field("mod.dac.service",                   "%s",   module::serviceStatusName(dac::Module::getServiceStatus()))
+        // .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))
+        // .field("mod.dac.service",                   "%s",   module::serviceStatusName(dac::Module::getServiceStatus()))
         .field("mod.relay.init",                    "%s",   module::initStatusName(relay::Module::getInitStatus()))
         .field("mod.relay.service",                 "%s",   module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",                "%s",   module::initStatusName(indicator::Module::getInitStatus()))

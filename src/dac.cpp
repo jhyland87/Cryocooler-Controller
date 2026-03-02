@@ -30,15 +30,15 @@ static constexpr uint16_t MCP4921_CTRL_BITS = 0x3000;
 // ---------------------------------------------------------------------------
 
 static void writeSpi(uint16_t dacVal) {
-    if (dacVal > MCP4921_MAX_VALUE) {
-        dacVal = MCP4921_MAX_VALUE;
+    if (dacVal > AMPLIFIER_RESOLUTION) {
+        dacVal = AMPLIFIER_RESOLUTION;
     }
     if (currentDacVal == dacVal) return;
 
     currentDacVal = dacVal;
 
     const uint16_t packet = MCP4921_CTRL_BITS | dacVal;
-    SPI.beginTransaction(SPISettings(MCP4921_SPI_SPEED, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(AMPLIFIER_DAC_SPI_SPEED, MSBFIRST, SPI_MODE0));
     digitalWrite(MCP4921_CS, LOW);
     SPI.transfer16(packet);
     digitalWrite(MCP4921_CS, HIGH);
@@ -49,11 +49,11 @@ static void writeSpi(uint16_t dacVal) {
  * Rate-limited ramp toward target using the specified step size.
  *
  * @param target    Desired 12-bit output value (0-4095)
- * @param maxStep   Maximum step size per call (e.g., DAC_MAX_STEP_PER_INTERVAL)
+ * @param maxStep   Maximum step size per call (e.g., AMPLIFIER_MAX_STEP_PER_INTERVAL)
  */
 static void rampTowardInternal(uint16_t target, uint16_t maxStep) {
-    if (target > MCP4921_MAX_VALUE) {
-        target = MCP4921_MAX_VALUE;
+    if (target > AMPLIFIER_RESOLUTION) {
+        target = AMPLIFIER_RESOLUTION;
     }
 
     uint16_t next = currentDacVal;
@@ -87,11 +87,11 @@ void update(uint16_t dacVal) {
 }
 
 void rampToward(uint16_t target) {
-    rampTowardInternal(target, DAC_MAX_STEP_PER_INTERVAL);
+    rampTowardInternal(target, AMPLIFIER_MAX_STEP_PER_INTERVAL);
 }
 
 void rampTowardShutdown(uint16_t target) {
-    rampTowardInternal(target, DAC_SHUTDOWN_STEP_PER_INTERVAL);
+    rampTowardInternal(target, AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL);
 }
 
 uint16_t getCurrent() {

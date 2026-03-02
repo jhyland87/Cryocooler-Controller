@@ -49,25 +49,21 @@
 // =============================================================================
 
 // Output frequency in Hz.
-#define AD9833_FREQ_HZ    static_cast<uint16_t>(60)
-
-// =============================================================================
-// MCP4921 12-bit DAC
-// =============================================================================
+#define AMPLIFIER_FREQ_HZ    static_cast<uint16_t>(60)
 
 // 12-bit full scale (0–4095).
-#define MCP4921_MAX_VALUE  static_cast<uint16_t>(4095)
+#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
 
 // SPI clock speed for the MCP4921.
-#define MCP4921_SPI_SPEED  static_cast<uint32_t>(20000000)
+#define AMPLIFIER_DAC_SPI_SPEED  static_cast<uint32_t>(20000000)
 
 // Maximum DAC increment allowed per main-loop interval.
 // At LOOP_INTERVAL_MS = 200 ms, a step of 5 gives a full-scale ramp in ~164 s.
-#define DAC_MAX_STEP_PER_INTERVAL  static_cast<uint16_t>(5)
+#define AMPLIFIER_MAX_STEP_PER_INTERVAL  static_cast<uint16_t>(5)
 
 // DAC step size during shutdown sequence (ramp down much faster than ramp up).
 // At LOOP_INTERVAL_MS = 200 ms, a step of 200 gives a full-scale ramp in ~4 s.
-#define DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)
+#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)
 
 // =============================================================================
 // ADC
@@ -96,7 +92,7 @@
 // Exceeding this threshold immediately transitions the system to Fault (8).
 // The RMS module is currently stubbed; this value is reserved for when it
 // is fully implemented.
-#define RMS_MAX_VOLTAGE_VDC  120.0f
+#define AMPLIFIER_MAX_VOLTAGE  120.0f
 
 // =============================================================================
 // System Voltage Safety
@@ -121,7 +117,7 @@
 #define COARSE_FINE_THRESHOLD_K      85.0f
 
 // Assumed ambient / start temperature — top of the DAC ramp range.
-// DAC output = 0 at AMBIENT_START_K and MCP4921_MAX_VALUE at SETPOINT_K.
+// DAC output = 0 at AMBIENT_START_K and AMPLIFIER_RESOLUTION at SETPOINT_K.
 #define AMBIENT_START_K             295.0f
 
 // Cold-stage is considered "at setpoint" when within this many Kelvin of
@@ -230,7 +226,7 @@
 // =============================================================================
 
 // DAC counts to subtract from the target for each confirmed backoff event.
-// At MCP4921_MAX_VALUE = 4095, each step is ~4.9 % of full scale.
+// At AMPLIFIER_RESOLUTION = 4095, each step is ~4.9 % of full scale.
 #define BACKOFF_DAC_STEP              static_cast<uint16_t>(200)
 
 // Total number of backoff events allowed before the state machine enters a

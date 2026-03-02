@@ -19,9 +19,9 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "cold_head.h"
-#include "waveform.h"
-#include "dac.h"
-#include "rms.h"
+//#include "waveform.h"
+//#include "dac.h"
+//#include "rms.h"
 #include "relay.h"
 #include "indicator.h"
 #include "state_machine.h"
@@ -30,8 +30,9 @@
 #include "sysinfo.h"
 #include "cooling.h"
 #include "dashboard.h"
-#include "accelerometer.h"
+#include "imu.h"
 #include "sensor_mock.h"
+#include "amplifier.h"
 
 // =============================================================================
 // Module-level objects
@@ -125,10 +126,10 @@ static void initPersistentModules() {
 static void initControlModules() {
     bool initFailureDetected = false;
 
-    auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::Module::init(); });
-    if (accelerometerStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n",
-                      static_cast<int>(accelerometerStatus));
+    auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
+    if (imuStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
+                      static_cast<int>(imuStatus));
     }
     telemetry::emitSafe();
 
@@ -141,7 +142,7 @@ static void initControlModules() {
     telemetry::emitSafe();
 
     // Smooth DAC voltage readback ADC (not a module — inline init)
-    dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
+    dacVoltageAdc.init(AMPLIFIER_MANUAL_CONTROL_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
     dacVoltageAdc.enable();
     dacVoltageAdc.setPeriod(0);
     for (uint8_t i = 0; i < DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES; ++i) {
@@ -149,13 +150,13 @@ static void initControlModules() {
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
-    if (waveformStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Waveform initialization failed (status %d).\n",
-                      static_cast<int>(waveformStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
+    // auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
+    // if (waveformStatus != module::MODULE_INIT_SUCCESS) {
+    //     Serial.printf("[init] Waveform initialization failed (status %d).\n",
+    //                   static_cast<int>(waveformStatus));
+    //     initFailureDetected = true;
+    // }
+    // telemetry::emitSafe();
 
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
@@ -165,18 +166,18 @@ static void initControlModules() {
     }
     telemetry::emitSafe();
 
-    auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
-    if (dacStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] DAC initialization failed (status %d).\n",
-                      static_cast<int>(dacStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
+    // auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
+    // if (dacStatus != module::MODULE_INIT_SUCCESS) {
+    //     Serial.printf("[init] DAC initialization failed (status %d).\n",
+    //                   static_cast<int>(dacStatus));
+    //     initFailureDetected = true;
+    // }
+    // telemetry::emitSafe();
 
-    auto rmsStatus = initModule("rms", [] { return rms::Module::init(); });
-    if (rmsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] RMS initialization failed (status %d).\n",
-                      static_cast<int>(rmsStatus));
+    auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
+    if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Amplifier initialization failed (status %d).\n",
+                      static_cast<int>(amplifierStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
@@ -292,12 +293,12 @@ void loop() {
     if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] sysinfo service error"));
     }
-    if (accelerometer::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] accelerometer service error"));
+    if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] imu service error"));
     }
-    if (waveform::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] waveform service error"));
-    }
+    // if (waveform::Module::service() == module::MODULE_SERVICE_ERROR) {
+    //     Serial.println(F("[loop] waveform service error"));
+    // }
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] cooling service error"));
     }
@@ -334,8 +335,8 @@ void loop() {
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
     //const float rmsV        = rms::getVoltage();
-    const float rmsV        = cold_head::getLastRmsVoltageV();
-    const bool  overstroke  = rms::hasOverstroke();
+    const float rmsV        = amplifier::getLastRmsVoltageV();
+    const bool  overstroke  = imu::hasOverstroke();
     const float sysVoltage  = sysinfo::getVoltage();
 
     // ---- 2. Advance state machine ---------------------------------------
@@ -343,7 +344,7 @@ void loop() {
     // Clear edge-triggered overstroke flag after the state machine has consumed
     // it.  In real mode the flag was set by readCurrent(); in mock mode it was
     // set by setLastReadings().  Either way, clear it so it fires only once.
-    if (overstroke) { rms::clearOverstroke(); }
+    if (overstroke) { imu::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
     relay::setBypass(!out.bypassRelay);   // setBypass(true) = Normal
@@ -355,9 +356,9 @@ void loop() {
     // Ramp DAC toward the state-machine target (rate-limited in dac.cpp).
     // Use fast shutdown ramp during Shutdown state, normal ramp otherwise.
     if (out.state == state_machine::State::Shutdown) {
-        dac::rampTowardShutdown(out.dacTarget);
+        amplifier::rampTowardShutdown(out.dacTarget);
     } else {
-        dac::rampToward(out.dacTarget);
+        amplifier::rampToVoltageV(out.dacTarget);
     }
 
     // ---- 4. HTTP API ---------------------------------------------------

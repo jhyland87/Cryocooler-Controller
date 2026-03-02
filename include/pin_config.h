@@ -29,7 +29,7 @@
 // =============================================================================
 // ADC input to read back DAC-controlled voltage (for manual congtrol)
 // =============================================================================
-#define DAC_VOLTAGE_PIN    5
+#define AMPLIFIER_MANUAL_CONTROL_PIN    5
 
 // =============================================================================
 // MCP4921 12-bit DAC (SPI)
@@ -108,10 +108,9 @@
 // =============================================================================
 // Cooling PWM and Tacho pins
 // =============================================================================
+#define COOLING_FAN_TACHO_PIN 5
 #define COOLING_INHIBIT_PIN   21
 #define COOLING_FAN_PWM_PIN   18
-
-#define COOLING_FAN_TACHO_PIN 5
 
 
 

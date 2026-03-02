@@ -1,6 +1,6 @@
 /**
- * @file accelerometer.cpp
- * @brief QMI8658 accelerometer implementation.
+ * @file imu.cpp
+ * @brief QMI8658 imu implementation.
  *
  * Reads 6-DOF IMU data, applies offset calibration and a first-order
  * low-pass filter, computes roll/pitch/yaw orientation, and exposes
@@ -11,18 +11,18 @@
  *
  * Calibration:
  *   performCalibration() is called once from init().  It spins on
- *   imu.readSensorData() until ACCEL_CAL_SAMPLES valid readings have
+ *   sensor.readSensorData() until ACCEL_CAL_SAMPLES valid readings have
  *   been collected — no delay() calls.  At 1000 Hz ODR this takes ~1 s.
  *   Blocking at setup()-time is acceptable; no delay() is used.
  */
 
 #include <QMI8658.h>
 #include <math.h>
-#include "accelerometer.h"
+#include "imu.h"
 #include "hardware.h"
 #include "pin_config.h"
 
-namespace accelerometer {
+namespace imu {
 
 // ---------------------------------------------------------------------------
 // Tuning constants
@@ -38,7 +38,7 @@ static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coef
 // Module state
 // ---------------------------------------------------------------------------
 
-static QMI8658 imu;
+static QMI8658 sensor;
 static bool initialized_ = false;
 
 // Calibration offsets (set by performCalibration)
@@ -56,7 +56,7 @@ static float yaw_      = 0.0f;
 static float accelMag_ = 0.0f;
 static float gyroMag_  = 0.0f;
 static float imuTemp_  = 0.0f;
-
+static float frequency_ = 0.0f;
 // Motion / overstroke detection
 static bool     motionDetected_ = false;
 static uint32_t lastMotionMs_   = 0u;
@@ -67,7 +67,7 @@ static uint32_t lastMotionMs_   = 0u;
 
 /**
  * Blocks until ACCEL_CAL_SAMPLES valid readings are collected; no delay()
- * used — the function spins on imu.readSensorData() which returns false
+ * used — the function spins on sensor.readSensorData() which returns false
  * when no new sample is ready.
  */
 static void performCalibration() {
@@ -77,7 +77,7 @@ static void performCalibration() {
 
     while (collected < ACCEL_CAL_SAMPLES) {
         QMI8658_Data data;
-        if (imu.readSensorData(data)) {
+        if (sensor.readSensorData(data)) {
             accelSumX += data.accelX;
             accelSumY += data.accelY;
             accelSumZ += data.accelZ;
@@ -140,19 +140,19 @@ module::InitStatus init() {
     // Pass the shared bus from hardware::i2c().  The vendored QMI8658 library
     // (lib/QMI8658) has its internal Wire.begin() call removed, so the bus
     // is initialised exactly once by hardware::init() and never re-entered.
-    if (!imu.begin(hardware::i2c())) {
-        log_e("[accelerometer] QMI8658 not found — check wiring and I2C address");
+    if (!sensor.begin(hardware::i2c())) {
+        log_e("[imu] QMI8658 not found — check wiring and I2C address");
         initialized_ = false;
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }
 
-    imu.setAccelRange(QMI8658_ACCEL_RANGE_8G);
-    imu.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
-    imu.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
-    imu.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
-    imu.setAccelUnit_mps2(true);   // m/s²
-    imu.setGyroUnit_rads(false);   // degrees per second
-    imu.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
+    sensor.setAccelRange(QMI8658_ACCEL_RANGE_8G);
+    sensor.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
+    sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
+    sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
+    sensor.setAccelUnit_mps2(true);   // m/s²
+    sensor.setGyroUnit_rads(false);   // degrees per second
+    sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
 
     performCalibration();
     initialized_ = true;
@@ -163,7 +163,7 @@ module::ServiceStatus service() {
     if (!initialized_) { return module::MODULE_SERVICE_SKIPPED; }
 
     QMI8658_Data data;
-    if (!imu.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
+    if (!sensor.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
 
     // Apply calibration offsets
     const float ax = data.accelX - accelOffsetX_;
@@ -195,9 +195,13 @@ module::ServiceStatus service() {
     return module::MODULE_SERVICE_OK;
 }
 
+float getFrequencyHz() {
+    return frequency_;
+}
 bool  isInitialized()    { return initialized_;    }
 bool  isMotionDetected() { return motionDetected_;  }
 bool  hasOverstroke()    { return motionDetected_;  }
+void  clearOverstroke()  { motionDetected_ = false; }
 float getRoll()          { return roll_;            }
 float getPitch()         { return pitch_;           }
 float getYaw()           { return yaw_;             }
@@ -208,4 +212,4 @@ float getAccelMag()      { return accelMag_;        }
 float getGyroMag()       { return gyroMag_;         }
 float getTemperature()   { return imuTemp_;         }
 
-} // namespace accelerometer
+} // namespace imu

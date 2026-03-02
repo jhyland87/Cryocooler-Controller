@@ -22,12 +22,13 @@
 #include "telemetry.h"
 #include "cold_head.h"
 //#include "rms.h"
-#include "dac.h"
+//#include "dac.h"
 #include "indicator.h"
 #include "cooling.h"
 #ifdef ARDUINO
 #include "dashboard.h"
 #include "mock_commands.h"
+#include "amplifier.h"
 #include "sensor_mock.h"
 #endif
 
@@ -337,16 +338,16 @@ static void handleSummary(const char* /*args*/, Print& out) {
 
     out.println("  --- Electrical ---");
     snprintf(buf, sizeof(buf), "  RMS current     : %.3f A",
-             cold_head::getLastRmsCurrentA());
+             amplifier::getLastRmsCurrentA());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  RMS voltage     : %.2f V",
-             cold_head::getLastRmsVoltageV());
+             amplifier::getLastRmsVoltageV());
     out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  DAC output      : %u",
-             static_cast<unsigned>(dac::getCurrent()));
-    out.println(buf);
+    // snprintf(buf, sizeof(buf), "  DAC output      : %u",
+    //          static_cast<unsigned>(dac::getCurrent()));
+    // out.println(buf);
 
     out.println("  --- Indicators ---");
     snprintf(buf, sizeof(buf), "  Fault LED       : %s",

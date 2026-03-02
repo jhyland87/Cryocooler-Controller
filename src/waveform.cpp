@@ -24,10 +24,10 @@ namespace waveform {
 module::InitStatus init() {
     ad9833.begin();
     ad9833.setMode(MD_AD9833::MODE_SINE);
-    ad9833.setFrequency(MD_AD9833::CHAN_0, AD9833_FREQ_HZ);
+    ad9833.setFrequency(MD_AD9833::CHAN_0, AMPLIFIER_FREQ_HZ);
 
     Serial.printf("[waveform] AD9833 initialized - Generating %u Hz sine wave\n",
-                  static_cast<unsigned>(AD9833_FREQ_HZ));
+                  static_cast<unsigned>(AMPLIFIER_FREQ_HZ));
     return module::MODULE_INIT_SUCCESS;
 }
 

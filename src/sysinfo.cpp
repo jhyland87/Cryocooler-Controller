@@ -8,7 +8,7 @@
 #include "config.h"
 #include "sysinfo.h"
 #include "hardware.h"
-#include "accelerometer.h"
+#include "imu.h"
 #include "driver/i2c_master.h"
 #include "sensor_mock.h"
 
@@ -66,7 +66,7 @@ float getPower() {
 }
 
 float getAmbientTemperature() {
-    return accelerometer::getTemperature();
+    return imu::getTemperature();
 }
 
 void setLastReadings(float v, float a, float w) {

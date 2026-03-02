@@ -1,10 +1,10 @@
-#ifndef ACCELEROMETER_H
-#define ACCELEROMETER_H
+#ifndef IMU_H
+#define IMU_H
 
 #include <stdint.h>
 #include "module.h"
 
-namespace accelerometer {
+namespace imu {
 
 // ---------------------------------------------------------------------------
 // Lifecycle
@@ -41,6 +41,8 @@ bool isMotionDetected();
  */
 bool hasOverstroke();
 
+void clearOverstroke();
+
 
 // ---------------------------------------------------------------------------
 // Latest readings  (valid after the first successful service() call)
@@ -55,16 +57,17 @@ float getAccelZ();       ///< Filtered acceleration on Z axis in m/s² (calibrat
 float getAccelMag();     ///< Acceleration magnitude in m/s² (calibrated, unfiltered)
 float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
 float getTemperature();  ///< IMU die temperature in °C
+float getFrequencyHz();  ///< Frequency of the linear motor in Hz
 
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return _initStatus    = accelerometer::init(); }
-    static module::ServiceStatus service() { return _serviceStatus = accelerometer::service(); }
+    static module::InitStatus    init()    { return _initStatus    = imu::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = imu::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);
 
-} // namespace accelerometer
+} // namespace imu
 
-#endif // ACCELEROMETER_H
+#endif // IMU_H

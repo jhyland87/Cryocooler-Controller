@@ -25,6 +25,7 @@
 #include "config.h"
 #include "conversions.h"
 #include "indicator.h"
+#include "amplifier.h"
 #include <Arduino.h>
 #include "esp_log.h"
 #include <Fsm.h>
@@ -240,7 +241,7 @@ static bool overshot(float tempK) {
 static uint16_t cooldownDacTarget(float tempK, float coolingRate) {
     (void)coolingRate;   // rate guard reserved for future use
     return conversions::tempKToDacValue(
-        tempK, AMBIENT_START_K, SETPOINT_K, MCP4921_MAX_VALUE);
+        tempK, AMBIENT_START_K, SETPOINT_K, AMPLIFIER_RESOLUTION);
 }
 
 /**
@@ -600,7 +601,7 @@ module::InitStatus init(uint32_t nowMs) {
 
 Output update(float    tempK,
               float    coolingRate,
-              float    rmsVoltage,
+              float    amplifierVoltageV,
               bool     stalled,
               uint32_t nowMs,
               bool     overstroke,
@@ -625,7 +626,7 @@ Output update(float    tempK,
             Serial.printf("[SM] Fault: FSM oscillating between states\n");
             fsmTrigger(EVT_FAULT_OSCILLATION, "oscillation");
 
-        } else if (rmsVoltage > RMS_MAX_VOLTAGE_VDC) {
+        } else if (amplifier::getLastRmsVoltageV() > AMPLIFIER_MAX_VOLTAGE) {
             faultReason = FaultReason::RmsOvervoltage;
             Serial.printf("Fault: RMS voltage exceeded safe limit\n");
             fsmTrigger(EVT_FAULT_RMS, "rms_overvoltage");
@@ -649,8 +650,8 @@ Output update(float    tempK,
             const uint32_t newOffset =
                 static_cast<uint32_t>(backoffDacOffset) +
                 static_cast<uint32_t>(BACKOFF_DAC_STEP);
-            backoffDacOffset = (newOffset > static_cast<uint32_t>(MCP4921_MAX_VALUE))
-                                   ? static_cast<uint16_t>(MCP4921_MAX_VALUE)
+            backoffDacOffset = (newOffset > static_cast<uint32_t>(AMPLIFIER_RESOLUTION))
+                                   ? static_cast<uint16_t>(AMPLIFIER_RESOLUTION)
                                    : static_cast<uint16_t>(newOffset);
             if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
                 faultReason = FaultReason::TooManyBackoffs;
