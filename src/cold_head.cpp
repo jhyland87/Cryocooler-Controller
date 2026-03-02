@@ -9,7 +9,6 @@
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
 #include <RunningAverage.h>
-#include <ACS37800.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -17,6 +16,7 @@
 #include "conversions.h"
 #include "module.h"
 #include "imu.h"
+#include "amplifier.h"
 #include "sensor_mock.h"
 #include "hardware.h"
 // ---------------------------------------------------------------------------
@@ -33,7 +33,6 @@ struct TempSample {
 };
 
 static Adafruit_MAX31865 max31865(MAX31865_CS);
-ACS37800 acs;
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
 static TempSample  history[TEMP_HISTORY_SIZE];
@@ -100,14 +99,8 @@ module::InitStatus init() {
         return initStatus;
     }
 
-    Serial.println(F("[cold_head] Initializing ACS37800..."));
-    module::InitStatus acsStatus = initACS();
-    if (acsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[cold_head] ACS37800 initialization failed! Status: %s\n", module::initStatusName(acsStatus));
-        initStatus = acsStatus;
-        return initStatus;
-    }
-    Serial.println(F("[cold_head] ACS37800 initialization successful!"));
+    // ACS37800 voltage/current readings are owned by the amplifier module.
+    // cold_head::read() pulls from amplifier::getLastRmsVoltageV/CurrentA().
 
     Serial.println(F("[cold_head] Initializing MAX31865..."));
     module::InitStatus rtdStatus = initRTD();
@@ -122,10 +115,9 @@ module::InitStatus init() {
 }
 
 module::InitStatus initACS() {
-    acs.setBus(&hardware::i2c());
-    acs.setBoardPololu(4);
-    acs.setSampleCount(0);
-
+    // ACS37800 is owned by the amplifier module.
+    // cold_head pulls voltage/current readings from amplifier::getLastRmsVoltageV()
+    // and amplifier::getLastRmsCurrentA() instead of accessing the sensor directly.
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -157,9 +149,9 @@ void read(uint32_t nowMs) {
         return;
     }
     mockInjected = false;   // real read supersedes any prior mock injection
-    acs.readRMSVoltageAndCurrent();
-    lastRmsVoltageV = static_cast<float>(acs.rmsVoltageMillivolts)/1000.0f;
-    lastRmsCurrentA = static_cast<float>(acs.rmsCurrentMilliamps)/1000.0f;
+    // Voltage/current are owned by the amplifier module; pull the latest reading.
+    lastRmsVoltageV = amplifier::getLastRmsVoltageV();
+    lastRmsCurrentA = amplifier::getLastRmsCurrentA();
 
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);

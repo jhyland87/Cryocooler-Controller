@@ -16,10 +16,8 @@
 #include "cold_head.h"
 #include "telemetry.h"
 #include "state_machine.h"
-//#include "dac.h"
 #include "indicator.h"
 #include "conversions.h"
-#include "waveform.h"
 #include "sysinfo.h"
 #include "cooling.h"
 #include "hardware.h"
@@ -107,11 +105,9 @@ static void buildStartupFrame(FrameBuilder& frame)
 
     const bool smReady        = ready(state_machine::Module::getInitStatus());
     const bool coldHeadReady  = ready(cold_head::Module::getInitStatus());
-    //const bool dacReady       = ready(dac::Module::getInitStatus());
     const bool amplifierReady = ready(amplifier::Module::getInitStatus());
     const bool indicatorReady = ready(indicator::Module::getInitStatus());
     const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
-    const bool waveformReady  = ready(waveform::Module::getInitStatus());
     const bool accelReady     = ready(imu::Module::getInitStatus());
     const bool coolingReady   = ready(cooling::Module::getInitStatus());
 
@@ -190,6 +186,7 @@ static void buildStartupFrame(FrameBuilder& frame)
         frame
             .field("amplifier.voltage_v", "%s", "")
             .field("amplifier.current_a", "%s", "");
+    }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
         frame
@@ -476,8 +473,6 @@ void emit(const state_machine::Output& out)
         .field("mod.cooling.service",               "%s",   module::serviceStatusName(cooling::Module::getServiceStatus()))
         .field("mod.dashboard.init",                "%s",   module::initStatusName(dashboard::Module::getInitStatus()))
         .field("mod.dashboard.service",             "%s",   module::serviceStatusName(dashboard::Module::getServiceStatus()))
-        .field("mod.waveform.init",                 "%s",   module::initStatusName(waveform::Module::getInitStatus()))
-        .field("mod.waveform.service",              "%s",   module::serviceStatusName(waveform::Module::getServiceStatus()))
         .field("mod.cold_head.init",                "%s",   module::initStatusName(cold_head::Module::getInitStatus()))
         .field("mod.cold_head.service",             "%s",   module::serviceStatusName(cold_head::Module::getServiceStatus()))
         // .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))

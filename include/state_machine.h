@@ -32,6 +32,7 @@
 #define STATE_MACHINE_H
 
 #include <stdint.h>
+#include <time.h>
 #include "config.h"
 #include "indicator.h"
 #include "module.h"
@@ -269,9 +270,10 @@ FaultReason getFaultReason();
 
 /** A single FSM history record — one state transition. */
 struct HistoryEntry {
-    State       state;      ///< state that was entered
-    uint32_t    enteredMs;  ///< millis() at which the transition occurred
-    const char* cause;      ///< what triggered this transition (static string literal, may be nullptr)
+    State       state;        ///< state that was entered
+    uint32_t    enteredMs;    ///< millis() at which the transition occurred (always valid)
+    time_t      enteredEpoch; ///< wall-clock Unix timestamp at entry (0 = SNTP not yet synced)
+    const char* cause;        ///< what triggered this transition (static string literal, may be nullptr)
 };
 
 /**

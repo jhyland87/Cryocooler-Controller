@@ -27,6 +27,7 @@
 #include "indicator.h"
 #include "amplifier.h"
 #include <Arduino.h>
+#include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
 
@@ -171,7 +172,7 @@ static void checkOscillation() {
 }
 
 static void pushHistory(State s, uint32_t enteredMs) {
-    history[historyHead] = { s, enteredMs, pendingCause };
+    history[historyHead] = { s, enteredMs, time(nullptr), pendingCause };
     pendingCause = nullptr;
     historyHead = static_cast<uint8_t>(
         (static_cast<uint16_t>(historyHead) + 1u) % FSM_HISTORY_LIMIT);
@@ -441,7 +442,6 @@ static void onExitFault() {
 // ---------------------------------------------------------------------------
 
 static void buildFsm() {
-    Serial.printf("buildFsm()\n");
     // ── Start events from Off and Idle ────────────────────────────────────
     // start() selects the correct resume state based on the current temperature.
     ::State* startableStates[] = { &sFsmOff, &sFsmIdle };
@@ -570,7 +570,6 @@ static void fsmTrigger(int event, const char* cause) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init(uint32_t nowMs) {
-    Serial.printf("init()\n");
     sNowMs           = nowMs;
     running          = false;
     onStateMs        = 0;
@@ -853,7 +852,6 @@ void off(uint32_t nowMs) {
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
     ESP_LOGD(TAG, "off()");
-    Serial.printf("Triggering EVT_POWER_OFF\n");
     fsmTrigger(EVT_POWER_OFF, "off");
 }
 
@@ -862,7 +860,6 @@ void setOnInitializeCallback(void (*cb)()) {
 }
 
 void reinit(uint32_t nowMs) {
-    Serial.printf("reinit()\n");
     ESP_LOGD(TAG, "reinit()");
     // Reset module state variables without recreating the FSM.
     // The arduino-fsm library's destructor does not free the realloc-managed

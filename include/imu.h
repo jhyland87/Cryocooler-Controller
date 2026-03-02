@@ -57,7 +57,22 @@ float getAccelZ();       ///< Filtered acceleration on Z axis in m/s² (calibrat
 float getAccelMag();     ///< Acceleration magnitude in m/s² (calibrated, unfiltered)
 float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
 float getTemperature();  ///< IMU die temperature in °C
-float getFrequencyHz();  ///< Frequency of the linear motor in Hz
+float getFrequencyHz();  ///< Frequency of the linear motor in Hz (last valid FFT result)
+
+/**
+ * Collect FFT_N accelerometer-Z samples at FFT_FS_HZ, run an FFT, and
+ * update the internal frequency estimate with an IIR-smoothed result.
+ *
+ * Blocks for approximately 640 ms (256 samples @ 400 Hz).  Should be called
+ * infrequently — imu::service() gates this to once every FFT_INTERVAL_MS.
+ * Amplifier code may call it directly when an on-demand frequency check is
+ * needed, but should account for the blocking time.
+ *
+ * @return Detected frequency in Hz, or NAN when signal is absent / SNR is
+ *         below threshold.  The internal frequency_ state is only updated on
+ *         valid detections.
+ */
+float calculateFrequency();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 

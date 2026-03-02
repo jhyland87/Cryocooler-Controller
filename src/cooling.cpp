@@ -21,8 +21,8 @@ static volatile float    coolantTemperature_ = 0.0f;
 static volatile float    coolantFlowRate_ = 0.0f;
 static volatile uint8_t    fanSpeed_ = 0;
 static volatile bool    forceFanSpeed_ = false;
-const int freq = 25000;
-const int resolution = 8;
+static constexpr int freq       = 25000;
+static constexpr int resolution = 8;
 const long interval = 1000;  // Calculate RPM every 1 second
 volatile int pulseCount = 0;
 void IRAM_ATTR countPulses() {

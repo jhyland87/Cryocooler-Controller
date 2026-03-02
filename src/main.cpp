@@ -19,9 +19,6 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "cold_head.h"
-//#include "waveform.h"
-//#include "dac.h"
-//#include "rms.h"
 #include "relay.h"
 #include "indicator.h"
 #include "state_machine.h"
@@ -150,14 +147,6 @@ static void initControlModules() {
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    // auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
-    // if (waveformStatus != module::MODULE_INIT_SUCCESS) {
-    //     Serial.printf("[init] Waveform initialization failed (status %d).\n",
-    //                   static_cast<int>(waveformStatus));
-    //     initFailureDetected = true;
-    // }
-    // telemetry::emitSafe();
-
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cold head initialization failed (status %d).\n",
@@ -165,14 +154,6 @@ static void initControlModules() {
         initFailureDetected = true;
     }
     telemetry::emitSafe();
-
-    // auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
-    // if (dacStatus != module::MODULE_INIT_SUCCESS) {
-    //     Serial.printf("[init] DAC initialization failed (status %d).\n",
-    //                   static_cast<int>(dacStatus));
-    //     initFailureDetected = true;
-    // }
-    // telemetry::emitSafe();
 
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
@@ -296,9 +277,9 @@ void loop() {
     if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] imu service error"));
     }
-    // if (waveform::Module::service() == module::MODULE_SERVICE_ERROR) {
-    //     Serial.println(F("[loop] waveform service error"));
-    // }
+    if (amplifier::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] amplifier service error"));
+    }
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] cooling service error"));
     }
@@ -325,8 +306,6 @@ void loop() {
     // Each module handles mock mode internally: when sensor_mock::isActive(),
     // read()/service() pulls from sensor_mock::get() instead of hardware.
     cold_head::read(nowMs);
-    //rms::read();
-    //rms::readCurrent();
     cold_head::checkFaults();
 
     // Read cached values.
@@ -334,7 +313,6 @@ void loop() {
     const float tempC       = cold_head::getLastTempC();
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
-    //const float rmsV        = rms::getVoltage();
     const float rmsV        = amplifier::getLastRmsVoltageV();
     const bool  overstroke  = imu::hasOverstroke();
     const float sysVoltage  = sysinfo::getVoltage();

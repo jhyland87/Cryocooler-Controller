@@ -1,13 +1,18 @@
 /**
  * @file imu.cpp
- * @brief QMI8658 imu implementation.
+ * @brief QMI8658 IMU implementation.
  *
  * Reads 6-DOF IMU data, applies offset calibration and a first-order
  * low-pass filter, computes roll/pitch/yaw orientation, and exposes
  * motion/overstroke detection via hasOverstroke().
  *
- * All public getters return the values captured during the most recent
- * successful sensor read and are safe to call between service() ticks.
+ * Frequency detection:
+ *   checkFrequency() collects FFT_N samples at FFT_FS_HZ using a
+ *   micros()-paced busy-wait loop (no delay() calls), then runs an
+ *   FFT with Hann windowing and quadratic peak interpolation.
+ *   The QMI8658 ODR is 1000 Hz (1 ms per sample), so each read in the
+ *   2500 us-spaced loop returns genuinely fresh data.  The collection
+ *   window is ~640 ms and is triggered once every FFT_INTERVAL_MS.
  *
  * Calibration:
  *   performCalibration() is called once from init().  It spins on
@@ -17,8 +22,10 @@
  */
 
 #include <QMI8658.h>
+#include <arduinoFFT.h>
 #include <math.h>
 #include "imu.h"
+#include "config.h"
 #include "hardware.h"
 #include "pin_config.h"
 
@@ -60,6 +67,40 @@ static float frequency_ = 0.0f;
 // Motion / overstroke detection
 static bool     motionDetected_ = false;
 static uint32_t lastMotionMs_   = 0u;
+
+// ---------------------------------------------------------------------------
+// FFT frequency detection state
+// ---------------------------------------------------------------------------
+
+// Number of samples per FFT window.
+static constexpr uint16_t FFT_N            = 256u;
+// Sampling rate for the FFT collection loop (Hz).
+// Must be > 2 × max expected frequency.  QMI8658 ODR (1000 Hz) >> 400 Hz,
+// so each read in the 2500 us-paced loop always returns fresh data.
+static constexpr float    FFT_FS_HZ        = 400.0f;
+// Inter-sample period in microseconds (1 000 000 / FFT_FS_HZ).
+static constexpr uint32_t FFT_SAMPLE_US    = static_cast<uint32_t>(1000000.0f / FFT_FS_HZ); // 2500 us
+// Search band for the peak bin (Hz).
+static constexpr float    FFT_SEARCH_MIN   = 45.0f;
+static constexpr float    FFT_SEARCH_MAX   = 75.0f;
+// Minimum vibration amplitude (g) required to trust the result.
+static constexpr float    FFT_AMP_ON_G     = 0.015f;
+// Minimum peak-to-noise-floor ratio required to trust the result.
+static constexpr float    FFT_MIN_SNR      = 5.0f;
+// IIR smoothing weight applied to accepted measurements (0 < alpha <= 1).
+static constexpr float    FFT_FREQ_ALPHA   = 0.15f;
+// Minimum interval between FFT runs (ms).
+// The ~640 ms collection window is included in this interval.
+static constexpr uint32_t FFT_INTERVAL_MS  = 5000u;
+
+static float fftVReal_[FFT_N];
+static float fftVImag_[FFT_N];
+static float fftZBuf_[FFT_N];
+// ArduinoFFT v2 — template on sample type.
+static ArduinoFFT<float> fft_(fftVReal_, fftVImag_, FFT_N, FFT_FS_HZ);
+
+static float    fftFiltered_ = NAN;   // IIR-smoothed frequency estimate
+static uint32_t lastFftMs_   = 0u;    // millis() of last FFT run
 
 // ---------------------------------------------------------------------------
 // Private helpers
@@ -118,6 +159,88 @@ static void calculateOrientation(float ax, float ay, float az,
     while (yawInteg_ >  180.0f) { yawInteg_ -= 360.0f; }
     while (yawInteg_ < -180.0f) { yawInteg_ += 360.0f; }
     yaw = yawInteg_;
+}
+
+// Forward declaration — calculateFrequency() is defined after service() but called from it.
+float calculateFrequency();
+
+// ---------------------------------------------------------------------------
+// FFT helpers (adapted from imu-fft-hz-test.cpp)
+// ---------------------------------------------------------------------------
+
+/** Hann window coefficient for sample index @p i. */
+static inline float fftHann(uint16_t i) {
+    return 0.5f * (1.0f - cosf((2.0f * static_cast<float>(M_PI) * i)
+                               / static_cast<float>(FFT_N - 1u)));
+}
+
+/** In-place selection sort; returns median of @p arr[0..len-1]. */
+static float fftMedian(float* arr, uint16_t len) {
+    for (uint16_t i = 0u; i < len; ++i) {
+        uint16_t m = i;
+        for (uint16_t j = i + 1u; j < len; ++j) {
+            if (arr[j] < arr[m]) m = j;
+        }
+        const float t = arr[i]; arr[i] = arr[m]; arr[m] = t;
+    }
+    return arr[len / 2u];
+}
+
+struct FftResult { float freq; float snr; };
+
+/**
+ * DC-remove, Hann-window, FFT, find peak in [FFT_SEARCH_MIN, FFT_SEARCH_MAX],
+ * estimate noise via median, apply quadratic interpolation for sub-bin accuracy.
+ */
+static FftResult fftDetect(const float* data) {
+    float mean = 0.0f;
+    for (uint16_t i = 0u; i < FFT_N; ++i) mean += data[i];
+    mean /= static_cast<float>(FFT_N);
+
+    for (uint16_t i = 0u; i < FFT_N; ++i) {
+        fftVReal_[i] = (data[i] - mean) * fftHann(i);
+        fftVImag_[i] = 0.0f;
+    }
+
+    fft_.compute(FFTDirection::Forward);
+    fft_.complexToMagnitude();
+
+    const float    binHz = FFT_FS_HZ / static_cast<float>(FFT_N);
+    const uint16_t kMin  = static_cast<uint16_t>(ceilf(FFT_SEARCH_MIN / binHz));
+    uint16_t       kMax  = static_cast<uint16_t>(floorf(FFT_SEARCH_MAX / binHz));
+    if (kMax > (FFT_N / 2u - 1u)) kMax = FFT_N / 2u - 1u;
+
+    // Find peak bin
+    uint16_t kPeak = kMin;
+    float    peak  = fftVReal_[kMin];
+    for (uint16_t k = kMin + 1u; k <= kMax; ++k) {
+        if (fftVReal_[k] > peak) { peak = fftVReal_[k]; kPeak = k; }
+    }
+
+    // Noise floor via median of search-band magnitudes
+    float    mags[64];
+    uint16_t cnt = 0u;
+    for (uint16_t k = kMin; k <= kMax && cnt < 64u; ++k) {
+        mags[cnt++] = fftVReal_[k];
+    }
+    float noise = fftMedian(mags, cnt);
+    if (noise < 1e-9f) noise = 1e-9f;
+
+    // Coarse bin centre frequency
+    float freq = static_cast<float>(kPeak) * binHz;
+
+    // Quadratic interpolation for sub-bin precision
+    if (kPeak > 1u && kPeak < FFT_N / 2u - 1u) {
+        const float a     = fftVReal_[kPeak - 1u];
+        const float b     = fftVReal_[kPeak];
+        const float c     = fftVReal_[kPeak + 1u];
+        const float denom = a - 2.0f * b + c;
+        if (fabsf(denom) > 1e-9f) {
+            freq = (static_cast<float>(kPeak) + 0.5f * (a - c) / denom) * binHz;
+        }
+    }
+
+    return { freq, peak / noise };
 }
 
 static void checkMotion(float accelMag, float gyroMag) {
@@ -192,12 +315,84 @@ module::ServiceStatus service() {
     imuTemp_  = data.temperature;
 
     checkMotion(accelMag_, gyroMag_);
+
+    // Periodically run FFT frequency detection.
+    // checkFrequency() blocks for ~640 ms; the gate limits this to once every
+    // FFT_INTERVAL_MS so the main loop is only briefly paused every few seconds.
+    if ((millis() - lastFftMs_) >= FFT_INTERVAL_MS) {
+        lastFftMs_ = millis();
+        calculateFrequency();
+    }
+
     return module::MODULE_SERVICE_OK;
 }
 
 float getFrequencyHz() {
     return frequency_;
 }
+
+/**
+ * Collect FFT_N accelerometer-Z samples at FFT_FS_HZ, run an FFT, and
+ * update frequency_ with the IIR-smoothed result.
+ *
+ * Timing: uses a micros()-paced busy-wait loop (~640 ms total).  No delay()
+ * is used.  The QMI8658 ODR is 1000 Hz so each read in the 2500 us loop
+ * always returns a genuinely fresh sample.  This function should be called
+ * infrequently (every FFT_INTERVAL_MS) to limit its impact on the main loop.
+ *
+ * @return The detected frequency in Hz, or NAN when the signal is absent or
+ *         the SNR is below threshold.  The internal frequency_ state is only
+ *         updated on valid detections.
+ */
+float calculateFrequency() {
+    if (!initialized_) return NAN;
+
+    // -- Collect FFT_N samples at FFT_FS_HZ using micros() timing ------------
+    uint32_t tNext = micros();
+    float    sumSq  = 0.0f;
+    float    zMin   =  999.0f;
+    float    zMax   = -999.0f;
+
+    for (uint16_t i = 0u; i < FFT_N; ++i) {
+        // Busy-wait for the next sample slot — no delay().
+        while (static_cast<int32_t>(micros() - tNext) < 0) { /* spin */ }
+        tNext += FFT_SAMPLE_US;
+
+        QMI8658_Data d;
+        if (sensor.readSensorData(d)) {
+            fftZBuf_[i] = d.accelZ / 9.80665f;   // convert m/s² → g
+        } else {
+            fftZBuf_[i] = (i > 0u) ? fftZBuf_[i - 1u] : 0.0f;
+        }
+
+        const float z = fftZBuf_[i];
+        sumSq += z * z;
+        if (z < zMin) zMin = z;
+        if (z > zMax) zMax = z;
+    }
+
+    // -- Run FFT and evaluate result ------------------------------------------
+    const float     zPeak  = (zMax - zMin) * 0.5f;
+    const FftResult result = fftDetect(fftZBuf_);
+    const bool      valid  = (zPeak > FFT_AMP_ON_G) && (result.snr > FFT_MIN_SNR);
+
+    if (valid) {
+        if (!isfinite(fftFiltered_)) {
+            fftFiltered_ = result.freq;
+        } else {
+            fftFiltered_ = (1.0f - FFT_FREQ_ALPHA) * fftFiltered_
+                           + FFT_FREQ_ALPHA * result.freq;
+        }
+        frequency_ = fftFiltered_;
+    } else {
+        fftFiltered_ = NAN;
+        // Keep the last valid frequency_ when signal is absent.
+    }
+
+    if (!isfinite(fftFiltered_)) return NAN;
+    return frequency_;
+}
+
 bool  isInitialized()    { return initialized_;    }
 bool  isMotionDetected() { return motionDetected_;  }
 bool  hasOverstroke()    { return motionDetected_;  }

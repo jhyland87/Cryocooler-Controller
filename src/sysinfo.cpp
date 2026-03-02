@@ -9,7 +9,6 @@
 #include "sysinfo.h"
 #include "hardware.h"
 #include "imu.h"
-#include "driver/i2c_master.h"
 #include "sensor_mock.h"
 
 // System voltage in volts
