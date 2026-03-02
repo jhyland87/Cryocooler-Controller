@@ -17,6 +17,13 @@
 #include "config.h"
 #include "indicator.h"
 
+// rgbLedWrite() was introduced in Arduino Core 3.x.  Core 2.x provides the
+// identical function under the name neopixelWrite() (same signature, same
+// RMT-based WS2812 implementation).
+#if ESP_ARDUINO_VERSION_MAJOR < 3
+#define rgbLedWrite neopixelWrite
+#endif
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------

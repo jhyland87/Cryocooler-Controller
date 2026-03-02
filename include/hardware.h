@@ -53,6 +53,26 @@ namespace hardware {
     SPIClass& spi();
 
     /**
+     * Recover the I2C bus by tearing down and re-creating the IDF master
+     * driver (Wire.end() then Wire.begin()).
+     *
+     * IDF 5.x's new-gen I2C driver can leave the bus in ESP_ERR_INVALID_STATE
+     * after a failed probe transaction even when the transaction itself was an
+     * expected "device not at this address" probe.  The QMI8658 library is the
+     * known trigger: it first probes QMI8658_ADDRESS_LOW; if that fails the bus
+     * gets stuck, making every subsequent I2C call (including the ACS37800
+     * init) also fail with INVALID_STATE.
+     *
+     * Call this after imu::init() (or any other module whose init is known to
+     * leave the bus stuck) so that the next module starts with a clean driver.
+     *
+     * Wire.end() deletes the IDF bus handle; Wire.begin() creates a fresh one.
+     * All sensor objects that hold a TwoWire* continue to work because they
+     * reference the global Wire object, which Wire.begin() updates in place.
+     */
+    void recoverI2c();
+
+    /**
      * Scan the I2C bus by probing every 7-bit address using the Arduino Wire
      * API (beginTransmission / endTransmission).  Logs each responding address
      * and a warning if nothing is found.

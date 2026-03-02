@@ -13,6 +13,25 @@
 
   2. printSensorData(): replaced Arduino String objects with const char*
      literals to comply with the project's "no Arduino String class" policy.
+
+  3. readRegister(): changed endTransmission(false) → endTransmission() (i.e.
+     sendStop = true).
+     In Arduino Core 3.x (IDF 5.5.2 new-gen I2C driver), endTransmission(false)
+     does NOT send the write immediately — it buffers it and defers the entire
+     combined write+read to the subsequent requestFrom() call, which is sent as
+     a single i2cWriteReadNonStop() / i2c_master_transmit_receive().
+     When begin() probes QMI8658_ADDRESS_LOW first (the wrong address), that
+     combined transaction fails with a NACK.  The IDF driver's error path for
+     i2c_master_transmit_receive() can leave the internal bus status in a
+     non-IDLE state instead of cleanly resetting it, causing every subsequent
+     I2C call on the same bus (e.g. ACS37800 init) to fail with
+     ESP_ERR_INVALID_STATE.
+     With endTransmission() (sendStop=true) the write is a separate transaction.
+     If the device NACKs the address byte, endTransmission() returns a non-zero
+     error code, readRegister() returns false early (before calling
+     requestFrom()), and the IDF driver resets the bus status to IDLE normally.
+     The QMI8658 supports both the stop+start and the repeated-start read
+     pattern, so register reads work correctly with either approach.
   ─────────────────────────────────────────────────────────────────────────────
 */
 
@@ -528,7 +547,7 @@ bool QMI8658::readRegister(uint8_t reg, uint8_t *buffer, uint8_t length) {
 
     _wire->beginTransmission(_address);
     _wire->write(reg);
-    uint8_t error = _wire->endTransmission(false);
+    uint8_t error = _wire->endTransmission();  // Patch 3: was endTransmission(false)
 
     if (error != 0) return false;
 

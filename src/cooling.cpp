@@ -23,6 +23,10 @@ static volatile uint8_t    fanSpeed_ = 0;
 static volatile bool    forceFanSpeed_ = false;
 static constexpr int freq       = 25000;
 static constexpr int resolution = 8;
+// Core 2.x LEDC requires an explicit channel number; Core 3.x uses the pin.
+#if ESP_ARDUINO_VERSION_MAJOR < 3
+static constexpr uint8_t FAN_LEDC_CH = 0;
+#endif
 const long interval = 1000;  // Calculate RPM every 1 second
 volatile int pulseCount = 0;
 void IRAM_ATTR countPulses() {
@@ -36,7 +40,12 @@ module::InitStatus init() {
   pinMode(COOLING_INHIBIT_PIN, OUTPUT);
   digitalWrite(COOLING_INHIBIT_PIN, LOW);
 
-  ledcAttach(COOLING_FAN_PWM_PIN, freq, resolution);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(COOLING_FAN_PWM_PIN, freq, resolution);   // Core 3.x: pin-based API
+#else
+  ledcSetup(FAN_LEDC_CH, freq, resolution);             // Core 2.x: channel-based API
+  ledcAttachPin(COOLING_FAN_PWM_PIN, FAN_LEDC_CH);
+#endif
   setFanSpeed(0); // Force fan to 0% on startup
 
   pinMode(COOLING_FAN_TACHO_PIN, INPUT_PULLUP);
@@ -104,7 +113,11 @@ void setFanSpeed(uint8_t percentage, bool force) {
   fanSpeed_ = constrain(percentage, 0, COOLING_FAN_MAX_SPEED);
   int duty = map(fanSpeed_, 0, COOLING_FAN_MAX_SPEED, 0, 255);
   ESP_LOGD(TAG, "Setting fan speed to %d (duty = %d, force = %d)", fanSpeed_, duty, force);
-  ledcWrite(COOLING_FAN_PWM_PIN, duty);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcWrite(COOLING_FAN_PWM_PIN, duty);  // Core 3.x: pin-based
+#else
+  ledcWrite(FAN_LEDC_CH, duty);           // Core 2.x: channel-based
+#endif
 }
 
 void enable()    {

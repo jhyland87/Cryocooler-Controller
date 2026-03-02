@@ -233,6 +233,14 @@ uint16_t getDacCurrent() {
 // ---------------------------------------------------------------------------
 
 module::ServiceStatus service() {
+    // Guard: skip I2C reads if the ACS37800 did not initialise successfully.
+    // amplifier::initAcs() detects ACS37800 absence via Wire.endTransmission()
+    // return codes; if init failed, reading from it every tick would flood the
+    // log with ESP_ERR_INVALID_STATE errors.
+    if (initStatus_ != module::MODULE_INIT_SUCCESS) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
     acs_.readRMSVoltageAndCurrent();
     lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;

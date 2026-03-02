@@ -81,6 +81,13 @@ static bool     setupComplete  = false;
  * commands — including the reinit command itself.
  */
 static void initPersistentModules() {
+
+    auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
+    if (imuStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
+                      static_cast<int>(imuStatus));
+    }
+
     auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
@@ -123,11 +130,12 @@ static void initPersistentModules() {
 static void initControlModules() {
     bool initFailureDetected = false;
 
-    auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
-    if (imuStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
-                      static_cast<int>(imuStatus));
-    }
+    // Belt-and-suspenders I2C recovery after imu::init().
+    // Patch 3 in lib/QMI8658/src/QMI8658.cpp (endTransmission(false) →
+    // endTransmission()) ensures a NACK on an address probe returns a clean
+    // error without sticking the bus.  This call is a safety net in case any
+    // other library leaves the bus driver in a non-idle state.
+    hardware::recoverI2c();
     telemetry::emitSafe();
 
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });

@@ -24,6 +24,7 @@
 #include <QMI8658.h>
 #include <arduinoFFT.h>
 #include <math.h>
+#include <Wire.h>
 #include "imu.h"
 #include "config.h"
 #include "hardware.h"
@@ -45,7 +46,7 @@ static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coef
 // Module state
 // ---------------------------------------------------------------------------
 
-static QMI8658 sensor;
+QMI8658 sensor;
 static bool initialized_ = false;
 
 // Calibration offsets (set by performCalibration)
@@ -260,10 +261,25 @@ static void checkMotion(float accelMag, float gyroMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // Pass the shared bus from hardware::i2c().  The vendored QMI8658 library
-    // (lib/QMI8658) has its internal Wire.begin() call removed, so the bus
-    // is initialised exactly once by hardware::init() and never re-entered.
-    if (!sensor.begin(hardware::i2c())) {
+    // Device is at QMI8658_ADDRESS_HIGH (0x6B) — confirmed by the I2C bus scan
+    // in hardware::init().  Pass the correct address so begin()'s first probe
+    // ACKs immediately; the fallback path to the second address is never taken.
+    //
+    // Do NOT call Wire.setBufferSize() here.  On Core 2.x that call tears down
+    // and rebuilds the I2C driver, resetting the timeout to ~1 s and leaving
+    // the bus in a state where probes time out instead of returning clean NACKs.
+    // The largest QMI8658 register read is 14 bytes — well within the default
+    // 128-byte Wire buffer.
+    //
+    // Guarantee a clean bus state immediately before begin().  Modules that
+    // initialised earlier (e.g. INA260 via Adafruit_I2CDevice::begin()) call
+    // _wire->begin() internally; on Core 2.x (IDF 4.4) that can leave the Wire
+    // TX/RX buffers or the driver state machine in a non-idle condition.
+    // recoverI2c() → Wire.end() + Wire.begin() resets everything to the same
+    // known-clean state that the standalone test sketch starts from.
+    hardware::recoverI2c();
+
+    if (!sensor.begin(hardware::i2c(), QMI8658_ADDRESS_HIGH)) {
         log_e("[imu] QMI8658 not found — check wiring and I2C address");
         initialized_ = false;
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
