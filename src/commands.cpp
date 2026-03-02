@@ -281,10 +281,21 @@ static void handleFsmHistory(const char* /*args*/, Print& out) {
     out.println(header);
     for (uint8_t i = 0; i < count; ++i) {
         const auto entry = state_machine::getHistoryEntry(i);
-        char line[96];
-        snprintf(line, sizeof(line), "  [%2u] %-16s  T+%lu ms  via %s",
+
+        // Format wall-clock time if SNTP has synced, otherwise flag as pre-sync.
+        char timeBuf[20];
+        if (entry.enteredEpoch > 0) {
+            struct tm* tinfo = localtime(&entry.enteredEpoch);
+            strftime(timeBuf, sizeof(timeBuf), "%m/%d %H:%M:%S", tinfo);
+        } else {
+            strncpy(timeBuf, "(pre-sync)", sizeof(timeBuf));
+        }
+
+        char line[112];
+        snprintf(line, sizeof(line), "  [%2u] %-16s  %-14s  T+%lu ms  via %s",
                  static_cast<unsigned>(i),
                  state_machine::stateName(entry.state),
+                 timeBuf,
                  static_cast<unsigned long>(entry.enteredMs),
                  entry.cause ? entry.cause : "?");
         out.println(line);
