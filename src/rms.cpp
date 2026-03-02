@@ -42,7 +42,7 @@
 
 #ifdef ARDUINO
 #  include <Arduino.h>
-#  include "ContinuousZMCT103C.h"
+//#  include "ContinuousZMCT103C.h"
 #else
 // Native (host-PC) build: Arduino.h stub provides millis().
 #  include "Arduino.h"
@@ -51,6 +51,8 @@
 #include "rms.h"
 #include "config.h"
 #include "pin_config.h"
+#include "sensor_mock.h"
+#include "module.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -63,16 +65,16 @@ static uint8_t  primeCount       = 0;      // readings collected for EMA priming
 static bool     overstrokeFlag   = false;  // set on spike; cleared by caller
 static uint32_t lastOverstrokeMs = 0;      // timestamp of most recent event
 
-#ifdef ARDUINO
+//#ifdef ARDUINO
 // ContinuousZMCT103C — 5 A sensor on ESP32-S3 (3.3 V supply, 12-bit ADC).
 // Mean-centering is on by default: the running mean tracks the zero-current
 // offset automatically, so no explicit midpoint calibration is required.
 // Constructor: (analogPin, volts, maxADC, mVperAmpere)
-static ContinuousZMCT103C sensor(ACS712_CURRENT_PIN,
-                                  ACS712_ADC_VOLTS,
-                                  ACS712_ADC_MAX_VALUE,
-                                  ACS712_SENSITIVITY_MV_PER_A);
-#endif
+// static ContinuousZMCT103C sensor(ACS712_CURRENT_PIN,
+//                                   ACS712_ADC_VOLTS,
+//                                   ACS712_ADC_MAX_VALUE,
+//                                   ACS712_SENSITIVITY_MV_PER_A);
+//#endif
 
 namespace rms {
 
@@ -84,7 +86,7 @@ module::InitStatus init() {
     overstrokeFlag   = false;
     lastOverstrokeMs = 0;
 
-#ifdef ARDUINO
+//#ifdef ARDUINO
     // ESP32 Arduino 3.x (ESP-IDF 5.x) uses lazy ADC unit initialisation —
     // the oneshot driver handle for an ADC unit is only created on the first
     // analogRead() for a pin in that unit.  analogSetPinAttenuation() requires
@@ -92,28 +94,31 @@ module::InitStatus init() {
     // ADC2 handle before configuring attenuation.  The discarded value is fine
     // since the EMA in readCurrent() absorbs the first OVERSTROKE_PRIME_READINGS
     // samples regardless.
-    (void)analogRead(ACS712_CURRENT_PIN);
+ //   (void)analogRead(ACS712_CURRENT_PIN);
 
     // Set ADC input attenuation so that all samples use the same full-scale
     // range as live readings.  See config.h for the available choices.
-    analogSetPinAttenuation(ACS712_CURRENT_PIN, ACS712_ADC_ATTENUATION);
+    //analogSetPinAttenuation(ACS712_CURRENT_PIN, ACS712_ADC_ATTENUATION);
 
     // Start continuous non-blocking RMS mode.
     // Default tau = 250 ms, minSampleIntervalUs = 200 µs.
     // Mean-centering handles zero-current offset drift; no calibration needed.
-    sensor.beginContinuousRMS();
-#endif
+    //sensor.beginContinuousRMS();
+//#endif
     return module::MODULE_INIT_SUCCESS;
 }
 
 void read() {
+    if (sensor_mock::isActive()) {
+        const auto& mo = sensor_mock::get();
+        setLastReadings(mo.overstroke);
+        return;
+    }
     // TODO: implement RMS-to-DC converter ADC read.
     voltage = 0.0f;
 }
 
-void setLastReadings(float rmsVoltage, float rmsCurrentA, bool overstroke) {
-    voltage        = rmsVoltage;
-    currentA       = rmsCurrentA;
+void setLastReadings(bool overstroke) {
     overstrokeFlag = overstroke;
 }
 
@@ -122,38 +127,39 @@ float getVoltage() {
 }
 
 void readCurrent() {
-#ifdef ARDUINO
-    // Tick the continuous EMA — returns immediately (< 50 µs) if the minimum
-    // sample interval has not yet elapsed; no blocking wait.
-    sensor.updateContinuousRMS();
+//     if (sensor_mock::isActive()) return;  // values already set by read()
+// #ifdef ARDUINO
+//     // Tick the continuous EMA — returns immediately (< 50 µs) if the minimum
+//     // sample interval has not yet elapsed; no blocking wait.
+//     sensor.updateContinuousRMS();
 
-    // continuousmA() returns milliamps; convert to amps.
-    const float current = sensor.continuousmA() / 1000.0f;
-    currentA = current;
+//     // continuousmA() returns milliamps; convert to amps.
+//     const float current = sensor.continuousmA() / 1000.0f;
+//     currentA = current;
 
-    // Prime phase: seed the overstroke EMA baseline with the first few
-    // readings so spike detection is not armed prematurely.
-    if (primeCount < OVERSTROKE_PRIME_READINGS) {
-        currentEmaA = current;
-        ++primeCount;
-        return;
-    }
+//     // Prime phase: seed the overstroke EMA baseline with the first few
+//     // readings so spike detection is not armed prematurely.
+//     if (primeCount < OVERSTROKE_PRIME_READINGS) {
+//         currentEmaA = current;
+//         ++primeCount;
+//         return;
+//     }
 
-    // Update EMA baseline (slow-tracking, small alpha keeps transients visible).
-    currentEmaA += OVERSTROKE_EMA_ALPHA * (current - currentEmaA);
+//     // Update EMA baseline (slow-tracking, small alpha keeps transients visible).
+//     currentEmaA += OVERSTROKE_EMA_ALPHA * (current - currentEmaA);
 
-    // Spike check: fire if delta exceeds threshold AND debounce has elapsed.
-    const float    delta = current - currentEmaA;
-    const uint32_t now   = millis();
+//     // Spike check: fire if delta exceeds threshold AND debounce has elapsed.
+//     const float    delta = current - currentEmaA;
+//     const uint32_t now   = millis();
 
-    if (!overstrokeFlag &&
-        delta   > OVERSTROKE_CURRENT_THRESHOLD_A &&
-        (now - lastOverstrokeMs) >= OVERSTROKE_DEBOUNCE_MS) {
-        overstrokeFlag   = true;
-        lastOverstrokeMs = now;
-    }
-#endif
-    // Native build: no-op — state remains 0 A, no spurious overstrokes.
+//     if (!overstrokeFlag &&
+//         delta   > OVERSTROKE_CURRENT_THRESHOLD_A &&
+//         (now - lastOverstrokeMs) >= OVERSTROKE_DEBOUNCE_MS) {
+//         overstrokeFlag   = true;
+//         lastOverstrokeMs = now;
+//     }
+// #endif
+//     // Native build: no-op — state remains 0 A, no spurious overstrokes.
 }
 
 float getCurrentA() {

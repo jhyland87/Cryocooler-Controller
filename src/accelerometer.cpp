@@ -141,11 +141,7 @@ module::InitStatus init() {
     // (lib/QMI8658) has its internal Wire.begin() call removed, so the bus
     // is initialised exactly once by hardware::init() and never re-entered.
     if (!imu.begin(hardware::i2c())) {
-        // Device did not respond.  Run a full bus scan so the serial log
-        // shows exactly what (if anything) is present — distinguishes a
-        // wiring/pull-up issue from a driver/address mismatch.
-        log_e("[accelerometer] QMI8658 not found — scanning I2C bus:");
-        hardware::scanI2c();
+        log_e("[accelerometer] QMI8658 not found — check wiring and I2C address");
         initialized_ = false;
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }

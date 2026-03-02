@@ -28,6 +28,9 @@ void run_frame_builder_tests();
 // Dashboard tests (defined in test_ss_dashboard.cpp)
 void run_dashboard_tests();
 
+// Sensor mock ramp tests (defined in test_sensor_mock_ramp.cpp)
+void run_sensor_mock_ramp_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1142,6 +1145,280 @@ void test_clear_low_voltage_fault_transitions_to_idle(void) {
 }
 
 // ---------------------------------------------------------------------------
+// FSM History tests
+// ---------------------------------------------------------------------------
+
+static void test_history_empty_after_init() {
+    state_machine::init(0);
+    // init() fires onEnterOff, so 1 entry (Off) is recorded.
+    // We check that behaviour explicitly in the next test; here we just verify
+    // the count matches what init() actually records.
+    // (For this test we want the count to be exactly 1.)
+    TEST_ASSERT_EQUAL(1u, state_machine::getHistoryCount());
+}
+
+static void test_history_records_off_on_init() {
+    state_machine::init(0);
+    TEST_ASSERT_EQUAL(1u, state_machine::getHistoryCount());
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL(0u, entry.enteredMs);
+}
+
+static void test_history_records_start_transition() {
+    state_machine::init(0);
+    state_machine::start(100u);
+    // Most recent entry is CoarseCooldown (or whichever start state).
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL(100u, entry.enteredMs);
+}
+
+static void test_history_index_1_is_previous_state() {
+    // After init (Off) + start (CoarseCooldown), index 1 should be Off.
+    state_machine::init(0);
+    state_machine::start(100u);
+    TEST_ASSERT_EQUAL(2u, state_machine::getHistoryCount());
+    const auto prev = state_machine::getHistoryEntry(1);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(prev.state));
+}
+
+static void test_history_out_of_range_returns_zero_entry() {
+    state_machine::init(0);
+    // Only 1 entry; requesting index 5 should return a zeroed HistoryEntry and not crash.
+    const auto entry = state_machine::getHistoryEntry(5);
+    // HistoryEntry{} zero-initialises: state=0 (Initialize), enteredMs=0.
+    TEST_ASSERT_EQUAL(0u, entry.enteredMs);
+    // The important guarantee: count is unchanged (no side effects).
+    TEST_ASSERT_EQUAL(1u, state_machine::getHistoryCount());
+}
+
+static void test_history_timestamp_matches_entry_time() {
+    state_machine::init(500u);
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(500u, entry.enteredMs);
+}
+
+static void test_history_grows_with_each_transition() {
+    state_machine::init(0);       // Off       → count 1
+    state_machine::start(100u);   // Coarse    → count 2
+    state_machine::stop(200u);    // Shutdown  → count 3
+    TEST_ASSERT_EQUAL(3u, state_machine::getHistoryCount());
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
+                      static_cast<int8_t>(state_machine::getHistoryEntry(0).state));
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(state_machine::getHistoryEntry(1).state));
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(state_machine::getHistoryEntry(2).state));
+}
+
+static void test_history_wraps_at_limit() {
+    // Drive more than FSM_HISTORY_LIMIT transitions by toggling start/stop.
+    // Each stop→shutdown→(wait)→idle cycle adds 3 entries (Shutdown, Idle, Coarse).
+    // We just want to confirm the count never exceeds FSM_HISTORY_LIMIT.
+    state_machine::init(0);
+    uint32_t t = 10u;
+    for (uint8_t i = 0; i < 30u; ++i, t += 10u) {
+        state_machine::start(t);
+        t += 10u;
+        state_machine::stop(t);
+        t += 10u;
+        // Advance through Shutdown to Idle so we can start again.
+        state_machine::update(300.0f, 0.0f, 0.0f, false, t + SHUTDOWN_DURATION_MS + 1u);
+        t += SHUTDOWN_DURATION_MS + 2u;
+    }
+    TEST_ASSERT_LESS_OR_EQUAL(static_cast<uint8_t>(FSM_HISTORY_LIMIT),
+                               state_machine::getHistoryCount());
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(FSM_HISTORY_LIMIT),
+                      state_machine::getHistoryCount());
+}
+
+// ---------------------------------------------------------------------------
+// FSM Oscillation detection tests
+// ---------------------------------------------------------------------------
+
+// Helper: one update() with fixed inputs; returns resulting state.
+static state_machine::State bounceOnce(float tempK, uint32_t t) {
+    return state_machine::update(tempK, 0.0f, 0.0f, false, t).state;
+}
+
+static void test_oscillation_no_fault_before_min_cycles() {
+    // Window = FSM_OSCILLATION_MIN_CYCLES * 2 = 6 entries.
+    // After init(Off) + start(Coarse) + 4 alternations = 6 pushes total.
+    // entry[5] is still Off → pattern check fails → no fault.
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);   // Fine   (3rd push)
+    bounceOnce(86.0f, 300u);   // Coarse (4th push)
+    bounceOnce(84.0f, 400u);   // Fine   (5th push)
+    const auto out = state_machine::update(86.0f, 0.0f, 0.0f, false, 500u);  // Coarse (6th)
+    TEST_ASSERT_NOT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                          static_cast<int8_t>(out.state));
+}
+
+static void test_oscillation_fault_fires_after_min_cycles() {
+    // 7 pushes: Off, Coarse, Fine, Coarse, Fine, Coarse, Fine
+    // At push 7 (Fine), entries[0..5] = Fine,Coarse,Fine,Coarse,Fine,Coarse → flag set.
+    // Next update() tick consumes the flag and fires Fault.
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);   // Fine   (3rd push)
+    bounceOnce(86.0f, 300u);   // Coarse (4th push)
+    bounceOnce(84.0f, 400u);   // Fine   (5th push)
+    bounceOnce(86.0f, 500u);   // Coarse (6th push)
+    bounceOnce(84.0f, 600u);   // Fine   (7th push) ← oscillation flag set inside pushHistory
+    // Next tick: fault check fires before temperature logic.
+    const auto out = state_machine::update(84.0f, 0.0f, 0.0f, false, 700u);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+}
+
+static void test_oscillation_fault_reason_is_state_oscillation() {
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);
+    bounceOnce(86.0f, 300u);
+    bounceOnce(84.0f, 400u);
+    bounceOnce(86.0f, 500u);
+    bounceOnce(84.0f, 600u);
+    state_machine::update(84.0f, 0.0f, 0.0f, false, 700u);
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::StateOscillation),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+static void test_oscillation_status_text_is_not_null() {
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);
+    bounceOnce(86.0f, 300u);
+    bounceOnce(84.0f, 400u);
+    bounceOnce(86.0f, 500u);
+    bounceOnce(84.0f, 600u);
+    state_machine::update(84.0f, 0.0f, 0.0f, false, 700u);
+    TEST_ASSERT_NOT_NULL(state_machine::getStatusText());
+}
+
+static void test_oscillation_no_fault_with_third_state_in_window() {
+    // Introduce Overshoot to break the two-state alternation.
+    // Off, Coarse, Fine, Coarse, Fine, Overshoot, Fine → third state in window.
+    const float kOvershoot = static_cast<float>(SETPOINT_K)
+                           - static_cast<float>(SETPOINT_TOLERANCE_K) - 1.0f;
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);        // Fine
+    bounceOnce(86.0f, 300u);        // Coarse
+    bounceOnce(84.0f, 400u);        // Fine
+    bounceOnce(kOvershoot, 500u);   // Overshoot (breaks A/B pattern)
+    const auto out = state_machine::update(84.0f, 0.0f, 0.0f, false, 600u);
+    TEST_ASSERT_NOT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                          static_cast<int8_t>(out.state));
+}
+
+static void test_oscillation_no_fault_outside_time_window() {
+    // Space each bounce > FSM_OSCILLATION_WINDOW_MS / 5 apart so the 6-entry
+    // window spans more than FSM_OSCILLATION_WINDOW_MS total.
+    const uint32_t kStep = static_cast<uint32_t>(FSM_OSCILLATION_WINDOW_MS) / 5u + 1u;
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 100u + 1u * kStep);
+    bounceOnce(86.0f, 100u + 2u * kStep);
+    bounceOnce(84.0f, 100u + 3u * kStep);
+    bounceOnce(86.0f, 100u + 4u * kStep);
+    bounceOnce(84.0f, 100u + 5u * kStep);  // 7th push — time span > window
+    const auto out = state_machine::update(84.0f, 0.0f, 0.0f, false, 100u + 6u * kStep);
+    TEST_ASSERT_NOT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                          static_cast<int8_t>(out.state));
+}
+
+static void test_oscillation_pending_clears_after_clear_fault() {
+    // After clearFault() → Idle, sOscillationFaultPending is reset.
+    // A single ordinary update from Idle must not immediately re-fault.
+    state_machine::init(0);
+    state_machine::start(100u);
+    bounceOnce(84.0f, 200u);
+    bounceOnce(86.0f, 300u);
+    bounceOnce(84.0f, 400u);
+    bounceOnce(86.0f, 500u);
+    bounceOnce(84.0f, 600u);
+    state_machine::update(84.0f, 0.0f, 0.0f, false, 700u);   // → Fault
+    state_machine::clearFault(800u);                           // → Idle, clears flag
+
+    const auto out = state_machine::update(300.0f, 0.0f, 0.0f, false, 900u);
+    TEST_ASSERT_NOT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                          static_cast<int8_t>(out.state));
+}
+
+static void test_history_reset_on_reinit() {
+    // reinit() clears history and records only Initialize.
+    // Must be called from Off, Idle, or Fault (EVT_REINITIALIZE is only
+    // registered from those states).  Call from Off (directly after init()).
+    state_machine::init(0);      // Off recorded → count 1
+    state_machine::reinit(200u); // clears history, then Initialize recorded → count 1
+    TEST_ASSERT_EQUAL(1u, state_machine::getHistoryCount());
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Initialize),
+                      static_cast<int8_t>(state_machine::getHistoryEntry(0).state));
+    TEST_ASSERT_EQUAL(200u, state_machine::getHistoryEntry(0).enteredMs);
+}
+
+// ---------------------------------------------------------------------------
+// History cause field tests
+// ---------------------------------------------------------------------------
+
+static void test_history_cause_init_records_init() {
+    // The Off entry written by init() run_machine() should carry cause "init".
+    state_machine::init(0);
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL_STRING("init", entry.cause);
+}
+
+static void test_history_cause_start_records_start() {
+    // start() should record cause "start" for the CoarseCooldown entry.
+    state_machine::init(0);
+    state_machine::start(100u);
+    // index 0 = most recent = CoarseCooldown; index 1 = Off (from init)
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL_STRING("start", entry.cause);
+}
+
+static void test_history_cause_stop_records_stop() {
+    // stop() → Shutdown should record cause "stop".
+    state_machine::init(0);
+    state_machine::start(0u);
+    state_machine::stop(500u);
+    // index 0 = most recent = Shutdown
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL_STRING("stop", entry.cause);
+}
+
+static void test_history_cause_reinit_records_reinit() {
+    // reinit() → Initialize should record cause "reinit".
+    state_machine::init(0);
+    state_machine::reinit(300u);
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Initialize),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL_STRING("reinit", entry.cause);
+}
+
+static void test_history_cause_clear_fault_records_clearFault() {
+    // clearFault() → Idle should record cause "clearFault".
+    state_machine::init(0);
+    state_machine::update(300.0f, 0.0f, 200.0f, false, 10u); // RMS fault → Fault state
+    state_machine::clearFault(20u);
+    const auto entry = state_machine::getHistoryEntry(0);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
+                      static_cast<int8_t>(entry.state));
+    TEST_ASSERT_EQUAL_STRING("clearFault", entry.cause);
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -1288,11 +1565,41 @@ int main(int argc, char **argv) {
     RUN_TEST(test_delay_expires_and_transitions_to_coarse);
     RUN_TEST(test_delay_from_fault_is_ignored);
 
+    // FSM Oscillation detection
+    RUN_TEST(test_oscillation_no_fault_before_min_cycles);
+    RUN_TEST(test_oscillation_fault_fires_after_min_cycles);
+    RUN_TEST(test_oscillation_fault_reason_is_state_oscillation);
+    RUN_TEST(test_oscillation_status_text_is_not_null);
+    RUN_TEST(test_oscillation_no_fault_with_third_state_in_window);
+    RUN_TEST(test_oscillation_no_fault_outside_time_window);
+    RUN_TEST(test_oscillation_pending_clears_after_clear_fault);
+
+    // FSM History
+    RUN_TEST(test_history_empty_after_init);
+    RUN_TEST(test_history_records_off_on_init);
+    RUN_TEST(test_history_records_start_transition);
+    RUN_TEST(test_history_index_1_is_previous_state);
+    RUN_TEST(test_history_out_of_range_returns_zero_entry);
+    RUN_TEST(test_history_timestamp_matches_entry_time);
+    RUN_TEST(test_history_grows_with_each_transition);
+    RUN_TEST(test_history_wraps_at_limit);
+    RUN_TEST(test_history_reset_on_reinit);
+
+    // History cause field
+    RUN_TEST(test_history_cause_init_records_init);
+    RUN_TEST(test_history_cause_start_records_start);
+    RUN_TEST(test_history_cause_stop_records_stop);
+    RUN_TEST(test_history_cause_reinit_records_reinit);
+    RUN_TEST(test_history_cause_clear_fault_records_clearFault);
+
     // Serial command handler
     run_serial_command_tests();
 
     // FrameBuilder
     run_frame_builder_tests();
+
+    // Sensor mock ramp subsystem
+    run_sensor_mock_ramp_tests();
 
     // SS Dashboard library
     run_dashboard_tests();

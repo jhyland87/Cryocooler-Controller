@@ -53,10 +53,13 @@ namespace hardware {
     SPIClass& spi();
 
     /**
-     * Scan the I2C bus by probing every 7-bit address via i2c_master_probe()
-     * (bypasses the Wire layer entirely).  Logs each responding address and a
-     * warning if nothing is found.  Useful for diagnosing wiring or driver
-     * issues independent of any sensor library.
+     * Scan the I2C bus by probing every 7-bit address using the Arduino Wire
+     * API (beginTransmission / endTransmission).  Logs each responding address
+     * and a warning if nothing is found.
+     *
+     * The Wire API is used rather than i2c_master_probe() to avoid a crash
+     * caused by Adafruit_I2CDevice::begin() leaving the IDF bus handle in an
+     * inconsistent state (see hardware.cpp for full explanation).
      *
      * @param timeoutMs  Per-address probe timeout in ms (default 10).
      * @return           Number of devices that responded.

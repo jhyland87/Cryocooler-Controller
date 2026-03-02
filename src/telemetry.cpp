@@ -16,7 +16,6 @@
 #include "cold_head.h"
 #include "telemetry.h"
 #include "state_machine.h"
-#include "rms.h"
 #include "dac.h"
 #include "indicator.h"
 #include "conversions.h"
@@ -108,7 +107,7 @@ static void buildStartupFrame(FrameBuilder& frame)
     const bool smReady        = ready(state_machine::Module::getInitStatus());
     const bool coldHeadReady  = ready(cold_head::Module::getInitStatus());
     const bool dacReady       = ready(dac::Module::getInitStatus());
-    const bool rmsReady       = ready(rms::Module::getInitStatus());
+    //const bool rmsReady       = ready(rms::Module::getInitStatus());
     const bool indicatorReady = ready(indicator::Module::getInitStatus());
     const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
     const bool waveformReady  = ready(waveform::Module::getInitStatus());
@@ -189,7 +188,9 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cold_head.cooling_rate",          "%.3f", cold_head::getCoolingRateKPerMin())
             .field("cold_head.cooldown_pct",          "%.2f", cold_head::getTemperatureToPercent())
             .field("cold_head.delta_below_ambient_c", "%.2f", cold_head::getLastTempCBelowAmbient())
-            .field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC());
+            .field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC())
+            .field("cold_head.voltage_v",             "%.2f", cold_head::getLastRmsVoltageV())
+            .field("cold_head.current_a",             "%.2f", cold_head::getLastRmsCurrentA());
     } else {
         frame
             .field("cold_head.temp_k",                "%s", "")
@@ -197,21 +198,23 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cold_head.cooling_rate",          "%s", "")
             .field("cold_head.cooldown_pct",          "%s", "")
             .field("cold_head.delta_below_ambient_c", "%s", "")
-            .field("cold_head.ambient_temp_c",        "%s", "");
+            .field("cold_head.ambient_temp_c",        "%s", "")
+            .field("cold_head.voltage_v",             "%s", "")
+            .field("cold_head.current_a",             "%s", "");
     }
 
     // ── RMS ───────────────────────────────────────────────────────────────
-    if (rmsReady) {
-        frame
-            .field("rms.voltage",   "%.2f", rms::getVoltage())
-            .field("rms.current_a", "%.2f", rms::getCurrentA())
-            .field("rms.voltage_v", "%.2f", rms::getVoltage());
-    } else {
-        frame
-            .field("rms.voltage",   "%s", "")
-            .field("rms.current_a", "%s", "")
-            .field("rms.voltage_v", "%s", "");
-    }
+    // if (rmsReady) {
+    //     frame
+    //         .field("rms.voltage",   "%.2f", rms::getVoltage())
+    //         .field("rms.current_a", "%.2f", rms::getCurrentA())
+    //         .field("rms.voltage_v", "%.2f", rms::getVoltage());
+    // } else {
+    //     frame
+    //         .field("rms.voltage",   "%s", "")
+    //         .field("rms.current_a", "%s", "")
+    //         .field("rms.voltage_v", "%s", "");
+    // }
 
     // ── Indicator ─────────────────────────────────────────────────────────
     if (indicatorReady) {
@@ -308,8 +311,6 @@ static void buildStartupFrame(FrameBuilder& frame)
         .field("mod.cold_head.service",         "%s", module::serviceStatusName(cold_head::Module::getServiceStatus()))
         .field("mod.dac.init",                  "%s", module::initStatusName(dac::Module::getInitStatus()))
         .field("mod.dac.service",               "%s", module::serviceStatusName(dac::Module::getServiceStatus()))
-        .field("mod.rms.init",                  "%s", module::initStatusName(rms::Module::getInitStatus()))
-        .field("mod.rms.service",               "%s", module::serviceStatusName(rms::Module::getServiceStatus()))
         .field("mod.relay.init",                "%s", module::initStatusName(relay::Module::getInitStatus()))
         .field("mod.relay.service",             "%s", module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",            "%s", module::initStatusName(indicator::Module::getInitStatus()))
@@ -418,7 +419,8 @@ void emit(const state_machine::Output& out)
         .field("cold_head.cooling_rate",            "%.3f", cold_head::getCoolingRateKPerMin())
         .field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))
         .field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
-        .field("rms.voltage",                       "%.2f", rms::getVoltage())
+        .field("cold_head.voltage_v",               "%.2f", cold_head::getLastRmsVoltageV())
+        .field("cold_head.current_a",               "%.2f", cold_head::getLastRmsCurrentA())
         .field("relay.normal",                      "%u",   static_cast<uint8_t>(!out.bypassRelay))
         .field("relay.alarm",                       "%u",   static_cast<uint8_t>(out.alarmRelay))
         .field("indicator.fault",                   "%d",   indicator::isFaultOn())
@@ -427,7 +429,6 @@ void emit(const state_machine::Output& out)
         .field("status.on_duration",                "%s",   hmsBuf)
         .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
-        .field("rms.current_a",                     "%.2f", rms::getCurrentA())
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
         .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
         .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
@@ -450,7 +451,6 @@ void emit(const state_machine::Output& out)
         .field("cooling.temp_c",                    "%.2f", cooling::getCoolantTemperature())
         .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())
         .field("cooling.fan_speed",                 "%u",   cooling::getFanSpeed())
-        .field("rms.voltage_v",                     "%.2f", rms::getVoltage())
         // ── Module init / service status ─────────────────────────────────────
         .field("mod.hardware.init",                 "%s",   module::initStatusName(hardware::Module::getInitStatus()))
         .field("mod.hardware.service",              "%s",   module::serviceStatusName(hardware::Module::getServiceStatus()))
@@ -468,8 +468,6 @@ void emit(const state_machine::Output& out)
         .field("mod.cold_head.service",             "%s",   module::serviceStatusName(cold_head::Module::getServiceStatus()))
         .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))
         .field("mod.dac.service",                   "%s",   module::serviceStatusName(dac::Module::getServiceStatus()))
-        .field("mod.rms.init",                      "%s",   module::initStatusName(rms::Module::getInitStatus()))
-        .field("mod.rms.service",                   "%s",   module::serviceStatusName(rms::Module::getServiceStatus()))
         .field("mod.relay.init",                    "%s",   module::initStatusName(relay::Module::getInitStatus()))
         .field("mod.relay.service",                 "%s",   module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",                "%s",   module::initStatusName(indicator::Module::getInitStatus()))

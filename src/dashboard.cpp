@@ -313,7 +313,7 @@ bool setupWifi() {
     // Without this the ESP32 can present an expired auth context to the AP,
     // which responds with deauth reason 2 (AUTH_EXPIRE) every ~1 s until
     // waitForConnectResult() times out.
-    WiFi.disconnect(true, true);
+    //WiFi.disconnectAsync(true, true);
     WiFi.setAutoReconnect(false);
     WiFi.mode(WIFI_OFF);
     delay(100);  // let the WiFi stack fully idle before re-arming
@@ -323,6 +323,7 @@ bool setupWifi() {
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
         Serial.println(F("[dashboard] Failed to connect to WiFi"));
+
         return false;
     }
 

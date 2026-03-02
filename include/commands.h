@@ -13,6 +13,8 @@
  *   off                  - Power off the system entirely
  *   status               - Print current state and running flag
  *   summary              - Print a full snapshot of all system values
+ *   fsm state            - Print current FSM state with time-in-state and status text
+ *   fsm history          - Print recent FSM state transitions (newest first, up to FSM_HISTORY_LIMIT)
  *   board                - Print compile-time board/platform info
  *   help                 - List available commands
  *   telemetry off        - Disable telemetry

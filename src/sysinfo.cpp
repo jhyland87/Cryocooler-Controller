@@ -10,6 +10,7 @@
 #include "hardware.h"
 #include "accelerometer.h"
 #include "driver/i2c_master.h"
+#include "sensor_mock.h"
 
 // System voltage in volts
 static float    voltageV         = 0.0f;
@@ -41,9 +42,14 @@ module::InitStatus init() {
 
 
 module::ServiceStatus service() {
+    if (sensor_mock::isActive()) {
+        const auto& mo = sensor_mock::get();
+        setLastReadings(mo.voltageV, mo.currentA, mo.voltageV * mo.currentA);
+        return module::MODULE_SERVICE_OK;
+    }
     voltageV = ina260.readBusVoltage()/1000.0f;
     currentA = ina260.readCurrent()/1000.0f;
-    powerW = ina260.readPower()/1000.0f;
+    powerW   = ina260.readPower()/1000.0f;
     return module::MODULE_SERVICE_OK;
 }
 
@@ -61,5 +67,11 @@ float getPower() {
 
 float getAmbientTemperature() {
     return accelerometer::getTemperature();
+}
+
+void setLastReadings(float v, float a, float w) {
+    voltageV = v;
+    currentA = a;
+    powerW   = w;
 }
 } // namespace sysinfo

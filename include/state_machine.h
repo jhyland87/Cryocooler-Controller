@@ -88,6 +88,7 @@ enum class FaultReason : uint8_t {
     TemperatureStall  = 2,
     TooManyBackoffs   = 3,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
     LowSystemVoltage  = 4,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
+    StateOscillation  = 5,  ///< FSM bouncing between the same two states too many times
 };
 
 /** Aggregate output produced by update() each loop. */
@@ -230,8 +231,61 @@ inline const char* stateName(State s) {
     return "Unknown";
 }
 
+/**
+ * Register a callback invoked synchronously when the FSM enters the
+ * Initialize state (on_enter).  Use this in main.cpp to re-run control
+ * module initialisation every time the machine is re-initialised.
+ * Pass nullptr to clear the callback.
+ *
+ * The callback executes from within fsm->trigger() on the call stack of
+ * reinit(), so it may block for as long as the module inits require.
+ */
+void setOnInitializeCallback(void (*cb)());
+
+/**
+ * Reset all FSM state and transition to the Initialize state.
+ *
+ * Fully equivalent to calling Module::init() (fresh FSM at Off) followed
+ * immediately by the Off → Initialize transition.  If an onInitialize
+ * callback has been registered via setOnInitializeCallback(), it is invoked
+ * synchronously as part of entering Initialize.
+ *
+ * Typical use:
+ *   - At startup: after state_machine::Module::init() and
+ *     setOnInitializeCallback(), call reinit(millis()) to kick off the
+ *     control-module init sequence without a separate setupModules() loop.
+ *   - At runtime: call off() or stop() to bring the machine to a safe state
+ *     first, then call reinit(nowMs) to re-run hardware module inits and
+ *     return to Idle.
+ *
+ * @param nowMs  Current millis()
+ */
+void reinit(uint32_t nowMs);
+
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
+
+// ── FSM History ───────────────────────────────────────────────────────────────
+
+/** A single FSM history record — one state transition. */
+struct HistoryEntry {
+    State       state;      ///< state that was entered
+    uint32_t    enteredMs;  ///< millis() at which the transition occurred
+    const char* cause;      ///< what triggered this transition (static string literal, may be nullptr)
+};
+
+/**
+ * Return the number of history entries currently stored.
+ * Starts at 0, grows up to FSM_HISTORY_LIMIT, then wraps (oldest overwritten).
+ */
+uint8_t getHistoryCount();
+
+/**
+ * Return a single history entry by recency index.
+ * @param i  0 = most recent entry, 1 = second most recent, …
+ * @return   The requested entry, or a zero-initialised entry if i >= getHistoryCount().
+ */
+HistoryEntry getHistoryEntry(uint8_t i);
 
 /** Return a short ASCII status text for the current state (safe for Serial / telemetry). */
 const char* getStatusText();

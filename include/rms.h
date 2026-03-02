@@ -63,7 +63,7 @@ void read();
  * @param currentA   AC current in amps
  * @param overstroke True to assert the overstroke flag
  */
-void setLastReadings(float voltage, float currentA, bool overstroke);
+void setLastReadings(bool overstroke);
 
 /** Return the most recently measured RMS voltage in VDC (stub: 0.0f). */
 float getVoltage();

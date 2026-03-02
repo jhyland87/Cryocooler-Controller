@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
 #include <RunningAverage.h>
+#include <ACS37800.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -17,6 +18,7 @@
 #include "module.h"
 #include "accelerometer.h"
 #include "sensor_mock.h"
+#include "hardware.h"
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -26,9 +28,12 @@ struct TempSample {
     uint32_t timestampMs;
     float    tempK;
     float    ambientTempC;
+    float    rmsVoltageV;
+    float    rmsCurrentA;
 };
 
 static Adafruit_MAX31865 max31865(MAX31865_CS);
+ACS37800 acs;
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
 static TempSample  history[TEMP_HISTORY_SIZE];
@@ -37,6 +42,8 @@ static uint8_t     count        = 0;   // number of valid samples stored
 static float       lastTempK    = 0.0f;
 static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
+static float        lastRmsVoltageV = 0.0f;
+static float        lastRmsCurrentA = 0.0f;
 static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 
 // Mock injection state — set by setLastReadings(), cleared by read().
@@ -58,10 +65,12 @@ static RunningAverage coolingRateAvg(15);
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-static void pushSample(uint32_t nowMs, float tempK, float ambientTempC) {
+static void pushSample(uint32_t nowMs, float tempK, float ambientTempC, float rmsVoltageV, float rmsCurrentA) {
     history[head].timestampMs = nowMs;
     history[head].tempK       = tempK;
     history[head].ambientTempC = ambientTempC;
+    history[head].rmsVoltageV = rmsVoltageV;
+    history[head].rmsCurrentA = rmsCurrentA;
     head = static_cast<uint8_t>((head + 1) % TEMP_HISTORY_SIZE);
     if (count < TEMP_HISTORY_SIZE) {
         ++count;
@@ -91,11 +100,40 @@ module::InitStatus init() {
         return initStatus;
     }
 
+    Serial.println(F("[cold_head] Initializing ACS37800..."));
+    module::InitStatus acsStatus = initACS();
+    if (acsStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[cold_head] ACS37800 initialization failed! Status: %s\n", module::initStatusName(acsStatus));
+        initStatus = acsStatus;
+        return initStatus;
+    }
+    Serial.println(F("[cold_head] ACS37800 initialization successful!"));
+
+    Serial.println(F("[cold_head] Initializing MAX31865..."));
+    module::InitStatus rtdStatus = initRTD();
+    if (rtdStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[cold_head] MAX31865 initialization failed! Status: %s\n", module::initStatusName(rtdStatus));
+        initStatus = rtdStatus;
+        return initStatus;
+    }
+    Serial.println(F("[cold_head] MAX31865 initialization successful!"));
+    initStatus = module::MODULE_INIT_SUCCESS;
+    return initStatus;
+}
+
+module::InitStatus initACS() {
+    acs.setBus(&hardware::i2c());
+    acs.setBoardPololu(4);
+    acs.setSampleCount(0);
+
+    return module::MODULE_INIT_SUCCESS;
+}
+
+module::InitStatus initRTD() {
     if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
         Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
         // State machine will see tempK == 0 and fault if appropriate.
-        initStatus = module::MODULE_INIT_HARDWARE_ERROR;
-        return initStatus;
+        return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
     const uint16_t rtd   = max31865.readRTD();
@@ -109,13 +147,20 @@ module::InitStatus init() {
         Serial.println(F("[cold_head] MAX31865 initialized successfully!"));
     }
 
-    //sensors.begin();
-    initStatus = module::MODULE_INIT_SUCCESS;
-    return initStatus;
+    return module::MODULE_INIT_SUCCESS;
 }
 
 void read(uint32_t nowMs) {
+    if (sensor_mock::isActive()) {
+        const auto& mo = sensor_mock::get();
+        setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
+        return;
+    }
     mockInjected = false;   // real read supersedes any prior mock injection
+    acs.readRMSVoltageAndCurrent();
+    lastRmsVoltageV = static_cast<float>(acs.rmsVoltageMillivolts)/1000.0f;
+    lastRmsCurrentA = static_cast<float>(acs.rmsCurrentMilliamps)/1000.0f;
+
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
@@ -126,7 +171,7 @@ void read(uint32_t nowMs) {
     lastTempC = tempC;
     lastTempK = tempK;
     lastAmbientTempC = ambientTempC;
-    pushSample(nowMs, tempK, ambientTempC);
+    pushSample(nowMs, tempK, ambientTempC, lastRmsVoltageV, lastRmsCurrentA);
 
     // Feed the freshly computed ring-buffer rate into the running average so
     // that getCoolingRateKPerMin() returns a smoothed value.
@@ -146,15 +191,17 @@ void read(uint32_t nowMs) {
 }
 
 void setLastReadings(uint32_t nowMs, float tempK,
-                     float coolingRateKPerMin, bool stalled) {
+                     float coolingRateKPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA) {
     lastTempK         = tempK;
     lastTempC         = tempK - 273.15f;
     mockCoolingRate   = coolingRateKPerMin;
     mockStalled       = stalled;
     mockInjected      = true;
+    lastRmsVoltageV   = rmsVoltageV;
+    lastRmsCurrentA   = rmsCurrentA;
     // Push a timestamped sample so the ring buffer stays current;
     // this lets real stall / rate code pick up correctly if mock is disabled.
-    pushSample(nowMs, tempK, lastAmbientTempC);
+    pushSample(nowMs, tempK, lastAmbientTempC, rmsVoltageV, rmsCurrentA);
 }
 
 // float readAmbientTemperature() {
@@ -174,17 +221,18 @@ bool checkDependencies() {
 }
 
 void checkFaults() {
+    if (sensor_mock::isActive()) return;
     const uint8_t fault = max31865.readFault();
     if (fault == 0) return;
 
-    Serial.printf("Fault detected! Code: 0x%02X\n", fault);
+    Serial.printf("[cold_head] Fault detected! Code: 0x%02X\n", fault);
 
-    if (fault & MAX31865_FAULT_HIGHTHRESH)  Serial.println(F("  - RTD High Threshold"));
-    if (fault & MAX31865_FAULT_LOWTHRESH)   Serial.println(F("  - RTD Low Threshold"));
-    if (fault & MAX31865_FAULT_REFINLOW)    Serial.println(F("  - REFIN- > 0.85 x Bias"));
-    if (fault & MAX31865_FAULT_REFINHIGH)   Serial.println(F("  - REFIN- < 0.85 x Bias - FORCE- open"));
-    if (fault & MAX31865_FAULT_RTDINLOW)    Serial.println(F("  - RTDIN- < 0.85 x Bias - FORCE- open"));
-    if (fault & MAX31865_FAULT_OVUV)        Serial.println(F("  - Under/Over voltage"));
+    if (fault & MAX31865_FAULT_HIGHTHRESH)  Serial.println(F("[cold_head]  - RTD High Threshold"));
+    if (fault & MAX31865_FAULT_LOWTHRESH)   Serial.println(F("[cold_head]  - RTD Low Threshold"));
+    if (fault & MAX31865_FAULT_REFINLOW)    Serial.println(F("[cold_head]  - REFIN- > 0.85 x Bias"));
+    if (fault & MAX31865_FAULT_REFINHIGH)   Serial.println(F("[cold_head]  - REFIN- < 0.85 x Bias - FORCE- open"));
+    if (fault & MAX31865_FAULT_RTDINLOW)    Serial.println(F("[cold_head]  - RTDIN- < 0.85 x Bias - FORCE- open"));
+    if (fault & MAX31865_FAULT_OVUV)        Serial.println(F("[cold_head]  - Under/Over voltage"));
 
     max31865.clearFault();
 }
@@ -256,6 +304,14 @@ float getTemperatureToPercent()
     float percent = (T_MAX - tempK) / (T_MAX - T_MIN) * 100.0;
 
     return percent;
+}
+
+float getLastRmsVoltageV() {
+    return lastRmsVoltageV;
+}
+
+float getLastRmsCurrentA() {
+    return lastRmsCurrentA;
 }
 
 } // namespace cold_head

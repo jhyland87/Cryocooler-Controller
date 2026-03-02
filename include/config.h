@@ -42,7 +42,7 @@
 #define RTD_RNOMINAL      100.0f
 
 // Wire configuration: MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE
-#define RTD_WIRE_CONFIG   MAX31865_2WIRE
+#define RTD_WIRE_CONFIG   MAX31865_3WIRE
 
 // =============================================================================
 // AD9833 Waveform Generator
@@ -278,6 +278,35 @@
 // this value then just turn off the cooling fans and pump.
 // This is the temp of the coolant
 #define COOLING_OFF_BELOW_COOLANT_TEMP 30.0f
+
+// =============================================================================
+// FSM History
+// =============================================================================
+
+// Number of state-transition records retained in the FSM history ring buffer.
+// Older entries are silently overwritten once the buffer is full.
+// Accessible via the 'fsm history' serial command.
+#define FSM_HISTORY_LIMIT  static_cast<uint8_t>(20)
+
+// =============================================================================
+// FSM Oscillation Detection
+// =============================================================================
+
+// Number of consecutive same-pair bounces required before declaring
+// oscillation.  The detector looks at the last (FSM_OSCILLATION_MIN_CYCLES * 2)
+// history entries; all must alternate between exactly two non-trivial states.
+//
+// Example with FSM_OSCILLATION_MIN_CYCLES = 3:
+//   History (newest→oldest): Fine, Coarse, Fine, Coarse, Fine, Coarse
+//   → 3 full round trips → oscillation fault triggered on the next update() tick.
+//
+// Must satisfy: FSM_OSCILLATION_MIN_CYCLES * 2  <=  FSM_HISTORY_LIMIT
+#define FSM_OSCILLATION_MIN_CYCLES  static_cast<uint8_t>(3)
+
+// All cycles must have occurred within this duration (ms).
+// Protects against false positives from identical-state pairs separated by long
+// periods of normal operation.
+#define FSM_OSCILLATION_WINDOW_MS  static_cast<uint32_t>(300000)  // 5 minutes
 
 // =============================================================================
 // Telemetry related config

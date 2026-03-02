@@ -166,20 +166,6 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .overviewDisplay = true,
     },
     {
-        .title          = "RMS Voltage",
-        .units          = "VAC",
-        .telemetryKey   = "rms.voltage",
-        .widget         = ss::WidgetType::Gauge,
-        .widgetMin      = 0,
-        .widgetMax      = 150,
-        .alarmLow       = 0,
-        .alarmHigh      = 120,
-        .alarmEnabled   = true,
-        .graph          = true,
-        .log            = true,
-        .overviewDisplay = true,
-    },
-    {
         .title          = "Relay Normal",
         .units          = "",
         .telemetryKey   = "relay.normal",
@@ -207,13 +193,7 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "Backoff count",
         .units          = "",
         .telemetryKey   = "status.backoff_count",
-    },
-    {
-        .title          = "Current",
-        .units          = "A",
-        .telemetryKey   = "rms.current_a",
-        .graph          = true,
-    },
+    }
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -314,6 +294,20 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .widgetMax      = 100,
         //.plotMin        = 75,
         //.plotMax        = 295,
+        .graph          = true,
+        .overviewDisplay = true
+    },
+    {
+        .title          = "Cold Head Voltage",
+        .units          = "V",
+        .telemetryKey   = "cold_head.voltage_v",
+        .graph          = true,
+        .overviewDisplay = true
+    },
+    {
+        .title          = "Cold Head Current",
+        .units          = "A",
+        .telemetryKey   = "cold_head.current_a",
         .graph          = true,
         .overviewDisplay = true
     },

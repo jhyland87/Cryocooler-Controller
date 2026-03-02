@@ -20,6 +20,9 @@ namespace cold_head {
  */
 module::InitStatus init();
 
+module::InitStatus initACS();
+module::InitStatus initRTD();
+
 /**
  * Read RTD resistance and temperature from hardware.
  * Stores the result internally and prints to Serial.
@@ -43,7 +46,7 @@ void read(uint32_t nowMs);
  * @param stalled            True if the stage should appear stalled
  */
 void setLastReadings(uint32_t nowMs, float tempK,
-                     float coolingRateKPerMin, bool stalled);
+                     float coolingRateKPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);
 
 //float readAmbientTemperature();
 
@@ -80,6 +83,10 @@ float getLastTempC();
  * Returns 0.0f if fewer than 2 samples are available.
  */
 float getCoolingRateKPerMin();
+
+float getLastRmsVoltageV();
+
+float getLastRmsCurrentA();
 
 /**
  * Return true if the temperature has stalled: the cold stage has not dropped

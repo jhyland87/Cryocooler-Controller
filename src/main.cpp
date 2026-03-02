@@ -74,27 +74,25 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
 static uint32_t previousLoopMs = 0;
 static bool     setupComplete  = false;
 
-void setupModules(){
-    // ── Module initialisation ────────────────────────────────────────────────
-    // Each call blocks until the module is no longer IN_PROGRESS, then logs
-    // OK or FAILED.  Failures are non-fatal here; the state machine will
-    // detect missing sensor data and transition to Fault as appropriate.
-    //
-    // telemetry::emitSafe() is called after every step so the dashboard and
-    // serial monitor show startup progress in real time: module status fields
-    // flip from "not started" → "success" (or an error label) as each module
-    // completes, and data fields populate as soon as their source module is up.
-    bool initFailureDetected = false;
-
-
+/**
+ * Initialise modules required for the operator console and remote viewer to
+ * function.  Called once in setup() before control hardware is initialised.
+ *
+ * These modules are intentionally never re-initialised by reinit() because
+ * they provide the communication path through which the operator issues
+ * commands — including the reinit command itself.
+ */
+static void initPersistentModules() {
     auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
+        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
+                      static_cast<int>(commandsStatus));
     }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
+        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n",
+                      static_cast<int>(dashboardStatus));
     }
 
     // telemetry has no hardware setup but we call Module::init() to record a
@@ -105,22 +103,40 @@ void setupModules(){
 
     auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
     if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Sysinfo initialization failed (status %d). Halting startup.\n", static_cast<int>(sysinfoStatus));
-        initFailureDetected = true;
+        Serial.printf("[init] Sysinfo initialization failed (status %d). Continuing.\n",
+                      static_cast<int>(sysinfoStatus));
     }
     telemetry::emitSafe();
+}
+
+/**
+ * Initialise control hardware modules.
+ *
+ * This function is registered as the FSM's onInitialize callback and is
+ * therefore called synchronously every time the machine enters the
+ * Initialize state — both at startup and on any subsequent reinit() call.
+ * That means hardware peripherals are re-initialised on a logical system
+ * reset without requiring a full MCU reboot.
+ *
+ * Failures are non-fatal: the state machine will detect missing sensor data
+ * and transition to Fault as appropriate.  telemetry::emitSafe() is called
+ * after each step so the dashboard shows real-time progress.
+ */
+static void initControlModules() {
+    bool initFailureDetected = false;
 
     auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::Module::init(); });
     if (accelerometerStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n", static_cast<int>(accelerometerStatus));
+        Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n",
+                      static_cast<int>(accelerometerStatus));
     }
     telemetry::emitSafe();
 
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cooling initialization failed (status %d). Halting startup.\n", static_cast<int>(coolingStatus));
-        telemetry::emitSafe();
-        return;
+        Serial.printf("[init] Cooling initialization failed (status %d).\n",
+                      static_cast<int>(coolingStatus));
+        initFailureDetected = true;
     }
     telemetry::emitSafe();
 
@@ -135,51 +151,48 @@ void setupModules(){
 
     auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
     if (waveformStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Waveform initialization failed (status %d). Halting startup.\n", static_cast<int>(waveformStatus));
+        Serial.printf("[init] Waveform initialization failed (status %d).\n",
+                      static_cast<int>(waveformStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cold head initialization failed (status %d). Halting startup.\n", static_cast<int>(cold_headStatus));
+        Serial.printf("[init] Cold head initialization failed (status %d).\n",
+                      static_cast<int>(cold_headStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
     if (dacStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] DAC initialization failed (status %d). Halting startup.\n", static_cast<int>(dacStatus));
+        Serial.printf("[init] DAC initialization failed (status %d).\n",
+                      static_cast<int>(dacStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto rmsStatus = initModule("rms", [] { return rms::Module::init(); });
     if (rmsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] RMS initialization failed (status %d). Halting startup.\n", static_cast<int>(rmsStatus));
+        Serial.printf("[init] RMS initialization failed (status %d).\n",
+                      static_cast<int>(rmsStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
     if (relayStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Relay initialization failed (status %d). Halting startup.\n", static_cast<int>(relayStatus));
+        Serial.printf("[init] Relay initialization failed (status %d).\n",
+                      static_cast<int>(relayStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto indicatorStatus = initModule("indicator", [] { return indicator::Module::init(); });
     if (indicatorStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Indicator initialization failed (status %d). Halting startup.\n", static_cast<int>(indicatorStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
-    //initModule("http_api",    [] { return http_api::init(); });
-
-    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::Module::init(); });
-    if (stateMachineStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
+        Serial.printf("[init] Indicator initialization failed (status %d).\n",
+                      static_cast<int>(indicatorStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
@@ -210,15 +223,25 @@ void setup() {
         return;
     }
 
-    setupModules();
+    // Bring up the console and viewer so the operator can observe progress
+    // and send commands even if control hardware fails to initialise.
+    initPersistentModules();
 
-    if ( ! setupComplete ){
+    // Initialise the FSM infrastructure (pure in-memory, always succeeds).
+    state_machine::Module::init();
+
+    // Register initControlModules as the onInitialize callback, then call
+    // reinit() to enter the Initialize state.  This runs initControlModules()
+    // synchronously — the same path taken on every subsequent reinit().
+    state_machine::setOnInitializeCallback(initControlModules);
+    state_machine::reinit(millis());
+
+    if (!setupComplete) {
         Serial.println(F("Setup failed. Halting startup."));
         return;
     }
 
-
-    Serial.printf("\nSetup complete. System is Off. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
+    Serial.printf("\nSetup complete. System is initializing. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
 
     Serial.println(F("Type 'help' for available commands."));
 }
@@ -257,21 +280,17 @@ void loop() {
     // without crashing, so it is safe to call them in mock mode.
     if (!setupComplete && !sensor_mock::isActive()) { return; }
 
-    // Determine mock mode up-front — used to gate hardware-dependent services.
-    const bool mockActive = sensor_mock::isActive();
-
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all
     // modules are still serviced regardless so the control loop keeps running.
     // Silence SERVICE_SKIPPED — it is the normal outcome for time-gated modules.
     //
-    // In mock mode, hardware-coupled modules (sysinfo → INA260) are skipped to
-    // prevent I2C error floods when the sensor is not physically present.
+    // Mock mode is handled inside each module: when sensor_mock::isActive(),
+    // read() / service() pull values from sensor_mock::get() and skip hardware
+    // access entirely.  No conditional logic is needed here.
 
-    if (!mockActive) {
-        if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
-            Serial.println(F("[loop] sysinfo service error"));
-        }
+    if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] sysinfo service error"));
     }
     if (accelerometer::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] accelerometer service error"));
@@ -298,30 +317,26 @@ void loop() {
     previousLoopMs = nowMs;
 
     // ---- 1. Read sensors ------------------------------------------------
-    // In mock mode: inject the mock overrides into each module's cached state
-    // without touching any hardware (no SPI, no I2C).  The modules' getters
-    // then return the injected values normally — no ternaries needed below.
-    // In real mode: run the hardware reads that update those same caches.
-    if (mockActive) {
-        const sensor_mock::Overrides& mo = sensor_mock::get();
-        cold_head::setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled);
-        rms::setLastReadings(mo.rmsVoltage, mo.currentA, mo.overstroke);
-    } else {
-        cold_head::read(nowMs);
-        rms::read();
-        rms::readCurrent();
-        cold_head::checkFaults();
-    }
+    // Advance any active mock ramps before module reads, so that every module
+    // sees the updated value on the same tick.
+    sensor_mock::service(nowMs);
 
-    // Read cached values — same getters regardless of mock/real mode.
+    // Each module handles mock mode internally: when sensor_mock::isActive(),
+    // read()/service() pulls from sensor_mock::get() instead of hardware.
+    cold_head::read(nowMs);
+    //rms::read();
+    //rms::readCurrent();
+    cold_head::checkFaults();
+
+    // Read cached values.
     const float tempK       = cold_head::getLastTempK();
     const float tempC       = cold_head::getLastTempC();
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
-    const float rmsV        = rms::getVoltage();
+    //const float rmsV        = rms::getVoltage();
+    const float rmsV        = cold_head::getLastRmsVoltageV();
     const bool  overstroke  = rms::hasOverstroke();
-    const float sysVoltage  = mockActive ? sensor_mock::get().voltageV
-                                         : sysinfo::getVoltage();
+    const float sysVoltage  = sysinfo::getVoltage();
 
     // ---- 2. Advance state machine ---------------------------------------
     const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);

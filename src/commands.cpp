@@ -21,7 +21,7 @@
 #include "state_machine.h"
 #include "telemetry.h"
 #include "cold_head.h"
-#include "rms.h"
+//#include "rms.h"
 #include "dac.h"
 #include "indicator.h"
 #include "cooling.h"
@@ -85,11 +85,25 @@ static void handleStart(const char* /*args*/, Print& out) {
 
 #ifdef ARDUINO
 static void handleReinit(const char* /*args*/, Print& out) {
-    // Reset the FSM back to the Off state.  Useful after a fault, or when
-    // entering mock mode mid-session without rebooting.
-    state_machine::Module::init();
+    // Allow reinit only from safe non-running states.  If the process is
+    // actively running the operator should stop it first to allow a clean
+    // shutdown ramp before re-initialising hardware.
+    const auto s = state_machine::getState();
+    if (s != state_machine::State::Off   &&
+        s != state_machine::State::Idle  &&
+        s != state_machine::State::Fault) {
+        char buf[80];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] Cannot reinit while in %s — stop or off the system first",
+                 state_machine::stateName(s));
+        out.println(buf);
+        return;
+    }
+    // reinit() fully resets all FSM state, re-runs initControlModules() via
+    // the registered onInitialize callback, and enters Initialize → Idle.
+    state_machine::reinit(millis());
     char buf[72];
-    snprintf(buf, sizeof(buf), "[OK] FSM reinitialized — state: %s | mock: %s",
+    snprintf(buf, sizeof(buf), "[OK] Reinitializing — state: %s | mock: %s",
              state_machine::stateName(state_machine::getState()),
              sensor_mock::isActive() ? "ACTIVE" : "inactive");
     out.println(buf);
@@ -236,6 +250,47 @@ static void handleBoard(const char* /*args*/, Print& out) {
 #endif
 }
 
+static void handleFsmState(const char* /*args*/, Print& out) {
+    const auto    s         = state_machine::getState();
+    const uint32_t inStateMs = state_machine::getTimeInState();
+    char buf[128];
+    snprintf(buf, sizeof(buf),
+             "[OK] %s (%d) | running: %s | in state: %lums\n      %s",
+             state_machine::stateName(s),
+             static_cast<int8_t>(s),
+             state_machine::isRunning() ? "yes" : "no",
+             static_cast<unsigned long>(inStateMs),
+             state_machine::getStatusText());
+    out.println(buf);
+    out.println("");
+}
+
+static void handleFsmHistory(const char* /*args*/, Print& out) {
+    const uint8_t count = state_machine::getHistoryCount();
+    if (count == 0) {
+        out.println("[OK] FSM history: (empty)");
+        out.println("");
+        return;
+    }
+    char header[64];
+    snprintf(header, sizeof(header),
+             "[OK] FSM history (%u/%u entries, newest first):",
+             static_cast<unsigned>(count),
+             static_cast<unsigned>(FSM_HISTORY_LIMIT));
+    out.println(header);
+    for (uint8_t i = 0; i < count; ++i) {
+        const auto entry = state_machine::getHistoryEntry(i);
+        char line[96];
+        snprintf(line, sizeof(line), "  [%2u] %-16s  T+%lu ms  via %s",
+                 static_cast<unsigned>(i),
+                 state_machine::stateName(entry.state),
+                 static_cast<unsigned long>(entry.enteredMs),
+                 entry.cause ? entry.cause : "?");
+        out.println(line);
+    }
+    out.println("");
+}
+
 static void handleSummary(const char* /*args*/, Print& out) {
     const uint32_t durationMs = state_machine::getOnStateDuration();
     const uint32_t durSec     = durationMs / 1000u;
@@ -281,12 +336,12 @@ static void handleSummary(const char* /*args*/, Print& out) {
     out.println(buf);
 
     out.println("  --- Electrical ---");
-    snprintf(buf, sizeof(buf), "  Current         : %.3f A",
-             rms::getCurrentA());
+    snprintf(buf, sizeof(buf), "  RMS current     : %.3f A",
+             cold_head::getLastRmsCurrentA());
     out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  Voltage (RMS)   : %.2f V",
-             rms::getVoltage());
+    snprintf(buf, sizeof(buf), "  RMS voltage     : %.2f V",
+             cold_head::getLastRmsVoltageV());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  DAC output      : %u",
@@ -314,10 +369,13 @@ static const Command kCommands[] = {
     {"off",           handleOff,          "Power off the system entirely"},
     {"status",        handleStatus,       "Print current state and running flag"},
     {"summary",       handleSummary,      "Print a full snapshot of all system values"},
+    // "fsm history" must precede "fsm state" so the longer prefix wins.
+    {"fsm history",   handleFsmHistory,   "Print recent FSM state transitions (newest first)"},
+    {"fsm state",     handleFsmState,     "Print current FSM state with time-in-state and status"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
 #ifdef ARDUINO
-    {"reinit",        handleReinit,       "Reset FSM to Off state (use with mock mode)"},
+    {"reinit",        handleReinit,       "Re-initialize hardware modules (from Off, Idle, or Fault)"},
 #endif
     // "telemetry delta ..." must precede "telemetry on/off" so the longer
     // prefix is matched first by the linear scan in processLine().
@@ -349,6 +407,7 @@ static void handleHelp(const char* /*args*/, Print& out) {
                  kCommands[i].name, kCommands[i].help);
         out.println(line);
     }
+    out.println("");
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────

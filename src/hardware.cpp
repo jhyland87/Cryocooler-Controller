@@ -8,8 +8,7 @@
 
 #include "hardware.h"
 #include "pin_config.h"
-#include "esp32-hal-i2c.h"          // i2cIsInit(), i2cBusHandle()
-#include "driver/i2c_master.h"      // i2c_master_probe(), i2c_master_bus_handle_t
+#include "esp32-hal-i2c.h"      // i2cIsInit(), i2cBusHandle()
 
 namespace hardware {
     // -------------------------------------------------------------------------
@@ -18,24 +17,40 @@ namespace hardware {
 
     /**
      * Probe every 7-bit I2C address and log any that respond.
-     * Uses i2c_master_probe() directly on the HAL bus handle so it bypasses
-     * the Wire layer entirely — useful for confirming bus health independent
-     * of any library issues.
      *
-     * @param timeoutMs  Per-address probe timeout in milliseconds.
+     * Implementation note — Wire API, not i2c_master_probe():
+     *   Adafruit_I2CDevice::begin() calls _wire->begin() on every sensor probe
+     *   attempt.  On the ESP32-S3 new-gen IDF I2C driver this can cause the
+     *   internal i2c_master_bus_handle_t to be re-created with a fresh handle
+     *   value that differs from what i2cBusHandle(0) subsequently returns.
+     *   Passing that mismatched handle to i2c_master_probe() gives it a struct
+     *   whose cmd_semphr field contains garbage (observed: 0x0000BED4), and
+     *   xQueueSemaphoreTake(0x0000BED4) panics with StoreProhibited because
+     *   0x0000BED4 is in the read-only ROM region.
+     *
+     *   Using Wire.beginTransmission()/endTransmission() instead bypasses the
+     *   raw IDF probe API entirely.  The Wire layer returns error codes rather
+     *   than panicking when a device is absent or the bus is recovering.
+     *
+     * @param timeoutMs  Per-address probe timeout in ms.
      * @return           Number of devices that responded.
      */
     uint8_t scanI2c(uint32_t timeoutMs) {
-        auto busHandle = static_cast<i2c_master_bus_handle_t>(i2cBusHandle(0));
-        if (!busHandle) {
-            log_e("[hardware] i2cBusHandle returned null — bus not initialised");
-            return 0;
-        }
+        TwoWire& wire = Wire;
+
+        // Apply the requested per-address timeout through the Wire API.
+        // Wire::setTimeOut() takes uint16_t ms; clamp to avoid truncation.
+        const uint16_t wireTimeout = (timeoutMs > 0xFFFF)
+                                   ? static_cast<uint16_t>(0xFFFF)
+                                   : static_cast<uint16_t>(timeoutMs);
+        wire.setTimeOut(wireTimeout);
 
         uint8_t found = 0;
         log_i("[hardware] I2C bus scan (SDA=%d SCL=%d):", SDA_PIN, SCL_PIN);
         for (uint8_t addr = 1; addr < 127; ++addr) {
-            if (i2c_master_probe(busHandle, addr, static_cast<int>(timeoutMs)) == ESP_OK) {
+            wire.beginTransmission(addr);
+            const uint8_t err = wire.endTransmission();
+            if (err == 0) {
                 log_i("[hardware]   0x%02X  ✓", addr);
                 ++found;
             }
@@ -54,8 +69,19 @@ namespace hardware {
 
     module::InitStatus init() {
         // Initialise the global Wire instance once with the correct pins.
-        // No sensor library should call Wire.begin() again after this — any
-        // that did (e.g. QMI8658) have been patched in lib/ to skip that call.
+        // No sensor library should call Wire.begin() again after this.
+        //
+        // Adafruit_I2CDevice::begin() (used by every Adafruit sensor) calls
+        // _wire->begin() on the passed-in TwoWire reference.  On this target
+        // (ESP32-S3, new-gen IDF I2C driver) the Arduino HAL detects the bus
+        // is already initialised and logs "Bus already started in Master Mode"
+        // then returns without re-creating the IDF driver.  However the extra
+        // call can leave the IDF state machine in a non-IDLE state after a
+        // failed device-detect transaction, which is why scanI2c() uses the
+        // Wire API rather than i2c_master_probe() directly.
+        //
+        // The QMI8658 library is vendored in lib/QMI8658/ with its internal
+        // Wire.begin() call removed — see lib/QMI8658/src/QMI8658.cpp.
         Wire.begin(SDA_PIN, SCL_PIN);
 
         // Verify at the HAL level that the ESP-IDF I2C master driver actually
