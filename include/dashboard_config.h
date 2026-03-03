@@ -4,7 +4,7 @@
  *
  * Defines the groups, datasets, and actions that make up the Serial Studio
  * dashboard.  Each dataset's telemetryKey is the dot-separated field name
- * used in FrameBuilder / telemetry.h (e.g. "cold_head.k", "dac.target").
+ * used in FrameBuilder / telemetry.h (e.g. "cold_head.k", "amplifier.target").
  */
 
 #ifndef DASHBOARD_CONFIG_H
@@ -88,14 +88,14 @@ static const ss::DatasetCfg kTempDatasets[] = {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Group 2 — DAC Output
+// Group 2 — Amplifier Output
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DatasetCfg kDacDatasets[] = {
+static const ss::DatasetCfg amplifierDatasets[] = {
     {
-        .title          = "DAC Target",
-        .units          = "V",
-        .telemetryKey   = "dac.target",
+        .title          = "Amplifier Target",
+        .units          = "VAC",
+        .telemetryKey   = "amplifier.target_v",
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,
         .widgetMax      = 10,
@@ -106,9 +106,9 @@ static const ss::DatasetCfg kDacDatasets[] = {
         .overviewDisplay = true,
     },
     {
-        .title          = "DAC Actual",
-        .units          = "V",
-        .telemetryKey   = "dac.actual",
+        .title          = "Amplifier Actual",
+        .units          = "VAC",
+        .telemetryKey   = "amplifier.voltage_v",
         .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,
         .widgetMax      = 10,
@@ -166,20 +166,6 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .overviewDisplay = true,
     },
     {
-        .title          = "RMS Voltage",
-        .units          = "VAC",
-        .telemetryKey   = "rms.voltage",
-        .widget         = ss::WidgetType::Gauge,
-        .widgetMin      = 0,
-        .widgetMax      = 150,
-        .alarmLow       = 0,
-        .alarmHigh      = 120,
-        .alarmEnabled   = true,
-        .graph          = true,
-        .log            = true,
-        .overviewDisplay = true,
-    },
-    {
         .title          = "Relay Normal",
         .units          = "",
         .telemetryKey   = "relay.normal",
@@ -207,13 +193,7 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
         .title          = "Backoff count",
         .units          = "",
         .telemetryKey   = "status.backoff_count",
-    },
-    {
-        .title          = "Current",
-        .units          = "A",
-        .telemetryKey   = "rms.current_a",
-        .graph          = true,
-    },
+    }
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -244,7 +224,7 @@ static const ss::DatasetCfg kModuleStatusDatasets[] = {
     {
         .title          = "Accelerometer",
         .units          = "",
-        .telemetryKey   = "mod.accelerometer.service"
+        .telemetryKey   = "mod.imu.service"
     }
 };
 static const ss::DatasetCfg kStatusDatasets[] = {
@@ -318,6 +298,20 @@ static const ss::DatasetCfg kStatusDatasets[] = {
         .overviewDisplay = true
     },
     {
+        .title          = "Cold Head Voltage",
+        .units          = "V",
+        .telemetryKey   = "cold_head.voltage_v",
+        .graph          = true,
+        .overviewDisplay = true
+    },
+    {
+        .title          = "Cold Head Current",
+        .units          = "A",
+        .telemetryKey   = "cold_head.current_a",
+        .graph          = true,
+        .overviewDisplay = true
+    },
+    {
         .title          = "Cooldown Percent",
         .units          = "%",
         .telemetryKey   = "cold_head.cooldown_pct",
@@ -360,7 +354,7 @@ static const ss::DatasetCfg kAccelDatasets[] = {
     {
         .title          = "Accel X",
         .units          = "m/s\xC2\xB2",  // m/s²
-        .telemetryKey   = "accelerometer.x",
+        .telemetryKey   = "imu.x",
         .widgetMin      = -2,
         .widgetMax      = 2,
         .graph          = true,
@@ -369,21 +363,21 @@ static const ss::DatasetCfg kAccelDatasets[] = {
     {
         .title          = "Accel Y",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accelerometer.y",
+        .telemetryKey   = "imu.y",
         .graph          = true,
         .log            = true
     },
     {
         .title          = "Accel Z",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accelerometer.z",
+        .telemetryKey   = "imu.z",
         .graph          = true,
         .log            = true
     },
     {
         .title          = "Accel Magnitude",
         .units          = "m/s\xC2\xB2",
-        .telemetryKey   = "accelerometer.accel_mag",
+        .telemetryKey   = "imu.accel_mag",
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,
         .widgetMax      = 20,
@@ -394,7 +388,7 @@ static const ss::DatasetCfg kAccelDatasets[] = {
     {
         .title          = "Motion / Overstroke",
         .units          = "",
-        .telemetryKey   = "accelerometer.motion",
+        .telemetryKey   = "imu.motion",
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,
         .widgetMax      = 1,
@@ -419,10 +413,10 @@ static const ss::GroupCfg kGroups[] = {
         .datasetCount = static_cast<uint8_t>(sizeof(kTempDatasets) / sizeof(kTempDatasets[0])),
     },
     {
-        .title        = "DAC Output",
+        .title        = "Amplifier Output",
         .widget       = ss::GroupWidget::Multiplot,
-        .datasets     = kDacDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kDacDatasets) / sizeof(kDacDatasets[0])),
+        .datasets     = amplifierDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(amplifierDatasets) / sizeof(amplifierDatasets[0])),
     },
     {
         .title        = "Safety",

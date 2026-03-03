@@ -20,7 +20,7 @@
  *   hardware::init();
  *
  *   // In any module that needs I2C:
- *   imu.begin(hardware::i2c());
+ *   sensor.begin(hardware::i2c());
  */
 
 #pragma once
@@ -53,15 +53,14 @@ namespace hardware {
     SPIClass& spi();
 
     /**
-     * Scan the I2C bus by probing every 7-bit address via i2c_master_probe()
-     * (bypasses the Wire layer entirely).  Logs each responding address and a
-     * warning if nothing is found.  Useful for diagnosing wiring or driver
-     * issues independent of any sensor library.
+     * Reset the I2C bus to a clean idle state.
      *
-     * @param timeoutMs  Per-address probe timeout in ms (default 10).
-     * @return           Number of devices that responded.
+     * On Core 3.x (IDF 5.x) uses i2c_master_bus_reset(); falls back to
+     * Wire.end()/Wire.begin() if that fails or on Core 2.x.  All sensor
+     * objects that hold a TwoWire* remain valid because they reference the
+     * global Wire object, which Wire.begin() updates in place.
      */
-    uint8_t scanI2c(uint32_t timeoutMs = 10);
+    void recoverI2c();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 //

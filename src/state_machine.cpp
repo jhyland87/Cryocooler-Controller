@@ -25,7 +25,9 @@
 #include "config.h"
 #include "conversions.h"
 #include "indicator.h"
+#include "amplifier.h"
 #include <Arduino.h>
+#include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
 
@@ -56,9 +58,17 @@ enum : int {
     EVT_SHUTDOWN_DONE   = 14,  ///< Shutdown → Idle      (shutdown timer expired)
 
     // Fault events
-    EVT_FAULT_RMS       = 15,  ///< RMS overvoltage from any non-Fault state
-    EVT_FAULT_STALL     = 16,  ///< Temperature stall in Coarse or Fine cooldown
-    EVT_FAULT_BACKOFFS  = 17,  ///< Too many back-EMF backoff events
+    EVT_FAULT_RMS         = 15,  ///< RMS overvoltage from any non-Fault state
+    EVT_FAULT_STALL       = 16,  ///< Temperature stall in Coarse or Fine cooldown
+    EVT_FAULT_BACKOFFS    = 17,  ///< Too many back-EMF backoff events
+    EVT_FAULT_LOW_VOLTAGE   = 21,  ///< DC supply voltage below MIN_SYSTEM_VOLTAGE_VDC
+    EVT_FAULT_OSCILLATION   = 25,  ///< FSM bouncing between the same two states repeatedly
+
+    // Fault-clear event
+    EVT_FAULT_CLEARED   = 22,  ///< clearFault() → Idle (resets fault reason & backoffs)
+
+    // Re-initialize event
+    EVT_REINITIALIZE    = 23,  ///< reinit() → Initialize from Off or Idle
 
     // Delay state events
     EVT_ENTER_DELAY     = 18,  ///< Enter Delay state (fired by startDelay())
@@ -92,6 +102,86 @@ static int          sDelayNextEvent    = EVT_DELAY_TO_IDLE; ///< event fired whe
 // can capture the correct entry time without calling millis() directly.
 static uint32_t     sNowMs             = 0;
 
+// Optional callback invoked when the FSM enters the Initialize state.
+// Registered by main.cpp via setOnInitializeCallback() to re-run control
+// module inits on every reinit().
+static void (*sOnInitializeCb)() = nullptr;
+
+// ---------------------------------------------------------------------------
+// FSM History ring buffer — records every state entry in arrival order.
+// historyHead always points to the next slot to write; the most recent
+// entry is at (historyHead - 1 + FSM_HISTORY_LIMIT) % FSM_HISTORY_LIMIT.
+// ---------------------------------------------------------------------------
+static HistoryEntry history[FSM_HISTORY_LIMIT] = {};
+static uint8_t      historyHead  = 0;
+static uint8_t      historyCount = 0;
+
+// Set just before every fsm->trigger() call via fsmTrigger(); consumed
+// (stored into the HistoryEntry and reset to nullptr) by pushHistory().
+static const char* pendingCause = nullptr;
+
+// Set by checkOscillation(); consumed at the top of the next update() tick.
+// Using a deferred flag avoids triggering a nested FSM transition from inside
+// an on_enter callback (which would be a re-entrant FSM call).
+static bool oscillationFaultPending = false;
+
+// ---------------------------------------------------------------------------
+// Internal ring-buffer accessor (returns a const-ref; no bounds checking).
+// i = 0 → most recent entry, i = 1 → previous, etc.
+// ---------------------------------------------------------------------------
+static inline const HistoryEntry& ringAt(uint8_t i) {
+    const uint8_t idx = static_cast<uint8_t>(
+        (static_cast<uint16_t>(FSM_HISTORY_LIMIT) + historyHead - 1u - i)
+        % static_cast<uint8_t>(FSM_HISTORY_LIMIT));
+    return history[idx];
+}
+
+// ---------------------------------------------------------------------------
+// Oscillation detector — called after every state push.
+//
+// Examines the last (FSM_OSCILLATION_MIN_CYCLES * 2) history entries.
+// If they all alternate between exactly two non-trivial states AND all
+// occurred within FSM_OSCILLATION_WINDOW_MS, sets sOscillationFaultPending.
+// ---------------------------------------------------------------------------
+static void checkOscillation() {
+    const uint8_t kWindow =
+        static_cast<uint8_t>(FSM_OSCILLATION_MIN_CYCLES) * static_cast<uint8_t>(2u);
+    if (historyCount < kWindow) return;
+
+    const State stateEven = ringAt(0).state;   // most recent
+    const State stateOdd  = ringAt(1).state;   // previous
+
+    // Two distinct, non-trivial states are required.
+    if (stateEven == stateOdd) return;
+    if (stateEven == State::Off        || stateOdd == State::Off)        return;
+    if (stateEven == State::Initialize || stateOdd == State::Initialize) return;
+    if (stateEven == State::Fault      || stateOdd == State::Fault)      return;
+
+    // All entries in the window must alternate between exactly those two states.
+    for (uint8_t i = 0; i < kWindow; ++i) {
+        const State expected = (i % 2u == 0u) ? stateEven : stateOdd;
+        if (ringAt(i).state != expected) return;
+    }
+
+    // All transitions must have occurred within the configured time window.
+    const uint32_t newest = ringAt(0).enteredMs;
+    const uint32_t oldest = ringAt(static_cast<uint8_t>(kWindow - 1u)).enteredMs;
+    if ((newest - oldest) > static_cast<uint32_t>(FSM_OSCILLATION_WINDOW_MS)) return;
+
+    oscillationFaultPending = true;
+}
+
+static void pushHistory(State s, uint32_t enteredMs) {
+    history[historyHead] = { s, enteredMs, time(nullptr), pendingCause };
+    pendingCause = nullptr;
+    historyHead = static_cast<uint8_t>(
+        (static_cast<uint16_t>(historyHead) + 1u) % FSM_HISTORY_LIMIT);
+    if (historyCount < static_cast<uint8_t>(FSM_HISTORY_LIMIT)) {
+        ++historyCount;
+    }
+    checkOscillation();
+}
+
 // ---------------------------------------------------------------------------
 // Forward declarations for FSM state callbacks
 // ---------------------------------------------------------------------------
@@ -107,6 +197,7 @@ static void onEnterOperating();
 static void onEnterShutdown();
 static void onEnterDelay();
 static void onEnterFault();
+static void onExitFault();
 
 // ---------------------------------------------------------------------------
 // Library ::State objects
@@ -123,7 +214,7 @@ static ::State sFsmBaseline  (onEnterBaseline,        nullptr, nullptr);
 static ::State sFsmOperating (onEnterOperating,       nullptr, nullptr);
 static ::State sFsmShutdown  (onEnterShutdown,        nullptr, nullptr);
 static ::State sFsmDelay     (onEnterDelay,           nullptr, nullptr);
-static ::State sFsmFault     (onEnterFault,           nullptr, nullptr);
+static ::State sFsmFault     (onEnterFault,           nullptr, onExitFault);
 
 // Heap-allocated so it can be fully reset between test cases via init().
 static Fsm* fsm = nullptr;
@@ -149,10 +240,9 @@ static bool overshot(float tempK) {
  * toward SETPOINT_K.
  */
 static uint16_t cooldownDacTarget(float tempK, float coolingRate) {
-    Serial.printf("cooldownDacTarget() tempK=%.2f coolingRate=%.2f\n", tempK, coolingRate);
     (void)coolingRate;   // rate guard reserved for future use
     return conversions::tempKToDacValue(
-        tempK, AMBIENT_START_K, SETPOINT_K, MCP4921_MAX_VALUE);
+        tempK, AMBIENT_START_K, SETPOINT_K, AMPLIFIER_RESOLUTION);
 }
 
 /**
@@ -167,6 +257,8 @@ static const char* statusTextForState(State s) {
             case FaultReason::RmsOvervoltage:   return "Fault: RMS voltage exceeded safe limit";
             case FaultReason::TemperatureStall: return "Fault: Temperature stalled during cooldown";
             case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
+            case FaultReason::LowSystemVoltage: return "Fault: DC system voltage below minimum threshold";
+            case FaultReason::StateOscillation: return "Fault: FSM oscillating between states — manual clearFault() required";
             default:                            return "Fault: Unknown reason";
         }
     }
@@ -299,10 +391,16 @@ static void setStateEntry(State s) {
     if (s != State::Fault) {
         faultReason = FaultReason::None;
     }
+    pushHistory(s, sNowMs);
 }
 
 static void onEnterOff()            { setStateEntry(State::Off); }
-static void onEnterInitialize()     { setStateEntry(State::Initialize); }
+static void onEnterInitialize() {
+    setStateEntry(State::Initialize);
+    if (sOnInitializeCb) {
+        sOnInitializeCb();
+    }
+}
 static void onEnterIdle()           { setStateEntry(State::Idle); }
 static void onEnterCoarseCooldown() { setStateEntry(State::CoarseCooldown); }
 static void onEnterFineCooldown()   { setStateEntry(State::FineCooldown); }
@@ -323,12 +421,27 @@ static void onEnterFault() {
     if (offStateMs == 0) offStateMs = sNowMs;
 }
 
+/**
+ * Called by the FSM whenever the machine leaves State::Fault.
+ * Resets all fault-related and backoff state so the system starts clean
+ * on the next start() call.
+ */
+static void onExitFault() {
+    Serial.printf("[SM] Fault cleared (was: %d); resetting backoff state\n",
+                  static_cast<int>(faultReason));
+    ESP_LOGD(TAG, "Fault cleared (reason %d); backoffCount=%u dacOffset=%u reset",
+             static_cast<int>(faultReason), backoffCount, backoffDacOffset);
+    faultReason              = FaultReason::None;
+    backoffCount             = 0;
+    backoffDacOffset         = 0;
+    oscillationFaultPending = false;  // restart the oscillation window after manual clear
+}
+
 // ---------------------------------------------------------------------------
 // FSM construction — called once per init()
 // ---------------------------------------------------------------------------
 
 static void buildFsm() {
-    Serial.printf("buildFsm()\n");
     // ── Start events from Off and Idle ────────────────────────────────────
     // start() selects the correct resume state based on the current temperature.
     ::State* startableStates[] = { &sFsmOff, &sFsmIdle };
@@ -338,6 +451,17 @@ static void buildFsm() {
         fsm->add_transition(from, &sFsmSettle,    EVT_START_SETTLE,    nullptr);
         fsm->add_transition(from, &sFsmOvershoot, EVT_START_OVERSHOOT, nullptr);
     }
+
+    // ── Re-initialize: Off, Idle, or Fault → Initialize ───────────────────
+    // Triggered by reinit().  onEnterInitialize fires the registered callback
+    // so control modules are re-initialised on every transition to Initialize.
+    // Fault is included so the operator can reinit directly after clearing a
+    // fault without a separate clearFault() + off() sequence.
+    // onExitFault() fires automatically on the Fault → Initialize transition,
+    // resetting faultReason and backoff state before Initialize is entered.
+    fsm->add_transition(&sFsmOff,   &sFsmInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&sFsmIdle,  &sFsmInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&sFsmFault, &sFsmInit, EVT_REINITIALIZE, nullptr);
 
     // ── Initialize → Idle ─────────────────────────────────────────────────
     // Timer driven in update() using nowMs (not add_timed_transition).
@@ -380,6 +504,18 @@ static void buildFsm() {
         fsm->add_transition(from, &sFsmFault, EVT_FAULT_RMS, nullptr);
     }
 
+    // ── Fault: low system voltage from every non-Fault state ──────────────
+    // Mirrors EVT_FAULT_RMS — any state can immediately fault on low voltage.
+    for (auto* from : allNonFaultStates) {
+        fsm->add_transition(from, &sFsmFault, EVT_FAULT_LOW_VOLTAGE, nullptr);
+    }
+
+    // ── Fault: state oscillation from every non-Fault state ───────────────
+    // Fired when checkOscillation() detects repeated A↔B bouncing.
+    for (auto* from : allNonFaultStates) {
+        fsm->add_transition(from, &sFsmFault, EVT_FAULT_OSCILLATION, nullptr);
+    }
+
     // ── Fault: temperature stall only in cooldown states ──────────────────
     fsm->add_transition(&sFsmCoarse, &sFsmFault, EVT_FAULT_STALL, nullptr);
     fsm->add_transition(&sFsmFine,   &sFsmFault, EVT_FAULT_STALL, nullptr);
@@ -388,6 +524,10 @@ static void buildFsm() {
     for (auto* from : stoppableStates) {
         fsm->add_transition(from, &sFsmFault, EVT_FAULT_BACKOFFS, nullptr);
     }
+
+    // ── Fault clear: Fault → Idle (fired by clearFault()) ─────────────────
+    // onExitFault() resets faultReason, backoff counter, and DAC offset.
+    fsm->add_transition(&sFsmFault, &sFsmIdle, EVT_FAULT_CLEARED, nullptr);
 
     // ── Power-off: any state → Off ─────────────────────────────────────────
     ::State* powerOffableStates[] = {
@@ -417,11 +557,19 @@ static void buildFsm() {
 }
 
 // ---------------------------------------------------------------------------
+// Trigger helper — sets pendingCause before firing an FSM event so the
+// on_enter callback (via pushHistory) can record why the transition occurred.
+// ---------------------------------------------------------------------------
+static void fsmTrigger(int event, const char* cause) {
+    pendingCause = cause;
+    fsm->trigger(event);
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
 module::InitStatus init(uint32_t nowMs) {
-    Serial.printf("init()\n");
     sNowMs           = nowMs;
     running          = false;
     onStateMs        = 0;
@@ -433,6 +581,10 @@ module::InitStatus init(uint32_t nowMs) {
     settleStartMs    = 0;
     sDelayMs         = 0;
     sDelayNextEvent  = EVT_DELAY_TO_IDLE;
+    historyHead              = 0;
+    historyCount             = 0;
+    pendingCause             = nullptr;
+    oscillationFaultPending  = false;
 
     delete fsm;
     fsm = new Fsm(&sFsmOff);
@@ -440,6 +592,7 @@ module::InitStatus init(uint32_t nowMs) {
 
     // First run_machine() call initialises the library (sets m_initialized,
     // fires onEnterOff) so that subsequent trigger() calls are not no-ops.
+    pendingCause = "init";
     fsm->run_machine();
 
     return module::MODULE_INIT_SUCCESS;
@@ -447,15 +600,16 @@ module::InitStatus init(uint32_t nowMs) {
 
 Output update(float    tempK,
               float    coolingRate,
-              float    rmsVoltage,
+              float    amplifierVoltageV,
               bool     stalled,
               uint32_t nowMs,
-              bool     overstroke)
+              bool     overstroke,
+              float    systemVoltage)
 {
     //Serial.printf("update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
              //tempK, coolingRate, rmsVoltage, stalled, overstroke);
-    ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
-             tempK, coolingRate, rmsVoltage, stalled, overstroke);
+    //ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
+             //tempK, coolingRate, rmsVoltage, stalled, overstroke);
 
     sNowMs = nowMs;
 
@@ -463,16 +617,30 @@ Output update(float    tempK,
     // 1. Global fault checks — fire from any non-Fault state
     // ------------------------------------------------------------------
     if (currentState != State::Fault) {
-        if (rmsVoltage > RMS_MAX_VOLTAGE_VDC) {
+        if (oscillationFaultPending) {
+            // Oscillation detected on a previous tick inside an on_enter callback.
+            // Consume the flag here to avoid re-entrant FSM calls.
+            oscillationFaultPending = false;
+            faultReason = FaultReason::StateOscillation;
+            Serial.printf("[SM] Fault: FSM oscillating between states\n");
+            fsmTrigger(EVT_FAULT_OSCILLATION, "oscillation");
+
+        } else if (amplifier::getLastRmsVoltageV() > AMPLIFIER_MAX_VOLTAGE) {
             faultReason = FaultReason::RmsOvervoltage;
             Serial.printf("Fault: RMS voltage exceeded safe limit\n");
-            fsm->trigger(EVT_FAULT_RMS);
+            fsmTrigger(EVT_FAULT_RMS, "rms_overvoltage");
+
+        } else if (systemVoltage > 0.0f && systemVoltage < MIN_SYSTEM_VOLTAGE_VDC) {
+            faultReason = FaultReason::LowSystemVoltage;
+            Serial.printf("Fault: DC system voltage %.2fV below minimum %.2fV\n",
+                          systemVoltage, static_cast<float>(MIN_SYSTEM_VOLTAGE_VDC));
+            fsmTrigger(EVT_FAULT_LOW_VOLTAGE, "low_voltage");
 
         } else if ((currentState == State::CoarseCooldown ||
                     currentState == State::FineCooldown) && stalled) {
             faultReason = FaultReason::TemperatureStall;
             Serial.printf("Fault: Temperature stalled during cooldown\n");
-            fsm->trigger(EVT_FAULT_STALL);
+            fsmTrigger(EVT_FAULT_STALL, "stall");
 
         } else if (overstroke && running) {
             Serial.printf("Backoff count: %d\n", backoffCount);
@@ -481,13 +649,13 @@ Output update(float    tempK,
             const uint32_t newOffset =
                 static_cast<uint32_t>(backoffDacOffset) +
                 static_cast<uint32_t>(BACKOFF_DAC_STEP);
-            backoffDacOffset = (newOffset > static_cast<uint32_t>(MCP4921_MAX_VALUE))
-                                   ? static_cast<uint16_t>(MCP4921_MAX_VALUE)
+            backoffDacOffset = (newOffset > static_cast<uint32_t>(AMPLIFIER_RESOLUTION))
+                                   ? static_cast<uint16_t>(AMPLIFIER_RESOLUTION)
                                    : static_cast<uint16_t>(newOffset);
             if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
                 faultReason = FaultReason::TooManyBackoffs;
                 Serial.printf("Fault: Too many back-EMF stroke events; output backed off\n");
-                fsm->trigger(EVT_FAULT_BACKOFFS);
+                fsmTrigger(EVT_FAULT_BACKOFFS, "too_many_backoffs");
             }
         }
         else {
@@ -507,36 +675,36 @@ Output update(float    tempK,
             case State::Initialize:
                 if (elapsed >= INDICATOR_INIT_AMBER_MS) {
                     Serial.printf("Triggering EVT_INIT_DONE\n");
-                    fsm->trigger(EVT_INIT_DONE);
+                    fsmTrigger(EVT_INIT_DONE, "init_timer");
                 }
                 break;
 
             case State::CoarseCooldown:
                 if (tempK < COARSE_FINE_THRESHOLD_K) {
                     Serial.printf("Triggering EVT_BELOW_COARSE\n");
-                    fsm->trigger(EVT_BELOW_COARSE);
+                    fsmTrigger(EVT_BELOW_COARSE, "below_85K");
                 }
                 break;
 
             case State::FineCooldown:
                 if (tempK > COARSE_FINE_THRESHOLD_K) {
                     Serial.printf("Triggering EVT_ABOVE_COARSE\n");
-                    fsm->trigger(EVT_ABOVE_COARSE);
+                    fsmTrigger(EVT_ABOVE_COARSE, "above_85K");
                 }
                 else if (overshot(tempK)) {
                     Serial.printf("Triggering EVT_OVERSHOT\n");
-                    fsm->trigger(EVT_OVERSHOT);
+                    fsmTrigger(EVT_OVERSHOT, "overshoot");
                 }
                 else if (inBand(tempK)) {
                     Serial.printf("Triggering EVT_IN_BAND\n");
-                    fsm->trigger(EVT_IN_BAND);
+                    fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
 
             case State::Overshoot:
                 if (inBand(tempK)) {
                     Serial.printf("Triggering EVT_IN_BAND\n");
-                    fsm->trigger(EVT_IN_BAND);
+                    fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
 
@@ -550,28 +718,28 @@ Output update(float    tempK,
                     settleStartMs     = nowMs;
                 } else if ((nowMs - settleStartMs) >= SETTLE_DURATION_MS) {
                     Serial.printf("Triggering EVT_SETTLE_DONE\n");
-                    fsm->trigger(EVT_SETTLE_DONE);
+                    fsmTrigger(EVT_SETTLE_DONE, "settle_timer");
                 }
                 break;
 
             case State::Baseline:
                 if (elapsed >= BASELINE_DURATION_MS) {
                     Serial.printf("Triggering EVT_BASELINE_DONE\n");
-                    fsm->trigger(EVT_BASELINE_DONE);
+                    fsmTrigger(EVT_BASELINE_DONE, "baseline_timer");
                 }
                 break;
 
             case State::Shutdown:
                 if (elapsed >= SHUTDOWN_DURATION_MS) {
                     Serial.printf("Triggering EVT_SHUTDOWN_DONE\n");
-                    fsm->trigger(EVT_SHUTDOWN_DONE);
+                    fsmTrigger(EVT_SHUTDOWN_DONE, "shutdown_timer");
                 }
                 break;
 
             case State::Delay:
                 if (elapsed >= sDelayMs) {
                     Serial.printf("Triggering delay exit event %d\n", sDelayNextEvent);
-                    fsm->trigger(sDelayNextEvent);
+                    fsmTrigger(sDelayNextEvent, "delay_timer");
                 }
                 break;
 
@@ -628,16 +796,16 @@ void start(uint32_t nowMs, float tempK) {
     // Select the resumption state based on the current cold-stage temperature
     // so the system can resume correctly after a reboot.
     if (tempK >= COARSE_FINE_THRESHOLD_K) {
-        fsm->trigger(EVT_START_COARSE);
+        fsmTrigger(EVT_START_COARSE, "start");
     } else if (overshot(tempK)) {
         Serial.printf("Triggering EVT_START_OVERSHOOT\n");
-        fsm->trigger(EVT_START_OVERSHOOT);
+        fsmTrigger(EVT_START_OVERSHOOT, "start");
     } else if (inBand(tempK)) {
         Serial.printf("Triggering EVT_START_SETTLE\n");
-        fsm->trigger(EVT_START_SETTLE);
+        fsmTrigger(EVT_START_SETTLE, "start");
     } else {
         Serial.printf("Triggering EVT_START_FINE\n");
-        fsm->trigger(EVT_START_FINE);
+        fsmTrigger(EVT_START_FINE, "start");
     }
 }
 
@@ -649,7 +817,18 @@ void stop(uint32_t nowMs) {
     if (offStateMs == 0) offStateMs = nowMs;
     ESP_LOGD(TAG, "stop()");
     Serial.printf("Triggering EVT_STOP\n");
-    fsm->trigger(EVT_STOP);
+    fsmTrigger(EVT_STOP, "stop");
+}
+
+void clearFault(uint32_t nowMs) {
+    if (currentState != State::Fault) return;
+    Serial.printf("clearFault()\n");
+    ESP_LOGD(TAG, "clearFault()");
+    sNowMs = nowMs;
+    // onExitFault() fires synchronously inside trigger() → make_transition(),
+    // resetting faultReason, backoffCount, and backoffDacOffset before Idle
+    // is entered.  running remains false; the operator must call start() to resume.
+    fsmTrigger(EVT_FAULT_CLEARED, "clearFault");
 }
 
 void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
@@ -662,7 +841,7 @@ void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
     sNowMs = nowMs;
     Serial.printf("startDelay() durationMs=%lu nextEvent=%d\n",
                   static_cast<unsigned long>(durationMs), sDelayNextEvent);
-    fsm->trigger(EVT_ENTER_DELAY);
+    fsmTrigger(EVT_ENTER_DELAY, "startDelay");
 }
 
 void off(uint32_t nowMs) {
@@ -673,8 +852,40 @@ void off(uint32_t nowMs) {
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
     ESP_LOGD(TAG, "off()");
-    Serial.printf("Triggering EVT_POWER_OFF\n");
-    fsm->trigger(EVT_POWER_OFF);
+    fsmTrigger(EVT_POWER_OFF, "off");
+}
+
+void setOnInitializeCallback(void (*cb)()) {
+    sOnInitializeCb = cb;
+}
+
+void reinit(uint32_t nowMs) {
+    ESP_LOGD(TAG, "reinit()");
+    // Reset module state variables without recreating the FSM.
+    // The arduino-fsm library's destructor does not free the realloc-managed
+    // transitions buffer, so calling delete+new crashes when the FSM already
+    // exists.  We keep the existing FSM (all transitions remain valid) and
+    // simply reset our own state then trigger EVT_REINITIALIZE, which moves
+    // the machine to Initialize where onEnterInitialize fires sOnInitializeCb.
+    sNowMs           = nowMs;
+    running          = false;
+    onStateMs        = 0;
+    offStateMs       = 0;
+    faultReason      = FaultReason::None;
+    backoffCount     = 0;
+    backoffDacOffset = 0;
+    settleTimerActive= false;
+    settleStartMs    = 0;
+    sDelayMs         = 0;
+    sDelayNextEvent  = EVT_DELAY_TO_IDLE;
+    historyHead              = 0;
+    historyCount             = 0;
+    pendingCause             = nullptr;
+    oscillationFaultPending  = false;
+    // Transition current state → Initialize.
+    // Valid from Off, Idle, and Fault (all three transitions are registered
+    // in buildFsm()).  onEnterInitialize() fires sOnInitializeCb.
+    fsmTrigger(EVT_REINITIALIZE, "reinit");
 }
 
 FaultReason getFaultReason() {
@@ -687,6 +898,15 @@ const char* getStatusText() {
 
 uint32_t getTimeInState() {
     return millis() - currentStateEntryMs;
+}
+
+uint8_t getHistoryCount() {
+    return historyCount;
+}
+
+HistoryEntry getHistoryEntry(uint8_t i) {
+    if (i >= historyCount) return HistoryEntry{};
+    return ringAt(i);
 }
 
 } // namespace state_machine

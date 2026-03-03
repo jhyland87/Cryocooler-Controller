@@ -19,9 +19,6 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "cold_head.h"
-#include "waveform.h"
-#include "dac.h"
-#include "rms.h"
 #include "relay.h"
 #include "indicator.h"
 #include "state_machine.h"
@@ -30,7 +27,9 @@
 #include "sysinfo.h"
 #include "cooling.h"
 #include "dashboard.h"
-#include "accelerometer.h"
+#include "imu.h"
+#include "sensor_mock.h"
+#include "amplifier.h"
 
 // =============================================================================
 // Module-level objects
@@ -73,21 +72,32 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
 static uint32_t previousLoopMs = 0;
 static bool     setupComplete  = false;
 
-void setupModules(){
-    // ── Module initialisation ────────────────────────────────────────────────
-    // Each call blocks until the module is no longer IN_PROGRESS, then logs
-    // OK or FAILED.  Failures are non-fatal here; the state machine will
-    // detect missing sensor data and transition to Fault as appropriate.
-    //
-    // telemetry::emitSafe() is called after every step so the dashboard and
-    // serial monitor show startup progress in real time: module status fields
-    // flip from "not started" → "success" (or an error label) as each module
-    // completes, and data fields populate as soon as their source module is up.
-    bool initFailureDetected = false;
+/**
+ * Initialise modules required for the operator console and remote viewer to
+ * function.  Called once in setup() before control hardware is initialised.
+ *
+ * These modules are intentionally never re-initialised by reinit() because
+ * they provide the communication path through which the operator issues
+ * commands — including the reinit command itself.
+ */
+static void initPersistentModules() {
+
+    auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
+    if (imuStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
+                      static_cast<int>(imuStatus));
+    }
+
+    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
+    if (commandsStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
+                      static_cast<int>(commandsStatus));
+    }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n", static_cast<int>(dashboardStatus));
+        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n",
+                      static_cast<int>(dashboardStatus));
     }
 
     // telemetry has no hardware setup but we call Module::init() to record a
@@ -98,27 +108,38 @@ void setupModules(){
 
     auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
     if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Sysinfo initialization failed (status %d). Halting startup.\n", static_cast<int>(sysinfoStatus));
+        Serial.printf("[init] Sysinfo initialization failed (status %d). Continuing.\n",
+                      static_cast<int>(sysinfoStatus));
+    }
+    telemetry::emitSafe();
+}
+
+/**
+ * Initialise control hardware modules.
+ *
+ * This function is registered as the FSM's onInitialize callback and is
+ * therefore called synchronously every time the machine enters the
+ * Initialize state — both at startup and on any subsequent reinit() call.
+ * That means hardware peripherals are re-initialised on a logical system
+ * reset without requiring a full MCU reboot.
+ *
+ * Failures are non-fatal: the state machine will detect missing sensor data
+ * and transition to Fault as appropriate.  telemetry::emitSafe() is called
+ * after each step so the dashboard shows real-time progress.
+ */
+static void initControlModules() {
+    bool initFailureDetected = false;
+
+    auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
+    if (coolingStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Cooling initialization failed (status %d).\n",
+                      static_cast<int>(coolingStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
-    auto accelerometerStatus = initModule("accelerometer", [] { return accelerometer::Module::init(); });
-    if (accelerometerStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Accelerometer initialization failed (status %d) — continuing without IMU.\n", static_cast<int>(accelerometerStatus));
-    }
-    telemetry::emitSafe();
-
-    auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
-    if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cooling initialization failed (status %d). Halting startup.\n", static_cast<int>(coolingStatus));
-        telemetry::emitSafe();
-        return;
-    }
-    telemetry::emitSafe();
-
     // Smooth DAC voltage readback ADC (not a module — inline init)
-    dacVoltageAdc.init(DAC_VOLTAGE_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
+    dacVoltageAdc.init(AMPLIFIER_MANUAL_CONTROL_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
     dacVoltageAdc.enable();
     dacVoltageAdc.setPeriod(0);
     for (uint8_t i = 0; i < DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES; ++i) {
@@ -126,60 +147,35 @@ void setupModules(){
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto waveformStatus = initModule("waveform", [] { return waveform::Module::init(); });
-    if (waveformStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Waveform initialization failed (status %d). Halting startup.\n", static_cast<int>(waveformStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cold head initialization failed (status %d). Halting startup.\n", static_cast<int>(cold_headStatus));
+        Serial.printf("[init] Cold head initialization failed (status %d).\n",
+                      static_cast<int>(cold_headStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
-    auto dacStatus = initModule("dac", [] { return dac::Module::init(); });
-    if (dacStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] DAC initialization failed (status %d). Halting startup.\n", static_cast<int>(dacStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
-    auto rmsStatus = initModule("rms", [] { return rms::Module::init(); });
-    if (rmsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] RMS initialization failed (status %d). Halting startup.\n", static_cast<int>(rmsStatus));
+    auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
+    if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Amplifier initialization failed (status %d).\n",
+                      static_cast<int>(amplifierStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
     if (relayStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Relay initialization failed (status %d). Halting startup.\n", static_cast<int>(relayStatus));
+        Serial.printf("[init] Relay initialization failed (status %d).\n",
+                      static_cast<int>(relayStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
 
     auto indicatorStatus = initModule("indicator", [] { return indicator::Module::init(); });
     if (indicatorStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Indicator initialization failed (status %d). Halting startup.\n", static_cast<int>(indicatorStatus));
+        Serial.printf("[init] Indicator initialization failed (status %d).\n",
+                      static_cast<int>(indicatorStatus));
         initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
-    //initModule("http_api",    [] { return http_api::init(); });
-
-    auto stateMachineStatus = initModule("state_machine", [] { return state_machine::Module::init(); });
-    if (stateMachineStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] State machine initialization failed (status %d). Halting startup.\n", static_cast<int>(stateMachineStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
-    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
-    if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n", static_cast<int>(commandsStatus));
     }
     telemetry::emitSafe();
 
@@ -209,15 +205,25 @@ void setup() {
         return;
     }
 
-    setupModules();
+    // Bring up the console and viewer so the operator can observe progress
+    // and send commands even if control hardware fails to initialise.
+    initPersistentModules();
 
-    if ( ! setupComplete ){
+    // Initialise the FSM infrastructure (pure in-memory, always succeeds).
+    state_machine::Module::init();
+
+    // Register initControlModules as the onInitialize callback, then call
+    // reinit() to enter the Initialize state.  This runs initControlModules()
+    // synchronously — the same path taken on every subsequent reinit().
+    state_machine::setOnInitializeCallback(initControlModules);
+    state_machine::reinit(millis());
+
+    if (!setupComplete) {
         Serial.println(F("Setup failed. Halting startup."));
         return;
     }
 
-
-    Serial.printf("\nSetup complete. System is Off. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
+    Serial.printf("\nSetup complete. System is initializing. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
 
     Serial.println(F("Type 'help' for available commands."));
 }
@@ -227,21 +233,52 @@ void setup() {
 // =============================================================================
 
 void loop() {
-    if (!setupComplete) { return; }
+    // One-time banner on the very first loop() iteration.
+    // Lets the user know the loop has started and the console is ready —
+    // i.e. this is the right moment to start typing commands.
+    static bool sLoopStarted = false;
+    if (!sLoopStarted) {
+        sLoopStarted = true;
+        // Drain any characters that arrived in the USB RX buffer during setup
+        // so they don't accidentally dispatch stale commands.
+        while (Serial.available()) { Serial.read(); }
+        Serial.println();
+        Serial.println(F(">>> Serial console active. Type 'help' for commands. <<<"));
+        Serial.println(F("    (setup may have partially failed — check status above)"));
+        Serial.println();
+    }
+
+    // Serial command processing runs unconditionally so the console is always
+    // reachable — even when setup failed due to missing hardware.
+    // (The TCP/Serial-Studio path calls processLine() directly and is
+    //  unaffected by the setupComplete gate below.)
+    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] commands service error"));
+    }
+
+    // Full control loop runs when setup succeeded, OR when mock mode is
+    // active (hardware-free FSM testing with injected sensor values).
+    // Modules that failed to initialise return SERVICE_ERROR from service()
+    // without crashing, so it is safe to call them in mock mode.
+    if (!setupComplete && !sensor_mock::isActive()) { return; }
 
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all
     // modules are still serviced regardless so the control loop keeps running.
     // Silence SERVICE_SKIPPED — it is the normal outcome for time-gated modules.
+    //
+    // Mock mode is handled inside each module: when sensor_mock::isActive(),
+    // read() / service() pull values from sensor_mock::get() and skip hardware
+    // access entirely.  No conditional logic is needed here.
 
     if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] sysinfo service error"));
     }
-    if (accelerometer::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] accelerometer service error"));
+    if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] imu service error"));
     }
-    if (waveform::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] waveform service error"));
+    if (amplifier::Module::service() == module::MODULE_SERVICE_ERROR) {
+        Serial.println(F("[loop] amplifier service error"));
     }
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] cooling service error"));
@@ -251,11 +288,6 @@ void loop() {
     dacVoltageAdc.serviceADCPin();
 
     const uint32_t nowMs = millis();
-
-    // Process incoming serial commands (non-blocking)
-    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] commands service error"));
-    }
 
     // Indicator LEDs update every loop for accurate flash timing
     indicator::update(nowMs);
@@ -267,22 +299,30 @@ void loop() {
     previousLoopMs = nowMs;
 
     // ---- 1. Read sensors ------------------------------------------------
-    cold_head::read(nowMs);
-    rms::read();
-    rms::readCurrent();
+    // Advance any active mock ramps before module reads, so that every module
+    // sees the updated value on the same tick.
+    sensor_mock::service(nowMs);
 
+    // Each module handles mock mode internally: when sensor_mock::isActive(),
+    // read()/service() pulls from sensor_mock::get() instead of hardware.
+    cold_head::read(nowMs);
+    cold_head::checkFaults();
+
+    // Read cached values.
     const float tempK       = cold_head::getLastTempK();
     const float tempC       = cold_head::getLastTempC();
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
-    const float rmsV        = rms::getVoltage();
-
-    cold_head::checkFaults();
+    const float rmsV        = amplifier::getLastRmsVoltageV();
+    const bool  overstroke  = imu::hasOverstroke();
+    const float sysVoltage  = sysinfo::getVoltage();
 
     // ---- 2. Advance state machine ---------------------------------------
-    const bool overstroke = rms::hasOverstroke();
-    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke);
-    if (overstroke) { rms::clearOverstroke(); }
+    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
+    // Clear edge-triggered overstroke flag after the state machine has consumed
+    // it.  In real mode the flag was set by readCurrent(); in mock mode it was
+    // set by setLastReadings().  Either way, clear it so it fires only once.
+    if (overstroke) { imu::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
     relay::setBypass(!out.bypassRelay);   // setBypass(true) = Normal
@@ -294,9 +334,9 @@ void loop() {
     // Ramp DAC toward the state-machine target (rate-limited in dac.cpp).
     // Use fast shutdown ramp during Shutdown state, normal ramp otherwise.
     if (out.state == state_machine::State::Shutdown) {
-        dac::rampTowardShutdown(out.dacTarget);
+        amplifier::rampTowardShutdown(out.dacTarget);
     } else {
-        dac::rampToward(out.dacTarget);
+        amplifier::rampToVoltageV(out.dacTarget);
     }
 
     // ---- 4. HTTP API ---------------------------------------------------

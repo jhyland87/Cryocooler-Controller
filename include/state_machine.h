@@ -15,7 +15,7 @@
  *    7 Operating      - Normal run: READY ON GREEN
  *    8 Shutdown       - Graceful stop: ramp DAC to 0 over ~5 seconds, then → Idle
  *    9 Delay          - Timed wait: hold for N ms, then advance to configured next state
- *  127 Fault          - Any fault condition: FAULT ON RED, alarm relay active (terminal state)
+ *  127 Fault          - Any fault condition: FAULT flash fast RED, alarm relay active (terminal state)
  *
  * Transition inputs on every update() call:
  *   - tempK          : current cold-stage temperature in Kelvin
@@ -32,6 +32,7 @@
 #define STATE_MACHINE_H
 
 #include <stdint.h>
+#include <time.h>
 #include "config.h"
 #include "indicator.h"
 #include "module.h"
@@ -87,6 +88,8 @@ enum class FaultReason : uint8_t {
     RmsOvervoltage    = 1,
     TemperatureStall  = 2,
     TooManyBackoffs   = 3,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
+    LowSystemVoltage  = 4,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
+    StateOscillation  = 5,  ///< FSM bouncing between the same two states too many times
 };
 
 /** Aggregate output produced by update() each loop. */
@@ -118,24 +121,30 @@ uint32_t getOnStateDuration();
 /**
  * Advance the state machine by one tick.
  *
- * @param tempK        Current cold-stage temperature in Kelvin
- * @param coolingRate  Measured cooling rate in K/min (positive = cooling)
- * @param rmsVoltage   Measured RMS voltage in VDC (stub returns 0)
- * @param stalled      True when stall-detection window has expired without a
- *                     sufficient temperature drop
- * @param nowMs        Current millis()
- * @param overstroke   True when the ACS712 detected a back-EMF current spike
- *                     this tick.  Triggers a DAC backoff and increments the
- *                     backoff counter in the returned Output.  Defaults to
- *                     false for backward compatibility.
- * @return             Output struct with all actuator targets for this tick
+ * @param tempK         Current cold-stage temperature in Kelvin
+ * @param coolingRate   Measured cooling rate in K/min (positive = cooling)
+ * @param rmsVoltage    Measured RMS voltage in VDC (stub returns 0)
+ * @param stalled       True when stall-detection window has expired without a
+ *                      sufficient temperature drop
+ * @param nowMs         Current millis()
+ * @param overstroke    True when the ACS712 detected a back-EMF current spike
+ *                      this tick.  Triggers a DAC backoff and increments the
+ *                      backoff counter in the returned Output.  Defaults to
+ *                      false for backward compatibility.
+ * @param systemVoltage DC supply voltage in volts.  Pass 0.0f (default) when
+ *                      no measurement is available — 0.0f is treated as "not
+ *                      monitored" and never triggers the LowSystemVoltage fault.
+ *                      Any positive value below MIN_SYSTEM_VOLTAGE_VDC
+ *                      immediately transitions to Fault from any state.
+ * @return              Output struct with all actuator targets for this tick
  */
 Output update(float    tempK,
               float    coolingRate,
               float    rmsVoltage,
               bool     stalled,
               uint32_t nowMs,
-              bool     overstroke = false);
+              bool     overstroke    = false,
+              float    systemVoltage = 0.0f);
 
 
 /** Return the current state without advancing the machine. */
@@ -166,14 +175,28 @@ bool isRunning();
 void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
 
 /**
- * Stop the cooldown process and return to Idle.
+ * Stop the cooldown process and return to Idle via the Shutdown ramp.
  * DAC target drops to 0, relay returns to Bypass.
- * Has no effect during Initialize.  When called from Fault the machine
- * is reset to Idle (fault is cleared).
+ * Has no effect during Initialize or when the machine is not running.
  *
  * @param nowMs  Current millis()
  */
 void stop(uint32_t nowMs);
+
+/**
+ * Clear an active fault and return the machine to Idle.
+ *
+ * This is the only path out of State::Fault (other than off()).
+ * On exit from Fault the following actions are taken:
+ *   - faultReason is reset to FaultReason::None
+ *   - backoff counter and DAC offset are reset to zero
+ *   - running flag is left false (operator must call start() to resume)
+ *
+ * Has no effect when the machine is not in State::Fault.
+ *
+ * @param nowMs  Current millis()
+ */
+void clearFault(uint32_t nowMs);
 
 /**
  * Enter the generic Delay state for a fixed duration, then advance to
@@ -209,8 +232,62 @@ inline const char* stateName(State s) {
     return "Unknown";
 }
 
+/**
+ * Register a callback invoked synchronously when the FSM enters the
+ * Initialize state (on_enter).  Use this in main.cpp to re-run control
+ * module initialisation every time the machine is re-initialised.
+ * Pass nullptr to clear the callback.
+ *
+ * The callback executes from within fsm->trigger() on the call stack of
+ * reinit(), so it may block for as long as the module inits require.
+ */
+void setOnInitializeCallback(void (*cb)());
+
+/**
+ * Reset all FSM state and transition to the Initialize state.
+ *
+ * Fully equivalent to calling Module::init() (fresh FSM at Off) followed
+ * immediately by the Off → Initialize transition.  If an onInitialize
+ * callback has been registered via setOnInitializeCallback(), it is invoked
+ * synchronously as part of entering Initialize.
+ *
+ * Typical use:
+ *   - At startup: after state_machine::Module::init() and
+ *     setOnInitializeCallback(), call reinit(millis()) to kick off the
+ *     control-module init sequence without a separate setupModules() loop.
+ *   - At runtime: call off() or stop() to bring the machine to a safe state
+ *     first, then call reinit(nowMs) to re-run hardware module inits and
+ *     return to Idle.
+ *
+ * @param nowMs  Current millis()
+ */
+void reinit(uint32_t nowMs);
+
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
+
+// ── FSM History ───────────────────────────────────────────────────────────────
+
+/** A single FSM history record — one state transition. */
+struct HistoryEntry {
+    State       state;        ///< state that was entered
+    uint32_t    enteredMs;    ///< millis() at which the transition occurred (always valid)
+    time_t      enteredEpoch; ///< wall-clock Unix timestamp at entry (0 = SNTP not yet synced)
+    const char* cause;        ///< what triggered this transition (static string literal, may be nullptr)
+};
+
+/**
+ * Return the number of history entries currently stored.
+ * Starts at 0, grows up to FSM_HISTORY_LIMIT, then wraps (oldest overwritten).
+ */
+uint8_t getHistoryCount();
+
+/**
+ * Return a single history entry by recency index.
+ * @param i  0 = most recent entry, 1 = second most recent, …
+ * @return   The requested entry, or a zero-initialised entry if i >= getHistoryCount().
+ */
+HistoryEntry getHistoryEntry(uint8_t i);
 
 /** Return a short ASCII status text for the current state (safe for Serial / telemetry). */
 const char* getStatusText();

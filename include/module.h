@@ -19,20 +19,20 @@
  *   @code
  *   #include "module.h"
  *
- *   namespace accelerometer {
+ *   namespace imu {
  *
  *   module::InitStatus    init();
  *   module::ServiceStatus service();
  *   float getRoll();
  *
  *   struct Module : ModuleBase<Module> {
- *       static module::InitStatus    init()    { return accelerometer::init(); }
- *       static module::ServiceStatus service() { return accelerometer::service(); }
+ *       static module::InitStatus    init()    { return imu::init(); }
+ *       static module::ServiceStatus service() { return imu::service(); }
  *   };
  *
  *   ASSERT_MODULE_INTERFACE(Module);
  *
- *   } // namespace accelerometer
+ *   } // namespace imu
  *   @endcode
  *
  * ── Minimum required interface ────────────────────────────────────────────────
@@ -97,6 +97,7 @@
 
 /** ServiceStatus values.  Shared by the enum definition and serviceStatusName(). */
 #define MODULE_SERVICE_STATUS(X) \
+    X(NOT_STARTED, "not started", "service() has not been called yet")                      \
     X(OK,      "ok",      "ran and produced valid output this tick")                      \
     X(SKIPPED, "skipped", "skipped this tick (time-gated, disabled, no new data, etc.)") \
     X(ERROR,   "error",   "a recoverable error occurred; output may be stale")

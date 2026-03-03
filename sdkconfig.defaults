@@ -1,0 +1,10 @@
+# sdkconfig.defaults — project-level ESP-IDF Kconfig overrides
+#
+# PlatformIO merges this file into the generated sdkconfig before every build.
+# Add only values that differ from IDF defaults; everything else is left alone.
+
+# IDF 5.5.2 LEDC driver triggers esp_ipc_call_blocking() during ledcAttach(),
+# which overflows the default 1024-byte IPC task stack and causes a
+# "Stack canary watchpoint triggered (ipc1)" panic.  4096 bytes gives plenty
+# of headroom for LEDC and any other IPC-routed driver calls.
+CONFIG_ESP_IPC_TASK_STACK_SIZE=4096

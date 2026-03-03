@@ -20,6 +20,9 @@ namespace cold_head {
  */
 module::InitStatus init();
 
+module::InitStatus initACS();
+module::InitStatus initRTD();
+
 /**
  * Read RTD resistance and temperature from hardware.
  * Stores the result internally and prints to Serial.
@@ -28,6 +31,22 @@ module::InitStatus init();
  * @param nowMs  Current millis() value (injected for testability)
  */
 void read(uint32_t nowMs);
+
+/**
+ * Inject mock sensor readings directly into the module's cached state without
+ * touching any hardware.  Call every control tick instead of read() when the
+ * sensor is not physically present (e.g. hardware-free FSM testing).
+ *
+ * After this call, getLastTempK(), getCoolingRateKPerMin(), and isStalled()
+ * all return the injected values until the next real read() is called.
+ *
+ * @param nowMs              Current millis() (used to timestamp the sample)
+ * @param tempK              Cold-stage temperature in Kelvin
+ * @param coolingRateKPerMin Cooling rate in K/min (negative = cooling)
+ * @param stalled            True if the stage should appear stalled
+ */
+void setLastReadings(uint32_t nowMs, float tempK,
+                     float coolingRateKPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);
 
 //float readAmbientTemperature();
 
@@ -64,6 +83,10 @@ float getLastTempC();
  * Returns 0.0f if fewer than 2 samples are available.
  */
 float getCoolingRateKPerMin();
+
+float getLastRmsVoltageV();
+
+float getLastRmsCurrentA();
 
 /**
  * Return true if the temperature has stalled: the cold stage has not dropped

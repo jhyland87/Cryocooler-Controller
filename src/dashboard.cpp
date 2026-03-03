@@ -135,7 +135,7 @@ static void removeClient(AsyncClient* c) {
 // ─── AsyncTCP event callbacks ─────────────────────────────────────────────────
 
 static void onClientDisconnect(void* /*arg*/, AsyncClient* c) {
-    Serial.printf(F("[dashboard] Client %s disconnected\n"),
+    Serial.printf("[dashboard] Client %s disconnected\n",
                   c->remoteIP().toString().c_str());
     removeClient(c);
 }
@@ -161,7 +161,7 @@ static void onClientData(void* /*arg*/, AsyncClient* c, void* data, size_t len) 
 
     if (end == 0) return;
 
-    Serial.printf(F("[dashboard] Client %s cmd: %s\n"),
+    Serial.printf("[dashboard] Client %s cmd: %s\n",
                   c->remoteIP().toString().c_str(), buf);
 
     // Dispatch — response is sent back over the same TCP connection.
@@ -180,7 +180,7 @@ static void onNewClient(void* /*arg*/, AsyncClient* c) {
             c->onDisconnect(&onClientDisconnect, nullptr);
             c->onError(&onClientError, nullptr);
             c->onData(&onClientData, nullptr);
-            Serial.printf(F("[dashboard] Client %s connected\n"),
+            Serial.printf("[dashboard] Client %s connected\n",
                           c->remoteIP().toString().c_str());
             return;
         }
@@ -313,7 +313,7 @@ bool setupWifi() {
     // Without this the ESP32 can present an expired auth context to the AP,
     // which responds with deauth reason 2 (AUTH_EXPIRE) every ~1 s until
     // waitForConnectResult() times out.
-    WiFi.disconnect(true, true);
+    //WiFi.disconnectAsync(true, true);
     WiFi.setAutoReconnect(false);
     WiFi.mode(WIFI_OFF);
     delay(100);  // let the WiFi stack fully idle before re-arming
@@ -323,6 +323,7 @@ bool setupWifi() {
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
         Serial.println(F("[dashboard] Failed to connect to WiFi"));
+
         return false;
     }
 
@@ -340,8 +341,10 @@ bool setupWifi() {
     // Kick off SNTP sync in the background.  time(nullptr) returns 0 until
     // the first sync completes (typically a few seconds after WiFi connects),
     // then switches to the real Unix epoch — no explicit wait needed.
-    configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-    Serial.println(F("[dashboard] SNTP sync started (UTC)"));
+    // "MST7" is the POSIX TZ string for Phoenix / Mountain Standard Time:
+    // UTC−7, no daylight-saving transition (Arizona does not observe DST).
+    configTzTime("MST7", "pool.ntp.org", "time.nist.gov");
+    Serial.println(F("[dashboard] SNTP sync started (MST / Phoenix)"));
 
     return true;
 }

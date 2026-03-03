@@ -13,6 +13,8 @@
  *   off                  - Power off the system entirely
  *   status               - Print current state and running flag
  *   summary              - Print a full snapshot of all system values
+ *   fsm state            - Print current FSM state with time-in-state and status text
+ *   fsm history          - Print recent FSM state transitions (newest first, up to FSM_HISTORY_LIMIT)
  *   board                - Print compile-time board/platform info
  *   help                 - List available commands
  *   telemetry off        - Disable telemetry
@@ -22,6 +24,16 @@
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)
  *   cooling on           - Enable cooling system
  *   cooling off          - Disable cooling system
+ *   mock                 - Print current mock sensor values and active state
+ *   mock enable          - Activate sensor mock mode (bypass real hardware)
+ *   mock disable         - Deactivate sensor mock mode (return to hardware)
+ *   mock temp <K>        - Set cold-stage temperature (Kelvin)
+ *   mock rate <K/min>    - Set cooling rate (negative = cooling down)
+ *   mock rms <V>         - Set back-EMF RMS voltage
+ *   mock current <A>     - Set INA260 current
+ *   mock voltage <V>     - Set INA260 bus voltage
+ *   mock stall <0|1>     - Set temperature-stall flag
+ *   mock stroke <0|1>    - Set back-EMF overstroke flag
  *
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().

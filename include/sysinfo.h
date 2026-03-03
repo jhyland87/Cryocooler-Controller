@@ -31,6 +31,14 @@ float getPower();
 
 float getAmbientTemperature();
 
+/**
+ * Inject cached readings directly, bypassing the INA260 hardware read.
+ * Used in mock mode so that telemetry and the dashboard reflect the values
+ * set via `mock voltage` and `mock current` without touching the I2C bus.
+ * Power is derived as voltageV * currentA.
+ */
+void setLastReadings(float voltageV, float currentA, float powerW);
+
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
