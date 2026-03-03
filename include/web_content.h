@@ -4,7 +4,7 @@
 #pragma once
 
 // index.html  (505 bytes)
-static const char k_index_html[] PROGMEM = R"WEBFILE(
+static const char index_html[] PROGMEM = R"WEBFILE(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +27,7 @@ static const char k_index_html[] PROGMEM = R"WEBFILE(
 )WEBFILE";
 
 // style.css  (1231 bytes)
-static const char k_style_css[] PROGMEM = R"WEBFILE(
+static const char style_css[] PROGMEM = R"WEBFILE(
 
 body {
   font-family: monospace;
@@ -117,7 +117,7 @@ td:last-child {
 )WEBFILE";
 
 // app.js  (3187 bytes)
-static const char k_app_js[] PROGMEM = R"WEBFILE(
+static const char app_js[] PROGMEM = R"WEBFILE(
 
 const GROUP_ORDER = [
   'timestamp',

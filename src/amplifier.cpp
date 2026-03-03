@@ -206,13 +206,21 @@ void disable() {
     enabled_ = false;
 }
 
+void initCoarseCooldown() {
+    rampToVoltage(0, AMPLIFIER_RAMP_RATE_MEDIUM);
+}
+
+void initFineCooldown() {
+    rampToVoltage(0, AMPLIFIER_RAMP_RATE_SLOW);
+}
+
 // ---------------------------------------------------------------------------
 // DAC / amplitude control
 // ---------------------------------------------------------------------------
 
-void rampToVoltage(uint16_t dacTarget) {
+void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
     dacRampInternal(dacTarget,
-                    static_cast<uint16_t>(AMPLIFIER_MAX_STEP_PER_INTERVAL));
+                    static_cast<uint16_t>(rampRate));
 }
 
 void rampTowardShutdown(uint16_t dacTarget) {

@@ -61,6 +61,12 @@
 // At LOOP_INTERVAL_MS = 200 ms, a step of 5 gives a full-scale ramp in ~164 s.
 #define AMPLIFIER_MAX_STEP_PER_INTERVAL  static_cast<uint16_t>(5)
 
+#define AMPLIFIER_RAMP_RATE_VERY_FAST  static_cast<uint16_t>(1)
+#define AMPLIFIER_RAMP_RATE_FAST  static_cast<uint16_t>(5)
+#define AMPLIFIER_RAMP_RATE_MEDIUM  static_cast<uint16_t>(10)
+#define AMPLIFIER_RAMP_RATE_SLOW  static_cast<uint16_t>(20)
+#define AMPLIFIER_RAMP_RATE_VERY_SLOW  static_cast<uint16_t>(50)
+
 // DAC step size during shutdown sequence (ramp down much faster than ramp up).
 // At LOOP_INTERVAL_MS = 200 ms, a step of 200 gives a full-scale ramp in ~4 s.
 #define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)

@@ -94,17 +94,17 @@ static uint16_t     backoffCount        = 0;
 static uint16_t     backoffDacOffset    = 0;
 
 // Delay state configuration — set by startDelay() before EVT_ENTER_DELAY fires.
-static uint32_t     sDelayMs           = 0;  ///< duration to hold in Delay state
-static int          sDelayNextEvent    = EVT_DELAY_TO_IDLE; ///< event fired when timer expires
+static uint32_t     delayMs           = 0;  ///< duration to hold in Delay state
+static int          delayNextEvent    = EVT_DELAY_TO_IDLE; ///< event fired when timer expires
 
 // Injected timestamp — set before every trigger() call so on_enter callbacks
 // can capture the correct entry time without calling millis() directly.
-static uint32_t     sNowMs             = 0;
+static uint32_t     nowMs             = 0;
 
 // Optional callback invoked when the FSM enters the Initialize state.
 // Registered by main.cpp via setOnInitializeCallback() to re-run control
 // module inits on every reinit().
-static void (*sOnInitializeCb)() = nullptr;
+static void (*onInitializeCb)() = nullptr;
 
 // ---------------------------------------------------------------------------
 // FSM History ring buffer — records every state entry in arrival order.
@@ -143,9 +143,9 @@ static inline const HistoryEntry& ringAt(uint8_t i) {
 // occurred within FSM_OSCILLATION_WINDOW_MS, sets sOscillationFaultPending.
 // ---------------------------------------------------------------------------
 static void checkOscillation() {
-    const uint8_t kWindow =
+    const uint8_t window =
         static_cast<uint8_t>(FSM_OSCILLATION_MIN_CYCLES) * static_cast<uint8_t>(2u);
-    if (historyCount < kWindow) return;
+    if (historyCount < window) return;
 
     const State stateEven = ringAt(0).state;   // most recent
     const State stateOdd  = ringAt(1).state;   // previous
@@ -157,14 +157,14 @@ static void checkOscillation() {
     if (stateEven == State::Fault      || stateOdd == State::Fault)      return;
 
     // All entries in the window must alternate between exactly those two states.
-    for (uint8_t i = 0; i < kWindow; ++i) {
+    for (uint8_t i = 0; i < window; ++i) {
         const State expected = (i % 2u == 0u) ? stateEven : stateOdd;
         if (ringAt(i).state != expected) return;
     }
 
     // All transitions must have occurred within the configured time window.
     const uint32_t newest = ringAt(0).enteredMs;
-    const uint32_t oldest = ringAt(static_cast<uint8_t>(kWindow - 1u)).enteredMs;
+    const uint32_t oldest = ringAt(static_cast<uint8_t>(window - 1u)).enteredMs;
     if ((newest - oldest) > static_cast<uint32_t>(FSM_OSCILLATION_WINDOW_MS)) return;
 
     oscillationFaultPending = true;
@@ -202,18 +202,18 @@ static void onExitFault();
 // Library ::State objects
 // Qualified as ::State to avoid shadowing the state_machine::State enum.
 // ---------------------------------------------------------------------------
-static ::State sFsmOff       (onEnterOff,             nullptr, nullptr);
-static ::State sFsmInit      (onEnterInitialize,      nullptr, nullptr);
-static ::State sFsmIdle      (onEnterIdle,            nullptr, nullptr);
-static ::State sFsmCoarse    (onEnterCoarseCooldown,  nullptr, nullptr);
-static ::State sFsmFine      (onEnterFineCooldown,    nullptr, nullptr);
-static ::State sFsmOvershoot (onEnterOvershoot,       nullptr, nullptr);
-static ::State sFsmSettle    (onEnterSettle,          nullptr, nullptr);
-static ::State sFsmBaseline  (onEnterBaseline,        nullptr, nullptr);
-static ::State sFsmOperating (onEnterOperating,       nullptr, nullptr);
-static ::State sFsmShutdown  (onEnterShutdown,        nullptr, nullptr);
-static ::State sFsmDelay     (onEnterDelay,           nullptr, nullptr);
-static ::State sFsmFault     (onEnterFault,           nullptr, onExitFault);
+static ::State fsmStateOff       (onEnterOff,             nullptr, nullptr);
+static ::State fsmStateInit      (onEnterInitialize,      nullptr, nullptr);
+static ::State fsmStateIdle      (onEnterIdle,            nullptr, nullptr);
+static ::State fsmStateCoarse    (onEnterCoarseCooldown,  nullptr, nullptr);
+static ::State fsmStateFine      (onEnterFineCooldown,    nullptr, nullptr);
+static ::State fsmStateOvershoot (onEnterOvershoot,       nullptr, nullptr);
+static ::State fsmStateSettle    (onEnterSettle,          nullptr, nullptr);
+static ::State fsmStateBaseline  (onEnterBaseline,        nullptr, nullptr);
+static ::State fsmStateOperating (onEnterOperating,       nullptr, nullptr);
+static ::State fsmStateShutdown  (onEnterShutdown,        nullptr, nullptr);
+static ::State fsmStateDelay     (onEnterDelay,           nullptr, nullptr);
+static ::State fsmStateFault     (onEnterFault,           nullptr, onExitFault);
 
 // Heap-allocated so it can be fully reset between test cases via init().
 static Fsm* fsm = nullptr;
@@ -373,14 +373,14 @@ static Output buildOutput(State s, uint16_t dacTarget) {
 
 /**
  * Common housekeeping executed on every state entry.
- * Updates currentState and records the entry timestamp from sNowMs (which must
+ * Updates currentState and records the entry timestamp from nowMs (which must
  * be set by the caller before trigger() is invoked).
  */
 static void setStateEntry(State s) {
     Serial.printf("[SM] -> %s\n", stateName(s));
     ESP_LOGD(TAG, "Entering state %s", stateName(s));
     currentState        = s;
-    currentStateEntryMs = sNowMs;
+    currentStateEntryMs = nowMs;
     // Clear settle timer for every state except Settle itself.
     if (s != State::Settle) {
         settleTimerActive = false;
@@ -390,19 +390,27 @@ static void setStateEntry(State s) {
     if (s != State::Fault) {
         faultReason = FaultReason::None;
     }
-    pushHistory(s, sNowMs);
+    pushHistory(s, nowMs);
 }
 
 static void onEnterOff()            { setStateEntry(State::Off); }
 static void onEnterInitialize() {
     setStateEntry(State::Initialize);
-    if (sOnInitializeCb) {
-        sOnInitializeCb();
+    if (onInitializeCb) {
+        // onInitializeCb() calls initControlModules() → cooling::init(),
+        // which programs the EMC2101 LUT and enables IC-controlled fan.
+        onInitializeCb();
     }
 }
 static void onEnterIdle()           { setStateEntry(State::Idle); }
-static void onEnterCoarseCooldown() { setStateEntry(State::CoarseCooldown); }
-static void onEnterFineCooldown()   { setStateEntry(State::FineCooldown); }
+static void onEnterCoarseCooldown() {
+    setStateEntry(State::CoarseCooldown);
+    amplifier::initCoarseCooldown();
+}
+static void onEnterFineCooldown() {
+    setStateEntry(State::FineCooldown);
+    amplifier::initFineCooldown();
+}
 static void onEnterOvershoot()      { setStateEntry(State::Overshoot); }
 static void onEnterSettle()         { setStateEntry(State::Settle); }
 static void onEnterBaseline()       { setStateEntry(State::Baseline); }
@@ -411,13 +419,13 @@ static void onEnterShutdown()       { setStateEntry(State::Shutdown); }
 
 static void onEnterDelay() {
     setStateEntry(State::Delay);
-    Serial.printf("[SM] Delay for %lu ms\n", static_cast<unsigned long>(sDelayMs));
+    Serial.printf("[SM] Delay for %lu ms\n", static_cast<unsigned long>(delayMs));
 }
 
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
     running = false;
-    if (offStateMs == 0) offStateMs = sNowMs;
+    if (offStateMs == 0) offStateMs = nowMs;
 }
 
 /**
@@ -443,12 +451,12 @@ static void onExitFault() {
 static void buildFsm() {
     // ── Start events from Off and Idle ────────────────────────────────────
     // start() selects the correct resume state based on the current temperature.
-    ::State* startableStates[] = { &sFsmOff, &sFsmIdle };
+    ::State* startableStates[] = { &fsmStateOff, &fsmStateIdle };
     for (auto* from : startableStates) {
-        fsm->add_transition(from, &sFsmCoarse,    EVT_START_COARSE,    nullptr);
-        fsm->add_transition(from, &sFsmFine,      EVT_START_FINE,      nullptr);
-        fsm->add_transition(from, &sFsmSettle,    EVT_START_SETTLE,    nullptr);
-        fsm->add_transition(from, &sFsmOvershoot, EVT_START_OVERSHOOT, nullptr);
+        fsm->add_transition(from, &fsmStateCoarse,    EVT_START_COARSE,    nullptr);
+        fsm->add_transition(from, &fsmStateFine,      EVT_START_FINE,      nullptr);
+        fsm->add_transition(from, &fsmStateSettle,    EVT_START_SETTLE,    nullptr);
+        fsm->add_transition(from, &fsmStateOvershoot, EVT_START_OVERSHOOT, nullptr);
     }
 
     // ── Re-initialize: Off, Idle, or Fault → Initialize ───────────────────
@@ -458,101 +466,101 @@ static void buildFsm() {
     // fault without a separate clearFault() + off() sequence.
     // onExitFault() fires automatically on the Fault → Initialize transition,
     // resetting faultReason and backoff state before Initialize is entered.
-    fsm->add_transition(&sFsmOff,   &sFsmInit, EVT_REINITIALIZE, nullptr);
-    fsm->add_transition(&sFsmIdle,  &sFsmInit, EVT_REINITIALIZE, nullptr);
-    fsm->add_transition(&sFsmFault, &sFsmInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&fsmStateOff,   &fsmStateInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&fsmStateIdle,  &fsmStateInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&fsmStateFault, &fsmStateInit, EVT_REINITIALIZE, nullptr);
 
     // ── Initialize → Idle ─────────────────────────────────────────────────
     // Timer driven in update() using nowMs (not add_timed_transition).
-    fsm->add_transition(&sFsmInit, &sFsmIdle, EVT_INIT_DONE, nullptr);
+    fsm->add_transition(&fsmStateInit, &fsmStateIdle, EVT_INIT_DONE, nullptr);
 
     // ── Cooldown transitions ───────────────────────────────────────────────
-    fsm->add_transition(&sFsmCoarse,    &sFsmFine,      EVT_BELOW_COARSE, nullptr);
-    fsm->add_transition(&sFsmFine,      &sFsmCoarse,    EVT_ABOVE_COARSE, nullptr);
-    fsm->add_transition(&sFsmFine,      &sFsmOvershoot, EVT_OVERSHOT,     nullptr);
-    fsm->add_transition(&sFsmFine,      &sFsmSettle,    EVT_IN_BAND,      nullptr);
-    fsm->add_transition(&sFsmOvershoot, &sFsmSettle,    EVT_IN_BAND,      nullptr);
+    fsm->add_transition(&fsmStateCoarse,    &fsmStateFine,      EVT_BELOW_COARSE, nullptr);
+    fsm->add_transition(&fsmStateFine,      &fsmStateCoarse,    EVT_ABOVE_COARSE, nullptr);
+    fsm->add_transition(&fsmStateFine,      &fsmStateOvershoot, EVT_OVERSHOT,     nullptr);
+    fsm->add_transition(&fsmStateFine,      &fsmStateSettle,    EVT_IN_BAND,      nullptr);
+    fsm->add_transition(&fsmStateOvershoot, &fsmStateSettle,    EVT_IN_BAND,      nullptr);
 
     // ── Settle → Baseline (timer-driven in update()) ──────────────────────
-    fsm->add_transition(&sFsmSettle,   &sFsmBaseline,  EVT_SETTLE_DONE,  nullptr);
+    fsm->add_transition(&fsmStateSettle,   &fsmStateBaseline,  EVT_SETTLE_DONE,  nullptr);
 
     // ── Baseline → Operating (timer-driven in update()) ───────────────────
-    fsm->add_transition(&sFsmBaseline, &sFsmOperating, EVT_BASELINE_DONE, nullptr);
+    fsm->add_transition(&fsmStateBaseline, &fsmStateOperating, EVT_BASELINE_DONE, nullptr);
 
     // ── Shutdown → Idle (timer-driven in update()) ────────────────────────
-    fsm->add_transition(&sFsmShutdown, &sFsmIdle,      EVT_SHUTDOWN_DONE, nullptr);
+    fsm->add_transition(&fsmStateShutdown, &fsmStateIdle,      EVT_SHUTDOWN_DONE, nullptr);
 
     // ── Stop: all running states → Shutdown ───────────────────────────────
     // Delay is included so stop() can interrupt a pending wait.
     ::State* stoppableStates[] = {
-        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmDelay
+        &fsmStateCoarse, &fsmStateFine, &fsmStateOvershoot,
+        &fsmStateSettle, &fsmStateBaseline, &fsmStateOperating, &fsmStateDelay
     };
     for (auto* from : stoppableStates) {
-        fsm->add_transition(from, &sFsmShutdown, EVT_STOP, nullptr);
+        fsm->add_transition(from, &fsmStateShutdown, EVT_STOP, nullptr);
     }
 
     // ── Fault: RMS overvoltage from every non-Fault state ─────────────────
     // Delay is included so an RMS spike during a wait causes a fault.
     ::State* allNonFaultStates[] = {
-        &sFsmOff, &sFsmInit, &sFsmIdle,
-        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown, &sFsmDelay
+        &fsmStateOff, &fsmStateInit, &fsmStateIdle,
+        &fsmStateCoarse, &fsmStateFine, &fsmStateOvershoot,
+        &fsmStateSettle, &fsmStateBaseline, &fsmStateOperating, &fsmStateShutdown, &fsmStateDelay
     };
     for (auto* from : allNonFaultStates) {
-        fsm->add_transition(from, &sFsmFault, EVT_FAULT_RMS, nullptr);
+        fsm->add_transition(from, &fsmStateFault, EVT_FAULT_RMS, nullptr);
     }
 
     // ── Fault: low system voltage from every non-Fault state ──────────────
     // Mirrors EVT_FAULT_RMS — any state can immediately fault on low voltage.
     for (auto* from : allNonFaultStates) {
-        fsm->add_transition(from, &sFsmFault, EVT_FAULT_LOW_VOLTAGE, nullptr);
+        fsm->add_transition(from, &fsmStateFault, EVT_FAULT_LOW_VOLTAGE, nullptr);
     }
 
     // ── Fault: state oscillation from every non-Fault state ───────────────
     // Fired when checkOscillation() detects repeated A↔B bouncing.
     for (auto* from : allNonFaultStates) {
-        fsm->add_transition(from, &sFsmFault, EVT_FAULT_OSCILLATION, nullptr);
+        fsm->add_transition(from, &fsmStateFault, EVT_FAULT_OSCILLATION, nullptr);
     }
 
     // ── Fault: temperature stall only in cooldown states ──────────────────
-    fsm->add_transition(&sFsmCoarse, &sFsmFault, EVT_FAULT_STALL, nullptr);
-    fsm->add_transition(&sFsmFine,   &sFsmFault, EVT_FAULT_STALL, nullptr);
+    fsm->add_transition(&fsmStateCoarse, &fsmStateFault, EVT_FAULT_STALL, nullptr);
+    fsm->add_transition(&fsmStateFine,   &fsmStateFault, EVT_FAULT_STALL, nullptr);
 
     // ── Fault: too many backoffs from any running state ────────────────────
     for (auto* from : stoppableStates) {
-        fsm->add_transition(from, &sFsmFault, EVT_FAULT_BACKOFFS, nullptr);
+        fsm->add_transition(from, &fsmStateFault, EVT_FAULT_BACKOFFS, nullptr);
     }
 
     // ── Fault clear: Fault → Idle (fired by clearFault()) ─────────────────
     // onExitFault() resets faultReason, backoff counter, and DAC offset.
-    fsm->add_transition(&sFsmFault, &sFsmIdle, EVT_FAULT_CLEARED, nullptr);
+    fsm->add_transition(&fsmStateFault, &fsmStateIdle, EVT_FAULT_CLEARED, nullptr);
 
     // ── Power-off: any state → Off ─────────────────────────────────────────
     ::State* powerOffableStates[] = {
-        &sFsmInit, &sFsmIdle,
-        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating,
-        &sFsmShutdown, &sFsmDelay, &sFsmFault
+        &fsmStateInit, &fsmStateIdle,
+        &fsmStateCoarse, &fsmStateFine, &fsmStateOvershoot,
+        &fsmStateSettle, &fsmStateBaseline, &fsmStateOperating,
+        &fsmStateShutdown, &fsmStateDelay, &fsmStateFault
     };
     for (auto* from : powerOffableStates) {
-        fsm->add_transition(from, &sFsmOff, EVT_POWER_OFF, nullptr);
+        fsm->add_transition(from, &fsmStateOff, EVT_POWER_OFF, nullptr);
     }
 
     // ── Delay entry: from all non-Fault, non-Delay states ─────────────────
     // Called by startDelay() via EVT_ENTER_DELAY.
     ::State* delayableStates[] = {
-        &sFsmOff, &sFsmInit, &sFsmIdle,
-        &sFsmCoarse, &sFsmFine, &sFsmOvershoot,
-        &sFsmSettle, &sFsmBaseline, &sFsmOperating, &sFsmShutdown
+        &fsmStateOff, &fsmStateInit, &fsmStateIdle,
+        &fsmStateCoarse, &fsmStateFine, &fsmStateOvershoot,
+        &fsmStateSettle, &fsmStateBaseline, &fsmStateOperating, &fsmStateShutdown
     };
     for (auto* from : delayableStates) {
-        fsm->add_transition(from, &sFsmDelay, EVT_ENTER_DELAY, nullptr);
+        fsm->add_transition(from, &fsmStateDelay, EVT_ENTER_DELAY, nullptr);
     }
 
     // ── Delay exit: timer-driven in update() ──────────────────────────────
-    fsm->add_transition(&sFsmDelay, &sFsmIdle,   EVT_DELAY_TO_IDLE,   nullptr);
-    fsm->add_transition(&sFsmDelay, &sFsmCoarse, EVT_DELAY_TO_COARSE, nullptr);
+    fsm->add_transition(&fsmStateDelay, &fsmStateIdle,   EVT_DELAY_TO_IDLE,   nullptr);
+    fsm->add_transition(&fsmStateDelay, &fsmStateCoarse, EVT_DELAY_TO_COARSE, nullptr);
 }
 
 // ---------------------------------------------------------------------------
@@ -569,7 +577,7 @@ static void fsmTrigger(int event, const char* cause) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init(uint32_t nowMs) {
-    sNowMs           = nowMs;
+    nowMs           = nowMs;
     running          = false;
     onStateMs        = 0;
     offStateMs       = 0;
@@ -578,15 +586,15 @@ module::InitStatus init(uint32_t nowMs) {
     backoffDacOffset = 0;
     settleTimerActive= false;
     settleStartMs    = 0;
-    sDelayMs         = 0;
-    sDelayNextEvent  = EVT_DELAY_TO_IDLE;
+    delayMs         = 0;
+    delayNextEvent  = EVT_DELAY_TO_IDLE;
     historyHead              = 0;
     historyCount             = 0;
     pendingCause             = nullptr;
     oscillationFaultPending  = false;
 
     delete fsm;
-    fsm = new Fsm(&sFsmOff);
+    fsm = new Fsm(&fsmStateOff);
     buildFsm();
 
     // First run_machine() call initialises the library (sets m_initialized,
@@ -610,7 +618,7 @@ Output update(float    tempK,
     //ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
              //tempK, coolingRate, rmsVoltage, stalled, overstroke);
 
-    sNowMs = nowMs;
+    nowMs = nowMs;
 
     // ------------------------------------------------------------------
     // 1. Global fault checks — fire from any non-Fault state
@@ -736,9 +744,9 @@ Output update(float    tempK,
                 break;
 
             case State::Delay:
-                if (elapsed >= sDelayMs) {
-                    Serial.printf("Triggering delay exit event %d\n", sDelayNextEvent);
-                    fsmTrigger(sDelayNextEvent, "delay_timer");
+                if (elapsed >= delayMs) {
+                    Serial.printf("Triggering delay exit event %d\n", delayNextEvent);
+                    fsmTrigger(delayNextEvent, "delay_timer");
                 }
                 break;
 
@@ -783,7 +791,7 @@ void start(uint32_t nowMs, float tempK) {
     Serial.printf("start() tempK=%.2f\n", tempK);
     if (running) return;
     running          = true;
-    sNowMs           = nowMs;
+    nowMs           = nowMs;
     onStateMs        = nowMs;
     offStateMs       = 0;
     faultReason      = FaultReason::None;
@@ -811,7 +819,7 @@ void start(uint32_t nowMs, float tempK) {
 void stop(uint32_t nowMs) {
     if (!running) return;
     running = false;
-    sNowMs  = nowMs;
+    nowMs  = nowMs;
     if (offStateMs == 0) offStateMs = nowMs;
     ESP_LOGD(TAG, "stop()");
     Serial.println(F("Triggering EVT_STOP"));
@@ -821,7 +829,7 @@ void stop(uint32_t nowMs) {
 void clearFault(uint32_t nowMs) {
     if (currentState != State::Fault) return;
     ESP_LOGD(TAG, "clearFault()");
-    sNowMs = nowMs;
+    nowMs = nowMs;
     // onExitFault() fires synchronously inside trigger() → make_transition(),
     // resetting faultReason, backoffCount, and backoffDacOffset before Idle
     // is entered.  running remains false; the operator must call start() to resume.
@@ -830,20 +838,20 @@ void clearFault(uint32_t nowMs) {
 
 void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
     if (currentState == State::Fault) return;
-    sDelayMs = durationMs;
+    delayMs = durationMs;
     switch (nextState) {
-        case State::CoarseCooldown: sDelayNextEvent = EVT_DELAY_TO_COARSE; break;
-        default:                    sDelayNextEvent = EVT_DELAY_TO_IDLE;   break;
+        case State::CoarseCooldown: delayNextEvent = EVT_DELAY_TO_COARSE; break;
+        default:                    delayNextEvent = EVT_DELAY_TO_IDLE;   break;
     }
-    sNowMs = nowMs;
+    nowMs = nowMs;
     Serial.printf("startDelay() durationMs=%lu nextEvent=%d\n",
-                  static_cast<unsigned long>(durationMs), sDelayNextEvent);
+                  static_cast<unsigned long>(durationMs), delayNextEvent);
     fsmTrigger(EVT_ENTER_DELAY, "startDelay");
 }
 
 void off(uint32_t nowMs) {
     if (currentState == State::Off) return;
-    sNowMs      = nowMs;
+    nowMs      = nowMs;
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
     faultReason = FaultReason::None;
@@ -852,7 +860,7 @@ void off(uint32_t nowMs) {
 }
 
 void setOnInitializeCallback(void (*cb)()) {
-    sOnInitializeCb = cb;
+    onInitializeCb = cb;
 }
 
 void reinit(uint32_t nowMs) {
@@ -862,8 +870,8 @@ void reinit(uint32_t nowMs) {
     // transitions buffer, so calling delete+new crashes when the FSM already
     // exists.  We keep the existing FSM (all transitions remain valid) and
     // simply reset our own state then trigger EVT_REINITIALIZE, which moves
-    // the machine to Initialize where onEnterInitialize fires sOnInitializeCb.
-    sNowMs           = nowMs;
+    // the machine to Initialize where onEnterInitialize fires onInitializeCb.
+    nowMs           = nowMs;
     running          = false;
     onStateMs        = 0;
     offStateMs       = 0;
@@ -872,15 +880,15 @@ void reinit(uint32_t nowMs) {
     backoffDacOffset = 0;
     settleTimerActive= false;
     settleStartMs    = 0;
-    sDelayMs         = 0;
-    sDelayNextEvent  = EVT_DELAY_TO_IDLE;
+    delayMs         = 0;
+    delayNextEvent  = EVT_DELAY_TO_IDLE;
     historyHead              = 0;
     historyCount             = 0;
     pendingCause             = nullptr;
     oscillationFaultPending  = false;
     // Transition current state → Initialize.
     // Valid from Off, Idle, and Fault (all three transitions are registered
-    // in buildFsm()).  onEnterInitialize() fires sOnInitializeCb.
+    // in buildFsm()).  onEnterInitialize() fires onInitializeCb.
     fsmTrigger(EVT_REINITIALIZE, "reinit");
 }
 

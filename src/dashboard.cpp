@@ -4,7 +4,7 @@
  *
  * Architecture
  * ────────────
- * A dedicated FreeRTOS task (Core 0, kTaskPriority) owns all TCP I/O.
+ * A dedicated FreeRTOS task (Core 0, taskPriority) owns all TCP I/O.
  * The Arduino loop task (Core 1) only calls service(), which is a no-op;
  * the dashboard task manages its own 1 Hz schedule via vTaskDelayUntil().
  *
@@ -67,7 +67,7 @@ public:
 
     size_t write(uint8_t b) override {
         buf_[bufLen_++] = static_cast<char>(b);
-        if (bufLen_ >= kBufSize) flush();
+        if (bufLen_ >= bufSize) flush();
         return 1;
     }
 
@@ -87,42 +87,42 @@ private:
         bufLen_ = 0;
     }
 
-    static constexpr size_t kBufSize = 128;
+    static constexpr size_t bufSize = 128;
     AsyncClient* client_;
-    char         buf_[kBufSize];
+    char         buf_[bufSize];
     size_t       bufLen_;
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-static constexpr uint32_t   kBroadcastIntervalMs = 1000;
+static constexpr uint32_t   broadcastIntervalMs = 1000;
 // Transmit buffer.  Must be larger than the compact serialised dashboard JSON
 // (use estimateSize() to measure).  Pretty mode is NOT used for live streaming
 // because pretty output is ~3–4× larger; 16 KB comfortably holds the compact
 // frame (~10–11 KB for a typical cryocooler config).
-static constexpr size_t     kTxBufSize           = 16384;
-static constexpr uint8_t    kMaxClients          = 4;
+static constexpr size_t     txBufSize           = 16384;
+static constexpr uint8_t    maxClients          = 4;
 
 // FreeRTOS task parameters.
 // NOTE: on ESP-IDF the usStackDepth argument to xTaskCreatePinnedToCore is
 // in BYTES (unlike vanilla FreeRTOS where it is in words).
-static constexpr uint32_t   kTaskStackBytes      = 8192;  // bytes
-static constexpr UBaseType_t kTaskPriority       = 1;     // low; yields freely
+static constexpr uint32_t   taskStackBytes      = 8192;  // bytes
+static constexpr UBaseType_t taskPriority       = 1;     // low; yields freely
 
 // Inter-chunk pause — gives lwIP time to ACK and refill the send window.
-static constexpr uint32_t   kChunkPauseMs        = 5;
+static constexpr uint32_t   chunkPauseMs        = 5;
 
 // ─── Module state ─────────────────────────────────────────────────────────────
 
 static volatile bool    enabled_ = true;
-static ss::Dashboard    ssDashboard(dashboard_config::kDashboardCfg);
+static ss::Dashboard    ssDashboard(dashboard_config::dashboardCfg);
 static AsyncServer      tcpServer(WS_PORT);
 static AsyncWebServer   httpServer(HTTP_API_PORT);
-static char             txBuf[kTxBufSize];
+static char             txBuf[txBufSize];
 
 // Client slot array.  Slots are nulled inside disconnect/error callbacks
 // (which run in the TCPIP task) before AsyncTCP releases the object.
-static AsyncClient* clients_[kMaxClients] = {};
+static AsyncClient* clients_[maxClients] = {};
 
 // ─── Client list helpers ──────────────────────────────────────────────────────
 
@@ -148,9 +148,9 @@ static void onClientError(void* /*arg*/, AsyncClient* c, int8_t err) {
 
 static void onClientData(void* /*arg*/, AsyncClient* c, void* data, size_t len) {
     // Copy into a null-terminated buffer; data from AsyncTCP is NOT null-terminated.
-    static constexpr size_t kMaxCmd = 80;
-    char buf[kMaxCmd + 1];
-    const size_t copyLen = (len < kMaxCmd) ? len : kMaxCmd;
+    static constexpr size_t maxCmd = 80;
+    char buf[maxCmd + 1];
+    const size_t copyLen = (len < maxCmd) ? len : maxCmd;
     memcpy(buf, data, copyLen);
     buf[copyLen] = '\0';
 
@@ -204,14 +204,14 @@ static void sendChunked(AsyncClient* c, const char* data, size_t len) {
         if (!c || !c->connected()) return;
 
         if (!c->canSend()) {
-            vTaskDelay(pdMS_TO_TICKS(kChunkPauseMs));
+            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
             continue;
         }
 
         const size_t written = c->add(data + offset, len - offset);
         if (written == 0) {
             // add() returned 0 — buffer might be momentarily full.
-            vTaskDelay(pdMS_TO_TICKS(kChunkPauseMs));
+            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
             continue;
         }
 
@@ -220,7 +220,7 @@ static void sendChunked(AsyncClient* c, const char* data, size_t len) {
 
         if (offset < len) {
             // Yield so the TCPIP task can drain the TCP window before next chunk.
-            vTaskDelay(pdMS_TO_TICKS(kChunkPauseMs));
+            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
         }
     }
 }
@@ -232,7 +232,7 @@ static void dashboardTask(void* /*arg*/) {
 
     for (;;) {
         // Accurate 1 Hz period regardless of send duration.
-        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(kBroadcastIntervalMs));
+        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(broadcastIntervalMs));
 
         if (!enabled_) continue;
 
@@ -253,7 +253,7 @@ static void dashboardTask(void* /*arg*/) {
         telemetry::fillJsonSafe(telemetry);
         ssDashboard.update(telemetry);
 
-        const size_t len = ssDashboard.serialize(txBuf, kTxBufSize);
+        const size_t len = ssDashboard.serialize(txBuf, txBufSize);
         if (len == 0) {
             Serial.println(F("[dashboard] serialize() returned 0 — frame dropped"));
             continue;
@@ -297,9 +297,9 @@ module::InitStatus init() {
     xTaskCreatePinnedToCore(
         dashboardTask,
         "dashboard",
-        kTaskStackBytes,
+        taskStackBytes,
         nullptr,
-        kTaskPriority,
+        taskPriority,
         nullptr,
         0  // Core 0
     );
@@ -360,16 +360,16 @@ bool setupServer() {
     // Static files embedded at compile time by scripts/embed_web.py.
     // No LittleFS partition needed — files are served directly from flash.
     httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/html", k_index_html);
+        r->send(200, "text/html", index_html);
     });
     httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/html", k_index_html);
+        r->send(200, "text/html", index_html);
     });
     httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/css", k_style_css);
+        r->send(200, "text/css", style_css);
     });
     httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "application/javascript", k_app_js);
+        r->send(200, "application/javascript", app_js);
     });
 
     // GET /api/telemetry — latest telemetry snapshot as flat JSON.

@@ -36,10 +36,10 @@ namespace commands {
 
 // ─── Line buffer (serial accumulator) ────────────────────────────────────────
 
-static constexpr uint8_t  kMaxLineLen       = 80;
-static constexpr uint32_t kCommandTimeoutMs = 100;  ///< dispatch after this many ms with no new byte
+static constexpr uint8_t  maxLineLen       = 80;
+static constexpr uint32_t commandTimeoutMs = 100;  ///< dispatch after this many ms with no new byte
 
-static char     lineBuf[kMaxLineLen + 1];
+static char     lineBuf[maxLineLen + 1];
 static uint8_t  lineLen    = 0;
 static uint32_t lastCharMs = 0;  ///< millis() of the most recently buffered printable byte
 
@@ -375,7 +375,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
 // Multi-word commands ("telemetry off") must appear before any shorter prefix
 // command ("telemetry on") so the match loop finds the most specific one first.
 
-static const Command kCommands[] = {
+static const Command commandMap[] = {
     {"start",         handleStart,        "Begin the cooldown process (from Off or Idle)"},
     {"stop",          handleStop,         "Abort the process and return to Idle"},
     {"off",           handleOff,          "Power off the system entirely"},
@@ -408,15 +408,15 @@ static const Command kCommands[] = {
 #endif
 };
 
-static const uint8_t kCommandCount =
-    static_cast<uint8_t>(sizeof(kCommands) / sizeof(kCommands[0]));
+static const uint8_t commandCount =
+    static_cast<uint8_t>(sizeof(commandMap) / sizeof(commandMap[0]));
 
 static void handleHelp(const char* /*args*/, Print& out) {
     out.println(F("[OK] Available commands:"));
-    for (uint8_t i = 0; i < kCommandCount; ++i) {
+    for (uint8_t i = 0; i < commandCount; ++i) {
         char line[80];
         snprintf(line, sizeof(line), "  %-16s  %s",
-                 kCommands[i].name, kCommands[i].help);
+                 commandMap[i].name, commandMap[i].help);
         out.println(line);
     }
     out.println("");
@@ -432,14 +432,14 @@ void processLine(const char* line, Print& out) {
     // Match command names by prefix: the name must exactly fill the start of
     // the line, followed by end-of-string, space, or tab.  Multi-word names
     // like "telemetry off" win over shorter prefixes because of table order.
-    for (uint8_t i = 0; i < kCommandCount; ++i) {
-        const size_t nameLen = strlen(kCommands[i].name);
-        if (strncmp(kCommands[i].name, line, nameLen) == 0 &&
+    for (uint8_t i = 0; i < commandCount; ++i) {
+        const size_t nameLen = strlen(commandMap[i].name);
+        if (strncmp(commandMap[i].name, line, nameLen) == 0 &&
             (line[nameLen] == '\0' || line[nameLen] == ' ' || line[nameLen] == '\t')) {
             // Strip leading whitespace from whatever follows the command name.
             const char* args = line + nameLen;
             while (*args == ' ' || *args == '\t') { ++args; }
-            kCommands[i].handler(args, out);
+            commandMap[i].handler(args, out);
             return;
         }
     }
@@ -473,18 +473,18 @@ module::ServiceStatus service() {
                 processLine(lineBuf, Serial);
                 lineLen = 0;
             }
-        } else if (lineLen < kMaxLineLen) {
+        } else if (lineLen < maxLineLen) {
             lineBuf[lineLen++] = c;
             lastCharMs = millis();
         }
-        // Characters beyond kMaxLineLen are silently dropped until next newline.
+        // Characters beyond maxLineLen are silently dropped until next newline.
     }
 
     // Timeout-based dispatch: if bytes accumulated but no line terminator
-    // arrived within kCommandTimeoutMs, treat the buffer as a complete command.
+    // arrived within commandTimeoutMs, treat the buffer as a complete command.
     // Handles monitors / tools (e.g. PlatformIO IDE with "None" EOL) that send
     // the full string as one USB-CDC packet without appending \r or \n.
-    if (lineLen > 0 && (millis() - lastCharMs) >= kCommandTimeoutMs) {
+    if (lineLen > 0 && (millis() - lastCharMs) >= commandTimeoutMs) {
         lineBuf[lineLen] = '\0';
         processLine(lineBuf, Serial);
         lineLen = 0;

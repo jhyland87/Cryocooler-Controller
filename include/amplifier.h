@@ -85,7 +85,7 @@ float getFrequency();
  *
  * @param dacTarget  Desired 12-bit DAC value (0–4095).
  */
-void rampToVoltage(uint16_t dacTarget);
+void rampToVoltage(uint16_t dacTarget, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
 
 /**
  * Fast rate-limited ramp toward @p dacTarget (used during Shutdown).
@@ -94,6 +94,10 @@ void rampToVoltage(uint16_t dacTarget);
  * @param dacTarget  Desired 12-bit DAC value (0–4095).
  */
 void rampTowardShutdown(uint16_t dacTarget);
+
+void initCoarseCooldown();
+
+void initFineCooldown();
 
 /**
  * Write @p dacTarget directly to the DAC with no rate limiting.

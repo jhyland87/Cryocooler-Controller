@@ -18,7 +18,7 @@ namespace dashboard_config {
 // Actions (command buttons in Serial Studio)
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::ActionCfg kActions[] = {
+static const ss::ActionCfg actions[] = {
     { .title = "Start",   .txData = "start",   .icon = "Done",        .eol = "\n" },
     { .title = "Stop",    .txData = "stop",    .icon = "Close",       .eol = "\n" },
     { .title = "Status",  .txData = "status",  .icon = "Zoom In",     .eol = "\n" },
@@ -30,7 +30,7 @@ static const ss::ActionCfg kActions[] = {
 // Group 1 — Temperature
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DatasetCfg kTempDatasets[] = {
+static const ss::DatasetCfg tempDatasets[] = {
     {   // Temperature in Kelvin (gauge)
         .title          = "Cold Head Temp (K)",
         .units          = "K",
@@ -123,7 +123,7 @@ static const ss::DatasetCfg amplifierDatasets[] = {
 // Group 3 — Safety
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DatasetCfg kSafetyDatasets[] = {
+static const ss::DatasetCfg safetyDatasets[] = {
     {
         .title          = "System Voltage",
         .units          = "V",
@@ -200,7 +200,7 @@ static const ss::DatasetCfg kSafetyDatasets[] = {
 // Group 4 — Overall Status (datagrid)
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DatasetCfg kModuleStatusDatasets[] = {
+static const ss::DatasetCfg moduleStatusDatasets[] = {
     {
         .title          = "System Info",
         .units          = "",
@@ -227,7 +227,7 @@ static const ss::DatasetCfg kModuleStatusDatasets[] = {
         .telemetryKey   = "mod.imu.service"
     }
 };
-static const ss::DatasetCfg kStatusDatasets[] = {
+static const ss::DatasetCfg statusDatasets[] = {
     {
         .title          = "Timestamp",
         .units          = "",
@@ -350,7 +350,7 @@ static const ss::DatasetCfg kStatusDatasets[] = {
 // Group 5 — Accelerometer
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DatasetCfg kAccelDatasets[] = {
+static const ss::DatasetCfg accelDatasets[] = {
     {
         .title          = "Accel X",
         .units          = "m/s\xC2\xB2",  // m/s²
@@ -405,12 +405,12 @@ static const ss::DatasetCfg kAccelDatasets[] = {
 // Groups
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::GroupCfg kGroups[] = {
+static const ss::GroupCfg dataGroups[] = {
     {
         .title        = "Cold Head Temp",
         .widget       = ss::GroupWidget::Multiplot,
-        .datasets     = kTempDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kTempDatasets) / sizeof(kTempDatasets[0])),
+        .datasets     = tempDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(tempDatasets) / sizeof(tempDatasets[0])),
     },
     {
         .title        = "Amplifier Output",
@@ -421,26 +421,26 @@ static const ss::GroupCfg kGroups[] = {
     {
         .title        = "Safety",
         .widget       = ss::GroupWidget::None,
-        .datasets     = kSafetyDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kSafetyDatasets) / sizeof(kSafetyDatasets[0])),
+        .datasets     = safetyDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(safetyDatasets) / sizeof(safetyDatasets[0])),
     },
     {
         .title        = "Overall Status",
         .widget       = ss::GroupWidget::Datagrid,
-        .datasets     = kStatusDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kStatusDatasets) / sizeof(kStatusDatasets[0])),
+        .datasets     = statusDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(statusDatasets) / sizeof(statusDatasets[0])),
     },
     {
         .title        = "Module Status",
         .widget       = ss::GroupWidget::Datagrid,
-        .datasets     = kModuleStatusDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kModuleStatusDatasets) / sizeof(kModuleStatusDatasets[0])),
+        .datasets     = moduleStatusDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(moduleStatusDatasets) / sizeof(moduleStatusDatasets[0])),
     },
     {
         .title        = "Accelerometer",
         .widget       = ss::GroupWidget::Multiplot,
-        .datasets     = kAccelDatasets,
-        .datasetCount = static_cast<uint8_t>(sizeof(kAccelDatasets) / sizeof(kAccelDatasets[0])),
+        .datasets     = accelDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(accelDatasets) / sizeof(accelDatasets[0])),
     },
 };
 
@@ -448,12 +448,12 @@ static const ss::GroupCfg kGroups[] = {
 // Top-level configuration
 // ═════════════════════════════════════════════════════════════════════════════
 
-static const ss::DashboardCfg kDashboardCfg = {
+static const ss::DashboardCfg dashboardCfg = {
     .title       = "Cryocooler Dashboard",
-    .groups      = kGroups,
-    .groupCount  = static_cast<uint8_t>(sizeof(kGroups) / sizeof(kGroups[0])),
-    .actions     = kActions,
-    .actionCount = static_cast<uint8_t>(sizeof(kActions) / sizeof(kActions[0])),
+    .groups      = dataGroups,
+    .groupCount  = static_cast<uint8_t>(sizeof(dataGroups) / sizeof(dataGroups[0])),
+    .actions     = actions,
+    .actionCount = static_cast<uint8_t>(sizeof(actions) / sizeof(actions[0])),
 };
 
 } // namespace dashboard_config

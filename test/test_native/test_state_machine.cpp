@@ -1461,6 +1461,8 @@ int main(int argc, char **argv) {
     RUN_TEST(test_fine_cooldown_ready_indicator_is_slow_green);
     RUN_TEST(test_fine_transitions_to_overshoot_below_setpoint);
 
+    // on_enter actions: cooling enable and amplifier init
+
     // Fault conditions
     RUN_TEST(test_rms_over_voltage_from_coarse_triggers_fault);
     RUN_TEST(test_stall_in_coarse_triggers_fault);
