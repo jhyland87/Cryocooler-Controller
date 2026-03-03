@@ -59,8 +59,8 @@ struct Overrides {
     // ── Electrical ──────────────────────────────────────────────────────────
     float rmsVoltageV = 0.0f;     ///< Back-EMF RMS voltage (compressor drive)
     float rmsCurrentA = 0.0f;     ///< Back-EMF RMS current, Amperes
-    float currentA    = 0.0f;     ///< INA260 current, Amperes
-    float voltageV    = 0.0f;     ///< INA260 bus voltage, Volts
+    float current    = 0.0f;     ///< INA260 current, Amperes
+    float voltage    = 0.0f;     ///< INA260 bus voltage, Volts
 
     // ── Flags ────────────────────────────────────────────────────────────────
     bool  stalled     = false;    ///< Temperature-stall detection output
@@ -78,7 +78,7 @@ struct Overrides {
 enum class RampField : uint8_t {
     Temp    = 0,  ///< Overrides::tempK  (also auto-updates coolingRate)
     Rms     = 1,  ///< Overrides::rmsVoltageV
-    Voltage = 2,  ///< Overrides::voltageV
+    Voltage = 2,  ///< Overrides::voltage
     Count   = 3   ///< sentinel — total number of rampable fields
 };
 

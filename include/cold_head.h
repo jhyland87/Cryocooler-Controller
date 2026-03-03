@@ -84,9 +84,9 @@ float getLastTempC();
  */
 float getCoolingRateKPerMin();
 
-float getLastRmsVoltageV();
+float getLastRmsVoltage();
 
-float getLastRmsCurrentA();
+float getLastRmsCurrent();
 
 /**
  * Return true if the temperature has stalled: the cold stage has not dropped

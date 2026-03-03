@@ -55,9 +55,9 @@ float getAccelX();       ///< Filtered acceleration on X axis in m/s² (calibrat
 float getAccelY();       ///< Filtered acceleration on Y axis in m/s² (calibrated)
 float getAccelZ();       ///< Filtered acceleration on Z axis in m/s² (calibrated)
 float getAccelMag();     ///< Acceleration magnitude in m/s² (calibrated, unfiltered)
-float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
+//float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
 float getTemperature();  ///< IMU die temperature in °C
-float getFrequencyHz();  ///< Frequency of the linear motor in Hz (last valid FFT result)
+float getFrequency();  ///< Frequency of the linear motor in Hz (last valid FFT result)
 
 /**
  * Collect FFT_N accelerometer-Z samples at FFT_FS_HZ, run an FFT, and

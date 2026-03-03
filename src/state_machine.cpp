@@ -20,13 +20,12 @@
  * All inputs are injected via update(); all outputs are returned in the
  * Output struct so that callers (main.cpp) handle I/O.
  */
-
+#include <Arduino.h>
 #include "state_machine.h"
 #include "config.h"
 #include "conversions.h"
 #include "indicator.h"
 #include "amplifier.h"
-#include <Arduino.h>
 #include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
@@ -622,12 +621,12 @@ Output update(float    tempK,
             // Consume the flag here to avoid re-entrant FSM calls.
             oscillationFaultPending = false;
             faultReason = FaultReason::StateOscillation;
-            Serial.printf("[SM] Fault: FSM oscillating between states\n");
+            Serial.println(F("[SM] Fault: FSM oscillating between states"));
             fsmTrigger(EVT_FAULT_OSCILLATION, "oscillation");
 
-        } else if (amplifier::getLastRmsVoltageV() > AMPLIFIER_MAX_VOLTAGE) {
+        } else if (amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE) {
             faultReason = FaultReason::RmsOvervoltage;
-            Serial.printf("Fault: RMS voltage exceeded safe limit\n");
+            Serial.println(F("Fault: RMS voltage exceeded safe limit"));
             fsmTrigger(EVT_FAULT_RMS, "rms_overvoltage");
 
         } else if (systemVoltage > 0.0f && systemVoltage < MIN_SYSTEM_VOLTAGE_VDC) {
@@ -639,7 +638,7 @@ Output update(float    tempK,
         } else if ((currentState == State::CoarseCooldown ||
                     currentState == State::FineCooldown) && stalled) {
             faultReason = FaultReason::TemperatureStall;
-            Serial.printf("Fault: Temperature stalled during cooldown\n");
+            Serial.println(F("Fault: Temperature stalled during cooldown"));
             fsmTrigger(EVT_FAULT_STALL, "stall");
 
         } else if (overstroke && running) {
@@ -654,7 +653,7 @@ Output update(float    tempK,
                                    : static_cast<uint16_t>(newOffset);
             if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
                 faultReason = FaultReason::TooManyBackoffs;
-                Serial.printf("Fault: Too many back-EMF stroke events; output backed off\n");
+                Serial.println(F("Fault: Too many back-EMF stroke events; output backed off"));
                 fsmTrigger(EVT_FAULT_BACKOFFS, "too_many_backoffs");
             }
         }
@@ -674,36 +673,36 @@ Output update(float    tempK,
 
             case State::Initialize:
                 if (elapsed >= INDICATOR_INIT_AMBER_MS) {
-                    Serial.printf("Triggering EVT_INIT_DONE\n");
+                    Serial.println(F("Triggering EVT_INIT_DONE"));
                     fsmTrigger(EVT_INIT_DONE, "init_timer");
                 }
                 break;
 
             case State::CoarseCooldown:
                 if (tempK < COARSE_FINE_THRESHOLD_K) {
-                    Serial.printf("Triggering EVT_BELOW_COARSE\n");
+                    Serial.println(F("Triggering EVT_BELOW_COARSE"));
                     fsmTrigger(EVT_BELOW_COARSE, "below_85K");
                 }
                 break;
 
             case State::FineCooldown:
                 if (tempK > COARSE_FINE_THRESHOLD_K) {
-                    Serial.printf("Triggering EVT_ABOVE_COARSE\n");
+                    Serial.println(F("Triggering EVT_ABOVE_COARSE"));
                     fsmTrigger(EVT_ABOVE_COARSE, "above_85K");
                 }
                 else if (overshot(tempK)) {
-                    Serial.printf("Triggering EVT_OVERSHOT\n");
+                    Serial.println(F("Triggering EVT_OVERSHOT"));
                     fsmTrigger(EVT_OVERSHOT, "overshoot");
                 }
                 else if (inBand(tempK)) {
-                    Serial.printf("Triggering EVT_IN_BAND\n");
+                    Serial.println(F("Triggering EVT_IN_BAND"));
                     fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
 
             case State::Overshoot:
                 if (inBand(tempK)) {
-                    Serial.printf("Triggering EVT_IN_BAND\n");
+                    Serial.println(F("Triggering EVT_IN_BAND"));
                     fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
@@ -717,21 +716,21 @@ Output update(float    tempK,
                     settleTimerActive = true;
                     settleStartMs     = nowMs;
                 } else if ((nowMs - settleStartMs) >= SETTLE_DURATION_MS) {
-                    Serial.printf("Triggering EVT_SETTLE_DONE\n");
+                    Serial.println(F("Triggering EVT_SETTLE_DONE"));
                     fsmTrigger(EVT_SETTLE_DONE, "settle_timer");
                 }
                 break;
 
             case State::Baseline:
                 if (elapsed >= BASELINE_DURATION_MS) {
-                    Serial.printf("Triggering EVT_BASELINE_DONE\n");
+                    Serial.println(F("Triggering EVT_BASELINE_DONE"));
                     fsmTrigger(EVT_BASELINE_DONE, "baseline_timer");
                 }
                 break;
 
             case State::Shutdown:
                 if (elapsed >= SHUTDOWN_DURATION_MS) {
-                    Serial.printf("Triggering EVT_SHUTDOWN_DONE\n");
+                    Serial.println(F("Triggering EVT_SHUTDOWN_DONE"));
                     fsmTrigger(EVT_SHUTDOWN_DONE, "shutdown_timer");
                 }
                 break;
@@ -798,31 +797,29 @@ void start(uint32_t nowMs, float tempK) {
     if (tempK >= COARSE_FINE_THRESHOLD_K) {
         fsmTrigger(EVT_START_COARSE, "start");
     } else if (overshot(tempK)) {
-        Serial.printf("Triggering EVT_START_OVERSHOOT\n");
+        Serial.println(F("Triggering EVT_START_OVERSHOOT"));
         fsmTrigger(EVT_START_OVERSHOOT, "start");
     } else if (inBand(tempK)) {
-        Serial.printf("Triggering EVT_START_SETTLE\n");
+        Serial.println(F("Triggering EVT_START_SETTLE"));
         fsmTrigger(EVT_START_SETTLE, "start");
     } else {
-        Serial.printf("Triggering EVT_START_FINE\n");
+        Serial.println(F("Triggering EVT_START_FINE"));
         fsmTrigger(EVT_START_FINE, "start");
     }
 }
 
 void stop(uint32_t nowMs) {
-    Serial.printf("stop()\n");
     if (!running) return;
     running = false;
     sNowMs  = nowMs;
     if (offStateMs == 0) offStateMs = nowMs;
     ESP_LOGD(TAG, "stop()");
-    Serial.printf("Triggering EVT_STOP\n");
+    Serial.println(F("Triggering EVT_STOP"));
     fsmTrigger(EVT_STOP, "stop");
 }
 
 void clearFault(uint32_t nowMs) {
     if (currentState != State::Fault) return;
-    Serial.printf("clearFault()\n");
     ESP_LOGD(TAG, "clearFault()");
     sNowMs = nowMs;
     // onExitFault() fires synchronously inside trigger() → make_transition(),
@@ -845,7 +842,6 @@ void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
 }
 
 void off(uint32_t nowMs) {
-    Serial.printf("off()\n");
     if (currentState == State::Off) return;
     sNowMs      = nowMs;
     running     = false;

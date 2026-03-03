@@ -101,13 +101,13 @@ void test_ramp_rms_advances_correctly() {
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.5f, sensor_mock::get().rmsVoltage);
 }
 
-// Voltage ramp should update voltageV
+// Voltage ramp should update voltage
 void test_ramp_voltage_advances_correctly() {
     resetMock();
     // 24 -> 10 V at 2 V/min: at t = 3 min expect 18 V
     sensor_mock::startRamp(sensor_mock::RampField::Voltage, 24.0f, 10.0f, 2.0f, 0);
     sensor_mock::service(180000);
-    TEST_ASSERT_FLOAT_WITHIN(0.01f, 18.0f, sensor_mock::get().voltageV);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 18.0f, sensor_mock::get().voltage);
 }
 
 // stopRamp freezes the current value at whatever it was

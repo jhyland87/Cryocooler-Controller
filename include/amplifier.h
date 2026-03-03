@@ -85,7 +85,7 @@ float getFrequency();
  *
  * @param dacTarget  Desired 12-bit DAC value (0–4095).
  */
-void rampToVoltageV(uint16_t dacTarget);
+void rampToVoltage(uint16_t dacTarget);
 
 /**
  * Fast rate-limited ramp toward @p dacTarget (used during Shutdown).
@@ -99,7 +99,7 @@ void rampTowardShutdown(uint16_t dacTarget);
  * Write @p dacTarget directly to the DAC with no rate limiting.
  * @param dacTarget  12-bit DAC value (0–4095).
  */
-void setRmsVoltageV(uint16_t dacTarget);
+void setRmsVoltage(uint16_t dacTarget);
 
 /** Return the current MCP4921 DAC output value (0–4095). */
 uint16_t getDacCurrent();
@@ -112,19 +112,19 @@ uint16_t getDacCurrent();
  * Most recently measured RMS output voltage in Volts.
  * Returns 0.0f before the first successful service() call.
  */
-float getLastRmsVoltageV();
+float getLastRmsVoltage();
 
 /**
  * Most recently measured RMS output current in Amps.
  * Returns 0.0f before the first successful service() call.
  */
-float getLastRmsCurrentA();
+float getLastRmsCurrent();
 
-/** Alias for getLastRmsVoltageV(). */
-float getOutputRmsVoltageV();
+/** Alias for getLastRmsVoltage(). */
+float getOutputRmsVoltage();
 
-/** Alias for getLastRmsCurrentA(). */
-float getOutputRmsCurrentA();
+/** Alias for getLastRmsCurrent(). */
+float getOutputRmsCurrent();
 
 // ---------------------------------------------------------------------------
 // Output validation
@@ -132,7 +132,7 @@ float getOutputRmsCurrentA();
 
 /**
  * Verify that the linear motor is running at the programmed frequency by
- * reading the most recent IMU FFT result from imu::getFrequencyHz() and
+ * reading the most recent IMU FFT result from imu::getFrequency() and
  * comparing it against the AD9833 set-point returned by getFrequency().
  *
  * The IMU updates its frequency estimate automatically via imu::service()

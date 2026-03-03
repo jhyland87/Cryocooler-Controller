@@ -37,7 +37,7 @@ namespace imu {
 // ---------------------------------------------------------------------------
 
 static constexpr float    ACCEL_THRESHOLD_MPS2 = 2.0f;   // m/s² deviation from 9.81 to flag motion
-static constexpr float    GYRO_THRESHOLD_DPS   = 10.0f;  // deg/s magnitude to flag motion
+//static constexpr float    GYRO_THRESHOLD_DPS   = 10.0f;  // deg/s magnitude to flag motion
 static constexpr uint32_t MOTION_TIMEOUT_MS    = 2000u;  // clear motion flag after this ms of stillness
 static constexpr uint16_t ACCEL_CAL_SAMPLES    = 1000u;  // number of valid samples for calibration
 static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coefficient (0–1)
@@ -51,18 +51,18 @@ static bool initialized_ = false;
 
 // Calibration offsets (set by performCalibration)
 static float accelOffsetX_ = 0.0f, accelOffsetY_ = 0.0f, accelOffsetZ_ = 0.0f;
-static float gyroOffsetX_  = 0.0f, gyroOffsetY_  = 0.0f, gyroOffsetZ_  = 0.0f;
+//static float gyroOffsetX_  = 0.0f, gyroOffsetY_  = 0.0f, gyroOffsetZ_  = 0.0f;
 
 // Low-pass filter state
 static float filtAccelX_ = 0.0f, filtAccelY_ = 0.0f, filtAccelZ_ = 0.0f;
-static float filtGyroX_  = 0.0f, filtGyroY_  = 0.0f, filtGyroZ_  = 0.0f;
+//static float filtGyroX_  = 0.0f, filtGyroY_  = 0.0f, filtGyroZ_  = 0.0f;
 
 // Latest processed readings — updated each service() call
 static float roll_     = 0.0f;
 static float pitch_    = 0.0f;
 static float yaw_      = 0.0f;
 static float accelMag_ = 0.0f;
-static float gyroMag_  = 0.0f;
+//static float gyroMag_  = 0.0f;
 static float imuTemp_  = 0.0f;
 static float frequency_ = 0.0f;
 // Motion / overstroke detection
@@ -114,7 +114,7 @@ static uint32_t lastFftMs_   = 0u;    // millis() of last FFT run
  */
 static void performCalibration() {
     float    accelSumX = 0.0f, accelSumY = 0.0f, accelSumZ = 0.0f;
-    float    gyroSumX  = 0.0f, gyroSumY  = 0.0f, gyroSumZ  = 0.0f;
+    //float    gyroSumX  = 0.0f, gyroSumY  = 0.0f, gyroSumZ  = 0.0f;
     uint16_t collected = 0u;
 
     while (collected < ACCEL_CAL_SAMPLES) {
@@ -123,9 +123,9 @@ static void performCalibration() {
             accelSumX += data.accelX;
             accelSumY += data.accelY;
             accelSumZ += data.accelZ;
-            gyroSumX  += data.gyroX;
-            gyroSumY  += data.gyroY;
-            gyroSumZ  += data.gyroZ;
+            //gyroSumX  += data.gyroX;
+            //gyroSumY  += data.gyroY;
+            //gyroSumZ  += data.gyroZ;
             ++collected;
         }
     }
@@ -134,13 +134,13 @@ static void performCalibration() {
     accelOffsetX_ = accelSumX / n;
     accelOffsetY_ = accelSumY / n;
     accelOffsetZ_ = (accelSumZ / n) - 9.81f;  // remove gravity component
-    gyroOffsetX_  = gyroSumX  / n;
-    gyroOffsetY_  = gyroSumY  / n;
-    gyroOffsetZ_  = gyroSumZ  / n;
+    //gyroOffsetX_  = gyroSumX  / n;
+    //gyroOffsetY_  = gyroSumY  / n;
+    //gyroOffsetZ_  = gyroSumZ  / n;
 }
 
 static void calculateOrientation(float ax, float ay, float az,
-                                 float gx, float gy, float gz,
+                                 //float gx, float gy, float gz,
                                  float& roll, float& pitch, float& yaw) {
     roll  = atan2f(ay, sqrtf(ax*ax + az*az)) * 180.0f / M_PI;
     pitch = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
@@ -152,7 +152,7 @@ static void calculateOrientation(float ax, float ay, float az,
     const uint32_t now = millis();
     if (lastTimeMs > 0u) {
         const float dt = static_cast<float>(now - lastTimeMs) / 1000.0f;
-        yawInteg_ += gz * dt;
+        //yawInteg_ += gz * dt;
     }
     lastTimeMs = now;
 
@@ -244,11 +244,11 @@ static FftResult fftDetect(const float* data) {
     return { freq, peak / noise };
 }
 
-static void checkMotion(float accelMag, float gyroMag) {
+static void checkMotion(float accelMag) {
     const float    accelDeviation = fabsf(accelMag - 9.81f);
     const uint32_t now            = millis();
 
-    if (accelDeviation > ACCEL_THRESHOLD_MPS2 || gyroMag > GYRO_THRESHOLD_DPS) {
+    if (accelDeviation > ACCEL_THRESHOLD_MPS2) {
         motionDetected_ = true;
         lastMotionMs_   = now;
     } else if (motionDetected_ && (now - lastMotionMs_) > MOTION_TIMEOUT_MS) {
@@ -278,11 +278,12 @@ module::InitStatus init() {
 
     sensor.setAccelRange(QMI8658_ACCEL_RANGE_8G);
     sensor.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
-    sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
-    sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
+    //sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
+    //sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
     sensor.setAccelUnit_mps2(true);   // m/s²
-    sensor.setGyroUnit_rads(false);   // degrees per second
-    sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
+    //sensor.setGyroUnit_rads(false);   // degrees per second
+    //sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
+    sensor.enableSensors(QMI8658_ENABLE_ACCEL);
 
     performCalibration();
     initialized_ = true;
@@ -299,29 +300,29 @@ module::ServiceStatus service() {
     const float ax = data.accelX - accelOffsetX_;
     const float ay = data.accelY - accelOffsetY_;
     const float az = data.accelZ - accelOffsetZ_;
-    const float gx = data.gyroX  - gyroOffsetX_;
-    const float gy = data.gyroY  - gyroOffsetY_;
-    const float gz = data.gyroZ  - gyroOffsetZ_;
+    //const float gx = data.gyroX  - gyroOffsetX_;
+    //const float gy = data.gyroY  - gyroOffsetY_;
+    //const float gz = data.gyroZ  - gyroOffsetZ_;
 
     // First-order low-pass filter
     filtAccelX_ = FILTER_ALPHA * ax + (1.0f - FILTER_ALPHA) * filtAccelX_;
     filtAccelY_ = FILTER_ALPHA * ay + (1.0f - FILTER_ALPHA) * filtAccelY_;
     filtAccelZ_ = FILTER_ALPHA * az + (1.0f - FILTER_ALPHA) * filtAccelZ_;
-    filtGyroX_  = FILTER_ALPHA * gx + (1.0f - FILTER_ALPHA) * filtGyroX_;
-    filtGyroY_  = FILTER_ALPHA * gy + (1.0f - FILTER_ALPHA) * filtGyroY_;
-    filtGyroZ_  = FILTER_ALPHA * gz + (1.0f - FILTER_ALPHA) * filtGyroZ_;
+    //filtGyroX_  = FILTER_ALPHA * gx + (1.0f - FILTER_ALPHA) * filtGyroX_;
+    //filtGyroY_  = FILTER_ALPHA * gy + (1.0f - FILTER_ALPHA) * filtGyroY_;
+    //filtGyroZ_  = FILTER_ALPHA * gz + (1.0f - FILTER_ALPHA) * filtGyroZ_;
 
     // Orientation from filtered data
     calculateOrientation(filtAccelX_, filtAccelY_, filtAccelZ_,
-                         filtGyroX_,  filtGyroY_,  filtGyroZ_,
+                         //filtGyroX_,  filtGyroY_,  filtGyroZ_,
                          roll_, pitch_, yaw_);
 
     // Magnitudes from unfiltered data for spike sensitivity
     accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
-    gyroMag_  = sqrtf(gx*gx + gy*gy + gz*gz);
+    //gyroMag_  = sqrtf(gx*gx + gy*gy + gz*gz);
     imuTemp_  = data.temperature;
 
-    checkMotion(accelMag_, gyroMag_);
+    checkMotion(accelMag_);
 
     // Periodically run FFT frequency detection.
     // checkFrequency() blocks for ~640 ms; the gate limits this to once every
@@ -334,7 +335,7 @@ module::ServiceStatus service() {
     return module::MODULE_SERVICE_OK;
 }
 
-float getFrequencyHz() {
+float getFrequency() {
     return frequency_;
 }
 
@@ -411,7 +412,7 @@ float getAccelX()        { return filtAccelX_;      }
 float getAccelY()        { return filtAccelY_;      }
 float getAccelZ()        { return filtAccelZ_;      }
 float getAccelMag()      { return accelMag_;        }
-float getGyroMag()       { return gyroMag_;         }
+//float getGyroMag()       { return gyroMag_;         }
 float getTemperature()   { return imuTemp_;         }
 
 } // namespace imu

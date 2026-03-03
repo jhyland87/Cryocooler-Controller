@@ -11,10 +11,10 @@
 #include "imu.h"
 #include "sensor_mock.h"
 
-// System voltage in volts
-static float    voltageV         = 0.0f;
-static float    currentA         = 0.0f;
-static float    powerW           = 0.0f;
+// System voltage in millivolts
+static float    voltage         = 0.0f;
+static float    current         = 0.0f;
+static float    power           = 0.0f;
 
 namespace sysinfo {
 
@@ -43,25 +43,25 @@ module::InitStatus init() {
 module::ServiceStatus service() {
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
-        setLastReadings(mo.voltageV, mo.currentA, mo.voltageV * mo.currentA);
+        setLastReadings(mo.voltage, mo.current, mo.voltage * mo.current);
         return module::MODULE_SERVICE_OK;
     }
-    voltageV = ina260.readBusVoltage()/1000.0f;
-    currentA = ina260.readCurrent()/1000.0f;
-    powerW   = ina260.readPower()/1000.0f;
+    voltage = ina260.readBusVoltage();
+    current = ina260.readCurrent();
+    power   = ina260.readPower();
     return module::MODULE_SERVICE_OK;
 }
 
 float getVoltage() {
-    return voltageV;
+    return voltage;
 }
 
 float getCurrent() {
-    return currentA;
+    return current;
 }
 
 float getPower() {
-    return powerW;
+    return power;
 }
 
 float getAmbientTemperature() {
@@ -69,8 +69,8 @@ float getAmbientTemperature() {
 }
 
 void setLastReadings(float v, float a, float w) {
-    voltageV = v;
-    currentA = a;
-    powerW   = w;
+    voltage = v;
+    current = a;
+    power   = w;
 }
 } // namespace sysinfo

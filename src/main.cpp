@@ -313,7 +313,7 @@ void loop() {
     const float tempC       = cold_head::getLastTempC();
     const float coolingRate = cold_head::getCoolingRateKPerMin();
     const bool  stalled     = cold_head::isStalled();
-    const float rmsV        = amplifier::getLastRmsVoltageV();
+    const float rmsV        = amplifier::getLastRmsVoltage();
     const bool  overstroke  = imu::hasOverstroke();
     const float sysVoltage  = sysinfo::getVoltage();
 
@@ -336,7 +336,7 @@ void loop() {
     if (out.state == state_machine::State::Shutdown) {
         amplifier::rampTowardShutdown(out.dacTarget);
     } else {
-        amplifier::rampToVoltageV(out.dacTarget);
+        amplifier::rampToVoltage(out.dacTarget);
     }
 
     // ---- 4. HTTP API ---------------------------------------------------

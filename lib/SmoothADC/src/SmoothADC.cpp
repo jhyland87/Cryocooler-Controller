@@ -85,10 +85,10 @@ void SmoothADC::dbgInfo(void) {
                 getPeriod(),
                 (getResolution() == TB_US) ? "us" : "ms");
 
-  Serial.print("!> Tab:\t");
+  Serial.print(F("!> Tab:\t"));
   for (unsigned int c = 0; c < DEF_NB_ACQ; c++) {
     Serial.print(ADCChannel.ADCTab[c]);
-    Serial.print('\t');
+    Serial.print(F('\t'));
   }
   Serial.println();
 #endif

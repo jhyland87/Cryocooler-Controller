@@ -247,7 +247,7 @@ void handleMock(const char* args, Print& out) {
             out.println("[ERR] Usage: mock current <A>  (e.g. mock current 2.5)");
             return;
         }
-        mo.currentA = v;
+        mo.current = v;
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] mock.current = %.3f A", v);
         out.println(buf);
@@ -262,7 +262,7 @@ void handleMock(const char* args, Print& out) {
             return;
         }
         sensor_mock::stopRamp(sensor_mock::RampField::Voltage);
-        mo.voltageV = v;
+        mo.voltage = v;
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] mock.voltage = %.3f V", v);
         out.println(buf);
@@ -308,9 +308,9 @@ void handleMock(const char* args, Print& out) {
     out.println(buf);
     snprintf(buf, sizeof(buf), "  rms      : %.3f V", mo.rmsVoltageV);
     out.println(buf);
-    snprintf(buf, sizeof(buf), "  current  : %.3f A", mo.currentA);
+    snprintf(buf, sizeof(buf), "  current  : %.3f A", mo.current);
     out.println(buf);
-    snprintf(buf, sizeof(buf), "  voltage  : %.3f V", mo.voltageV);
+    snprintf(buf, sizeof(buf), "  voltage  : %.3f V", mo.voltage);
     out.println(buf);
     snprintf(buf, sizeof(buf), "  stall    : %s", mo.stalled    ? "true" : "false");
     out.println(buf);

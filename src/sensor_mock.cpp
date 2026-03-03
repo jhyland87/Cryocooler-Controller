@@ -40,7 +40,7 @@ void startRamp(RampField field,
     switch (field) {
         case RampField::Temp:    sOverrides.tempK      = startVal; break;
         case RampField::Rms:     sOverrides.rmsVoltageV = startVal; break;
-        case RampField::Voltage: sOverrides.voltageV   = startVal; break;
+        case RampField::Voltage: sOverrides.voltage   = startVal; break;
         default: break;
     }
 }
@@ -120,7 +120,7 @@ void service(uint32_t nowMs)
     {
         RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Voltage)];
         if (r.active) {
-            applyRamp(r, nowMs, sOverrides.voltageV);
+            applyRamp(r, nowMs, sOverrides.voltage);
         }
     }
 }

@@ -150,7 +150,7 @@ tick; Shutdown uses a faster ramp rate via `amplifier::rampTowardShutdown()`.
 
 | FaultReason | Value | Trigger | Originating states |
 |---|:-:|---|---|
-| RmsOvervoltage | 1 | `amplifier::getLastRmsVoltageV() > AMPLIFIER_MAX_VOLTAGE` | Any non-Fault |
+| RmsOvervoltage | 1 | `amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE` | Any non-Fault |
 | TemperatureStall | 2 | Stall-detect window expired without sufficient temp drop | CoarseCooldown, FineCooldown |
 | TooManyBackoffs | 3 | `backoffCount >= BACKOFF_MAX_COUNT` | All running states |
 | LowSystemVoltage | 4 | `systemVoltage < MIN_SYSTEM_VOLTAGE_VDC` (0.0 ignored) | Any non-Fault |

@@ -210,7 +210,7 @@ void disable() {
 // DAC / amplitude control
 // ---------------------------------------------------------------------------
 
-void rampToVoltageV(uint16_t dacTarget) {
+void rampToVoltage(uint16_t dacTarget) {
     dacRampInternal(dacTarget,
                     static_cast<uint16_t>(AMPLIFIER_MAX_STEP_PER_INTERVAL));
 }
@@ -220,7 +220,7 @@ void rampTowardShutdown(uint16_t dacTarget) {
                     static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
 }
 
-void setRmsVoltageV(uint16_t dacTarget) {
+void setRmsVoltage(uint16_t dacTarget) {
     dacWriteSpi(dacTarget);
 }
 
@@ -244,7 +244,7 @@ module::ServiceStatus service() {
     acs_.readRMSVoltageAndCurrent();
     lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
-    lastFrequency_  = imu::getFrequencyHz();
+    lastFrequency_  = imu::getFrequency();
     serviceStatus_  = module::MODULE_SERVICE_OK;
     return serviceStatus_;
 }
@@ -253,17 +253,17 @@ module::ServiceStatus service() {
 // ACS37800 getters
 // ---------------------------------------------------------------------------
 
-float getLastRmsVoltageV()   { return lastRmsVoltage_; }
-float getLastRmsCurrentA()   { return lastRmsCurrent_; }
-float getOutputRmsVoltageV() { return lastRmsVoltage_; }
-float getOutputRmsCurrentA() { return lastRmsCurrent_; }
+float getLastRmsVoltage()   { return lastRmsVoltage_; }
+float getLastRmsCurrent()   { return lastRmsCurrent_; }
+float getOutputRmsVoltage() { return lastRmsVoltage_; }
+float getOutputRmsCurrent() { return lastRmsCurrent_; }
 
 // ---------------------------------------------------------------------------
 // Output validation
 // ---------------------------------------------------------------------------
 
 bool verifyFrequency(float toleranceHz) {
-    const float measured = imu::getFrequencyHz();
+    const float measured = imu::getFrequency();
     if (!isfinite(measured)) return false;
     return fabsf(measured - frequency_) <= toleranceHz;
 }

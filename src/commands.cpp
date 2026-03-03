@@ -349,11 +349,11 @@ static void handleSummary(const char* /*args*/, Print& out) {
 
     out.println("  --- Electrical ---");
     snprintf(buf, sizeof(buf), "  RMS current     : %.3f A",
-             amplifier::getLastRmsCurrentA());
+             amplifier::getLastRmsCurrent());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  RMS voltage     : %.2f V",
-             amplifier::getLastRmsVoltageV());
+             amplifier::getLastRmsVoltage());
     out.println(buf);
 
     // snprintf(buf, sizeof(buf), "  DAC output      : %u",

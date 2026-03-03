@@ -100,7 +100,7 @@ module::InitStatus init() {
     }
 
     // ACS37800 voltage/current readings are owned by the amplifier module.
-    // cold_head::read() pulls from amplifier::getLastRmsVoltageV/CurrentA().
+    // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
     Serial.println(F("[cold_head] Initializing MAX31865..."));
     module::InitStatus rtdStatus = initRTD();
@@ -116,8 +116,8 @@ module::InitStatus init() {
 
 module::InitStatus initACS() {
     // ACS37800 is owned by the amplifier module.
-    // cold_head pulls voltage/current readings from amplifier::getLastRmsVoltageV()
-    // and amplifier::getLastRmsCurrentA() instead of accessing the sensor directly.
+    // cold_head pulls voltage/current readings from amplifier::getLastRmsVoltage()
+    // and amplifier::getLastRmsCurrent() instead of accessing the sensor directly.
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -150,8 +150,8 @@ void read(uint32_t nowMs) {
     }
     mockInjected = false;   // real read supersedes any prior mock injection
     // Voltage/current are owned by the amplifier module; pull the latest reading.
-    lastRmsVoltageV = amplifier::getLastRmsVoltageV();
-    lastRmsCurrentA = amplifier::getLastRmsCurrentA();
+    lastRmsVoltageV = amplifier::getLastRmsVoltage();
+    lastRmsCurrentA = amplifier::getLastRmsCurrent();
 
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
@@ -298,11 +298,11 @@ float getTemperatureToPercent()
     return percent;
 }
 
-float getLastRmsVoltageV() {
+float getLastRmsVoltage() {
     return lastRmsVoltageV;
 }
 
-float getLastRmsCurrentA() {
+float getLastRmsCurrent() {
     return lastRmsCurrentA;
 }
 
