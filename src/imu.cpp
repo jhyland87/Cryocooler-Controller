@@ -261,22 +261,13 @@ static void checkMotion(float accelMag, float gyroMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // Device is at QMI8658_ADDRESS_HIGH (0x6B) — confirmed by the I2C bus scan
-    // in hardware::init().  Pass the correct address so begin()'s first probe
-    // ACKs immediately; the fallback path to the second address is never taken.
+    // SA0 is tied high on this board so the device is at QMI8658_ADDRESS_HIGH
+    // (0x6B).  Pass the address explicitly so begin()'s first probe ACKs and
+    // the fallback path to the alternate address is never taken.
     //
-    // Do NOT call Wire.setBufferSize() here.  On Core 2.x that call tears down
-    // and rebuilds the I2C driver, resetting the timeout to ~1 s and leaving
-    // the bus in a state where probes time out instead of returning clean NACKs.
-    // The largest QMI8658 register read is 14 bytes — well within the default
-    // 128-byte Wire buffer.
-    //
-    // Guarantee a clean bus state immediately before begin().  Modules that
-    // initialised earlier (e.g. INA260 via Adafruit_I2CDevice::begin()) call
-    // _wire->begin() internally; on Core 2.x (IDF 4.4) that can leave the Wire
-    // TX/RX buffers or the driver state machine in a non-idle condition.
-    // recoverI2c() → Wire.end() + Wire.begin() resets everything to the same
-    // known-clean state that the standalone test sketch starts from.
+    // Guarantee a clean bus state immediately before begin().  Earlier modules
+    // (e.g. INA260 via Adafruit_I2CDevice) call _wire->begin() internally,
+    // which on Core 2.x can leave the driver state machine non-idle.
     hardware::recoverI2c();
 
     if (!sensor.begin(hardware::i2c(), QMI8658_ADDRESS_HIGH)) {

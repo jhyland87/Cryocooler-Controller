@@ -53,38 +53,14 @@ namespace hardware {
     SPIClass& spi();
 
     /**
-     * Recover the I2C bus by tearing down and re-creating the IDF master
-     * driver (Wire.end() then Wire.begin()).
+     * Reset the I2C bus to a clean idle state.
      *
-     * IDF 5.x's new-gen I2C driver can leave the bus in ESP_ERR_INVALID_STATE
-     * after a failed probe transaction even when the transaction itself was an
-     * expected "device not at this address" probe.  The QMI8658 library is the
-     * known trigger: it first probes QMI8658_ADDRESS_LOW; if that fails the bus
-     * gets stuck, making every subsequent I2C call (including the ACS37800
-     * init) also fail with INVALID_STATE.
-     *
-     * Call this after imu::init() (or any other module whose init is known to
-     * leave the bus stuck) so that the next module starts with a clean driver.
-     *
-     * Wire.end() deletes the IDF bus handle; Wire.begin() creates a fresh one.
-     * All sensor objects that hold a TwoWire* continue to work because they
-     * reference the global Wire object, which Wire.begin() updates in place.
+     * On Core 3.x (IDF 5.x) uses i2c_master_bus_reset(); falls back to
+     * Wire.end()/Wire.begin() if that fails or on Core 2.x.  All sensor
+     * objects that hold a TwoWire* remain valid because they reference the
+     * global Wire object, which Wire.begin() updates in place.
      */
     void recoverI2c();
-
-    /**
-     * Scan the I2C bus by probing every 7-bit address using the Arduino Wire
-     * API (beginTransmission / endTransmission).  Logs each responding address
-     * and a warning if nothing is found.
-     *
-     * The Wire API is used rather than i2c_master_probe() to avoid a crash
-     * caused by Adafruit_I2CDevice::begin() leaving the IDF bus handle in an
-     * inconsistent state (see hardware.cpp for full explanation).
-     *
-     * @param timeoutMs  Per-address probe timeout in ms (default 10).
-     * @return           Number of devices that responded.
-     */
-    uint8_t scanI2c(uint32_t timeoutMs = 10);
 
 // ── Module interface ──────────────────────────────────────────────────────────
 //

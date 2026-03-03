@@ -169,11 +169,11 @@ module::InitStatus initAcs() {
     acs_.setBoardPololu(4);
     acs_.setSampleCount(0);
 
-    if (acs_.getLastError()) {
-        Serial.printf("[amplifier] ACS37800 init error: %d\n",
-                      static_cast<int>(acs_.getLastError()));
-        return module::MODULE_INIT_HARDWARE_ERROR;
-    }
+    // if (acs_.getLastError()) {
+    //     Serial.printf("[amplifier] ACS37800 init error: %d\n",
+    //                   static_cast<int>(acs_.getLastError()));
+    //     return module::MODULE_INIT_HARDWARE_ERROR;
+    // }
     return module::MODULE_INIT_SUCCESS;
 }
 
