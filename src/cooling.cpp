@@ -23,6 +23,7 @@
 #include "sensor_mock.h"
 #include "module.h"
 #include "hardware.h"
+#include "tracking.h"
 
 
 static Adafruit_EMC2101 fanController_;
@@ -66,6 +67,43 @@ static volatile uint8_t fanSpeed_   = 0;      // only meaningful in manual-overr
 static volatile bool    forceFanSpeed_ = false;
 
 uint32_t lastCheckCycleMs = millis();
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+// Fan duty-cycle tracker — only active in forced/manual mode.
+// Reset to IN_RANGE while the LUT is in control (no explicit setpoint).
+static TrackingMonitor<float> fanTracker_(TrackingMonitor<float>::Config{
+    /* hysteresis     */ COOLING_FAN_TRACK_HYSTERESIS_PCT,
+    /* fullScale      */ COOLING_FAN_TRACK_FULL_SCALE_PCT,
+    /* warningDelayMs */ COOLING_FAN_TRACK_WARNING_MS,
+    /* faultDelayMs   */ COOLING_FAN_TRACK_FAULT_MS,
+    /* tag            */ TAG,
+    /* label          */ "fan speed",
+});
+
+// Coolant temperature tracker — only updated when the sensor is connected
+// (coolantTemperature_ > 0).  Compares against the nominal operating temp.
+static TrackingMonitor<float> coolantTempTracker_(TrackingMonitor<float>::Config{
+    /* hysteresis     */ COOLING_COOLANT_TRACK_HYSTERESIS_C,
+    /* fullScale      */ COOLING_COOLANT_TRACK_FULL_SCALE_C,
+    /* warningDelayMs */ COOLING_COOLANT_TRACK_WARNING_MS,
+    /* faultDelayMs   */ COOLING_COOLANT_TRACK_FAULT_MS,
+    /* tag            */ TAG,
+    /* label          */ "coolant temperature",
+});
+
+// Coolant flow rate tracker — only updated when the pump is on and the flow
+// sensor is returning a non-zero reading.
+static TrackingMonitor<float> flowTracker_(TrackingMonitor<float>::Config{
+    /* hysteresis     */ COOLING_FLOW_TRACK_HYSTERESIS_LPM,
+    /* fullScale      */ COOLING_FLOW_TRACK_FULL_SCALE_LPM,
+    /* warningDelayMs */ COOLING_FLOW_TRACK_WARNING_MS,
+    /* faultDelayMs   */ COOLING_FLOW_TRACK_FAULT_MS,
+    /* tag            */ TAG,
+    /* label          */ "coolant flow",
+});
 
 
 // ---------------------------------------------------------------------------
@@ -159,6 +197,33 @@ module::ServiceStatus service() {
            fanController_.getExternalTemperature(),
            fanController_.getFanRPM());
 
+  // Fan speed tracker: only meaningful in forced/manual mode.
+  // In LUT mode the IC owns the duty cycle, so there is no external setpoint
+  // to compare against — reset to keep the monitor at IN_RANGE.
+  if (forceFanSpeed_) {
+      fanTracker_.update(static_cast<float>(fanSpeed_),
+                         static_cast<float>(dc), nowMs);
+  } else {
+      fanTracker_.reset();
+  }
+
+  // Coolant temperature tracker: only advance when the sensor is connected.
+  // A reading of exactly 0 °C indicates the hardware is not yet wired up.
+  if (coolantTemperature_ > 0.0f) {
+      coolantTempTracker_.update(COOLING_COOLANT_NOMINAL_TEMP_C,
+                                 coolantTemperature_, nowMs);
+  } else {
+      coolantTempTracker_.reset();
+  }
+
+  // Flow rate tracker: only advance when the pump is running and the flow
+  // sensor is returning a non-zero reading.
+  if (coolingPumpOn_ && coolantFlowRate_ > 0.0f) {
+      flowTracker_.update(COOLING_FLOW_NOMINAL_LPM, coolantFlowRate_, nowMs);
+  } else {
+      flowTracker_.reset();
+  }
+
   return module::MODULE_SERVICE_OK;
 }
 
@@ -212,6 +277,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
   }
 
   fanSpeed_ = percentage;
+  fanTracker_.reset();   // allow the fan time to reach the new speed
   ESP_LOGD(TAG, "setFanSpeed(%u): dutyCycle=%u%% LUT=%s",
            percentage, fanController_.getDutyCycle(),
            fanController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
@@ -265,5 +331,38 @@ void disable() {
 }
 
 bool isEnabled() { return enabled_; }
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+float getFanSpeedScore()                                { return fanTracker_.getScore();         }
+TrackingMonitor<float>::State getFanSpeedTrackingState(){ return fanTracker_.getState();         }
+
+float getCoolantTempScore()                                   { return coolantTempTracker_.getScore(); }
+TrackingMonitor<float>::State getCoolantTempTrackingState()   { return coolantTempTracker_.getState(); }
+
+float getCoolantFlowScore()                                   { return flowTracker_.getScore();        }
+TrackingMonitor<float>::State getCoolantFlowTrackingState()   { return flowTracker_.getState();        }
+
+float getWorstTrackingScore() {
+    const float fanScore     = fanTracker_.getScore();
+    const float coolantScore = coolantTempTracker_.getScore();
+    const float flowScore    = flowTracker_.getScore();
+    if (fanScore <= coolantScore && fanScore <= flowScore) return fanScore;
+    if (coolantScore <= flowScore)                         return coolantScore;
+    return flowScore;
+}
+
+TrackingMonitor<float>::State getWorstTrackingState() {
+    // FAULT > WARNING > IN_RANGE
+    using S = TrackingMonitor<float>::State;
+    const auto a = fanTracker_.getState();
+    const auto b = coolantTempTracker_.getState();
+    const auto c = flowTracker_.getState();
+    if (a == S::FAULT || b == S::FAULT || c == S::FAULT) return S::FAULT;
+    if (a == S::WARNING || b == S::WARNING || c == S::WARNING) return S::WARNING;
+    return S::IN_RANGE;
+}
 
 } // namespace cooling

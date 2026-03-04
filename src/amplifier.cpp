@@ -31,6 +31,7 @@
 #include "sensor_mock.h"
 #include "esp_log.h"
 #include "hardware.h"
+#include "tracking.h"
 
 // ---------------------------------------------------------------------------
 // Module-private state
@@ -59,9 +60,36 @@ static float lastFrequency_ = 0.0f;
 // AD9833 mode tracking
 static MD_AD9833::mode_t waveformMode_ = MD_AD9833::MODE_OFF;
 
-static module::InitStatus    initStatus_    = module::MODULE_INIT_NOT_STARTED;
-static module::ServiceStatus serviceStatus_ = module::MODULE_SERVICE_NOT_STARTED;
 static bool enabled_ = false;
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+// Target RMS voltage set by the state machine via setTargetVoltage().
+static float targetVoltageV_ = 0.0f;
+
+// Tracks how closely the IMU-measured frequency matches the AD9833 set-point.
+// Reset whenever setFrequency() changes the target, to allow settling time.
+static TrackingMonitor<float> freqTracker_(TrackingMonitor<float>::Config{
+    /* hysteresis     */ AMPLIFIER_FREQ_TRACK_HYSTERESIS_HZ,
+    /* fullScale      */ AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ,
+    /* warningDelayMs */ AMPLIFIER_FREQ_TRACK_WARNING_MS,
+    /* faultDelayMs   */ AMPLIFIER_FREQ_TRACK_FAULT_MS,
+    /* tag            */ "amplifier",
+    /* label          */ "frequency",
+});
+
+// Tracks how closely the measured RMS output voltage matches targetVoltageV_.
+// Reset whenever setTargetVoltage() changes the target, or when disabled.
+static TrackingMonitor<float> voltTracker_(TrackingMonitor<float>::Config{
+    /* hysteresis     */ AMPLIFIER_VOLT_TRACK_HYSTERESIS_V,
+    /* fullScale      */ AMPLIFIER_VOLT_TRACK_FULL_SCALE_V,
+    /* warningDelayMs */ AMPLIFIER_VOLT_TRACK_WARNING_MS,
+    /* faultDelayMs   */ AMPLIFIER_VOLT_TRACK_FAULT_MS,
+    /* tag            */ "amplifier",
+    /* label          */ "voltage",
+});
 
 // ---------------------------------------------------------------------------
 // Internal DAC helpers
@@ -109,19 +137,19 @@ namespace amplifier {
 
 module::InitStatus init() {
     if (!checkDependencies() && !sensor_mock::isActive()) {
-        initStatus_ = module::MODULE_INIT_DEPENDENCY_ERROR;
-        return initStatus_;
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
     // -- MCP4921 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
     ESP_LOGI(TAG, "Initializing MCP4921 DAC...");
-    initStatus_ = initDac();
-    if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        ESP_LOGE(TAG, "MCP4921 initialization failed: %d",
-                      static_cast<int>(initStatus_));
-        return initStatus_;
+    {
+        const module::InitStatus status = initDac();
+        if (status != module::MODULE_INIT_SUCCESS) {
+            ESP_LOGE(TAG, "MCP4921 initialization failed: %d", static_cast<int>(status));
+            return status;
+        }
     }
     ESP_LOGI(TAG, "MCP4921 DAC initialized");
 
@@ -129,11 +157,12 @@ module::InitStatus init() {
     // This is the power monitor that reads the AC voltage and current coming
     // out of the amplifier.
     ESP_LOGI(TAG, "Initializing ACS37800...");
-    initStatus_ = initAcs();
-    if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        ESP_LOGE(TAG, "ACS37800 initialization failed: %d",
-                      static_cast<int>(initStatus_));
-        return initStatus_;
+    {
+        const module::InitStatus status = initAcs();
+        if (status != module::MODULE_INIT_SUCCESS) {
+            ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
+            return status;
+        }
     }
     ESP_LOGI(TAG, "ACS37800 initialized");
 
@@ -141,16 +170,16 @@ module::InitStatus init() {
     // This is the waveform generator that generates the sine wave that is
     // passed to the AD633 voltage multiplier.
     ESP_LOGI(TAG, "Initializing AD9833...");
-    initStatus_ = initWaveform();
-    if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        ESP_LOGE(TAG, "AD9833 initialization failed: %d",
-                      static_cast<int>(initStatus_));
-        return initStatus_;
+    {
+        const module::InitStatus status = initWaveform();
+        if (status != module::MODULE_INIT_SUCCESS) {
+            ESP_LOGE(TAG, "AD9833 initialization failed: %d", static_cast<int>(status));
+            return status;
+        }
     }
     ESP_LOGI(TAG, "AD9833 initialized");
     ESP_LOGI(TAG, "Initialization successful");
-    initStatus_ = module::MODULE_INIT_SUCCESS;
-    return initStatus_;
+    return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initDac() {
@@ -196,6 +225,9 @@ void setFrequency(float frequencyHz) {
                   static_cast<unsigned>(frequencyHz));
     frequency_ = frequencyHz;
     ad9833_.setFrequency(MD_AD9833::CHAN_0, frequencyHz);
+    // Reset the tracker so the new frequency has time to stabilise before
+    // the warning timer starts.
+    freqTracker_.reset();
 }
 
 float getFrequency() {
@@ -263,7 +295,7 @@ module::ServiceStatus service() {
     // amplifier::initAcs() detects ACS37800 absence via Wire.endTransmission()
     // return codes; if init failed, reading from it every tick would flood the
     // log with ESP_ERR_INVALID_STATE errors.
-    if (initStatus_ != module::MODULE_INIT_SUCCESS) {
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
@@ -271,8 +303,26 @@ module::ServiceStatus service() {
     lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
     lastFrequency_  = imu::getFrequency();
-    serviceStatus_  = module::MODULE_SERVICE_OK;
-    return serviceStatus_;
+
+    const uint32_t nowMs = millis();
+
+    // Frequency tracker: only advance when the IMU has a valid FFT result.
+    // Reset when NAN so stale elapsed time is not inherited across data gaps.
+    if (isfinite(lastFrequency_)) {
+        freqTracker_.update(frequency_, lastFrequency_, nowMs);
+    } else {
+        freqTracker_.reset();
+    }
+
+    // Voltage tracker: only meaningful while the amplifier is enabled.
+    // Reset when disabled so the timer restarts from zero on re-enable.
+    if (isEnabled()) {
+        voltTracker_.update(targetVoltageV_, lastRmsVoltage_, nowMs);
+    } else {
+        voltTracker_.reset();
+    }
+
+    return module::MODULE_SERVICE_OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -298,6 +348,33 @@ bool checkOutput(float tolerance) {
     // @todo Verify lastRmsVoltage_ is within tolerance of programmed set-point.
     (void)tolerance;
     return verifyFrequency();
+}
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+void setTargetVoltage(float volts) {
+    if (fabsf(volts - targetVoltageV_) > AMPLIFIER_VOLT_TRACK_HYSTERESIS_V) {
+        voltTracker_.reset();
+    }
+    targetVoltageV_ = volts;
+}
+
+float getFrequencyScore() {
+    return freqTracker_.getScore();
+}
+
+TrackingMonitor<float>::State getFrequencyTrackingState() {
+    return freqTracker_.getState();
+}
+
+float getVoltageScore() {
+    return voltTracker_.getScore();
+}
+
+TrackingMonitor<float>::State getVoltageTrackingState() {
+    return voltTracker_.getState();
 }
 
 } // namespace amplifier

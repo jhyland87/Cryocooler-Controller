@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include "module.h"
+#include "tracking.h"
 
 namespace amplifier {
 
@@ -131,6 +132,43 @@ float getOutputRmsVoltage();
 float getOutputRmsCurrent();
 
 // ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+/**
+ * Set the expected RMS output voltage (V) for tracking purposes.
+ * Should be called by the state machine whenever the DAC target changes.
+ * Resets the voltage tracking timer when the target changes by more than
+ * the hysteresis band.
+ *
+ * @param volts  Expected RMS output voltage in Volts.
+ */
+void setTargetVoltage(float volts);
+
+/**
+ * Tracking score for the output frequency.
+ * Compares the IMU-measured frequency against the AD9833 set-point.
+ * 1.0 = measured frequency exactly matches the programmed set-point.
+ * 0.0 = error >= AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ.
+ * Returns 1.0 when no valid IMU frequency is available yet (NAN).
+ */
+float getFrequencyScore();
+
+/** Current state of the frequency tracking monitor. */
+TrackingMonitor<float>::State getFrequencyTrackingState();
+
+/**
+ * Tracking score for the RMS output voltage.
+ * 1.0 = measured voltage exactly matches the target set by setTargetVoltage().
+ * 0.0 = error >= AMPLIFIER_VOLT_TRACK_FULL_SCALE_V.
+ * Only meaningful while the amplifier is enabled.
+ */
+float getVoltageScore();
+
+/** Current state of the voltage tracking monitor. */
+TrackingMonitor<float>::State getVoltageTrackingState();
+
+// ---------------------------------------------------------------------------
 // Output validation
 // ---------------------------------------------------------------------------
 
@@ -156,6 +194,7 @@ bool verifyFrequency(float toleranceHz = 0.5f);
  * Always returns true until a full implementation is in place.
  */
 bool checkOutput(float tolerance = 0.15f);
+
 
 // ---------------------------------------------------------------------------
 // Module interface (CRTP)

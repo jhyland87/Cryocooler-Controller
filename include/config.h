@@ -320,4 +320,107 @@
 // (TELEMETRY_ENABLED must be true for this to work)
 #define EMIT_TELEMETRY_WHEN_IDLE true
 
+// =============================================================================
+// Tracking Monitor — cold_head temperature
+// =============================================================================
+
+// Deadband: temperature must deviate beyond this to start the warning timer.
+#define COLD_HEAD_TRACK_HYSTERESIS_K        1.0f
+
+// Deviation at which the tracking score reaches 0%.
+#define COLD_HEAD_TRACK_FULL_SCALE_K       10.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define COLD_HEAD_TRACK_WARNING_MS         static_cast<uint32_t>(60000)   // 60 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define COLD_HEAD_TRACK_FAULT_MS           static_cast<uint32_t>(300000)  // 5 min
+
+// =============================================================================
+// Tracking Monitor — amplifier output frequency
+// =============================================================================
+
+// Acceptable error (Hz) between the IMU-measured frequency and the AD9833
+// set-point before the warning timer starts.
+#define AMPLIFIER_FREQ_TRACK_HYSTERESIS_HZ  0.5f
+
+// Frequency error (Hz) at which the score reaches 0%.
+#define AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ  5.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define AMPLIFIER_FREQ_TRACK_WARNING_MS    static_cast<uint32_t>(10000)   // 10 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define AMPLIFIER_FREQ_TRACK_FAULT_MS      static_cast<uint32_t>(30000)   // 30 s
+
+// =============================================================================
+// Tracking Monitor — amplifier output voltage
+// =============================================================================
+
+// Acceptable RMS voltage error (V) around the target before the timer starts.
+#define AMPLIFIER_VOLT_TRACK_HYSTERESIS_V   0.05f
+
+// Voltage error (V) at which the score reaches 0%.
+#define AMPLIFIER_VOLT_TRACK_FULL_SCALE_V   2.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define AMPLIFIER_VOLT_TRACK_WARNING_MS    static_cast<uint32_t>(15000)   // 15 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define AMPLIFIER_VOLT_TRACK_FAULT_MS      static_cast<uint32_t>(60000)   // 60 s
+
+// =============================================================================
+// Tracking Monitor — cooling fan duty cycle (forced/manual mode only)
+// =============================================================================
+
+// Acceptable duty-cycle error (%) between requested and actual fan speed.
+#define COOLING_FAN_TRACK_HYSTERESIS_PCT    5.0f
+
+// Duty-cycle error (%) at which the score reaches 0%.
+#define COOLING_FAN_TRACK_FULL_SCALE_PCT   30.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define COOLING_FAN_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define COOLING_FAN_TRACK_FAULT_MS         static_cast<uint32_t>(30000)   // 30 s
+
+// =============================================================================
+// Tracking Monitor — coolant temperature
+// =============================================================================
+
+// Nominal coolant operating temperature (°C) — centre of the in-range band.
+#define COOLING_COOLANT_NOMINAL_TEMP_C     25.0f
+
+// Acceptable deviation around nominal (°C).  Band = nominal ± hysteresis.
+#define COOLING_COOLANT_TRACK_HYSTERESIS_C 15.0f
+
+// Deviation (°C) at which the score reaches 0%.
+#define COOLING_COOLANT_TRACK_FULL_SCALE_C 30.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define COOLING_COOLANT_TRACK_WARNING_MS   static_cast<uint32_t>(30000)   // 30 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define COOLING_COOLANT_TRACK_FAULT_MS     static_cast<uint32_t>(120000)  // 2 min
+
+// =============================================================================
+// Tracking Monitor — coolant flow rate
+// =============================================================================
+
+// Expected flow rate (L/min) when the pump is running.
+#define COOLING_FLOW_NOMINAL_LPM            1.0f
+
+// Acceptable deviation around nominal (L/min).
+#define COOLING_FLOW_TRACK_HYSTERESIS_LPM   0.3f
+
+// Flow deviation (L/min) at which the score reaches 0%.
+#define COOLING_FLOW_TRACK_FULL_SCALE_LPM   1.0f
+
+// Time (ms) continuously outside the band before a WARNING is logged.
+#define COOLING_FLOW_TRACK_WARNING_MS      static_cast<uint32_t>(10000)   // 10 s
+
+// Time (ms) continuously outside the band before a FAULT is raised.
+#define COOLING_FLOW_TRACK_FAULT_MS        static_cast<uint32_t>(30000)   // 30 s
+
 #endif // CONFIG_H

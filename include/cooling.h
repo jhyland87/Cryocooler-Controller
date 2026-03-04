@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include "module.h"
+#include "tracking.h"
 
 namespace cooling {
 
@@ -40,6 +41,52 @@ uint16_t getFanRPM();
 void enable();
 void disable();
 bool isEnabled();
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+/**
+ * Fan duty-cycle tracking score (forced/manual mode only).
+ * 1.0 = actual duty cycle matches the requested speed exactly.
+ * 0.0 = error >= COOLING_FAN_TRACK_FULL_SCALE_PCT.
+ * Always 1.0 while the IC's LUT is in control (no explicit setpoint).
+ */
+float getFanSpeedScore();
+
+/** Current state of the fan speed tracking monitor. */
+TrackingMonitor<float>::State getFanSpeedTrackingState();
+
+/**
+ * Coolant temperature tracking score.
+ * 1.0 = coolant is at COOLING_COOLANT_NOMINAL_TEMP_C.
+ * 0.0 = deviation >= COOLING_COOLANT_TRACK_FULL_SCALE_C.
+ * Always 1.0 while the coolant temperature sensor is not connected (= 0).
+ */
+float getCoolantTempScore();
+
+/** Current state of the coolant temperature tracking monitor. */
+TrackingMonitor<float>::State getCoolantTempTrackingState();
+
+/**
+ * Coolant flow rate tracking score.
+ * 1.0 = flow rate matches COOLING_FLOW_NOMINAL_LPM.
+ * 0.0 = deviation >= COOLING_FLOW_TRACK_FULL_SCALE_LPM.
+ * Always 1.0 while the pump is off or the flow sensor is not connected.
+ */
+float getCoolantFlowScore();
+
+/** Current state of the coolant flow rate tracking monitor. */
+TrackingMonitor<float>::State getCoolantFlowTrackingState();
+
+/**
+ * Return the worst (lowest) tracking score across all three cooling monitors.
+ * Useful for a single at-a-glance health check by the state machine.
+ */
+float getWorstTrackingScore();
+
+/** Return the worst (highest severity) state across all three cooling monitors. */
+TrackingMonitor<float>::State getWorstTrackingState();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 

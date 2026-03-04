@@ -200,6 +200,12 @@ struct ModuleBase {
     static module::InitStatus getInitStatus() { return _initStatus; }
 
     /**
+     * Return true if init() completed successfully.
+     * Equivalent to getInitStatus() == MODULE_INIT_SUCCESS.
+     */
+    static bool isInitialized() { return _initStatus == module::MODULE_INIT_SUCCESS; }
+
+    /**
      * Return the ServiceStatus produced by the most recent service() call.
      * Defaults to SKIPPED for modules that inherit the no-op service().
      */
