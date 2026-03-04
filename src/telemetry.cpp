@@ -25,6 +25,7 @@
 #include "commands.h"
 #include "dashboard.h"
 #include "amplifier.h"
+#include "tracking.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -53,7 +54,16 @@ static const char* const kPassiveFields[] = {
     "status.on_duration",     // ticks every second while running
     "status.on_duration_ms",  // ticks every millisecond while running
     "timestamp.epoch",
-    "timestamp.local"
+    "timestamp.local",
+    "system.cpu_usage_percent",
+    "system.cpu_freq_mhz",
+    "system.total_heap_bytes",
+    "system.free_heap_bytes",
+    "system.min_free_heap_bytes",
+    "system.max_alloc_bytes",
+    "system.heap_usage_percent",
+    "system.total_psram_bytes",
+    "system.free_psram_bytes",
 };
 static constexpr uint8_t kPassiveFieldCount =
     static_cast<uint8_t>(sizeof(kPassiveFields) / sizeof(kPassiveFields[0]));
@@ -110,7 +120,13 @@ static void buildStartupFrame(FrameBuilder& frame)
     const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
     const bool accelReady     = ready(imu::Module::getInitStatus());
     const bool coolingReady   = ready(cooling::Module::getInitStatus());
-
+    const float amplifierVoltageScore = amplifier::getVoltageScore();
+    const float amplifierFrequencyScore = amplifier::getFrequencyScore();
+    const float coolingFanSpeedScore = cooling::getFanSpeedScore();
+    const float coolingCoolantTempScore = cooling::getCoolantTempScore();
+    const float coolingCoolantFlowScore = cooling::getCoolantFlowScore();
+    const float coolingWorstTrackingScore = cooling::getWorstTrackingScore();
+    const float coldHeadTempScore = cold_head::getTemperatureScore();
     // ── Timestamps (always valid) ──────────────────────────────────────────
     const time_t now = time(nullptr);
     char localBuf[20];
@@ -118,7 +134,14 @@ static void buildStartupFrame(FrameBuilder& frame)
 
     frame
         .field("timestamp.epoch", "%lld", static_cast<int64_t>(now))
-        .field("timestamp.local", "%s",   localBuf);
+        .field("timestamp.local", "%s",   localBuf)
+        .field("score.amplifier.voltage", "%.2f", static_cast<float>(amplifierVoltageScore))
+        .field("score.amplifier.frequency", "%.2f", static_cast<float>(amplifierFrequencyScore))
+        .field("score.cooling.fan_speed", "%.2f", static_cast<float>(coolingFanSpeedScore))
+        .field("score.cooling.coolant_temp", "%.2f", static_cast<float>(coolingCoolantTempScore))
+        .field("score.cooling.coolant_flow", "%.2f", static_cast<float>(coolingCoolantFlowScore))
+        .field("score.cooling.worst", "%.2f", static_cast<float>(coolingWorstTrackingScore))
+        .field("score.cold_head.temp", "%.2f", static_cast<float>(coldHeadTempScore));
 
     // ── State machine ──────────────────────────────────────────────────────
     if (smReady) {
@@ -234,17 +257,44 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("indicator.ready", "%s", "");
     }
 
+
     // ── Sysinfo ───────────────────────────────────────────────────────────
     if (sysinfoReady) {
         frame
             .field("system.voltage_v",     "%.2f", sysinfo::getVoltage())
             .field("system.current_a",    "%.2f", sysinfo::getCurrent())
-            .field("system.power_w",      "%.2f", sysinfo::getPower());
+            .field("system.power_w",      "%.2f", sysinfo::getPower())
+            .field("system.cpu_usage_percent", "%.2f", sysinfo::getCpuUsagePercent())
+            .field("system.cpu_freq_mhz", "%.2f", sysinfo::getCpuFreqMHz())
+            .field("system.total_heap_bytes", "%.2f", sysinfo::getTotalHeapBytes())
+            .field("system.free_heap_bytes", "%.2f", sysinfo::getFreeHeapBytes())
+            .field("system.min_free_heap_bytes", "%.2f", sysinfo::getMinFreeHeapBytes())
+            .field("system.max_alloc_bytes", "%.2f", sysinfo::getMaxAllocBytes())
+            .field("system.heap_usage_percent", "%.2f", sysinfo::getHeapUsagePercent())
+            .field("system.total_psram_bytes", "%.2f", sysinfo::getTotalPsramBytes())
+            .field("system.free_psram_bytes", "%.2f", sysinfo::getFreePsramBytes())
+            .field("system.psram_usage_percent", "%.2f", sysinfo::getPsramUsagePercent())
+            .field("system.uptime_ms", "%.2f", sysinfo::getUptimeMs())
+            .field("system.num_cores", "%.2f", sysinfo::getNumCores())
+            .field("system.chip_model", "%s", sysinfo::getChipModel());
     } else {
         frame
             .field("system.voltage_v",     "%s", "")
             .field("system.current_a",    "%s", "")
-            .field("system.power_w",      "%s", "");
+            .field("system.power_w",      "%s", "")
+            .field("system.cpu_usage_percent", "%s", "")
+            .field("system.cpu_freq_mhz", "%s", "")
+            .field("system.total_heap_bytes", "%s", "")
+            .field("system.free_heap_bytes", "%s", "")
+            .field("system.min_free_heap_bytes", "%s", "")
+            .field("system.max_alloc_bytes", "%s", "")
+            .field("system.heap_usage_percent", "%s", "")
+            .field("system.total_psram_bytes", "%s", "")
+            .field("system.free_psram_bytes", "%s", "")
+            .field("system.psram_usage_percent", "%s", "")
+            .field("system.uptime_ms", "%s", "")
+            .field("system.num_cores", "%s", "")
+            .field("system.chip_model", "%s", "");
     }
 
     // // ── Waveform ──────────────────────────────────────────────────────────

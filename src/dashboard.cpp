@@ -98,9 +98,11 @@ private:
 static constexpr uint32_t   broadcastIntervalMs = 1000;
 // Transmit buffer.  Must be larger than the compact serialised dashboard JSON
 // (use estimateSize() to measure).  Pretty mode is NOT used for live streaming
-// because pretty output is ~3–4× larger; 16 KB comfortably holds the compact
-// frame (~10–11 KB for a typical cryocooler config).
-static constexpr size_t     txBufSize           = 16384;
+// because pretty output is ~3–4× larger.
+// Budget: ~50 datasets × ~350 B each ≈ 17.5 KB for dataset entries alone;
+// add group wrappers, actions, and metadata → ~22–24 KB total.
+// 32 KB gives comfortable headroom for future config growth.
+static constexpr size_t     txBufSize           = 32768;
 static constexpr uint8_t    maxClients          = 4;
 
 // FreeRTOS task parameters.
