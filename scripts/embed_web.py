@@ -20,9 +20,9 @@ OUT_PATH     = os.path.join(PROJECT_DIR, "include", "web_content.h")
 
 # (symbol_name, filename) — add entries here for any new files in data/
 WEB_FILES = [
-    ("k_index_html", "index.html"),
-    ("k_style_css",  "style.css"),
-    ("k_app_js",     "app.js"),
+    ("index_html", "index.html"),
+    ("style_css",  "style.css"),
+    ("app_js",     "app.js"),
 ]
 
 # Raw-string delimiter — must not appear inside any of the source files.

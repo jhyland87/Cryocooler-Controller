@@ -17,6 +17,7 @@
 #include "module.h"
 #include "imu.h"
 #include "amplifier.h"
+#include "esp_log.h"
 #include "sensor_mock.h"
 #include "hardware.h"
 // ---------------------------------------------------------------------------
@@ -51,6 +52,8 @@ static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
 static bool  mockInjected    = false;
 static float mockCoolingRate = 0.0f;
 static bool  mockStalled     = false;
+
+static constexpr char TAG[] = "cold_head";
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -102,14 +105,14 @@ module::InitStatus init() {
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
-    Serial.println(F("[cold_head] Initializing MAX31865..."));
+    ESP_LOGI(TAG, "Initializing MAX31865...");
     module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[cold_head] MAX31865 initialization failed! Status: %s\n", module::initStatusName(rtdStatus));
+        ESP_LOGE(TAG, "MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         initStatus = rtdStatus;
         return initStatus;
     }
-    Serial.println(F("[cold_head] MAX31865 initialization successful!"));
+    ESP_LOGI(TAG, "MAX31865 initialization successful!");
     initStatus = module::MODULE_INIT_SUCCESS;
     return initStatus;
 }
@@ -123,20 +126,20 @@ module::InitStatus initACS() {
 
 module::InitStatus initRTD() {
     if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
-        Serial.println(F("[cold_head] Could not initialize MAX31865! Check wiring."));
+        ESP_LOGE(TAG, "Could not initialize MAX31865! Check wiring.");
         // State machine will see tempK == 0 and fault if appropriate.
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
     const uint16_t rtd   = max31865.readRTD();
     const uint8_t  fault = max31865.readFault();
-    Serial.printf("[cold_head] MAX31865 comms check - RTD raw: %u  Fault: 0x%02X\n", rtd, fault);
+    ESP_LOGD(TAG, "MAX31865 comms check - RTD raw: %u  Fault: 0x%02X", rtd, fault);
 
     if (rtd == 0 && fault == 0) {
-        Serial.println(F("[cold_head] WARNING: MAX31865 may not be communicating (RTD=0, Fault=0)."));
-        Serial.println(F("[cold_head] Check CS, CLK, SDI, SDO wiring and 3.3V supply."));
+        ESP_LOGW(TAG, "WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
+        ESP_LOGW(TAG, "Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
     } else {
-        Serial.println(F("[cold_head] MAX31865 initialized successfully!"));
+        ESP_LOGI(TAG, "MAX31865 initialized successfully!");
     }
 
     return module::MODULE_INIT_SUCCESS;
@@ -206,7 +209,7 @@ void setLastReadings(uint32_t nowMs, float tempK,
 
 bool checkDependencies() {
     if (!imu::isInitialized() && !sensor_mock::isActive()) {
-        Serial.println(F("[cold_head] Dependency check failed - Accelerometer not initialized!"));
+        ESP_LOGE(TAG, "Dependency check failed - Accelerometer not initialized!");
         return false;
     }
     return true;
@@ -217,14 +220,14 @@ void checkFaults() {
     const uint8_t fault = max31865.readFault();
     if (fault == 0) return;
 
-    Serial.printf("[cold_head] Fault detected! Code: 0x%02X\n", fault);
+    ESP_LOGW(TAG, "Fault detected! Code: 0x%02X", fault);
 
-    if (fault & MAX31865_FAULT_HIGHTHRESH)  Serial.println(F("[cold_head]  - RTD High Threshold"));
-    if (fault & MAX31865_FAULT_LOWTHRESH)   Serial.println(F("[cold_head]  - RTD Low Threshold"));
-    if (fault & MAX31865_FAULT_REFINLOW)    Serial.println(F("[cold_head]  - REFIN- > 0.85 x Bias"));
-    if (fault & MAX31865_FAULT_REFINHIGH)   Serial.println(F("[cold_head]  - REFIN- < 0.85 x Bias - FORCE- open"));
-    if (fault & MAX31865_FAULT_RTDINLOW)    Serial.println(F("[cold_head]  - RTDIN- < 0.85 x Bias - FORCE- open"));
-    if (fault & MAX31865_FAULT_OVUV)        Serial.println(F("[cold_head]  - Under/Over voltage"));
+    if (fault & MAX31865_FAULT_HIGHTHRESH)  ESP_LOGW(TAG, "  - RTD High Threshold");
+    if (fault & MAX31865_FAULT_LOWTHRESH)   ESP_LOGW(TAG, "  - RTD Low Threshold");
+    if (fault & MAX31865_FAULT_REFINLOW)    ESP_LOGW(TAG, "  - REFIN- > 0.85 x Bias");
+    if (fault & MAX31865_FAULT_REFINHIGH)   ESP_LOGW(TAG, "  - REFIN- < 0.85 x Bias - FORCE- open");
+    if (fault & MAX31865_FAULT_RTDINLOW)    ESP_LOGW(TAG, "  - RTDIN- < 0.85 x Bias - FORCE- open");
+    if (fault & MAX31865_FAULT_OVUV)        ESP_LOGW(TAG, "  - Under/Over voltage");
 
     max31865.clearFault();
 }
@@ -282,8 +285,7 @@ float getLastAmbientTempC(){
     return lastAmbientTempC;
 }
 
-float getTemperatureToPercent()
-{
+float getTemperatureToPercent(){
     const float tempK = getLastTempK();
     const float T_MAX = AMBIENT_START_K;
     const float T_MIN = SETPOINT_K;

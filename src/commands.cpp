@@ -189,6 +189,45 @@ static void handleCoolingOff(const char* /*args*/, Print& out) {
     out.println("[OK] Cooling disabled");
 }
 
+static void handleVoutGet(const char* /*args*/, Print& out) {
+    uint16_t val = amplifier::getLastRmsVoltage();
+    char buf[48];
+    snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
+    out.println(buf);
+}
+
+static void handleVoutSet(const char* args, Print& out) {
+    if (*args == '\0') {
+        out.println("[ERR] Usage: vout set <0-120VAC>");
+        return;
+    }
+
+    // Parse up to 4 digits (anything ≥ 1000 will fail the range check).
+    uint16_t val    = 0;
+    uint8_t  digits = 0;
+    const char* p = args;
+    while (*p >= '0' && *p <= '9' && digits < 4u) {
+        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*p - '0'));
+        ++p;
+        ++digits;
+    }
+
+    // Reject: no digits, trailing non-whitespace garbage, or out-of-range.
+    if (digits == 0 || (*p != '\0' && *p != ' ' && *p != '\t') || val > 120u) {
+        char buf[64];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] vout set: invalid argument '%s' (expected 0-120V)", args);
+        out.println(buf);
+        return;
+    }
+
+    int setDacValue = map(val, 0, 120, 0, AMPLIFIER_RESOLUTION);
+    amplifier::setRmsVoltage(static_cast<uint16_t>(setDacValue));
+    char buf[48];
+    snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
+    out.println(buf);
+}
+
 static void handleCoolingFan(const char* args, Print& out) {
     if (*args == '\0') {
         out.println("[ERR] Usage: cooling fan <0-100>");
@@ -400,11 +439,14 @@ static const Command commandMap[] = {
     {"cooling on",          handleCoolingOn,           "Enable cooling system"},
     {"cooling off",         handleCoolingOff,          "Disable cooling system"},
 #ifdef ARDUINO
-    {"dashboard off", handleDashboardOff, "Disable dashboard TCP broadcasts"},
-    {"dashboard on",  handleDashboardOn,  "Enable dashboard TCP broadcasts"},
+    {"dashboard off",       handleDashboardOff, "Disable dashboard TCP broadcasts"},
+    {"dashboard on",        handleDashboardOn,  "Enable dashboard TCP broadcasts"},
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
-    {"mock",          mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
+    {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
+    {"set vout",            handleVoutSet,         "Set dac output voltage (0-120)"},
+    {"get vout",            handleVoutGet,         "Get dac output voltage"},
+
 #endif
 };
 

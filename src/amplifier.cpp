@@ -29,6 +29,7 @@
 #include "module.h"
 #include "imu.h"
 #include "sensor_mock.h"
+#include "esp_log.h"
 #include "hardware.h"
 
 // ---------------------------------------------------------------------------
@@ -67,9 +68,7 @@ static bool enabled_ = false;
 // ---------------------------------------------------------------------------
 
 static void dacWriteSpi(uint16_t dacVal) {
-    if (dacVal > static_cast<uint16_t>(AMPLIFIER_RESOLUTION)) {
-        dacVal = static_cast<uint16_t>(AMPLIFIER_RESOLUTION);
-    }
+    dacVal = constrain(dacVal, 0u, static_cast<uint16_t>(AMPLIFIER_RESOLUTION));
     if (dacCurrent_ == dacVal) return;
 
     dacCurrent_ = dacVal;
@@ -86,9 +85,8 @@ static void dacWriteSpi(uint16_t dacVal) {
  * Rate-limited step toward @p target by at most @p maxStep counts per call.
  */
 static void dacRampInternal(uint16_t target, uint16_t maxStep) {
-    if (target > static_cast<uint16_t>(AMPLIFIER_RESOLUTION)) {
-        target = static_cast<uint16_t>(AMPLIFIER_RESOLUTION);
-    }
+    target = constrain(target, 0u, static_cast<uint16_t>(AMPLIFIER_RESOLUTION));
+
     uint16_t next = dacCurrent_;
     if (next < target) {
         const uint16_t step = target - next;
@@ -104,6 +102,9 @@ static void dacRampInternal(uint16_t target, uint16_t maxStep) {
 // Public API
 // ---------------------------------------------------------------------------
 
+static constexpr char TAG[] = "amplifier";
+
+
 namespace amplifier {
 
 module::InitStatus init() {
@@ -113,36 +114,41 @@ module::InitStatus init() {
     }
 
     // -- MCP4921 DAC ----------------------------------------------------------
-    Serial.println(F("[amplifier] Initializing MCP4921 DAC..."));
+    // This is the multiplier voltage that gets passed to the AD633 voltage
+    // multiplier to multiply the sine wave output.
+    ESP_LOGI(TAG, "Initializing MCP4921 DAC...");
     initStatus_ = initDac();
     if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[amplifier] MCP4921 initialization failed: %d\n",
+        ESP_LOGE(TAG, "MCP4921 initialization failed: %d",
                       static_cast<int>(initStatus_));
         return initStatus_;
     }
-    Serial.println(F("[amplifier] MCP4921 DAC initialized"));
+    ESP_LOGI(TAG, "MCP4921 DAC initialized");
 
     // -- ACS37800 -------------------------------------------------------------
-    Serial.println(F("[amplifier] Initializing ACS37800..."));
+    // This is the power monitor that reads the AC voltage and current coming
+    // out of the amplifier.
+    ESP_LOGI(TAG, "Initializing ACS37800...");
     initStatus_ = initAcs();
     if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[amplifier] ACS37800 initialization failed: %d\n",
+        ESP_LOGE(TAG, "ACS37800 initialization failed: %d",
                       static_cast<int>(initStatus_));
         return initStatus_;
     }
-    Serial.println(F("[amplifier] ACS37800 initialized"));
+    ESP_LOGI(TAG, "ACS37800 initialized");
 
     // -- AD9833 waveform generator --------------------------------------------
-    Serial.println(F("[amplifier] Initializing AD9833..."));
+    // This is the waveform generator that generates the sine wave that is
+    // passed to the AD633 voltage multiplier.
+    ESP_LOGI(TAG, "Initializing AD9833...");
     initStatus_ = initWaveform();
     if (initStatus_ != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[amplifier] AD9833 initialization failed: %d\n",
+        ESP_LOGE(TAG, "AD9833 initialization failed: %d",
                       static_cast<int>(initStatus_));
         return initStatus_;
     }
-    Serial.println(F("[amplifier] AD9833 initialized"));
-
-    Serial.println(F("[amplifier] Initialization successful"));
+    ESP_LOGI(TAG, "AD9833 initialized");
+    ESP_LOGI(TAG, "Initialization successful");
     initStatus_ = module::MODULE_INIT_SUCCESS;
     return initStatus_;
 }
@@ -159,7 +165,7 @@ module::InitStatus initWaveform() {
     ad9833_.setMode(MD_AD9833::MODE_SINE);
     waveformMode_ = MD_AD9833::MODE_SINE;
     setFrequency(static_cast<float>(AMPLIFIER_FREQ_HZ));
-    Serial.printf("[amplifier] AD9833 generating %u Hz sine wave\n",
+    ESP_LOGI(TAG, "AD9833 generating %u Hz sine wave",
                   static_cast<unsigned>(AMPLIFIER_FREQ_HZ));
     return module::MODULE_INIT_SUCCESS;
 }
@@ -186,6 +192,8 @@ bool isEnabled() {
 }
 
 void setFrequency(float frequencyHz) {
+    ESP_LOGD(TAG, "Setting AD9833 frequency to %u Hz",
+                  static_cast<unsigned>(frequencyHz));
     frequency_ = frequencyHz;
     ad9833_.setFrequency(MD_AD9833::CHAN_0, frequencyHz);
 }
@@ -195,22 +203,26 @@ float getFrequency() {
 }
 
 void enable() {
+    ESP_LOGD(TAG, "Enabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_SINE);
     waveformMode_ = MD_AD9833::MODE_SINE;
     enabled_ = true;
 }
 
 void disable() {
+    ESP_LOGD(TAG, "Disabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_OFF);
     waveformMode_ = MD_AD9833::MODE_OFF;
     enabled_ = false;
 }
 
 void initCoarseCooldown() {
+    ESP_LOGD(TAG, "Initializing coarse cooldown");
     rampToVoltage(0, AMPLIFIER_RAMP_RATE_MEDIUM);
 }
 
 void initFineCooldown() {
+    ESP_LOGD(TAG, "Initializing fine cooldown");
     rampToVoltage(0, AMPLIFIER_RAMP_RATE_SLOW);
 }
 
@@ -219,16 +231,22 @@ void initFineCooldown() {
 // ---------------------------------------------------------------------------
 
 void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
+    ESP_LOGD(TAG, "Ramping to voltage %u with rate %u",
+                  static_cast<unsigned>(dacTarget),
+                  static_cast<unsigned>(rampRate));
     dacRampInternal(dacTarget,
                     static_cast<uint16_t>(rampRate));
 }
 
 void rampTowardShutdown(uint16_t dacTarget) {
+    ESP_LOGD(TAG, "Ramping toward shutdown to voltage %u",
+                  static_cast<unsigned>(dacTarget));
     dacRampInternal(dacTarget,
                     static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
 }
 
 void setRmsVoltage(uint16_t dacTarget) {
+    ESP_LOGD(TAG, "Setting RMS voltage to %u", static_cast<unsigned>(dacTarget));
     dacWriteSpi(dacTarget);
 }
 
