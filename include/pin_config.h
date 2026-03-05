@@ -26,6 +26,10 @@
 #define ONE_WIRE_BUS      4
 
 
+#define SDA_PIN            8
+#define SCL_PIN            9
+
+
 // =============================================================================
 // ADC input to read back DAC-controlled voltage (for manual congtrol)
 // =============================================================================
@@ -41,10 +45,14 @@
 // =============================================================================
 #define AD9833_CS          7    // Chip Select for AD9833
 
-#define SDA_PIN            8
-#define SCL_PIN            9
 
+#define SD_CS_PIN          48
 
+// Card Detect switch on the SD socket (active HIGH — HIGH = card present).
+// The switch drives this pin HIGH when a card is fully seated; the internal
+// pull-down holds it LOW when the slot is empty.  Adjust if your socket routes
+// CD to a different GPIO.
+#define SD_CD_PIN          47
 
 // =============================================================================
 // Relays
@@ -71,30 +79,22 @@
 
 // READY indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
-// NOTE: previously 14; reassigned to ACS712_CURRENT_PIN — update wiring accordingly.
 // WARNING: do NOT use LED_BUILTIN here. On this board LED_BUILTIN resolves to
 // RGB_BUILTIN (GPIO 48), and the ESP32 Arduino core's io_pin_remap.h silently
 // redirects any digitalWrite() on RGB_BUILTIN to rgbLedWrite(), which fires
 // the RMT peripheral and interferes with the real status LED on GPIO 38.
 #define READY_IND_PIN      15
 
-// =============================================================================
-// ACS712 AC Current Sensor (back-EMF / overstroke detection)
-// =============================================================================
-// Analog output of the ACS712-05B 5 A module connected to the AC output line
-// (post-amplifier, 0–120 V AC).  If the module is powered from 5 V, install
-// a resistor divider (e.g. 3.3 kΩ / 6.8 kΩ) on the output so the signal
-// stays within the ESP32-S3 ADC input range of 0–3.3 V.
-#define ACS712_CURRENT_PIN 14
+
 
 // =============================================================================
 // SPI Bus (shared by MAX31865, AD9833, and MCP4921)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
-#define SPI_CLK           40    // SPI Clock
+#define SPI_CLK           42    // SPI Clock
 #define SPI_MISO          41    // Master In Slave Out
-#define SPI_MOSI          42    // Master Out Slave In
+#define SPI_MOSI          40    // Master Out Slave In
 
 // =============================================================================
 // On-board WS2812 RGB Status LED
@@ -102,11 +102,7 @@
 #define STATUS_LED_PIN     RGB_LED_PIN   // Common for on-board RGB on ESP32-S3 DevKit
 
 // =============================================================================
-// Cooling PWM and Tacho pins
-// =============================================================================
-#define COOLING_FAN_TACHO_PIN 5
-#define COOLING_INHIBIT_PIN   21
-#define COOLING_FAN_PWM_PIN   18
+
 
 
 

@@ -31,6 +31,8 @@
 
 namespace hardware {
 
+    module::InitStatus initSPI();
+    module::InitStatus initI2C();
     /**
      * Initialise all shared hardware buses (I2C and SPI).
      * Must be called exactly once, before any module that uses a bus.
@@ -39,6 +41,7 @@ namespace hardware {
      *         ESP32 with valid pins; SPI.begin is void).
      */
     module::InitStatus init();
+
 
     /**
      * Returns a reference to the shared I2C bus (the global Wire instance).

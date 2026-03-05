@@ -47,7 +47,6 @@ static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coef
 // ---------------------------------------------------------------------------
 
 QMI8658 sensor;
-static bool initialized_ = false;
 
 // Calibration offsets (set by performCalibration)
 static float accelOffsetX_ = 0.0f, accelOffsetY_ = 0.0f, accelOffsetZ_ = 0.0f;
@@ -272,7 +271,6 @@ module::InitStatus init() {
 
     if (!sensor.begin(hardware::i2c(), QMI8658_ADDRESS_HIGH)) {
         log_e("[imu] QMI8658 not found — check wiring and I2C address");
-        initialized_ = false;
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -286,12 +284,11 @@ module::InitStatus init() {
     sensor.enableSensors(QMI8658_ENABLE_ACCEL);
 
     performCalibration();
-    initialized_ = true;
     return module::InitStatus::MODULE_INIT_SUCCESS;
 }
 
 module::ServiceStatus service() {
-    if (!initialized_) { return module::MODULE_SERVICE_SKIPPED; }
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) { return module::MODULE_SERVICE_SKIPPED; }
 
     QMI8658_Data data;
     if (!sensor.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
@@ -353,7 +350,7 @@ float getFrequency() {
  *         updated on valid detections.
  */
 float calculateFrequency() {
-    if (!initialized_) return NAN;
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return NAN;
 
     // -- Collect FFT_N samples at FFT_FS_HZ using micros() timing ------------
     uint32_t tNext = micros();
@@ -401,7 +398,7 @@ float calculateFrequency() {
     return frequency_;
 }
 
-bool  isInitialized()    { return initialized_;    }
+bool  isInitialized()    { return Module::isInitialized(); }
 bool  isMotionDetected() { return motionDetected_;  }
 bool  hasOverstroke()    { return motionDetected_;  }
 void  clearOverstroke()  { motionDetected_ = false; }

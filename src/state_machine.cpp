@@ -26,6 +26,7 @@
 #include "conversions.h"
 #include "indicator.h"
 #include "amplifier.h"
+#include "cold_head.h"
 #include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
@@ -193,6 +194,7 @@ static void onEnterOvershoot();
 static void onEnterSettle();
 static void onEnterBaseline();
 static void onEnterOperating();
+static void onExitOperating();
 static void onEnterShutdown();
 static void onEnterDelay();
 static void onEnterFault();
@@ -210,7 +212,7 @@ static ::State fsmStateFine      (onEnterFineCooldown,    nullptr, nullptr);
 static ::State fsmStateOvershoot (onEnterOvershoot,       nullptr, nullptr);
 static ::State fsmStateSettle    (onEnterSettle,          nullptr, nullptr);
 static ::State fsmStateBaseline  (onEnterBaseline,        nullptr, nullptr);
-static ::State fsmStateOperating (onEnterOperating,       nullptr, nullptr);
+static ::State fsmStateOperating (onEnterOperating,       nullptr, onExitOperating);
 static ::State fsmStateShutdown  (onEnterShutdown,        nullptr, nullptr);
 static ::State fsmStateDelay     (onEnterDelay,           nullptr, nullptr);
 static ::State fsmStateFault     (onEnterFault,           nullptr, onExitFault);
@@ -402,7 +404,10 @@ static void onEnterInitialize() {
         onInitializeCb();
     }
 }
-static void onEnterIdle()           { setStateEntry(State::Idle); }
+static void onEnterIdle() {
+    setStateEntry(State::Idle);
+    amplifier::rampToVoltage(0);
+}
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
     amplifier::initCoarseCooldown();
@@ -414,7 +419,8 @@ static void onEnterFineCooldown() {
 static void onEnterOvershoot()      { setStateEntry(State::Overshoot); }
 static void onEnterSettle()         { setStateEntry(State::Settle); }
 static void onEnterBaseline()       { setStateEntry(State::Baseline); }
-static void onEnterOperating()      { setStateEntry(State::Operating); }
+static void onEnterOperating()      { setStateEntry(State::Operating); cold_head::startTemperatureTracking(); }
+static void onExitOperating()       { cold_head::stopTemperatureTracking(); }
 static void onEnterShutdown()       { setStateEntry(State::Shutdown); }
 
 static void onEnterDelay() {
@@ -763,12 +769,15 @@ Output update(float    tempK,
     fsm->run_machine();
 
     // ------------------------------------------------------------------
-    // 4. Compute DAC target and assemble output
+    // 4. Compute DAC target, drive amplifier, and assemble output
     // ------------------------------------------------------------------
     uint16_t dacTarget = 0;
     if (currentState == State::CoarseCooldown ||
         currentState == State::FineCooldown) {
         dacTarget = cooldownDacTarget(tempK, coolingRate);
+        amplifier::rampToVoltage(dacTarget);
+    } else if (currentState == State::Shutdown) {
+        amplifier::rampTowardShutdown(dacTarget);  // dacTarget is 0
     }
     return buildOutput(currentState, dacTarget);
 }

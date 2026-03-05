@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
 #include <RunningAverage.h>
+#include <optional>
 
 #include "pin_config.h"
 #include "config.h"
@@ -20,6 +21,8 @@
 #include "esp_log.h"
 #include "sensor_mock.h"
 #include "hardware.h"
+#include "tracking.h"
+
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -44,8 +47,6 @@ static float       lastTempC    = 0.0f;
 static float       lastAmbientTempC = 0.0f;
 static float        lastRmsVoltageV = 0.0f;
 static float        lastRmsCurrentA = 0.0f;
-static module::InitStatus initStatus = module::MODULE_INIT_NOT_STARTED;
-
 // Mock injection state — set by setLastReadings(), cleared by read().
 // When active, getCoolingRateKPerMin() and isStalled() return these values
 // directly instead of computing from the ring buffer.
@@ -54,6 +55,21 @@ static float mockCoolingRate = 0.0f;
 static bool  mockStalled     = false;
 
 static constexpr char TAG[] = "cold_head";
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+// Target temperature set by the state machine via setTargetTempK().
+// Defaults to the system setpoint; updated whenever the state machine
+// changes its cooling target.
+static float targetTempK_ = SETPOINT_K;
+
+// Tracks how closely the measured cold-stage temperature follows targetTempK_.
+// Only active while the FSM is in the Operating state; nullopt otherwise.
+// Constructed by startTemperatureTracking() (onEnterOperating) and destroyed
+// by stopTemperatureTracking() (onExitOperating).
+static std::optional<TrackingMonitor<float>> tempTracker_;
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -96,25 +112,25 @@ static const TempSample& sampleAt(uint8_t i) {
 
 namespace cold_head {
 
+// Forward declaration — defined below; kept internal (not in the header).
+static bool checkDependencies();
+
 module::InitStatus init() {
     if (!checkDependencies() && !sensor_mock::isActive()) {
-        initStatus = module::MODULE_INIT_DEPENDENCY_ERROR;
-        return initStatus;
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
     ESP_LOGI(TAG, "Initializing MAX31865...");
-    module::InitStatus rtdStatus = initRTD();
+    const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
         ESP_LOGE(TAG, "MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
-        initStatus = rtdStatus;
-        return initStatus;
+        return rtdStatus;
     }
     ESP_LOGI(TAG, "MAX31865 initialization successful!");
-    initStatus = module::MODULE_INIT_SUCCESS;
-    return initStatus;
+    return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initACS() {
@@ -149,8 +165,7 @@ void read(uint32_t nowMs) {
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
         setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
-        return;
-    }
+    } else {
     mockInjected = false;   // real read supersedes any prior mock injection
     // Voltage/current are owned by the amplifier module; pull the latest reading.
     lastRmsVoltageV = amplifier::getLastRmsVoltage();
@@ -183,6 +198,12 @@ void read(uint32_t nowMs) {
 
     //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
     //              rtd, resistance, tempC, tempF, tempK);
+    } // else (real hardware path)
+
+    // Update the tracking monitor if it is active (Operating state only).
+    if (tempTracker_) {
+        tempTracker_->update(targetTempK_, lastTempK, nowMs);
+    }
 }
 
 void setLastReadings(uint32_t nowMs, float tempK,
@@ -208,10 +229,16 @@ void setLastReadings(uint32_t nowMs, float tempK,
 // }
 
 bool checkDependencies() {
-    if (!imu::isInitialized() && !sensor_mock::isActive()) {
+    if (!imu::Module::isInitialized() && !sensor_mock::isActive()) {
         ESP_LOGE(TAG, "Dependency check failed - Accelerometer not initialized!");
         return false;
     }
+
+    if (!amplifier::Module::isInitialized() && !sensor_mock::isActive()) {
+        ESP_LOGE(TAG, "Dependency check failed - Amplifier not initialized!");
+        return false;
+    }
+
     return true;
 }
 
@@ -306,6 +333,42 @@ float getLastRmsVoltage() {
 
 float getLastRmsCurrent() {
     return lastRmsCurrentA;
+}
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+void setTargetTempK(float targetK) {
+    // Reset the timer when the target changes significantly, so the monitor
+    // does not inherit stale elapsed time from the previous setpoint.
+    if (tempTracker_ && fabsf(targetK - targetTempK_) > COLD_HEAD_TRACK_HYSTERESIS_K) {
+        tempTracker_->reset();
+    }
+    targetTempK_ = targetK;
+}
+
+void startTemperatureTracking() {
+    tempTracker_.emplace(TrackingMonitor<float>::Config{
+        /* hysteresis     */ COLD_HEAD_TRACK_HYSTERESIS_K,
+        /* fullScale      */ COLD_HEAD_TRACK_FULL_SCALE_K,
+        /* warningDelayMs */ COLD_HEAD_TRACK_WARNING_MS,
+        /* faultDelayMs   */ COLD_HEAD_TRACK_FAULT_MS,
+        /* tag            */ TAG,
+        /* label          */ "temperature",
+    });
+}
+
+void stopTemperatureTracking() {
+    tempTracker_.reset();
+}
+
+float getTemperatureScore() {
+    return tempTracker_ ? tempTracker_->getScore() : 1.0f;
+}
+
+TrackingMonitor<float>::State getTemperatureTrackingState() {
+    return tempTracker_ ? tempTracker_->getState() : TrackingMonitor<float>::State::IN_RANGE;
 }
 
 } // namespace cold_head

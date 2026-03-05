@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "module.h"
+#include "tracking.h"
 
 namespace cold_head {
 
@@ -19,7 +20,6 @@ namespace cold_head {
  * @return MODULE_INIT_SUCCESS if begin() succeeds, MODULE_INIT_HARDWARE_ERROR otherwise.
  */
 module::InitStatus init();
-
 module::InitStatus initACS();
 module::InitStatus initRTD();
 
@@ -97,13 +97,55 @@ float getLastRmsCurrent();
  */
 bool isStalled();
 
-bool checkDependencies();
-
 /**
  * Return the temperature as a percentage of the maximum temperature.
  * 0% = 298K, 100% = 78K
  */
 float getTemperatureToPercent();
+
+// ---------------------------------------------------------------------------
+// Setpoint tracking
+// ---------------------------------------------------------------------------
+
+/**
+ * Set the temperature the system is currently trying to reach.
+ * Should be called by the state machine whenever the target changes
+ * (e.g. CoarseCooldown → FineCooldown → Settle).
+ *
+ * Resets the tracking timer when the new target differs from the current
+ * one by more than the hysteresis band, so the monitor does not inherit
+ * stale elapsed time from the previous setpoint.
+ *
+ * @param targetK  Desired cold-stage temperature in Kelvin.
+ */
+void setTargetTempK(float targetK);
+
+/**
+ * Construct the temperature tracking monitor and begin tracking.
+ * Must be called when the FSM enters the Operating state.
+ */
+void startTemperatureTracking();
+
+/**
+ * Destroy the temperature tracking monitor and stop tracking.
+ * Must be called when the FSM leaves the Operating state.
+ */
+void stopTemperatureTracking();
+
+/**
+ * Tracking score for the cold-stage temperature.
+ * 1.0 = measured temperature exactly matches the target.
+ * 0.0 = error >= COLD_HEAD_TRACK_FULL_SCALE_K.
+ */
+float getTemperatureScore();
+
+/**
+ * Current state of the temperature tracking monitor.
+ * IN_RANGE → value is within the hysteresis band.
+ * WARNING  → value has been outside the band for >= COLD_HEAD_TRACK_WARNING_MS.
+ * FAULT    → value has been outside the band for >= COLD_HEAD_TRACK_FAULT_MS.
+ */
+TrackingMonitor<float>::State getTemperatureTrackingState();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 //

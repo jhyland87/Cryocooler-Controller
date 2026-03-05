@@ -13,13 +13,37 @@
 #include "driver/i2c_master.h"  // i2c_master_bus_reset() — IDF 5.x only
 #endif
 
-namespace hardware {
 
+namespace hardware {
     // -------------------------------------------------------------------------
     // init
     // -------------------------------------------------------------------------
 
     module::InitStatus init() {
+        auto spiStatus = initSPI();
+
+        auto i2cStatus = initI2C();
+
+        if (i2cStatus != module::InitStatus::MODULE_INIT_SUCCESS) {
+            return i2cStatus;
+        }
+
+        if (spiStatus != module::InitStatus::MODULE_INIT_SUCCESS) {
+            return spiStatus;
+        }
+
+        return module::InitStatus::MODULE_INIT_SUCCESS;
+    }
+
+    module::InitStatus initSPI() {
+        log_i("[hardware] Initialising SPI bus (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+        log_i("[hardware] SPI bus initialised (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        return module::InitStatus::MODULE_INIT_SUCCESS;
+    }
+
+    module::InitStatus initI2C() {
+        log_i("[hardware] Initialising I2C bus (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         // Initialise the shared Wire bus once with the correct pins.
         Wire.begin(SDA_PIN, SCL_PIN);
 
@@ -27,19 +51,16 @@ namespace hardware {
         // came up.  i2cIsInit() / i2cBusHandle() are only available in the
         // Core 3.x new-gen driver headers; skip this check on Core 2.x where
         // Wire.begin() failures must be caught differently.
-#if ESP_ARDUINO_VERSION_MAJOR >= 3
+        #if ESP_ARDUINO_VERSION_MAJOR >= 3
         if (!i2cIsInit(0)) {
             log_e("[hardware] Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
             return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
         }
         log_d("[hardware] I2C bus 0 initialised (SDA=%d SCL=%d, handle=%p)",
-              SDA_PIN, SCL_PIN, i2cBusHandle(0));
-#else
+                SDA_PIN, SCL_PIN, i2cBusHandle(0));
+        #else
         log_i("[hardware] I2C bus initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
-#endif
-
-        // SPI — CS is managed per-device; -1 means no default CS pin.
-        SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+        #endif
 
         return module::InitStatus::MODULE_INIT_SUCCESS;
     }

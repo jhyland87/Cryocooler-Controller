@@ -30,7 +30,7 @@
 #include "imu.h"
 #include "sensor_mock.h"
 #include "amplifier.h"
-
+#include "logger.h"
 // =============================================================================
 // Module-level objects
 // =============================================================================
@@ -81,6 +81,12 @@ static bool     setupComplete  = false;
  * commands — including the reinit command itself.
  */
 static void initPersistentModules() {
+
+    auto loggerStatus = initModule("logger", [] { return logger::Module::init(); });
+    if (loggerStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Logger initialization failed (status %d). Continuing without logger.\n",
+                      static_cast<int>(loggerStatus));
+    }
 
     auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
     if (imuStatus != module::MODULE_INIT_SUCCESS) {
@@ -147,18 +153,18 @@ static void initControlModules() {
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
-    if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cold head initialization failed (status %d).\n",
-                      static_cast<int>(cold_headStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Amplifier initialization failed (status %d).\n",
                       static_cast<int>(amplifierStatus));
+        initFailureDetected = true;
+    }
+    telemetry::emitSafe();
+
+    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
+    if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Cold head initialization failed (status %d).\n",
+                      static_cast<int>(cold_headStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
@@ -191,7 +197,7 @@ void setup() {
     // Wait for USB-CDC serial port (ESP32-S3 native USB).
     while (!Serial) delay(10);
     delay(3000);
-
+    logger::logf("[setup] Starting up\n");
     Serial.println(F("Cryocooler Controller -- starting up"));
     Serial.println(F("====================================="));
 
@@ -201,6 +207,7 @@ void setup() {
     // the global Wire / SPI singletons.
     if (initModule("hardware", [] { return hardware::Module::init(); })
             != module::MODULE_INIT_SUCCESS) {
+        logger::logf("[setup] Hardware bus init failed. Halting.\n");
         Serial.println(F("Hardware bus init failed. Halting."));
         return;
     }
@@ -219,10 +226,11 @@ void setup() {
     state_machine::reinit(millis());
 
     if (!setupComplete) {
+        logger::logf("[setup] Setup failed. Halting startup.\n");
         Serial.println(F("Setup failed. Halting startup."));
         return;
     }
-
+    logger::logf("[setup] Setup complete. System is initializing. (status %d)\n", static_cast<int>(sysinfo::Module::getInitStatus()));
     Serial.printf("\nSetup complete. System is initializing. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
 
     Serial.println(F("Type 'help' for available commands."));
@@ -331,18 +339,15 @@ void loop() {
     indicator::setFaultMode(out.faultIndMode);
     indicator::setReadyMode(out.readyIndMode);
 
-    // Ramp DAC toward the state-machine target (rate-limited in dac.cpp).
-    // Use fast shutdown ramp during Shutdown state, normal ramp otherwise.
-    if (out.state == state_machine::State::Shutdown) {
-        amplifier::rampTowardShutdown(out.dacTarget);
-    } else {
-        amplifier::rampToVoltage(out.dacTarget);
-    }
+    // DAC ramping is driven by state_machine::update() directly — either on
+    // state entry (via on_enter callbacks) or per-tick for states with a
+    // dynamic target (CoarseCooldown, FineCooldown, Shutdown).
 
     // ---- 4. HTTP API ---------------------------------------------------
     //http_api::service();
 
     // ---- 5. Telemetry ---------------------------------------------------
     telemetry::emit(out);
+    logger::logTelemetry(telemetry::getLastFrame());
     dashboard::Module::service();
 }
