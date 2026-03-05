@@ -13,14 +13,14 @@
  *      first call (or whenever the file does not yet exist).
  *      File: LOG_TELEMETRY_PATH  (default "/telemetry.csv")
  *
- * Both functions are no-ops when the SD card is not available (i.e. when
- * init() has not succeeded).
+ * Both functions are no-ops when the SD card is not available.
  *
  * ── Module lifecycle ────────────────────────────────────────────────────────
  *
  *   Call logger::Module::init() after hardware::Module::init() (the shared
  *   SPI bus must be running before SD.begin() is called).
- *   logger::Module::service() is a no-op — all I/O is driven explicitly.
+ *   logger::Module::service() must be called regularly — it polls SD_CD_PIN
+ *   and drives the card eject / re-insert state machine.
  *
  * ── Usage example ───────────────────────────────────────────────────────────
  *
@@ -45,10 +45,10 @@ namespace logger {
 // ---------------------------------------------------------------------------
 
 /** Plain-text log echoing Serial output. */
-static constexpr char kSerialLogPath[]   = "/serial.log";
+static constexpr char SERIAL_LOG_PATH[]  = "/serial.log";
 
 /** CSV telemetry log — one row per logTelemetry() call. */
-static constexpr char kTelemetryPath[]   = "/telemetry.csv";
+static constexpr char TELEMETRY_PATH[]   = "/telemetry.csv";
 
 // ---------------------------------------------------------------------------
 // Lifecycle
@@ -66,11 +66,20 @@ static constexpr char kTelemetryPath[]   = "/telemetry.csv";
 module::InitStatus init();
 
 /**
- * No-op service call.
+ * Poll the SD card CD (Card Detect) pin and drive the hot-swap state machine.
  *
- * All logging I/O is demand-driven by explicit log() / logTelemetry() calls.
- * Retained so the Module interface contract is satisfied and logger can be
- * registered in the standard module list.
+ * Must be called regularly (e.g. from the main service loop).
+ *
+ * Behaviour:
+ *   - CD pin HIGH (card present)  + not ready  →  attempt SD.begin() with a
+ *     REINIT_COOLDOWN_MS back-off between tries.
+ *   - CD pin LOW  (card absent)   + ready       →  SD.end(), flags cleared,
+ *     Serial log paused until next insertion.
+ *   - Three consecutive write failures also trigger the eject path as a
+ *     belt-and-suspenders fallback if the CD pin is unreliable.
+ *
+ * @return MODULE_SERVICE_OK       if the card state changed this call.
+ *         MODULE_SERVICE_SKIPPED  otherwise.
  */
 module::ServiceStatus service();
 
@@ -97,7 +106,7 @@ void log(const char* msg);
 /**
  * printf-style variant of log().
  *
- * Formats into a stack-local buffer (kLogBufSize bytes) then delegates to
+ * Formats into a stack-local buffer (LOG_BUF_SIZE bytes) then delegates to
  * log().  Truncation is silent — increase kLogBufSize if messages are being
  * cut short.
  *

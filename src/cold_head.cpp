@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include <Adafruit_MAX31865.h>
 #include <RunningAverage.h>
+#include <optional>
 
 #include "pin_config.h"
 #include "config.h"
@@ -65,15 +66,10 @@ static constexpr char TAG[] = "cold_head";
 static float targetTempK_ = SETPOINT_K;
 
 // Tracks how closely the measured cold-stage temperature follows targetTempK_.
-// Updated at the end of every read() call (both real and mock paths).
-static TrackingMonitor<float> tempTracker_(TrackingMonitor<float>::Config{
-    /* hysteresis     */ COLD_HEAD_TRACK_HYSTERESIS_K,
-    /* fullScale      */ COLD_HEAD_TRACK_FULL_SCALE_K,
-    /* warningDelayMs */ COLD_HEAD_TRACK_WARNING_MS,
-    /* faultDelayMs   */ COLD_HEAD_TRACK_FAULT_MS,
-    /* tag            */ TAG,
-    /* label          */ "temperature",
-});
+// Only active while the FSM is in the Operating state; nullopt otherwise.
+// Constructed by startTemperatureTracking() (onEnterOperating) and destroyed
+// by stopTemperatureTracking() (onExitOperating).
+static std::optional<TrackingMonitor<float>> tempTracker_;
 
 // Running average over computed cooling-rate values to smooth out sensor noise.
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
@@ -204,9 +200,10 @@ void read(uint32_t nowMs) {
     //              rtd, resistance, tempC, tempF, tempK);
     } // else (real hardware path)
 
-    // Update the tracking monitor with the latest reading, regardless of
-    // whether values came from real hardware or the mock layer.
-    tempTracker_.update(targetTempK_, lastTempK, nowMs);
+    // Update the tracking monitor if it is active (Operating state only).
+    if (tempTracker_) {
+        tempTracker_->update(targetTempK_, lastTempK, nowMs);
+    }
 }
 
 void setLastReadings(uint32_t nowMs, float tempK,
@@ -345,18 +342,33 @@ float getLastRmsCurrent() {
 void setTargetTempK(float targetK) {
     // Reset the timer when the target changes significantly, so the monitor
     // does not inherit stale elapsed time from the previous setpoint.
-    if (fabsf(targetK - targetTempK_) > COLD_HEAD_TRACK_HYSTERESIS_K) {
-        tempTracker_.reset();
+    if (tempTracker_ && fabsf(targetK - targetTempK_) > COLD_HEAD_TRACK_HYSTERESIS_K) {
+        tempTracker_->reset();
     }
     targetTempK_ = targetK;
 }
 
+void startTemperatureTracking() {
+    tempTracker_.emplace(TrackingMonitor<float>::Config{
+        /* hysteresis     */ COLD_HEAD_TRACK_HYSTERESIS_K,
+        /* fullScale      */ COLD_HEAD_TRACK_FULL_SCALE_K,
+        /* warningDelayMs */ COLD_HEAD_TRACK_WARNING_MS,
+        /* faultDelayMs   */ COLD_HEAD_TRACK_FAULT_MS,
+        /* tag            */ TAG,
+        /* label          */ "temperature",
+    });
+}
+
+void stopTemperatureTracking() {
+    tempTracker_.reset();
+}
+
 float getTemperatureScore() {
-    return tempTracker_.getScore();
+    return tempTracker_ ? tempTracker_->getScore() : 1.0f;
 }
 
 TrackingMonitor<float>::State getTemperatureTrackingState() {
-    return tempTracker_.getState();
+    return tempTracker_ ? tempTracker_->getState() : TrackingMonitor<float>::State::IN_RANGE;
 }
 
 } // namespace cold_head

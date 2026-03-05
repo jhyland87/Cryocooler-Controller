@@ -21,6 +21,21 @@
  * SD_CS_PIN (pin_config.h) selects the card; all other CS lines are kept
  * HIGH by their respective drivers during SD transactions.
  *
+ * ── Card Detect ─────────────────────────────────────────────────────────────
+ *
+ * SD_CD_PIN (pin_config.h) must be connected to the socket's CD switch, which
+ * shorts to GND when a card is fully seated.  The internal pull-up keeps the
+ * pin HIGH when the slot is empty (card absent = HIGH, card present = LOW).
+ *
+ * service() polls the CD pin on every call and drives a simple state machine:
+ *
+ *   ABSENT  →  PRESENT  →  SD.begin() attempted (with cooldown)  →  READY
+ *   READY   →  ABSENT   →  SD.end(), flags cleared                →  ABSENT
+ *
+ * Write failures (SD.open() returning invalid File) are also counted as a
+ * belt-and-suspenders ejection signal — three consecutive failures trigger the
+ * same SD.end() + flag-clear path even if the CD pin has not transitioned.
+ *
  * For more info see:
  * https://github.com/espressif/arduino-esp32/tree/master/libraries/SD
  */
@@ -34,6 +49,9 @@
 #include "logger.h"
 #include "pin_config.h"
 #include "hardware.h"
+#include "config.h"
+
+
 
 namespace logger {
 
@@ -43,35 +61,104 @@ static constexpr char TAG[] = "logger";
 // Configuration
 // ---------------------------------------------------------------------------
 
-/** Maximum formatted message length, including the NUL terminator. */
-static constexpr uint16_t kLogBufSize = 256;
+/** Maximum formatted message length including NUL terminator. */
+static constexpr uint16_t LOG_BUF_SIZE = 256;
+
+/**
+ * How many consecutive write failures before the card is declared ejected.
+ * Provides a software fallback if the CD pin wiring is unreliable.
+ */
+static constexpr uint8_t MAX_WRITE_FAILURES = 3;
+
+/** Minimum time (ms) between successive SD.begin() reinit attempts. */
+static constexpr uint32_t REINIT_COOLDOWN_MS = 2000;
+
+/**
+ * CD pin must hold a new state for this many milliseconds before the logger
+ * acts on it, to filter mechanical switch bounce.
+ */
+static constexpr uint32_t DEBOUNCE_MS = 100;
 
 // ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
 
-static bool sdReady_       = false; ///< True once SD.begin() has succeeded.
-static bool headerWritten_ = false; ///< True once the CSV header has been written.
+static bool     sdReady       = false; ///< True once SD.begin() has succeeded.
+static bool     headerWritten = false; ///< True once the CSV header has been written.
+static uint8_t  writeFailures = 0;    ///< Consecutive file-open failures.
+
+/// Last stable CD pin reading (true = card present / pin LOW).
+static bool     lastCdPresent = false;
+/// millis() when the CD pin last changed state (debounce anchor).
+static uint32_t cdChangeMs    = 0;
+/// millis() of the most recent SD.begin() attempt (rate-limits reinit).
+static uint32_t lastReinitMs  = 0;
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Append @p data to @p path, opening and closing the file each call.
- *
- * Open-write-close on every append is slower than keeping a file handle open,
- * but it ensures the FAT directory entry is updated after every write so that
- * a power loss never corrupts the file beyond the most recent entry.
- *
- * @return true on success, false if the file could not be opened.
+ * Populate @p buf with the current local time in "[YYYY-MM-DD HH:MM:SS] "
+ * format.  @p buf must be at least 22 bytes.
  */
-static bool appendToFile(const char* path, const char* data) {
-    File file = SD.open(path, FILE_APPEND);
-    if (!file) return false;
-    file.print(data);
-    file.close();
-    return true;
+static void fillTimestamp(char* buf, size_t bufLen) {
+    const time_t now = time(nullptr);
+    strftime(buf, bufLen, "[%Y-%m-%d %H:%M:%S] ", localtime(&now));
+}
+
+/**
+ * Declare the SD card ejected: release the bus, clear all flags.
+ * Safe to call when already not ready.
+ */
+static void handleEject() {
+    if (sdReady) {
+        Serial.printf("[%s] SD card ejected — logging paused\n", TAG);
+    }
+    SD.end();
+    sdReady       = false;
+    headerWritten = false;
+    writeFailures = 0;
+}
+
+/**
+ * Record one write failure.  After MAX_WRITE_FAILURES consecutive failures the
+ * card is treated as ejected (belt-and-suspenders in case the CD pin is noisy
+ * or the card is removed faster than the debounce window).
+ */
+static void handleWriteFailure() {
+    if (++writeFailures >= MAX_WRITE_FAILURES) {
+        Serial.printf("[%s] %u consecutive write failures — assuming card ejected\n",
+                      TAG, static_cast<unsigned>(MAX_WRITE_FAILURES));
+        handleEject();
+    }
+}
+
+/**
+ * Attempt to (re-)initialise the SD card.
+ *
+ * @return true if the card is now mounted and accessible.
+ */
+static bool tryInit() {
+    if (SD.begin(SD_CS_PIN, hardware::spi()) && SD.cardType() != CARD_NONE) {
+        sdReady       = true;
+        headerWritten = false;
+        writeFailures = 0;
+
+        const uint8_t  ct   = SD.cardType();
+        const char*    name = (ct == CARD_MMC)  ? "MMC"  :
+                              (ct == CARD_SD)   ? "SDSC" :
+                              (ct == CARD_SDHC) ? "SDHC" : "UNKNOWN";
+        Serial.printf("[%s] SD card ready: type=%s  size=%.1f MB  free=%.1f MB\n",
+                      TAG,
+                      name,
+                      static_cast<double>(SD.cardSize())                      / (1024.0 * 1024.0),
+                      static_cast<double>(SD.totalBytes() - SD.usedBytes())   / (1024.0 * 1024.0));
+        return true;
+    }
+
+    SD.end();   // Clean up a failed SPI negotiation before the next attempt.
+    return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -79,42 +166,86 @@ static bool appendToFile(const char* path, const char* data) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // SD.begin() uses the SPI singleton already started by hardware::Module::init().
-    if (!SD.begin(SD_CS_PIN, hardware::spi())) {
-        Serial.printf("[%s] SD.begin() failed — check wiring and CS pin (%d)\n",
-                      TAG, SD_CS_PIN);
-        return module::MODULE_INIT_HARDWARE_ERROR;
+    if (!ENABLE_LOGGER) {
+        Serial.printf("[%s] Logger disabled in config.h\n", TAG);
+        return module::MODULE_INIT_SUCCESS;
     }
 
-    const uint8_t cardType = SD.cardType();
-    if (cardType == CARD_NONE) {
-        Serial.printf("[%s] No SD card detected on CS pin %d\n", TAG, SD_CS_PIN);
-        return module::MODULE_INIT_HARDWARE_ERROR;
+    // Configure the Card Detect pin with the internal pull-up so it reads HIGH
+    // (absent) when nothing is connected, and LOW (present) when the socket's
+    // mechanical switch closes to GND.
+    pinMode(SD_CD_PIN, INPUT_PULLDOWN);
+
+    // Capture the initial CD state so service() has a baseline to diff against.
+    // If the CD wire is not yet connected the pull-up holds the pin HIGH, which
+    // would make the logger silently skip init.  To avoid that, attempt SD.begin()
+    // regardless of the CD reading at startup; service() will use the pin for
+    // hot-swap detection once the wire is in place.
+    lastCdPresent = (digitalRead(SD_CD_PIN) == HIGH);
+    cdChangeMs    = millis();
+
+    if (tryInit()) {
+        return module::MODULE_INIT_SUCCESS;
     }
 
-    sdReady_ = true;
+    if (!lastCdPresent) {
+        // CD reads HIGH — card absent or CD wire not yet connected.
+        Serial.printf("[%s] SD.begin() failed and CD pin %d reads HIGH "
+                      "(no card, or CD not wired yet)\n", TAG, SD_CD_PIN);
+        return module::MODULE_INIT_SUCCESS;  // non-fatal; service() will retry on insertion
+    }
 
-    const char* typeName =
-        (cardType == CARD_MMC)  ? "MMC"     :
-        (cardType == CARD_SD)   ? "SDSC"    :
-        (cardType == CARD_SDHC) ? "SDHC"    : "UNKNOWN";
-
-    const uint64_t cardBytes = SD.cardSize();
-    Serial.printf("[%s] SD card ready: type=%s  size=%.1f MB  free=%.1f MB\n",
-                  TAG,
-                  typeName,
-                  static_cast<double>(cardBytes)         / (1024.0 * 1024.0),
-                  static_cast<double>(SD.totalBytes() - SD.usedBytes()) / (1024.0 * 1024.0));
-
-    return module::MODULE_INIT_SUCCESS;
+    Serial.printf("[%s] SD.begin() failed — check wiring and CS pin (%d)\n",
+                  TAG, SD_CS_PIN);
+    return module::MODULE_INIT_HARDWARE_ERROR;
 }
 
 // ---------------------------------------------------------------------------
-// service
+// service — CD pin state machine
 // ---------------------------------------------------------------------------
 
 module::ServiceStatus service() {
-    // All I/O is demand-driven; nothing to do here.
+    if (!ENABLE_LOGGER) {
+        return module::MODULE_SERVICE_NOT_STARTED;
+    }
+
+    const bool     cdNow = (digitalRead(SD_CD_PIN) == HIGH); // HIGH = card present
+    const uint32_t now   = millis();
+
+    // ── Debounce ──────────────────────────────────────────────────────────
+    if (cdNow != lastCdPresent) {
+        // Pin changed — restart the debounce window and do nothing else.
+        lastCdPresent = cdNow;
+        cdChangeMs    = now;
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
+    // The pin has been stable since cdChangeMs.  Only act once the debounce
+    // window has elapsed.
+    if (now - cdChangeMs < DEBOUNCE_MS) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
+    // ── Card absent ───────────────────────────────────────────────────────
+    if (!cdNow && sdReady) {
+        handleEject();
+        return module::MODULE_SERVICE_OK;
+    }
+
+    // ── Card present but not yet ready ────────────────────────────────────
+    if (cdNow && !sdReady) {
+        if (now - lastReinitMs < REINIT_COOLDOWN_MS) {
+            return module::MODULE_SERVICE_SKIPPED;
+        }
+        lastReinitMs = now;
+
+        if (tryInit()) {
+            Serial.printf("[%s] SD card inserted — logging resumed\n", TAG);
+            return module::MODULE_SERVICE_OK;
+        }
+        // tryInit already called SD.end(); we'll retry next cooldown period.
+    }
+
     return module::MODULE_SERVICE_SKIPPED;
 }
 
@@ -123,29 +254,35 @@ module::ServiceStatus service() {
 // ---------------------------------------------------------------------------
 
 void log(const char* msg) {
+    if (!ENABLE_LOGGER) {
+        return;
+    }
+
     // Always write to Serial regardless of SD state.
     Serial.print(msg);
 
-    if (!sdReady_) return;
+    if (!sdReady) return;
 
-    // Build a timestamped prefix for the file entry.
-    const time_t now = time(nullptr);
-    char tsBuf[22];
-    strftime(tsBuf, sizeof(tsBuf), "[%Y-%m-%d %H:%M:%S] ", localtime(&now));
+    char timestamp[22];
+    fillTimestamp(timestamp, sizeof(timestamp));
 
-    // Open, write (prefix + message), close — safe against power loss.
-    File file = SD.open(kSerialLogPath, FILE_APPEND);
+    File file = SD.open(SERIAL_LOG_PATH, FILE_APPEND);
     if (!file) {
-        Serial.printf("[%s] Failed to open %s for append\n", TAG, kSerialLogPath);
+        handleWriteFailure();
         return;
     }
-    file.print(tsBuf);
+    file.print(timestamp);
     file.print(msg);
     file.close();
+    writeFailures = 0; // successful write resets the failure counter
 }
 
 void logf(const char* fmt, ...) {
-    char buf[kLogBufSize];
+    if (!ENABLE_LOGGER) {
+        return;
+    }
+
+    char buf[LOG_BUF_SIZE];
     va_list args;
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
@@ -158,55 +295,60 @@ void logf(const char* fmt, ...) {
 // ---------------------------------------------------------------------------
 
 void logTelemetry(const FrameBuilder& frame) {
-    if (!sdReady_) return;
+    if (!ENABLE_LOGGER) {
+        return;
+    }
+
+    if (!sdReady) return;
 
     const uint8_t n = frame.fieldCount();
     if (n == 0) return;
 
     // Capture the local timestamp once for both the header check and data row.
     const time_t now = time(nullptr);
-    char localTs[20];
-    strftime(localTs, sizeof(localTs), "%Y-%m-%d %H:%M:%S", localtime(&now));
+    char localTimestamp[20];
+    strftime(localTimestamp, sizeof(localTimestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
 
-    // Write the CSV header row the first time, or if the file was deleted.
-    if (!headerWritten_ || !SD.exists(kTelemetryPath)) {
-        File file = SD.open(kTelemetryPath, FILE_WRITE);
+    // Write the CSV header row the first time, or if the file was deleted /
+    // a new card was inserted (headerWritten is cleared by handleEject()).
+    if (!headerWritten || !SD.exists(TELEMETRY_PATH)) {
+        File file = SD.open(TELEMETRY_PATH, FILE_WRITE);
         if (!file) {
-            Serial.printf("[%s] Failed to create %s\n", TAG, kTelemetryPath);
+            handleWriteFailure();
             return;
         }
-        file.print("log_timestamp");  // first column header
+        file.print("log_timestamp");
         for (uint8_t i = 0; i < n; ++i) {
             file.print(',');
             file.print(frame.getField(i).name);
         }
         file.println();
         file.close();
-        headerWritten_ = true;
+        headerWritten = true;
+        writeFailures = 0;
     }
 
     // Append one CSV data row.
-    File file = SD.open(kTelemetryPath, FILE_APPEND);
+    File file = SD.open(TELEMETRY_PATH, FILE_APPEND);
     if (!file) {
-        Serial.printf("[%s] Failed to open %s for append\n", TAG, kTelemetryPath);
+        handleWriteFailure();
         return;
     }
 
-    file.print(localTs);  // first column value
+    file.print(localTimestamp);
     for (uint8_t i = 0; i < n; ++i) {
         file.print(',');
 
         const char* val = frame.getField(i).str;
 
         // Wrap in double-quotes if the value contains a comma or double-quote
-        // so the output is always valid RFC 4180 CSV.
+        // to produce valid RFC 4180 CSV.
         const bool needsQuote = (strchr(val, ',') != nullptr ||
                                  strchr(val, '"') != nullptr);
         if (needsQuote) {
             file.print('"');
-            // Escape any embedded double-quotes per RFC 4180 ("" → literal ").
             for (const char* p = val; *p != '\0'; ++p) {
-                if (*p == '"') file.print('"'); // double it
+                if (*p == '"') file.print('"'); // RFC 4180: double embedded quotes
                 file.print(*p);
             }
             file.print('"');
@@ -217,6 +359,7 @@ void logTelemetry(const FrameBuilder& frame) {
 
     file.println();
     file.close();
+    writeFailures = 0;
 }
 
 } // namespace logger

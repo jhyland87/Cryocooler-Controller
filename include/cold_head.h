@@ -121,6 +121,18 @@ float getTemperatureToPercent();
 void setTargetTempK(float targetK);
 
 /**
+ * Construct the temperature tracking monitor and begin tracking.
+ * Must be called when the FSM enters the Operating state.
+ */
+void startTemperatureTracking();
+
+/**
+ * Destroy the temperature tracking monitor and stop tracking.
+ * Must be called when the FSM leaves the Operating state.
+ */
+void stopTemperatureTracking();
+
+/**
  * Tracking score for the cold-stage temperature.
  * 1.0 = measured temperature exactly matches the target.
  * 0.0 = error >= COLD_HEAD_TRACK_FULL_SCALE_K.

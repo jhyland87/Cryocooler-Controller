@@ -67,6 +67,7 @@ static volatile uint8_t fanSpeed_   = 0;      // only meaningful in manual-overr
 static volatile bool    forceFanSpeed_ = false;
 
 uint32_t lastCheckCycleMs = millis();
+uint32_t lastFanLogCycleMs = millis();
 
 // ---------------------------------------------------------------------------
 // Setpoint tracking
@@ -182,6 +183,7 @@ module::ServiceStatus service() {
   if (nowMs - lastCheckCycleMs < COOLING_CHECK_CYCLE_MS) {
     return module::MODULE_SERVICE_SKIPPED;
   }
+
   lastCheckCycleMs = nowMs;
 
   // Log the IC state each tick for monitoring.  The IC manages the fan; we
@@ -190,12 +192,20 @@ module::ServiceStatus service() {
   const int8_t  intTemp = fanController_.getInternalTemperature();
   const bool    lutOn   = fanController_.LUTEnabled();
 
-  ESP_LOGD(TAG, "service: enabled=%d LUT=%s dutyCycle=%u%% intTemp=%d°C externalTemp=%f°C rpm=%u",
-           static_cast<int>(enabled_),
-           lutOn ? "on" : "off(manual)",
-           dc, intTemp,
-           fanController_.getExternalTemperature(),
-           fanController_.getFanRPM());
+
+  // // Only output the fan details every 20 seconds or so.
+  // if (enabled_ && nowMs - lastFanLogCycleMs < (COOLING_CHECK_CYCLE_MS * 20)) {
+  //   ESP_LOGD(TAG, "service: enabled=%d LUT=%s dutyCycle=%u%% intTemp=%d°C externalTemp=%f°C rpm=%u",
+  //     static_cast<int>(enabled_),
+  //     lutOn ? "on" : "off(manual)",
+  //     dc, intTemp,
+  //     fanController_.getExternalTemperature(),
+  //     fanController_.getFanRPM());
+  //   lastFanLogCycleMs = nowMs;
+  // }
+
+
+
 
   // Fan speed tracker: only meaningful in forced/manual mode.
   // In LUT mode the IC owns the duty cycle, so there is no external setpoint

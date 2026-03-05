@@ -153,18 +153,18 @@ static void initControlModules() {
     }
     dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
-    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
-    if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cold head initialization failed (status %d).\n",
-                      static_cast<int>(cold_headStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Amplifier initialization failed (status %d).\n",
                       static_cast<int>(amplifierStatus));
+        initFailureDetected = true;
+    }
+    telemetry::emitSafe();
+
+    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
+    if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Cold head initialization failed (status %d).\n",
+                      static_cast<int>(cold_headStatus));
         initFailureDetected = true;
     }
     telemetry::emitSafe();
@@ -339,13 +339,9 @@ void loop() {
     indicator::setFaultMode(out.faultIndMode);
     indicator::setReadyMode(out.readyIndMode);
 
-    // Ramp DAC toward the state-machine target (rate-limited in dac.cpp).
-    // Use fast shutdown ramp during Shutdown state, normal ramp otherwise.
-    if (out.state == state_machine::State::Shutdown) {
-        amplifier::rampTowardShutdown(out.dacTarget);
-    } else {
-        amplifier::rampToVoltage(out.dacTarget);
-    }
+    // DAC ramping is driven by state_machine::update() directly — either on
+    // state entry (via on_enter callbacks) or per-tick for states with a
+    // dynamic target (CoarseCooldown, FineCooldown, Shutdown).
 
     // ---- 4. HTTP API ---------------------------------------------------
     //http_api::service();
