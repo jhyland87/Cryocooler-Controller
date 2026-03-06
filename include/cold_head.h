@@ -66,6 +66,16 @@ float getLastTempCBelowAmbient();
 void checkFaults();
 
 /**
+ * Return true if the most recent read() detected a sensor fault:
+ * either the MAX31865 hardware fault register was non-zero, or the
+ * computed temperature was outside [MIN_PLAUSIBLE_TEMP_K, MAX_PLAUSIBLE_TEMP_K].
+ *
+ * The flag self-clears as soon as a clean, in-range reading is obtained,
+ * but the state machine latches into Fault state until clearFault() is called.
+ */
+bool hasSensorFault();
+
+/**
  * Return the most recently measured temperature in Kelvin.
  * Returns 0.0f before the first successful read.
  */

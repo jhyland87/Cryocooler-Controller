@@ -94,15 +94,14 @@ module::InitStatus init() {
         if (ina260.begin(INA260_I2CADDR_DEFAULT, &i2c)) {
             Serial.println(F("[sysinfo] INA260 chip found and initialized"));
             analogReadResolution(ADC_RESOLUTION);
-            return module::MODULE_INIT_HARDWARE_ERROR;
+            return module::MODULE_INIT_SUCCESS;
         }
         delay(100);
     }
 
     Serial.println(F("[sysinfo] INA260 chip not found after 2 attempts"));
     analogReadResolution(ADC_RESOLUTION);
-    return module::MODULE_INIT_SUCCESS;
-    //return module::MODULE_INIT_HARDWARE_ERROR;
+    return module::MODULE_INIT_HARDWARE_ERROR;
 }
 
 

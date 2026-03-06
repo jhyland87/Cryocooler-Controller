@@ -14,6 +14,7 @@
 
 #include <Arduino.h>
 #include <SmoothADC.h>
+#include <esp_system.h>   // esp_register_shutdown_handler()
 
 #include "config.h"
 #include "hardware.h"
@@ -225,13 +226,18 @@ void setup() {
     state_machine::setOnInitializeCallback(initControlModules);
     state_machine::reinit(millis());
 
+    // Zero the DAC before any software-triggered reset (esp_restart(), IDF
+    // watchdog recovery, etc.).  Hard resets (reset button, power cut) cannot
+    // be caught here; initDac() handles those by force-writing 0 on every boot.
+    esp_register_shutdown_handler([]() { amplifier::hardStop(); });
+
     if (!setupComplete) {
         logger::logf("[setup] Setup failed. Halting startup.\n");
         Serial.println(F("Setup failed. Halting startup."));
         return;
     }
     logger::logf("[setup] Setup complete. System is initializing. (status %d)\n", static_cast<int>(sysinfo::Module::getInitStatus()));
-    Serial.printf("\nSetup complete. System is initializing. (status %d)", static_cast<int>(sysinfo::Module::getInitStatus()));
+    Serial.printf("\nSetup complete. System is initializing. (status %d)\n", static_cast<int>(sysinfo::Module::getInitStatus()));
 
     Serial.println(F("Type 'help' for available commands."));
 }

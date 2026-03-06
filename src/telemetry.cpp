@@ -64,6 +64,10 @@ static const char* const kPassiveFields[] = {
     "system.heap_usage_percent",
     "system.total_psram_bytes",
     "system.free_psram_bytes",
+    // Fault-rate counters age out slowly; suppress delta noise between faults.
+    "faults.count_10m",
+    "faults.count_30m",
+    "faults.count_60m",
 };
 static constexpr uint8_t kPassiveFieldCount =
     static_cast<uint8_t>(sizeof(kPassiveFields) / sizeof(kPassiveFields[0]));
@@ -163,13 +167,17 @@ static void buildStartupFrame(FrameBuilder& frame)
                  static_cast<unsigned long>((stateSec % 3600u) / 60u),
                  static_cast<unsigned long>(stateSec % 60u));
 
+        const uint32_t nowMs = millis();
         frame
             .field("state.id",              "%d",  static_cast<int8_t>(st))
             .field("state.name",            "%s",  state_machine::stateName(st))
             .field("state.status_text",      "%s",  state_machine::getStatusText())
             .field("status.on_duration_ms", "%lu", static_cast<unsigned long>(durationMs))
             .field("status.on_duration",    "%s",  hmsBuf)
-            .field("status.time_in_state",  "%s",  tisHmsBuf);
+            .field("status.time_in_state",  "%s",  tisHmsBuf)
+            .field("faults.count_10m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(600000u,  nowMs)))
+            .field("faults.count_30m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(1800000u, nowMs)))
+            .field("faults.count_60m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(3600000u, nowMs)));
     } else {
         frame
             .field("state.id",              "%s", "")
@@ -177,7 +185,10 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("state.status_text",      "%s", "")
             .field("status.on_duration_ms", "%s", "")
             .field("status.on_duration",    "%s", "")
-            .field("status.time_in_state",  "%s", "");
+            .field("status.time_in_state",  "%s", "")
+            .field("faults.count_10m",      "%s", "")
+            .field("faults.count_30m",      "%s", "")
+            .field("faults.count_60m",      "%s", "");
     }
     // backoff_count comes from the state-machine Output struct produced by
     // update(); no standalone getter exists, so always emit "" here.
@@ -339,15 +350,19 @@ static void buildStartupFrame(FrameBuilder& frame)
     if (coolingReady) {
         frame
             .field("cooling.status",        "%d",   cooling::isEnabled())
+            .field("cooling.pump_on",       "%d",   cooling::isCoolingPumpOn())
             .field("cooling.temp_c",        "%.2f", cooling::getCoolantTemperature())
-            .field("cooling.flow_rate_lpm", "%.2f", cooling::getCoolantFlowRate())
-            .field("cooling.fan_speed",     "%u",   cooling::getFanSpeed());
+            .field("cooling.flow_rate_lpm", "%.3f", cooling::getCoolantFlowRate())
+            .field("cooling.fan_speed",     "%u",   cooling::getFanSpeed())
+            .field("cooling.fan_rpm",       "%u",   cooling::getFanRPM());
     } else {
         frame
             .field("cooling.status",        "%s", "")
+            .field("cooling.pump_on",       "%s", "")
             .field("cooling.temp_c",        "%s", "")
             .field("cooling.flow_rate_lpm", "%s", "")
-            .field("cooling.fan_speed",     "%s", "");
+            .field("cooling.fan_speed",     "%s", "")
+            .field("cooling.fan_rpm",       "%s", "");
     }
 
     // ── Module init / service status (always real) ─────────────────────────
@@ -491,6 +506,9 @@ void emit(const state_machine::Output& out)
         .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
+        .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(600000u,  static_cast<uint32_t>(millis()))))
+        .field("faults.count_30m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(1800000u, static_cast<uint32_t>(millis()))))
+        .field("faults.count_60m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(3600000u, static_cast<uint32_t>(millis()))))
         .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
         .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
@@ -509,9 +527,15 @@ void emit(const state_machine::Output& out)
         .field("imu.y",                             "%.3f", imu::getAccelY())
         .field("imu.z",                             "%.3f", imu::getAccelZ())
         .field("cooling.status",                    "%d",   cooling::isEnabled())
+        .field("cooling.pump_on",                   "%d",   cooling::isCoolingPumpOn())
         .field("cooling.temp_c",                    "%.2f", cooling::getCoolantTemperature())
-        .field("cooling.flow_rate_lpm",             "%.2f", cooling::getCoolantFlowRate())
+        .field("cooling.flow_rate_lpm",             "%.3f", cooling::getCoolantFlowRate())
         .field("cooling.fan_speed",                 "%u",   cooling::getFanSpeed())
+        .field("cooling.fan_rpm",                   "%u",   cooling::getFanRPM())
+        .field("score.cooling.fan_speed",           "%.2f", cooling::getFanSpeedScore())
+        .field("score.cooling.coolant_temp",        "%.2f", cooling::getCoolantTempScore())
+        .field("score.cooling.coolant_flow",        "%.2f", cooling::getCoolantFlowScore())
+        .field("score.cooling.worst",               "%.2f", cooling::getWorstTrackingScore())
         // ── Module init / service status ─────────────────────────────────────
         .field("mod.hardware.init",                 "%s",   module::initStatusName(hardware::Module::getInitStatus()))
         .field("mod.hardware.service",              "%s",   module::serviceStatusName(hardware::Module::getServiceStatus()))

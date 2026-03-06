@@ -266,7 +266,7 @@ static const ss::DatasetCfg amplifierDatasets[] = {
         // .widgetMin      = 0,
         // .widgetMax      = 10,
         .plotMin        = 0,
-        .plotMax        = 10,
+        .plotMax        = 130,
         .graph          = true,
         .log            = true,
         .overviewDisplay = true,
@@ -279,7 +279,7 @@ static const ss::DatasetCfg amplifierDatasets[] = {
         // .widgetMin      = 0,
         // .widgetMax      = 10,
         .plotMin        = 0,
-        .plotMax        = 10,
+        .plotMax        = 130,
         .graph          = true,
         .log            = true,
     },
@@ -419,18 +419,18 @@ static const ss::DatasetCfg statusDatasets[] = {
         .units          = "",
         .telemetryKey   = "status.time_in_state"
     },
-    {
-        .title          = "On Duration",
-        .units          = "ms",
-        .telemetryKey   = "status.on_duration_ms"
-    },
+    // {
+    //     .title          = "On Duration",
+    //     .units          = "ms",
+    //     .telemetryKey   = "status.on_duration_ms"
+    // },
     {
         .title          = "On Duration",
         .units          = "",
         .telemetryKey   = "status.on_duration"
     },
     {
-        .title          = "FAULT",
+        .title          = "FAULT LED",
         .units          = "",
         .telemetryKey   = "indicator.fault",
         .led            = true,
@@ -438,11 +438,32 @@ static const ss::DatasetCfg statusDatasets[] = {
         .overviewDisplay = true
     },
     {
-        .title          = "READY",
+        .title          = "READY LED",
         .units          = "",
         .telemetryKey   = "indicator.ready",
         .led            = true,
         .ledHigh        = 1,
+        .overviewDisplay = true
+    },
+    {
+        .title = "Fault count (10min)",
+        .units = "",
+        .telemetryKey = "faults.count_10m",
+        .graph = true,
+        .overviewDisplay = true
+    },
+    {
+        .title = "Fault count (30min)",
+        .units = "",
+        .telemetryKey = "faults.count_30m",
+        .graph = true,
+        .overviewDisplay = true
+    },
+    {
+        .title = "Fault count (60min)",
+        .units = "",
+        .telemetryKey = "faults.count_60m",
+        .graph = true,
         .overviewDisplay = true
     },
     {
@@ -456,8 +477,8 @@ static const ss::DatasetCfg statusDatasets[] = {
         .title          = "Cold Head Temp",
         .units          = "K",
         .telemetryKey   = "cold_head.temp_k",
-        .widgetMin      = 0,
-        .widgetMax      = 100,
+        // .widgetMin      = 0,
+        // .widgetMax      = 100,
         //.plotMin        = 75,
         //.plotMax        = 295,
         .graph          = true,
@@ -493,8 +514,10 @@ static const ss::DatasetCfg statusDatasets[] = {
         .title          = "Cooling Pump",
         .units          = "",
         .telemetryKey   = "cooling.pump_on",
+        .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,
-        .widgetMax      = 100,
+        .widgetMax      = 1,
+        .alarmEnabled   = false,
         .led            = true,
         .ledHigh        = 1,
         .overviewDisplay = true
@@ -568,6 +591,123 @@ static const ss::DatasetCfg accelDatasets[] = {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
+// Group 6 — Cooling
+// ═════════════════════════════════════════════════════════════════════════════
+
+static const ss::DatasetCfg coolingDatasets[] = {
+    {
+        .title          = "Pump On",
+        .units          = "",
+        .telemetryKey   = "cooling.pump_on",
+        .widget         = ss::WidgetType::Led,
+        .widgetMin      = 0,
+        .widgetMax      = 1,
+        .led            = true,
+        .ledHigh        = 1,
+        .overviewDisplay = true,
+    },
+    {
+        .title          = "Coolant Temp",
+        .units          = "\xC2\xB0" "C",
+        .telemetryKey   = "cooling.temp_c",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 60,
+        .alarmLow       = 0,
+        .alarmHigh      = 45,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+        .overviewDisplay = true,
+    },
+    {
+        .title          = "Flow Rate",
+        .units          = "L/min",
+        .telemetryKey   = "cooling.flow_rate_lpm",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 5,
+        .alarmLow       = 0,
+        .alarmHigh      = 5,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+        .overviewDisplay = true,
+    },
+    {
+        .title          = "Fan Speed",
+        .units          = "%",
+        .telemetryKey   = "cooling.fan_speed",
+        .widget         = ss::WidgetType::Bar,
+        .widgetMin      = 0,
+        .widgetMax      = 100,
+        .graph          = true,
+        .log            = true,
+        .overviewDisplay = true,
+    },
+    {
+        .title          = "Fan RPM",
+        .units          = "RPM",
+        .telemetryKey   = "cooling.fan_rpm",
+        .graph          = true,
+        .log            = true,
+    },
+    {
+        .title          = "Coolant Temp Score",
+        .units          = "%",
+        .telemetryKey   = "score.cooling.coolant_temp",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 100,
+        .alarmLow       = 0,
+        .alarmHigh      = 100,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+    },
+    {
+        .title          = "Coolant Flow Score",
+        .units          = "%",
+        .telemetryKey   = "score.cooling.coolant_flow",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 100,
+        .alarmLow       = 0,
+        .alarmHigh      = 100,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+    },
+    {
+        .title          = "Fan Speed Score",
+        .units          = "%",
+        .telemetryKey   = "score.cooling.fan_speed",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 100,
+        .alarmLow       = 0,
+        .alarmHigh      = 100,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+    },
+    {
+        .title          = "Worst Cooling Score",
+        .units          = "%",
+        .telemetryKey   = "score.cooling.worst",
+        .widget         = ss::WidgetType::Gauge,
+        .widgetMin      = 0,
+        .widgetMax      = 100,
+        .alarmLow       = 0,
+        .alarmHigh      = 100,
+        .alarmEnabled   = true,
+        .graph          = true,
+        .log            = true,
+        .overviewDisplay = true,
+    },
+};
+
+// ═════════════════════════════════════════════════════════════════════════════
 // Groups
 // ═════════════════════════════════════════════════════════════════════════════
 
@@ -601,6 +741,12 @@ static const ss::GroupCfg dataGroups[] = {
         .widget       = ss::GroupWidget::Datagrid,
         .datasets     = statusDatasets,
         .datasetCount = static_cast<uint8_t>(sizeof(statusDatasets) / sizeof(statusDatasets[0])),
+    },
+    {
+        .title        = "Cooling",
+        .widget       = ss::GroupWidget::None,
+        .datasets     = coolingDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(coolingDatasets) / sizeof(coolingDatasets[0])),
     },
     {
         .title        = "Module Status",

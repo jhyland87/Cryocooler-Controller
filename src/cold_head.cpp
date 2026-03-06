@@ -54,6 +54,11 @@ static bool  mockInjected    = false;
 static float mockCoolingRate = 0.0f;
 static bool  mockStalled     = false;
 
+// Set to true when the most recent read() detected a MAX31865 hardware fault
+// or a temperature reading outside [MIN_PLAUSIBLE_TEMP_K, MAX_PLAUSIBLE_TEMP_K].
+// Self-clears on the next clean read.  Exposed via hasSensorFault().
+static bool rtdFaultActive = false;
+
 static constexpr char TAG[] = "cold_head";
 
 // ---------------------------------------------------------------------------
@@ -165,6 +170,9 @@ void read(uint32_t nowMs) {
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
         setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
+        // Check plausibility even for mock readings so tests can exercise the fault path.
+        rtdFaultActive = (lastTempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K) ||
+                          lastTempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
     } else {
     mockInjected = false;   // real read supersedes any prior mock injection
     // Voltage/current are owned by the amplifier module; pull the latest reading.
@@ -177,6 +185,24 @@ void read(uint32_t nowMs) {
     const float    tempK        = conversions::celsiusToKelvin(tempC);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
     const float    ambientTempC = imu::getTemperature();
+
+    // Check MAX31865 fault register and temperature plausibility.
+    // rtdFaultActive self-clears as soon as a clean, in-range reading is obtained.
+    const uint8_t hwFault = max31865.readFault();
+    if (hwFault != 0) {
+        rtdFaultActive = true;
+        ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
+        max31865.clearFault();
+    } else if (tempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K) ||
+               tempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K)) {
+        rtdFaultActive = true;
+        ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
+                 tempK,
+                 static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
+                 static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
+    } else {
+        rtdFaultActive = false;
+    }
 
     lastTempC = tempC;
     lastTempK = tempK;
@@ -265,6 +291,10 @@ float getLastTempK() {
 
 float getLastTempC() {
     return lastTempC;
+}
+
+bool hasSensorFault() {
+    return rtdFaultActive;
 }
 
 // float getLastAmbientTempC() {

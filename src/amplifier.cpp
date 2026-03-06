@@ -175,7 +175,12 @@ module::InitStatus init() {
 module::InitStatus initDac() {
     pinMode(MCP4921_CS, OUTPUT);
     digitalWrite(MCP4921_CS, HIGH);
-    dacWriteSpi(0u);
+    // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts at
+    // 0 after every ESP32 boot, but the MCP4921 retains its last register value
+    // across soft-resets — so the 0==0 guard in dacWriteSpi() would suppress the
+    // SPI write and leave the DAC at whatever it was before the reset.
+    dacCurrent_ = UINT16_MAX;
+    setRmsVoltage(0u);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -271,20 +276,20 @@ void initFineCooldown() {
 // ---------------------------------------------------------------------------
 
 void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
-    if (dacCurrent_ == dacTarget) return;
-    ESP_LOGD(TAG, "Ramping to voltage %u with rate %u",
-                  static_cast<unsigned>(dacTarget),
-                  static_cast<unsigned>(rampRate));
-    dacRampInternal(dacTarget,
-                    static_cast<uint16_t>(rampRate));
+    // Dead-band: ignore ±1 count differences to avoid chasing temperature noise.
+    const int32_t diff = static_cast<int32_t>(dacTarget) - static_cast<int32_t>(dacCurrent_);
+    if (diff >= -1 && diff <= 1) return;
+    dacRampInternal(dacTarget, static_cast<uint16_t>(rampRate));
+}
+
+void hardStop() {
+    dacCurrent_ = UINT16_MAX;   // invalidate cache so dacWriteSpi() cannot short-circuit
+    setRmsVoltage(0u);
 }
 
 void rampTowardShutdown(uint16_t dacTarget) {
     if (dacCurrent_ == dacTarget) return;
-    ESP_LOGD(TAG, "Ramping toward shutdown to voltage %u",
-                  static_cast<unsigned>(dacTarget));
-    dacRampInternal(dacTarget,
-                    static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
+    dacRampInternal(dacTarget, static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
 }
 
 void setRmsVoltage(uint16_t dacTarget) {
