@@ -23,6 +23,9 @@ WEB_FILES = [
     ("index_html", "index.html"),
     ("style_css",  "style.css"),
     ("app_js",     "app.js"),
+    ("ota_html",   "ota.html"),
+    ("ota_css",    "ota.css"),
+    ("ota_js",     "ota.js"),
 ]
 
 # Raw-string delimiter — must not appear inside any of the source files.

@@ -116,7 +116,7 @@ td:last-child {
 
 )WEBFILE";
 
-// app.js  (3187 bytes)
+// app.js  (3202 bytes)
 static const char app_js[] PROGMEM = R"WEBFILE(
 
 const GROUP_ORDER = [
@@ -131,7 +131,8 @@ const GROUP_ORDER = [
   'cooling',
   'waveform',
   'system',
-  'accelerometer'
+  'accelerometer',
+  'firmware',
 ];
 
 
@@ -255,6 +256,250 @@ function setRefresh() {
 refresh();
 timer = setInterval(refresh, 1000);
 
+
+)WEBFILE";
+
+// ota.html  (1423 bytes)
+static const char ota_html[] PROGMEM = R"WEBFILE(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firmware Update — Cryocooler</title>
+  <link rel="stylesheet" href="/ota.css">
+</head>
+<body>
+  <h2>Firmware Update</h2>
+  <p class="sub">Upload a compiled <em>.bin</em> to flash the cryocooler controller over WiFi.</p>
+
+  <div class="notice">
+    <strong>&#9888; Safety notice:</strong> The system must be in
+    <strong>Idle</strong> or <strong>Off</strong> state before uploading.
+    A successful update reboots the MCU immediately — a running cryocooler
+    will stop without a controlled shutdown ramp.
+  </div>
+
+  <form id="ota-form">
+    <label>
+      Firmware binary (.bin)
+      <input type="file" id="file-input" name="firmware" accept=".bin" required>
+    </label>
+    <button type="submit" id="upload-btn">Upload &amp; Flash</button>
+    <div id="progress-wrap">
+      <progress id="progress-bar" value="0" max="100"></progress>
+    </div>
+    <div id="status"></div>
+  </form>
+  <div class="notice">
+    <strong>FYI:</strong> This can be done via the CLI with:
+    <p>
+      <code>pio run -e esp32s3 &&
+curl -vF "firmware=@.pio/build/esp32s3/firmware.bin" http://cryocooler.local/ota</code>
+    </p>
+    <p>Or, from the project root:</p>
+    <p>
+      <code>bash scripts/ota-update.sh</code>
+    </p>
+  </div>
+  <script src="/ota.js"></script>
+</body>
+</html>
+
+)WEBFILE";
+
+// ota.css  (2070 bytes)
+static const char ota_css[] PROGMEM = R"WEBFILE(
+body {
+  font-family: monospace;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 40px 20px;
+  max-width: 620px;
+  margin-right: 10%;
+  margin-left: 10%;
+}
+
+h2 {
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+p.sub {
+  color: #888;
+  margin-top: 0;
+  font-size: .85em;
+}
+
+.notice {
+  background: #16213e;
+  border-left: 3px solid #e74c3c;
+  border-radius: 0 4px 4px 0;
+  padding: 12px 16px;
+  font-size: .85em;
+  color: #aaa;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+.notice strong {
+  color: #e74c3c;
+}
+
+form {
+  background: #16213e;
+  border-radius: 6px;
+  padding: 24px;
+  margin-top: 8px;
+}
+
+label {
+  display: block;
+  font-size: .85em;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+input[type="file"] {
+  display: block;
+  width: 100%;
+  color: #e0e0e0;
+  margin: 6px 0 20px;
+  font-family: monospace;
+  font-size: .9em;
+}
+
+button {
+  background: #0f3460;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .95em;
+  font-family: monospace;
+  transition: background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: #1a5276;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#progress-wrap {
+  display: none;
+  margin-top: 16px;
+}
+
+progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+  background: #0d1b2a;
+}
+
+progress::-webkit-progress-bar   { background: #0d1b2a; border-radius: 4px; }
+progress::-webkit-progress-value { background: #00d4ff; border-radius: 4px; }
+progress::-moz-progress-bar      { background: #00d4ff; border-radius: 4px; }
+
+#status {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: .88em;
+}
+
+#status.ok   { background: #1e8449; color: #fff; }
+#status.err  { background: #922b21; color: #fff; }
+#status.prog { background: #1a5276; color: #fff; }
+
+code {
+  display: block;
+  padding: 5px;
+  font-family: monospace, sans-serif;
+  font-size: smaller;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  border: 1px solid #494949;
+  border-radius: 4px;
+  background-color: #27273a;
+}
+)WEBFILE";
+
+// ota.js  (2173 bytes)
+static const char ota_js[] PROGMEM = R"WEBFILE(
+const form      = document.getElementById('ota-form');
+const fileInput = document.getElementById('file-input');
+const btn       = document.getElementById('upload-btn');
+const statusEl  = document.getElementById('status');
+const progWrap  = document.getElementById('progress-wrap');
+const progBar   = document.getElementById('progress-bar');
+
+const setStatus = (cls, msg) => {
+  statusEl.className     = cls;
+  statusEl.textContent   = msg;
+  statusEl.style.display = 'block';
+};
+
+// Wrap XHR in a Promise so the upload can be awaited like fetch.
+// XHR is kept specifically for upload progress events, which the fetch API
+// does not expose.
+const uploadFirmware = (file) => new Promise((resolve, reject) => {
+  const xhr = new XMLHttpRequest();
+
+  xhr.upload.addEventListener('progress', ({ loaded, total, lengthComputable }) => {
+    if (lengthComputable) {
+      progBar.value = Math.round((loaded / total) * 100);
+    }
+  });
+
+  xhr.addEventListener('load', () => resolve({ status: xhr.status, text: xhr.responseText }));
+  xhr.addEventListener('error', () => reject(new Error('network')));
+
+  const fd = new FormData();
+  fd.append('firmware', file);
+
+  xhr.open('POST', '/ota');
+  xhr.send(fd);
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const file = fileInput.files[0];
+  if (!file) { alert('Select a .bin file first.'); return; }
+
+  btn.disabled           = true;
+  progWrap.style.display = 'block';
+  progBar.value          = 0;
+  setStatus('prog', `Uploading ${file.name} (${Math.round(file.size / 1024)} KB)\u2026`);
+
+  try {
+    const { status, text } = await uploadFirmware(file);
+
+    progBar.value = 100;
+
+    if (status === 200 && (text.startsWith('OK') || text.startsWith('Reboot'))) {
+      setStatus('ok', text);
+    } else {
+      setStatus('err', text || `Upload failed (HTTP ${status})`);
+      btn.disabled = false;
+    }
+  } catch {
+    // XHR fires 'error' when the connection drops — which is exactly what
+    // happens when a successful flash causes the board to reboot mid-response.
+    progBar.value = 100;
+    setStatus('ok', 'Upload complete. Board is rebooting \u2014 reconnect in ~10\u00a0s.');
+  }
+});
 
 )WEBFILE";
 

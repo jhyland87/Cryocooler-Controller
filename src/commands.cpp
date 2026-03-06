@@ -26,10 +26,13 @@
 #include "indicator.h"
 #include "cooling.h"
 #ifdef ARDUINO
+#include <WiFi.h>
+#include <esp_ota_ops.h>  // esp_app_desc_t lives here on IDF 5.1.x
 #include "dashboard.h"
 #include "mock_commands.h"
 #include "amplifier.h"
 #include "sensor_mock.h"
+#include "ota.h"
 #endif
 
 namespace commands {
@@ -42,6 +45,19 @@ static constexpr uint32_t commandTimeoutMs = 100;  ///< dispatch after this many
 static char     lineBuf[maxLineLen + 1];
 static uint8_t  lineLen    = 0;
 static uint32_t lastCharMs = 0;  ///< millis() of the most recently buffered printable byte
+
+#ifdef ARDUINO
+// ─── OTA confirmation state ───────────────────────────────────────────────────
+//
+// 'update image' sets this flag and prompts the user to type 'yes'.
+// processLine() intercepts the next non-empty input while the flag is set:
+//   • "yes" → print the OTA URL and arm the endpoint
+//   • anything else → cancel and reset
+//
+// The flag is per-session (not persisted across reboots).
+
+static bool s_awaitingUpdateConfirm = false;
+#endif
 
 // ─── Command handler type and dispatch table ──────────────────────────────────
 
@@ -490,6 +506,97 @@ static void handleSummary(const char* /*args*/, Print& out) {
 #endif
 }
 
+#ifdef ARDUINO
+
+// ─── OTA command handlers ─────────────────────────────────────────────────────
+
+/**
+ * Print OTA module status: running partition, next update target, firmware
+ * version, OTA endpoint URL, and the last update outcome.
+ */
+static void handleOtaStatus(const char* /*args*/, Print& out) {
+    out.println("[OK] OTA status:");
+
+    // ── Running partition ──────────────────────────────────────────────────
+    const esp_partition_t* running = esp_ota_get_running_partition();
+    const esp_partition_t* next    = esp_ota_get_next_update_partition(nullptr);
+    const esp_app_desc_t*  desc    = esp_ota_get_app_description();
+
+    char buf[96];
+    snprintf(buf, sizeof(buf), "  Running partition  : %s",
+             running ? running->label : "(unknown)");
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Next update target : %s",
+             next ? next->label : "(none — OTA partition missing!)");
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Firmware version   : %s", desc->version);
+    out.println(buf);
+
+    snprintf(buf, sizeof(buf), "  Build              : %s %s", desc->date, desc->time);
+    out.println(buf);
+
+    // ── Network ───────────────────────────────────────────────────────────
+    if (WiFi.status() == WL_CONNECTED) {
+        snprintf(buf, sizeof(buf), "  Upload endpoint    : http://%s/ota",
+                 WiFi.localIP().toString().c_str());
+        out.println(buf);
+    } else {
+        out.println("  Upload endpoint    : (WiFi not connected)");
+    }
+
+    // ── Last update outcome ────────────────────────────────────────────────
+    snprintf(buf, sizeof(buf), "  Last OTA result    : %s", ota::getStatusText());
+    out.println(buf);
+
+    if (ota::getStatus() == ota::Status::FAILED && ota::getLastError()[0] != '\0') {
+        snprintf(buf, sizeof(buf), "  Last error         : %s", ota::getLastError());
+        out.println(buf);
+    }
+
+    out.println("");
+}
+
+/**
+ * Arm the OTA confirmation gate.
+ *
+ * Checks safety conditions (system not running, WiFi up) and, if all clear,
+ * sets the s_awaitingUpdateConfirm flag and prompts the operator to type
+ * 'yes' to confirm.  The next processLine() call is intercepted:
+ *   • "yes"   → print the OTA URL and confirm the endpoint is ready
+ *   • anything else → cancel
+ */
+static void handleUpdateImage(const char* /*args*/, Print& out) {
+    // Reject if the cryocooler is running.
+    if (state_machine::isRunning()) {
+        char buf[96];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] Cannot update firmware while system is running (%s). "
+                 "Stop or off the system first.",
+                 state_machine::stateName(state_machine::getState()));
+        out.println(buf);
+        return;
+    }
+
+    // Warn if WiFi is down (user will not be able to reach /ota).
+    const bool wifiUp = (WiFi.status() == WL_CONNECTED);
+
+    out.println("[CONFIRM] Firmware update requested.");
+    out.println("  WARNING: Uploading new firmware will REBOOT the device.");
+    out.println("           The cryocooler will stop immediately on reboot.");
+    if (!wifiUp) {
+        out.println("  WARNING: WiFi is not connected — the /ota endpoint will");
+        out.println("           be unreachable until WiFi reconnects.");
+    }
+    out.println("  Type 'yes' to confirm, or anything else to cancel.");
+    out.println("");
+
+    s_awaitingUpdateConfirm = true;
+}
+
+#endif  // ARDUINO
+
 // ─── Command table ────────────────────────────────────────────────────────────
 // Multi-word commands ("telemetry off") must appear before any shorter prefix
 // command ("telemetry on") so the match loop finds the most specific one first.
@@ -529,7 +636,9 @@ static const Command commandMap[] = {
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
-
+    // OTA — "ota status" must precede any future "ota ..." entries.
+    {"ota status",          handleOtaStatus,       "Print OTA partition info, firmware version, and endpoint URL"},
+    {"update image",        handleUpdateImage,     "Flash new firmware via HTTP upload (prompts for confirmation)"},
 #endif
 };
 
@@ -553,6 +662,38 @@ void processLine(const char* line, Print& out) {
     // Skip leading whitespace.
     while (*line == ' ' || *line == '\t') { ++line; }
     if (*line == '\0') return;
+
+#ifdef ARDUINO
+    // ── OTA confirmation intercept ────────────────────────────────────────────
+    // When the operator has typed 'update image' we enter a confirmation gate.
+    // The very next non-empty input is treated as the confirmation response,
+    // bypassing normal command dispatch entirely.
+    if (s_awaitingUpdateConfirm) {
+        s_awaitingUpdateConfirm = false;  // consume the gate unconditionally
+
+        if (strncmp(line, "yes", 3) == 0 && (line[3] == '\0' || line[3] == ' ')) {
+            out.println("[OK] Firmware update confirmed.");
+            if (WiFi.status() == WL_CONNECTED) {
+                char buf[96];
+                snprintf(buf, sizeof(buf),
+                         "     Navigate to http://%s/ota in your browser to upload a .bin file.",
+                         WiFi.localIP().toString().c_str());
+                out.println(buf);
+                snprintf(buf, sizeof(buf),
+                         "     Or use: curl -F 'firmware=@firmware.bin' http://%s/ota",
+                         WiFi.localIP().toString().c_str());
+                out.println(buf);
+            } else {
+                out.println("     (WiFi not connected — connect first, then run 'ota status' for the URL)");
+            }
+            out.println("");
+        } else {
+            out.println("[OK] Update cancelled.");
+            out.println("");
+        }
+        return;
+    }
+#endif
 
     // Match command names by prefix: the name must exactly fill the start of
     // the line, followed by end-of-string, space, or tab.  Multi-word names

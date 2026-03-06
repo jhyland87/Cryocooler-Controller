@@ -1,0 +1,122 @@
+body {
+  font-family: monospace;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 40px 20px;
+  max-width: 620px;
+  margin-right: 10%;
+  margin-left: 10%;
+}
+
+h2 {
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+p.sub {
+  color: #888;
+  margin-top: 0;
+  font-size: .85em;
+}
+
+.notice {
+  background: #16213e;
+  border-left: 3px solid #e74c3c;
+  border-radius: 0 4px 4px 0;
+  padding: 12px 16px;
+  font-size: .85em;
+  color: #aaa;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+.notice strong {
+  color: #e74c3c;
+}
+
+form {
+  background: #16213e;
+  border-radius: 6px;
+  padding: 24px;
+  margin-top: 8px;
+}
+
+label {
+  display: block;
+  font-size: .85em;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+input[type="file"] {
+  display: block;
+  width: 100%;
+  color: #e0e0e0;
+  margin: 6px 0 20px;
+  font-family: monospace;
+  font-size: .9em;
+}
+
+button {
+  background: #0f3460;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .95em;
+  font-family: monospace;
+  transition: background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: #1a5276;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#progress-wrap {
+  display: none;
+  margin-top: 16px;
+}
+
+progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+  background: #0d1b2a;
+}
+
+progress::-webkit-progress-bar   { background: #0d1b2a; border-radius: 4px; }
+progress::-webkit-progress-value { background: #00d4ff; border-radius: 4px; }
+progress::-moz-progress-bar      { background: #00d4ff; border-radius: 4px; }
+
+#status {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: .88em;
+}
+
+#status.ok   { background: #1e8449; color: #fff; }
+#status.err  { background: #922b21; color: #fff; }
+#status.prog { background: #1a5276; color: #fff; }
+
+code {
+  display: block;
+  padding: 5px;
+  font-family: monospace, sans-serif;
+  font-size: smaller;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  border: 1px solid #494949;
+  border-radius: 4px;
+  background-color: #27273a;
+}

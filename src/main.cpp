@@ -32,6 +32,7 @@
 #include "sensor_mock.h"
 #include "amplifier.h"
 #include "logger.h"
+#include "ota.h"
 // =============================================================================
 // Module-level objects
 // =============================================================================
@@ -99,6 +100,14 @@ static void initPersistentModules() {
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
                       static_cast<int>(commandsStatus));
+    }
+
+    // OTA must init before dashboard so registerRoutes() is ready when
+    // dashboard::setupServer() calls it during dashboard init.
+    auto otaStatus = initModule("ota", [] { return ota::Module::init(); });
+    if (otaStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] OTA initialization failed (status %d) — OTA endpoint unavailable.\n",
+                      static_cast<int>(otaStatus));
     }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });

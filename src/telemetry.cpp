@@ -11,6 +11,9 @@
 #include <Arduino.h>
 #include <time.h>
 #include <ArduinoJson.h>
+#ifdef ARDUINO
+#  include "ota.h"
+#endif
 #include "imu.h"
 #include "frame_builder.h"
 #include "cold_head.h"
@@ -68,6 +71,11 @@ static const char* const kPassiveFields[] = {
     "faults.count_10m",
     "faults.count_30m",
     "faults.count_60m",
+    // Firmware info is constant for the lifetime of a boot — never trigger delta.
+    "firmware.version",
+    "firmware.build_date",
+    "firmware.ota_flash_local",
+    "firmware.ota_flash_ts",
 };
 static constexpr uint8_t kPassiveFieldCount =
     static_cast<uint8_t>(sizeof(kPassiveFields) / sizeof(kPassiveFields[0]));
@@ -365,6 +373,23 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cooling.fan_rpm",       "%s", "");
     }
 
+    // ── Firmware info (always real — sourced from app desc + NVS) ────────────
+    {
+        const int64_t flashTs = ota::getLastFlashTime();
+        char flashBuf[20];
+        if (flashTs > 0) {
+            const time_t ft = static_cast<time_t>(flashTs);
+            strftime(flashBuf, sizeof(flashBuf), "%Y-%m-%d %H:%M:%S", localtime(&ft));
+        } else {
+            snprintf(flashBuf, sizeof(flashBuf), "never");
+        }
+        frame
+            .field("firmware.version",         "%s",   ota::getFirmwareVersion())
+            .field("firmware.build_date",       "%s",   ota::getFirmwareBuildDate())
+            .field("firmware.ota_flash_ts",     "%lld", flashTs)
+            .field("firmware.ota_flash_local",  "%s",   flashBuf);
+    }
+
     // ── Module init / service status (always real) ─────────────────────────
     frame
         .field("mod.hardware.init",             "%s", module::initStatusName(hardware::Module::getInitStatus()))
@@ -535,7 +560,26 @@ void emit(const state_machine::Output& out)
         .field("score.cooling.fan_speed",           "%.2f", cooling::getFanSpeedScore())
         .field("score.cooling.coolant_temp",        "%.2f", cooling::getCoolantTempScore())
         .field("score.cooling.coolant_flow",        "%.2f", cooling::getCoolantFlowScore())
-        .field("score.cooling.worst",               "%.2f", cooling::getWorstTrackingScore())
+        .field("score.cooling.worst",               "%.2f", cooling::getWorstTrackingScore());
+
+    // ── Firmware info ─────────────────────────────────────────────────────────
+    {
+        const int64_t flashTs = ota::getLastFlashTime();
+        char flashBuf[20];
+        if (flashTs > 0) {
+            const time_t ft = static_cast<time_t>(flashTs);
+            strftime(flashBuf, sizeof(flashBuf), "%Y-%m-%d %H:%M:%S", localtime(&ft));
+        } else {
+            snprintf(flashBuf, sizeof(flashBuf), "never");
+        }
+        lastFrame_
+            .field("firmware.version",         "%s",   ota::getFirmwareVersion())
+            .field("firmware.build_date",       "%s",   ota::getFirmwareBuildDate())
+            .field("firmware.ota_flash_ts",     "%lld", flashTs)
+            .field("firmware.ota_flash_local",  "%s",   flashBuf);
+    }
+
+    lastFrame_
         // ── Module init / service status ─────────────────────────────────────
         .field("mod.hardware.init",                 "%s",   module::initStatusName(hardware::Module::getInitStatus()))
         .field("mod.hardware.service",              "%s",   module::serviceStatusName(hardware::Module::getServiceStatus()))

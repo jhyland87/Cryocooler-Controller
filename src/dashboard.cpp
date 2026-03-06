@@ -43,6 +43,7 @@
 #include "telemetry.h"
 #include "ss_dashboard.h"
 #include "commands.h"
+#include "ota.h"
 
 namespace dashboard {
 
@@ -390,6 +391,10 @@ bool setupServer() {
         }
         request->send(200, "application/json", jsonBuf);
     });
+
+    // OTA firmware-update endpoint (GET /ota — upload form, POST /ota — flash).
+    // Registered here so it shares the same AsyncWebServer instance and port.
+    ota::registerRoutes(httpServer);
 
     httpServer.begin();
 

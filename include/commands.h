@@ -36,6 +36,8 @@
  *   mock voltage <V>     - Set INA260 bus voltage
  *   mock stall <0|1>     - Set temperature-stall flag
  *   mock stroke <0|1>    - Set back-EMF overstroke flag
+ *   ota status           - Print OTA partition info, firmware version, and upload URL
+ *   update image         - Flash new firmware via browser upload (prompts for confirmation)
  *
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().

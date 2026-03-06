@@ -1,0 +1,23 @@
+# Partition table for ESP32-S3-DevKitC-1-N32R16V (32 MB flash)
+#
+# Layout (all offsets are from flash base 0x0000):
+#   0x0000–0x8000  Bootloader       (reserved, not in table)
+#   0x8000–0x9000  Partition table  (reserved, not in table)
+#   0x9000         nvs              20 KB    – NVS key/value store
+#   0xe000         otadata           8 KB    – OTA data (tracks active OTA slot)
+#   0x10000        ota_0             3 MB    – App slot 0 (initial active slot)
+#   0x310000       ota_1             3 MB    – App slot 1 (OTA update target)
+#   0x610000       littlefs         ~25.9 MB – LittleFS file-system
+#
+# ota_0 / ota_1 at 3 MB each gives comfortable headroom for firmware growth
+# while still leaving ~26 MB for the LittleFS partition.
+#
+# Offset arithmetic:
+#   0x610000 + 0x19F0000 = 0x2000000 (32 MB — exact fit)
+#
+# Name,   Type, SubType, Offset,   Size,     Flags
+nvs,      data, nvs,     0x9000,   0x5000,
+otadata,  data, ota,     0xe000,   0x2000,
+ota_0,    app,  ota_0,   0x10000,  0x300000,
+ota_1,    app,  ota_1,   0x310000, 0x300000,
+littlefs, data, spiffs,  0x610000, 0x19F0000,

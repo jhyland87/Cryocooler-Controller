@@ -33,6 +33,11 @@
 
 #define ENABLE_LOGGER false
 
+// Enable HTTP OTA firmware updates (GET /ota — upload form, POST /ota — flash).
+// Requires an OTA-capable partition table (partitions.csv) and WiFi connectivity.
+// Set false to compile out the OTA endpoint entirely.
+#define ENABLE_OTA true
+
 #define SERIAL_BAUD   static_cast<uint32_t>(115200)
 
 // =============================================================================

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firmware Update — Cryocooler</title>
+  <link rel="stylesheet" href="/ota.css">
+</head>
+<body>
+  <h2>Firmware Update</h2>
+  <p class="sub">Upload a compiled <em>.bin</em> to flash the cryocooler controller over WiFi.</p>
+
+  <div class="notice">
+    <strong>&#9888; Safety notice:</strong> The system must be in
+    <strong>Idle</strong> or <strong>Off</strong> state before uploading.
+    A successful update reboots the MCU immediately — a running cryocooler
+    will stop without a controlled shutdown ramp.
+  </div>
+
+  <form id="ota-form">
+    <label>
+      Firmware binary (.bin)
+      <input type="file" id="file-input" name="firmware" accept=".bin" required>
+    </label>
+    <button type="submit" id="upload-btn">Upload &amp; Flash</button>
+    <div id="progress-wrap">
+      <progress id="progress-bar" value="0" max="100"></progress>
+    </div>
+    <div id="status"></div>
+  </form>
+  <div class="notice">
+    <strong>FYI:</strong> This can be done via the CLI with:
+    <p>
+      <code>pio run -e esp32s3 &&
+curl -vF "firmware=@.pio/build/esp32s3/firmware.bin" http://cryocooler.local/ota</code>
+    </p>
+    <p>Or, from the project root:</p>
+    <p>
+      <code>bash scripts/ota-update.sh</code>
+    </p>
+  </div>
+  <script src="/ota.js"></script>
+</body>
+</html>

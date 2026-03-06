@@ -11,7 +11,8 @@ const GROUP_ORDER = [
   'cooling',
   'waveform',
   'system',
-  'accelerometer'
+  'accelerometer',
+  'firmware',
 ];
 
 
