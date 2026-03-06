@@ -23,7 +23,7 @@
 // =============================================================================
 // One-Wire Bus for DS18B20 temperature sensor
 // =============================================================================
-#define ONE_WIRE_BUS      4
+//#define ONE_WIRE_BUS      4
 
 
 #define SDA_PIN            8
@@ -95,6 +95,20 @@
 #define SPI_CLK           42    // SPI Clock
 #define SPI_MISO          41    // Master In Slave Out
 #define SPI_MOSI          40    // Master Out Slave In
+
+// =============================================================================
+// Alphacool ES High Flow + Temperature Sensor
+// =============================================================================
+
+// Hall-effect flow pulse input (open-drain, active LOW).
+// Requires a 10 kΩ pull-up to 3.3 V on the line; the internal INPUT_PULLUP
+// is used as a backup but an external resistor is strongly recommended.
+#define COOLING_FLOW_PIN         4
+
+// ADC input for the NTC coolant temperature sensor.
+// Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
+// Use ADC1 channels only (GPIO 1–10 on ESP32-S3) to avoid ADC2 Wi-Fi conflicts.
+#define COOLING_TEMP_ADC_PIN     3
 
 // =============================================================================
 // On-board WS2812 RGB Status LED

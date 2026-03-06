@@ -82,15 +82,65 @@ enum class State : int8_t {
 };
 
 
-/** Reason the system entered Fault state. */
+/**
+ * Fault reason flags — stored as a bitmask so multiple simultaneous
+ * conditions can be captured in a single FaultRecord.
+ *
+ * Each enumerator is a unique power-of-2 bit.  Use bitwise OR to combine:
+ *   faultReason = FaultReason::LowSystemVoltage | FaultReason::TemperatureStall;
+ *
+ * Test individual bits:
+ *   if (static_cast<uint8_t>(r) & static_cast<uint8_t>(FaultReason::RmsOvervoltage)) …
+ *
+ * Use formatFaultReasons() to produce a human-readable pipe-delimited string.
+ */
 enum class FaultReason : uint8_t {
     None              = 0,
-    RmsOvervoltage    = 1,
-    TemperatureStall  = 2,
-    TooManyBackoffs   = 3,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
-    LowSystemVoltage  = 4,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
-    StateOscillation  = 5,  ///< FSM bouncing between the same two states too many times
+    RmsOvervoltage    = 1u << 0,  ///< amplifier RMS voltage exceeded AMPLIFIER_MAX_VOLTAGE
+    TemperatureStall  = 1u << 1,  ///< cold stage failed to cool within STALL_DETECT_WINDOW_MS
+    TooManyBackoffs   = 1u << 2,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
+    LowSystemVoltage  = 1u << 3,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
+    StateOscillation  = 1u << 4,  ///< FSM bouncing between the same two states too many times
+    SensorFault       = 1u << 5,  ///< RTD hardware fault or tempK outside MIN/MAX_PLAUSIBLE_TEMP_K
+    RmsOvercurrent    = 1u << 6,  ///< amplifier RMS current exceeded AMPLIFIER_MAX_CURRENT_A
 };
+
+/** Bitwise OR — combine two fault reasons into a composite mask. */
+inline FaultReason operator|(FaultReason a, FaultReason b) {
+    return static_cast<FaultReason>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+/** Bitwise OR-assign — accumulate fault bits in place. */
+inline FaultReason& operator|=(FaultReason& a, FaultReason b) {
+    a = a | b;
+    return a;
+}
+
+/**
+ * Return a short ASCII name for a single-bit FaultReason.
+ * Only meaningful when exactly one bit is set; use formatFaultReasons()
+ * for composite (multi-fault) values.
+ */
+inline const char* faultReasonName(FaultReason r) {
+    switch (r) {
+        case FaultReason::None:             return "None";
+        case FaultReason::RmsOvervoltage:   return "RmsOvervoltage";
+        case FaultReason::TemperatureStall: return "TemperatureStall";
+        case FaultReason::TooManyBackoffs:  return "TooManyBackoffs";
+        case FaultReason::LowSystemVoltage: return "LowSystemVoltage";
+        case FaultReason::StateOscillation: return "StateOscillation";
+        case FaultReason::SensorFault:      return "SensorFault";
+        case FaultReason::RmsOvercurrent:   return "RmsOvercurrent";
+        default:                            return "Multi";
+    }
+}
+
+/**
+ * Write a pipe-delimited list of the active fault reason bit names into @p buf.
+ * Safe to call with any composite FaultReason value.
+ * Example: FaultReason::LowSystemVoltage | FaultReason::TemperatureStall
+ *          → "LowSystemVoltage|TemperatureStall"
+ */
+void formatFaultReasons(FaultReason r, char* buf, size_t len);
 
 /** Aggregate output produced by update() each loop. */
 struct Output {
@@ -265,6 +315,51 @@ void reinit(uint32_t nowMs);
 
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
+
+// ── Fault History ─────────────────────────────────────────────────────────────
+
+/**
+ * A single fault record — one entry into State::Fault and the optional clear.
+ *
+ * clearedBy is a static string literal set when the fault is resolved:
+ *   "clearFault"  — operator issued the 'fault clear' serial command (manual)
+ *   "reinit"      — operator issued 'reinit', which also exits Fault
+ *   "off"         — operator issued 'off', powering the system down
+ *   nullptr       — fault is still active
+ */
+struct FaultRecord {
+    FaultReason reason;        ///< why the fault occurred
+    uint32_t    enteredMs;     ///< millis() when Fault was entered
+    time_t      enteredEpoch;  ///< wall-clock Unix timestamp at entry (0 = pre-sync)
+    uint32_t    clearedMs;     ///< millis() when fault was cleared (0 = still active)
+    time_t      clearedEpoch;  ///< wall-clock at clear (0 = still active or pre-sync)
+    const char* clearedBy;     ///< how the fault was cleared; nullptr = still active
+};
+
+/**
+ * Return the number of fault history entries currently stored.
+ * Starts at 0, grows up to FAULT_HISTORY_LIMIT, then wraps (oldest overwritten).
+ */
+uint8_t getFaultHistoryCount();
+
+/**
+ * Return a single fault record by recency index.
+ * @param i  0 = most recent fault, 1 = second most recent, …
+ * @return   The requested record, or a zero-initialised record if i >= getFaultHistoryCount().
+ */
+FaultRecord getFaultRecord(uint8_t i);
+
+/**
+ * Count the number of Fault-state entries whose enteredMs falls within
+ * the last @p windowMs milliseconds of @p nowMs.
+ *
+ * Useful for rolling-window fault-rate telemetry (e.g. faults in last 10 min).
+ *
+ * @param windowMs  Rolling window width in milliseconds.
+ * @param nowMs     Current millis() reference (typically millis()).
+ * @return          Number of faults entered within [nowMs - windowMs, nowMs].
+ */
+uint8_t countRecentFaults(uint32_t windowMs, uint32_t nowMs);
 
 // ── FSM History ───────────────────────────────────────────────────────────────
 

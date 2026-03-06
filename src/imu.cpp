@@ -267,7 +267,7 @@ module::InitStatus init() {
     // Guarantee a clean bus state immediately before begin().  Earlier modules
     // (e.g. INA260 via Adafruit_I2CDevice) call _wire->begin() internally,
     // which on Core 2.x can leave the driver state machine non-idle.
-    hardware::recoverI2c();
+    ///hardware::recoverI2c();
 
     if (!sensor.begin(hardware::i2c(), QMI8658_ADDRESS_HIGH)) {
         log_e("[imu] QMI8658 not found — check wiring and I2C address");
@@ -276,12 +276,16 @@ module::InitStatus init() {
 
     sensor.setAccelRange(QMI8658_ACCEL_RANGE_8G);
     sensor.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
-    //sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
-    //sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
+    // Gyro is enabled to keep the gyro die powered so its on-chip temperature
+    // sensor produces valid readings.  Actual gyro orientation data is not
+    // used.  ODR must match the accel ODR: a mismatch triggers the QMI8658's
+    // sync-sample mode which gates the accel output registers at the lower
+    // gyro ODR, making the accel data appear completely frozen.
+    sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
+    sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
     sensor.setAccelUnit_mps2(true);   // m/s²
     //sensor.setGyroUnit_rads(false);   // degrees per second
-    //sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
-    sensor.enableSensors(QMI8658_ENABLE_ACCEL);
+    sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
 
     performCalibration();
     return module::InitStatus::MODULE_INIT_SUCCESS;
@@ -317,7 +321,18 @@ module::ServiceStatus service() {
     // Magnitudes from unfiltered data for spike sensitivity
     accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
     //gyroMag_  = sqrtf(gx*gx + gy*gy + gz*gz);
-    imuTemp_  = data.temperature;
+
+    // Read temperature explicitly — readSensorData() calls readTemp() internally
+    // but does not check its return value, silently leaving data.temperature = 0
+    // on I2C failure.  Call it directly so we can detect and log the failure.
+    {
+        float tempReading = imuTemp_;  // keep last good value on failure
+        if (sensor.readTemp(tempReading)) {
+            imuTemp_ = tempReading;
+        } else {
+            log_w("[imu] readTemp() failed — temperature register unavailable");
+        }
+    }
 
     checkMotion(accelMag_);
 

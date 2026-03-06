@@ -259,6 +259,86 @@ static void handleCoolingFan(const char* args, Print& out) {
     out.println(buf);
 }
 
+static void handleFaultClear(const char* /*args*/, Print& out) {
+    if (state_machine::getState() != state_machine::State::Fault) {
+        out.println("[ERR] Not in fault state");
+        return;
+    }
+    // Capture and display the active fault mask before clearing it.
+    char reasonBuf[96];
+    state_machine::formatFaultReasons(state_machine::getFaultReason(), reasonBuf, sizeof(reasonBuf));
+    state_machine::clearFault(millis());
+    char msg[120];
+    snprintf(msg, sizeof(msg), "[OK] Fault cleared (%s) — system returned to Idle", reasonBuf);
+    out.println(msg);
+}
+
+static void handleFaultHistory(const char* /*args*/, Print& out) {
+    const uint8_t count = state_machine::getFaultHistoryCount();
+    if (count == 0) {
+        out.println("[OK] Fault history: (empty)");
+        out.println("");
+        return;
+    }
+    char header[72];
+    snprintf(header, sizeof(header),
+             "[OK] Fault history (%u/%u entries, newest first):",
+             static_cast<unsigned>(count),
+             static_cast<unsigned>(FAULT_HISTORY_LIMIT));
+    out.println(header);
+
+    for (uint8_t i = 0; i < count; ++i) {
+        const auto rec = state_machine::getFaultRecord(i);
+
+        char enteredBuf[20];
+        if (rec.enteredEpoch > 0) {
+            struct tm* tinfo = localtime(&rec.enteredEpoch);
+            strftime(enteredBuf, sizeof(enteredBuf), "%m/%d %H:%M:%S", tinfo);
+        } else {
+            strncpy(enteredBuf, "(pre-sync)", sizeof(enteredBuf));
+        }
+
+        // Build pipe-delimited reason string (handles single and multi-bit).
+        char reasonBuf[96];
+        state_machine::formatFaultReasons(rec.reason, reasonBuf, sizeof(reasonBuf));
+
+        char line[160];
+        if (rec.clearedBy == nullptr) {
+            snprintf(line, sizeof(line),
+                     "  [%2u] %-s  entered: %-14s  ACTIVE",
+                     static_cast<unsigned>(i),
+                     reasonBuf,
+                     enteredBuf);
+        } else {
+            char clearedBuf[20];
+            if (rec.clearedEpoch > 0) {
+                struct tm* tinfo = localtime(&rec.clearedEpoch);
+                strftime(clearedBuf, sizeof(clearedBuf), "%m/%d %H:%M:%S", tinfo);
+            } else {
+                strncpy(clearedBuf, "(pre-sync)", sizeof(clearedBuf));
+            }
+            // Map raw cause strings to human-readable labels.
+            const char* clearLabel;
+            if (strncmp(rec.clearedBy, "clearFault", 10) == 0) {
+                clearLabel = "manual";
+            } else if (strncmp(rec.clearedBy, "reinit", 6) == 0) {
+                clearLabel = "reinit";
+            } else {
+                clearLabel = rec.clearedBy;
+            }
+            snprintf(line, sizeof(line),
+                     "  [%2u] %s  entered: %-14s  cleared: %-14s  by: %s",
+                     static_cast<unsigned>(i),
+                     reasonBuf,
+                     enteredBuf,
+                     clearedBuf,
+                     clearLabel);
+        }
+        out.println(line);
+    }
+    out.println("");
+}
+
 static void handleBoard(const char* /*args*/, Print& out) {
     out.println("[OK] Board info:");
 #ifdef ARDUINO_VARIANT
@@ -423,6 +503,9 @@ static const Command commandMap[] = {
     // "fsm history" must precede "fsm state" so the longer prefix wins.
     {"fsm history",   handleFsmHistory,   "Print recent FSM state transitions (newest first)"},
     {"fsm state",     handleFsmState,     "Print current FSM state with time-in-state and status"},
+    // "fault history" must precede "fault clear" so the longer prefix wins.
+    {"fault history", handleFaultHistory, "Print fault log with reason and clear method (newest first)"},
+    {"fault clear",   handleFaultClear,   "Clear an active fault and return to Idle"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
 #ifdef ARDUINO
