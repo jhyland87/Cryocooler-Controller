@@ -80,10 +80,6 @@ static std::optional<TrackingMonitor<float>> tempTracker_;
 // Window of 15 samples @ 200 ms/sample ≈ 3 s of additional smoothing on top
 // of the ring-buffer window, giving a much steadier readout.
 static RunningAverage coolingRateAvg(15);
-
-
-//OneWire oneWire(ONE_WIRE_BUS);
-//DallasTemperature sensors(&oneWire);
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------

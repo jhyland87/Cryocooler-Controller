@@ -48,6 +48,33 @@
 #define WS_PORT       static_cast<uint16_t>(8080)
 
 // =============================================================================
+// ESP-NOW — peer-to-peer telemetry bridge
+// =============================================================================
+//
+// ESP-NOW coexists with WiFi (STA mode) on the same radio.  The transmit
+// channel is determined automatically by the AP association — the peer device
+// must be configured to listen on the same channel.
+//
+// Fragmentation: ESP-NOW frames are limited to 250 bytes.  Telemetry JSON is
+// split into 246-byte chunks, each prefixed with a 4-byte header:
+//   [msg_id][total_chunks][chunk_index][payload_len][...JSON fragment...]
+// The peer reassembles chunks that share the same msg_id (wraps at 255).
+
+// Enable ESP-NOW telemetry forwarding.  WiFi, HTTP dashboard, and OTA all
+// remain fully operational when this is true.
+#define ENABLE_ESPNOW  false
+
+// MAC address of the receiving ESP32.
+// Find it by running `Serial.println(WiFi.macAddress())` on the peer.
+// Format: {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
+// IMPORTANT: replace the placeholder below before enabling ESP-NOW.
+#define ESPNOW_PEER_MAC  { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
+
+// Telemetry burst interval sent to the peer (milliseconds).
+// 1000 ms matches the dashboard broadcast cadence.
+#define ESPNOW_SEND_INTERVAL_MS  static_cast<uint32_t>(1000)
+
+// =============================================================================
 // Telemetry
 // =============================================================================
 

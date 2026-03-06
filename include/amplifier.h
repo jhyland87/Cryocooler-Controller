@@ -4,7 +4,7 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4921 DAC                                       (amplitude control)
+ *   MCP4725 12-bit I2C DAC                            (amplitude control)
  *
  * The legacy dac / waveform / rms modules have been consolidated here.
  */
@@ -35,7 +35,7 @@ module::InitStatus initWaveform();
 /** Initialise the ACS37800 RMS power monitor over I2C. */
 module::InitStatus initAcs();
 
-/** Initialise the MCP4921 12-bit SPI DAC (CS pin + zero output). */
+/** Initialise the MCP4725 12-bit I2C DAC and drive output to zero. */
 module::InitStatus initDac();
 
 /** Read latest ACS37800 values; update lastRmsVoltage / lastRmsCurrent. */
@@ -81,7 +81,7 @@ float getFrequency();
 // ---------------------------------------------------------------------------
 
 /**
- * Rate-limited ramp of the MCP4921 DAC toward @p dacTarget.
+ * Rate-limited ramp of the MCP4725 DAC toward @p dacTarget.
  * Each call advances at most AMPLIFIER_MAX_STEP_PER_INTERVAL counts.
  *
  * @param dacTarget  Desired 12-bit DAC value (0–4095).
@@ -99,7 +99,7 @@ void rampTowardShutdown(uint16_t dacTarget);
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
  * the cached-value guard.  Call from any hard power-off or emergency-stop
- * path to guarantee the MCP4921 output is zeroed regardless of the current
+ * path to guarantee the MCP4725 output is zeroed regardless of the current
  * cached DAC value.
  */
 void hardStop();
@@ -114,7 +114,7 @@ void initFineCooldown();
  */
 void setRmsVoltage(uint16_t dacTarget);
 
-/** Return the current MCP4921 DAC output value (0–4095). */
+/** Return the current MCP4725 DAC output value (0–4095). */
 uint16_t getDacCurrent();
 
 // ---------------------------------------------------------------------------

@@ -28,20 +28,13 @@
 // ADC readings below this raw count are treated as 0 (noise floor / off).
 #define ADC_MIN_VOLTAGE   static_cast<uint8_t>(15)
 
-// SmoothADC: sample the DAC voltage feedback pin every N milliseconds.
-#define DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS      static_cast<uint32_t>(5)
-
-// SmoothADC: number of priming samples at boot to seed the filter.
-#define DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES  static_cast<uint8_t>(8)
-
-// DAC voltage ADC raw counts below this are treated as zero (output off).
-#define DAC_MIN_VOLTAGE   static_cast<uint16_t>(15)
-
-// 12-bit DAC full scale (0–4095).  Fixed by the MCP4921 hardware.
+// 12-bit DAC full scale (0–4095).  Fixed by the MCP4725 hardware.
 #define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
 
-// SPI clock speed for the MCP4921 DAC.
-#define AMPLIFIER_DAC_SPI_SPEED  static_cast<uint32_t>(20000000)
+// I2C address of the MCP4725 DAC.
+// Default: 0x60 (A2=A1=A0 tied to GND on most breakout modules).
+// The Adafruit breakout board uses 0x62; adjust to match your A0 pin wiring.
+#define MCP4725_I2C_ADDRESS  static_cast<uint8_t>(0x60)
 
 // =============================================================================
 // Amplifier ramp rates (DAC counts per LOOP_INTERVAL_MS tick)

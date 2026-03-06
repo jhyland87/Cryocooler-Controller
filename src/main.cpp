@@ -9,11 +9,9 @@
  * Required Libraries (platformio.ini lib_deps):
  *   - Adafruit MAX31865
  *   - MD_AD9833
- *   - SmoothADC
  */
 
 #include <Arduino.h>
-#include <SmoothADC.h>
 #include <esp_system.h>   // esp_register_shutdown_handler()
 
 #include "config.h"
@@ -33,11 +31,10 @@
 #include "amplifier.h"
 #include "logger.h"
 #include "ota.h"
+#include "espnow.h"
 // =============================================================================
 // Module-level objects
 // =============================================================================
-
-static SmoothADC dacVoltageAdc;
 
 // =============================================================================
 // Init helper
@@ -116,6 +113,18 @@ static void initPersistentModules() {
                       static_cast<int>(dashboardStatus));
     }
 
+    // ESP-NOW must be initialised after dashboard (which brings up WiFi).
+    // The channel follows the STA association automatically; the peer must be
+    // on the same channel.  Set ENABLE_ESPNOW=true and fill in ESPNOW_PEER_MAC
+    // in config.h before enabling.
+#if ENABLE_ESPNOW
+    auto espnowStatus = initModule("espnow", [] { return espnow::Module::init(); });
+    if (espnowStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] ESP-NOW initialization failed (status %d) — continuing without ESP-NOW.\n",
+                      static_cast<int>(espnowStatus));
+    }
+#endif
+
     // telemetry has no hardware setup but we call Module::init() to record a
     // valid InitStatus so the mod.telemetry.init field in the telemetry frame
     // reflects the actual state rather than NOT_STARTED.
@@ -153,15 +162,6 @@ static void initControlModules() {
         initFailureDetected = true;
     }
     telemetry::emitSafe();
-
-    // Smooth DAC voltage readback ADC (not a module — inline init)
-    dacVoltageAdc.init(AMPLIFIER_MANUAL_CONTROL_PIN, TB_MS, DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
-    dacVoltageAdc.enable();
-    dacVoltageAdc.setPeriod(0);
-    for (uint8_t i = 0; i < DAC_VOLTAGE_ADC_SMOOTH_PRIME_SAMPLES; ++i) {
-        dacVoltageAdc.serviceADCPin();
-    }
-    dacVoltageAdc.setPeriod(DAC_VOLTAGE_ADC_SMOOTH_PERIOD_MS);
 
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
@@ -306,9 +306,6 @@ void loop() {
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] cooling service error"));
     }
-
-    // Service smoothed ADC every iteration (non-blocking)
-    dacVoltageAdc.serviceADCPin();
 
     const uint32_t nowMs = millis();
 

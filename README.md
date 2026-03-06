@@ -496,7 +496,6 @@ flowchart TD
 |---------|---------|
 | `adafruit/Adafruit MAX31865 library` | PT100 RTD sensor |
 | `majicdesigns/MD_AD9833` | DDS waveform generator |
-| `milesburton/DallasTemperature` | DS18B20 ambient sensor |
 | `bblanchon/ArduinoJson` | JSON serialisation |
 | `mathieucarbou/ESPAsyncWebServer` | Async HTTP server |
 | `robtillaart/RunningAverage` | Running average utility |
@@ -512,7 +511,6 @@ Local libraries in `lib/` (project-specific, not from the registry):
 |---------|---------|
 | `ContinuousZMCT103C` | Non-blocking AC current RMS sampling |
 | `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
-| `SmoothADC` | ADC smoothing (patched for ESP32 toolchains) |
 
 ### Platform
 

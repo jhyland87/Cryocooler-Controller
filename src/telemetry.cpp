@@ -280,7 +280,7 @@ static void buildStartupFrame(FrameBuilder& frame)
     // ── Sysinfo ───────────────────────────────────────────────────────────
     if (sysinfoReady) {
         frame
-            .field("system.voltage_v",     "%.2f", sysinfo::getVoltage())
+            .field("system.voltage_vdc",     "%.2f", sysinfo::getVoltage())
             .field("system.current_a",    "%.2f", sysinfo::getCurrent())
             .field("system.power_w",      "%.2f", sysinfo::getPower())
             .field("system.cpu_usage_percent", "%.2f", sysinfo::getCpuUsagePercent())

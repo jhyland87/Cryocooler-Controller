@@ -4,25 +4,22 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4921 12-bit SPI DAC                            (amplitude control)
+ *   MCP4725 12-bit I2C DAC                            (amplitude control)
  *
  * The former dac / waveform / rms modules have been consolidated here.
  *
- * MCP4921 16-bit SPI packet format:
- *   [15]    ~A/B  : 0 = DAC A
- *   [14]    BUF   : 1 = Buffered Vref
- *   [13]    ~GA   : 1 = 1x gain
- *   [12]    ~SHDN : 1 = Output active
- *   [11:0]  D11-D0: 12-bit data
- *   Control nibble 0b0111 -> top 4 bits = 0x3000
+ * MCP4725 I2C protocol notes:
+ *   Fast-mode (400 kHz) is used.  setVoltage() is called with writeEEPROM=false
+ *   so only the volatile output register is updated — no EEPROM wear on every
+ *   ramp step.  The MCP4725 retains its volatile register value across software
+ *   resets (esp_restart()), so dacCurrent_ is invalidated in initDac() to force
+ *   a write to zero on every boot, matching the previous MCP4921 behaviour.
  */
 
 #include <Arduino.h>
-//#include <type_traits>
-#include <SPI.h>
 #include <ACS37800.h>
 #include <MD_AD9833.h>
-//#include <optional>
+#include <Adafruit_MCP4725.h>
 
 #include "pin_config.h"
 #include "config.h"
@@ -45,8 +42,8 @@ static MD_AD9833 ad9833_(AD9833_CS);
 // RMS power monitor (ACS37800 over I2C)
 static ACS37800 acs_;
 
-// MCP4921 12-bit SPI DAC — amplitude control
-static constexpr uint16_t MCP4921_CTRL_BITS = 0x3000; // ~A/B=0, BUF=1, ~GA=1, ~SHDN=1
+// MCP4725 12-bit I2C DAC — amplitude control
+static Adafruit_MCP4725 mcp4725_;
 static uint16_t dacCurrent_ = 0u;
 
 // Set-points
@@ -85,18 +82,19 @@ static std::optional<TrackingMonitor<float>> voltTracker_;
 // Internal DAC helpers
 // ---------------------------------------------------------------------------
 
-static void dacWriteSpi(uint16_t dacVal) {
+/**
+ * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the MCP4725 volatile output
+ * register over I2C.  The cached value is checked first so unchanged
+ * set-points do not generate unnecessary I2C traffic.
+ *
+ * writeEEPROM is always false — we never wear the EEPROM with ramp steps.
+ */
+static void dacWrite(uint16_t dacVal) {
     dacVal = constrain(dacVal, 0u, static_cast<uint16_t>(AMPLIFIER_RESOLUTION));
     if (dacCurrent_ == dacVal) return;
 
     dacCurrent_ = dacVal;
-    const uint16_t packet = MCP4921_CTRL_BITS | dacVal;
-
-    SPI.beginTransaction(SPISettings(AMPLIFIER_DAC_SPI_SPEED, MSBFIRST, SPI_MODE0));
-    digitalWrite(MCP4921_CS, LOW);
-    SPI.transfer16(packet);
-    digitalWrite(MCP4921_CS, HIGH);
-    SPI.endTransaction();
+    mcp4725_.setVoltage(dacVal, /*writeEEPROM=*/false);
 }
 
 /**
@@ -113,7 +111,7 @@ static void dacRampInternal(uint16_t target, uint16_t maxStep) {
         const uint16_t step = next - target;
         next -= (step > maxStep) ? maxStep : step;
     }
-    dacWriteSpi(next);
+    dacWrite(next);
 }
 
 // ---------------------------------------------------------------------------
@@ -130,18 +128,18 @@ module::InitStatus init() {
         return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
-    // -- MCP4921 DAC ----------------------------------------------------------
+    // -- MCP4725 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
-    ESP_LOGI(TAG, "Initializing MCP4921 DAC...");
+    ESP_LOGI(TAG, "Initializing MCP4725 DAC...");
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "MCP4921 initialization failed: %d", static_cast<int>(status));
+            ESP_LOGE(TAG, "MCP4725 initialization failed: %d", static_cast<int>(status));
             return status;
         }
     }
-    ESP_LOGI(TAG, "MCP4921 DAC initialized");
+    ESP_LOGI(TAG, "MCP4725 DAC initialized");
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
@@ -173,12 +171,15 @@ module::InitStatus init() {
 }
 
 module::InitStatus initDac() {
-    pinMode(MCP4921_CS, OUTPUT);
-    digitalWrite(MCP4921_CS, HIGH);
-    // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts at
-    // 0 after every ESP32 boot, but the MCP4921 retains its last register value
-    // across soft-resets — so the 0==0 guard in dacWriteSpi() would suppress the
-    // SPI write and leave the DAC at whatever it was before the reset.
+    if (!mcp4725_.begin(MCP4725_I2C_ADDRESS, &hardware::i2c())) {
+        ESP_LOGE(TAG, "MCP4725 not found at I2C address 0x%02X", MCP4725_I2C_ADDRESS);
+        return module::MODULE_INIT_HARDWARE_ERROR;
+    }
+
+    // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts
+    // at 0 after every ESP32 boot, but the MCP4725 retains its volatile register
+    // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
+    // I2C write and leave the DAC at whatever it was before the reset.
     dacCurrent_ = UINT16_MAX;
     setRmsVoltage(0u);
     return module::MODULE_INIT_SUCCESS;
@@ -283,7 +284,7 @@ void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
 }
 
 void hardStop() {
-    dacCurrent_ = UINT16_MAX;   // invalidate cache so dacWriteSpi() cannot short-circuit
+    dacCurrent_ = UINT16_MAX;   // invalidate cache so dacWrite() cannot short-circuit
     setRmsVoltage(0u);
 }
 
@@ -294,7 +295,7 @@ void rampTowardShutdown(uint16_t dacTarget) {
 
 void setRmsVoltage(uint16_t dacTarget) {
     ESP_LOGD(TAG, "Setting RMS voltage to %u", static_cast<unsigned>(dacTarget));
-    dacWriteSpi(dacTarget);
+    dacWrite(dacTarget);
 }
 
 uint16_t getDacCurrent() {

@@ -30,15 +30,8 @@
 #define SCL_PIN            9
 
 
-// =============================================================================
-// ADC input to read back DAC-controlled voltage (for manual congtrol)
-// =============================================================================
-#define AMPLIFIER_MANUAL_CONTROL_PIN    5
-
-// =============================================================================
-// MCP4921 12-bit DAC (SPI)
-// =============================================================================
-#define MCP4921_CS         6    // Chip Select for MCP4921 DAC
+// MCP4921_CS (GPIO 6) removed — DAC is now MCP4725 on the shared I2C bus
+// (SDA = GPIO 8, SCL = GPIO 9).  GPIO 6 is available for other use.
 
 // =============================================================================
 // AD9833 Waveform Generator
@@ -88,7 +81,7 @@
 
 
 // =============================================================================
-// SPI Bus (shared by MAX31865, AD9833, and MCP4921)
+// SPI Bus (shared by MAX31865 and AD9833)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
