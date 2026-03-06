@@ -230,7 +230,7 @@ void setup() {
     // reinit() to enter the Initialize state.  This runs initControlModules()
     // synchronously — the same path taken on every subsequent reinit().
     state_machine::setOnInitializeCallback(initControlModules);
-    state_machine::reinit(millis());
+    state_machine::reinit();
 
     // Zero the DAC before any software-triggered reset (esp_restart(), IDF
     // watchdog recovery, etc.).  Hard resets (reset button, power cut) cannot

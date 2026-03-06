@@ -93,9 +93,9 @@ static void handleStart(const char* /*args*/, Print& out) {
     const float tempK = sensor_mock::isActive()
                             ? sensor_mock::get().tempK
                             : cold_head::getLastTempK();
-    state_machine::start(millis(), tempK);
+    state_machine::start(tempK);
 #else
-    state_machine::start(millis());
+    state_machine::start();
 #endif
     out.println("[OK] Process started");
 }
@@ -118,7 +118,7 @@ static void handleReinit(const char* /*args*/, Print& out) {
     }
     // reinit() fully resets all FSM state, re-runs initControlModules() via
     // the registered onInitialize callback, and enters Initialize → Idle.
-    state_machine::reinit(millis());
+    state_machine::reinit();
     char buf[72];
     snprintf(buf, sizeof(buf), "[OK] Reinitializing — state: %s | mock: %s",
              state_machine::stateName(state_machine::getState()),
@@ -132,7 +132,7 @@ static void handleStop(const char* /*args*/, Print& out) {
         out.println("[ERR] Not currently running");
         return;
     }
-    state_machine::stop(millis());
+    state_machine::stop();
     out.println("[OK] Process stopped");
 }
 
@@ -141,7 +141,7 @@ static void handleOff(const char* /*args*/, Print& out) {
         out.println("[ERR] System is already off");
         return;
     }
-    state_machine::off(millis());
+    state_machine::off();
     out.println("[OK] System turned off");
 }
 
@@ -283,7 +283,7 @@ static void handleFaultClear(const char* /*args*/, Print& out) {
     // Capture and display the active fault mask before clearing it.
     char reasonBuf[96];
     state_machine::formatFaultReasons(state_machine::getFaultReason(), reasonBuf, sizeof(reasonBuf));
-    state_machine::clearFault(millis());
+    state_machine::clearFault();
     char msg[120];
     snprintf(msg, sizeof(msg), "[OK] Fault cleared (%s) — system returned to Idle", reasonBuf);
     out.println(msg);

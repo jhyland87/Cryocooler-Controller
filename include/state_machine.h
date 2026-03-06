@@ -393,6 +393,31 @@ const char* getStatusText();
  */
 uint32_t getTimeInState();
 
+// ── Arduino convenience overloads ─────────────────────────────────────────────
+//
+// These call millis() internally so production code never needs to pass nowMs.
+// The explicit-timestamp versions above are preserved for native unit tests,
+// which inject deterministic timestamps rather than calling millis().
+
+#ifdef ARDUINO
+inline Output update(float tempK, float coolingRate, float rmsVoltage, bool stalled,
+                     bool overstroke = false, float systemVoltage = 0.0f) {
+    return update(tempK, coolingRate, rmsVoltage, stalled,
+                  millis(), overstroke, systemVoltage);
+}
+inline void start(float tempK = AMBIENT_START_K) { start(millis(), tempK); }
+inline void stop()       { stop(millis()); }
+inline void clearFault() { clearFault(millis()); }
+inline void off()        { off(millis()); }
+inline void reinit()     { reinit(millis()); }
+inline void startDelay(uint32_t durationMs, State nextState = State::Idle) {
+    startDelay(millis(), durationMs, nextState);
+}
+inline uint8_t countRecentFaults(uint32_t windowMs) {
+    return countRecentFaults(windowMs, millis());
+}
+#endif // ARDUINO
+
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // state_machine::update() requires sensor inputs so it cannot map to service().
