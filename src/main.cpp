@@ -204,9 +204,6 @@ static void initControlModules() {
 void setup() {
     Serial.begin(SERIAL_BAUD);
 
-    // Wait for USB-CDC serial port (ESP32-S3 native USB).
-    while (!Serial) delay(10);
-    delay(3000);
     logger::logf("[setup] Starting up\n");
     Serial.println(F("Cryocooler Controller -- starting up"));
     Serial.println(F("====================================="));
