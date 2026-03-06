@@ -19,11 +19,13 @@ namespace dashboard_config {
 // ═════════════════════════════════════════════════════════════════════════════
 
 static const ss::ActionCfg actions[] = {
-    { .title = "Start",   .txData = "start",   .icon = "Done",        .eol = "\n" },
-    { .title = "Stop",    .txData = "stop",    .icon = "Close",       .eol = "\n" },
-    { .title = "Status",  .txData = "status",  .icon = "Zoom In",     .eol = "\n" },
-    { .title = "Off",     .txData = "off",     .icon = "Shutdown",    .eol = "\n" },
-    { .title = "Summary", .txData = "summary", .icon = "System Task", .eol = "\n" },
+    { .title = "Start",         .txData = "start",          .icon = "Done",        .eol = "\n" },
+    { .title = "Stop",          .txData = "stop",           .icon = "Close",       .eol = "\n" },
+    { .title = "Reinit",        .txData = "reinit",         .icon = "Restart",     .eol = "\n" },
+    { .title = "Status",        .txData = "status",         .icon = "Zoom In",     .eol = "\n" },
+    { .title = "Off",           .txData = "off",            .icon = "Shutdown",    .eol = "\n" },
+    { .title = "Summary",       .txData = "summary",        .icon = "System Task", .eol = "\n" },
+    { .title = "Clear Faults",  .txData = "fault clear",    .icon = "Erase",       .eol = "\n" },
 };
 
 // ═════════════════════════════════════════════════════════════════════════════

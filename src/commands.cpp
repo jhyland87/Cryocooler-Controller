@@ -136,6 +136,13 @@ static void handleStop(const char* /*args*/, Print& out) {
     out.println("[OK] Process stopped");
 }
 
+static void handleReboot(const char* /*args*/, Print& out) {
+    out.println("[OK] Rebooting requested...");
+    //esp_restart();
+    ESP.restart();
+    out.println("[OK] System rebooted");
+}
+
 static void handleOff(const char* /*args*/, Print& out) {
     if (state_machine::getState() == state_machine::State::Off) {
         out.println("[ERR] System is already off");
@@ -605,6 +612,7 @@ static const Command commandMap[] = {
     {"start",         handleStart,        "Begin the cooldown process (from Off or Idle)"},
     {"stop",          handleStop,         "Abort the process and return to Idle"},
     {"off",           handleOff,          "Power off the system entirely"},
+    {"reboot",        handleReboot,       "Reboot the system"},
     {"status",        handleStatus,       "Print current state and running flag"},
     {"summary",       handleSummary,      "Print a full snapshot of all system values"},
     // "fsm history" must precede "fsm state" so the longer prefix wins.

@@ -62,13 +62,14 @@
 
 // Enable ESP-NOW telemetry forwarding.  WiFi, HTTP dashboard, and OTA all
 // remain fully operational when this is true.
-#define ENABLE_ESPNOW  false
+#define ENABLE_ESPNOW  true
 
 // MAC address of the receiving ESP32.
 // Find it by running `Serial.println(WiFi.macAddress())` on the peer.
 // Format: {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
 // IMPORTANT: replace the placeholder below before enabling ESP-NOW.
-#define ESPNOW_PEER_MAC  { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
+// d0:cf:13:05:6f:0c
+#define ESPNOW_PEER_MAC  { 0xd0, 0xcf, 0x13, 0x05, 0x6f, 0x0c }
 
 // Telemetry burst interval sent to the peer (milliseconds).
 // 1000 ms matches the dashboard broadcast cadence.
