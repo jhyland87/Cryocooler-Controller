@@ -27,6 +27,8 @@
 #include "indicator.h"
 #include "amplifier.h"
 #include "cold_head.h"
+#include "cooling.h"
+#include "relay.h"
 #include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
@@ -516,15 +518,18 @@ static void buildFsm() {
         fsm->add_transition(from, &fsmStateOvershoot, EVT_START_OVERSHOOT, nullptr);
     }
 
-    // ── Re-initialize: Off, Idle, or Fault → Initialize ───────────────────
+    // ── Re-initialize: Off, Idle, Initialize, or Fault → Initialize ───────
     // Triggered by reinit().  onEnterInitialize fires the registered callback
     // so control modules are re-initialised on every transition to Initialize.
     // Fault is included so the operator can reinit directly after clearing a
     // fault without a separate clearFault() + off() sequence.
     // onExitFault() fires automatically on the Fault → Initialize transition,
     // resetting faultReason and backoff state before Initialize is entered.
+    // Initialize is included so that a failed startup (stuck in Initialize)
+    // can be retried with a single reinit command rather than off + reinit.
     fsm->add_transition(&fsmStateOff,   &fsmStateInit, EVT_REINITIALIZE, nullptr);
     fsm->add_transition(&fsmStateIdle,  &fsmStateInit, EVT_REINITIALIZE, nullptr);
+    fsm->add_transition(&fsmStateInit,  &fsmStateInit, EVT_REINITIALIZE, nullptr);
     fsm->add_transition(&fsmStateFault, &fsmStateInit, EVT_REINITIALIZE, nullptr);
 
     // ── Initialize → Idle ─────────────────────────────────────────────────
@@ -880,9 +885,20 @@ uint32_t getOnStateDuration() {
     return millis() - onStateMs;
 }
 
-void start(uint32_t nowMs, float tempK) {
+const char* start(uint32_t nowMs, float tempK) {
     Serial.printf("start() tempK=%.2f\n", tempK);
-    if (running) return;
+    if (running) return nullptr;
+
+    // Verify all required control modules initialised successfully before
+    // entering any cooling state.  This is the single authoritative check —
+    // callers (commands, dashboard, ESP-NOW, etc.) do not need their own guards.
+#ifdef ARDUINO
+    if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) return "cooling";
+    if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "amplifier";
+    if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "cold_head";
+    if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) return "relay";
+#endif
+
     running          = true;
     sNowMs          = nowMs;
     onStateMs        = nowMs;
@@ -907,6 +923,7 @@ void start(uint32_t nowMs, float tempK) {
         Serial.println(F("Triggering EVT_START_FINE"));
         fsmTrigger(EVT_START_FINE, "start");
     }
+    return nullptr;
 }
 
 void stop(uint32_t nowMs) {

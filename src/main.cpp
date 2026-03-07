@@ -69,7 +69,6 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
 // =============================================================================
 
 static uint32_t previousLoopMs = 0;
-static bool     setupComplete  = false;
 
 /**
  * Initialise modules required for the operator console and remote viewer to
@@ -148,18 +147,17 @@ static void initPersistentModules() {
  * That means hardware peripherals are re-initialised on a logical system
  * reset without requiring a full MCU reboot.
  *
- * Failures are non-fatal: the state machine will detect missing sensor data
- * and transition to Fault as appropriate.  telemetry::emitSafe() is called
- * after each step so the dashboard shows real-time progress.
+ * Failures are non-fatal and do not halt startup.  Module init statuses are
+ * persisted in each Module's static _initStatus; state_machine::start() reads
+ * those statuses and blocks entry into any cooling state until all required
+ * modules report MODULE_INIT_SUCCESS.  telemetry::emitSafe() is called after
+ * each step so the dashboard shows real-time progress.
  */
 static void initControlModules() {
-    bool initFailureDetected = false;
-
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cooling initialization failed (status %d).\n",
                       static_cast<int>(coolingStatus));
-        initFailureDetected = true;
     }
     telemetry::emitSafe();
 
@@ -167,7 +165,6 @@ static void initControlModules() {
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Amplifier initialization failed (status %d).\n",
                       static_cast<int>(amplifierStatus));
-        initFailureDetected = true;
     }
     telemetry::emitSafe();
 
@@ -175,7 +172,6 @@ static void initControlModules() {
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cold head initialization failed (status %d).\n",
                       static_cast<int>(cold_headStatus));
-        initFailureDetected = true;
     }
     telemetry::emitSafe();
 
@@ -183,19 +179,12 @@ static void initControlModules() {
     if (relayStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Relay initialization failed (status %d).\n",
                       static_cast<int>(relayStatus));
-        initFailureDetected = true;
     }
     telemetry::emitSafe();
 
-    auto indicatorStatus = initModule("indicator", [] { return indicator::Module::init(); });
-    if (indicatorStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Indicator initialization failed (status %d).\n",
-                      static_cast<int>(indicatorStatus));
-        initFailureDetected = true;
-    }
-    telemetry::emitSafe();
-
-    setupComplete = !initFailureDetected;
+    // indicator is intentionally omitted here — it is initialised once in
+    // setup() before WiFi starts to avoid a neopixelWrite() deadlock on
+    // ESP32-S3 with Arduino 2.x.  It does not need re-initialisation on reinit().
 }
 // =============================================================================
 // Setup
@@ -203,6 +192,9 @@ static void initControlModules() {
 
 void setup() {
     Serial.begin(SERIAL_BAUD);
+
+    //while (!Serial.available()) delay(100);
+    delay(1000);
 
     logger::logf("[setup] Starting up\n");
     Serial.println(F("Cryocooler Controller -- starting up"));
@@ -218,6 +210,14 @@ void setup() {
         Serial.println(F("Hardware bus init failed. Halting."));
         return;
     }
+
+    // Initialise the indicator LED before WiFi starts.  On ESP32-S3 with
+    // Arduino 2.x, neopixelWrite() uses rmt_wait_tx_done() internally which
+    // deadlocks if the WiFi stack is already up — WiFi interrupt priorities
+    // can block the RMT "done" interrupt, hanging the main task indefinitely.
+    // The indicator only needs GPIO + RMT (no I2C/SPI), so it is safe to run
+    // here immediately after the hardware buses are ready.
+    initModule("indicator", [] { return indicator::Module::init(); });
 
     // Bring up the console and viewer so the operator can observe progress
     // and send commands even if control hardware fails to initialise.
@@ -237,14 +237,8 @@ void setup() {
     // be caught here; initDac() handles those by force-writing 0 on every boot.
     esp_register_shutdown_handler([]() { amplifier::hardStop(); });
 
-    if (!setupComplete) {
-        logger::logf("[setup] Setup failed. Halting startup.\n");
-        Serial.println(F("Setup failed. Halting startup."));
-        return;
-    }
-    logger::logf("[setup] Setup complete. System is initializing. (status %d)\n", static_cast<int>(sysinfo::Module::getInitStatus()));
-    Serial.printf("\nSetup complete. System is initializing. (status %d)\n", static_cast<int>(sysinfo::Module::getInitStatus()));
-
+    logger::logf("[setup] Setup complete. System is initializing.\n");
+    Serial.println(F("\nSetup complete. System is initializing."));
     Serial.println(F("Type 'help' for available commands."));
 }
 
@@ -269,18 +263,11 @@ void loop() {
     }
 
     // Serial command processing runs unconditionally so the console is always
-    // reachable — even when setup failed due to missing hardware.
-    // (The TCP/Serial-Studio path calls processLine() directly and is
-    //  unaffected by the setupComplete gate below.)
+    // reachable even when control hardware failed to initialise.
+    // (The TCP/Serial-Studio path calls processLine() directly.)
     if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
         Serial.println(F("[loop] commands service error"));
     }
-
-    // Full control loop runs when setup succeeded, OR when mock mode is
-    // active (hardware-free FSM testing with injected sensor values).
-    // Modules that failed to initialise return SERVICE_ERROR from service()
-    // without crashing, so it is safe to call them in mock mode.
-    if (!setupComplete && !sensor_mock::isActive()) { return; }
 
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all

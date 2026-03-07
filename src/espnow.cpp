@@ -49,6 +49,7 @@
 #include "cooling.h"
 #include "indicator.h"
 #include "esp_log.h"
+#include <esp_idf_version.h>
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -86,15 +87,90 @@ static void onSent(const uint8_t* /*mac*/, esp_now_send_status_t status) {
     if (status == ESP_NOW_SEND_SUCCESS) {
         ++sentCount_;
         if (sentCount_ % 100 == 0) {
-            ESP_LOGI(TAG, "onSent SUCCESS (%lu deliveries)", static_cast<unsigned long>(sentCount_));
+            ESP_LOGV(TAG, "onSent SUCCESS (%lu deliveries)", static_cast<unsigned long>(sentCount_));
         }
     } else {
         ++failCount_;
         if (failCount_ % 100 == 0) {
-            ESP_LOGW(TAG, "onSent FAIL status=%d (%lu failures)", static_cast<int>(status), static_cast<unsigned long>(failCount_));
+            ESP_LOGV(TAG, "onSent FAIL status=%d (%lu failures)", static_cast<int>(status), static_cast<unsigned long>(failCount_));
         }
     }
 }
+
+// ─── ESP-NOW response sink ────────────────────────────────────────────────────
+
+/**
+ * Arduino Print subclass that buffers output from commands::processLine() and
+ * ships it back to the command sender via esp_now_send().
+ *
+ * Rationale
+ * ─────────
+ * commands::processLine(line, Print& out) is transport-agnostic.  By passing
+ * an EspNowPrint instead of Serial, every response line (status text, error
+ * messages, "OK", etc.) is sent back to the control panel over the air rather
+ * than (only) appearing on the USB console.
+ *
+ * Wire behaviour
+ * ──────────────
+ * Output is accumulated into a 246-byte chunk buffer.  When the chunk is full,
+ * or when the object is destroyed (end of processLine's scope), the buffered
+ * bytes are sent as a single esp_now_send() call.  Each chunk therefore fits
+ * inside the 250-byte ESP-NOW frame limit with four bytes of headroom.
+ *
+ * Calling esp_now_send() from within the recv callback (WiFi-task context) is
+ * explicitly supported by ESP-IDF; the maximum payload is 250 bytes.
+ *
+ * The sender MAC must already be registered as an ESP-NOW peer (peerMac_ is
+ * registered during init(), so any packet from that peer can be replied to).
+ */
+class EspNowPrint : public Print {
+public:
+    explicit EspNowPrint(const uint8_t* mac) noexcept {
+        memcpy(mac_, mac, 6);
+    }
+
+    ~EspNowPrint() { flush(); }
+
+    size_t write(uint8_t c) override {
+        buf_[len_++] = static_cast<char>(c);
+        if (len_ >= kChunkSize) { flush(); }
+        return 1;
+    }
+
+    size_t write(const uint8_t* data, size_t size) override {
+        size_t written = 0;
+        while (written < size) {
+            const size_t space = kChunkSize - len_;
+            const size_t copy  = (size - written) < space ? (size - written) : space;
+            memcpy(buf_ + len_, data + written, copy);
+            len_    += copy;
+            written += copy;
+            if (len_ >= kChunkSize) { flush(); }
+        }
+        return size;
+    }
+
+    void flush() override {
+        if (len_ == 0) return;
+        const esp_err_t err = esp_now_send(
+            mac_,
+            reinterpret_cast<const uint8_t*>(buf_),
+            len_);
+        if (err != ESP_OK) {
+            ESP_LOGW(TAG, "EspNowPrint::flush esp_now_send failed: 0x%x",
+                     static_cast<unsigned>(err));
+        }
+        len_ = 0;
+    }
+
+private:
+    /** Leave 4 bytes headroom inside the 250-byte ESP-NOW frame limit. */
+    static constexpr size_t kChunkSize = 246;
+
+    uint8_t mac_[6];
+    char    buf_[kChunkSize];
+    size_t  len_ = 0;
+};
 
 // ─── Receive callback ─────────────────────────────────────────────────────────
 
@@ -104,12 +180,22 @@ static void onSent(const uint8_t* /*mac*/, esp_now_send_status_t status) {
  * The payload is treated as a raw command string — identical to a line typed
  * into the serial console.  The bytes are copied into a local null-terminated
  * buffer, any trailing CR/LF is stripped, and the result is forwarded to
- * commands::processLine() with Serial as the response sink.
+ * commands::processLine() with an EspNowPrint sink so the response text is
+ * sent back to the sender over the air.
  *
  * This callback runs in the WiFi task context (same as the TCP command path),
- * so it is safe to call commands::processLine() here.
+ * so it is safe to call both commands::processLine() and esp_now_send() here.
+ *
+ * Callback signature: ESP-IDF 5.x changed esp_now_recv_cb_t so the first
+ * argument is const esp_now_recv_info_t* rather than const uint8_t* (MAC).
+ * The version guard below keeps this compiling on both IDF 4.x and 5.x.
  */
+#if ESP_IDF_VERSION_MAJOR >= 5
+static void onReceived(const esp_now_recv_info_t* info, const uint8_t* data, int len) {
+    const uint8_t* mac = info->src_addr;
+#else
 static void onReceived(const uint8_t* mac, const uint8_t* data, int len) {
+#endif
     ESP_LOGI(TAG, "onReceived from %02X:%02X:%02X:%02X:%02X:%02X, len=%d",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], len);
     if (len <= 0) return;
@@ -133,7 +219,12 @@ static void onReceived(const uint8_t* mac, const uint8_t* data, int len) {
     ESP_LOGI(TAG, "cmd from %02X:%02X:%02X:%02X:%02X:%02X: \"%s\"",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], buf);
 
-    commands::processLine(buf, Serial);
+    // Route the response back to the sender over ESP-NOW.
+    // EspNowPrint buffers write() calls and flushes via esp_now_send() on
+    // destruction, so the complete response is transmitted when processLine()
+    // returns and espNowOut goes out of scope.
+    EspNowPrint espNowOut(mac);
+    commands::processLine(buf, espNowOut);
 }
 
 // ─── Packet fill ───────────────────────────────────────────────────────────────

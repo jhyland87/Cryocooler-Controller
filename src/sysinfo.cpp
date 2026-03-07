@@ -113,6 +113,13 @@ module::ServiceStatus service() {
         setLastReadings(mo.voltage, mo.current, mo.voltage * mo.current);
         return module::MODULE_SERVICE_OK;
     }
+
+    // INA260 reads are only valid when the chip was found during init.
+    // Attempting reads on a missing device generates I2C errors every tick.
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
     voltage = ina260.readBusVoltage();
     current = ina260.readCurrent();
     power   = ina260.readPower();

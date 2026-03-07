@@ -89,14 +89,23 @@ static void handleStart(const char* /*args*/, Print& out) {
     // Use mock temperature when active so the FSM picks the right entry
     // state (coarse vs fine vs settle) even without real hardware.
     // Native test builds fall back to the header default (AMBIENT_START_K).
+    // start() enforces required-module readiness internally; if any control
+    // module failed to initialise it returns the module name so we can report it.
 #ifdef ARDUINO
     const float tempK = sensor_mock::isActive()
                             ? sensor_mock::get().tempK
                             : cold_head::getLastTempK();
-    state_machine::start(tempK);
+    const char* missing = state_machine::start(tempK);
 #else
-    state_machine::start();
+    const char* missing = state_machine::start();
 #endif
+    if (missing) {
+        char buf[80];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] Cannot start — %s not initialized (reinit first)", missing);
+        out.println(buf);
+        return;
+    }
     out.println("[OK] Process started");
 }
 
@@ -105,13 +114,17 @@ static void handleReinit(const char* /*args*/, Print& out) {
     // Allow reinit only from safe non-running states.  If the process is
     // actively running the operator should stop it first to allow a clean
     // shutdown ramp before re-initialising hardware.
+    // Initialize is also allowed so a failed startup (stuck in Initialize
+    // because a hardware module was missing) can be retried without having
+    // to issue an 'off' command first.
     const auto s = state_machine::getState();
-    if (s != state_machine::State::Off   &&
-        s != state_machine::State::Idle  &&
+    if (s != state_machine::State::Off        &&
+        s != state_machine::State::Idle       &&
+        s != state_machine::State::Initialize &&
         s != state_machine::State::Fault) {
         char buf[80];
         snprintf(buf, sizeof(buf),
-                 "[ERR] Cannot reinit while in %s — stop or off the system first",
+                 "[ERR] Cannot reinit while in %s — stop the system first",
                  state_machine::stateName(s));
         out.println(buf);
         return;

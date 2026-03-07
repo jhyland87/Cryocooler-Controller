@@ -216,13 +216,20 @@ bool isRunning();
  *   tempK below threshold but above   →  FineCooldown
  *     setpoint band
  *
+ * Before entering a cooling state, all required control modules (cooling,
+ * amplifier, cold_head, relay) are checked for successful initialisation.
+ * If any module is not ready the transition is aborted and the name of the
+ * first unready module is returned so the caller can report a meaningful
+ * error to the operator.
+ *
  * Has no effect if the machine is already running.
  *
  * @param nowMs   Current millis()
  * @param tempK   Current cold-stage temperature in Kelvin.
  *                Defaults to AMBIENT_START_K (warm start / unknown temp).
+ * @return nullptr on success, or the name of the unready module on failure.
  */
-void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
+const char* start(uint32_t nowMs, float tempK = AMBIENT_START_K);
 
 /**
  * Stop the cooldown process and return to Idle via the Shutdown ramp.
@@ -405,7 +412,7 @@ inline Output update(float tempK, float coolingRate, float rmsVoltage, bool stal
     return update(tempK, coolingRate, rmsVoltage, stalled,
                   millis(), overstroke, systemVoltage);
 }
-inline void start(float tempK = AMBIENT_START_K) { start(millis(), tempK); }
+inline const char* start(float tempK = AMBIENT_START_K) { return start(millis(), tempK); }
 inline void stop()       { stop(millis()); }
 inline void clearFault() { clearFault(millis()); }
 inline void off()        { off(millis()); }
