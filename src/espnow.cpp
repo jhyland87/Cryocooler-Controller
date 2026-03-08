@@ -56,6 +56,7 @@
 #include <esp_now.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/queue.h>
 #include <time.h>
 
 static constexpr char TAG[] = "espnow";
@@ -76,6 +77,27 @@ static volatile bool     ready_     = false;
 static volatile uint32_t sentCount_ = 0;   ///< Successful packet deliveries
 static volatile uint32_t failCount_ = 0;   ///< Failed packet deliveries
 static uint8_t           peerMac_[6] = ESPNOW_PEER_MAC;
+
+// ─── Outgoing console log queue ────────────────────────────────────────────────
+//
+// clog() runs on the Arduino loop task (Core 1).  Calling esp_now_send()
+// directly from Core 1 can stall the loop task momentarily while the WiFi
+// stack acquires internal locks, which disrupts USB CDC receive timing and
+// causes serial command bytes to be dropped.
+//
+// This queue decouples the two: clog() pushes a text string here (fast,
+// non-blocking), and espnowTask (Core 0) drains it and calls esp_now_send()
+// alongside the periodic telemetry sends.  All esp_now_send() calls now stay
+// on Core 0, which is where the WiFi/ESP-NOW driver already lives.
+
+static constexpr uint8_t  CLOG_QUEUE_DEPTH = 8u;
+static constexpr uint16_t CLOG_TEXT_MAX    = 200u;   ///< matches clog()'s buf[200]
+
+/// 0x01 (SOH) marker prepended to console-log packets so the control panel
+/// can distinguish them from command-response packets (which start with '[').
+static constexpr uint8_t  kConsoleLogMarker = 0x01;
+
+static QueueHandle_t s_clog_queue = nullptr;
 
 // ─── Send-complete callback ────────────────────────────────────────────────────
 
@@ -301,24 +323,54 @@ static void espnowTask(void* /*arg*/) {
     // Static buffer — lives in BSS, not on the task stack.
     static TelemetryPacket pkt;
 
-    TickType_t lastWakeTime = xTaskGetTickCount();
+    TickType_t lastWakeTime    = xTaskGetTickCount();
+    TickType_t lastTelemetryTick = lastWakeTime;
 
     for (;;) {
-        // Accurate period regardless of fill / send duration.
-        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(ESPNOW_SEND_INTERVAL_MS));
+        // Short sleep so the console log queue is drained promptly.
+        // Telemetry is gated by its own interval below.
+        static constexpr uint32_t TASK_TICK_MS = 100u;
+        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(TASK_TICK_MS));
 
         if (!ready_) continue;
 
-        fillPacket(pkt);
+        // ── Drain outgoing console log queue ──────────────────────────────────
+        // clog() pushes text here from Core 1.  Sending from Core 0 keeps ALL
+        // esp_now_send() calls on the same core as the WiFi/ESP-NOW driver.
+        if (s_clog_queue) {
+            char line[CLOG_TEXT_MAX];
+            while (xQueueReceive(s_clog_queue, line, 0) == pdTRUE) {
+                const size_t textLen = strnlen(line, CLOG_TEXT_MAX - 1u);
+                if (textLen == 0u) continue;
 
-        const esp_err_t err = esp_now_send(
-            peerMac_,
-            reinterpret_cast<const uint8_t*>(&pkt),
-            sizeof(pkt));
+                uint8_t pkt_log[CLOG_TEXT_MAX + 1u];
+                pkt_log[0] = kConsoleLogMarker;
+                memcpy(pkt_log + 1u, line, textLen);
 
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "esp_now_send failed: 0x%x", static_cast<unsigned>(err));
-            ++failCount_;
+                const esp_err_t err = esp_now_send(peerMac_, pkt_log, textLen + 1u);
+                if (err != ESP_OK) {
+                    ESP_LOGW(TAG, "clog queue flush: esp_now_send failed: 0x%x",
+                             static_cast<unsigned>(err));
+                }
+            }
+        }
+
+        // ── Periodic telemetry ─────────────────────────────────────────────────
+        const TickType_t nowTick = xTaskGetTickCount();
+        if ((nowTick - lastTelemetryTick) * portTICK_PERIOD_MS >= ESPNOW_SEND_INTERVAL_MS) {
+            lastTelemetryTick = nowTick;
+
+            fillPacket(pkt);
+
+            const esp_err_t err = esp_now_send(
+                peerMac_,
+                reinterpret_cast<const uint8_t*>(&pkt),
+                sizeof(pkt));
+
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "esp_now_send failed: 0x%x", static_cast<unsigned>(err));
+                ++failCount_;
+            }
         }
     }
 }
@@ -361,6 +413,15 @@ module::InitStatus init() {
     ESP_LOGI(TAG, "Peer registered on channel %d (WiFi STA)  packet size: %u bytes",
              WiFi.channel(), static_cast<unsigned>(sizeof(TelemetryPacket)));
 
+    // Create the outgoing console log queue before the task starts so it is
+    // ready for clog() calls as soon as ready_ becomes true.
+    s_clog_queue = xQueueCreate(CLOG_QUEUE_DEPTH, CLOG_TEXT_MAX);
+    if (!s_clog_queue) {
+        ESP_LOGE(TAG, "xQueueCreate for clog queue failed");
+        esp_now_deinit();
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
+    }
+
     // Pin the task to Core 0 so it runs alongside the WiFi/TCPIP stack and
     // vTaskDelayUntil() yields do not stall the control loop on Core 1.
     xTaskCreatePinnedToCore(
@@ -388,6 +449,25 @@ module::ServiceStatus service() {
 uint32_t getSentCount() { return sentCount_; }
 uint32_t getFailCount() { return failCount_; }
 bool     isReady()      { return ready_; }
+
+// ─── Console log forwarding ────────────────────────────────────────────────────
+
+void consoleLog(const char* text) {
+    if (!ready_ || !text || !s_clog_queue) return;
+
+    // Copy into a fixed-width slot and push to the queue.  xQueueSend() with
+    // timeout 0 is non-blocking: if the queue is full the message is dropped
+    // rather than stalling the caller (Core 1 Arduino task).
+    char buf[CLOG_TEXT_MAX];
+    const size_t len = strnlen(text, CLOG_TEXT_MAX - 1u);
+    memcpy(buf, text, len);
+    buf[len] = '\0';
+
+    if (xQueueSend(s_clog_queue, buf, 0) != pdTRUE) {
+        // Queue full — drop the message silently to avoid blocking Core 1.
+        ESP_LOGV(TAG, "consoleLog: queue full, message dropped");
+    }
+}
 
 } // namespace espnow
 

@@ -145,6 +145,19 @@ uint32_t getFailCount();
 /** True once init() has completed successfully. */
 bool isReady();
 
+/**
+ * Forward a console log message to the control panel over ESP-NOW.
+ *
+ * The text is prefixed with a 0x01 marker byte (SOH) so the receiver can
+ * distinguish it from command-response packets (which always begin with the
+ * printable '[' character).  The caller is responsible for also writing to
+ * Serial if UART output is still required.
+ *
+ * Falls through silently if ESP-NOW is not yet initialised or @p text is
+ * empty.  Safe to call from any FreeRTOS task context.
+ */
+void consoleLog(const char* text);
+
 // ── Module interface ──────────────────────────────────────────────────────────
 
 struct Module : ModuleBase<Module> {
