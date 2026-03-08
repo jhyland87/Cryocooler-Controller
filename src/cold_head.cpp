@@ -119,14 +119,7 @@ static const TempSample& sampleAt(uint8_t i) {
 
 namespace cold_head {
 
-// Forward declaration — defined below; kept internal (not in the header).
-static bool checkDependencies();
-
 module::InitStatus init() {
-    if (!checkDependencies() && !sensor_mock::isActive() && !sLocalMockEnabled) {
-        return module::MODULE_INIT_DEPENDENCY_ERROR;
-    }
-
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
@@ -276,20 +269,6 @@ void setLastReadings(uint32_t nowMs, float tempK,
 //     }
 //     return 0.0f;
 // }
-
-bool checkDependencies() {
-    if (!imu::Module::isInitialized() && !sensor_mock::isActive()) {
-        ESP_LOGE(TAG, "Dependency check failed - Accelerometer not initialized!");
-        return false;
-    }
-
-    if (!amplifier::Module::isInitialized() && !sensor_mock::isActive()) {
-        ESP_LOGE(TAG, "Dependency check failed - Amplifier not initialized!");
-        return false;
-    }
-
-    return true;
-}
 
 void checkFaults() {
     if (sensor_mock::isActive()) return;

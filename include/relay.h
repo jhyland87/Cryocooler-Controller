@@ -4,10 +4,8 @@
  *
  * Two relays are managed:
  *
- *   BYPASS_RELAY_PIN  - LOW = Bypass mode (default / safe),
- *                       HIGH = Normal mode (states 5, 6, 7 only).
- *
- *   ALARM_RELAY_PIN   - LOW = idle, HIGH = alarm (state 8 / Fault only).
+ *   RELAY_COMPRESSOR_I2C_ADDRESS - I2C address of the compressor relay controller.
+ *   RELAY_AMPLIFIER_I2C_ADDRESS - I2C address of the amplifier relay controller.
  */
 
 #ifndef RELAY_H
@@ -18,7 +16,7 @@
 namespace relay {
 
 /**
- * Initialize relay GPIO pins (outputs, defaulting to Bypass / alarm-off).
+ * Initialize relay GPIO pins (outputs, defaulting to Compressor / Amplifier off).
  * @return MODULE_INIT_SUCCESS always (GPIO init cannot fail).
  */
 module::InitStatus init();
@@ -27,14 +25,20 @@ module::InitStatus init();
  * Switch the bypass relay.
  * @param normal  true = Normal mode (HIGH), false = Bypass mode (LOW).
  */
-void setBypass(bool normal);
+void setCompressorState(bool on);
 
-/**
- * Drive the alarm relay.
- * @param active  true = alarm on (HIGH), false = alarm off (LOW).
- */
-void setAlarm(bool active);
 
+
+void setAmplifierState(bool on);
+
+bool getCompressorState();
+
+bool getAmplifierState();
+
+
+void enableMock();
+void disableMock();
+bool isMockEnabled();
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // relay is a pure actuator module — it has no periodic loop work.

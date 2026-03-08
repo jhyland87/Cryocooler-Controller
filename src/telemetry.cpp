@@ -125,13 +125,14 @@ static void buildStartupFrame(FrameBuilder& frame)
         return s == module::MODULE_INIT_SUCCESS;
     };
 
-    const bool smReady        = ready(state_machine::Module::getInitStatus());
-    const bool coldHeadReady  = ready(cold_head::Module::getInitStatus());
-    const bool amplifierReady = ready(amplifier::Module::getInitStatus());
-    const bool indicatorReady = ready(indicator::Module::getInitStatus());
-    const bool sysinfoReady   = ready(sysinfo::Module::getInitStatus());
-    const bool accelReady     = ready(imu::Module::getInitStatus());
-    const bool coolingReady   = ready(cooling::Module::getInitStatus());
+    const bool smReady          = ready(state_machine::Module::getInitStatus());
+    const bool coldHeadReady    = ready(cold_head::Module::getInitStatus());
+    const bool amplifierReady   = ready(amplifier::Module::getInitStatus());
+    const bool relayReady       = ready(relay::Module::getInitStatus());
+    const bool indicatorReady   = ready(indicator::Module::getInitStatus());
+    const bool sysinfoReady     = ready(sysinfo::Module::getInitStatus());
+    const bool accelReady       = ready(imu::Module::getInitStatus());
+    const bool coolingReady     = ready(cooling::Module::getInitStatus());
     const float amplifierVoltageScore = amplifier::getVoltageScore();
     const float amplifierFrequencyScore = amplifier::getFrequencyScore();
     const float coolingFanSpeedScore = cooling::getFanSpeedScore();
@@ -202,11 +203,16 @@ static void buildStartupFrame(FrameBuilder& frame)
     // update(); no standalone getter exists, so always emit "" here.
     frame.field("status.backoff_count", "%s", "");
 
-    // relay fields — relay has no state getters; driven entirely by the
-    // state-machine Output struct, so always emit "" during safe path.
-    frame
-        .field("relay.normal", "%s", "")
-        .field("relay.alarm",  "%s", "");
+    // ── Relay ───────────────────────────────────────────────────────────────
+    if (relayReady) {
+        frame
+            .field("relay.compressor_state", "%d", relay::getCompressorState())
+            .field("relay.amplifier_state",  "%d", relay::getAmplifierState());
+    } else {
+        frame
+            .field("relay.compressor_state", "%s", "")
+            .field("relay.amplifier_state",  "%s", "");
+    }
 
     // // ── DAC ───────────────────────────────────────────────────────────────
     // if (dacReady) {
@@ -507,10 +513,10 @@ void emit(const state_machine::Output& out)
         // Unix epoch seconds (UTC).  Populated by SNTP once WiFi syncs;
         // returns 0 until the first sync completes.  Replace with RTC read
         // when hardware is available.
-        .field("timestamp.epoch",                  "%lld", static_cast<int64_t>(time(nullptr)))
-        .field("timestamp.local",                  "%s",   localBuf)
-        .field("state.id",                         "%d",   static_cast<int8_t>(out.state))
-        .field("state.name",                       "%s",   state_machine::stateName(out.state))
+        .field("timestamp.epoch",                   "%lld", static_cast<int64_t>(time(nullptr)))
+        .field("timestamp.local",                   "%s",   localBuf)
+        .field("state.id",                          "%d",   out.state)
+        .field("state.name",                        "%s",   state_machine::stateName(out.state))
         .field("state.status_text",                 "%s",   state_machine::getStatusText())
         .field("cold_head.temp_k",                  "%.2f", cold_head::getLastTempK())
         .field("cold_head.temp_c",                  "%.2f", cold_head::getLastTempC())
@@ -520,8 +526,8 @@ void emit(const state_machine::Output& out)
         //.field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
         .field("cold_head.voltage_v",               "%.2f", cold_head::getLastRmsVoltage())
         .field("cold_head.current_a",               "%.2f", cold_head::getLastRmsCurrent())
-        .field("relay.normal",                      "%u",   static_cast<uint8_t>(!out.bypassRelay))
-        .field("relay.alarm",                       "%u",   static_cast<uint8_t>(out.alarmRelay))
+        .field("relay.compressor_state",            "%d",   relay::getCompressorState())
+        .field("relay.amplifier_state",             "%d",   relay::getAmplifierState())
         .field("indicator.fault",                   "%d",   indicator::isFaultOn())
         .field("indicator.ready",                   "%d",   indicator::isReadyOn())
         .field("status.on_duration_ms",             "%lu",  static_cast<unsigned long>(durationMs))
@@ -547,7 +553,7 @@ void emit(const state_machine::Output& out)
         .field("imu.accel_mag",                     "%.2f", imu::getAccelMag())
         //.field("imu.gyro_mag",                      "%.2f", imu::getGyroMag())
         .field("imu.temp_c",                        "%.1f", imu::getTemperature())
-        .field("imu.motion",                        "%u",   static_cast<uint8_t>(imu::isMotionDetected()))
+        .field("imu.motion",                        "%u",   imu::isMotionDetected())
         .field("imu.x",                             "%.3f", imu::getAccelX())
         .field("imu.y",                             "%.3f", imu::getAccelY())
         .field("imu.z",                             "%.3f", imu::getAccelZ())

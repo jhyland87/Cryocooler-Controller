@@ -154,6 +154,16 @@ static void initPersistentModules() {
  * each step so the dashboard shows real-time progress.
  */
 static void initControlModules() {
+    // Relay module should be initialized first to disable the amplifier and
+    // compressor. Otherwise they may start up with a previous value (ie: the
+    // coldhead could jump right to a high voltage state, causing a fault.)
+    auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
+    if (relayStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Relay initialization failed (status %d).\n",
+                      static_cast<int>(relayStatus));
+    }
+    telemetry::emitSafe();
+
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cooling initialization failed (status %d).\n",
@@ -172,13 +182,6 @@ static void initControlModules() {
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cold head initialization failed (status %d).\n",
                       static_cast<int>(cold_headStatus));
-    }
-    telemetry::emitSafe();
-
-    auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
-    if (relayStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Relay initialization failed (status %d).\n",
-                      static_cast<int>(relayStatus));
     }
     telemetry::emitSafe();
 
@@ -329,8 +332,8 @@ void loop() {
     if (overstroke) { imu::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
-    relay::setBypass(!out.bypassRelay);   // setBypass(true) = Normal
-    relay::setAlarm(out.alarmRelay);
+    // relay::setCompressorState(relay::getCompressorState());
+    // relay::setAlarmState(out.alarmRelay);
 
     indicator::setFaultMode(out.faultIndMode);
     indicator::setReadyMode(out.readyIndMode);

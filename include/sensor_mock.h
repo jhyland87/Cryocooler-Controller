@@ -65,6 +65,7 @@ struct Overrides {
     // ── Flags ────────────────────────────────────────────────────────────────
     bool  stalled     = false;    ///< Temperature-stall detection output
     bool  overstroke  = false;    ///< Back-EMF overstroke flag
+
 };
 
 // =============================================================================

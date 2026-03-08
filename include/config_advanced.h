@@ -18,6 +18,17 @@
 
 #include <stdint.h>
 
+
+// =============================================================================
+// Relays - Controlled over I2C
+// =============================================================================
+
+// Acceptable deviation around AMPLIFIER_CURRENT_NOMINAL_A (A).
+#define RELAY_COMPRESSOR_I2C_ADDRESS static_cast<uint8_t>(0x18)
+
+// Amplifier relay address
+#define RELAY_AMPLIFIER_I2C_ADDRESS static_cast<uint8_t>(0x19)
+
 // =============================================================================
 // ADC / DAC internals
 // =============================================================================

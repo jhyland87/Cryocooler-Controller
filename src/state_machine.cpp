@@ -321,80 +321,80 @@ static Output buildOutput(State s, uint16_t dacTarget) {
     Output o{};
     o.state        = s;
     o.dacTarget    = dacTarget;
-    o.alarmRelay   = false;
+    // o.compressorRelay = false;
+    // o.amplifierRelay = false;
     o.statusText   = statusTextForState(s);
     o.backoffCount = backoffCount;
 
     switch (s) {
         case State::Off:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = LOW;
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::Off;
             break;
 
         case State::Initialize:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = LOW;
             o.faultIndMode = Mode::SolidAmber;
             o.readyIndMode = Mode::SolidAmber;
             break;
 
         case State::Idle:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = LOW;
             o.faultIndMode = Mode::SolidRed;
             o.readyIndMode = Mode::Off;
             break;
 
         case State::CoarseCooldown:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = HIGH;
             o.faultIndMode = Mode::FlashFastRed;
             o.readyIndMode = Mode::Off;
             break;
 
         case State::FineCooldown:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = HIGH;
             o.faultIndMode = Mode::FlashFastRed;
             o.readyIndMode = Mode::FlashSlowGreen;
             break;
 
         case State::Overshoot:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = HIGH;
             o.faultIndMode = Mode::FlashFastRed;
             o.readyIndMode = Mode::FlashFastGreen;
             break;
 
         case State::Settle:
-            o.bypassRelay  = false;   // Normal
+            //o.amplifierRelay  = HIGH;   // Normal
             o.faultIndMode = Mode::FlashFastRed;
             o.readyIndMode = Mode::FlashFastGreen;
             break;
 
         case State::Baseline:
-            o.bypassRelay  = false;   // Normal
+            //o.amplifierRelay  = HIGH;   // Normal
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::SolidGreen;
             break;
 
         case State::Operating:
-            o.bypassRelay  = false;   // Normal
+            //o.amplifierRelay  = HIGH;   // Normal
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::SolidGreen;
             break;
 
         case State::Shutdown:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = LOW;
             o.faultIndMode = Mode::Off;
             o.readyIndMode = Mode::Off;
             break;
 
         case State::Delay:
-            o.bypassRelay  = true;
+            //o.amplifierRelay  = HIGH;
             o.faultIndMode = Mode::SolidAmber;
             o.readyIndMode = Mode::SolidAmber;
             break;
 
         case State::Fault:
-            o.bypassRelay  = true;
-            o.alarmRelay   = true;
+            //o.amplifierRelay  = LOW;
             o.faultIndMode = Mode::FlashFastRed;
             o.readyIndMode = Mode::Off;
             break;
@@ -428,7 +428,10 @@ static void setStateEntry(State s) {
     pushHistory(s, sNowMs);
 }
 
-static void onEnterOff()            { setStateEntry(State::Off); }
+static void onEnterOff()            {
+    setStateEntry(State::Off);
+    relay::setAmplifierState(false);
+}
 static void onEnterInitialize() {
     setStateEntry(State::Initialize);
     if (onInitializeCb) {
@@ -439,22 +442,44 @@ static void onEnterInitialize() {
 }
 static void onEnterIdle() {
     setStateEntry(State::Idle);
+    relay::setAmplifierState(false);
     amplifier::rampToVoltage(0);
 }
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
+    relay::setAmplifierState(true);
     amplifier::initCoarseCooldown();
 }
 static void onEnterFineCooldown() {
     setStateEntry(State::FineCooldown);
+    relay::setAmplifierState(true);
     amplifier::initFineCooldown();
 }
-static void onEnterOvershoot()      { setStateEntry(State::Overshoot); }
-static void onEnterSettle()         { setStateEntry(State::Settle); }
-static void onEnterBaseline()       { setStateEntry(State::Baseline); }
-static void onEnterOperating()      { setStateEntry(State::Operating); cold_head::startTemperatureTracking(); }
-static void onExitOperating()       { cold_head::stopTemperatureTracking(); }
-static void onEnterShutdown()       { setStateEntry(State::Shutdown); }
+static void onEnterOvershoot()      {
+    setStateEntry(State::Overshoot);
+    relay::setAmplifierState(true);
+}
+static void onEnterSettle()         {
+    setStateEntry(State::Settle);
+    relay::setAmplifierState(true);
+}
+static void onEnterBaseline()       {
+    setStateEntry(State::Baseline);
+    relay::setAmplifierState(true);
+}
+static void onEnterOperating()      {
+    setStateEntry(State::Operating);
+    relay::setAmplifierState(true);
+    cold_head::startTemperatureTracking();
+}
+static void onExitOperating()       {
+    relay::setAmplifierState(false);
+    cold_head::stopTemperatureTracking();
+}
+static void onEnterShutdown()       {
+    setStateEntry(State::Shutdown);
+    relay::setAmplifierState(false);
+}
 
 static void onEnterDelay() {
     setStateEntry(State::Delay);
@@ -885,19 +910,9 @@ uint32_t getOnStateDuration() {
     return millis() - onStateMs;
 }
 
-const char* start(uint32_t nowMs, float tempK) {
+void start(uint32_t nowMs, float tempK) {
     Serial.printf("start() tempK=%.2f\n", tempK);
-    if (running) return nullptr;
-
-    // Verify all required control modules initialised successfully before
-    // entering any cooling state.  This is the single authoritative check —
-    // callers (commands, dashboard, ESP-NOW, etc.) do not need their own guards.
-#ifdef ARDUINO
-    if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) return "cooling";
-    if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "amplifier";
-    if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "cold_head";
-    if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) return "relay";
-#endif
+    if (running) return;
 
     running          = true;
     sNowMs          = nowMs;
@@ -923,7 +938,6 @@ const char* start(uint32_t nowMs, float tempK) {
         Serial.println(F("Triggering EVT_START_FINE"));
         fsmTrigger(EVT_START_FINE, "start");
     }
-    return nullptr;
 }
 
 void stop(uint32_t nowMs) {

@@ -31,6 +31,7 @@
 #include "dashboard.h"
 #include "mock_commands.h"
 #include "amplifier.h"
+#include "relay.h"
 #include "sensor_mock.h"
 #include "ota.h"
 #endif
@@ -74,6 +75,28 @@ struct Command {
 // Forward declaration so handleHelp can reference commands[] below.
 static void handleHelp(const char* args, Print& out);
 
+// ─── Control-module readiness check ───────────────────────────────────────────
+
+#ifdef ARDUINO
+/**
+ * Verify that all hardware modules required for cooling are initialised.
+ *
+ * Called by handleStart() before triggering any cooling state.  Keeping this
+ * check here (rather than inside state_machine::start()) preserves the state
+ * machine as pure logic with no dependency on module init statuses.
+ *
+ * @return nullptr if all modules are ready, or the name of the first unready
+ *         module so the caller can emit a meaningful error.
+ */
+static const char* checkControlModules() {
+    if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) return "cooling";
+    if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "amplifier";
+    if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "cold_head";
+    if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) return "relay";
+    return nullptr;
+}
+#endif
+
 // ─── Individual command handlers ──────────────────────────────────────────────
 
 static void handleStart(const char* /*args*/, Print& out) {
@@ -86,19 +109,12 @@ static void handleStart(const char* /*args*/, Print& out) {
         out.println("[ERR] Cannot start: not in Idle or Off state");
         return;
     }
-    // Use mock temperature when active so the FSM picks the right entry
-    // state (coarse vs fine vs settle) even without real hardware.
-    // Native test builds fall back to the header default (AMBIENT_START_K).
-    // start() enforces required-module readiness internally; if any control
-    // module failed to initialise it returns the module name so we can report it.
+
 #ifdef ARDUINO
-    const float tempK = sensor_mock::isActive()
-                            ? sensor_mock::get().tempK
-                            : cold_head::getLastTempK();
-    const char* missing = state_machine::start(tempK);
-#else
-    const char* missing = state_machine::start();
-#endif
+    // Verify all required control modules are ready before entering any
+    // cooling state.  state_machine::start() is pure FSM logic and does not
+    // enforce this; the check lives here so it is close to the operator path.
+    const char* missing = checkControlModules();
     if (missing) {
         char buf[80];
         snprintf(buf, sizeof(buf),
@@ -106,6 +122,16 @@ static void handleStart(const char* /*args*/, Print& out) {
         out.println(buf);
         return;
     }
+
+    // Use mock temperature when active so the FSM picks the right entry
+    // state (coarse vs fine vs settle) even without real hardware.
+    const float tempK = sensor_mock::isActive()
+                            ? sensor_mock::get().tempK
+                            : cold_head::getLastTempK();
+    state_machine::start(tempK);
+#else
+    state_machine::start();
+#endif
     out.println("[OK] Process started");
 }
 

@@ -124,10 +124,6 @@ static constexpr char TAG[] = "amplifier";
 namespace amplifier {
 
 module::InitStatus init() {
-    if (!checkDependencies() && !sensor_mock::isActive()) {
-        return module::MODULE_INIT_DEPENDENCY_ERROR;
-    }
-
     // -- MCP4725 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.

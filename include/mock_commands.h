@@ -28,16 +28,19 @@ namespace mock_commands {
  * @param out   Response sink (Serial, TCP client, etc.).
  *
  * Subcommands:
- *   (empty) / status    Print current override values and active state
- *   enable              Activate mock mode
- *   disable             Deactivate mock mode, return to real hardware
- *   temp   <K>          Cold-stage temperature (Kelvin)
- *   rate   <K/min>      Cooling rate (negative = getting colder)
- *   rms    <V>          Back-EMF RMS voltage
- *   current <A>         INA237 current
- *   voltage <V>         INA237 bus voltage
- *   stall  <0|1>        Temperature-stall flag
- *   stroke <0|1>        Back-EMF overstroke flag
+ *   (empty) / status                   Print current override values and active state
+ *   enable                             Activate mock mode
+ *   disable                            Deactivate mock mode, return to real hardware
+ *   temp   <K>                         Cold-stage temperature (Kelvin)
+ *   rate   <K/min>                     Cooling rate (negative = getting colder)
+ *   rms    <V>                         Back-EMF RMS voltage
+ *   current <A>                        INA237 current
+ *   voltage <V>                        INA237 bus voltage
+ *   stall  <0|1>                       Temperature-stall flag
+ *   stroke <0|1>                       Back-EMF overstroke flag
+ *   relay                              Print compressor and amplifier relay states
+ *   relay <amplifier|compressor> on    Energise the named relay (SM may override next tick)
+ *   relay <amplifier|compressor> off   De-energise the named relay
  */
 void handleMock(const char* args, Print& out);
 

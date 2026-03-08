@@ -47,18 +47,6 @@
 // CD to a different GPIO.
 #define SD_CD_PIN          47
 
-// =============================================================================
-// Relays
-// =============================================================================
-
-// Bypass relay - driven HIGH to switch to Normal mode (states 5-7).
-// Driven LOW (or not driven) = Bypass mode (default / safe state).
-// TODO: assign to actual wired GPIO before deployment.
-#define BYPASS_RELAY_PIN   11
-
-// Alarm relay - driven HIGH in Fault state (8) to signal an external alarm.
-// TODO: assign to actual wired GPIO before deployment.
-#define ALARM_RELAY_PIN    12
 
 // =============================================================================
 // Discrete Indicator Outputs
