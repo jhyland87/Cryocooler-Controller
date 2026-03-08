@@ -54,6 +54,12 @@ static bool  mockInjected    = false;
 static float mockCoolingRate = 0.0f;
 static bool  mockStalled     = false;
 
+// Module-local RTD mock — bypasses MAX31865 hardware without enabling the
+// global sensor_mock layer.  Allows the rest of the system to run on real
+// hardware while the temperature probe is absent or not yet wired up.
+static bool  sLocalMockEnabled = false;
+static float sLocalMockTempK   = 300.0f;
+
 // Set to true when the most recent read() detected a MAX31865 hardware fault
 // or a temperature reading outside [MIN_PLAUSIBLE_TEMP_K, MAX_PLAUSIBLE_TEMP_K].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
@@ -117,7 +123,7 @@ namespace cold_head {
 static bool checkDependencies();
 
 module::InitStatus init() {
-    if (!checkDependencies() && !sensor_mock::isActive()) {
+    if (!checkDependencies() && !sensor_mock::isActive() && !sLocalMockEnabled) {
         return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
@@ -142,6 +148,13 @@ module::InitStatus initACS() {
 }
 
 module::InitStatus initRTD() {
+    // Local mock: skip all hardware access entirely.
+    if (sLocalMockEnabled) {
+        ESP_LOGI(TAG, "Local RTD mock active (%.2f K) — skipping MAX31865 hardware init",
+                 sLocalMockTempK);
+        return module::MODULE_INIT_SUCCESS;
+    }
+
     if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
         ESP_LOGE(TAG, "Could not initialize MAX31865! Check wiring.");
         // State machine will see tempK == 0 and fault if appropriate.
@@ -163,13 +176,27 @@ module::InitStatus initRTD() {
 }
 
 void read(uint32_t nowMs) {
+    // Global sensor_mock takes precedence over the local RTD mock.
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
         setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
         // Check plausibility even for mock readings so tests can exercise the fault path.
         rtdFaultActive = (lastTempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K) ||
                           lastTempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
-    } else {
+        return;
+    }
+
+    // Local RTD mock: return the configured temperature, everything else zeroed.
+    // coolingRate and stalled stay at their defaults (0 / false) since we are
+    // holding a fixed temperature — the state machine will not fault for stall
+    // unless it is actively in a cooldown state and expects a drop.
+    if (sLocalMockEnabled) {
+        setLastReadings(nowMs, sLocalMockTempK, 0.0f, false, 0.0f, 0.0f);
+        rtdFaultActive = false;
+        return;
+    }
+
+    {
     mockInjected = false;   // real read supersedes any prior mock injection
     // Voltage/current are owned by the amplifier module; pull the latest reading.
     lastRmsVoltageV = amplifier::getLastRmsVoltage();
@@ -220,7 +247,7 @@ void read(uint32_t nowMs) {
 
     //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
     //              rtd, resistance, tempC, tempF, tempK);
-    } // else (real hardware path)
+    } // real hardware path
 
     // Update the tracking monitor if it is active (Operating state only).
     if (tempTracker_) {
@@ -395,6 +422,34 @@ float getTemperatureScore() {
 
 TrackingMonitor<float>::State getTemperatureTrackingState() {
     return tempTracker_ ? tempTracker_->getState() : TrackingMonitor<float>::State::IN_RANGE;
+}
+
+// ---------------------------------------------------------------------------
+// Module-local RTD mock API
+// ---------------------------------------------------------------------------
+
+void enableMock(float tempK) {
+    sLocalMockEnabled = true;
+    sLocalMockTempK   = tempK;
+    ESP_LOGI(TAG, "Local RTD mock enabled at %.2f K (%.2f C)", tempK, tempK - 273.15f);
+#ifdef ARDUINO
+    // If the module hasn't initialised successfully yet (e.g. MAX31865 absent),
+    // run init() now — it will short-circuit through initRTD()'s mock branch and
+    // set _initStatus = SUCCESS.  This means the caller never needs a separate
+    // reinit command just to enable the cold-head mock.
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
+        Module::init();
+    }
+#endif
+}
+
+void disableMock() {
+    sLocalMockEnabled = false;
+    ESP_LOGI(TAG, "Local RTD mock disabled — will use real MAX31865 after next reinit");
+}
+
+bool isMockEnabled() {
+    return sLocalMockEnabled;
 }
 
 } // namespace cold_head

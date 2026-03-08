@@ -15,6 +15,7 @@
 
 #include "mock_commands.h"
 #include "sensor_mock.h"
+#include "cold_head.h"
 
 namespace mock_commands {
 
@@ -297,6 +298,42 @@ void handleMock(const char* args, Print& out) {
         return;
     }
 
+    // ── coldhead <K> | coldhead off ──────────────────────────────────────────
+    if (strncmp(args, "coldhead", 8) == 0 &&
+        (args[8] == '\0' || args[8] == ' ' || args[8] == '\t')) {
+        const char* sub = skipWs(args + 8);
+        if (sub == nullptr || *sub == '\0') {
+            // Print cold-head mock status
+            if (cold_head::isMockEnabled()) {
+                char buf[72];
+                snprintf(buf, sizeof(buf),
+                         "[OK] Cold head RTD mock: ACTIVE  (%.3f K  %.3f C)",
+                         cold_head::getLastTempK(), cold_head::getLastTempK() - 273.15f);
+                out.println(buf);
+            } else {
+                out.println("[OK] Cold head RTD mock: inactive (real MAX31865)");
+            }
+        } else if (strncmp(sub, "off", 3) == 0 &&
+                   (sub[3] == '\0' || sub[3] == ' ' || sub[3] == '\t')) {
+            cold_head::disableMock();
+            out.println("[OK] Cold head RTD mock disabled (takes full effect after reinit)");
+        } else {
+            float v;
+            if (!parseFloat(sub, &v)) {
+                out.println("[ERR] Usage: mock coldhead <K>  (e.g. mock coldhead 300)");
+                out.println("      or:    mock coldhead off");
+                return;
+            }
+            cold_head::enableMock(v);
+            char buf[80];
+            snprintf(buf, sizeof(buf),
+                     "[OK] Cold head RTD mock set to %.3f K (%.3f C)",
+                     v, v - 273.15f);
+            out.println(buf);
+        }
+        return;
+    }
+
     // ── status (default / no subcommand) ─────────────────────────────────────
     char buf[80];
     out.println(sensor_mock::isActive()
@@ -315,6 +352,16 @@ void handleMock(const char* args, Print& out) {
     snprintf(buf, sizeof(buf), "  stall    : %s", mo.stalled    ? "true" : "false");
     out.println(buf);
     snprintf(buf, sizeof(buf), "  stroke   : %s", mo.overstroke ? "true" : "false");
+    out.println(buf);
+
+    // Cold-head module-local RTD mock (independent of global mock mode)
+    if (cold_head::isMockEnabled()) {
+        snprintf(buf, sizeof(buf),
+                 "  coldhead : MOCKED  %.3f K  (%.3f C)",
+                 cold_head::getLastTempK(), cold_head::getLastTempK() - 273.15f);
+    } else {
+        snprintf(buf, sizeof(buf), "  coldhead : real MAX31865");
+    }
     out.println(buf);
 
     // Show active ramps as part of status

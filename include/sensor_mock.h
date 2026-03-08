@@ -13,8 +13,8 @@
  *   mock temp   <K>                      -- cold-stage temperature (Kelvin)
  *   mock rate   <K/min>                  -- cooling rate
  *   mock rms    <V>                      -- RMS voltage (compressor drive)
- *   mock current <A>                     -- INA260 current
- *   mock voltage <V>                     -- INA260 bus voltage
+ *   mock current <A>                     -- INA237 current
+ *   mock voltage <V>                     -- INA237 bus voltage
  *   mock stall  <0|1>                    -- temperature-stall flag
  *   mock stroke <0|1>                    -- back-EMF overstroke flag
  *
@@ -59,8 +59,8 @@ struct Overrides {
     // ── Electrical ──────────────────────────────────────────────────────────
     float rmsVoltageV = 0.0f;     ///< Back-EMF RMS voltage (compressor drive)
     float rmsCurrentA = 0.0f;     ///< Back-EMF RMS current, Amperes
-    float current    = 0.0f;     ///< INA260 current, Amperes
-    float voltage    = 0.0f;     ///< INA260 bus voltage, Volts
+    float current    = 0.0f;     ///< INA237 current, Amperes
+    float voltage    = 0.0f;     ///< INA237 bus voltage, Volts
 
     // ── Flags ────────────────────────────────────────────────────────────────
     bool  stalled     = false;    ///< Temperature-stall detection output

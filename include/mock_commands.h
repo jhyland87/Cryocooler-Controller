@@ -34,8 +34,8 @@ namespace mock_commands {
  *   temp   <K>          Cold-stage temperature (Kelvin)
  *   rate   <K/min>      Cooling rate (negative = getting colder)
  *   rms    <V>          Back-EMF RMS voltage
- *   current <A>         INA260 current
- *   voltage <V>         INA260 bus voltage
+ *   current <A>         INA237 current
+ *   voltage <V>         INA237 bus voltage
  *   stall  <0|1>        Temperature-stall flag
  *   stroke <0|1>        Back-EMF overstroke flag
  */

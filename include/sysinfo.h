@@ -1,8 +1,8 @@
 /**
  * @file sysinfo.h
- * @brief INA260 power monitoring and ESP32 resource utilisation.
+ * @brief INA237 power monitoring and ESP32 resource utilisation.
  *
- * Exposes supply-rail voltage/current/power from the INA260 as well as
+ * Exposes supply-rail voltage/current/power from the INA237 as well as
  * runtime resource metrics (CPU load, heap, PSRAM, chip info).
  *
  * CPU usage is estimated via FreeRTOS idle-task hooks registered during
@@ -19,18 +19,18 @@
 namespace sysinfo {
 
 /**
- * Initialise INA260 ADC and register FreeRTOS idle hooks for CPU tracking.
- * @return MODULE_INIT_SUCCESS if INA260 responds, HARDWARE_ERROR otherwise.
+ * Initialise INA237 ADC and register FreeRTOS idle hooks for CPU tracking.
+ * @return MODULE_INIT_SUCCESS if INA237 responds, HARDWARE_ERROR otherwise.
  */
 module::InitStatus init();
 
 /**
- * Sample INA260 and update CPU usage estimate.
+ * Sample INA237 and update CPU usage estimate.
  * @return SERVICE_OK always.
  */
 module::ServiceStatus service();
 
-// ── INA260 power rail ─────────────────────────────────────────────────────────
+// ── INA237 power rail ─────────────────────────────────────────────────────────
 
 float getVoltage();
 float getCurrent();
@@ -38,7 +38,7 @@ float getPower();
 float getAmbientTemperature();
 
 /**
- * Inject cached readings directly, bypassing the INA260 hardware read.
+ * Inject cached readings directly, bypassing the INA237 hardware read.
  * Used in mock mode so that telemetry and the dashboard reflect the values
  * set via `mock voltage` and `mock current` without touching the I2C bus.
  * Power is derived as voltage * current.

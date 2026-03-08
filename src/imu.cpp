@@ -265,7 +265,7 @@ module::InitStatus init() {
     // the fallback path to the alternate address is never taken.
     //
     // Guarantee a clean bus state immediately before begin().  Earlier modules
-    // (e.g. INA260 via Adafruit_I2CDevice) call _wire->begin() internally,
+    // (e.g. INA237 via Adafruit_I2CDevice) call _wire->begin() internally,
     // which on Core 2.x can leave the driver state machine non-idle.
     ///hardware::recoverI2c();
 

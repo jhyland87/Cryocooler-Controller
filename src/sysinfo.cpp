@@ -11,7 +11,7 @@
  */
 
 #include <Arduino.h>
-#include <Adafruit_INA260.h>
+#include <Adafruit_INA237.h>
 #include <esp_timer.h>
 #include <esp_heap_caps.h>
 #include <esp_system.h>
@@ -23,7 +23,7 @@
 #include "imu.h"
 #include "sensor_mock.h"
 
-// ── INA260 readings ─────────────────────────────────────────────────────────
+// ── INA237 readings ─────────────────────────────────────────────────────────
 static float voltage = 0.0f;
 static float current = 0.0f;
 static float power   = 0.0f;
@@ -72,7 +72,7 @@ static void updateCpuUsage() {
 
 namespace sysinfo {
 
-Adafruit_INA260 ina260 = Adafruit_INA260();
+static Adafruit_INA237 ina237 = Adafruit_INA237();
 
 
 module::InitStatus init() {
@@ -86,20 +86,20 @@ module::InitStatus init() {
     }
     lastCpuSampleUs = esp_timer_get_time();
 
-    Serial.println(F("[sysinfo] Looking for INA260 chip..."));
+    Serial.println(F("[sysinfo] Looking for INA237 chip..."));
 
     TwoWire& i2c = hardware::i2c();
 
     for (uint8_t attempt = 0; attempt < 2; ++attempt) {
-        if (ina260.begin(INA260_I2CADDR_DEFAULT, &i2c)) {
-            Serial.println(F("[sysinfo] INA260 chip found and initialized"));
+        if (ina237.begin(INA237_I2CADDR_DEFAULT, &i2c)) {
+            Serial.println(F("[sysinfo] INA237 chip found and initialized"));
             analogReadResolution(ADC_RESOLUTION);
             return module::MODULE_INIT_SUCCESS;
         }
         delay(100);
     }
 
-    Serial.println(F("[sysinfo] INA260 chip not found after 2 attempts"));
+    Serial.println(F("[sysinfo] INA237 chip not found after 2 attempts"));
     analogReadResolution(ADC_RESOLUTION);
     return module::MODULE_INIT_HARDWARE_ERROR;
 }
@@ -114,19 +114,19 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_OK;
     }
 
-    // INA260 reads are only valid when the chip was found during init.
+    // INA237 reads are only valid when the chip was found during init.
     // Attempting reads on a missing device generates I2C errors every tick.
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    voltage = ina260.readBusVoltage();
-    current = ina260.readCurrent();
-    power   = ina260.readPower();
+    voltage = ina237.readBusVoltage();
+    current = ina237.readCurrent();
+    power   = ina237.readPower();
     return module::MODULE_SERVICE_OK;
 }
 
-// ── INA260 getters ──────────────────────────────────────────────────────────
+// ── INA237 getters ──────────────────────────────────────────────────────────
 
 float getVoltage() {
     return voltage;

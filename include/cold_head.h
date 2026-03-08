@@ -157,6 +157,47 @@ float getTemperatureScore();
  */
 TrackingMonitor<float>::State getTemperatureTrackingState();
 
+// ---------------------------------------------------------------------------
+// Module-local RTD mock
+//
+// Enables the cold_head module to operate without a physical MAX31865 probe,
+// independently of the global sensor_mock layer.  Only the temperature
+// reading is faked; all other hardware (amplifier, cooling fan, relay) runs
+// normally on real hardware.
+//
+// Typical use (probe not yet installed):
+//   mock coldhead 300    — enable at 300 K (room temperature)
+//   reinit               — cold_head init bypasses MAX31865 hardware
+//   start                — rest of system runs normally
+//   mock coldhead 85     — adjust temperature at any time, even while running
+//   mock coldhead off    — disable; next reinit uses real probe
+// ---------------------------------------------------------------------------
+
+/**
+ * Enable the module-local RTD mock.
+ *
+ * While active, init() skips all MAX31865 hardware access and succeeds
+ * immediately, and read() returns @p tempK instead of a real RTD reading.
+ * The global sensor_mock layer takes precedence if it is also active.
+ *
+ * Safe to call at any time; takes effect on the next read() tick.
+ * Changing the temperature while running is allowed and takes effect
+ * immediately without requiring a reinit.
+ *
+ * @param tempK  Temperature to report in Kelvin.  Defaults to 300 K.
+ */
+void enableMock(float tempK = 300.0f);
+
+/**
+ * Disable the module-local RTD mock.
+ * Takes full effect after the next reinit() — init() will attempt to
+ * communicate with the real MAX31865 hardware.
+ */
+void disableMock();
+
+/** Returns true while the module-local RTD mock is active. */
+bool isMockEnabled();
+
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // read() accepts a nowMs argument so cooling-rate history is correctly
