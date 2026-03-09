@@ -32,6 +32,7 @@ module::InitStatus initRTD();
  */
 void read(uint32_t nowMs);
 
+inline void read() { read(millis()); }
 /**
  * Inject mock sensor readings directly into the module's cached state without
  * touching any hardware.  Call every control tick instead of read() when the

@@ -196,7 +196,19 @@ static const ss::DatasetCfg coreDatasets[] = {
 
 
 
-
+static const ss::DatasetCfg compressorDatasets[] = {
+    {
+        .title          = "Compressor Status",
+        .units          = "",
+        .telemetryKey   = "compressor.status",
+        .widget         = ss::WidgetType::Led,
+        .widgetMin      = 0,
+        .widgetMax      = 1,
+        .led            = true,
+        .ledHigh        = 1,
+        .overviewDisplay = true,
+    },
+};
 
 static const ss::DatasetCfg tempDatasets[] = {
     {   // Temperature in Kelvin (gauge)
@@ -709,6 +721,7 @@ static const ss::DatasetCfg coolingDatasets[] = {
     },
 };
 
+
 // ═════════════════════════════════════════════════════════════════════════════
 // Groups
 // ═════════════════════════════════════════════════════════════════════════════
@@ -761,6 +774,12 @@ static const ss::GroupCfg dataGroups[] = {
         .widget       = ss::GroupWidget::Multiplot,
         .datasets     = accelDatasets,
         .datasetCount = static_cast<uint8_t>(sizeof(accelDatasets) / sizeof(accelDatasets[0])),
+    },
+    {
+        .title        = "Compressor",
+        .widget       = ss::GroupWidget::None,
+        .datasets     = compressorDatasets,
+        .datasetCount = static_cast<uint8_t>(sizeof(compressorDatasets) / sizeof(compressorDatasets[0])),
     },
 };
 

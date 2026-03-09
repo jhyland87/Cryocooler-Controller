@@ -110,9 +110,9 @@ void initFineCooldown();
 
 /**
  * Write @p dacTarget directly to the DAC with no rate limiting.
- * @param dacTarget  12-bit DAC value (0–4095).
+ * @param rmsTarget  The 0-120 VAC RMS target voltage.
  */
-void setRmsVoltage(uint16_t dacTarget);
+void setRmsVoltage(float rmsTarget);
 
 /** Return the current MCP4725 DAC output value (0–4095). */
 uint16_t getDacCurrent();

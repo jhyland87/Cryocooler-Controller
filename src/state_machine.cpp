@@ -22,6 +22,7 @@
  */
 #include <Arduino.h>
 #include "state_machine.h"
+#include "state_machine_history.h"
 #include "config.h"
 #include "conversions.h"
 #include "indicator.h"
@@ -29,7 +30,6 @@
 #include "cold_head.h"
 #include "cooling.h"
 #include "relay.h"
-#include <time.h>
 #include "esp_log.h"
 #include <Fsm.h>
 
@@ -115,96 +115,41 @@ static uint32_t     sNowMs            = 0;
 // module inits on every reinit().
 static void (*onInitializeCb)() = nullptr;
 
-// ---------------------------------------------------------------------------
-// FSM History ring buffer — records every state entry in arrival order.
-// historyHead always points to the next slot to write; the most recent
-// entry is at (historyHead - 1 + FSM_HISTORY_LIMIT) % FSM_HISTORY_LIMIT.
-// ---------------------------------------------------------------------------
-static HistoryEntry history[FSM_HISTORY_LIMIT] = {};
-static uint8_t      historyHead  = 0;
-static uint8_t      historyCount = 0;
+// Set by checkRunningModules() inside any running-state on_enter callback;
+// consumed at the top of the next update() tick — same deferred pattern as
+// the oscillation fault flag in state_machine_history.  The check lives in
+// the states (not in start() or in commands) so it fires regardless of how
+// the state transition was triggered.
+static bool dependencyFaultPending = false;
 
 // ---------------------------------------------------------------------------
-// Fault History ring buffer — one record per Fault-state entry.
-// faultHistoryHead points to the next write slot.
-// Most recent record: (faultHistoryHead - 1 + FAULT_HISTORY_LIMIT) % FAULT_HISTORY_LIMIT.
+// Module dependency checker — Arduino only (native builds stub this away)
 // ---------------------------------------------------------------------------
-static FaultRecord faultHistory[FAULT_HISTORY_LIMIT] = {};
-static uint8_t     faultHistoryHead  = 0;
-static uint8_t     faultHistoryCount = 0;
-
-// Set just before every fsm->trigger() call via fsmTrigger(); consumed
-// (stored into the HistoryEntry and reset to nullptr) by pushHistory().
-static const char* pendingCause = nullptr;
-
-// Set by checkOscillation(); consumed at the top of the next update() tick.
-// Using a deferred flag avoids triggering a nested FSM transition from inside
-// an on_enter callback (which would be a re-entrant FSM call).
-static bool oscillationFaultPending = false;
-
-// ---------------------------------------------------------------------------
-// Internal ring-buffer accessors.  i = 0 → most recent entry, i = 1 → previous, etc.
-// ---------------------------------------------------------------------------
-static inline const HistoryEntry& ringAt(uint8_t i) {
-    const uint8_t idx = static_cast<uint8_t>(
-        (static_cast<uint16_t>(FSM_HISTORY_LIMIT) + historyHead - 1u - i)
-        % static_cast<uint8_t>(FSM_HISTORY_LIMIT));
-    return history[idx];
-}
-
-/** Returns a mutable reference into the fault ring buffer (no bounds check). */
-static inline FaultRecord& faultRingAt(uint8_t i) {
-    const uint8_t idx = static_cast<uint8_t>(
-        (static_cast<uint16_t>(FAULT_HISTORY_LIMIT) + faultHistoryHead - 1u - i)
-        % static_cast<uint8_t>(FAULT_HISTORY_LIMIT));
-    return faultHistory[idx];
-}
-
-// ---------------------------------------------------------------------------
-// Oscillation detector — called after every state push.
 //
-// Examines the last (FSM_OSCILLATION_MIN_CYCLES * 2) history entries.
-// If they all alternate between exactly two non-trivial states AND all
-// occurred within FSM_OSCILLATION_WINDOW_MS, sets sOscillationFaultPending.
+// Called from every running-state on_enter callback.  If any required module
+// is not initialised, sets dependencyFaultPending so the next update() tick
+// fires EVT_FAULT with FaultReason::ModuleNotReady.
+//
+// Keeping the check here (rather than in commands or in start()) means it
+// fires regardless of what triggered the state transition.
 // ---------------------------------------------------------------------------
-static void checkOscillation() {
-    const uint8_t window =
-        static_cast<uint8_t>(FSM_OSCILLATION_MIN_CYCLES) * static_cast<uint8_t>(2u);
-    if (historyCount < window) return;
 
-    const State stateEven = ringAt(0).state;   // most recent
-    const State stateOdd  = ringAt(1).state;   // previous
+#ifdef ARDUINO
+#include "module.h"
+static void checkRunningModules() {
+    const char* missing = nullptr;
+    if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) missing = "cooling";
+    else if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) missing = "amplifier";
+    else if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) missing = "cold_head";
+    else if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) missing = "relay";
 
-    // Two distinct, non-trivial states are required.
-    if (stateEven == stateOdd) return;
-    if (stateEven == State::Off        || stateOdd == State::Off)        return;
-    if (stateEven == State::Initialize || stateOdd == State::Initialize) return;
-    if (stateEven == State::Fault      || stateOdd == State::Fault)      return;
-
-    // All entries in the window must alternate between exactly those two states.
-    for (uint8_t i = 0; i < window; ++i) {
-        const State expected = (i % 2u == 0u) ? stateEven : stateOdd;
-        if (ringAt(i).state != expected) return;
+    if (missing) {
+        ESP_LOGE(TAG, "Module '%s' not ready — deferring fault", missing);
+        Serial.printf("[SM] Module '%s' not ready — fault will fire next tick\n", missing);
+        dependencyFaultPending = true;
     }
-
-    // All transitions must have occurred within the configured time window.
-    const uint32_t newest = ringAt(0).enteredMs;
-    const uint32_t oldest = ringAt(static_cast<uint8_t>(window - 1u)).enteredMs;
-    if ((newest - oldest) > static_cast<uint32_t>(FSM_OSCILLATION_WINDOW_MS)) return;
-
-    oscillationFaultPending = true;
 }
-
-static void pushHistory(State s, uint32_t enteredMs) {
-    history[historyHead] = { s, enteredMs, time(nullptr), pendingCause };
-    pendingCause = nullptr;
-    historyHead = static_cast<uint8_t>(
-        (static_cast<uint16_t>(historyHead) + 1u) % FSM_HISTORY_LIMIT);
-    if (historyCount < static_cast<uint8_t>(FSM_HISTORY_LIMIT)) {
-        ++historyCount;
-    }
-    checkOscillation();
-}
+#endif  // ARDUINO
 
 // ---------------------------------------------------------------------------
 // Forward declarations for FSM state callbacks
@@ -293,6 +238,7 @@ static const char* statusTextForState(State s) {
             case FaultReason::StateOscillation: return "Fault: FSM oscillating between states — manual clearFault() required";
             case FaultReason::SensorFault:      return "Fault: Temperature sensor hardware fault or reading out of range";
             case FaultReason::RmsOvercurrent:   return "Fault: RMS output current exceeded safe limit";
+            case FaultReason::ModuleNotReady:   return "Fault: A required control module was not initialised — reinit and try again";
             default:                            return "Fault: Unknown reason";
         }
     }
@@ -425,7 +371,7 @@ static void setStateEntry(State s) {
     if (s != State::Fault) {
         faultReason = FaultReason::None;
     }
-    pushHistory(s, sNowMs);
+    histPushHistory(s, sNowMs);
 }
 
 static void onEnterOff(){
@@ -450,28 +396,46 @@ static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
     relay::setAmplifierState(true);
     amplifier::initCoarseCooldown();
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
 static void onEnterFineCooldown() {
     setStateEntry(State::FineCooldown);
     relay::setAmplifierState(true);
     amplifier::initFineCooldown();
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
-static void onEnterOvershoot()      {
+static void onEnterOvershoot() {
     setStateEntry(State::Overshoot);
     relay::setAmplifierState(true);
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
-static void onEnterSettle()         {
+static void onEnterSettle() {
     setStateEntry(State::Settle);
     relay::setAmplifierState(true);
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
-static void onEnterBaseline()       {
+static void onEnterBaseline() {
     setStateEntry(State::Baseline);
     relay::setAmplifierState(true);
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
-static void onEnterOperating()      {
+static void onEnterOperating() {
     setStateEntry(State::Operating);
     relay::setAmplifierState(true);
     cold_head::startTemperatureTracking();
+#ifdef ARDUINO
+    checkRunningModules();
+#endif
 }
 static void onExitOperating()       {
     relay::setAmplifierState(false);
@@ -493,13 +457,8 @@ static void onEnterFault() {
     running = false;
     if (offStateMs == 0) offStateMs = sNowMs;
 
-    // Push a new fault record; cleared fields stay zero/nullptr until clearFault.
-    faultHistory[faultHistoryHead] = { faultReason, sNowMs, time(nullptr), 0, 0, nullptr };
-    faultHistoryHead = static_cast<uint8_t>(
-        (static_cast<uint16_t>(faultHistoryHead) + 1u) % FAULT_HISTORY_LIMIT);
-    if (faultHistoryCount < static_cast<uint8_t>(FAULT_HISTORY_LIMIT)) {
-        ++faultHistoryCount;
-    }
+    // Push a new fault record into the history ring buffer.
+    histPushFaultRecord(faultReason, sNowMs);
 }
 
 /**
@@ -507,8 +466,9 @@ static void onEnterFault() {
  * Resets all fault-related and backoff state so the system starts clean
  * on the next start() call.
  *
- * pendingCause is still valid here (it is consumed by pushHistory() when
- * entering the next state), so we use it to record how the fault was cleared.
+ * The pendingCause tracked by state_machine_history is still valid here
+ * (consumed by histPushHistory() when entering the next state), so
+ * histCloseFaultRecord() uses it to record how the fault was cleared.
  */
 static void onExitFault() {
     Serial.printf("[SM] Fault cleared (was: %d); resetting backoff state\n",
@@ -517,17 +477,13 @@ static void onExitFault() {
              static_cast<int>(faultReason), backoffCount, backoffDacOffset);
 
     // Complete the most recent fault record with clear timestamp and cause.
-    if (faultHistoryCount > 0) {
-        FaultRecord& rec = faultRingAt(0);
-        rec.clearedMs    = sNowMs;
-        rec.clearedEpoch = time(nullptr);
-        rec.clearedBy    = pendingCause ? pendingCause : "unknown";
-    }
+    histCloseFaultRecord(sNowMs);
 
-    faultReason              = FaultReason::None;
-    backoffCount             = 0;
-    backoffDacOffset         = 0;
-    oscillationFaultPending = false;  // restart the oscillation window after manual clear
+    faultReason            = FaultReason::None;
+    backoffCount           = 0;
+    backoffDacOffset       = 0;
+    histTakeOscillationFaultPending();  // drain deferred flag; restart oscillation window
+    dependencyFaultPending = false;     // clear any pending dependency fault from a previous run attempt
 }
 
 // ---------------------------------------------------------------------------
@@ -648,11 +604,12 @@ static void buildFsm() {
 }
 
 // ---------------------------------------------------------------------------
-// Trigger helper — sets pendingCause before firing an FSM event so the
-// on_enter callback (via pushHistory) can record why the transition occurred.
+// Trigger helper — passes the cause label to state_machine_history before
+// firing an FSM event so the on_enter callback (via histPushHistory) can
+// record why the transition occurred.
 // ---------------------------------------------------------------------------
 static void fsmTrigger(int event, const char* cause) {
-    pendingCause = cause;
+    histSetPendingCause(cause);
     fsm->trigger(event);
 }
 
@@ -670,14 +627,10 @@ module::InitStatus init(uint32_t nowMs) {
     backoffDacOffset = 0;
     settleTimerActive= false;
     settleStartMs    = 0;
-    delayMs         = 0;
-    delayNextEvent  = EVT_DELAY_TO_IDLE;
-    historyHead              = 0;
-    historyCount             = 0;
-    pendingCause             = nullptr;
-    oscillationFaultPending  = false;
-    faultHistoryHead         = 0;
-    faultHistoryCount        = 0;
+    delayMs            = 0;
+    delayNextEvent     = EVT_DELAY_TO_IDLE;
+    dependencyFaultPending = false;
+    histReset();
 
     delete fsm;
     fsm = new Fsm(&fsmStateOff);
@@ -685,7 +638,7 @@ module::InitStatus init(uint32_t nowMs) {
 
     // First run_machine() call initialises the library (sets m_initialized,
     // fires onEnterOff) so that subsequent trigger() calls are not no-ops.
-    pendingCause = "init";
+    histSetPendingCause("init");
     fsm->run_machine();
 
     return module::MODULE_INIT_SUCCESS;
@@ -713,15 +666,22 @@ Output update(float    tempK,
     if (currentState != State::Fault) {
         uint8_t faultMask = 0;
 
+        // Module dependency: deferred flag set by checkRunningModules() inside
+        // a running-state on_enter callback to avoid re-entrant FSM calls.
+        if (dependencyFaultPending) {
+            dependencyFaultPending = false;
+            faultMask |= static_cast<uint8_t>(FaultReason::ModuleNotReady);
+            Serial.println(F("[SM] Fault: required module not ready for cooling"));
+        }
+
         // Oscillation: deferred flag set by checkOscillation() on a previous
         // tick to avoid re-entrant FSM calls from inside an on_enter callback.
-        if (oscillationFaultPending) {
-            oscillationFaultPending = false;
+        if (histTakeOscillationFaultPending()) {
             faultMask |= static_cast<uint8_t>(FaultReason::StateOscillation);
             Serial.println(F("[SM] Fault: FSM oscillating between states"));
         }
 
-        if (amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE) {
+        if (amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE_VAC) {
             faultMask |= static_cast<uint8_t>(FaultReason::RmsOvervoltage);
             Serial.println(F("Fault: RMS voltage exceeded safe limit"));
         }
@@ -1006,14 +966,9 @@ void reinit(uint32_t nowMs) {
     backoffDacOffset = 0;
     settleTimerActive= false;
     settleStartMs    = 0;
-    delayMs         = 0;
-    delayNextEvent  = EVT_DELAY_TO_IDLE;
-    historyHead              = 0;
-    historyCount             = 0;
-    pendingCause             = nullptr;
-    oscillationFaultPending  = false;
-    faultHistoryHead         = 0;
-    faultHistoryCount        = 0;
+    delayMs        = 0;
+    delayNextEvent = EVT_DELAY_TO_IDLE;
+    histReset();
     // Transition current state → Initialize.
     // Valid from Off, Idle, and Fault (all three transitions are registered
     // in buildFsm()).  onEnterInitialize() fires onInitializeCb.
@@ -1030,62 +985,6 @@ const char* getStatusText() {
 
 uint32_t getTimeInState() {
     return millis() - currentStateEntryMs;
-}
-
-uint8_t getHistoryCount() {
-    return historyCount;
-}
-
-HistoryEntry getHistoryEntry(uint8_t i) {
-    if (i >= historyCount) return HistoryEntry{};
-    return ringAt(i);
-}
-
-uint8_t getFaultHistoryCount() {
-    return faultHistoryCount;
-}
-
-FaultRecord getFaultRecord(uint8_t i) {
-    if (i >= faultHistoryCount) return FaultRecord{};
-    return faultRingAt(i);
-}
-
-void formatFaultReasons(FaultReason r, char* buf, size_t len) {
-    if (len == 0) return;
-    const uint8_t mask = static_cast<uint8_t>(r);
-    if (mask == 0u) {
-        snprintf(buf, len, "None");
-        return;
-    }
-    buf[0] = '\0';
-    bool first = true;
-    // Iterate bits in a fixed priority order so the output is deterministic.
-    static const struct { FaultReason bit; const char* name; } kBits[] = {
-        { FaultReason::RmsOvervoltage,   "RmsOvervoltage"   },
-        { FaultReason::TemperatureStall, "TemperatureStall" },
-        { FaultReason::TooManyBackoffs,  "TooManyBackoffs"  },
-        { FaultReason::LowSystemVoltage, "LowSystemVoltage" },
-        { FaultReason::StateOscillation, "StateOscillation" },
-        { FaultReason::SensorFault,      "SensorFault"      },
-        { FaultReason::RmsOvercurrent,   "RmsOvercurrent"   },
-    };
-    for (const auto& b : kBits) {
-        if ((mask & static_cast<uint8_t>(b.bit)) == 0u) continue;
-        if (!first) strncat(buf, "|", len - strlen(buf) - 1u);
-        strncat(buf, b.name, len - strlen(buf) - 1u);
-        first = false;
-    }
-}
-
-uint8_t countRecentFaults(uint32_t windowMs, uint32_t nowMs) {
-    uint8_t count = 0;
-    for (uint8_t i = 0; i < faultHistoryCount; ++i) {
-        const FaultRecord& rec = faultRingAt(i);
-        if ((nowMs - rec.enteredMs) <= windowMs) {
-            ++count;
-        }
-    }
-    return count;
 }
 
 } // namespace state_machine

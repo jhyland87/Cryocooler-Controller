@@ -65,6 +65,10 @@
 // At LOOP_INTERVAL_MS = 200 ms a step of 200 → full-scale ramp in ~4 s.
 #define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)
 
+// The DAC output should only output 0-10vdc. This is the multiplier voltage
+// that gets passed to the AD633 voltage
+#define AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V   static_cast<float>(10.0f)
+
 // =============================================================================
 // ACS712 AC Current Sensor — internal ADC constants
 // =============================================================================
@@ -286,5 +290,11 @@
 
 // Time (ms) continuously outside the band before a FAULT is raised.
 #define COOLING_FLOW_TRACK_FAULT_MS         static_cast<uint32_t>(30000)   // 30 s
+
+// =============================================================================
+// Misc stuff
+// =============================================================================
+#define ON true
+#define OFF false
 
 #endif // CONFIG_ADVANCED_H

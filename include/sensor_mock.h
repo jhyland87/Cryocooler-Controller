@@ -47,6 +47,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
+#include <Arduino.h>
 
 namespace sensor_mock {
 
@@ -169,6 +171,8 @@ const RampSpec& getRamp(RampField field);
  * @param nowMs  Current millis() timestamp.
  */
 void service(uint32_t nowMs);
+
+inline void service() { service(millis()); }
 
 } // namespace sensor_mock
 

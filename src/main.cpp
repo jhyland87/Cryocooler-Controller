@@ -29,6 +29,7 @@
 #include "imu.h"
 #include "sensor_mock.h"
 #include "amplifier.h"
+#include "compressor.h"
 #include "logger.h"
 #include "ota.h"
 #include "espnow.h"
@@ -69,6 +70,10 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
 // =============================================================================
 
 static uint32_t previousLoopMs = 0;
+
+static uint32_t sSerialConnectionEstablishedMs = 0;
+static uint32_t sSerialLastDetectedMs = 0;
+static bool sSerialWelcomeMessageSent = false;
 
 /**
  * Initialise modules required for the operator console and remote viewer to
@@ -164,6 +169,13 @@ static void initControlModules() {
     }
     telemetry::emitSafe();
 
+    auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
+    if (compressorStatus != module::MODULE_INIT_SUCCESS) {
+        Serial.printf("[init] Compressor initialization failed (status %d).\n",
+                      static_cast<int>(compressorStatus));
+    }
+    telemetry::emitSafe();
+
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Cooling initialization failed (status %d).\n",
@@ -249,10 +261,12 @@ void setup() {
 // Main Loop
 // =============================================================================
 
+
 void loop() {
     // One-time banner on the very first loop() iteration.
     // Lets the user know the loop has started and the console is ready —
     // i.e. this is the right moment to start typing commands.
+    // @todo - This doesnt work unless the user is connected when the first loop is triggered
     static bool sLoopStarted = false;
     if (!sLoopStarted) {
         sLoopStarted = true;
@@ -342,10 +356,13 @@ void loop() {
     // state entry (via on_enter callbacks) or per-tick for states with a
     // dynamic target (CoarseCooldown, FineCooldown, Shutdown).
 
-    // ---- 4. HTTP API ---------------------------------------------------
+    // ---- 4. Compressor timer -------------------------------------------
+    compressor::Module::service();
+
+    // ---- 5. HTTP API ---------------------------------------------------
     //http_api::service();
 
-    // ---- 5. Telemetry ---------------------------------------------------
+    // ---- 6. Telemetry ---------------------------------------------------
     telemetry::emit(out);
     logger::logTelemetry(telemetry::getLastFrame());
     dashboard::Module::service();

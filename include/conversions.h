@@ -82,17 +82,99 @@ inline uint16_t tempKToDacValue(float tempK,
     return static_cast<uint16_t>(raw);
 }
 
-inline void msToHHMMSS(uint32_t durationMs, char *hmsBuf)
+inline void msToHHMMSS(uint32_t durationMs, char* hmsBuf, size_t len)
 {
     const uint32_t totalSec = durationMs / 1000u;
     const uint32_t hh       = totalSec / 3600u;
     const uint32_t mm       = (totalSec % 3600u) / 60u;
     const uint32_t ss       = totalSec % 60u;
 
-    snprintf(hmsBuf, sizeof(hmsBuf), "%02lu:%02lu:%02lu",
+    snprintf(hmsBuf, len, "%02lu:%02lu:%02lu",
             static_cast<unsigned long>(hh),
             static_cast<unsigned long>(mm),
             static_cast<unsigned long>(ss));
+}
+
+/**
+ * Parse a human-readable duration string into milliseconds.
+ *
+ * Accepts any combination of h/m/s components with optional whitespace
+ * between tokens.  All components are optional but at least one must be
+ * present.  Unit suffixes are case-insensitive.  Examples:
+ *   "1h30m0s"  "30m"  "45s"  "2h"  "1h 30m"  "0h0m30s"
+ *
+ * @param str     Null-terminated input string.
+ * @param errOut  Receives a short error description on failure.
+ * @param errLen  Size of errOut in bytes.
+ * @return        Total milliseconds, or 0 on parse failure (errOut is set).
+ */
+inline uint32_t parseDurationMs(const char* str, char* errOut, size_t errLen) {
+    uint32_t    totalMs = 0u;
+    bool        found   = false;
+    const char* p       = str;
+
+    while (*p != '\0') {
+        while (*p == ' ' || *p == '\t') { ++p; }
+        if (*p == '\0') break;
+
+        if (*p < '0' || *p > '9') {
+            snprintf(errOut, errLen, "unexpected character '%c'", *p);
+            return 0u;
+        }
+        uint32_t val = 0u;
+        while (*p >= '0' && *p <= '9') {
+            val = val * 10u + static_cast<uint32_t>(*p - '0');
+            ++p;
+        }
+
+        const char unit = *p;
+        if (unit == 'h' || unit == 'H') {
+            totalMs += val * 3600000u;
+        } else if (unit == 'm' || unit == 'M') {
+            totalMs += val * 60000u;
+        } else if (unit == 's' || unit == 'S') {
+            totalMs += val * 1000u;
+        } else {
+            snprintf(errOut, errLen,
+                     "unknown unit '%c' — use h, m, or s", unit ? unit : '?');
+            return 0u;
+        }
+        found = true;
+        ++p;
+    }
+
+    if (!found) {
+        snprintf(errOut, errLen, "no duration components found");
+        return 0u;
+    }
+    return totalMs;
+}
+
+/**
+ * Format a millisecond count as a compact human-readable duration string.
+ *
+ * Produces "Xh Ym Zs" when hours > 0, or "Ym Zs" for shorter durations,
+ * keeping output tidy for display in serial/TCP command responses.
+ *
+ * @param ms   Duration in milliseconds.
+ * @param buf  Output buffer.
+ * @param len  Size of buf in bytes.
+ */
+inline void formatDurationMs(uint32_t ms, char* buf, size_t len) {
+    const uint32_t totalSec = ms / 1000u;
+    const uint32_t h        = totalSec / 3600u;
+    const uint32_t m        = (totalSec % 3600u) / 60u;
+    const uint32_t s        = totalSec % 60u;
+    if (h > 0u) {
+        snprintf(buf, len, "%luh %02lum %02lus",
+                 static_cast<unsigned long>(h),
+                 static_cast<unsigned long>(m),
+                 static_cast<unsigned long>(s));
+    } else {
+        snprintf(buf, len, "%lum %02lus",
+                 static_cast<unsigned long>(m),
+                 static_cast<unsigned long>(s));
+    }
 }
 
 } // namespace conversions

@@ -26,6 +26,15 @@
 #include "arduino_secrets.h"
 
 // =============================================================================
+// Compressor
+// =============================================================================
+
+// Hard upper limit on how long a timed compressor run may last.
+// Any 'compressor start' duration exceeding this value is clamped to it.
+// Set to 0 to disable the limit (not recommended).
+#define COMPRESSOR_MAX_RUN_MS   static_cast<uint32_t>(120u * 60u * 1000u)  // 2 hours in milliseconds
+
+// =============================================================================
 // System
 // =============================================================================
 
@@ -111,7 +120,7 @@
 
 // Maximum allowable RMS output voltage (VDC).
 // Exceeding this immediately transitions the system to Fault.
-#define AMPLIFIER_MAX_VOLTAGE  120.0f
+#define AMPLIFIER_MAX_VOLTAGE_VAC  120.0f
 
 // Maximum allowable continuous RMS output current (A).
 // Exceeding this while running immediately transitions to Fault (SensorFault).
@@ -273,7 +282,6 @@
 // Internal algorithm constants, ADC/DAC tuning, loop timing, tracking-monitor
 // thresholds, and FSM diagnostics.  Calibrated for the reference hardware;
 // edit only when modifying hardware or retuning control algorithms.
-
 #include "config_advanced.h"
 
 #endif // CONFIG_H

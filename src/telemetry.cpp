@@ -29,6 +29,7 @@
 #include "dashboard.h"
 #include "amplifier.h"
 #include "tracking.h"
+#include "compressor.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -379,6 +380,16 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cooling.fan_rpm",       "%s", "");
     }
 
+    // ── Compressor ────────────────────────────────────────────────────────
+    {
+        const bool compressorReady = ready(compressor::Module::getInitStatus());
+        if (compressorReady) {
+            frame.field("compressor.status", "%d", compressor::getStatus());
+        } else {
+            frame.field("compressor.status", "%s", "");
+        }
+    }
+
     // ── Firmware info (always real — sourced from app desc + NVS) ────────────
     {
         const int64_t flashTs = ota::getLastFlashTime();
@@ -566,7 +577,8 @@ void emit(const state_machine::Output& out)
         .field("score.cooling.fan_speed",           "%.2f", cooling::getFanSpeedScore())
         .field("score.cooling.coolant_temp",        "%.2f", cooling::getCoolantTempScore())
         .field("score.cooling.coolant_flow",        "%.2f", cooling::getCoolantFlowScore())
-        .field("score.cooling.worst",               "%.2f", cooling::getWorstTrackingScore());
+        .field("score.cooling.worst",               "%.2f", cooling::getWorstTrackingScore())
+        .field("compressor.status",                  "%d",  compressor::getStatus());
 
     // ── Firmware info ─────────────────────────────────────────────────────────
     {

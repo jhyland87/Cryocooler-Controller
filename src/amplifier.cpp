@@ -127,7 +127,7 @@ module::InitStatus init() {
     // -- MCP4725 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
-    ESP_LOGI(TAG, "Initializing MCP4725 DAC...");
+    ESP_LOGI(TAG, "Initializing MCP4725 (DAC - Amplitude Control)...");
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -140,7 +140,7 @@ module::InitStatus init() {
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
     // out of the amplifier.
-    ESP_LOGI(TAG, "Initializing ACS37800...");
+    ESP_LOGI(TAG, "Initializing ACS37800 (VOUT - Power Monitor)...");
     {
         const module::InitStatus status = initAcs();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -153,7 +153,7 @@ module::InitStatus init() {
     // -- AD9833 waveform generator --------------------------------------------
     // This is the waveform generator that generates the sine wave that is
     // passed to the AD633 voltage multiplier.
-    ESP_LOGI(TAG, "Initializing AD9833...");
+    ESP_LOGI(TAG, "Initializing AD9833 (DDS - Waveform Generator)...");
     {
         const module::InitStatus status = initWaveform();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -176,7 +176,7 @@ module::InitStatus initDac() {
     // at 0 after every ESP32 boot, but the MCP4725 retains its volatile register
     // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
     // I2C write and leave the DAC at whatever it was before the reset.
-    dacCurrent_ = UINT16_MAX;
+    dacCurrent_ = 0u;
     setRmsVoltage(0u);
     return module::MODULE_INIT_SUCCESS;
 }
@@ -273,6 +273,10 @@ void initFineCooldown() {
 // ---------------------------------------------------------------------------
 
 void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
+    if (dacTarget > AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V) {
+        ESP_LOGW(TAG, "DAC target voltage is greater than the maximum output voltage, setting to %f", AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
+        dacTarget = static_cast<uint16_t>(AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
+    }
     // Dead-band: ignore ±1 count differences to avoid chasing temperature noise.
     const int32_t diff = static_cast<int32_t>(dacTarget) - static_cast<int32_t>(dacCurrent_);
     if (diff >= -1 && diff <= 1) return;
@@ -281,7 +285,7 @@ void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
 
 void hardStop() {
     dacCurrent_ = UINT16_MAX;   // invalidate cache so dacWrite() cannot short-circuit
-    setRmsVoltage(0u);
+    setRmsVoltage(0.0f);
 }
 
 void rampTowardShutdown(uint16_t dacTarget) {
@@ -289,8 +293,13 @@ void rampTowardShutdown(uint16_t dacTarget) {
     dacRampInternal(dacTarget, static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
 }
 
-void setRmsVoltage(uint16_t dacTarget) {
-    ESP_LOGD(TAG, "Setting RMS voltage to %u", static_cast<unsigned>(dacTarget));
+void setRmsVoltage(float rmsTarget) {
+    if ( rmsTarget > AMPLIFIER_MAX_VOLTAGE_VAC  ) {
+        ESP_LOGW(TAG, "RMS target voltage is greater than the maximum output voltage, setting to %f", AMPLIFIER_MAX_VOLTAGE_VAC);
+        rmsTarget = AMPLIFIER_MAX_VOLTAGE_VAC;
+    }
+    uint16_t dacTarget = map(rmsTarget, 0.0f, AMPLIFIER_MAX_VOLTAGE_VAC, 0.0f, AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
+    ESP_LOGD(TAG, "Setting RMS voltage to %f (DAC target: %u)", rmsTarget, dacTarget);
     dacWrite(dacTarget);
 }
 

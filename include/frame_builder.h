@@ -47,7 +47,7 @@ class Print;
 class FrameBuilder {
 public:
     // Maximum number of fields per frame.  Increase if telemetry grows.
-    static constexpr uint8_t MAX_FIELDS     = 120;
+    static constexpr uint8_t MAX_FIELDS     = 130;
     // Maximum length of a formatted value string including the NUL terminator.
     static constexpr uint8_t VALUE_BUF_SIZE = 84;
 

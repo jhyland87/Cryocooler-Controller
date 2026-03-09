@@ -97,6 +97,15 @@
 #define STATUS_LED_PIN     RGB_LED_PIN   // Common for on-board RGB on ESP32-S3 DevKit
 
 // =============================================================================
+// PCAL9535A I2C GPIO Expander — compressor relay
+// =============================================================================
+// I2C address is determined by the A0/A1/A2 hardware strapping pins on the
+// PCAL9535A.  Adjust HardwareAddress to match your board wiring.
+#define COMPRESSOR_RELAY_PCAL_ADDR   PCAL9535A::HardwareAddress::A000
+// GPIO pin on the expander (0–15) wired to the relay coil.
+#define COMPRESSOR_RELAY_PIN         static_cast<uint8_t>(0)
+
+// =============================================================================
 
 
 

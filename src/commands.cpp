@@ -18,6 +18,7 @@
 #endif
 
 #include "commands.h"
+#include "conversions.h"
 #include "state_machine.h"
 #include "telemetry.h"
 #include "cold_head.h"
@@ -31,9 +32,9 @@
 #include "dashboard.h"
 #include "mock_commands.h"
 #include "amplifier.h"
-#include "relay.h"
 #include "sensor_mock.h"
 #include "ota.h"
+#include "compressor.h"
 #endif
 
 namespace commands {
@@ -75,28 +76,6 @@ struct Command {
 // Forward declaration so handleHelp can reference commands[] below.
 static void handleHelp(const char* args, Print& out);
 
-// ─── Control-module readiness check ───────────────────────────────────────────
-
-#ifdef ARDUINO
-/**
- * Verify that all hardware modules required for cooling are initialised.
- *
- * Called by handleStart() before triggering any cooling state.  Keeping this
- * check here (rather than inside state_machine::start()) preserves the state
- * machine as pure logic with no dependency on module init statuses.
- *
- * @return nullptr if all modules are ready, or the name of the first unready
- *         module so the caller can emit a meaningful error.
- */
-static const char* checkControlModules() {
-    if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) return "cooling";
-    if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "amplifier";
-    if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return "cold_head";
-    if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) return "relay";
-    return nullptr;
-}
-#endif
-
 // ─── Individual command handlers ──────────────────────────────────────────────
 
 static void handleStart(const char* /*args*/, Print& out) {
@@ -111,18 +90,6 @@ static void handleStart(const char* /*args*/, Print& out) {
     }
 
 #ifdef ARDUINO
-    // Verify all required control modules are ready before entering any
-    // cooling state.  state_machine::start() is pure FSM logic and does not
-    // enforce this; the check lives here so it is close to the operator path.
-    const char* missing = checkControlModules();
-    if (missing) {
-        char buf[80];
-        snprintf(buf, sizeof(buf),
-                 "[ERR] Cannot start — %s not initialized (reinit first)", missing);
-        out.println(buf);
-        return;
-    }
-
     // Use mock temperature when active so the FSM picks the right entry
     // state (coarse vs fine vs settle) even without real hardware.
     const float tempK = sensor_mock::isActive()
@@ -643,6 +610,67 @@ static void handleUpdateImage(const char* /*args*/, Print& out) {
 
 #endif  // ARDUINO
 
+// ─── Compressor command handlers ──────────────────────────────────────────────
+#ifdef ARDUINO
+
+static void handleCompressorStart(const char* args, Print& out) {
+    if (*args == '\0') {
+        out.println("[ERR] Usage: compressor start <duration>  e.g.  1h30m0s  |  30m  |  45s");
+        return;
+    }
+    char errBuf[48];
+    const uint32_t durationMs = conversions::parseDurationMs(args, errBuf, sizeof(errBuf));
+    if (durationMs == 0u) {
+        char buf[96];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] compressor start: bad duration \"%s\" (%s)", args, errBuf);
+        out.println(buf);
+        return;
+    }
+
+    compressor::startRun(millis(), durationMs);
+
+    // Display the actual (possibly clamped) remaining time.
+    char hmsBuf[24];
+    conversions::formatDurationMs(compressor::getRemainingMs(millis()), hmsBuf, sizeof(hmsBuf));
+    char buf[72];
+    snprintf(buf, sizeof(buf), "[OK] Compressor started — run time: %s", hmsBuf);
+    out.println(buf);
+}
+
+static void handleCompressorStatus(const char* /*args*/, Print& out) {
+    const uint32_t now = millis();
+    if (!compressor::getStatus()) {
+        out.println("[OK] Compressor: OFF (idle)");
+        return;
+    }
+    out.println("[OK] Compressor: ON");
+    if (compressor::isTimedRunActive()) {
+        char buf[48];
+        char hmsBuf[24];
+        conversions::formatDurationMs(compressor::getElapsedMs(now), hmsBuf, sizeof(hmsBuf));
+        snprintf(buf, sizeof(buf), "  Elapsed  : %s", hmsBuf);
+        out.println(buf);
+        conversions::formatDurationMs(compressor::getRemainingMs(now), hmsBuf, sizeof(hmsBuf));
+        snprintf(buf, sizeof(buf), "  Remaining: %s", hmsBuf);
+        out.println(buf);
+    } else {
+        out.println("  (no timed run active)");
+    }
+    out.println("");
+}
+
+static void handleCompressorStop(const char* /*args*/, Print& out) {
+    if (!compressor::getStatus()) {
+        out.println("[ERR] Compressor is not running");
+        return;
+    }
+    compressor::stopRun(millis());
+    out.println("[OK] Compressor stopped");
+}
+
+#endif  // ARDUINO (compressor handlers)
+
 // ─── Command table ────────────────────────────────────────────────────────────
 // Multi-word commands ("telemetry off") must appear before any shorter prefix
 // command ("telemetry on") so the match loop finds the most specific one first.
@@ -683,6 +711,12 @@ static const Command commandMap[] = {
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
+    // "compressor start" and "compressor status" share the prefix "compressor st";
+    // they are distinct because the match requires the full name, so order doesn't
+    // matter for correctness, but keep them together for readability.
+    {"compressor start",    handleCompressorStart,  "Start compressor run for <duration> (e.g. 1h30m, 45s)"},
+    {"compressor status",   handleCompressorStatus, "Show compressor state, elapsed, and remaining run time"},
+    {"compressor stop",     handleCompressorStop,   "Stop the compressor immediately"},
     // OTA — "ota status" must precede any future "ota ..." entries.
     {"ota status",          handleOtaStatus,       "Print OTA partition info, firmware version, and endpoint URL"},
     {"update image",        handleUpdateImage,     "Flash new firmware via HTTP upload (prompts for confirmation)"},

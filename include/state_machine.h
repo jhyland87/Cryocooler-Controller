@@ -96,13 +96,15 @@ enum class State : int8_t {
  */
 enum class FaultReason : uint8_t {
     None              = 0,
-    RmsOvervoltage    = 1u << 0,  ///< amplifier RMS voltage exceeded AMPLIFIER_MAX_VOLTAGE
+    RmsOvervoltage    = 1u << 0,  ///< amplifier RMS voltage exceeded AMPLIFIER_MAX_VOLTAGE_VAC
     TemperatureStall  = 1u << 1,  ///< cold stage failed to cool within STALL_DETECT_WINDOW_MS
     TooManyBackoffs   = 1u << 2,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
     LowSystemVoltage  = 1u << 3,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
     StateOscillation  = 1u << 4,  ///< FSM bouncing between the same two states too many times
     SensorFault       = 1u << 5,  ///< RTD hardware fault or tempK outside MIN/MAX_PLAUSIBLE_TEMP_K
     RmsOvercurrent    = 1u << 6,  ///< amplifier RMS current exceeded AMPLIFIER_MAX_CURRENT_A
+    ModuleNotReady    = 1u << 7,  ///< a required control module was not initialised when a cooling
+                                  // state was entered
 };
 
 /** Bitwise OR — combine two fault reasons into a composite mask. */
@@ -130,6 +132,7 @@ inline const char* faultReasonName(FaultReason r) {
         case FaultReason::StateOscillation: return "StateOscillation";
         case FaultReason::SensorFault:      return "SensorFault";
         case FaultReason::RmsOvercurrent:   return "RmsOvercurrent";
+        case FaultReason::ModuleNotReady:   return "ModuleNotReady";
         default:                            return "Multi";
     }
 }
