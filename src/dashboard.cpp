@@ -23,8 +23,13 @@
  * window before we push more.  This keeps the dashboard task responsive
  * and never drops the tail of the frame.
  *
- * Serial Studio frame format:
+ * Serial Studio frame format (TCP port 8080, for Serial Studio):
  *   / *{...JSON...}* /\r\n
+ *
+ * WebSocket (HTTP port 80, path /ws, for the web dashboard SPA):
+ *   Plain flat JSON telemetry object pushed at 1 Hz, same key/value pairs
+ *   as the GET /api/telemetry HTTP endpoint (dot-notation keys).
+ *   Connect at:  ws://<hostname>/ws
  */
 
 #include <Arduino.h>
@@ -44,6 +49,15 @@
 #include "ss_dashboard.h"
 #include "commands.h"
 #include "ota.h"
+
+// AsyncWebSocket is included via ESPAsyncWebServer.h
+
+// ─── WebSocket toggle ─────────────────────────────────────────────────────────
+// Set to 1 to enable the /ws WebSocket endpoint used by the Preact SPA.
+// Set to 0 to disable it entirely (no handler registered, no broadcast, no
+// Serial.printf calls from the TCPIP task) — useful for isolating whether
+// the WebSocket is interfering with serial input.
+#define DASHBOARD_WEBSOCKET_ENABLED 0
 
 namespace dashboard {
 
@@ -97,23 +111,34 @@ private:
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 static constexpr uint32_t   broadcastIntervalMs = 1000;
-// Transmit buffer.  Must be larger than the compact serialised dashboard JSON
-// (use estimateSize() to measure).  Pretty mode is NOT used for live streaming
-// because pretty output is ~3–4× larger.
-// Budget: ~50 datasets × ~350 B each ≈ 17.5 KB for dataset entries alone;
-// add group wrappers, actions, and metadata → ~22–24 KB total.
+// Transmit buffer for Serial Studio TCP frames.  Must be larger than the
+// compact serialised dashboard JSON (use estimateSize() to measure).
+// Budget: ~50 datasets × ~350 B each ≈ 17.5 KB; add group wrappers → ~24 KB.
 // 32 KB gives comfortable headroom for future config growth.
 static constexpr size_t     txBufSize           = 32768;
 static constexpr uint8_t    maxClients          = 4;
 
+#if DASHBOARD_WEBSOCKET_ENABLED
+// WebSocket JSON buffer — flat telemetry object, same as /api/telemetry.
+// Sized to match the existing HTTP endpoint buffer.
+static constexpr size_t     wsBufSize           = 8192;
+#endif
+
 // FreeRTOS task parameters.
 // NOTE: on ESP-IDF the usStackDepth argument to xTaskCreatePinnedToCore is
 // in BYTES (unlike vanilla FreeRTOS where it is in words).
-static constexpr uint32_t   taskStackBytes      = 8192;  // bytes
+// Increased from 8192 to accommodate the additional WebSocket serialization.
+// Stack can be reduced back to 8192 when DASHBOARD_WEBSOCKET_ENABLED == 0.
+static constexpr uint32_t   taskStackBytes      = 12288; // bytes
 static constexpr UBaseType_t taskPriority       = 1;     // low; yields freely
 
 // Inter-chunk pause — gives lwIP time to ACK and refill the send window.
 static constexpr uint32_t   chunkPauseMs        = 5;
+
+#if DASHBOARD_WEBSOCKET_ENABLED
+// Cleanup WebSocket clients every N broadcast ticks (~5 s).
+static constexpr uint8_t    wsCleanupEveryN     = 5;
+#endif
 
 // ─── Module state ─────────────────────────────────────────────────────────────
 
@@ -121,7 +146,13 @@ static volatile bool    enabled_ = true;
 static ss::Dashboard    ssDashboard(dashboard_config::dashboardCfg);
 static AsyncServer      tcpServer(WS_PORT);
 static AsyncWebServer   httpServer(HTTP_API_PORT);
+#if DASHBOARD_WEBSOCKET_ENABLED
+static AsyncWebSocket   wsServer_("/ws");   // WebSocket endpoint for SPA
+#endif
 static char             txBuf[txBufSize];
+#if DASHBOARD_WEBSOCKET_ENABLED
+static char             wsBuf[wsBufSize];
+#endif
 
 // Client slot array.  Slots are nulled inside disconnect/error callbacks
 // (which run in the TCPIP task) before AsyncTCP releases the object.
@@ -228,10 +259,43 @@ static void sendChunked(AsyncClient* c, const char* data, size_t len) {
     }
 }
 
+// ─── WebSocket event handler ──────────────────────────────────────────────────
+
+#if DASHBOARD_WEBSOCKET_ENABLED
+/**
+ * Minimal WebSocket event handler.
+ *
+ * The ESP32 SPA dashboard connects here (ws://hostname/ws) and receives flat
+ * JSON telemetry pushes at 1 Hz.  Incoming data from the browser is accepted
+ * but ignored — all control goes through the TCP command interface on port
+ * WS_PORT (Serial Studio) or via the HTTP /api/* endpoints.
+ */
+static void onWsEvent(AsyncWebSocket* /*srv*/, AsyncWebSocketClient* client,
+                      AwsEventType type, void* /*arg*/, uint8_t* /*data*/, size_t /*len*/) {
+    switch (type) {
+        case WS_EVT_CONNECT:
+            Serial.printf("[dashboard] WS client %u connected from %s\n",
+                          client->id(), client->remoteIP().toString().c_str());
+            break;
+        case WS_EVT_DISCONNECT:
+            Serial.printf("[dashboard] WS client %u disconnected\n", client->id());
+            break;
+        case WS_EVT_ERROR:
+            Serial.printf("[dashboard] WS client %u error\n", client->id());
+            break;
+        default:
+            break;
+    }
+}
+#endif // DASHBOARD_WEBSOCKET_ENABLED
+
 // ─── Dashboard FreeRTOS task ──────────────────────────────────────────────────
 
 static void dashboardTask(void* /*arg*/) {
-    TickType_t lastWakeTime = xTaskGetTickCount();
+    TickType_t lastWakeTime  = xTaskGetTickCount();
+#if DASHBOARD_WEBSOCKET_ENABLED
+    uint8_t    cleanupTick   = 0;
+#endif
 
     for (;;) {
         // Accurate 1 Hz period regardless of send duration.
@@ -239,32 +303,56 @@ static void dashboardTask(void* /*arg*/) {
 
         if (!enabled_) continue;
 
-        // Check for any connected client before doing expensive work.
-        bool anyConnected = false;
-        for (auto* c : clients_) {
-            if (c && c->connected()) { anyConnected = true; break; }
+#if DASHBOARD_WEBSOCKET_ENABLED
+        // Periodically prune stale AsyncWebSocket clients so the internal
+        // slot table does not fill with zombie entries.
+        if (++cleanupTick >= wsCleanupEveryN) {
+            wsServer_.cleanupClients();
+            cleanupTick = 0;
         }
-        if (!anyConnected) continue;
+#endif
 
-        // Snapshot telemetry from Core 1.  Stale values are acceptable for
-        // a monitoring display; a full mutex would add latency for no gain.
-        // fillJsonSafe() is used so the dashboard is populated immediately on
-        // connect, even while other modules are still initialising: fields from
-        // unready modules are emitted as empty strings rather than blocking the
-        // whole frame.
-        JsonDocument telemetry;
-        telemetry::fillJsonSafe(telemetry);
-        ssDashboard.update(telemetry);
-
-        const size_t len = ssDashboard.serialize(txBuf, txBufSize);
-        if (len == 0) {
-            Serial.println(F("[dashboard] serialize() returned 0 — frame dropped"));
-            continue;
-        }
-
+        // Determine whether any consumers are connected before doing work.
+        bool anyTcpClient = false;
         for (auto* c : clients_) {
-            if (!c || !c->connected()) continue;
-            sendChunked(c, txBuf, len);
+            if (c && c->connected()) { anyTcpClient = true; break; }
+        }
+#if DASHBOARD_WEBSOCKET_ENABLED
+        const bool anyWsClient = (wsServer_.count() > 0);
+        if (!anyTcpClient && !anyWsClient) continue;
+#else
+        if (!anyTcpClient) continue;
+#endif
+
+        // Snapshot telemetry from Core 1.  Stale values are acceptable for a
+        // monitoring display; fillJsonSafe() is used so the dashboard is
+        // populated immediately on connect, even while other modules are still
+        // initialising (fields from unready modules are emitted as empty strings).
+        JsonDocument telDoc;
+        telemetry::fillJsonSafe(telDoc);
+
+#if DASHBOARD_WEBSOCKET_ENABLED
+        // ── WebSocket: broadcast flat JSON to all SPA clients ─────────────
+        if (anyWsClient) {
+            const size_t wsLen = serializeJson(telDoc, wsBuf, wsBufSize);
+            if (wsLen > 0 && wsLen < wsBufSize) {
+                wsServer_.textAll(wsBuf, wsLen);
+            }
+        }
+#endif // DASHBOARD_WEBSOCKET_ENABLED
+
+        // ── TCP: broadcast Serial Studio frame to Serial Studio clients ───
+        if (anyTcpClient) {
+            ssDashboard.update(telDoc);
+            const size_t len = ssDashboard.serialize(txBuf, txBufSize);
+            if (len == 0) {
+                Serial.println(F("[dashboard] serialize() returned 0 — frame dropped"));
+            } else {
+                for (auto* c : clients_) {
+                    if (!c || !c->connected()) continue;
+                    sendChunked(c, txBuf, len);
+                }
+            }
         }
     }
 }
@@ -395,6 +483,13 @@ bool setupServer() {
     // OTA firmware-update endpoint (GET /ota — upload form, POST /ota — flash).
     // Registered here so it shares the same AsyncWebServer instance and port.
     ota::registerRoutes(httpServer);
+
+#if DASHBOARD_WEBSOCKET_ENABLED
+    // WebSocket endpoint for the Preact SPA dashboard.
+    // Browsers connect to ws://<hostname>/ws and receive 1 Hz flat JSON pushes.
+    wsServer_.onEvent(onWsEvent);
+    httpServer.addHandler(&wsServer_);
+#endif
 
     httpServer.begin();
 

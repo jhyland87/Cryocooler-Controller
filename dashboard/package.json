@@ -1,0 +1,25 @@
+{
+  "name": "cryocooler-dashboard",
+  "version": "1.0.0",
+  "description": "Preact SPA dashboard for the ESP32 cryocooler controller",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.0",
+    "@mui/x-charts": "^7.28.0",
+    "preact": "^10.25.4"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.9.3",
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2"
+  }
+}

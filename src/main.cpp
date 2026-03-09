@@ -279,6 +279,18 @@ void loop() {
         Serial.println();
     }
 
+    // ── Diagnostics: loop heartbeat every 5 s ────────────────────────────
+    // Confirms loop() is running freely and not blocked by a downstream
+    // service call.  Remove once serial input is confirmed working.
+    {
+        static uint32_t lastHeartbeatMs = 0;
+        const uint32_t  hbNow           = millis();
+        if (hbNow - lastHeartbeatMs >= 5000) {
+            lastHeartbeatMs = hbNow;
+            Serial.printf("[loop] heartbeat @ %lums\n", (unsigned long)hbNow);
+        }
+    }
+
     // Serial command processing runs unconditionally so the console is always
     // reachable even when control hardware failed to initialise.
     // (The TCP/Serial-Studio path calls processLine() directly.)

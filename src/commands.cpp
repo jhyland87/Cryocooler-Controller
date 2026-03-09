@@ -809,6 +809,15 @@ module::InitStatus init() {
 
 module::ServiceStatus service() {
 #ifdef ARDUINO
+    // Diagnostics: log whenever bytes arrive so we can confirm the ESP32 is
+    // actually seeing RX data.  Remove once serial input is confirmed working.
+    {
+        const int rxAvail = Serial.available();
+        if (rxAvail > 0) {
+            Serial.printf("[cmd] RX %d byte(s) in buffer\n", rxAvail);
+        }
+    }
+
     while (Serial.available()) {
         const char c = static_cast<char>(Serial.read());
         if (c == '\r' || c == '\n') {

@@ -41,7 +41,13 @@ with open(OUT_PATH, "w", encoding="utf-8") as h:
     for sym, filename in WEB_FILES:
         src = os.path.join(DATA_DIR, filename)
         if not os.path.exists(src):
-            print(f"[embed_web] WARNING: {src} not found, skipping")
+            # Emit an empty placeholder so the symbol is always defined.
+            # This keeps dashboard.cpp route handlers compiling correctly even
+            # when the Vite build omits a file (e.g. style.css is not emitted
+            # when using CSS-in-JS / Emotion, as with the Preact/MUI dashboard).
+            print(f"[embed_web] INFO: {src} not found — emitting empty placeholder for '{sym}'")
+            h.write(f"// {filename}  (not found — empty placeholder)\n")
+            h.write(f'static const char {sym}[] PROGMEM = "";\n\n')
             continue
         with open(src, "r", encoding="utf-8") as f:
             content = f.read()
