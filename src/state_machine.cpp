@@ -428,8 +428,9 @@ static void setStateEntry(State s) {
     pushHistory(s, sNowMs);
 }
 
-static void onEnterOff()            {
+static void onEnterOff(){
     setStateEntry(State::Off);
+    amplifier::rampTowardShutdown(0u);
     relay::setAmplifierState(false);
 }
 static void onEnterInitialize() {
@@ -442,8 +443,8 @@ static void onEnterInitialize() {
 }
 static void onEnterIdle() {
     setStateEntry(State::Idle);
-    relay::setAmplifierState(false);
     amplifier::rampToVoltage(0);
+    relay::setAmplifierState(false);
 }
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
@@ -478,6 +479,7 @@ static void onExitOperating()       {
 }
 static void onEnterShutdown()       {
     setStateEntry(State::Shutdown);
+    amplifier::rampTowardShutdown(0u);
     relay::setAmplifierState(false);
 }
 

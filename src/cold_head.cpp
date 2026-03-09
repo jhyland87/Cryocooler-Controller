@@ -65,6 +65,41 @@ static float sLocalMockTempK   = 300.0f;
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
 static bool rtdFaultActive = false;
 
+// Per-key fault rate-limiter.
+// Each distinct fault type gets its own slot so that two simultaneously
+// oscillating faults don't reset each other's timers and cause spam.
+// Keys:
+//   1–255  → MAX31865 hw fault register value (bitmask)
+//   256    → plausibility fault, reading too low
+//   257    → plausibility fault, reading too high
+//   0      → unused slot
+static constexpr uint32_t FAULT_LOG_INTERVAL_MS  = 10'000;
+static constexpr uint16_t FAULT_KEY_NONE         = 0;
+static constexpr uint16_t FAULT_KEY_PLAUS_LOW    = 256;
+static constexpr uint16_t FAULT_KEY_PLAUS_HIGH   = 257;
+
+struct FaultRateLimit {
+    uint16_t key          = FAULT_KEY_NONE;
+    uint32_t lastLogMs    = 0;
+    uint32_t suppressedCt = 0;
+};
+
+// 4 slots: hw-fault (up to 2 distinct codes), plaus-low, plaus-high.
+static constexpr uint8_t MAX_TRACKED_FAULTS = 4;
+static FaultRateLimit    sFaultLimits[MAX_TRACKED_FAULTS];
+
+// Returns the existing slot for key, or claims an empty one.
+// Returns nullptr only if the table is full (shouldn't happen in practice).
+static FaultRateLimit* findFaultLimit(uint16_t key) {
+    FaultRateLimit* empty = nullptr;
+    for (auto& fl : sFaultLimits) {
+        if (fl.key == key)                              return &fl;
+        if (fl.key == FAULT_KEY_NONE && empty == nullptr) empty = &fl;
+    }
+    if (empty != nullptr) { empty->key = key; }
+    return empty;
+}
+
 static constexpr char TAG[] = "cold_head";
 
 // ---------------------------------------------------------------------------
@@ -203,22 +238,81 @@ void read(uint32_t nowMs) {
     const float    ambientTempC = imu::getTemperature();
 
     // Check MAX31865 fault register and temperature plausibility.
-    // rtdFaultActive self-clears as soon as a clean, in-range reading is obtained.
+    // The two checks are independent so each fault type can clear its own
+    // rate-limit slot as soon as it resolves, without waiting for the other
+    // to also clear.  rtdFaultActive is true if either fault is present.
+    bool anyFault = false;
+
+    // --- hw fault register ---
     const uint8_t hwFault = max31865.readFault();
     if (hwFault != 0) {
-        rtdFaultActive = true;
-        ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
+        anyFault = true;
         max31865.clearFault();
-    } else if (tempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K) ||
-               tempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K)) {
-        rtdFaultActive = true;
-        ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
-                 tempK,
-                 static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
-                 static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
+        const uint16_t  key  = static_cast<uint16_t>(hwFault);
+        FaultRateLimit* fl   = findFaultLimit(key);
+        const bool      emit = (fl == nullptr) ||
+                               (nowMs - fl->lastLogMs >= FAULT_LOG_INTERVAL_MS);
+        if (emit) {
+            const uint32_t suppressed = fl ? fl->suppressedCt : 0;
+            if (suppressed > 0) {
+                ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable"
+                              " (+" PRIu32 " suppressed)", hwFault, suppressed);
+            } else {
+                ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
+            }
+            if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
+        } else {
+            ++fl->suppressedCt;
+        }
     } else {
-        rtdFaultActive = false;
+        // hw fault cleared — reset its slot(s) so any recurrence emits immediately.
+        for (auto& fl : sFaultLimits) {
+            if (fl.key != FAULT_KEY_NONE &&
+                fl.key != FAULT_KEY_PLAUS_LOW &&
+                fl.key != FAULT_KEY_PLAUS_HIGH) {
+                fl = {};
+            }
+        }
     }
+
+    // --- plausibility check ---
+    const bool plausLow  = tempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K);
+    const bool plausHigh = tempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K);
+    if (plausLow || plausHigh) {
+        anyFault = true;
+        const uint16_t  key  = plausLow ? FAULT_KEY_PLAUS_LOW : FAULT_KEY_PLAUS_HIGH;
+        FaultRateLimit* fl   = findFaultLimit(key);
+        const bool      emit = (fl == nullptr) ||
+                               (nowMs - fl->lastLogMs >= FAULT_LOG_INTERVAL_MS);
+        if (emit) {
+            const uint32_t suppressed = fl ? fl->suppressedCt : 0;
+            if (suppressed > 0) {
+                ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected"
+                              " (+" PRIu32 " suppressed)",
+                         tempK,
+                         static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
+                         static_cast<float>(MAX_PLAUSIBLE_TEMP_K),
+                         suppressed);
+            } else {
+                ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
+                         tempK,
+                         static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
+                         static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
+            }
+            if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
+        } else {
+            ++fl->suppressedCt;
+        }
+    } else {
+        // Plausibility fault cleared — reset its slots so any recurrence emits immediately.
+        for (auto& fl : sFaultLimits) {
+            if (fl.key == FAULT_KEY_PLAUS_LOW || fl.key == FAULT_KEY_PLAUS_HIGH) {
+                fl = {};
+            }
+        }
+    }
+
+    rtdFaultActive = anyFault;
 
     lastTempC = tempC;
     lastTempK = tempK;
