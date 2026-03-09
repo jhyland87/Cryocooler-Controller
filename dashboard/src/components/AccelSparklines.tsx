@@ -76,9 +76,9 @@ export function AccelSparklines({ accelX, accelY, accelZ, accelMag, motion }: Pr
         />
       </Box>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <SparkItem label="X-axis"    data={accelX}   color="#ef5350" unit="m/s²" />
-        <SparkItem label="Y-axis"    data={accelY}   color="#42a5f5" unit="m/s²" />
-        <SparkItem label="Z-axis"    data={accelZ}   color="#66bb6a" unit="m/s²" />
+        <SparkItem label="Roll"      data={accelX}   color="#ef5350" unit="°" />
+        <SparkItem label="Pitch"     data={accelY}   color="#42a5f5" unit="°" />
+        <SparkItem label="Yaw"       data={accelZ}   color="#66bb6a" unit="°" />
         <SparkItem label="Magnitude" data={accelMag} color="#ffa726" unit="m/s²" />
       </Box>
     </Box>

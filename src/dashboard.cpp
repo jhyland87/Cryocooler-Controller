@@ -57,7 +57,7 @@
 // Set to 0 to disable it entirely (no handler registered, no broadcast, no
 // Serial.printf calls from the TCPIP task) — useful for isolating whether
 // the WebSocket is interfering with serial input.
-#define DASHBOARD_WEBSOCKET_ENABLED 0
+#define DASHBOARD_WEBSOCKET_ENABLED 1
 
 namespace dashboard {
 

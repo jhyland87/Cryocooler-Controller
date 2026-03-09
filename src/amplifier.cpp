@@ -44,22 +44,22 @@ static ACS37800 acs_;
 
 // MCP4725 12-bit I2C DAC — amplitude control
 static Adafruit_MCP4725 mcp4725_;
-static uint16_t dacCurrent_ = 0u;
+uint16_t dacCurrent_ = 0u;
 
 // Set-points
-static float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
+float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
 
 // Latest ACS37800 readings (updated each service() call)
-static float lastRmsVoltage_ = 0.0f;
-static float lastRmsCurrent_ = 0.0f;
+float lastRmsVoltage_ = 0.0f;
+float lastRmsCurrent_ = 0.0f;
 
 // Latest measured frequency from IMU FFT
-static float lastFrequency_ = 0.0f;
+float lastFrequency_ = 0.0f;
 
 // AD9833 mode tracking
-static MD_AD9833::mode_t waveformMode_ = MD_AD9833::MODE_OFF;
+MD_AD9833::mode_t waveformMode_ = MD_AD9833::MODE_OFF;
 
-static bool enabled_ = false;
+bool enabled_ = false;
 
 // ---------------------------------------------------------------------------
 // Setpoint tracking

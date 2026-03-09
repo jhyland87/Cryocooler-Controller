@@ -35,6 +35,34 @@ const ESP32_HOST = 'cryocooler.local';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Recursively flatten a nested JSON object into dot-notation keys.
+ *
+ * The ESP32 firmware emits a nested structure, e.g.:
+ *   { "cold_head": { "temp_c": -101.47 } }
+ *
+ * The dashboard types use flat dot-notation keys, e.g.:
+ *   { "cold_head.temp_c": -101.47 }
+ *
+ * Arrays are left as-is (stored under their parent key); null is dropped.
+ */
+function flatten(
+  obj: Record<string, unknown>,
+  prefix = '',
+  result: Record<string, number | string | undefined> = {},
+): Record<string, number | string | undefined> {
+  for (const [k, v] of Object.entries(obj)) {
+    const key = prefix ? `${prefix}.${k}` : k;
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      flatten(v as Record<string, unknown>, key, result);
+    } else if (typeof v === 'number' || typeof v === 'string') {
+      result[key] = v;
+    }
+    // null / undefined / arrays are omitted
+  }
+  return result;
+}
+
 function wsUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${proto}//${ESP32_HOST}/ws`;
@@ -75,13 +103,22 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
 
   const handleFrame = useCallback((raw: string) => {
     try {
-      const parsed = JSON.parse(raw) as TelemetryData;
-      const now = Date.now();
+      const nested = JSON.parse(raw) as Record<string, unknown>;
+      const flat   = flatten(nested) as TelemetryData;
       if (!mountedRef.current) return;
-      setData(parsed);
+
+      // Prefer the ESP32's own authoritative timestamp so data points are
+      // indexed by the device clock rather than by network-jittered arrival
+      // time.  The payload field is `timestamp.epoch` (seconds since Unix
+      // epoch); convert to ms for DataPoint.t.  Fall back to Date.now() when
+      // the field is absent (e.g. older firmware, polling before WS connects).
+      const epochSec = flat['timestamp.epoch'];
+      const now = typeof epochSec === 'number' ? epochSec * 1000 : Date.now();
+
+      setData(flat);
       setLastUpdate(now);
       setFrameCount((c) => c + 1);
-      onDataCbRef.current?.(parsed, now);
+      onDataCbRef.current?.(flat, now);
     } catch {
       // Silently drop malformed frames.
     }

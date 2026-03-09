@@ -2,6 +2,8 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
+import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
+import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
 
 interface Props {
   actualC:  DataPoint[];
@@ -14,15 +16,29 @@ function toSeries(buf: DataPoint[]): number[] {
   return buf.map((p) => p.v);
 }
 
+/** Returns raw ms-epoch values for use as an absolute time x-axis. */
 function toXAxis(buf: DataPoint[]): number[] {
-  if (buf.length === 0) return [];
-  const t0 = buf[0].t;
-  return buf.map((p) => Math.round((p.t - t0) / 1000));
+  return buf.map((p) => p.t);
+}
+
+/** Formats a ms-epoch value as HH:MM:SS for the x-axis tick labels. */
+function fmtTime(ms: number): string {
+  return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 }
 
 export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
-  const xData = toXAxis(actualC.length >= ambientC.length ? actualC : ambientC);
-  const n     = xData.length || 1;
+  const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
+  const tickStep = calcTickStep(containerWidth);
+
+  const longest = actualC.length >= ambientC.length ? actualC : ambientC;
+  const xData   = toXAxis(longest);
+  const n       = xData.length || 1;
+
+  // Pin the x-axis to a fixed rolling window so the domain never rescales as
+  // the buffer fills — it only slides forward.  Lines grow in from the left
+  // edge rather than appearing to expand from the centre.
+  const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
+  const xMin = xMax - HISTORY_WINDOW_MS;
 
   const padTo = (arr: number[], len: number): (number | null)[] => {
     const out: (number | null)[] = [...arr];
@@ -54,14 +70,15 @@ export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
   ];
 
   return (
-    <Box sx={{ width: '100%', height: 260 }}>
+    <Box ref={containerRef} sx={{ width: '100%', height: 260 }}>
       <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.7rem' }}>
         Cold Head Temperature
       </Typography>
       <LineChart
-        xAxis={[{ data: xData.length > 0 ? xData : [0], label: 'Time (s)', scaleType: 'linear' }]}
+        xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
         series={series}
         height={220}
+        skipAnimation
         sx={{
           '& .MuiChartsLegend-root': { fontSize: '0.7rem' },
         }}

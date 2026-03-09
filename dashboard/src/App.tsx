@@ -19,12 +19,12 @@ import type { TelemetryData } from './types/telemetry';
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
-    primary:    { main: '#29b6f6' },
-    secondary:  { main: '#ce93d8' },
-    background: { default: '#0a0e14', paper: '#111820' },
-    text:       { primary: '#e1e8f0', secondary: '#8899aa' },
-    divider: 'rgba(255,255,255,0.08)',
+    mode: 'light',
+    primary:    { main: '#0277bd' },
+    secondary:  { main: '#7b1fa2' },
+    background: { default: '#eef2f7', paper: '#ffffff' },
+    text:       { primary: '#1a2638', secondary: '#546e7a' },
+    divider: 'rgba(0,0,0,0.10)',
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -34,9 +34,9 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: '#2a3340 #111820',
+          scrollbarColor: '#b0bec5 #eef2f7',
           '&::-webkit-scrollbar': { width: 8 },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: '#2a3340', borderRadius: 4 },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: '#b0bec5', borderRadius: 4 },
         },
       },
     },
@@ -54,14 +54,14 @@ const HISTORY_KEYS = [
   'cold_head.delta_below_ambient_c',
   'cold_head.voltage_v',
   'cold_head.current_a',
-  'system.voltage_v',
+  'system.voltage_vdc',   // ESP32 key name
   'system.current_a',
   'cooling.fan_speed',
   'cooling.temp_c',
   'cooling.flow_rate_lpm',
-  'imu.x',
-  'imu.y',
-  'imu.z',
+  'imu.roll_deg',         // ESP32 key name (was imu.x)
+  'imu.pitch_deg',        // ESP32 key name (was imu.y)
+  'imu.yaw_deg',          // ESP32 key name (was imu.z)
   'imu.accel_mag',
   'system.cpu_usage_percent',
   'system.heap_usage_percent',
@@ -83,7 +83,7 @@ const TILES: TileConfig[] = [
   { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',   dp: 2, color: '#ffa726' },
   { label: 'Cold Head', key: 'cold_head.temp_k',         unit: 'K',    dp: 2, color: '#4fc3f7' },
   { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: 'K/min',dp: 3, color: '#80cbc4' },
-  { label: 'Sys V',     key: 'system.voltage_v',         unit: 'V',    dp: 2, color: '#ce93d8' },
+  { label: 'Sys V',     key: 'system.voltage_vdc',       unit: 'V',    dp: 2, color: '#ce93d8' },
   { label: 'Sys A',     key: 'system.current_a',         unit: 'A',    dp: 2, color: '#f48fb1' },
   { label: 'Sys W',     key: 'system.power_w',           unit: 'W',    dp: 1, color: '#ffcc80' },
   { label: 'Fan Speed', key: 'cooling.fan_speed',        unit: '%',    dp: 0, color: '#4dd0e1' },
@@ -176,7 +176,6 @@ export function App() {
                   actualC={getHistory('cold_head.temp_c')}
                   ambientC={getHistory('cold_head.ambient_temp_c')}
                   deltaC={getHistory('cold_head.delta_below_ambient_c')}
-                  key={`temp-${tick}`}
                 />
               </Box>
             </Grid>
@@ -186,9 +185,8 @@ export function App() {
                 <PowerChart
                   coldHeadVolts={getHistory('cold_head.voltage_v')}
                   coldHeadAmps={getHistory('cold_head.current_a')}
-                  systemVolts={getHistory('system.voltage_v')}
+                  systemVolts={getHistory('system.voltage_vdc')}
                   systemAmps={getHistory('system.current_a')}
-                  key={`power-${tick}`}
                 />
               </Box>
             </Grid>
@@ -199,7 +197,6 @@ export function App() {
                   fanSpeed={getHistory('cooling.fan_speed')}
                   coolantTemp={getHistory('cooling.temp_c')}
                   flowRate={getHistory('cooling.flow_rate_lpm')}
-                  key={`cooling-${tick}`}
                 />
               </Box>
             </Grid>
@@ -208,12 +205,11 @@ export function App() {
             <Grid size={{ xs: 12, md: 7 }}>
               <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
                 <AccelSparklines
-                  accelX={getHistory('imu.x')}
-                  accelY={getHistory('imu.y')}
-                  accelZ={getHistory('imu.z')}
+                  accelX={getHistory('imu.roll_deg')}
+                  accelY={getHistory('imu.pitch_deg')}
+                  accelZ={getHistory('imu.yaw_deg')}
                   accelMag={getHistory('imu.accel_mag')}
                   motion={typeof data['imu.motion'] === 'number' ? data['imu.motion'] : undefined}
-                  key={`accel-${tick}`}
                 />
               </Box>
             </Grid>
@@ -224,7 +220,6 @@ export function App() {
                   cpuUsage={getHistory('system.cpu_usage_percent')}
                   heapUsage={getHistory('system.heap_usage_percent')}
                   psramUsage={getHistory('system.psram_usage_percent')}
-                  key={`sys-${tick}`}
                 />
               </Box>
             </Grid>

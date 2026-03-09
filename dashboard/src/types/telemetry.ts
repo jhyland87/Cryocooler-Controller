@@ -6,7 +6,8 @@
  */
 export interface TelemetryData {
   // ── Timestamp ───────────────────────────────────────────────────────────────
-  'timestamp.local'?: number;
+  'timestamp.epoch'?: number;   // seconds since Unix epoch (from ESP32 RTC)
+  'timestamp.local'?: string;   // human-readable local time string
 
   // ── State machine ───────────────────────────────────────────────────────────
   'state.id'?: number;
@@ -31,7 +32,8 @@ export interface TelemetryData {
   'cold_head.current_a'?: number;
 
   // ── System power & resources ────────────────────────────────────────────────
-  'system.voltage_v'?: number;
+  'system.voltage_v'?: number;   // alias — firmware actually emits voltage_vdc
+  'system.voltage_vdc'?: number; // actual ESP32 key
   'system.current_a'?: number;
   'system.power_w'?: number;
   'system.cpu_usage_percent'?: number;
@@ -51,9 +53,12 @@ export interface TelemetryData {
   'cooling.flow_rate_lpm'?: number;
 
   // ── IMU / accelerometer ─────────────────────────────────────────────────────
-  'imu.x'?: number;
+  'imu.x'?: number;         // alias — firmware actually emits roll_deg/pitch_deg/yaw_deg
   'imu.y'?: number;
   'imu.z'?: number;
+  'imu.roll_deg'?: number;  // actual ESP32 key
+  'imu.pitch_deg'?: number;
+  'imu.yaw_deg'?: number;
   'imu.accel_mag'?: number;
   'imu.motion'?: number;
 

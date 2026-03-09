@@ -2,7 +2,10 @@ import { useRef, useCallback } from 'preact/hooks';
 import type { DataPoint, HistoryMap, TelemetryData } from '../types/telemetry';
 
 /** Number of samples to retain per channel (60 s at 1 Hz). */
-const HISTORY_LENGTH = 60;
+export const HISTORY_LENGTH = 60;
+
+/** Total rolling window in milliseconds — used by charts to pin the x-axis domain. */
+export const HISTORY_WINDOW_MS = HISTORY_LENGTH * 1_000;
 
 /**
  * Maintains a fixed-length rolling history buffer for a set of numeric
@@ -33,8 +36,15 @@ export function useHistoryBuffer(keys: ReadonlyArray<string>) {
     []
   );
 
+  /**
+   * Returns a shallow copy of the buffer for `key`.
+   *
+   * A copy is returned (not the live reference) so that chart components
+   * receive a new array identity on each re-render and can diff/animate
+   * incrementally rather than treating every render as a "same data" no-op.
+   */
   const getHistory = useCallback((key: string): DataPoint[] => {
-    return buffers.current[key] ?? [];
+    return [...(buffers.current[key] ?? [])];
   }, []);
 
   return { push, getHistory };
