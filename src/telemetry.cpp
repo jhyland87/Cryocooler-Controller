@@ -24,7 +24,6 @@
 #include "sysinfo.h"
 #include "cooling.h"
 #include "hardware.h"
-#include "relay.h"
 #include "commands.h"
 #include "dashboard.h"
 #include "amplifier.h"
@@ -129,7 +128,7 @@ static void buildStartupFrame(FrameBuilder& frame)
     const bool smReady          = ready(state_machine::Module::getInitStatus());
     const bool coldHeadReady    = ready(cold_head::Module::getInitStatus());
     const bool amplifierReady   = ready(amplifier::Module::getInitStatus());
-    const bool relayReady       = ready(relay::Module::getInitStatus());
+    const bool compressorReady  = ready(compressor::Module::getInitStatus());
     const bool indicatorReady   = ready(indicator::Module::getInitStatus());
     const bool sysinfoReady     = ready(sysinfo::Module::getInitStatus());
     const bool accelReady       = ready(imu::Module::getInitStatus());
@@ -205,14 +204,15 @@ static void buildStartupFrame(FrameBuilder& frame)
     frame.field("status.backoff_count", "%s", "");
 
     // ── Relay ───────────────────────────────────────────────────────────────
-    if (relayReady) {
-        frame
-            .field("relay.compressor_state", "%d", relay::getCompressorState())
-            .field("relay.amplifier_state",  "%d", relay::getAmplifierState());
+    if (compressorReady) {
+        frame.field("relay.compressor_state", "%d", compressor::getStatus());
     } else {
-        frame
-            .field("relay.compressor_state", "%s", "")
-            .field("relay.amplifier_state",  "%s", "");
+        frame.field("relay.compressor_state", "%s", "");
+    }
+    if (amplifierReady) {
+        frame.field("relay.amplifier_state", "%d", amplifier::getRelayState());
+    } else {
+        frame.field("relay.amplifier_state", "%s", "");
     }
 
     // // ── DAC ───────────────────────────────────────────────────────────────
@@ -427,8 +427,6 @@ static void buildStartupFrame(FrameBuilder& frame)
         .field("mod.cold_head.service",         "%s", module::serviceStatusName(cold_head::Module::getServiceStatus()))
         // .field("mod.dac.init",                  "%s", module::initStatusName(dac::Module::getInitStatus()))
         // .field("mod.dac.service",               "%s", module::serviceStatusName(dac::Module::getServiceStatus()))
-        .field("mod.relay.init",                "%s", module::initStatusName(relay::Module::getInitStatus()))
-        .field("mod.relay.service",             "%s", module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",            "%s", module::initStatusName(indicator::Module::getInitStatus()))
         .field("mod.indicator.service",         "%s", module::serviceStatusName(indicator::Module::getServiceStatus()))
         .field("mod.state_machine.init",        "%s", module::initStatusName(state_machine::Module::getInitStatus()))
@@ -537,8 +535,8 @@ void emit(const state_machine::Output& out)
         //.field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
         .field("cold_head.voltage_v",               "%.2f", cold_head::getLastRmsVoltage())
         .field("cold_head.current_a",               "%.2f", cold_head::getLastRmsCurrent())
-        .field("relay.compressor_state",            "%d",   relay::getCompressorState())
-        .field("relay.amplifier_state",             "%d",   relay::getAmplifierState())
+        .field("relay.compressor_state",            "%d",   compressor::getStatus())
+        .field("relay.amplifier_state",             "%d",   amplifier::getRelayState())
         .field("indicator.fault",                   "%d",   indicator::isFaultOn())
         .field("indicator.ready",                   "%d",   indicator::isReadyOn())
         .field("status.on_duration_ms",             "%lu",  static_cast<unsigned long>(durationMs))
@@ -613,8 +611,6 @@ void emit(const state_machine::Output& out)
         .field("mod.cold_head.service",             "%s",   module::serviceStatusName(cold_head::Module::getServiceStatus()))
         // .field("mod.dac.init",                      "%s",   module::initStatusName(dac::Module::getInitStatus()))
         // .field("mod.dac.service",                   "%s",   module::serviceStatusName(dac::Module::getServiceStatus()))
-        .field("mod.relay.init",                    "%s",   module::initStatusName(relay::Module::getInitStatus()))
-        .field("mod.relay.service",                 "%s",   module::serviceStatusName(relay::Module::getServiceStatus()))
         .field("mod.indicator.init",                "%s",   module::initStatusName(indicator::Module::getInitStatus()))
         .field("mod.indicator.service",             "%s",   module::serviceStatusName(indicator::Module::getServiceStatus()))
         .field("mod.state_machine.init",            "%s",   module::initStatusName(state_machine::Module::getInitStatus()))

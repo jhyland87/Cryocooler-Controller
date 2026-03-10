@@ -21,7 +21,9 @@
 #include "mock_commands.h"
 #include "sensor_mock.h"
 #include "cold_head.h"
-#include "relay.h"
+#include "config_advanced.h"
+#include "amplifier.h"
+#include "compressor.h"
 
 namespace mock_commands {
 
@@ -330,10 +332,10 @@ static void handleRelay(const char* args, Print& out) {
     if (args == nullptr || *args == '\0') {
         char buf[64];
         snprintf(buf, sizeof(buf), "  compressor : %s",
-                 relay::getCompressorState() ? "ON" : "off");
+                 compressor::getStatus() ? "ON" : "off");
         out.println(buf);
         snprintf(buf, sizeof(buf), "  amplifier  : %s",
-                 relay::getAmplifierState() ? "ON" : "off");
+                 amplifier::getRelayState() ? "ON" : "off");
         out.println(buf);
         return;
     }
@@ -374,9 +376,9 @@ static void handleRelay(const char* args, Print& out) {
     // ── apply ─────────────────────────────────────────────────────────────────
     const char* name = isAmplifier ? "amplifier" : "compressor";
     if (isAmplifier) {
-        relay::setAmplifierState(state);
+        amplifier::setRelayState(state);
     } else {
-        relay::setCompressorState(state);
+        compressor::setRelayState(state);
     }
 
     char buf[48];
@@ -410,10 +412,10 @@ static void handleStatus(const char* /*args*/, Print& out) {
 
     // Relay states (always shown; state machine may override next tick)
     snprintf(buf, sizeof(buf), "  relay.compressor : %s",
-             relay::getCompressorState() ? "ON" : "off");
+             compressor::getStatus() ? "ON" : "off");
     out.println(buf);
     snprintf(buf, sizeof(buf), "  relay.amplifier  : %s",
-             relay::getAmplifierState() ? "ON" : "off");
+             amplifier::getRelayState() ? "ON" : "off");
     out.println(buf);
 
     // Cold-head module-local RTD mock (independent of global mock mode)

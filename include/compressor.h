@@ -72,6 +72,14 @@ inline void service() { service(millis()); }
 /** Returns true while the relay is physically energised. */
 bool getStatus();
 
+/**
+ * Directly energise or de-energise the relay, bypassing the timed-run logic.
+ * Intended for diagnostic / mock-command use; prefer startRun() / stopRun()
+ * in production code.
+ * @param on  true = relay ON, false = relay OFF.
+ */
+void setRelayState(bool on);
+
 /** Returns true while a timed run is active (relay is ON and timer running). */
 bool isTimedRunActive();
 

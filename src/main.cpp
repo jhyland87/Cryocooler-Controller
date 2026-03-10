@@ -18,7 +18,6 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "cold_head.h"
-#include "relay.h"
 #include "indicator.h"
 #include "state_machine.h"
 #include "telemetry.h"
@@ -159,16 +158,11 @@ static void initPersistentModules() {
  * each step so the dashboard shows real-time progress.
  */
 static void initControlModules() {
-    // Relay module should be initialized first to disable the amplifier and
-    // compressor. Otherwise they may start up with a previous value (ie: the
-    // coldhead could jump right to a high voltage state, causing a fault.)
-    auto relayStatus = initModule("relay", [] { return relay::Module::init(); });
-    if (relayStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Relay initialization failed (status %d).\n",
-                      static_cast<int>(relayStatus));
-    }
-    telemetry::emitSafe();
-
+    // Both relays share one PCAL9535A at 0x20 (pin 0 = compressor, pin 1 = amplifier).
+    // relay_board::init() is idempotent — whichever of the two modules initialises
+    // first calls begin() exactly once and drives both pins LOW before the state
+    // machine takes control.  Initialise compressor first so the relay is
+    // de-energized as early as possible.
     auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
     if (compressorStatus != module::MODULE_INIT_SUCCESS) {
         Serial.printf("[init] Compressor initialization failed (status %d).\n",
@@ -346,9 +340,6 @@ void loop() {
     if (overstroke) { imu::clearOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
-    // relay::setCompressorState(relay::getCompressorState());
-    // relay::setAlarmState(out.alarmRelay);
-
     indicator::setFaultMode(out.faultIndMode);
     indicator::setReadyMode(out.readyIndMode);
 

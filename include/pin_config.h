@@ -106,6 +106,15 @@
 #define COMPRESSOR_RELAY_PIN         static_cast<uint8_t>(0)
 
 // =============================================================================
+// PCAL9535A I2C GPIO Expander — amplifier relay
+// =============================================================================
+// Same PCAL9535A device as the compressor relay (both at A000 / 0x20).
+// Compressor uses pin 0; amplifier uses pin 1.
+#define AMPLIFIER_RELAY_PCAL_ADDR    PCAL9535A::HardwareAddress::A000
+// GPIO pin on the expander (0–15) wired to the relay coil.
+#define AMPLIFIER_RELAY_PIN          static_cast<uint8_t>(1)
+
+// =============================================================================
 
 
 

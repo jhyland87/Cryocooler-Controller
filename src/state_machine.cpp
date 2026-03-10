@@ -29,7 +29,6 @@
 #include "amplifier.h"
 #include "cold_head.h"
 #include "cooling.h"
-#include "relay.h"
 #include "esp_log.h"
 #include <Fsm.h>
 
@@ -141,7 +140,6 @@ static void checkRunningModules() {
     if (cooling::Module::getInitStatus()   != module::MODULE_INIT_SUCCESS) missing = "cooling";
     else if (amplifier::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) missing = "amplifier";
     else if (cold_head::Module::getInitStatus() != module::MODULE_INIT_SUCCESS) missing = "cold_head";
-    else if (relay::Module::getInitStatus()     != module::MODULE_INIT_SUCCESS) missing = "relay";
 
     if (missing) {
         ESP_LOGE(TAG, "Module '%s' not ready — deferring fault", missing);
@@ -377,7 +375,7 @@ static void setStateEntry(State s) {
 static void onEnterOff(){
     setStateEntry(State::Off);
     amplifier::rampTowardShutdown(0u);
-    relay::setAmplifierState(false);
+    amplifier::setRelayState(false);
 }
 static void onEnterInitialize() {
     setStateEntry(State::Initialize);
@@ -390,11 +388,11 @@ static void onEnterInitialize() {
 static void onEnterIdle() {
     setStateEntry(State::Idle);
     amplifier::rampToVoltage(0);
-    relay::setAmplifierState(false);
+    amplifier::setRelayState(false);
 }
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
     amplifier::initCoarseCooldown();
 #ifdef ARDUINO
     checkRunningModules();
@@ -402,7 +400,7 @@ static void onEnterCoarseCooldown() {
 }
 static void onEnterFineCooldown() {
     setStateEntry(State::FineCooldown);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
     amplifier::initFineCooldown();
 #ifdef ARDUINO
     checkRunningModules();
@@ -410,41 +408,41 @@ static void onEnterFineCooldown() {
 }
 static void onEnterOvershoot() {
     setStateEntry(State::Overshoot);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
 #ifdef ARDUINO
     checkRunningModules();
 #endif
 }
 static void onEnterSettle() {
     setStateEntry(State::Settle);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
 #ifdef ARDUINO
     checkRunningModules();
 #endif
 }
 static void onEnterBaseline() {
     setStateEntry(State::Baseline);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
 #ifdef ARDUINO
     checkRunningModules();
 #endif
 }
 static void onEnterOperating() {
     setStateEntry(State::Operating);
-    relay::setAmplifierState(true);
+    amplifier::setRelayState(true);
     cold_head::startTemperatureTracking();
 #ifdef ARDUINO
     checkRunningModules();
 #endif
 }
 static void onExitOperating()       {
-    relay::setAmplifierState(false);
+    amplifier::setRelayState(false);
     cold_head::stopTemperatureTracking();
 }
 static void onEnterShutdown()       {
     setStateEntry(State::Shutdown);
     amplifier::rampTowardShutdown(0u);
-    relay::setAmplifierState(false);
+    amplifier::setRelayState(false);
 }
 
 static void onEnterDelay() {
@@ -454,6 +452,7 @@ static void onEnterDelay() {
 
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
+    amplifier::setRelayState(false);
     running = false;
     if (offStateMs == 0) offStateMs = sNowMs;
 
@@ -681,7 +680,11 @@ Output update(float    tempK,
             Serial.println(F("[SM] Fault: FSM oscillating between states"));
         }
 
-        if (amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE_VAC) {
+        // RMS overvoltage — checked only while running (relay is energised and
+        // amplifier is actively driving the load).  The ACS37800 measures the
+        // AC line side, so it will always read mains voltage when idle; checking
+        // here without the guard would produce an immediate false fault on startup.
+        if (running && amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE_VAC) {
             faultMask |= static_cast<uint8_t>(FaultReason::RmsOvervoltage);
             Serial.println(F("Fault: RMS voltage exceeded safe limit"));
         }

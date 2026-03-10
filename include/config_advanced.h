@@ -20,14 +20,12 @@
 
 
 // =============================================================================
-// Relays - Controlled over I2C
+// Relays
 // =============================================================================
-
-// Acceptable deviation around AMPLIFIER_CURRENT_NOMINAL_A (A).
-#define RELAY_COMPRESSOR_I2C_ADDRESS static_cast<uint8_t>(0x18)
-
-// Amplifier relay address
-#define RELAY_AMPLIFIER_I2C_ADDRESS static_cast<uint8_t>(0x19)
+// Both relays share a single PCAL9535A at 0x20 (A000), each on its own pin.
+// Addresses and pins are defined in pin_config.h:
+//   Compressor relay: COMPRESSOR_RELAY_PCAL_ADDR (A000) / COMPRESSOR_RELAY_PIN (0)
+//   Amplifier relay:  AMPLIFIER_RELAY_PCAL_ADDR  (A000) / AMPLIFIER_RELAY_PIN  (1)
 
 // =============================================================================
 // ADC / DAC internals

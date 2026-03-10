@@ -2,10 +2,10 @@
  * @file compressor.cpp
  * @brief Air compressor relay control implementation.
  *
- * The relay is driven through a PCAL9535A I2C GPIO expander.
- * The expander address and relay pin are configured in pin_config.h:
- *   COMPRESSOR_RELAY_PCAL_ADDR  — HardwareAddress enum value (A000–A111)
- *   COMPRESSOR_RELAY_PIN        — expander GPIO pin (0–15)
+ * The relay is driven through the shared relay_board driver (PCAL9535A at
+ * COMPRESSOR_RELAY_PCAL_ADDR / 0x20).  relay_board owns the single library
+ * instance and calls begin() exactly once, preventing the register-reset
+ * problem that arises when two instances address the same chip.
  *
  * Only timed runs are supported.  startRun() enables the relay and records a
  * deadline; service() polls that deadline each tick and disables the relay
@@ -14,22 +14,16 @@
 
 #include <Arduino.h>
 
-#include "PCAL9535A.h"
 #include "hardware.h"
 #include "pin_config.h"
 #include "config.h"
 #include "compressor.h"
+#include "relay_board.h"
 #include "esp_log.h"
 
 namespace compressor {
 
 static constexpr char TAG[] = "compressor";
-
-// ---------------------------------------------------------------------------
-// PCAL9535A instance — templated on TwoWire, shares the global I2C bus.
-// Constructed once at file scope; begin() is called inside init().
-// ---------------------------------------------------------------------------
-static PCAL9535A::PCAL9535A<TwoWire> sGpio(hardware::i2c());
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -51,7 +45,7 @@ static uint32_t sRunDurationMs = 0;
 static void setRelay(bool on) {
     if (on == sRelayOn) return;
     sRelayOn = on;
-    sGpio.digitalWrite(COMPRESSOR_RELAY_PIN, on ? HIGH : LOW);
+    relay_board::setPin(COMPRESSOR_RELAY_PIN, on);
     ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
 }
 
@@ -60,15 +54,14 @@ static void setRelay(bool on) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    ESP_LOGI(TAG, "Initialising compressor (PCAL9535A addr=%d pin=%d)",
-             static_cast<int>(COMPRESSOR_RELAY_PCAL_ADDR),
+    ESP_LOGI(TAG, "Initialising compressor relay (pin %d via relay_board)",
              static_cast<int>(COMPRESSOR_RELAY_PIN));
 
-    sGpio.begin(COMPRESSOR_RELAY_PCAL_ADDR);
-    sGpio.pinMode(COMPRESSOR_RELAY_PIN, OUTPUT);
+    // relay_board::init() is idempotent — whichever module calls it first
+    // programmes the PCAL9535A and drives both relay pins LOW.
+    relay_board::init();
 
-    // Force the guard inside setRelay() to fire by temporarily setting
-    // sRelayOn to true, then drive LOW to ensure the pin starts off.
+    // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
     sRelayOn       = true;
     setRelay(false);
     sRunStartMs    = 0;
@@ -113,6 +106,10 @@ void service(uint32_t nowMs) {
 
 bool getStatus() {
     return sRelayOn;
+}
+
+void setRelayState(bool on) {
+    setRelay(on);
 }
 
 bool isTimedRunActive() {

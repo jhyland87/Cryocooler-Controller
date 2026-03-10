@@ -610,6 +610,45 @@ static void handleUpdateImage(const char* /*args*/, Print& out) {
 
 #endif  // ARDUINO
 
+// ─── Relay command handlers ───────────────────────────────────────────────────
+#ifdef ARDUINO
+
+static void handleRelayStatus(const char* /*args*/, Print& out) {
+    char buf[48];
+    snprintf(buf, sizeof(buf), "[OK] relay.compressor : %s",
+             compressor::getStatus() ? "ON" : "off");
+    out.println(buf);
+    snprintf(buf, sizeof(buf), "     relay.amplifier  : %s",
+             amplifier::getRelayState() ? "ON" : "off");
+    out.println(buf);
+}
+
+static void handleRelayAmplifier(const char* args, Print& out) {
+    if (strncmp(args, "on",  2) == 0 && (args[2] == '\0' || args[2] == ' ' || args[2] == '\t')) {
+        amplifier::setRelayState(true);
+        out.println("[OK] relay.amplifier = ON");
+    } else if (strncmp(args, "off", 3) == 0 && (args[3] == '\0' || args[3] == ' ' || args[3] == '\t')) {
+        amplifier::setRelayState(false);
+        out.println("[OK] relay.amplifier = off");
+    } else {
+        out.println("[ERR] Usage: relay amplifier <on|off>");
+    }
+}
+
+static void handleRelayCompressor(const char* args, Print& out) {
+    if (strncmp(args, "on",  2) == 0 && (args[2] == '\0' || args[2] == ' ' || args[2] == '\t')) {
+        compressor::setRelayState(true);
+        out.println("[OK] relay.compressor = ON");
+    } else if (strncmp(args, "off", 3) == 0 && (args[3] == '\0' || args[3] == ' ' || args[3] == '\t')) {
+        compressor::setRelayState(false);
+        out.println("[OK] relay.compressor = off");
+    } else {
+        out.println("[ERR] Usage: relay compressor <on|off>");
+    }
+}
+
+#endif  // ARDUINO (relay handlers)
+
 // ─── Compressor command handlers ──────────────────────────────────────────────
 #ifdef ARDUINO
 
@@ -711,6 +750,10 @@ static const Command commandMap[] = {
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
+    // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
+    {"relay amplifier",     handleRelayAmplifier,   "Energise or de-energise the amplifier relay (on|off)"},
+    {"relay compressor",    handleRelayCompressor,  "Energise or de-energise the compressor relay (on|off)"},
+    {"relay",               handleRelayStatus,      "Show current state of both relays"},
     // "compressor start" and "compressor status" share the prefix "compressor st";
     // they are distinct because the match requires the full name, so order doesn't
     // matter for correctness, but keep them together for readability.

@@ -24,6 +24,7 @@
 #include "pin_config.h"
 #include "config.h"
 #include "amplifier.h"
+#include "relay_board.h"
 #include "conversions.h"
 #include "module.h"
 #include "imu.h"
@@ -35,6 +36,11 @@
 // ---------------------------------------------------------------------------
 // Module-private state
 // ---------------------------------------------------------------------------
+
+static constexpr char TAG[] = "amplifier";
+
+/// True while the relay output is energised (cached; relay_board is the source of truth on hardware).
+static bool sRelayOn = false;
 
 // Waveform generator (AD9833 over SPI)
 static MD_AD9833 ad9833_(AD9833_CS);
@@ -79,6 +85,21 @@ static std::optional<TrackingMonitor<float>> freqTracker_;
 static std::optional<TrackingMonitor<float>> voltTracker_;
 
 // ---------------------------------------------------------------------------
+// Internal relay helper
+// ---------------------------------------------------------------------------
+
+/**
+ * Drive the relay coil via the shared relay_board driver.  No-ops when the
+ * requested state matches the cached state to avoid unnecessary I2C traffic.
+ */
+static void setRelay(bool on) {
+    if (on == sRelayOn) return;
+    sRelayOn = on;
+    relay_board::setPin(AMPLIFIER_RELAY_PIN, on);
+    ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
+}
+
+// ---------------------------------------------------------------------------
 // Internal DAC helpers
 // ---------------------------------------------------------------------------
 
@@ -118,12 +139,20 @@ static void dacRampInternal(uint16_t target, uint16_t maxStep) {
 // Public API
 // ---------------------------------------------------------------------------
 
-static constexpr char TAG[] = "amplifier";
-
-
 namespace amplifier {
 
 module::InitStatus init() {
+    // -- PCAL9535A relay ------------------------------------------------------
+    ESP_LOGI(TAG, "Initializing PCAL9535A (Relay)...");
+    {
+        const module::InitStatus status = initRelay();
+        if (status != module::MODULE_INIT_SUCCESS) {
+            ESP_LOGE(TAG, "PCAL9535A relay initialization failed: %d", static_cast<int>(status));
+            return status;
+        }
+    }
+    ESP_LOGI(TAG, "PCAL9535A relay initialized");
+
     // -- MCP4725 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
@@ -192,6 +221,10 @@ module::InitStatus initWaveform() {
 }
 
 module::InitStatus initAcs() {
+    // NOTE: The ACS37800 EN pin must be tied HIGH (or pulled high) for the chip
+    // to produce valid readings.  With EN held LOW the chip outputs full-scale
+    // values on all channels (~130 VAC / max current), which looks like a real
+    // over-voltage reading and will immediately trigger an RmsOvervoltage fault.
     acs_.setBus(&hardware::i2c());
     acs_.setBoardPololu(4);
     acs_.setSampleCount(0);
@@ -204,8 +237,37 @@ module::InitStatus initAcs() {
     return module::MODULE_INIT_SUCCESS;
 }
 
+module::InitStatus initRelay() {
+    ESP_LOGI(TAG, "Initialising amplifier relay (pin %d via relay_board)",
+             static_cast<int>(AMPLIFIER_RELAY_PIN));
+
+    // relay_board::init() is idempotent — whichever module (compressor or
+    // amplifier) calls it first programmes the PCAL9535A once and drives
+    // both relay pins LOW.  The second call is a no-op.
+    relay_board::init();
+
+    // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
+    sRelayOn = true;
+    setRelay(false);
+
+    ESP_LOGI(TAG, "Amplifier relay initialised — relay OFF");
+    return module::MODULE_INIT_SUCCESS;
+}
+
 bool checkDependencies() {
     return true;
+}
+
+// ---------------------------------------------------------------------------
+// Relay control
+// ---------------------------------------------------------------------------
+
+void setRelayState(bool on) {
+    setRelay(on);
+}
+
+bool getRelayState() {
+    return sRelayOn;
 }
 
 bool isEnabled() {
@@ -260,12 +322,12 @@ void disable() {
 
 void initCoarseCooldown() {
     ESP_LOGD(TAG, "Initializing coarse cooldown");
-    rampToVoltage(0, AMPLIFIER_RAMP_RATE_MEDIUM);
+    rampToVoltage(5, AMPLIFIER_RAMP_RATE_MEDIUM);
 }
 
 void initFineCooldown() {
     ESP_LOGD(TAG, "Initializing fine cooldown");
-    rampToVoltage(0, AMPLIFIER_RAMP_RATE_SLOW);
+    rampToVoltage(10, AMPLIFIER_RAMP_RATE_SLOW);
 }
 
 // ---------------------------------------------------------------------------
@@ -320,9 +382,11 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
+    return module::MODULE_SERVICE_SKIPPED;
+
     acs_.readRMSVoltageAndCurrent();
-    lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
-    lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
+    lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts);// / 1000.0f;
+    lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps);// / 1000.0f;
     lastFrequency_  = imu::getFrequency();
 
     const uint32_t nowMs = millis();

@@ -38,6 +38,13 @@ module::InitStatus initAcs();
 /** Initialise the MCP4725 12-bit I2C DAC and drive output to zero. */
 module::InitStatus initDac();
 
+/**
+ * Initialise the PCAL9535A I2C GPIO expander relay and de-energise it.
+ * Address and pin are configured in pin_config.h via AMPLIFIER_RELAY_PCAL_ADDR
+ * and AMPLIFIER_RELAY_PIN.
+ */
+module::InitStatus initRelay();
+
 /** Read latest ACS37800 values; update lastRmsVoltage / lastRmsCurrent. */
 module::ServiceStatus service();
 
@@ -46,6 +53,22 @@ module::ServiceStatus service();
  * Currently always returns true (caller may override with mock).
  */
 bool checkDependencies();
+
+// ---------------------------------------------------------------------------
+// Relay control
+// ---------------------------------------------------------------------------
+
+/**
+ * Energise or de-energise the amplifier relay via the PCAL9535A.
+ * @param on  true = relay ON (energised), false = relay OFF (de-energised).
+ */
+void setRelayState(bool on);
+
+/**
+ * Return the current relay state.
+ * @return true if the relay is energised, false otherwise.
+ */
+bool getRelayState();
 
 // ---------------------------------------------------------------------------
 // Enable / disable waveform output
