@@ -38,6 +38,9 @@ uint8_t getFanSpeed();
 
 void setFanSpeed(uint8_t speedPercentage, bool force = false);
 uint16_t getFanRPM();
+
+uint8_t  getPumpSpeed();
+uint16_t getPumpRPM();
 void enable();
 void disable();
 bool isEnabled();

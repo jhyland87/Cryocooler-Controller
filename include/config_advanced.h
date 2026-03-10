@@ -150,6 +150,36 @@
 #define COOLING_TEMP_OVERSAMPLE       static_cast<uint8_t>(16)
 
 // =============================================================================
+// TCA9548A I2C Multiplexer (EMC2101 fan + pump routing)
+// =============================================================================
+//
+// Only the two EMC2101s are routed through the mux; all other I2C devices
+// (relays, MCP4725, QMI8658, etc.) remain directly on the main bus.
+// A0 = A1 = A2 = GND → base address 0x70.
+
+// I2C address of the TCA9548A multiplexer.
+#define TCA9548A_I2C_ADDRESS      static_cast<uint8_t>(0x70)
+
+// Mux channel for the fan EMC2101 (existing).
+#define TCA9548A_CHANNEL_FAN      static_cast<uint8_t>(0)
+
+// Mux channel for the pump EMC2101 (new).
+#define TCA9548A_CHANNEL_PUMP     static_cast<uint8_t>(1)
+
+// =============================================================================
+// Pump EMC2101 — forced-temperature LUT configuration
+// =============================================================================
+
+// Initial safe pump duty cycle (%) applied at startup before the LUT
+// receives its first forced temperature update.
+#define COOLING_PUMP_INITIAL_DUTY_PCT  static_cast<uint8_t>(30)
+
+// LUT hysteresis for the pump EMC2101 (°C).
+// Temperature must drop this many degrees below a threshold before the
+// duty cycle steps back down (prevents rapid hunting).
+#define COOLING_PUMP_LUT_HYSTERESIS_C  static_cast<uint8_t>(3)
+
+// =============================================================================
 // Temperature ring-buffer (cooling-rate and stall calculations)
 // =============================================================================
 

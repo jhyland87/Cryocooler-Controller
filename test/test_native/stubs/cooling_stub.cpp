@@ -29,6 +29,9 @@ float   getCoolantFlowRate()     { return 0.0f; }
 uint8_t  getFanSpeed()           { return sLastFanSpeed; }
 uint16_t getFanRPM()             { return sLastFanSpeed > 0u ? static_cast<uint16_t>(1200) : static_cast<uint16_t>(0); }
 
+uint8_t  getPumpSpeed()          { return 0; }
+uint16_t getPumpRPM()            { return 0; }
+
 void setFanSpeed(uint8_t percentage, bool force) {
     (void)force;
     sLastFanSpeed = percentage;
