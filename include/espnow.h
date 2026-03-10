@@ -95,8 +95,10 @@ struct __attribute__((packed)) TelemetryPacket {
     // ── Cooling loop ──────────────────────────────────────────────────────
     float    cooling_temp_c;
     float    cooling_flow_rate_lpm;
-    uint16_t cooling_fan_speed;             ///< PWM duty (0–100)
+    uint16_t cooling_fan_speed;             ///< Fan PWM duty (0–100)
     uint16_t cooling_fan_rpm;
+    uint16_t cooling_pump_speed;           ///< Pump PWM duty (0–100)
+    uint16_t cooling_pump_rpm;
     uint8_t  cooling_status;               ///< 1 = cooling enabled
     uint8_t  cooling_pump_on;              ///< 1 = pump active
 

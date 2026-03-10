@@ -281,6 +281,8 @@ static void fillPacket(TelemetryPacket& pkt) {
     pkt.cooling_flow_rate_lpm = cooling::getCoolantFlowRate();
     pkt.cooling_fan_speed     = cooling::getFanSpeed();
     pkt.cooling_fan_rpm       = cooling::getFanRPM();
+    pkt.cooling_pump_speed    = cooling::getPumpSpeed();
+    pkt.cooling_pump_rpm      = cooling::getPumpRPM();
     pkt.cooling_status        = static_cast<uint8_t>(cooling::isEnabled());
     pkt.cooling_pump_on       = static_cast<uint8_t>(cooling::isCoolingPumpOn());
 

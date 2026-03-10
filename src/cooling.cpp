@@ -40,6 +40,7 @@
 
 
 static Adafruit_EMC2101 fanController_;
+static Adafruit_EMC2101 pumpController_;
 
 namespace cooling {
 
@@ -68,6 +69,33 @@ static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kLut[] = {
 };
 static constexpr uint8_t kLutCount = static_cast<uint8_t>(sizeof(kLut) / sizeof(kLut[0]));
 static_assert(kLutCount <= 8, "EMC2101 LUT has only 8 entries");
+
+// ---------------------------------------------------------------------------
+// Pump LUT configuration (forced-temperature mode)
+//
+// The pump EMC2101 uses setForcedTemperature() to receive the NTC-averaged
+// coolant temperature from software.  Its LUT then maps that temperature
+// to a pump PWM duty cycle autonomously.
+//
+//   Index  Temp (°C)  Duty (%)  Notes
+//   ─────  ─────────  ────────  ──────────────────────────────────────────
+//     0       20         30     Idle / cool — minimum safe pump speed
+//     1       25         40
+//     2       30         55
+//     3       35         70
+//     4       40         85
+//     5       45        100     Full speed at or above 45 °C
+// ---------------------------------------------------------------------------
+static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kPumpLut[] = {
+    { 20,  30 },
+    { 25,  40 },
+    { 30,  55 },
+    { 35,  70 },
+    { 40,  85 },
+    { 45, 100 },
+};
+static constexpr uint8_t kPumpLutCount = static_cast<uint8_t>(sizeof(kPumpLut) / sizeof(kPumpLut[0]));
+static_assert(kPumpLutCount <= 8, "EMC2101 LUT has only 8 entries");
 
 // ---------------------------------------------------------------------------
 // Flow lookup table (Alphacool ES, RPM → L/h)
@@ -126,6 +154,10 @@ static volatile bool    forceFanSpeed_ = false;
 // the telemetry emit path (the root cause of the Wire repeated-start error).
 static uint8_t  cachedDutyCycle_ = 0u;
 static uint16_t cachedFanRpm_    = 0u;
+
+// Cached pump EMC2101 readings — same pattern as the fan controller.
+static uint8_t  cachedPumpDutyCycle_ = 0u;
+static uint16_t cachedPumpRpm_       = 0u;
 
 static uint32_t lastCheckCycleMs = 0;
 static uint32_t lastSampleMs_    = 0;
@@ -241,62 +273,172 @@ static float readCoolantTemp() {
 }
 
 // ---------------------------------------------------------------------------
-// init
+// TCA9548A I2C multiplexer — channel selection
+//
+// The TCA9548A is controlled by a single-byte I2C write: bit N enables
+// downstream channel N.  We select exactly one channel at a time.
+// Only the two EMC2101s are routed through the mux; all other I2C devices
+// remain on the main bus.
 // ---------------------------------------------------------------------------
-module::InitStatus init() {
-  ESP_LOGD(TAG, "Initializing cooling system");
+static bool selectMuxChannel(uint8_t channel) {
+    hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
+    hardware::i2c().write(static_cast<uint8_t>(1u << channel));
+    const uint8_t err = hardware::i2c().endTransmission();
+    if (err != 0) {
+        ESP_LOGE(TAG, "TCA9548A channel select %u failed (I2C error %u)", channel, err);
+        return false;
+    }
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// fanInit — configure the fan EMC2101 on TCA9548A channel 0
+//
+// The fan EMC2101 reads its own internal temperature sensor and drives the
+// fan PWM duty cycle via its LUT.  No forced-temperature mode is used.
+// ---------------------------------------------------------------------------
+static module::InitStatus fanInit() {
+  if (!selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
+    ESP_LOGE(TAG, "fanInit: mux channel select failed");
+    return module::MODULE_INIT_HARDWARE_ERROR;
+  }
 
   if (!fanController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
-    ESP_LOGE(TAG, "Failed to find EMC2101 chip");
+    ESP_LOGE(TAG, "fanInit: failed to find fan EMC2101");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
   // begin() → _init() leaves the IC in manual mode (LUT disabled, duty=100%).
-  // Log its state so we can confirm I2C is working.
-  ESP_LOGD(TAG, "init: post-begin LUT=%s dutyCycle=%u%% internalTemp=%d°C rpm=%u",
+  ESP_LOGD(TAG, "fanInit: post-begin LUT=%s dutyCycle=%u%% internalTemp=%d°C rpm=%u",
            fanController_.LUTEnabled() ? "ENABLED" : "disabled",
            fanController_.getDutyCycle(),
            fanController_.getInternalTemperature(),
            fanController_.getFanRPM());
 
-  // _init() configures the clock as: configPWMClock(clksel=1→1.4 kHz) + setPWMFrequency(0x1F)
-  // → 1400 / (2 * 32) ≈ 22 Hz — far too slow for a standard 4-wire PWM fan (spec: 25 kHz).
-  // Low PWM frequency causes many fans to stall at partial duty cycles even though they
-  // spin fine at 100 %.  Reconfigure for ~25.7 kHz:
-  //   360 kHz base clock,  FDIV = 6  →  360 000 / (2 * (6+1)) = 25 714 Hz ≈ 25.7 kHz
-  if (!fanController_.configPWMClock(false, false)) {          // select 360 kHz base clock
-    ESP_LOGW(TAG, "init: configPWMClock failed");
+  // Reconfigure PWM clock for ~25.7 kHz (360 kHz base, FDIV=6).
+  // The library default (~22 Hz) is far too slow for 4-wire PWM fans.
+  if (!fanController_.configPWMClock(false, false)) {
+    ESP_LOGW(TAG, "fanInit: configPWMClock failed");
   }
-  if (!fanController_.setPWMFrequency(6)) {                    // 360 kHz / 14 ≈ 25.7 kHz
-    ESP_LOGW(TAG, "init: setPWMFrequency failed");
+  if (!fanController_.setPWMFrequency(6)) {
+    ESP_LOGW(TAG, "fanInit: setPWMFrequency failed");
   }
-  ESP_LOGD(TAG, "init: PWM clock reconfigured: 360 kHz base, FDIV=6 → ~25.7 kHz");
+  ESP_LOGD(TAG, "fanInit: PWM clock reconfigured: 360 kHz base, FDIV=6 → ~25.7 kHz");
 
-  // Program the LUT entries.  setLUT() temporarily disables the LUT while
-  // writing each entry, then restores the previous LUT state.
+  // Program the fan LUT entries.
   for (uint8_t i = 0u; i < kLutCount; ++i) {
     if (!fanController_.setLUT(i, kLut[i].tempC, kLut[i].pwmPct)) {
-      ESP_LOGW(TAG, "init: setLUT(%u, %u°C, %u%%) failed", i, kLut[i].tempC, kLut[i].pwmPct);
+      ESP_LOGW(TAG, "fanInit: setLUT(%u, %u°C, %u%%) failed", i, kLut[i].tempC, kLut[i].pwmPct);
     }
   }
 
-  // Configure spinup: drive at 100 % for 3.2 s whenever the fan transitions
-  // from stopped (0 %) to a non-zero target.  This overcomes static friction
-  // that prevents the fan from starting at low duty cycles.
-  // spinup_drive = 2 → 100 %,  spinup_time = 6 → 3.2 s
+  // Configure spinup: 100 % for 3.2 s to overcome static friction.
   if (!fanController_.configFanSpinup(2, 6)) {
-    ESP_LOGW(TAG, "init: configFanSpinup failed");
+    ESP_LOGW(TAG, "fanInit: configFanSpinup failed");
   }
 
   // Enable LUT — the IC takes over fan control from here.
   if (!fanController_.LUTEnabled(true)) {
-    ESP_LOGW(TAG, "init: LUTEnabled(true) failed");
+    ESP_LOGW(TAG, "fanInit: LUTEnabled(true) failed");
+  }
+
+  ESP_LOGD(TAG, "fanInit: LUT configured (%u entries), IC fan control active", kLutCount);
+  return module::MODULE_INIT_SUCCESS;
+}
+
+// ---------------------------------------------------------------------------
+// pumpInit — configure the pump EMC2101 on TCA9548A channel 1
+//
+// The pump EMC2101 runs in forced-temperature LUT mode: software pushes the
+// averaged NTC coolant temperature via setForcedTemperature() every 1000 ms,
+// and the IC's LUT drives the pump PWM output accordingly.
+// ---------------------------------------------------------------------------
+static module::InitStatus pumpInit() {
+  if (!selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
+    ESP_LOGE(TAG, "pumpInit: mux channel select failed");
+    return module::MODULE_INIT_HARDWARE_ERROR;
+  }
+
+  if (!pumpController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
+    ESP_LOGE(TAG, "pumpInit: failed to find pump EMC2101");
+    return module::MODULE_INIT_HARDWARE_ERROR;
+  }
+
+  ESP_LOGD(TAG, "pumpInit: post-begin LUT=%s dutyCycle=%u%%",
+           pumpController_.LUTEnabled() ? "ENABLED" : "disabled",
+           pumpController_.getDutyCycle());
+
+  // Start at a safe minimum duty until the LUT takes over.
+  pumpController_.setDutyCycle(COOLING_PUMP_INITIAL_DUTY_PCT);
+
+  // Reconfigure PWM clock for ~25.7 kHz (same as fan).
+  if (!pumpController_.configPWMClock(false, false)) {
+    ESP_LOGW(TAG, "pumpInit: configPWMClock failed");
+  }
+  if (!pumpController_.setPWMFrequency(6)) {
+    ESP_LOGW(TAG, "pumpInit: setPWMFrequency failed");
+  }
+
+  // Program the pump LUT entries.
+  for (uint8_t i = 0u; i < kPumpLutCount; ++i) {
+    if (!pumpController_.setLUT(i, kPumpLut[i].tempC, kPumpLut[i].pwmPct)) {
+      ESP_LOGW(TAG, "pumpInit: setLUT(%u, %u°C, %u%%) failed",
+               i, kPumpLut[i].tempC, kPumpLut[i].pwmPct);
+    }
+  }
+
+  // Set LUT hysteresis to prevent rapid hunting between duty steps.
+  pumpController_.setLUTHysteresis(COOLING_PUMP_LUT_HYSTERESIS_C);
+  ESP_LOGD(TAG, "pumpInit: LUT hyst = %u °C", pumpController_.getLUTHysteresis());
+
+  // Enable forced-temperature mode so the IC uses our software-pushed NTC
+  // reading instead of its own internal diode sensor.
+  if (!pumpController_.enableForcedTemperature(true)) {
+    ESP_LOGW(TAG, "pumpInit: enableForcedTemperature() failed");
+  }
+
+  // Push a safe initial temperature so the LUT applies the minimum duty
+  // cycle immediately (20 °C → 30 % per the pump LUT).
+  pumpController_.setForcedTemperature(static_cast<int8_t>(kPumpLut[0].tempC));
+
+  // Enable LUT — the IC takes over pump PWM based on the forced temperature.
+  if (!pumpController_.LUTEnabled(true)) {
+    ESP_LOGW(TAG, "pumpInit: LUTEnabled(true) failed");
+  }
+
+  ESP_LOGD(TAG, "pumpInit: LUT configured (%u entries), forced-temp mode active", kPumpLutCount);
+  return module::MODULE_INIT_SUCCESS;
+}
+
+// ---------------------------------------------------------------------------
+// init
+// ---------------------------------------------------------------------------
+module::InitStatus init() {
+  ESP_LOGD(TAG, "Initializing cooling system");
+
+  // ── Verify TCA9548A mux is present ──────────────────────────────────────
+  hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
+  if (hardware::i2c().endTransmission() != 0) {
+    ESP_LOGE(TAG, "TCA9548A not found at 0x%02X", TCA9548A_I2C_ADDRESS);
+    return module::MODULE_INIT_HARDWARE_ERROR;
+  }
+  ESP_LOGD(TAG, "TCA9548A found at 0x%02X", TCA9548A_I2C_ADDRESS);
+
+  // ── Fan EMC2101 (mux channel 0) ────────────────────────────────────────
+  {
+    const module::InitStatus st = fanInit();
+    if (st != module::MODULE_INIT_SUCCESS) return st;
+  }
+
+  // ── Pump EMC2101 (mux channel 1) ───────────────────────────────────────
+  {
+    const module::InitStatus st = pumpInit();
+    if (st != module::MODULE_INIT_SUCCESS) return st;
   }
 
   // ── Coolant sensor setup ───────────────────────────────────────────────────
 
   // Flow sensor: interrupt on the falling edge of each Hall-effect pulse.
-  // External 10 kΩ pull-up to 3.3 V is recommended; INPUT_PULLUP is the backup.
   rpmAvg_.clear();
   flowPulseCount_ = 0u;
   pinMode(COOLING_FLOW_PIN, INPUT_PULLUP);
@@ -317,12 +459,6 @@ module::InitStatus init() {
   forceFanSpeed_ = false;
   enable();
 
-  ESP_LOGD(TAG, "init: LUT configured (%u entries), IC fan control active", kLutCount);
-  ESP_LOGD(TAG, "init: post-LUT LUT=%s internalTemp=%d°C externalTemp=%f°C rpm=%u",
-           fanController_.LUTEnabled() ? "ENABLED" : "disabled",
-           fanController_.getInternalTemperature(),
-           fanController_.getExternalTemperature(),
-           fanController_.getFanRPM());
   ESP_LOGD(TAG, "init: flow sensor GPIO%d, temp ADC GPIO%d",
            COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
 
@@ -382,12 +518,29 @@ module::ServiceStatus service() {
   lastCheckCycleMs = nowMs;
   didWork = true;
 
+  // ── Fan EMC2101 reads ───────────────────────────────────────────────────
   // Snapshot all EMC2101 values in one place.  Accessors (getFanSpeed,
   // isCoolingFanOn, getFanRPM) return these cached copies so that the
   // telemetry emit path never touches the I2C bus outside this function.
+  selectMuxChannel(TCA9548A_CHANNEL_FAN);
   cachedDutyCycle_ = fanController_.getDutyCycle();
   cachedFanRpm_    = fanController_.getFanRPM();
   const uint8_t dc = cachedDutyCycle_;
+
+  // ── Pump EMC2101: push forced temperature and cache readings ───────────
+  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+
+  // Feed the averaged NTC coolant temperature into the pump EMC2101.
+  // The IC's LUT will then set the pump duty cycle accordingly.
+  if (coolantTemperature_ > 0.0f) {
+    int16_t forcedTemp = static_cast<int16_t>(roundf(coolantTemperature_));
+    if (forcedTemp < 0)   forcedTemp = 0;
+    if (forcedTemp > 127) forcedTemp = 127;
+    pumpController_.setForcedTemperature(static_cast<int8_t>(forcedTemp));
+  }
+
+  cachedPumpDutyCycle_ = pumpController_.getDutyCycle();
+  cachedPumpRpm_       = pumpController_.getFanRPM();
 
   // Fan speed tracker: only meaningful in forced/manual mode.
   // In LUT mode the IC owns the duty cycle — no external setpoint exists.
@@ -436,6 +589,14 @@ uint16_t getFanRPM() {
   return cachedFanRpm_;
 }
 
+uint8_t getPumpSpeed() {
+  return cachedPumpDutyCycle_;
+}
+
+uint16_t getPumpRPM() {
+  return cachedPumpRpm_;
+}
+
 // ---------------------------------------------------------------------------
 // setFanSpeed — manual override
 //
@@ -452,6 +613,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGI(TAG, "setFanSpeed(%u): manual override — disabling LUT", percentage);
   forceFanSpeed_ = true;
 
+  selectMuxChannel(TCA9548A_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "setFanSpeed: LUTEnabled(false) failed");
   }
@@ -484,12 +646,17 @@ void enable() {
   coolingPumpOn_ = true;
   forceFanSpeed_ = false;
 
+  selectMuxChannel(TCA9548A_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(true)) {
-    ESP_LOGW(TAG, "enable(): LUTEnabled(true) failed");
+    ESP_LOGW(TAG, "enable(): fan LUTEnabled(true) failed");
   }
-  ESP_LOGD(TAG, "enable(): LUT=%s internalTemp=%d°C",
-           fanController_.LUTEnabled() ? "on" : "off(!)",
-           fanController_.getInternalTemperature());
+
+  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  if (!pumpController_.LUTEnabled(true)) {
+    ESP_LOGW(TAG, "enable(): pump LUTEnabled(true) failed");
+  }
+
+  ESP_LOGD(TAG, "enable(): fan and pump LUT enabled");
 }
 
 /**
@@ -502,19 +669,32 @@ void disable() {
   coolingPumpOn_ = false;
   forceFanSpeed_ = false;
 
+  // ── Stop the fan ──────────────────────────────────────────────────────
+  selectMuxChannel(TCA9548A_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(false)) {
-    ESP_LOGW(TAG, "disable(): LUTEnabled(false) failed");
+    ESP_LOGW(TAG, "disable(): fan LUTEnabled(false) failed");
   }
   if (!fanController_.setDutyCycle(0)) {
-    ESP_LOGW(TAG, "disable(): setDutyCycle(0) failed");
+    ESP_LOGW(TAG, "disable(): fan setDutyCycle(0) failed");
   }
   // Post-write LUTEnabled(false) to override setDutyCycle()'s LUT-state restore.
   if (!fanController_.LUTEnabled(false)) {
-    ESP_LOGW(TAG, "disable(): LUTEnabled(false) post-write failed");
+    ESP_LOGW(TAG, "disable(): fan LUTEnabled(false) post-write failed");
   }
-  ESP_LOGD(TAG, "disable(): dutyCycle=%u%% LUT=%s",
-           fanController_.getDutyCycle(),
-           fanController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
+
+  // ── Stop the pump ─────────────────────────────────────────────────────
+  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  if (!pumpController_.LUTEnabled(false)) {
+    ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) failed");
+  }
+  if (!pumpController_.setDutyCycle(0)) {
+    ESP_LOGW(TAG, "disable(): pump setDutyCycle(0) failed");
+  }
+  if (!pumpController_.LUTEnabled(false)) {
+    ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) post-write failed");
+  }
+
+  ESP_LOGD(TAG, "disable(): fan and pump stopped");
 }
 
 bool isEnabled() { return enabled_; }
