@@ -32,6 +32,12 @@ public:
     template<typename T> size_t println(T) { return 0; }
     size_t println() { return 0; }
 
+    // write — used by LogStream to forward bytes to Serial in ARDUINO builds.
+    // In native tests these are no-ops; the ring buffer still receives output
+    // through LogStream::write()'s log::push() call.
+    size_t write(uint8_t /*c*/)                          { return 1; }
+    size_t write(const uint8_t* /*buf*/, size_t size)    { return size; }
+
     // Stream interface — used by the command handler.
     int  available() { return 0; }
     int  read()      { return -1; }

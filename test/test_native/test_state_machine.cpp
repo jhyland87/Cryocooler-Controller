@@ -31,6 +31,9 @@ void run_dashboard_tests();
 // Sensor mock ramp tests (defined in test_sensor_mock_ramp.cpp)
 void run_sensor_mock_ramp_tests();
 
+// log ring buffer and LogStream tests (defined in test_log_buffer.cpp)
+void run_log_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1605,6 +1608,9 @@ int main(int argc, char **argv) {
 
     // SS Dashboard library
     run_dashboard_tests();
+
+    // log ring buffer and LogStream
+    run_log_tests();
 
     return UNITY_END();
 }

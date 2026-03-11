@@ -82,8 +82,13 @@ const FrameBuilder& getLastFrame();
  *
  * Equivalent to getLastFrame().fillJson(doc).
  * Any existing content in @p doc is cleared first.
+ *
+ * @param includeLogs  When true (default) the in-RAM log ring buffer is
+ *                     appended under the "logs" key.  Pass false for
+ *                     bandwidth-sensitive paths (e.g. the 1 Hz WebSocket
+ *                     push stream) to keep the payload compact.
  */
-void fillJson(JsonDocument& doc);
+void fillJson(JsonDocument& doc, bool includeLogs = true);
 
 /**
  * Populate @p doc with telemetry, safe to call at any time — including during
@@ -97,8 +102,13 @@ void fillJson(JsonDocument& doc);
  * have their data fields emitted as empty strings so the dashboard structure
  * is always fully populated.  Module init/service status fields are always
  * present and always reflect the real current status.
+ *
+ * @param includeLogs  When true (default) the in-RAM log ring buffer is
+ *                     appended under the "logs" key.  Pass false for
+ *                     bandwidth-sensitive paths (e.g. the 1 Hz WebSocket
+ *                     push stream) to keep the payload compact.
  */
-void fillJsonSafe(JsonDocument& doc);
+void fillJsonSafe(JsonDocument& doc, bool includeLogs = true);
 
 /**
  * Emit one startup-progress telemetry frame to Serial and update lastFrame_.

@@ -120,15 +120,16 @@ static constexpr uint8_t    maxClients          = 4;
 
 #if DASHBOARD_WEBSOCKET_ENABLED
 // WebSocket JSON buffer — flat telemetry object, same as /api/telemetry.
-// Sized to match the existing HTTP endpoint buffer.
+// Logs are excluded from the 1 Hz WS push (use GET /api/telemetry for logs)
+// so 8 KB is sufficient for the metrics-only payload.
 static constexpr size_t     wsBufSize           = 8192;
 #endif
 
 // FreeRTOS task parameters.
 // NOTE: on ESP-IDF the usStackDepth argument to xTaskCreatePinnedToCore is
 // in BYTES (unlike vanilla FreeRTOS where it is in words).
-// Increased from 8192 to accommodate the additional WebSocket serialization.
-// Stack can be reduced back to 8192 when DASHBOARD_WEBSOCKET_ENABLED == 0.
+// wsBuf and jsonBuf are static (BSS), not stack-allocated, so they don't
+// affect this value.  12288 gives comfortable headroom for local variables.
 static constexpr uint32_t   taskStackBytes      = 12288; // bytes
 static constexpr UBaseType_t taskPriority       = 1;     // low; yields freely
 
@@ -328,8 +329,10 @@ static void dashboardTask(void* /*arg*/) {
         // monitoring display; fillJsonSafe() is used so the dashboard is
         // populated immediately on connect, even while other modules are still
         // initialising (fields from unready modules are emitted as empty strings).
+        // Logs are excluded here (includeLogs=false) to keep the 1 Hz frame
+        // compact — fetch GET /api/telemetry when you need the full log array.
         JsonDocument telDoc;
-        telemetry::fillJsonSafe(telDoc);
+        telemetry::fillJsonSafe(telDoc, /*includeLogs=*/false);
 
 #if DASHBOARD_WEBSOCKET_ENABLED
         // ── WebSocket: broadcast flat JSON to all SPA clients ─────────────
@@ -469,7 +472,7 @@ bool setupServer() {
     // fillJsonSafe() is used so the endpoint returns a fully-structured response
     // even during startup, with empty strings for modules not yet initialised.
     httpServer.on("/api/telemetry", HTTP_GET, [](AsyncWebServerRequest* request) {
-        static char jsonBuf[8192];
+        static char jsonBuf[32768];
         JsonDocument doc;
         telemetry::fillJsonSafe(doc);
         const size_t len = serializeJson(doc, jsonBuf, sizeof(jsonBuf));

@@ -1,145 +1,118 @@
 /**
  * @file logger.h
- * @brief SD-backed serial and telemetry logger.
+ * @brief In-RAM ring buffer log with a Serial-mirroring stream wrapper.
  *
- * Provides two independent logging channels, both backed by the SD card:
+ * Single module that provides lightweight in-memory logging.  Everything
+ * lives in the `logger` namespace so call sites are consistent with every
+ * other module in this project.
  *
- *   1. Serial log  — logf() / log() mirror every message sent to Serial into
- *      a plain-text file with a UTC epoch timestamp prefix on each line.
- *      File: LOG_SERIAL_PATH  (default "/serial.log")
+ * ── What it does ─────────────────────────────────────────────────────────────
  *
- *   2. Telemetry log — logTelemetry() appends one CSV row per call from a
- *      FrameBuilder snapshot.  The header row is written automatically on the
- *      first call (or whenever the file does not yet exist).
- *      File: LOG_TELEMETRY_PATH  (default "/telemetry.csv")
+ *   • Maintains a fixed-capacity ring buffer of recent log lines in RAM.
+ *   • Provides `LogStream Log` — a Print-derived global that simultaneously
+ *     forwards bytes to the hardware UART (ARDUINO builds) and stores each
+ *     completed line ('\n'-terminated) in the ring buffer.
+ *   • Exposes `logger::fillJson()` so the telemetry layer can embed the last N
+ *     messages in every WebSocket/HTTP JSON push, giving the dashboard a live
+ *     log panel with no SD card required.
  *
- * Both functions are no-ops when the SD card is not available.
+ * ── Usage ────────────────────────────────────────────────────────────────────
  *
- * ── Module lifecycle ────────────────────────────────────────────────────────
+ *   // Drop-in replacement for Serial.printf / Serial.print / Serial.println:
+ *   Log.printf("[sensor] temp = %.2f K\n", t);
+ *   Log.println("System started");
  *
- *   Call logger::Module::init() after hardware::Module::init() (the shared
- *   SPI bus must be running before SD.begin() is called).
- *   logger::Module::service() must be called regularly — it polls SD_CD_PIN
- *   and drives the card eject / re-insert state machine.
+ *   // Read the most-recent entries directly (oldest → newest, idx 0 = oldest):
+ *   for (uint8_t i = 0; i < logger::count(); ++i) {
+ *       const auto& e = logger::get(i);
+ *       Serial.printf("%u  %s", e.ms, e.text);
+ *   }
  *
- * ── Usage example ───────────────────────────────────────────────────────────
+ *   // Serialise into an ArduinoJson array for the dashboard:
+ *   logger::fillJson(doc["logs"].to<JsonArray>());
  *
- *   // In setup():
- *   logger::Module::init();
+ * ── Memory budget ─────────────────────────────────────────────────────────────
  *
- *   // Anywhere in the application:
- *   logger::logf("[sensor] temp = %.2f K\n", cold_head::getLastTempK());
- *   logger::logTelemetry(telemetry::getLastFrame());
+ *   CAPACITY × sizeof(Entry)  =  64 × (4 + 8 + 128)  =  8 960 bytes static RAM.
+ *   Adjust CAPACITY / MAX_MSG_LEN below to taste.
  */
 
 #pragma once
 
-#include <stdarg.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <Print.h>
+#include <ArduinoJson.h>
 #include "module.h"
-#include "frame_builder.h"
 
 namespace logger {
 
-// ---------------------------------------------------------------------------
-// File paths on the SD card
-// ---------------------------------------------------------------------------
+// ── Configuration ─────────────────────────────────────────────────────────────
 
-/** Plain-text log echoing Serial output. */
-static constexpr char SERIAL_LOG_PATH[]  = "/serial.log";
-
-/** CSV telemetry log — one row per logTelemetry() call. */
-static constexpr char TELEMETRY_PATH[]   = "/telemetry.csv";
-
-// ---------------------------------------------------------------------------
-// Lifecycle
-// ---------------------------------------------------------------------------
+/** Maximum number of log lines retained in RAM (oldest silently dropped). */
+static constexpr uint8_t CAPACITY = 64;
 
 /**
- * Mount the SD card and verify it is accessible.
- *
- * Must be called after hardware::Module::init() so that the shared SPI bus
- * (SPI_CLK / SPI_MISO / SPI_MOSI) is already running.
- *
- * @return MODULE_INIT_SUCCESS      — SD card mounted and ready.
- *         MODULE_INIT_HARDWARE_ERROR — SD.begin() failed or no card inserted.
+ * Maximum byte length of a stored log line, including the NUL terminator.
+ * Lines longer than MAX_MSG_LEN – 1 characters are truncated.
  */
-module::InitStatus init();
+static constexpr uint8_t MAX_MSG_LEN = 128;
 
 /**
- * Poll the SD card CD (Card Detect) pin and drive the hot-swap state machine.
- *
- * Must be called regularly (e.g. from the main service loop).
- *
- * Behaviour:
- *   - CD pin HIGH (card present)  + not ready  →  attempt SD.begin() with a
- *     REINIT_COOLDOWN_MS back-off between tries.
- *   - CD pin LOW  (card absent)   + ready       →  SD.end(), flags cleared,
- *     Serial log paused until next insertion.
- *   - Three consecutive write failures also trigger the eject path as a
- *     belt-and-suspenders fallback if the CD pin is unreliable.
- *
- * @return MODULE_SERVICE_OK       if the card state changed this call.
- *         MODULE_SERVICE_SKIPPED  otherwise.
+ * Maximum number of entries included in the telemetry "logs" JSON array.
+ * Limits the JSON payload size when the buffer is fully populated.
+ * Pass 0 to fillJson() to include all entries (up to CAPACITY).
  */
+static constexpr uint8_t TELEMETRY_MAX_ENTRIES = 32;
+
+// ── Entry ─────────────────────────────────────────────────────────────────────
+
+struct Entry {
+    uint32_t ms;                ///< millis() when the line was flushed
+    int64_t  epoch;             ///< Unix epoch seconds (UTC) from time(); 0 if clock not yet synced
+    char     text[MAX_MSG_LEN]; ///< NUL-terminated message (may include '\n')
+};
+
+// ── Ring buffer operations ────────────────────────────────────────────────────
+
+/**
+ * Push a NUL-terminated string into the ring buffer.
+ * Truncated silently to MAX_MSG_LEN – 1 characters.
+ * If the buffer is full the oldest entry is overwritten.
+ */
+void push(const char* text);
+
+/**
+ * Push exactly @p len bytes (not necessarily NUL-terminated).
+ * A NUL terminator is appended automatically.
+ */
+void push(const char* text, size_t len);
+
+/** Return the number of valid entries currently held (0 … CAPACITY). */
+uint8_t count();
+
+/**
+ * Return a const reference to the entry at logical index @p idx.
+ * @p idx 0 is the oldest entry; count() – 1 is the newest.
+ * Behaviour is undefined when @p idx >= count().
+ */
+const Entry& get(uint8_t idx);
+
+/** Discard all entries. */
+void clear();
+
+/**
+ * Append up to @p maxEntries of the most-recent log lines to @p arr.
+ * Each element: {"ms": <uint32>, "epoch": <int64>, "text": "<string>"}
+ * @param arr        Target ArduinoJson JsonArray (appended to, not cleared).
+ * @param maxEntries Maximum entries to emit.  0 = include all (up to CAPACITY).
+ */
+void fillJson(JsonArray arr, uint8_t maxEntries = 0);
+
+// ── Module interface ──────────────────────────────────────────────────────────
+
+module::InitStatus    init();
 module::ServiceStatus service();
-
-// ---------------------------------------------------------------------------
-// Serial log — plain-text file echo
-// ---------------------------------------------------------------------------
-
-/**
- * Write @p msg to Serial and, if the SD card is ready, append it to the
- * serial log file with a UTC epoch timestamp prefix.
- *
- * The message is written to Serial exactly as supplied (no extra newline).
- * The log file entry format is:
- *
- *   [<epoch_s>] <msg>
- *
- * where <epoch_s> is the current UNIX timestamp in seconds.  The timestamp
- * is 0 until SNTP has synced (normal for early-boot messages).
- *
- * @param msg  NUL-terminated string.  Must not be nullptr.
- */
-void log(const char* msg);
-
-/**
- * printf-style variant of log().
- *
- * Formats into a stack-local buffer (LOG_BUF_SIZE bytes) then delegates to
- * log().  Truncation is silent — increase kLogBufSize if messages are being
- * cut short.
- *
- * @param fmt  printf format string.
- */
-void logf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-
-// ---------------------------------------------------------------------------
-// Telemetry log — CSV file
-// ---------------------------------------------------------------------------
-
-/**
- * Append one CSV row from @p frame to the telemetry log file.
- *
- * Header row behaviour:
- *   - Written automatically on the first successful call.
- *   - Re-written if the file no longer exists (e.g. after it was deleted via
- *     a serial command).
- *
- * Values are taken from FrameBuilder::Field::str — the pre-formatted strings
- * produced by each field() call — so the CSV precisely mirrors what would be
- * transmitted to Serial Studio.  Values that contain a comma are wrapped in
- * double-quotes to produce valid CSV.
- *
- * No-op if the SD card is not ready or if @p frame contains no fields.
- *
- * @param frame  Telemetry frame to persist (typically telemetry::getLastFrame()).
- */
-void logTelemetry(const FrameBuilder& frame);
-
-// ---------------------------------------------------------------------------
-// Module interface
-// ---------------------------------------------------------------------------
 
 struct Module : ModuleBase<Module> {
     static module::InitStatus    init()    { return _initStatus    = logger::init(); }
@@ -149,3 +122,36 @@ struct Module : ModuleBase<Module> {
 ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace logger
+
+// ── LogStream ─────────────────────────────────────────────────────────────────
+
+/**
+ * A Print-derived stream that mirrors all output to hardware Serial AND stores
+ * complete lines in the logger ring buffer.
+ *
+ * Overriding write() at the Print level means every method — print, println,
+ * printf, write — routes through the same two-path logic automatically, so
+ * changing `Serial.x(...)` to `Log.x(...)` at call sites is the only change
+ * required to capture that output.
+ *
+ * Line flushing: characters are buffered internally until '\n' is received,
+ * at which point the accumulated line is pushed into the ring buffer.
+ *
+ * In ARDUINO builds bytes are forwarded to the hardware UART via Serial.
+ * In native (host) test builds the byte-write path is a no-op for Serial;
+ * the ring buffer still receives everything through logger::push().
+ */
+class LogStream : public Print {
+public:
+    size_t write(uint8_t c) override;
+    size_t write(const uint8_t* buf, size_t size) override;
+
+private:
+    char    line_[logger::MAX_MSG_LEN]; ///< Accumulation buffer for the current line
+    uint8_t pos_ = 0;                   ///< Next write position in line_
+
+    void flushLine(); ///< Push line_[0..pos_] to logger ring buffer and reset pos_
+};
+
+/** Global LogStream — use in place of Serial for all logged output. */
+extern LogStream Log;

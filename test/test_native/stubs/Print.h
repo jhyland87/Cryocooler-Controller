@@ -2,9 +2,17 @@
  * @file Print.h
  * @brief Minimal Print stub for native (host-PC) unit tests.
  *
- * Matches the subset of Arduino's Print class used by serial_commands.cpp:
- * print(const char*) and println(const char*).  Output is accumulated in an
- * internal buffer so tests can inspect it via str() / contains().
+ * Matches the subset of Arduino's Print class used by serial_commands.cpp and
+ * LogStream (log.h): write(uint8_t), write(const uint8_t*, size_t),
+ * print(const char*), and println(const char*).
+ *
+ * Output is accumulated in an internal capture buffer so tests can inspect it
+ * via str() / contains().
+ *
+ * write(uint8_t c) and write(const uint8_t*, size_t) are declared virtual so
+ * that subclasses (e.g. LogStream) can override them, exactly as in the real
+ * Arduino Print class.  This lets LogStream work correctly in native tests
+ * without any ARDUINO-specific code paths.
  */
 
 #ifndef PRINT_STUB_H
@@ -20,6 +28,7 @@ public:
     static constexpr size_t kCapacity = 4096;
 
     Print() { reset(); }
+    virtual ~Print() = default;
 
     /** Clear the captured output. */
     void reset() {
@@ -38,27 +47,34 @@ public:
         return strstr(_buf, needle) != nullptr;
     }
 
-    // ----- Arduino Print interface (minimal) -----
+    // ----- Arduino Print interface -----
 
-    /** Binary write — mirrors Arduino's Print::write(buf, size). */
-    size_t write(const uint8_t* buf, size_t n) {
-        const size_t avail = kCapacity - 1 - _len;
-        const size_t copy  = (n < avail) ? n : avail;
-        memcpy(_buf + _len, buf, copy);
-        _len += copy;
-        _buf[_len] = '\0';
-        return copy;
+    /**
+     * Write a single byte — mirrors Arduino's pure-virtual Print::write(uint8_t).
+     * Subclasses (e.g. LogStream) override this to intercept output.
+     * The base implementation stores the byte in the capture buffer so tests
+     * can inspect all output via str() / contains().
+     */
+    virtual size_t write(uint8_t c) {
+        if (_len < kCapacity - 1) {
+            _buf[_len++] = static_cast<char>(c);
+            _buf[_len]   = '\0';
+        }
+        return 1;
+    }
+
+    /**
+     * Write @p n bytes.  Delegates to write(uint8_t) so subclass overrides
+     * intercept bulk writes the same way as single-byte writes.
+     */
+    virtual size_t write(const uint8_t* buf, size_t n) {
+        for (size_t i = 0; i < n; ++i) { write(buf[i]); }
+        return n;
     }
 
     size_t print(const char* s) {
         if (!s) { return 0; }
-        const size_t n     = strlen(s);
-        const size_t avail = kCapacity - 1 - _len;
-        const size_t copy  = (n < avail) ? n : avail;
-        memcpy(_buf + _len, s, copy);
-        _len += copy;
-        _buf[_len] = '\0';
-        return copy;
+        return write(reinterpret_cast<const uint8_t*>(s), strlen(s));
     }
 
     size_t println(const char* s = "") {
@@ -68,7 +84,7 @@ public:
 
 private:
     char   _buf[kCapacity];
-    size_t _len;
+    size_t _len = 0;
 };
 
 #endif // PRINT_STUB_H

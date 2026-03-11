@@ -29,6 +29,7 @@
 #include "amplifier.h"
 #include "tracking.h"
 #include "compressor.h"
+#include "logger.h"
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -101,8 +102,14 @@ const FrameBuilder& getLastFrame() {
     return lastFrame_;
 }
 
-void fillJson(JsonDocument& doc) {
+void fillJson(JsonDocument& doc, bool includeLogs) {
     lastFrame_.fillJson(doc);
+    // Append the most-recent serial log entries so the dashboard can display
+    // an in-RAM log panel without requiring SD card access.
+    if (includeLogs) {
+        logger::fillJson(doc["logs"].to<JsonArray>(),
+                         logger::TELEMETRY_MAX_ENTRIES);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -445,20 +452,29 @@ static void buildStartupFrame(FrameBuilder& frame)
 // fillJsonSafe — always safe, even before the first emit()
 // ---------------------------------------------------------------------------
 
-void fillJsonSafe(JsonDocument& doc)
+void fillJsonSafe(JsonDocument& doc, bool includeLogs)
 {
 #ifdef ARDUINO
     // Fast path: emit() has run at least once, so lastFrame_ is fully populated.
     if (lastFrame_.fieldCount() > 0) {
         lastFrame_.fillJson(doc);
+        if (includeLogs) {
+            logger::fillJson(doc["logs"].to<JsonArray>(),
+                             logger::TELEMETRY_MAX_ENTRIES);
+        }
         return;
     }
 
     // Slow path: setup still in progress.  Build a live snapshot and serve it.
     buildStartupFrame(safeFrame_);
     safeFrame_.fillJson(doc);
+    if (includeLogs) {
+        logger::fillJson(doc["logs"].to<JsonArray>(),
+                         logger::TELEMETRY_MAX_ENTRIES);
+    }
 #else
     (void)doc;
+    (void)includeLogs;
 #endif
 }
 

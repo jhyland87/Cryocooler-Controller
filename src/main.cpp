@@ -49,7 +49,7 @@
  */
 template<typename Fn>
 static module::InitStatus initModule(const char* name, Fn&& initFn) {
-    Serial.printf("[%s] Initialising ... \n", name);
+    Log.printf("[%s] Initialising ... \n", name);
 
     module::InitStatus status = initFn();
     while (status == module::MODULE_INIT_IN_PROGRESS) {
@@ -57,9 +57,9 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
     }
 
     if (status == module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[%s] Initialisation complete\n", name);
+        Log.printf("[%s] Initialisation complete\n", name);
     } else {
-        Serial.printf("[%s] FAILED (status %d)\n", name, static_cast<int>(status));
+        Log.printf("[%s] FAILED (status %d)\n", name, static_cast<int>(status));
     }
     return status;
 }
@@ -84,36 +84,32 @@ static bool sSerialWelcomeMessageSent = false;
  */
 static void initPersistentModules() {
 
-    auto loggerStatus = initModule("logger", [] { return logger::Module::init(); });
-    if (loggerStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Logger initialization failed (status %d). Continuing without logger.\n",
-                      static_cast<int>(loggerStatus));
-    }
+    initModule("log", [] { return logger::Module::init(); });
 
     auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
     if (imuStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
-                      static_cast<int>(imuStatus));
+        Log.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
+                   static_cast<int>(imuStatus));
     }
 
     auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
-                      static_cast<int>(commandsStatus));
+        Log.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
+                   static_cast<int>(commandsStatus));
     }
 
     // OTA must init before dashboard so registerRoutes() is ready when
     // dashboard::setupServer() calls it during dashboard init.
     auto otaStatus = initModule("ota", [] { return ota::Module::init(); });
     if (otaStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] OTA initialization failed (status %d) — OTA endpoint unavailable.\n",
-                      static_cast<int>(otaStatus));
+        Log.printf("[init] OTA initialization failed (status %d) — OTA endpoint unavailable.\n",
+                   static_cast<int>(otaStatus));
     }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n",
-                      static_cast<int>(dashboardStatus));
+        Log.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n",
+                   static_cast<int>(dashboardStatus));
     }
 
     // ESP-NOW must be initialised after dashboard (which brings up WiFi).
@@ -123,8 +119,8 @@ static void initPersistentModules() {
 #if ENABLE_ESPNOW
     auto espnowStatus = initModule("espnow", [] { return espnow::Module::init(); });
     if (espnowStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] ESP-NOW initialization failed (status %d) — continuing without ESP-NOW.\n",
-                      static_cast<int>(espnowStatus));
+        Log.printf("[init] ESP-NOW initialization failed (status %d) — continuing without ESP-NOW.\n",
+                   static_cast<int>(espnowStatus));
     }
 #endif
 
@@ -136,8 +132,8 @@ static void initPersistentModules() {
 
     auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
     if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Sysinfo initialization failed (status %d). Continuing.\n",
-                      static_cast<int>(sysinfoStatus));
+        Log.printf("[init] Sysinfo initialization failed (status %d). Continuing.\n",
+                   static_cast<int>(sysinfoStatus));
     }
     telemetry::emitSafe();
 }
@@ -165,29 +161,29 @@ static void initControlModules() {
     // de-energized as early as possible.
     auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
     if (compressorStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Compressor initialization failed (status %d).\n",
-                      static_cast<int>(compressorStatus));
+        Log.printf("[init] Compressor initialization failed (status %d).\n",
+                   static_cast<int>(compressorStatus));
     }
     telemetry::emitSafe();
 
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cooling initialization failed (status %d).\n",
-                      static_cast<int>(coolingStatus));
+        Log.printf("[init] Cooling initialization failed (status %d).\n",
+                   static_cast<int>(coolingStatus));
     }
     telemetry::emitSafe();
 
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Amplifier initialization failed (status %d).\n",
-                      static_cast<int>(amplifierStatus));
+        Log.printf("[init] Amplifier initialization failed (status %d).\n",
+                   static_cast<int>(amplifierStatus));
     }
     telemetry::emitSafe();
 
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Serial.printf("[init] Cold head initialization failed (status %d).\n",
-                      static_cast<int>(cold_headStatus));
+        Log.printf("[init] Cold head initialization failed (status %d).\n",
+                   static_cast<int>(cold_headStatus));
     }
     telemetry::emitSafe();
 
@@ -205,9 +201,9 @@ void setup() {
     //while (!Serial.available()) delay(100);
     delay(1000);
 
-    logger::logf("[setup] Starting up\n");
-    Serial.println(F("Cryocooler Controller -- starting up"));
-    Serial.println(F("====================================="));
+    Log.printf("[setup] Starting up\n");
+    Log.println("Cryocooler Controller -- starting up");
+    Log.println("=====================================");
 
     // Initialise shared buses before any module that needs them.
     // hardware::init() owns the single GuardedWire and SPIClass instances;
@@ -215,8 +211,7 @@ void setup() {
     // the global Wire / SPI singletons.
     if (initModule("hardware", [] { return hardware::Module::init(); })
             != module::MODULE_INIT_SUCCESS) {
-        logger::logf("[setup] Hardware bus init failed. Halting.\n");
-        Serial.println(F("Hardware bus init failed. Halting."));
+        Log.printf("[setup] Hardware bus init failed. Halting.\n");
         return;
     }
 
@@ -246,9 +241,8 @@ void setup() {
     // be caught here; initDac() handles those by force-writing 0 on every boot.
     esp_register_shutdown_handler([]() { amplifier::hardStop(); });
 
-    logger::logf("[setup] Setup complete. System is initializing.\n");
-    Serial.println(F("\nSetup complete. System is initializing."));
-    Serial.println(F("Type 'help' for available commands."));
+    Log.printf("[setup] Setup complete. System is initializing.\n");
+    Log.println("Type 'help' for available commands.");
 }
 
 // =============================================================================
@@ -267,17 +261,17 @@ void loop() {
         // Drain any characters that arrived in the USB RX buffer during setup
         // so they don't accidentally dispatch stale commands.
         while (Serial.available()) { Serial.read(); }
-        Serial.println();
-        Serial.println(F(">>> Serial console active. Type 'help' for commands. <<<"));
-        Serial.println(F("    (setup may have partially failed — check status above)"));
-        Serial.println();
+        Log.println();
+        Log.println(">>> Serial console active. Type 'help' for commands. <<<");
+        Log.println("    (setup may have partially failed — check status above)");
+        Log.println();
     }
 
     // Serial command processing runs unconditionally so the console is always
     // reachable even when control hardware failed to initialise.
     // (The TCP/Serial-Studio path calls processLine() directly.)
     if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] commands service error"));
+        Log.println("[loop] commands service error");
     }
 
     // ── Per-tick module service ───────────────────────────────────────────
@@ -290,16 +284,16 @@ void loop() {
     // access entirely.  No conditional logic is needed here.
 
     if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] sysinfo service error"));
+        Log.println("[loop] sysinfo service error");
     }
     if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] imu service error"));
+        Log.println("[loop] imu service error");
     }
     if (amplifier::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] amplifier service error"));
+        Log.println("[loop] amplifier service error");
     }
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Serial.println(F("[loop] cooling service error"));
+        Log.println("[loop] cooling service error");
     }
 
     const uint32_t nowMs = millis();
@@ -355,6 +349,5 @@ void loop() {
 
     // ---- 6. Telemetry ---------------------------------------------------
     telemetry::emit(out);
-    logger::logTelemetry(telemetry::getLastFrame());
     dashboard::Module::service();
 }
