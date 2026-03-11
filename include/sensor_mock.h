@@ -10,8 +10,8 @@
  *   mock enable                          -- enter mock mode (safe defaults)
  *   mock disable                         -- return to real hardware
  *   mock status                          -- print current override values
- *   mock temp   <K>                      -- cold-stage temperature (Kelvin)
- *   mock rate   <K/min>                  -- cooling rate
+ *   mock temp   <C>                      -- cold-stage temperature (Celsius)
+ *   mock rate   <C/min>                  -- cooling rate
  *   mock rms    <V>                      -- RMS voltage (compressor drive)
  *   mock current <A>                     -- INA237 current
  *   mock voltage <V>                     -- INA237 bus voltage
@@ -23,7 +23,7 @@
  * Use ramps to simulate a continuously changing sensor value without sending
  * manual commands every loop tick:
  *
- *   mock ramp temp    <startK>  <endK>  <K/min>   -- e.g. mock ramp temp 300 77 3.5
+ *   mock ramp temp    <startC>  <endC>  <C/min>   -- e.g. mock ramp temp 26.85 -195.15 3.5
  *   mock ramp rms     <startV>  <endV>  <V/min>   -- e.g. mock ramp rms 0 1.5 0.05
  *   mock ramp voltage <startV>  <endV>  <V/min>   -- e.g. mock ramp voltage 24 10 1.0
  *   mock ramp stop                                 -- cancel all active ramps
@@ -55,8 +55,8 @@ namespace sensor_mock {
 /** All injectable sensor values in one flat struct. */
 struct Overrides {
     // ── Cold head (PT100 / MAX31865) ────────────────────────────────────────
-    float tempK       = 300.0f;   ///< Cold-stage temperature, Kelvin
-    float coolingRate = 0.0f;     ///< Cooling rate, K/min (positive = cooling down)
+    float tempC       = 26.85f;   ///< Cold-stage temperature, Celsius
+    float coolingRate = 0.0f;     ///< Cooling rate, C/min (positive = cooling down)
 
     // ── Electrical ──────────────────────────────────────────────────────────
     float rmsVoltageV = 0.0f;     ///< Back-EMF RMS voltage (compressor drive)
@@ -79,7 +79,7 @@ struct Overrides {
  * Indices are stable — used as array indices in sensor_mock.cpp.
  */
 enum class RampField : uint8_t {
-    Temp    = 0,  ///< Overrides::tempK  (also auto-updates coolingRate)
+    Temp    = 0,  ///< Overrides::tempC  (also auto-updates coolingRate)
     Rms     = 1,  ///< Overrides::rmsVoltageV
     Voltage = 2,  ///< Overrides::voltage
     Count   = 3   ///< sentinel — total number of rampable fields
@@ -119,7 +119,7 @@ bool isActive();
  * Returns a mutable reference to the current override table.
  * Callers may read or write individual fields directly:
  *
- *   sensor_mock::get().tempK = 85.0f;
+ *   sensor_mock::get().tempC = -188.15f;
  */
 Overrides& get();
 

@@ -56,7 +56,8 @@ float getAccelY();       ///< Filtered acceleration on Y axis in m/s² (calibrat
 float getAccelZ();       ///< Filtered acceleration on Z axis in m/s² (calibrated)
 float getAccelMag();     ///< Acceleration magnitude in m/s² (calibrated, unfiltered)
 //float getGyroMag();      ///< Gyroscope magnitude in deg/s   (calibrated, unfiltered)
-float getTemperature();  ///< IMU die temperature in °C
+float getTemperature();         ///< IMU die temperature in °C
+bool  isTemperaturePlausible(); ///< True when the last reading was within [MIN_PLAUSIBLE_AMBIENT_TEMP_C, MAX_PLAUSIBLE_AMBIENT_TEMP_C]
 float getFrequency();  ///< Frequency of the linear motor in Hz (last valid FFT result)
 
 /**

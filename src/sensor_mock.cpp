@@ -38,7 +38,7 @@ void startRamp(RampField field,
     // Snap the override to the start value immediately so the FSM doesn't
     // see a stale value on the very first tick.
     switch (field) {
-        case RampField::Temp:    sOverrides.tempK      = startVal; break;
+        case RampField::Temp:    sOverrides.tempC      = startVal; break;
         case RampField::Rms:     sOverrides.rmsVoltageV = startVal; break;
         case RampField::Voltage: sOverrides.voltage   = startVal; break;
         default: break;
@@ -100,7 +100,7 @@ void service(uint32_t nowMs)
         RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Temp)];
         if (r.active) {
             const float direction  = (r.endVal >= r.startVal) ? 1.0f : -1.0f;
-            applyRamp(r, nowMs, sOverrides.tempK);
+            applyRamp(r, nowMs, sOverrides.tempC);
             // Auto-derive coolingRate: positive = temperature dropping.
             // A downward ramp (direction == -1) means the stage is cooling;
             // by convention coolingRate > 0 when temperature is falling.

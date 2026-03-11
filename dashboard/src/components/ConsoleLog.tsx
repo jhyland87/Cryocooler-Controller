@@ -96,7 +96,7 @@ export function ConsoleLog() {
             fontSize: '0.7rem',
           }}
         >
-          Console Log
+          Console Log (tail)
         </Typography>
 
         {/* Entry count badge */}

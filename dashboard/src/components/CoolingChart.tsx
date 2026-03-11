@@ -20,7 +20,13 @@ function toXAxis(buf: DataPoint[]): number[] {
 }
 
 function fmtTime(ms: number): string {
-  return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  return new Date(ms).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'UTC'
+  });
 }
 
 export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
@@ -34,6 +40,9 @@ export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
 
   const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
   const xMin = xMax - HISTORY_WINDOW_MS;
+
+  const rawYMax = Math.max(0, ...fanSpeed.map((p) => p.v), ...coolantTemp.map((p) => p.v), ...flowRate.map((p) => p.v));
+  const yMax = rawYMax > 0 ? undefined : 1;
 
   const padTo = (arr: number[], len: number): (number | null)[] => {
     const out: (number | null)[] = [...arr];
@@ -69,6 +78,7 @@ export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
       </Typography>
       <LineChart
         xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
+        yAxis={[{ min: 0, max: yMax, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
         series={series}
         height={220}
         skipAnimation

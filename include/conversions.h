@@ -34,10 +34,10 @@ inline float celsiusToFahrenheit(float tempC) {
 }
 
 /**
- * Convert Celsius to Kelvin.
+ * Convert Kelvin to Celsius.
  */
-inline float celsiusToKelvin(float tempC) {
-    return tempC + 273.15f;
+inline float kelvinToCelsius(float tempK) {
+    return tempK - 273.15f;
 }
 
 /**
@@ -48,31 +48,31 @@ inline float fahrenheitToCelsius(float tempF) {
 }
 
 /**
- * Map a temperature in Kelvin to a 12-bit DAC output value.
+ * Map a temperature in Celsius to a 12-bit DAC output value.
  *
- * The DAC output is 0 when the temperature is at or above @p ambientK
+ * The DAC output is 0 when the temperature is at or above @p ambientC
  * (the warm / start-of-cooldown reference) and rises linearly to @p maxDac
- * when the temperature reaches @p setpointK.  Values are clamped to [0, maxDac].
+ * when the temperature reaches @p setpointC.  Values are clamped to [0, maxDac].
  *
  * This function is pure math with no Arduino or hardware dependencies, making
  * it safe to call from native unit tests.
  *
- * @param tempK      Current temperature in Kelvin
- * @param ambientK   Reference "warm" temperature (DAC = 0 here)
- * @param setpointK  Target cold temperature (DAC = maxDac here)
+ * @param tempC      Current temperature in Celsius
+ * @param ambientC   Reference "warm" temperature (DAC = 0 here)
+ * @param setpointC  Target cold temperature (DAC = maxDac here)
  * @param maxDac     Maximum DAC output value (e.g. 4095 for 12-bit)
  * @return           Proportional DAC value clamped to [0, maxDac]
  */
-inline uint16_t tempKToDacValue(float tempK,
-                                float ambientK,
-                                float setpointK,
+inline uint16_t tempCToDacValue(float tempC,
+                                float ambientC,
+                                float setpointC,
                                 uint16_t maxDac)
 {
-    if (tempK >= ambientK)   return 0;
-    if (tempK <= setpointK)  return maxDac;
+    if (tempC >= ambientC)   return 0;
+    if (tempC <= setpointC)  return maxDac;
 
-    const float span     = ambientK - setpointK;
-    const float dropped  = ambientK - tempK;
+    const float span     = ambientC - setpointC;
+    const float dropped  = ambientC - tempC;
     const float fraction = dropped / span;
 
     // Cast via int32 to avoid undefined behaviour on negative fraction edge

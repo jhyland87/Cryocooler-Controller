@@ -75,21 +75,21 @@ static void handleDisable(const char* /*args*/, Print& out) {
 static void handleTemp(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock temp <K>  (e.g. mock temp 85.5)");
+        out.println("[ERR] Usage: mock temp <C>  (e.g. mock temp -188.15)");
         return;
     }
     // Cancel any active temp ramp so the static value is not overwritten next tick.
     sensor_mock::stopRamp(sensor_mock::RampField::Temp);
-    sensor_mock::get().tempK = v;
+    sensor_mock::get().tempC = v;
     char buf[56];
-    snprintf(buf, sizeof(buf), "[OK] mock.temp = %.3f K  (%.3f C)", v, v - 273.15f);
+    snprintf(buf, sizeof(buf), "[OK] mock.temp = %.3f C", v);
     out.println(buf);
 }
 
 static void handleRate(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock rate <K/min>  (e.g. mock rate -1.5)");
+        out.println("[ERR] Usage: mock rate <C/min>  (e.g. mock rate -1.5)");
         return;
     }
     sensor_mock::get().coolingRate = v;
@@ -173,8 +173,8 @@ static void handleColdhead(const char* args, Print& out) {
         if (cold_head::isMockEnabled()) {
             char buf[72];
             snprintf(buf, sizeof(buf),
-                     "[OK] Cold head RTD mock: ACTIVE  (%.3f K  %.3f C)",
-                     cold_head::getLastTempK(), cold_head::getLastTempK() - 273.15f);
+                     "[OK] Cold head RTD mock: ACTIVE  (%.3f C)",
+                     cold_head::getLastTempC());
             out.println(buf);
         } else {
             out.println("[OK] Cold head RTD mock: inactive (real MAX31865)");
@@ -395,9 +395,9 @@ static void handleStatus(const char* /*args*/, Print& out) {
                     ? "[OK] Mock mode: ACTIVE"
                     : "[OK] Mock mode: inactive (real hardware)");
 
-    snprintf(buf, sizeof(buf), "  temp     : %.3f K  (%.3f C)", mo.tempK, mo.tempK - 273.15f);
+    snprintf(buf, sizeof(buf), "  temp     : %.3f C", mo.tempC);
     out.println(buf);
-    snprintf(buf, sizeof(buf), "  rate     : %.3f K/min", mo.coolingRate);
+    snprintf(buf, sizeof(buf), "  rate     : %.3f C/min", mo.coolingRate);
     out.println(buf);
     snprintf(buf, sizeof(buf), "  rms      : %.3f V", mo.rmsVoltageV);
     out.println(buf);
@@ -421,8 +421,8 @@ static void handleStatus(const char* /*args*/, Print& out) {
     // Cold-head module-local RTD mock (independent of global mock mode)
     if (cold_head::isMockEnabled()) {
         snprintf(buf, sizeof(buf),
-                 "  coldhead : MOCKED  %.3f K  (%.3f C)",
-                 cold_head::getLastTempK(), cold_head::getLastTempK() - 273.15f);
+                 "  coldhead : MOCKED  %.3f C",
+                 cold_head::getLastTempC());
     } else {
         snprintf(buf, sizeof(buf), "  coldhead : real MAX31865");
     }

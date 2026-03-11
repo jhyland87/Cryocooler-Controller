@@ -42,6 +42,7 @@
 // =============================================================================
 
 static constexpr char TAG[] = "main";
+static LogStream _Log = Log.createChildLogger("main");
 
 /**
  * Call initFn() until it stops returning MODULE_INIT_IN_PROGRESS, then log
@@ -52,7 +53,7 @@ static constexpr char TAG[] = "main";
  */
 template<typename Fn>
 static module::InitStatus initModule(const char* name, Fn&& initFn) {
-    Log.printf("[%s] Initialising ... \n", name);
+    _Log.printf("%s --> Initialising ... \n", name);
 
     module::InitStatus status = initFn();
     while (status == module::MODULE_INIT_IN_PROGRESS) {
@@ -60,9 +61,9 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
     }
 
     if (status == module::MODULE_INIT_SUCCESS) {
-        Log.printf("[%s] Initialisation complete\n", name);
+        _Log.printf("%s --> Initialisation complete\n", name);
     } else {
-        Log.printf("[%s] FAILED (status %d)\n", name, static_cast<int>(status));
+        _Log.printf("%s --> FAILED (status %d)\n", name, static_cast<int>(status));
     }
     return status;
 }
@@ -92,13 +93,13 @@ static void initPersistentModules() {
 
     auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
     if (imuStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] IMU initialization failed (status %d) — continuing without IMU.\n",
+        _Log.printf("IMU init --> initialization failed (status %d) — continuing without IMU.\n",
                    static_cast<int>(imuStatus));
     }
 
     auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
     if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Commands initialization failed (status %d). Continuing without commands.\n",
+        _Log.printf("Commands init --> initialization failed (status %d). Continuing without commands.\n",
                    static_cast<int>(commandsStatus));
     }
 
@@ -106,13 +107,13 @@ static void initPersistentModules() {
     // dashboard::setupServer() calls it during dashboard init.
     auto otaStatus = initModule("ota", [] { return ota::Module::init(); });
     if (otaStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] OTA initialization failed (status %d) — OTA endpoint unavailable.\n",
+        _Log.printf("OTA init --> initialization failed (status %d) — OTA endpoint unavailable.\n",
                    static_cast<int>(otaStatus));
     }
 
     auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
     if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Dashboard initialization failed (status %d) — continuing without dashboard.\n",
+        _Log.printf("Dashboard init --> initialization failed (status %d) — continuing without dashboard.\n",
                    static_cast<int>(dashboardStatus));
     }
 
@@ -123,7 +124,7 @@ static void initPersistentModules() {
 #if ENABLE_ESPNOW
     auto espnowStatus = initModule("espnow", [] { return espnow::Module::init(); });
     if (espnowStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] ESP-NOW initialization failed (status %d) — continuing without ESP-NOW.\n",
+        _Log.printf("ESP-NOW init --> initialization failed (status %d) — continuing without ESP-NOW.\n",
                    static_cast<int>(espnowStatus));
     }
 #endif
@@ -136,7 +137,7 @@ static void initPersistentModules() {
 
     auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
     if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Sysinfo initialization failed (status %d). Continuing.\n",
+        _Log.printf("Sysinfo init --> initialization failed (status %d). Continuing.\n",
                    static_cast<int>(sysinfoStatus));
     }
     telemetry::emitSafe();
@@ -165,28 +166,28 @@ static void initControlModules() {
     // de-energized as early as possible.
     auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
     if (compressorStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Compressor initialization failed (status %d).\n",
+        _Log.printf("Compressor init --> initialization failed (status %d).\n",
                    static_cast<int>(compressorStatus));
     }
     telemetry::emitSafe();
 
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Cooling initialization failed (status %d).\n",
+        _Log.printf("Cooling init --> initialization failed (status %d).\n",
                    static_cast<int>(coolingStatus));
     }
     telemetry::emitSafe();
 
     auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
     if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Amplifier initialization failed (status %d).\n",
+        _Log.printf("Amplifier init --> initialization failed (status %d).\n",
                    static_cast<int>(amplifierStatus));
     }
     telemetry::emitSafe();
 
     auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
     if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[init] Cold head initialization failed (status %d).\n",
+        _Log.printf("Cold head init --> initialization failed (status %d).\n",
                    static_cast<int>(cold_headStatus));
     }
     telemetry::emitSafe();
@@ -202,10 +203,9 @@ static void initControlModules() {
 void setup() {
     Serial.begin(SERIAL_BAUD);
     delay(1000);
-    Serial.println("Serial begin");
     //while (!Serial.available()) delay(100);
 
-    Log.printf("[setup] Starting up\n");
+    _Log.printf("Starting up\n");
     Log.println("Cryocooler Controller -- starting up");
     Log.println("=====================================");
 
@@ -215,7 +215,7 @@ void setup() {
     // the global Wire / SPI singletons.
     if (initModule("hardware", [] { return hardware::Module::init(); })
             != module::MODULE_INIT_SUCCESS) {
-        Log.printf("[setup] Hardware bus init failed. Halting.\n");
+        _Log.printf("Hardware bus init failed. Halting.\n");
         return;
     }
 
@@ -283,7 +283,7 @@ void loop() {
     // reachable even when control hardware failed to initialise.
     // (The TCP/Serial-Studio path calls processLine() directly.)
     if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Log.println("[loop] commands service error");
+        _Log.println("loop --> commands service error");
     }
 
     // ── Per-tick module service ───────────────────────────────────────────
@@ -296,16 +296,16 @@ void loop() {
     // access entirely.  No conditional logic is needed here.
 
     if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Log.println("[loop] sysinfo service error");
+        _Log.println("loop --> sysinfo service error");
     }
     if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Log.println("[loop] imu service error");
+        _Log.println("loop --> imu service error");
     }
     if (amplifier::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Log.println("[loop] amplifier service error");
+        _Log.println("loop --> amplifier service error");
     }
     if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
-        Log.println("[loop] cooling service error");
+        _Log.println("loop --> cooling service error");
     }
 
     const uint32_t nowMs = millis();
@@ -333,11 +333,9 @@ void loop() {
     cold_head::checkFaults();
 
     // Read cached values.
-    const float tempK       = cold_head::getLastTempK();
-    //Serial.printf("tempK: %f\n", tempK);
     const float tempC       = cold_head::getLastTempC();
     //Serial.printf("tempC: %f\n", tempC);
-    const float coolingRate = cold_head::getCoolingRateKPerMin();
+    const float coolingRate = cold_head::getCoolingRateCPerMin();
     //Serial.printf("coolingRate: %f\n", coolingRate);
     const bool  stalled     = cold_head::isStalled();
     //Serial.printf("stalled: %d\n", stalled);
@@ -349,7 +347,7 @@ void loop() {
     const float sysVoltage  = sysinfo::getVoltage();
     //Serial.printf("sysVoltage: %f\n", sysVoltage);
     // ---- 2. Advance state machine ---------------------------------------
-    const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
+    const auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
     // Clear edge-triggered overstroke flag after the state machine has consumed
     // it.  In real mode the flag was set by readCurrent(); in mock mode it was
     // set by setLastReadings().  Either way, clear it so it fires only once.

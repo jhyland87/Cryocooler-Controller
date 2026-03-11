@@ -20,7 +20,6 @@ export interface TelemetryData {
   'status.backoff_count'?: number;
 
   // ── Cold head temperatures & performance ────────────────────────────────────
-  'cold_head.temp_k'?: number;
   'cold_head.temp_c'?: number;
   'cold_head.ambient_temp_c'?: number;
   'cold_head.cooling_rate'?: number;

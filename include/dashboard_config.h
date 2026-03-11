@@ -211,10 +211,10 @@ static const ss::DatasetCfg compressorDatasets[] = {
 };
 
 static const ss::DatasetCfg tempDatasets[] = {
-    {   // Temperature in Kelvin (gauge)
-        .title          = "Cold Head Temp (K)",
-        .units          = "K",
-        .telemetryKey   = "cold_head.temp_k",
+    {
+        .title          = "Cold Head Temp (°C)",
+        .units          = "°C",
+        .telemetryKey   = "cold_head.temp_c",
         .widget         = ss::WidgetType::Gauge,
         // .widgetMin      = 60,
         // .widgetMax      = 340,
@@ -489,8 +489,8 @@ static const ss::DatasetCfg statusDatasets[] = {
     },
     {
         .title          = "Cold Head Temp",
-        .units          = "K",
-        .telemetryKey   = "cold_head.temp_k",
+        .units          = "°C",
+        .telemetryKey   = "cold_head.temp_c",
         // .widgetMin      = 0,
         // .widgetMax      = 100,
         //.plotMin        = 75,

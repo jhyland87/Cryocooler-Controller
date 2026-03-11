@@ -38,16 +38,16 @@ inline void read() { read(millis()); }
  * touching any hardware.  Call every control tick instead of read() when the
  * sensor is not physically present (e.g. hardware-free FSM testing).
  *
- * After this call, getLastTempK(), getCoolingRateKPerMin(), and isStalled()
+ * After this call, getLastTempC(), getCoolingRateCPerMin(), and isStalled()
  * all return the injected values until the next real read() is called.
  *
  * @param nowMs              Current millis() (used to timestamp the sample)
- * @param tempK              Cold-stage temperature in Kelvin
- * @param coolingRateKPerMin Cooling rate in K/min (negative = cooling)
+ * @param tempC              Cold-stage temperature in Celsius
+ * @param coolingRateCPerMin Cooling rate in C/min (negative = cooling)
  * @param stalled            True if the stage should appear stalled
  */
-void setLastReadings(uint32_t nowMs, float tempK,
-                     float coolingRateKPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);
+void setLastReadings(uint32_t nowMs, float tempC,
+                     float coolingRateCPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);
 
 //float readAmbientTemperature();
 
@@ -69,18 +69,12 @@ void checkFaults();
 /**
  * Return true if the most recent read() detected a sensor fault:
  * either the MAX31865 hardware fault register was non-zero, or the
- * computed temperature was outside [MIN_PLAUSIBLE_TEMP_K, MAX_PLAUSIBLE_TEMP_K].
+ * computed temperature was outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
  *
  * The flag self-clears as soon as a clean, in-range reading is obtained,
  * but the state machine latches into Fault state until clearFault() is called.
  */
 bool hasSensorFault();
-
-/**
- * Return the most recently measured temperature in Kelvin.
- * Returns 0.0f before the first successful read.
- */
-float getLastTempK();
 
 /**
  * Return the most recently measured temperature in Celsius.
@@ -89,11 +83,11 @@ float getLastTempK();
 float getLastTempC();
 
 /**
- * Return the current cooling rate in Kelvin per minute (positive = cooling).
+ * Return the current cooling rate in Celsius per minute (positive = cooling).
  * Computed over the oldest and newest samples in the ring buffer.
  * Returns 0.0f if fewer than 2 samples are available.
  */
-float getCoolingRateKPerMin();
+float getCoolingRateCPerMin();
 
 float getLastRmsVoltage();
 
@@ -101,7 +95,7 @@ float getLastRmsCurrent();
 
 /**
  * Return true if the temperature has stalled: the cold stage has not dropped
- * by STALL_MIN_DROP_K within the most recent STALL_DETECT_WINDOW_MS.
+ * by STALL_MIN_DROP_C within the most recent STALL_DETECT_WINDOW_MS.
  *
  * Only meaningful during cool-down states -- the caller (state machine)
  * is responsible for checking this only when actively cooling.
@@ -110,7 +104,7 @@ bool isStalled();
 
 /**
  * Return the temperature as a percentage of the maximum temperature.
- * 0% = 298K, 100% = 78K
+ * 0% = 21.85°C, 100% = -195.15°C
  */
 float getTemperatureToPercent();
 
@@ -127,9 +121,9 @@ float getTemperatureToPercent();
  * one by more than the hysteresis band, so the monitor does not inherit
  * stale elapsed time from the previous setpoint.
  *
- * @param targetK  Desired cold-stage temperature in Kelvin.
+ * @param targetC  Desired cold-stage temperature in Celsius.
  */
-void setTargetTempK(float targetK);
+void setTargetTempC(float targetC);
 
 /**
  * Construct the temperature tracking monitor and begin tracking.
@@ -146,7 +140,7 @@ void stopTemperatureTracking();
 /**
  * Tracking score for the cold-stage temperature.
  * 1.0 = measured temperature exactly matches the target.
- * 0.0 = error >= COLD_HEAD_TRACK_FULL_SCALE_K.
+ * 0.0 = error >= COLD_HEAD_TRACK_FULL_SCALE_C.
  */
 float getTemperatureScore();
 
@@ -167,10 +161,10 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
 // normally on real hardware.
 //
 // Typical use (probe not yet installed):
-//   mock coldhead 300    — enable at 300 K (room temperature)
+//   mock coldhead 26.85  — enable at 26.85°C (room temperature)
 //   reinit               — cold_head init bypasses MAX31865 hardware
 //   start                — rest of system runs normally
-//   mock coldhead 85     — adjust temperature at any time, even while running
+//   mock coldhead -188.15 — adjust temperature at any time, even while running
 //   mock coldhead off    — disable; next reinit uses real probe
 // ---------------------------------------------------------------------------
 
@@ -178,16 +172,16 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
  * Enable the module-local RTD mock.
  *
  * While active, init() skips all MAX31865 hardware access and succeeds
- * immediately, and read() returns @p tempK instead of a real RTD reading.
+ * immediately, and read() returns @p tempC instead of a real RTD reading.
  * The global sensor_mock layer takes precedence if it is also active.
  *
  * Safe to call at any time; takes effect on the next read() tick.
  * Changing the temperature while running is allowed and takes effect
  * immediately without requiring a reinit.
  *
- * @param tempK  Temperature to report in Kelvin.  Defaults to 300 K.
+ * @param tempC  Temperature to report in Celsius.  Defaults to 26.85°C.
  */
-void enableMock(float tempK = 300.0f);
+void enableMock(float tempC = 26.85f);
 
 /**
  * Disable the module-local RTD mock.

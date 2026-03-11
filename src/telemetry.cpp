@@ -245,10 +245,14 @@ static void buildStartupFrame(FrameBuilder& frame)
     }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
+        // Emit temp only when the reading is within the plausible range
+        if (!cold_head::hasSensorFault()) {
+            frame.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
+        } else {
+            frame.field("cold_head.temp_c", "%s", "");
+        }
         frame
-            .field("cold_head.temp_k",                "%.2f", cold_head::getLastTempK())
-            .field("cold_head.temp_c",                "%.2f", cold_head::getLastTempC())
-            .field("cold_head.cooling_rate",          "%.3f", cold_head::getCoolingRateKPerMin())
+            .field("cold_head.cooling_rate",          "%.3f", cold_head::getCoolingRateCPerMin())
             .field("cold_head.cooldown_pct",          "%.2f", cold_head::getTemperatureToPercent())
             .field("cold_head.delta_below_ambient_c", "%.2f", cold_head::getLastTempCBelowAmbient())
             .field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC())
@@ -256,7 +260,6 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cold_head.current_a",             "%.2f", cold_head::getLastRmsCurrent());
     } else {
         frame
-            .field("cold_head.temp_k",                "%s", "")
             .field("cold_head.temp_c",                "%s", "")
             .field("cold_head.cooling_rate",          "%s", "")
             .field("cold_head.cooldown_pct",          "%s", "")
@@ -347,9 +350,15 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("imu.roll_deg",  "%.2f", imu::getRoll())
             .field("imu.pitch_deg", "%.2f", imu::getPitch())
             .field("imu.yaw_deg",   "%.2f", imu::getYaw())
-            .field("imu.accel_mag", "%.2f", imu::getAccelMag())
-            //.field("imu.gyro_mag",  "%.2f", imu::getGyroMag())
-            .field("imu.temp_c",    "%.1f", imu::getTemperature())
+            .field("imu.accel_mag", "%.2f", imu::getAccelMag());
+            // .field("imu.gyro_mag", "%.2f", imu::getGyroMag())  // disabled
+        // Emit temp only when within the plausible ambient range
+        if (imu::isTemperaturePlausible()) {
+            frame.field("imu.temp_c", "%.1f", imu::getTemperature());
+        } else {
+            frame.field("imu.temp_c", "%s", "");
+        }
+        frame
             .field("imu.motion",    "%u",   static_cast<uint8_t>(imu::isMotionDetected()))
             .field("imu.x",         "%.3f", imu::getAccelX())
             .field("imu.y",         "%.3f", imu::getAccelY())
@@ -546,11 +555,13 @@ void emit(const state_machine::Output& out)
         .field("timestamp.local",                   "%s",   localBuf)
         .field("state.id",                          "%d",   out.state)
         .field("state.name",                        "%s",   state_machine::stateName(out.state))
-        .field("state.status_text",                 "%s",   state_machine::getStatusText())
-        .field("cold_head.temp_k",                  "%.2f", cold_head::getLastTempK())
-        .field("cold_head.temp_c",                  "%.2f", cold_head::getLastTempC())
-        //.field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
-        .field("cold_head.cooling_rate",            "%.3f", cold_head::getCoolingRateKPerMin())
+        .field("state.status_text",                 "%s",   state_machine::getStatusText());
+    if (!cold_head::hasSensorFault()) {
+        lastFrame_.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
+    } else {
+        lastFrame_.field("cold_head.temp_c", "%s", "");
+    }
+    lastFrame_
         //.field("dac.target",                        "%u",   static_cast<unsigned>(out.dacTarget))
         //.field("dac.actual",                        "%u",   static_cast<unsigned>(dacActual))
         .field("cold_head.voltage_v",               "%.2f", cold_head::getLastRmsVoltage())

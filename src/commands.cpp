@@ -93,10 +93,10 @@ static void handleStart(const char* /*args*/, Print& out) {
 #ifdef ARDUINO
     // Use mock temperature when active so the FSM picks the right entry
     // state (coarse vs fine vs settle) even without real hardware.
-    const float tempK = sensor_mock::isActive()
-                            ? sensor_mock::get().tempK
-                            : cold_head::getLastTempK();
-    state_machine::start(tempK);
+    const float tempC = sensor_mock::isActive()
+                            ? sensor_mock::get().tempC
+                            : cold_head::getLastTempC();
+    state_machine::start(tempC);
 #else
     state_machine::start();
 #endif
@@ -514,8 +514,8 @@ static void handleSummary(const char* /*args*/, Print& out) {
 
 #ifdef ARDUINO
     out.println("  --- Cold Head ---");
-    snprintf(buf, sizeof(buf), "  Cold stage      : %.2f C  /  %.2f K",
-             cold_head::getLastTempC(), cold_head::getLastTempK());
+    snprintf(buf, sizeof(buf), "  Cold stage      : %.2f C",
+             cold_head::getLastTempC());
     out.println(buf);
 
     // snprintf(buf, sizeof(buf), "  Ambient         : %.2f C",
@@ -526,8 +526,8 @@ static void handleSummary(const char* /*args*/, Print& out) {
              cold_head::getLastTempCBelowAmbient());
     out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f K/min",
-             cold_head::getCoolingRateKPerMin());
+    snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f C/min",
+             cold_head::getCoolingRateCPerMin());
     out.println(buf);
 
     snprintf(buf, sizeof(buf), "  Cooldown        : %.1f %%",

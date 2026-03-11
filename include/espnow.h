@@ -63,11 +63,10 @@ struct __attribute__((packed)) TelemetryPacket {
     uint8_t  faults_count_60m;              ///< fault entries in last 60 min
 
     // ── Cold head ─────────────────────────────────────────────────────────
-    float    cold_head_temp_k;
-    float    cold_head_temp_c;
+    float    cold_head_temp_c;              ///< Temperature in Celsius
     float    cold_head_ambient_temp_c;
     float    cold_head_delta_below_ambient_c;
-    float    cold_head_cooling_rate;        ///< K/min; positive = cooling
+    float    cold_head_cooling_rate;        ///< C/min; positive = cooling
     float    cold_head_cooldown_pct;        ///< 0–100 %
     float    cold_head_voltage_v;
     float    cold_head_current_a;

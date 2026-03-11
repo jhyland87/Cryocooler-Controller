@@ -149,8 +149,9 @@ void LogStream::flushLine() {
                            ? static_cast<size_t>(n)
                            : static_cast<size_t>(logger::MAX_MSG_LEN - 1u);
 #ifdef ARDUINO
+        // prefixed already contains the trailing '\n' (stored in line_ before
+        // flushLine() was called), so no extra write is needed.
         Serial.print(prefixed);
-        Serial.write('\n');
 #endif
         logger::push(prefixed, len);
     } else {

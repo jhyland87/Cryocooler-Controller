@@ -158,58 +158,62 @@
 #define BACKOFF_MAX_COUNT  static_cast<uint8_t>(10)
 
 // =============================================================================
-// Temperature Thresholds (Kelvin)
+// Temperature Thresholds (Celsius)
 // =============================================================================
 
-// Plausibility bounds for the cold-stage temperature sensor (Kelvin).
+// Plausibility bounds for the cold-stage temperature sensor (Celsius).
 // Readings outside this range — including the 0 K default before first read —
 // indicate a sensor hardware fault (open/short circuit or no data yet).
 // Checked only while the system is running to avoid false faults on startup.
-// MIN is set well below liquid-nitrogen temperature (77 K); MAX is set above
+// MIN is set well below liquid-nitrogen temperature (-196 °C); MAX is set above
 // any ambient temperature a cryocooler environment could legitimately reach.
-#define MIN_PLAUSIBLE_TEMP_K   20.0f
-#define MAX_PLAUSIBLE_TEMP_K  400.0f
+#define MIN_PLAUSIBLE_COLDHEAD_TEMP_C   -200.15f
+#define MAX_PLAUSIBLE_COLDHEAD_TEMP_C    40.85f
+
+
+#define MIN_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(0.0f)
+#define MAX_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(30.0f)
 
 // Target cold-stage temperature.  The system aims to reach and hold this.
-#define SETPOINT_K              78.0f
+#define SETPOINT_C              -195.15f
 
 // Temperature boundary between Coarse Cool-down (state 2) and
 // Fine Cool-down (state 3).
-#define COARSE_FINE_THRESHOLD_K 85.0f
+#define COARSE_FINE_THRESHOLD_C -188.15f
 
 // Assumed ambient / start temperature — top of the DAC ramp range.
-// DAC output = 0 at AMBIENT_START_K and AMPLIFIER_RESOLUTION at SETPOINT_K.
-#define AMBIENT_START_K         295.0f
+// DAC output = 0 at AMBIENT_START_C and AMPLIFIER_RESOLUTION at SETPOINT_C.
+#define AMBIENT_START_C         21.85f
 
-// Cold-stage is considered "at setpoint" when within this many Kelvin of
-// SETPOINT_K (used for overshoot / settle transitions).
-#define SETPOINT_TOLERANCE_K    2.0f
+// Cold-stage is considered "at setpoint" when within this many Celsius of
+// SETPOINT_C (used for overshoot / settle transitions).
+#define SETPOINT_TOLERANCE_C    2.0f
 
 // =============================================================================
 // Cooldown Rate Limiting
 // =============================================================================
 
-// Maximum allowable cooling rate (K/min).
+// Maximum allowable cooling rate (C/min).
 // If the measured rate exceeds this the DAC is held (not incremented).
-#define MAX_COOLDOWN_RATE_K_PER_MIN  1.0f
+#define MAX_COOLDOWN_RATE_C_PER_MIN  20.0f
 
 // =============================================================================
 // Temperature Stall Detection
 // =============================================================================
 
 // Observation window for stall detection (milliseconds).
-// If the cold stage has not dropped by STALL_MIN_DROP_K within this window
+// If the cold stage has not dropped by STALL_MIN_DROP_C within this window
 // while in a cool-down state, the system transitions to Fault.
 #define STALL_DETECT_WINDOW_MS  static_cast<uint32_t>(600000)  // 10 minutes
 
 // Minimum temperature drop required within STALL_DETECT_WINDOW_MS.
-#define STALL_MIN_DROP_K        2.0f
+#define STALL_MIN_DROP_C        2.0f
 
 // =============================================================================
 // Settling / Baseline Timing
 // =============================================================================
 
-// Temperature must remain within SETPOINT_TOLERANCE_K for this duration
+// Temperature must remain within SETPOINT_TOLERANCE_C for this duration
 // before the state machine advances from Settle (5) → Baseline (6).
 #define SETTLE_DURATION_MS    static_cast<uint32_t>(60000)   // 60 s
 
@@ -233,7 +237,7 @@
 #define COOLING_AUTOSTART_ENABLED  true
 
 // Maximum fan speed allowed (percent).
-#define COOLING_FAN_MAX_SPEED  20
+//#define COOLING_FAN_MAX_SPEED  20
 
 // If the cryocooler is in an OFF state and the coolant temperature drops
 // below this value, turn off the fans and pump to save power.

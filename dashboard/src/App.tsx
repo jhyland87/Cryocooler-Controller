@@ -82,8 +82,7 @@ interface TileConfig {
 const TILES: TileConfig[] = [
   { label: 'Cold Head', key: 'cold_head.temp_c',         unit: '°C',   dp: 2, color: '#29b6f6' },
   { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',   dp: 2, color: '#ffa726' },
-  { label: 'Cold Head', key: 'cold_head.temp_k',         unit: 'K',    dp: 2, color: '#4fc3f7' },
-  { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: 'K/min',dp: 3, color: '#80cbc4' },
+  { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: '°C/min',dp: 3, color: '#80cbc4' },
   { label: 'Sys V',     key: 'system.voltage_vdc',       unit: 'V',    dp: 2, color: '#ce93d8' },
   { label: 'Sys A',     key: 'system.current_a',         unit: 'A',    dp: 2, color: '#f48fb1' },
   { label: 'Sys W',     key: 'system.power_w',           unit: 'W',    dp: 1, color: '#ffcc80' },

@@ -43,7 +43,7 @@ static LogStream _Log = Log.createChildLogger("state_machine");
 // ---------------------------------------------------------------------------
 enum : int {
     // Control events (fired by start() / stop() / off())
-    EVT_START_COARSE    =  1,  ///< start() when tempK >= COARSE_FINE_THRESHOLD_K
+    EVT_START_COARSE    =  1,  ///< start() when tempC >= COARSE_FINE_THRESHOLD_C
     EVT_START_FINE      =  2,  ///< start() when below threshold but above setpoint band
     EVT_START_SETTLE    =  3,  ///< start() when already in setpoint band
     EVT_START_OVERSHOOT =  4,  ///< start() when below setpoint band
@@ -194,25 +194,25 @@ static Fsm* fsm = nullptr;
 // ---------------------------------------------------------------------------
 
 /** True when the cold stage temperature is within the setpoint tolerance band. */
-static bool inBand(float tempK) {
-    return (tempK >= (SETPOINT_K - SETPOINT_TOLERANCE_K)) &&
-           (tempK <= (SETPOINT_K + SETPOINT_TOLERANCE_K));
+static bool inBand(float tempC) {
+    return (tempC >= (SETPOINT_C - SETPOINT_TOLERANCE_C)) &&
+           (tempC <= (SETPOINT_C + SETPOINT_TOLERANCE_C));
 }
 
 /** True when the cold stage has clearly overshot (gone below) the setpoint. */
-static bool overshot(float tempK) {
-    return tempK < (SETPOINT_K - SETPOINT_TOLERANCE_K);
+static bool overshot(float tempC) {
+    return tempC < (SETPOINT_C - SETPOINT_TOLERANCE_C);
 }
 
 /**
  * Compute the target DAC value for cooldown states.
- * Proportional to how far the temperature has dropped from AMBIENT_START_K
- * toward SETPOINT_K.
+ * Proportional to how far the temperature has dropped from AMBIENT_START_C
+ * toward SETPOINT_C.
  */
-static uint16_t cooldownDacTarget(float tempK, float coolingRate) {
+static uint16_t cooldownDacTarget(float tempC, float coolingRate) {
     (void)coolingRate;   // rate guard reserved for future use
-    return conversions::tempKToDacValue(
-        tempK, AMBIENT_START_K, SETPOINT_K, AMPLIFIER_RESOLUTION);
+    return conversions::tempCToDacValue(
+        tempC, AMBIENT_START_C, SETPOINT_C, AMPLIFIER_RESOLUTION);
 }
 
 /**
@@ -645,7 +645,7 @@ module::InitStatus init(uint32_t nowMs) {
     return module::MODULE_INIT_SUCCESS;
 }
 
-Output update(float    tempK,
+Output update(float    tempC,
               float    coolingRate,
               float    amplifierVoltageV,
               bool     stalled,
@@ -653,10 +653,10 @@ Output update(float    tempK,
               bool     overstroke,
               float    systemVoltage)
 {
-    //Serial.printf("update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
-             //tempK, coolingRate, rmsVoltage, stalled, overstroke);
-    //ESP_LOGD(TAG, "update() tempK=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
-             //tempK, coolingRate, rmsVoltage, stalled, overstroke);
+    //Serial.printf("update() tempC=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
+             //tempC, coolingRate, rmsVoltage, stalled, overstroke);
+    //ESP_LOGD(TAG, "update() tempC=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
+             //tempC, coolingRate, rmsVoltage, stalled, overstroke);
 
     sNowMs = nowMs;
 
@@ -707,7 +707,7 @@ Output update(float    tempK,
         // while running so we don't false-fault before the first sensor read.
         if (running && cold_head::hasSensorFault()) {
             faultMask |= static_cast<uint8_t>(FaultReason::SensorFault);
-            _Log.printf("Fault: Sensor fault detected (tempK=%.2f)\n", tempK);
+            _Log.printf("Fault: Sensor fault detected (tempC=%.2f)\n", tempC);
         }
 
         // RMS overcurrent — checked only while running (amplifier is active).
@@ -774,36 +774,36 @@ Output update(float    tempK,
                 break;
 
             case State::CoarseCooldown:
-                if (tempK < COARSE_FINE_THRESHOLD_K) {
+                if (tempC < COARSE_FINE_THRESHOLD_C) {
                     _Log.println(F("Triggering EVT_BELOW_COARSE"));
-                    fsmTrigger(EVT_BELOW_COARSE, "below_85K");
+                    fsmTrigger(EVT_BELOW_COARSE, "below_threshold");
                 }
                 break;
 
             case State::FineCooldown:
-                if (tempK > COARSE_FINE_THRESHOLD_K) {
+                if (tempC > COARSE_FINE_THRESHOLD_C) {
                     _Log.println(F("Triggering EVT_ABOVE_COARSE"));
-                    fsmTrigger(EVT_ABOVE_COARSE, "above_85K");
+                    fsmTrigger(EVT_ABOVE_COARSE, "above_threshold");
                 }
-                else if (overshot(tempK)) {
+                else if (overshot(tempC)) {
                     _Log.println(F("Triggering EVT_OVERSHOT"));
                     fsmTrigger(EVT_OVERSHOT, "overshoot");
                 }
-                else if (inBand(tempK)) {
+                else if (inBand(tempC)) {
                     _Log.println(F("Triggering EVT_IN_BAND"));
                     fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
 
             case State::Overshoot:
-                if (inBand(tempK)) {
+                if (inBand(tempC)) {
                     _Log.println(F("Triggering EVT_IN_BAND"));
                     fsmTrigger(EVT_IN_BAND, "in_band");
                 }
                 break;
 
             case State::Settle:
-                if (!inBand(tempK)) {
+                if (!inBand(tempC)) {
                     // Drifted out of band — reset the settle timer.
                     settleTimerActive = false;
                     settleStartMs     = 0;
@@ -855,7 +855,7 @@ Output update(float    tempK,
     uint16_t dacTarget = 0;
     if (currentState == State::CoarseCooldown ||
         currentState == State::FineCooldown) {
-        dacTarget = cooldownDacTarget(tempK, coolingRate);
+        dacTarget = cooldownDacTarget(tempC, coolingRate);
         amplifier::rampToVoltage(dacTarget);
     } else if (currentState == State::Shutdown) {
         amplifier::rampTowardShutdown(dacTarget);  // dacTarget is 0
@@ -877,8 +877,8 @@ uint32_t getOnStateDuration() {
     return millis() - onStateMs;
 }
 
-void start(uint32_t nowMs, float tempK) {
-    _Log.printf("start() tempK=%.2f\n", tempK);
+void start(uint32_t nowMs, float tempC) {
+    _Log.printf("start() tempC=%.2f\n", tempC);
     if (running) return;
 
     running          = true;
@@ -889,16 +889,16 @@ void start(uint32_t nowMs, float tempK) {
     backoffCount     = 0;
     backoffDacOffset = 0;
 
-    ESP_LOGD(TAG, "start() tempK=%.2f", tempK);
+    ESP_LOGD(TAG, "start() tempC=%.2f", tempC);
 
     // Select the resumption state based on the current cold-stage temperature
     // so the system can resume correctly after a reboot.
-    if (tempK >= COARSE_FINE_THRESHOLD_K) {
+    if (tempC >= COARSE_FINE_THRESHOLD_C) {
         fsmTrigger(EVT_START_COARSE, "start");
-    } else if (overshot(tempK)) {
+    } else if (overshot(tempC)) {
         _Log.println(F("Triggering EVT_START_OVERSHOOT"));
         fsmTrigger(EVT_START_OVERSHOOT, "start");
-    } else if (inBand(tempK)) {
+    } else if (inBand(tempC)) {
         _Log.println(F("Triggering EVT_START_SETTLE"));
         fsmTrigger(EVT_START_SETTLE, "start");
     } else {

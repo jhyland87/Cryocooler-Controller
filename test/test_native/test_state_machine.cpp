@@ -47,7 +47,7 @@ void run_log_tests();
  *          or 0 if the state was never reached within maxMs.
  */
 static uint32_t advanceUntil(state_machine::State  target,
-                              float    tempK,
+                              float    tempC,
                               float    coolingRate,
                               float    rmsV,
                               bool     stalled,
@@ -58,7 +58,7 @@ static uint32_t advanceUntil(state_machine::State  target,
     uint32_t nowMs = startMs;
     while (nowMs < (startMs + maxMs)) {
         stub_setMillis(nowMs);
-        auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs);
+        auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, nowMs);
         if (out.state == target) return nowMs;
         nowMs += stepMs;
     }
@@ -264,7 +264,7 @@ void test_coarse_transitions_to_fine_below_threshold(void) {
     const uint32_t tStart = initAndStart();
     state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1);
     auto out = state_machine::update(
-        COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f, false, tStart + 2);
+        COARSE_FINE_THRESHOLD_C - 1.0f, 0.5f, 0.0f, false, tStart + 2);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
                       static_cast<int8_t>(out.state));
 }
@@ -277,7 +277,7 @@ void test_fine_cooldown_ready_indicator_is_slow_green(void) {
     const uint32_t tStart = initAndStart();
     state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1);
     auto out = state_machine::update(
-        COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f, false, tStart + 2);
+        COARSE_FINE_THRESHOLD_C - 1.0f, 0.5f, 0.0f, false, tStart + 2);
     TEST_ASSERT_EQUAL(static_cast<uint8_t>(indicator::Mode::FlashSlowGreen),
                       static_cast<uint8_t>(out.readyIndMode));
 }
@@ -286,7 +286,7 @@ void test_fine_transitions_to_overshoot_below_setpoint(void) {
     const uint32_t tStart = initAndStart();
     state_machine::update(200.0f, 0.5f, 0.0f, false, tStart + 1);
     state_machine::update(84.0f, 0.5f, 0.0f, false, tStart + 2);
-    const float overshootTemp = SETPOINT_K - SETPOINT_TOLERANCE_K - 1.0f;
+    const float overshootTemp = SETPOINT_C - SETPOINT_TOLERANCE_C - 1.0f;
     auto out = state_machine::update(overshootTemp, 0.5f, 0.0f, false, tStart + 3);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Overshoot),
                       static_cast<int8_t>(out.state));
@@ -456,19 +456,19 @@ void test_time_in_state_resets_again_on_stop(void) {
 }
 
 // ---------------------------------------------------------------------------
-// Reboot recovery: start() selects the correct resume state from tempK
+// Reboot recovery: start() selects the correct resume state from tempC
 // ---------------------------------------------------------------------------
 
 void test_start_warm_enters_coarse_cooldown(void) {
     // Ambient temperature → full cooldown from the top.
     state_machine::init(0);
-    state_machine::start(100, AMBIENT_START_K);
+    state_machine::start(100, AMBIENT_START_C);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
                       static_cast<int8_t>(state_machine::getState()));
 }
 
 void test_start_above_threshold_enters_coarse_cooldown(void) {
-    // 90 K is above COARSE_FINE_THRESHOLD_K (85 K) → CoarseCooldown.
+    // 90 K is above COARSE_FINE_THRESHOLD_C (85 K) → CoarseCooldown.
     state_machine::init(0);
     state_machine::start(100, 90.0f);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::CoarseCooldown),
@@ -476,8 +476,8 @@ void test_start_above_threshold_enters_coarse_cooldown(void) {
 }
 
 void test_start_below_threshold_enters_fine_cooldown(void) {
-    // 82 K is below COARSE_FINE_THRESHOLD_K (85 K) but above the setpoint
-    // tolerance band (> SETPOINT_K + SETPOINT_TOLERANCE_K = 80 K) → FineCooldown.
+    // 82 K is below COARSE_FINE_THRESHOLD_C (85 K) but above the setpoint
+    // tolerance band (> SETPOINT_C + SETPOINT_TOLERANCE_C = 80 K) → FineCooldown.
     state_machine::init(0);
     state_machine::start(100, 82.0f);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
@@ -487,11 +487,11 @@ void test_start_below_threshold_enters_fine_cooldown(void) {
 void test_start_inband_enters_settle(void) {
     // Exactly at setpoint → skip cooldown, enter Settle with relay Normal.
     state_machine::init(0);
-    state_machine::start(100, SETPOINT_K);
+    state_machine::start(100, SETPOINT_C);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
                       static_cast<int8_t>(state_machine::getState()));
     // Relay must be Normal (compressorRelay == false) in Settle.
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 101);
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, 101);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
                       static_cast<int8_t>(out.state));
     TEST_ASSERT_FALSE(out.compressorRelay);
@@ -499,10 +499,10 @@ void test_start_inband_enters_settle(void) {
 }
 
 void test_start_overshot_enters_overshoot(void) {
-    // 1 K below the tolerance band (< SETPOINT_K - SETPOINT_TOLERANCE_K = 76 K)
+    // 1 K below the tolerance band (< SETPOINT_C - SETPOINT_TOLERANCE_C = 76 K)
     // → Overshoot; DAC target must be 0.
     state_machine::init(0);
-    const float overshootTemp = SETPOINT_K - SETPOINT_TOLERANCE_K - 1.0f;
+    const float overshootTemp = SETPOINT_C - SETPOINT_TOLERANCE_C - 1.0f;
     state_machine::start(100, overshootTemp);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Overshoot),
                       static_cast<int8_t>(state_machine::getState()));
@@ -666,13 +666,13 @@ void test_stateName_fault_string(void) {
  */
 void test_settle_does_not_transition_just_before_timer(void) {
     state_machine::init(0);
-    state_machine::start(0, SETPOINT_K);   // enters Settle directly
+    state_machine::start(0, SETPOINT_C);   // enters Settle directly
 
     // First in-band call starts the settle timer at t = 1.
-    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+    state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, 1);
 
     // One tick before expiry: elapsed = SETTLE_DURATION_MS - 1 → stay in Settle.
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false,
                                      SETTLE_DURATION_MS);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
                       static_cast<int8_t>(out.state));
@@ -685,19 +685,19 @@ void test_settle_does_not_transition_just_before_timer(void) {
  */
 void test_settle_timer_resets_when_out_of_band(void) {
     state_machine::init(0);
-    state_machine::start(0, SETPOINT_K);
+    state_machine::start(0, SETPOINT_C);
 
     // Start settle timer at t = 1.
-    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+    state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, 1);
 
     // Drift out of band — timer resets.
-    state_machine::update(COARSE_FINE_THRESHOLD_K, 0.0f, 0.0f, false, 100);
+    state_machine::update(COARSE_FINE_THRESHOLD_C, 0.0f, 0.0f, false, 100);
 
     // Re-enter band at t = 200 — timer restarts from here.
-    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 200);
+    state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, 200);
 
     // One tick before the restarted timer would fire: must still be Settle.
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false,
                                      200 + SETTLE_DURATION_MS - 1);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
                       static_cast<int8_t>(out.state));
@@ -713,18 +713,18 @@ void test_settle_timer_resets_when_out_of_band(void) {
  */
 static uint32_t advanceToBaseline() {
     state_machine::init(0);
-    state_machine::start(0, SETPOINT_K);            // → Settle at t = 0
+    state_machine::start(0, SETPOINT_C);            // → Settle at t = 0
 
     // Start settle timer at t = 1, then fire it.
-    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, 1);
+    state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, 1);
     const uint32_t baselineEntryMs = 1u + SETTLE_DURATION_MS;
-    state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, baselineEntryMs);
+    state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, baselineEntryMs);
     return baselineEntryMs;
 }
 
 void test_baseline_uses_normal_relay(void) {
     const uint32_t baselineEntry = advanceToBaseline();
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false,
                                      baselineEntry + 1u);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Baseline),
                       static_cast<int8_t>(out.state));
@@ -735,7 +735,7 @@ void test_baseline_uses_normal_relay(void) {
 /** One tick before BASELINE_DURATION_MS expires the machine must stay in Baseline. */
 void test_baseline_does_not_transition_just_before_timer(void) {
     const uint32_t baselineEntry = advanceToBaseline();
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false,
                                      baselineEntry + BASELINE_DURATION_MS - 1u);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Baseline),
                       static_cast<int8_t>(out.state));
@@ -743,7 +743,7 @@ void test_baseline_does_not_transition_just_before_timer(void) {
 
 void test_operating_uses_normal_relay(void) {
     const uint32_t baselineEntry = advanceToBaseline();
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false,
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false,
                                      baselineEntry + BASELINE_DURATION_MS);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Operating),
                       static_cast<int8_t>(out.state));
@@ -770,7 +770,7 @@ void test_shutdown_returns_dac_zero(void) {
     // Shutdown state should target DAC = 0 to allow rampToward() to gradually reduce
     const uint32_t tStart = initAndStart();
     state_machine::stop(tStart + 1000);
-    const auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, tStart + 1001);
+    const auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, tStart + 1001);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
                       static_cast<int8_t>(out.state));
     TEST_ASSERT_EQUAL(0, out.dacTarget);
@@ -779,7 +779,7 @@ void test_shutdown_returns_dac_zero(void) {
 void test_shutdown_uses_bypass_relay(void) {
     const uint32_t tStart = initAndStart();
     state_machine::stop(tStart + 1000);
-    const auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, tStart + 1001);
+    const auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, tStart + 1001);
     TEST_ASSERT_TRUE(out.compressorRelay);
 }
 
@@ -789,14 +789,14 @@ void test_shutdown_duration_then_transitions_to_idle(void) {
     // Just before SHUTDOWN_DURATION_MS elapses, should still be in Shutdown
     const uint32_t beforeExpiry = tStart + 1000 + SHUTDOWN_DURATION_MS - 1;
     stub_setMillis(beforeExpiry);
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, beforeExpiry);
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, beforeExpiry);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Shutdown),
                       static_cast<int8_t>(out.state));
 
     // After SHUTDOWN_DURATION_MS elapses, should transition to Idle
     const uint32_t afterExpiry = tStart + 1000 + SHUTDOWN_DURATION_MS;
     stub_setMillis(afterExpiry);
-    out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, false, afterExpiry);
+    out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, false, afterExpiry);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
                       static_cast<int8_t>(out.state));
 }
@@ -839,13 +839,13 @@ void test_stall_in_fine_triggers_fault(void) {
     const uint32_t tStart = initAndStart();
 
     // Transition to FineCooldown.
-    state_machine::update(COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f,
+    state_machine::update(COARSE_FINE_THRESHOLD_C - 1.0f, 0.5f, 0.0f,
                            false, tStart + 1u);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::FineCooldown),
                       static_cast<int8_t>(state_machine::getState()));
 
     // Stall while in FineCooldown → Fault(TemperatureStall).
-    auto out = state_machine::update(COARSE_FINE_THRESHOLD_K - 1.0f, 0.5f, 0.0f,
+    auto out = state_machine::update(COARSE_FINE_THRESHOLD_C - 1.0f, 0.5f, 0.0f,
                                       true, tStart + 2u);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
                       static_cast<int8_t>(out.state));
@@ -857,8 +857,8 @@ void test_stall_in_settle_does_not_fault(void) {
     // Stall is only checked in CoarseCooldown and FineCooldown.
     // In Settle (reached by resuming at setpoint) it must be silently ignored.
     state_machine::init(0);
-    state_machine::start(0, SETPOINT_K);   // → Settle directly
-    auto out = state_machine::update(SETPOINT_K, 0.0f, 0.0f, true, 1u);
+    state_machine::start(0, SETPOINT_C);   // → Settle directly
+    auto out = state_machine::update(SETPOINT_C, 0.0f, 0.0f, true, 1u);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Settle),
                       static_cast<int8_t>(out.state));
     TEST_ASSERT_FALSE(out.alarmRelay);
@@ -1244,8 +1244,8 @@ static void test_history_wraps_at_limit() {
 // ---------------------------------------------------------------------------
 
 // Helper: one update() with fixed inputs; returns resulting state.
-static state_machine::State bounceOnce(float tempK, uint32_t t) {
-    return state_machine::update(tempK, 0.0f, 0.0f, false, t).state;
+static state_machine::State bounceOnce(float tempC, uint32_t t) {
+    return state_machine::update(tempC, 0.0f, 0.0f, false, t).state;
 }
 
 static void test_oscillation_no_fault_before_min_cycles() {
@@ -1307,8 +1307,8 @@ static void test_oscillation_status_text_is_not_null() {
 static void test_oscillation_no_fault_with_third_state_in_window() {
     // Introduce Overshoot to break the two-state alternation.
     // Off, Coarse, Fine, Coarse, Fine, Overshoot, Fine → third state in window.
-    const float kOvershoot = static_cast<float>(SETPOINT_K)
-                           - static_cast<float>(SETPOINT_TOLERANCE_K) - 1.0f;
+    const float kOvershoot = static_cast<float>(SETPOINT_C)
+                           - static_cast<float>(SETPOINT_TOLERANCE_C) - 1.0f;
     state_machine::init(0);
     state_machine::start(100u);
     bounceOnce(84.0f, 200u);        // Fine

@@ -2,7 +2,7 @@
  * @file cold_head.cpp
  * @brief MAX31865 RTD cold_head sensor implementation
  *
- * Maintains a ring buffer of (timestamp, tempK) samples for cooling-rate
+ * Maintains a ring buffer of (timestamp, tempC) samples for cooling-rate
  * calculation and cold_head-stall detection.
  */
 
@@ -32,7 +32,7 @@ static LogStream _Log = Log.createChildLogger("cold_head");
 
 struct TempSample {
     uint32_t timestampMs;
-    float    tempK;
+    float    tempC;
     float    ambientTempC;
     float    rmsVoltageV;
     float    rmsCurrentA;
@@ -41,31 +41,31 @@ struct TempSample {
 static Adafruit_MAX31865 max31865(MAX31865_CS);
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
-static TempSample  history[TEMP_HISTORY_SIZE];
-static uint8_t     head         = 0;   // index of next write position
-static uint8_t     count        = 0;   // number of valid samples stored
-static float       lastTempK    = 0.0f;
-static float       lastTempC    = 0.0f;
-static float       lastAmbientTempC = 0.0f;
-static float        lastRmsVoltageV = 0.0f;
-static float        lastRmsCurrentA = 0.0f;
+static TempSample  sHistory[TEMP_HISTORY_SIZE];
+static uint8_t     sHead         = 0;   // index of next write position
+static uint8_t     sCount        = 0;   // number of valid samples stored
+static float       sLastTempK    = 0.0f;
+static float       sLastTempC    = 0.0f;
+static float       sLastAmbientTempC = 0.0f;
+static float        sLastRmsVoltageV = 0.0f;
+static float        sLastRmsCurrentA = 0.0f;
 // Mock injection state — set by setLastReadings(), cleared by read().
-// When active, getCoolingRateKPerMin() and isStalled() return these values
+// When active, getCoolingRateCPerMin() and isStalled() return these values
 // directly instead of computing from the ring buffer.
-static bool  mockInjected    = false;
-static float mockCoolingRate = 0.0f;
-static bool  mockStalled     = false;
+static bool  sMockInjected    = false;
+static float sMockCoolingRate = 0.0f;
+static bool  sMockStalled     = false;
 
 // Module-local RTD mock — bypasses MAX31865 hardware without enabling the
 // global sensor_mock layer.  Allows the rest of the system to run on real
 // hardware while the temperature probe is absent or not yet wired up.
 static bool  sLocalMockEnabled = false;
-static float sLocalMockTempK   = 300.0f;
+static float sLocalMockTempC   = 26.85f;
 
 // Set to true when the most recent read() detected a MAX31865 hardware fault
-// or a temperature reading outside [MIN_PLAUSIBLE_TEMP_K, MAX_PLAUSIBLE_TEMP_K].
+// or a temperature reading outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
-static bool rtdFaultActive = false;
+static bool sRtdFaultActive = false;
 
 // Per-key fault rate-limiter.
 // Each distinct fault type gets its own slot so that two simultaneously
@@ -108,12 +108,12 @@ static constexpr char TAG[] = "cold_head";
 // Setpoint tracking
 // ---------------------------------------------------------------------------
 
-// Target temperature set by the state machine via setTargetTempK().
+// Target temperature set by the state machine via setTargetTempC().
 // Defaults to the system setpoint; updated whenever the state machine
 // changes its cooling target.
-static float targetTempK_ = SETPOINT_K;
+static float targetTempC_ = SETPOINT_C;
 
-// Tracks how closely the measured cold-stage temperature follows targetTempK_.
+// Tracks how closely the measured cold-stage temperature follows targetTempC_.
 // Only active while the FSM is in the Operating state; nullopt otherwise.
 // Constructed by startTemperatureTracking() (onEnterOperating) and destroyed
 // by stopTemperatureTracking() (onExitOperating).
@@ -127,15 +127,15 @@ static RunningAverage coolingRateAvg(15);
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-static void pushSample(uint32_t nowMs, float tempK, float ambientTempC, float rmsVoltageV, float rmsCurrentA) {
-    history[head].timestampMs = nowMs;
-    history[head].tempK       = tempK;
-    history[head].ambientTempC = ambientTempC;
-    history[head].rmsVoltageV = rmsVoltageV;
-    history[head].rmsCurrentA = rmsCurrentA;
-    head = static_cast<uint8_t>((head + 1) % TEMP_HISTORY_SIZE);
-    if (count < TEMP_HISTORY_SIZE) {
-        ++count;
+static void pushSample(uint32_t nowMs, float tempC, float ambientTempC, float rmsVoltageV, float rmsCurrentA) {
+    sHistory[sHead].timestampMs = nowMs;
+    sHistory[sHead].tempC       = tempC;
+    sHistory[sHead].ambientTempC = ambientTempC;
+    sHistory[sHead].rmsVoltageV = rmsVoltageV;
+    sHistory[sHead].rmsCurrentA = rmsCurrentA;
+    sHead = static_cast<uint8_t>((sHead + 1) % TEMP_HISTORY_SIZE);
+    if (sCount < TEMP_HISTORY_SIZE) {
+        ++sCount;
     }
 }
 
@@ -146,8 +146,8 @@ static void pushSample(uint32_t nowMs, float tempK, float ambientTempC, float rm
 static const TempSample& sampleAt(uint8_t i) {
     // oldest slot in the ring is (head - count + i) mod SIZE
     auto idx = static_cast<uint8_t>(
-        (head + TEMP_HISTORY_SIZE - count + i) % TEMP_HISTORY_SIZE);
-    return history[idx];
+        (sHead + TEMP_HISTORY_SIZE - sCount + i) % TEMP_HISTORY_SIZE);
+    return sHistory[idx];
 }
 
 // ---------------------------------------------------------------------------
@@ -181,14 +181,14 @@ module::InitStatus initACS() {
 module::InitStatus initRTD() {
     // Local mock: skip all hardware access entirely.
     if (sLocalMockEnabled) {
-        _Log.printf("Local RTD mock active (%.2f K) — skipping MAX31865 hardware init",
-                 sLocalMockTempK);
+        _Log.printf("Local RTD mock active (%.2f C) — skipping MAX31865 hardware init",
+                 sLocalMockTempC);
         return module::MODULE_INIT_SUCCESS;
     }
 
     if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
         _Log.println("Could not initialize MAX31865! Check wiring.");
-        // State machine will see tempK == 0 and fault if appropriate.
+        // State machine will see tempC == 0 and fault if appropriate.
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -210,10 +210,10 @@ void read(uint32_t nowMs) {
     // Global sensor_mock takes precedence over the local RTD mock.
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
-        setLastReadings(nowMs, mo.tempK, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
+        setLastReadings(nowMs, mo.tempC, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
         // Check plausibility even for mock readings so tests can exercise the fault path.
-        rtdFaultActive = (lastTempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K) ||
-                          lastTempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
+        sRtdFaultActive = (sLastTempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C) ||
+                          sLastTempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
         return;
     }
 
@@ -222,21 +222,20 @@ void read(uint32_t nowMs) {
     // holding a fixed temperature — the state machine will not fault for stall
     // unless it is actively in a cooldown state and expects a drop.
     if (sLocalMockEnabled) {
-        setLastReadings(nowMs, sLocalMockTempK, 0.0f, false, 0.0f, 0.0f);
-        rtdFaultActive = false;
+        setLastReadings(nowMs, sLocalMockTempC, 0.0f, false, 0.0f, 0.0f);
+        sRtdFaultActive = false;
         return;
     }
 
     {
-    mockInjected = false;   // real read supersedes any prior mock injection
+    sMockInjected = false;   // real read supersedes any prior mock injection
     // Voltage/current are owned by the amplifier module; pull the latest reading.
-    lastRmsVoltageV = amplifier::getLastRmsVoltage();
-    lastRmsCurrentA = amplifier::getLastRmsCurrent();
+    sLastRmsVoltageV = amplifier::getLastRmsVoltage();
+    sLastRmsCurrentA = amplifier::getLastRmsCurrent();
 
     const uint16_t rtd          = max31865.readRTD();
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
-    const float    tempK        = conversions::celsiusToKelvin(tempC);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
     const float    ambientTempC = imu::getTemperature();
 
@@ -279,8 +278,8 @@ void read(uint32_t nowMs) {
     }
 
     // --- plausibility check ---
-    const bool plausLow  = tempK < static_cast<float>(MIN_PLAUSIBLE_TEMP_K);
-    const bool plausHigh = tempK > static_cast<float>(MAX_PLAUSIBLE_TEMP_K);
+    const bool plausLow  = tempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C);
+    const bool plausHigh = tempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C);
     if (plausLow || plausHigh) {
         anyFault = true;
         const uint16_t  key  = plausLow ? FAULT_KEY_PLAUS_LOW : FAULT_KEY_PLAUS_HIGH;
@@ -290,17 +289,17 @@ void read(uint32_t nowMs) {
         if (emit) {
             const uint32_t suppressed = fl ? fl->suppressedCt : 0;
             if (suppressed > 0) {
-                _Log.printf("tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected"
+                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected"
                               " (+" PRIu32 " suppressed)",
-                         tempK,
-                         static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
-                         static_cast<float>(MAX_PLAUSIBLE_TEMP_K),
+                         tempC,
+                         static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
+                         static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C),
                          suppressed);
             } else {
-                _Log.printf("tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
-                         tempK,
-                         static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
-                         static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
+                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected",
+                         tempC,
+                         static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
+                         static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
             }
             if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
         } else {
@@ -315,48 +314,46 @@ void read(uint32_t nowMs) {
         }
     }
 
-    rtdFaultActive = anyFault;
+    sRtdFaultActive = anyFault;
 
-    lastTempC = tempC;
-    lastTempK = tempK;
-    lastAmbientTempC = ambientTempC;
-    pushSample(nowMs, tempK, ambientTempC, lastRmsVoltageV, lastRmsCurrentA);
+    sLastTempC = tempC;
+    sLastAmbientTempC = ambientTempC;
+    pushSample(nowMs, tempC, ambientTempC, sLastRmsVoltageV, sLastRmsCurrentA);
 
     // Feed the freshly computed ring-buffer rate into the running average so
-    // that getCoolingRateKPerMin() returns a smoothed value.
-    if (count >= 2) {
+    // that getCoolingRateCPerMin() returns a smoothed value.
+    if (sCount >= 2) {
         const auto& oldest = sampleAt(0);
-        const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
+        const auto& newest = sampleAt(static_cast<uint8_t>(sCount - 1));
         const uint32_t dtMs = newest.timestampMs - oldest.timestampMs;
         if (dtMs > 0) {
-            const float dTempK    = oldest.tempK - newest.tempK;
+            const float dTempC    = oldest.tempC - newest.tempC;
             const float dtMinutes = static_cast<float>(dtMs) / 60000.0f;
-            coolingRateAvg.addValue(dTempK / dtMinutes);
+            coolingRateAvg.addValue(dTempC / dtMinutes);
         }
     }
 
-    //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F / %.2f K\n",
-    //              rtd, resistance, tempC, tempF, tempK);
+    //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F\n",
+    //              rtd, resistance, tempC, tempF);
     } // real hardware path
 
     // Update the tracking monitor if it is active (Operating state only).
     if (tempTracker_) {
-        tempTracker_->update(targetTempK_, lastTempK, nowMs);
+        tempTracker_->update(targetTempC_, sLastTempC, nowMs);
     }
 }
 
-void setLastReadings(uint32_t nowMs, float tempK,
-                     float coolingRateKPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA) {
-    lastTempK         = tempK;
-    lastTempC         = tempK - 273.15f;
-    mockCoolingRate   = coolingRateKPerMin;
-    mockStalled       = stalled;
-    mockInjected      = true;
-    lastRmsVoltageV   = rmsVoltageV;
-    lastRmsCurrentA   = rmsCurrentA;
+void setLastReadings(uint32_t nowMs, float tempC,
+                     float coolingRateCPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA) {
+    sLastTempC         = tempC;
+    sMockCoolingRate   = coolingRateCPerMin;
+    sMockStalled       = stalled;
+    sMockInjected      = true;
+    sLastRmsVoltageV   = rmsVoltageV;
+    sLastRmsCurrentA   = rmsCurrentA;
     // Push a timestamped sample so the ring buffer stays current;
     // this lets real stall / rate code pick up correctly if mock is disabled.
-    pushSample(nowMs, tempK, lastAmbientTempC, rmsVoltageV, rmsCurrentA);
+    pushSample(nowMs, tempC, sLastAmbientTempC, rmsVoltageV, rmsCurrentA);
 }
 
 // float readAmbientTemperature() {
@@ -384,16 +381,12 @@ void checkFaults() {
     max31865.clearFault();
 }
 
-float getLastTempK() {
-    return lastTempK;
-}
-
 float getLastTempC() {
-    return lastTempC;
+    return sLastTempC;
 }
 
 bool hasSensorFault() {
-    return rtdFaultActive;
+    return sRtdFaultActive;
 }
 
 // float getLastAmbientTempC() {
@@ -401,11 +394,11 @@ bool hasSensorFault() {
 // }
 
 float getLastTempCBelowAmbient() {
-    return lastAmbientTempC - lastTempC;
+    return sLastAmbientTempC - sLastTempC;
 }
 
-float getCoolingRateKPerMin() {
-    if (mockInjected) return mockCoolingRate;
+float getCoolingRateCPerMin() {
+    if (sMockInjected) return sMockCoolingRate;
     // Return the running average of ring-buffer cooling rates for a smooth
     // readout.  Falls back to 0 until the first value has been added.
     if (coolingRateAvg.getCount() == 0) return 0.0f;
@@ -413,74 +406,74 @@ float getCoolingRateKPerMin() {
 }
 
 bool isStalled() {
-    if (mockInjected) return mockStalled;
+    if (sMockInjected) return sMockStalled;
     return false;
-    if (count < 2) return false;
+    if (sCount < 2) return false;
 
-    const auto& newest = sampleAt(static_cast<uint8_t>(count - 1));
+    const auto& newest = sampleAt(static_cast<uint8_t>(sCount - 1));
     const uint32_t windowStart = (newest.timestampMs >= STALL_DETECT_WINDOW_MS)
                                  ? newest.timestampMs - STALL_DETECT_WINDOW_MS
                                  : 0;
 
     // Find the oldest sample within the detection window
-    float refTempK = newest.tempK;
-    for (uint8_t i = 0; i < count; ++i) {
+    float refTempC = newest.tempC;
+    for (uint8_t i = 0; i < sCount; ++i) {
         const auto& s = sampleAt(i);
         if (s.timestampMs >= windowStart) {
-            refTempK = s.tempK;
+            refTempC = s.tempC;
             break;
         }
     }
 
     // Stalled if the drop within the window is below the minimum threshold
-    const float drop = refTempK - newest.tempK;
-    return (drop < STALL_MIN_DROP_K);
+    const float drop = refTempC - newest.tempC;
+    return (drop < STALL_MIN_DROP_C);
 }
 
 float getLastAmbientTempC(){
-    return lastAmbientTempC;
+    return sLastAmbientTempC;
 }
 
 float getTemperatureToPercent(){
-    const float tempK = getLastTempK();
-    const float T_MAX = AMBIENT_START_K;
-    const float T_MIN = SETPOINT_K;
+    const float tempC = getLastTempC();
+    const float T_MAX = AMBIENT_START_C;
+    const float T_MIN = SETPOINT_C;
 
     // Clamp temperature
-    //if (tempK >= T_MAX) return 0.0;
-    //if (tempK <= T_MIN) return 100.0;
+    //if (tempC >= T_MAX) return 0.0;
+    //if (tempC <= T_MIN) return 100.0;
 
     // Linear interpolation
-    float percent = (T_MAX - tempK) / (T_MAX - T_MIN) * 100.0;
+    float percent = (T_MAX - tempC) / (T_MAX - T_MIN) * 100.0;
 
     return percent;
 }
 
 float getLastRmsVoltage() {
-    return lastRmsVoltageV;
+    return sLastRmsVoltageV;
 }
 
 float getLastRmsCurrent() {
-    return lastRmsCurrentA;
+    return sLastRmsCurrentA;
 }
 
 // ---------------------------------------------------------------------------
 // Setpoint tracking
 // ---------------------------------------------------------------------------
 
-void setTargetTempK(float targetK) {
+void setTargetTempC(float targetC) {
     // Reset the timer when the target changes significantly, so the monitor
     // does not inherit stale elapsed time from the previous setpoint.
-    if (tempTracker_ && fabsf(targetK - targetTempK_) > COLD_HEAD_TRACK_HYSTERESIS_K) {
+    if (tempTracker_ && fabsf(targetC - targetTempC_) > COLD_HEAD_TRACK_HYSTERESIS_C) {
         tempTracker_->reset();
     }
-    targetTempK_ = targetK;
+    targetTempC_ = targetC;
 }
 
 void startTemperatureTracking() {
     tempTracker_.emplace(TrackingMonitor<float>::Config{
-        /* hysteresis     */ COLD_HEAD_TRACK_HYSTERESIS_K,
-        /* fullScale      */ COLD_HEAD_TRACK_FULL_SCALE_K,
+        /* hysteresis     */ COLD_HEAD_TRACK_HYSTERESIS_C,
+        /* fullScale      */ COLD_HEAD_TRACK_FULL_SCALE_C,
         /* warningDelayMs */ COLD_HEAD_TRACK_WARNING_MS,
         /* faultDelayMs   */ COLD_HEAD_TRACK_FAULT_MS,
         /* tag            */ TAG,
@@ -504,10 +497,10 @@ TrackingMonitor<float>::State getTemperatureTrackingState() {
 // Module-local RTD mock API
 // ---------------------------------------------------------------------------
 
-void enableMock(float tempK) {
+void enableMock(float tempC) {
     sLocalMockEnabled = true;
-    sLocalMockTempK   = tempK;
-    _Log.printf("Local RTD mock enabled at %.2f K (%.2f C)", tempK, tempK - 273.15f);
+    sLocalMockTempC   = tempC;
+    _Log.printf("Local RTD mock enabled at %.2f C", tempC);
 #ifdef ARDUINO
     // If the module hasn't initialised successfully yet (e.g. MAX31865 absent),
     // run init() now — it will short-circuit through initRTD()'s mock branch and

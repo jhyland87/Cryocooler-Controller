@@ -63,7 +63,8 @@ static float pitch_    = 0.0f;
 static float yaw_      = 0.0f;
 static float accelMag_ = 0.0f;
 //static float gyroMag_  = 0.0f;
-static float imuTemp_  = 0.0f;
+static float imuTemp_         = 0.0f;
+static bool  imuTempPlausible_ = false;
 static float frequency_ = 0.0f;
 // Motion / overstroke detection
 static bool     motionDetected_ = false;
@@ -330,9 +331,15 @@ module::ServiceStatus service() {
     {
         float tempReading = imuTemp_;  // keep last good value on failure
         if (sensor.readTemp(tempReading)) {
-            imuTemp_ = tempReading;
+            if (tempReading >= MIN_PLAUSIBLE_AMBIENT_TEMP_C && tempReading <= MAX_PLAUSIBLE_AMBIENT_TEMP_C) {
+                imuTemp_          = tempReading;
+                imuTempPlausible_ = true;
+            } else {
+                imuTempPlausible_ = false;
+            }
         } else {
             _Log.println("readTemp() failed — temperature register unavailable");
+            imuTempPlausible_ = false;
         }
     }
 
@@ -427,6 +434,7 @@ float getAccelY()        { return filtAccelY_;      }
 float getAccelZ()        { return filtAccelZ_;      }
 float getAccelMag()      { return accelMag_;        }
 //float getGyroMag()       { return gyroMag_;         }
-float getTemperature()   { return imuTemp_;         }
+float getTemperature()         { return imuTemp_;          }
+bool  isTemperaturePlausible() { return imuTempPlausible_; }
 
 } // namespace imu

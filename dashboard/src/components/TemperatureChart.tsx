@@ -76,6 +76,7 @@ export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
       </Typography>
       <LineChart
         xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
+        yAxis={[{ min: -200, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
         series={series}
         height={220}
         skipAnimation

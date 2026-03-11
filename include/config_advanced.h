@@ -152,6 +152,7 @@
 // ADC oversampling factor for the NTC temperature read (16 samples averaged).
 #define COOLING_TEMP_OVERSAMPLE       static_cast<uint8_t>(16)
 
+
 // =============================================================================
 // TCA9548A I2C Multiplexer (EMC2101 fan + pump routing)
 // =============================================================================
@@ -237,10 +238,10 @@
 // =============================================================================
 
 // Deadband: temperature must deviate beyond this to start the warning timer.
-#define COLD_HEAD_TRACK_HYSTERESIS_K        1.0f
+#define COLD_HEAD_TRACK_HYSTERESIS_C        1.0f
 
 // Deviation at which the tracking score reaches 0%.
-#define COLD_HEAD_TRACK_FULL_SCALE_K       10.0f
+#define COLD_HEAD_TRACK_FULL_SCALE_C       10.0f
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COLD_HEAD_TRACK_WARNING_MS         static_cast<uint32_t>(60000)   // 60 s

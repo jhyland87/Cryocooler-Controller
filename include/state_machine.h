@@ -18,8 +18,8 @@
  *  127 Fault          - Any fault condition: FAULT flash fast RED, alarm relay active (terminal state), amplifier relay off
  *
  * Transition inputs on every update() call:
- *   - tempK          : current cold-stage temperature in Kelvin
- *   - coolingRate    : K/min (positive = cooling)
+ *   - tempC          : current cold-stage temperature in Celsius
+ *   - coolingRate    : C/min (positive = cooling)
  *   - rmsVoltage     : measured RMS voltage (stub; 0.0 until implemented)
  *   - stalled        : true when temp has not dropped enough in STALL_DETECT_WINDOW_MS
  *   - nowMs          : current millis()
@@ -64,8 +64,8 @@ namespace state_machine {
     X(Off,            -1,  "Off",            "System is off")                                                            \
     X(Initialize,      0,  "Initialize",     "Initial power up state")                                                   \
     X(Idle,            1,  "Idle",           "Cold stage is warm; dewar is not cooling")                                 \
-    X(CoarseCooldown,  2,  "CoarseCooldown", "Cooling; cold stage is above 85K")                                         \
-    X(FineCooldown,    3,  "FineCooldown",   "Cooling; cold stage is below 85K")                                         \
+    X(CoarseCooldown,  2,  "CoarseCooldown", "Cooling; cold stage is above -188 °C")                                    \
+    X(FineCooldown,    3,  "FineCooldown",   "Cooling; cold stage is below -188 °C")                                     \
     X(Overshoot,       4,  "Overshoot",      "Cold stage is cooler than set point; integrator is settling")              \
     X(Settle,          5,  "Settle",         "Cold stage temperature is settling; circuits switched to Normal")           \
     X(Baseline,        6,  "Baseline",       "Cold stage temperature has settled; collecting baseline data")              \
@@ -101,7 +101,7 @@ enum class FaultReason : uint8_t {
     TooManyBackoffs   = 1u << 2,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
     LowSystemVoltage  = 1u << 3,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
     StateOscillation  = 1u << 4,  ///< FSM bouncing between the same two states too many times
-    SensorFault       = 1u << 5,  ///< RTD hardware fault or tempK outside MIN/MAX_PLAUSIBLE_TEMP_K
+    SensorFault       = 1u << 5,  ///< RTD hardware fault or tempC outside MIN/MAX_PLAUSIBLE_COLDHEAD_TEMP_C
     RmsOvercurrent    = 1u << 6,  ///< amplifier RMS current exceeded AMPLIFIER_MAX_CURRENT_A
     ModuleNotReady    = 1u << 7,  ///< a required control module was not initialised when a cooling
                                   // state was entered
@@ -174,8 +174,8 @@ uint32_t getOnStateDuration();
 /**
  * Advance the state machine by one tick.
  *
- * @param tempK         Current cold-stage temperature in Kelvin
- * @param coolingRate   Measured cooling rate in K/min (positive = cooling)
+ * @param tempC         Current cold-stage temperature in Celsius
+ * @param coolingRate   Measured cooling rate in C/min (positive = cooling)
  * @param rmsVoltage    Measured RMS voltage in VDC (stub returns 0)
  * @param stalled       True when stall-detection window has expired without a
  *                      sufficient temperature drop
@@ -191,7 +191,7 @@ uint32_t getOnStateDuration();
  *                      immediately transitions to Fault from any state.
  * @return              Output struct with all actuator targets for this tick
  */
-Output update(float    tempK,
+Output update(float    tempC,
               float    coolingRate,
               float    rmsVoltage,
               bool     stalled,
@@ -213,10 +213,10 @@ bool isRunning();
  * so the system can resume correctly after a reboot without triggering
  * spurious stall faults:
  *
- *   tempK >= COARSE_FINE_THRESHOLD_K  →  CoarseCooldown  (normal warm start)
- *   tempK in setpoint band            →  Settle           (already at temperature)
- *   tempK below setpoint band         →  Overshoot        (integrator settling)
- *   tempK below threshold but above   →  FineCooldown
+ *   tempC >= COARSE_FINE_THRESHOLD_C  →  CoarseCooldown  (normal warm start)
+ *   tempC in setpoint band            →  Settle           (already at temperature)
+ *   tempC below setpoint band         →  Overshoot        (integrator settling)
+ *   tempC below threshold but above   →  FineCooldown
  *     setpoint band
  *
  * Has no effect if the machine is already running.
@@ -226,10 +226,10 @@ bool isRunning();
  * this function.  Use state_machine::checkControlModules() for that check.
  *
  * @param nowMs   Current millis()
- * @param tempK   Current cold-stage temperature in Kelvin.
- *                Defaults to AMBIENT_START_K (warm start / unknown temp).
+ * @param tempC   Current cold-stage temperature in Celsius.
+ *                Defaults to AMBIENT_START_C (warm start / unknown temp).
  */
-void start(uint32_t nowMs, float tempK = AMBIENT_START_K);
+void start(uint32_t nowMs, float tempC = AMBIENT_START_C);
 
 /**
  * Stop the cooldown process and return to Idle via the Shutdown ramp.
@@ -407,12 +407,12 @@ uint32_t getTimeInState();
 // which inject deterministic timestamps rather than calling millis().
 
 #ifdef ARDUINO
-inline Output update(float tempK, float coolingRate, float rmsVoltage, bool stalled,
+inline Output update(float tempC, float coolingRate, float rmsVoltage, bool stalled,
                      bool overstroke = false, float systemVoltage = 0.0f) {
-    return update(tempK, coolingRate, rmsVoltage, stalled,
+    return update(tempC, coolingRate, rmsVoltage, stalled,
                   millis(), overstroke, systemVoltage);
 }
-inline void start(float tempK = AMBIENT_START_K) { start(millis(), tempK); }
+inline void start(float tempC = AMBIENT_START_C) { start(millis(), tempC); }
 inline void stop()       { stop(millis()); }
 inline void clearFault() { clearFault(millis()); }
 inline void off()        { off(millis()); }

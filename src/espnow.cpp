@@ -247,11 +247,10 @@ static void fillPacket(TelemetryPacket& pkt) {
     pkt.faults_count_60m       = state_machine::countRecentFaults(3600000u, nowMs);
 
     // Cold head
-    pkt.cold_head_temp_k                  = cold_head::getLastTempK();
     pkt.cold_head_temp_c                  = cold_head::getLastTempC();
     pkt.cold_head_ambient_temp_c          = cold_head::getLastAmbientTempC();
     pkt.cold_head_delta_below_ambient_c   = cold_head::getLastTempCBelowAmbient();
-    pkt.cold_head_cooling_rate            = cold_head::getCoolingRateKPerMin();
+    pkt.cold_head_cooling_rate            = cold_head::getCoolingRateCPerMin();
     pkt.cold_head_cooldown_pct            = cold_head::getTemperatureToPercent();
     pkt.cold_head_voltage_v               = cold_head::getLastRmsVoltage();
     pkt.cold_head_current_a               = cold_head::getLastRmsCurrent();
