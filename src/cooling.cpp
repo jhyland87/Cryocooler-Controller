@@ -291,6 +291,16 @@ static bool selectMuxChannel(uint8_t channel) {
     return true;
 }
 
+// Disconnect all downstream channels so the mux no longer adds bus
+// capacitance / load to the shared I2C bus between cooling service cycles.
+// Other devices (IMU, INA237, relays) communicate on the main bus without
+// the extra electrical path through the mux's FET switches.
+static void deselectMuxChannels() {
+    hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
+    hardware::i2c().write(static_cast<uint8_t>(0x00));
+    hardware::i2c().endTransmission();
+}
+
 // ---------------------------------------------------------------------------
 // fanInit — configure the fan EMC2101 on TCA9548A channel 0
 //
@@ -436,6 +446,10 @@ module::InitStatus init() {
     if (st != module::MODULE_INIT_SUCCESS) return st;
   }
 
+  // Disconnect mux channels — no downstream bus segments stay connected
+  // while other modules initialise or run their service loops.
+  deselectMuxChannels();
+
   // ── Coolant sensor setup ───────────────────────────────────────────────────
 
   // Flow sensor: interrupt on the falling edge of each Hall-effect pulse.
@@ -522,25 +536,37 @@ module::ServiceStatus service() {
   // Snapshot all EMC2101 values in one place.  Accessors (getFanSpeed,
   // isCoolingFanOn, getFanRPM) return these cached copies so that the
   // telemetry emit path never touches the I2C bus outside this function.
-  selectMuxChannel(TCA9548A_CHANNEL_FAN);
-  cachedDutyCycle_ = fanController_.getDutyCycle();
-  cachedFanRpm_    = fanController_.getFanRPM();
+  if (selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
+    ESP_LOGV(TAG, "service: reading fan EMC2101 (ch %u)", TCA9548A_CHANNEL_FAN);
+    cachedDutyCycle_ = fanController_.getDutyCycle();
+    cachedFanRpm_    = fanController_.getFanRPM();
+  } else {
+    ESP_LOGE(TAG, "service: fan mux select failed — skipping fan reads");
+  }
   const uint8_t dc = cachedDutyCycle_;
 
   // ── Pump EMC2101: push forced temperature and cache readings ───────────
-  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  if (selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
+    ESP_LOGV(TAG, "service: reading pump EMC2101 (ch %u)", TCA9548A_CHANNEL_PUMP);
 
-  // Feed the averaged NTC coolant temperature into the pump EMC2101.
-  // The IC's LUT will then set the pump duty cycle accordingly.
-  if (coolantTemperature_ > 0.0f) {
-    int16_t forcedTemp = static_cast<int16_t>(roundf(coolantTemperature_));
-    if (forcedTemp < 0)   forcedTemp = 0;
-    if (forcedTemp > 127) forcedTemp = 127;
-    pumpController_.setForcedTemperature(static_cast<int8_t>(forcedTemp));
+    // Feed the averaged NTC coolant temperature into the pump EMC2101.
+    // The IC's LUT will then set the pump duty cycle accordingly.
+    if (coolantTemperature_ > 0.0f) {
+      int16_t forcedTemp = static_cast<int16_t>(roundf(coolantTemperature_));
+      if (forcedTemp < 0)   forcedTemp = 0;
+      if (forcedTemp > 127) forcedTemp = 127;
+      pumpController_.setForcedTemperature(static_cast<int8_t>(forcedTemp));
+    }
+
+    cachedPumpDutyCycle_ = pumpController_.getDutyCycle();
+    cachedPumpRpm_       = pumpController_.getFanRPM();
+  } else {
+    ESP_LOGE(TAG, "service: pump mux select failed — skipping pump reads");
   }
 
-  cachedPumpDutyCycle_ = pumpController_.getDutyCycle();
-  cachedPumpRpm_       = pumpController_.getFanRPM();
+  // Disconnect all mux channels so the downstream bus segments no longer
+  // load the shared I2C bus while other modules (IMU, INA237, etc.) talk.
+  deselectMuxChannels();
 
   // Fan speed tracker: only meaningful in forced/manual mode.
   // In LUT mode the IC owns the duty cycle — no external setpoint exists.
@@ -630,6 +656,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGD(TAG, "setFanSpeed(%u): dutyCycle=%u%% LUT=%s",
            percentage, fanController_.getDutyCycle(),
            fanController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
+  deselectMuxChannels();
 }
 
 // ---------------------------------------------------------------------------
@@ -656,6 +683,7 @@ void enable() {
     ESP_LOGW(TAG, "enable(): pump LUTEnabled(true) failed");
   }
 
+  deselectMuxChannels();
   ESP_LOGD(TAG, "enable(): fan and pump LUT enabled");
 }
 
@@ -694,6 +722,7 @@ void disable() {
     ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) post-write failed");
   }
 
+  deselectMuxChannels();
   ESP_LOGD(TAG, "disable(): fan and pump stopped");
 }
 

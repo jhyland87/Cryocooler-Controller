@@ -269,7 +269,7 @@ module::InitStatus init() {
     // which on Core 2.x can leave the driver state machine non-idle.
     ///hardware::recoverI2c();
 
-    if (!sensor.begin(hardware::i2c(), QMI8658_ADDRESS_HIGH)) {
+    if (!sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS)) {
         log_e("[imu] QMI8658 not found — check wiring and I2C address");
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }

@@ -319,6 +319,12 @@
 // Time (ms) continuously outside the band before a FAULT is raised.
 #define COOLING_FLOW_TRACK_FAULT_MS         static_cast<uint32_t>(30000)   // 30 s
 
+
+// ====
+// IMU
+// =============================================================================
+#define QMI8658_IMU_ADDRESS 0x6A // 0x6B is alternative, if A0 is tied high.
+
 // =============================================================================
 // Misc stuff
 // =============================================================================

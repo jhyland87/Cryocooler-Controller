@@ -84,12 +84,12 @@
 // Hall-effect flow pulse input (open-drain, active LOW).
 // Requires a 10 kΩ pull-up to 3.3 V on the line; the internal INPUT_PULLUP
 // is used as a backup but an external resistor is strongly recommended.
-#define COOLING_FLOW_PIN         4
+#define COOLING_FLOW_PIN         10
 
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
 // Use ADC1 channels only (GPIO 1–10 on ESP32-S3) to avoid ADC2 Wi-Fi conflicts.
-#define COOLING_TEMP_ADC_PIN     3
+#define COOLING_TEMP_ADC_PIN     2
 
 // =============================================================================
 // On-board WS2812 RGB Status LED

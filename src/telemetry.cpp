@@ -364,14 +364,14 @@ static void buildStartupFrame(FrameBuilder& frame)
     // ── Cooling ───────────────────────────────────────────────────────────
     if (coolingReady) {
         frame
-            .field("cooling.status",        "%d",   cooling::isEnabled())
-            .field("cooling.pump_on",       "%d",   cooling::isCoolingPumpOn())
-            .field("cooling.temp_c",        "%.2f", cooling::getCoolantTemperature())
-            .field("cooling.flow_rate_lpm", "%.3f", cooling::getCoolantFlowRate())
-            .field("cooling.fan_speed",     "%u",   cooling::getFanSpeed())
-            .field("cooling.fan_rpm",       "%u",   cooling::getFanRPM())
-            .field("cooling.pump_speed",    "%u",   cooling::getPumpSpeed())
-            .field("cooling.pump_rpm",      "%u",   cooling::getPumpRPM());
+            .field("cooling.status",         "%d",   cooling::isEnabled())
+            .field("cooling.pump_on",        "%d",   cooling::isCoolingPumpOn())
+            .field("cooling.temp_c",         "%.2f", cooling::getCoolantTemperature())
+            .field("cooling.flow_rate_lpm",  "%.3f", cooling::getCoolantFlowRate())
+            .field("cooling.fan_speed",      "%u",   cooling::getFanSpeed())
+            .field("cooling.fan_rpm",        "%u",   cooling::getFanRPM())
+            .field("cooling.pump_speed",     "%u",   cooling::getPumpSpeed())
+            .field("cooling.pump_rpm",       "%u",   cooling::getPumpRPM());
     } else {
         frame
             .field("cooling.status",        "%s", "")
