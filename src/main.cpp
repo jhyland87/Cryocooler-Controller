@@ -30,6 +30,7 @@
 #include "amplifier.h"
 #include "compressor.h"
 #include "logger.h"
+#include "esp_log.h"
 #include "ota.h"
 #include "espnow.h"
 // =============================================================================
@@ -39,6 +40,8 @@
 // =============================================================================
 // Init helper
 // =============================================================================
+
+static constexpr char TAG[] = "main";
 
 /**
  * Call initFn() until it stops returning MODULE_INIT_IN_PROGRESS, then log
@@ -69,6 +72,7 @@ static module::InitStatus initModule(const char* name, Fn&& initFn) {
 // =============================================================================
 
 static uint32_t previousLoopMs = 0;
+static uint32_t previousIndicatorUpdateMs = 0;
 
 static uint32_t sSerialConnectionEstablishedMs = 0;
 static uint32_t sSerialLastDetectedMs = 0;
@@ -197,9 +201,9 @@ static void initControlModules() {
 
 void setup() {
     Serial.begin(SERIAL_BAUD);
-
-    //while (!Serial.available()) delay(100);
     delay(1000);
+    Serial.println("Serial begin");
+    //while (!Serial.available()) delay(100);
 
     Log.printf("[setup] Starting up\n");
     Log.println("Cryocooler Controller -- starting up");
@@ -249,8 +253,16 @@ void setup() {
 // Main Loop
 // =============================================================================
 
+int serialAvailable = 0;
 
 void loop() {
+    if ( Serial.available() != serialAvailable) {
+        serialAvailable = Serial.available();
+        ESP_LOGD(TAG, "Serial available: %d", static_cast<int>(serialAvailable));
+    }
+    //while (Serial.available()) { Serial.print("Serial:"); Serial.println(Serial.read()); }
+    //while (Serial.available()) { Serial.read(); }
+    //return;
     // One-time banner on the very first loop() iteration.
     // Lets the user know the loop has started and the console is ready —
     // i.e. this is the right moment to start typing commands.
@@ -260,7 +272,7 @@ void loop() {
         sLoopStarted = true;
         // Drain any characters that arrived in the USB RX buffer during setup
         // so they don't accidentally dispatch stale commands.
-        while (Serial.available()) { Serial.read(); }
+        //while (Serial.available()) { Serial.print("Serial:"); Serial.println(Serial.read()); }
         Log.println();
         Log.println(">>> Serial console active. Type 'help' for commands. <<<");
         Log.println("    (setup may have partially failed — check status above)");
@@ -298,34 +310,44 @@ void loop() {
 
     const uint32_t nowMs = millis();
 
-    // Indicator LEDs update every loop for accurate flash timing
-    indicator::update(nowMs);
+    if ((nowMs - previousIndicatorUpdateMs) < INDICATOR_UPDATE_INTERVAL_MS) {
+        indicator::update();
+        previousIndicatorUpdateMs = nowMs;
+    }
 
     // Main control tick at LOOP_INTERVAL_MS cadence
     if ((nowMs - previousLoopMs) < LOOP_INTERVAL_MS) {
         return;
     }
     previousLoopMs = nowMs;
+    indicator::update();
 
     // ---- 1. Read sensors ------------------------------------------------
     // Advance any active mock ramps before module reads, so that every module
     // sees the updated value on the same tick.
-    sensor_mock::service(nowMs);
+    sensor_mock::service();
 
     // Each module handles mock mode internally: when sensor_mock::isActive(),
     // read()/service() pulls from sensor_mock::get() instead of hardware.
-    cold_head::read(nowMs);
+    cold_head::read();
     cold_head::checkFaults();
 
     // Read cached values.
     const float tempK       = cold_head::getLastTempK();
+    //Serial.printf("tempK: %f\n", tempK);
     const float tempC       = cold_head::getLastTempC();
+    //Serial.printf("tempC: %f\n", tempC);
     const float coolingRate = cold_head::getCoolingRateKPerMin();
+    //Serial.printf("coolingRate: %f\n", coolingRate);
     const bool  stalled     = cold_head::isStalled();
-    const float rmsV        = amplifier::getLastRmsVoltage();
-    const bool  overstroke  = imu::hasOverstroke();
-    const float sysVoltage  = sysinfo::getVoltage();
+    //Serial.printf("stalled: %d\n", stalled);
 
+    const float rmsV        = amplifier::getLastRmsVoltage();
+    //Serial.printf("rmsV: %f\n", rmsV);
+    const bool  overstroke  = imu::hasOverstroke();
+    //Serial.printf("overstroke: %d\n", overstroke);
+    const float sysVoltage  = sysinfo::getVoltage();
+    //Serial.printf("sysVoltage: %f\n", sysVoltage);
     // ---- 2. Advance state machine ---------------------------------------
     const auto out = state_machine::update(tempK, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
     // Clear edge-triggered overstroke flag after the state machine has consumed

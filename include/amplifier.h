@@ -119,6 +119,10 @@ void rampToVoltage(uint16_t dacTarget, uint16_t rampRate = AMPLIFIER_RAMP_RATE_S
  */
 void rampTowardShutdown(uint16_t dacTarget);
 
+void setRmsVoltagePercent(float percent);
+
+void rampToRmsVoltagePercent(float percent, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
+
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
  * the cached-value guard.  Call from any hard power-off or emergency-stop

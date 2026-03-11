@@ -37,6 +37,7 @@
 #include "module.h"
 #include "hardware.h"
 #include "tracking.h"
+#include "logger.h"
 
 
 static Adafruit_EMC2101 fanController_;
@@ -310,11 +311,13 @@ static void deselectMuxChannels() {
 static module::InitStatus fanInit() {
   if (!selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
     ESP_LOGE(TAG, "fanInit: mux channel select failed");
+    Log.printf("[cooling] fanInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
   if (!fanController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
     ESP_LOGE(TAG, "fanInit: failed to find fan EMC2101");
+    Log.printf("[cooling] fanInit: failed to find fan EMC2101\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
@@ -371,11 +374,13 @@ static module::InitStatus fanInit() {
 static module::InitStatus pumpInit() {
   if (!selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
     ESP_LOGE(TAG, "pumpInit: mux channel select failed");
+    Log.printf("[cooling] pumpInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
   if (!pumpController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
     ESP_LOGE(TAG, "pumpInit: failed to find pump EMC2101");
+    Log.printf("[cooling] pumpInit: failed to find pump EMC2101\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
@@ -430,11 +435,13 @@ static module::InitStatus pumpInit() {
 // ---------------------------------------------------------------------------
 module::InitStatus init() {
   ESP_LOGD(TAG, "Initializing cooling system");
+  Log.printf("[cooling] Initializing cooling system\n");
 
   // ── Verify TCA9548A mux is present ──────────────────────────────────────
   hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
   if (hardware::i2c().endTransmission() != 0) {
     ESP_LOGE(TAG, "TCA9548A not found at 0x%02X", TCA9548A_I2C_ADDRESS);
+    Log.printf("[cooling] TCA9548A not found at 0x%02X\n", TCA9548A_I2C_ADDRESS);
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
   ESP_LOGD(TAG, "TCA9548A found at 0x%02X", TCA9548A_I2C_ADDRESS);
@@ -442,13 +449,17 @@ module::InitStatus init() {
   // ── Fan EMC2101 (mux channel 0) ────────────────────────────────────────
   {
     const module::InitStatus st = fanInit();
-    if (st != module::MODULE_INIT_SUCCESS) return st;
+    if (st != module::MODULE_INIT_SUCCESS) {
+      return st;
+    }
   }
 
   // ── Pump EMC2101 (mux channel 1) ───────────────────────────────────────
   {
     const module::InitStatus st = pumpInit();
-    if (st != module::MODULE_INIT_SUCCESS) return st;
+    if (st != module::MODULE_INIT_SUCCESS) {
+      return st;
+    }
   }
 
   // Disconnect mux channels — no downstream bus segments stay connected
@@ -480,7 +491,9 @@ module::InitStatus init() {
 
   ESP_LOGD(TAG, "init: flow sensor GPIO%d, temp ADC GPIO%d",
            COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
-
+  Log.printf("[cooling] init: flow sensor GPIO%d, temp ADC GPIO%d\n",
+           COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
+  Log.println("[cooling] Cooling system initialized");
   return module::MODULE_INIT_SUCCESS;
 }
 
@@ -488,6 +501,10 @@ module::InitStatus init() {
 // service
 // ---------------------------------------------------------------------------
 module::ServiceStatus service() {
+  if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
+    return module::MODULE_SERVICE_NOT_STARTED;
+  }
+
   const uint32_t nowMs = millis();
   bool didWork = false;
 

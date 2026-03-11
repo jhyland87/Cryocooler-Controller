@@ -36,6 +36,7 @@
 #include "ota.h"
 #include "compressor.h"
 #endif
+#include "logger.h"
 
 namespace commands {
 
@@ -227,7 +228,7 @@ static void handleVoutGet(const char* /*args*/, Print& out) {
 
 static void handleVoutSet(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: vout set <0-120VAC>");
+        out.println("[ERR] Usage: vout set <0-120V> or <0-100%>");
         return;
     }
 
@@ -241,20 +242,58 @@ static void handleVoutSet(const char* args, Print& out) {
         ++digits;
     }
 
-    // Reject: no digits, trailing non-whitespace garbage, or out-of-range.
-    if (digits == 0 || (*p != '\0' && *p != ' ' && *p != '\t') || val > 120u) {
+    // Reject if no digits were found.
+    if (digits == 0) {
         char buf[64];
         snprintf(buf, sizeof(buf),
-                 "[ERR] vout set: invalid argument '%s' (expected 0-120V)", args);
+                 "[ERR] vout set: invalid argument '%s' (expected 0-120V or 0-100%%)", args);
         out.println(buf);
         return;
     }
 
-    int setDacValue = map(val, 0, 120, 0, AMPLIFIER_RESOLUTION);
-    amplifier::setRmsVoltage(static_cast<uint16_t>(setDacValue));
-    char buf[48];
-    snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
-    out.println(buf);
+    // Check for an optional trailing '%' to select percent mode.
+    const bool isPercent = (*p == '%');
+    if (isPercent) {
+        ++p;  // advance past '%'
+    }
+
+    // Reject trailing non-whitespace garbage after the value (or after '%').
+    if (*p != '\0' && *p != ' ' && *p != '\t') {
+        char buf[64];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] vout set: invalid argument '%s' (expected 0-120V or 0-100%%)", args);
+        out.println(buf);
+        return;
+    }
+
+    if (isPercent) {
+        if (val > 100u) {
+            char buf[64];
+            snprintf(buf, sizeof(buf),
+                     "[ERR] vout set: percent out of range '%u%%' (expected 0-100%%)",
+                     static_cast<unsigned>(val));
+            out.println(buf);
+            return;
+        }
+        amplifier::setRmsVoltagePercent(static_cast<float>(val));
+        char buf[48];
+        snprintf(buf, sizeof(buf), "[OK] Voltage set to %u%%", static_cast<unsigned>(val));
+        out.println(buf);
+    } else {
+        if (val > 120u) {
+            char buf[64];
+            snprintf(buf, sizeof(buf),
+                     "[ERR] vout set: voltage out of range '%uV' (expected 0-120V)",
+                     static_cast<unsigned>(val));
+            out.println(buf);
+            return;
+        }
+        int setDacValue = map(val, 0, 120, 0, AMPLIFIER_RESOLUTION);
+        amplifier::setRmsVoltage(static_cast<uint16_t>(setDacValue));
+        char buf[48];
+        snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
+        out.println(buf);
+    }
 }
 
 static void handleCoolingFan(const char* args, Print& out) {
@@ -748,7 +787,7 @@ static const Command commandMap[] = {
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
-    {"set vout",            handleVoutSet,         "Set dac output voltage (0-120)"},
+    {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V or e.g. 75%)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
     {"relay amplifier",     handleRelayAmplifier,   "Energise or de-energise the amplifier relay (on|off)"},
@@ -786,6 +825,7 @@ void processLine(const char* line, Print& out) {
     // Skip leading whitespace.
     while (*line == ' ' || *line == '\t') { ++line; }
     if (*line == '\0') return;
+    out.printf("[commands] Received > %s\n", line);
 
 #ifdef ARDUINO
     // ── OTA confirmation intercept ────────────────────────────────────────────
@@ -860,7 +900,7 @@ module::ServiceStatus service() {
             // buffer (lineLen == 0) and is a no-op — no double dispatch.
             if (lineLen > 0) {
                 lineBuf[lineLen] = '\0';
-                processLine(lineBuf, Serial);
+                processLine(lineBuf, Log);
                 lineLen = 0;
             }
         } else if (lineLen < maxLineLen) {
@@ -876,7 +916,7 @@ module::ServiceStatus service() {
     // the full string as one USB-CDC packet without appending \r or \n.
     if (lineLen > 0 && (millis() - lastCharMs) >= commandTimeoutMs) {
         lineBuf[lineLen] = '\0';
-        processLine(lineBuf, Serial);
+        processLine(lineBuf, Log);
         lineLen = 0;
     }
 #endif

@@ -126,6 +126,9 @@
 // Main loop read/update interval (milliseconds).
 #define LOOP_INTERVAL_MS  static_cast<uint32_t>(200)
 
+// How often the indicator updates (milliseconds).
+#define INDICATOR_UPDATE_INTERVAL_MS  static_cast<uint32_t>(100)
+
 // How often the cooling module updates its tracking monitors (milliseconds).
 #define COOLING_CHECK_CYCLE_MS  static_cast<uint32_t>(1000)
 

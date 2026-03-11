@@ -71,8 +71,8 @@ void setReadyMode(Mode mode);
  */
 void update(uint32_t nowMs);
 
-
 inline void update() { update(millis()); }
+
 /**
  * Return true if the FAULT (red) LED is currently lit this tick.
  * Accounts for flash modes — returns the instantaneous on/off state.

@@ -56,6 +56,7 @@ class TrackingMonitor {
 public:
     /** Tracking state — normal, deviating, or faulted. */
     enum class State : uint8_t {
+        UNKNOWN,
         IN_RANGE,  ///< |error| <= hysteresis — value is on target
         WARNING,   ///< |error| > hysteresis for >= warningDelayMs
         FAULT,     ///< |error| > hysteresis for >= faultDelayMs
@@ -136,6 +137,8 @@ public:
         }
     }
 
+    void update(T setpoint, T measured) { update(setpoint, measured, millis()); }
+
     /**
      * Reset to IN_RANGE and clear the out-of-band timer.
      *
@@ -144,7 +147,7 @@ public:
      * in a state where tracking is not meaningful (e.g. LUT-controlled fan).
      */
     void reset() {
-        state_            = State::IN_RANGE;
+        state_            = State::UNKNOWN;
         outOfBand_        = false;
         outOfBandSinceMs_ = 0u;
         lastError_        = 0.0f;
@@ -160,6 +163,7 @@ public:
     }
 
     State getState()  const { return state_;                    }
+    bool  isUnknown() const { return state_ == State::UNKNOWN;  }
     bool  isInRange() const { return state_ == State::IN_RANGE; }
     bool  isWarning() const { return state_ == State::WARNING;  }
     bool  isFault()   const { return state_ == State::FAULT;    }
@@ -169,7 +173,7 @@ public:
 
 private:
     Config   cfg_;
-    State    state_            = State::IN_RANGE;
+    State    state_            = State::UNKNOWN;
     bool     outOfBand_        = false;
     uint32_t outOfBandSinceMs_ = 0u;
     float    lastError_        = 0.0f;
