@@ -9,6 +9,8 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "esp32-hal-i2c.h"      // i2cIsInit(), i2cBusHandle() (Core 3.x / IDF 5.x)
+#include "esp_log.h"
+#include "logger.h"
 #if ESP_ARDUINO_VERSION_MAJOR >= 3
 #include "driver/i2c_master.h"  // i2c_master_bus_reset() — IDF 5.x only
 #endif
@@ -36,14 +38,14 @@ namespace hardware {
     }
 
     module::InitStatus initSPI() {
-        log_i("[hardware] Initialising SPI bus (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        ESP_LOGI("hardware", "Initialising SPI bus (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
         SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
-        log_i("[hardware] SPI bus initialised (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        ESP_LOGI("hardware", "SPI bus initialised (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
         return module::InitStatus::MODULE_INIT_SUCCESS;
     }
 
     module::InitStatus initI2C() {
-        log_i("[hardware] Initialising I2C bus (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
+        ESP_LOGI("hardware", "Initialising I2C bus (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         // Initialise the shared Wire bus once with the correct pins.
         Wire.begin(SDA_PIN, SCL_PIN);
 
@@ -53,13 +55,14 @@ namespace hardware {
         // Wire.begin() failures must be caught differently.
         #if ESP_ARDUINO_VERSION_MAJOR >= 3
         if (!i2cIsInit(0)) {
-            log_e("[hardware] Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
+            ESP_LOGE("hardware", "Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
+            _Log.println("Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
             return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
         }
-        log_d("[hardware] I2C bus 0 initialised (SDA=%d SCL=%d, handle=%p)",
+        ESP_LOGD("hardware", "I2C bus 0 initialised (SDA=%d SCL=%d, handle=%p)",
                 SDA_PIN, SCL_PIN, i2cBusHandle(0));
         #else
-        log_i("[hardware] I2C bus initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
+        ESP_LOGI("hardware", "I2C bus initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         #endif
 
         return module::InitStatus::MODULE_INIT_SUCCESS;
@@ -78,10 +81,10 @@ namespace hardware {
         if (handle != nullptr) {
             const esp_err_t err = i2c_master_bus_reset(handle);
             if (err == ESP_OK) {
-                log_i("[hardware] I2C bus reset via i2c_master_bus_reset()");
+                ESP_LOGI("hardware", "I2C bus reset via i2c_master_bus_reset()");
                 return;
             }
-            log_w("[hardware] i2c_master_bus_reset() failed (%d) — falling back to Wire.end/begin",
+            ESP_LOGW("hardware", "i2c_master_bus_reset() failed (%d) — falling back to Wire.end/begin",
                   static_cast<int>(err));
         }
 #endif
@@ -90,7 +93,7 @@ namespace hardware {
         // Also used as a last-resort fallback on Core 3.x if bus_reset fails.
         Wire.end();
         Wire.begin(SDA_PIN, SCL_PIN);
-        log_i("[hardware] I2C bus recovered via Wire.end/Wire.begin");
+        ESP_LOGI("hardware", "I2C bus recovered via Wire.end/Wire.begin");
     }
 
     TwoWire&  i2c() { return Wire; }

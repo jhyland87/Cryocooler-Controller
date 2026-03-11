@@ -39,6 +39,7 @@
 // ---------------------------------------------------------------------------
 
 static constexpr char TAG[] = "amplifier";
+static LogStream _Log = Log.createChildLogger("amplifier");
 
 /// True while the relay output is energised (cached; relay_board is the source of truth on hardware).
 static bool sRelayOn = false;
@@ -149,7 +150,7 @@ module::InitStatus init() {
         const module::InitStatus status = initRelay();
         if (status != module::MODULE_INIT_SUCCESS) {
             ESP_LOGE(TAG, "PCAL9535A relay initialization failed: %d", static_cast<int>(status));
-            Log.printf("[amplifier] PCAL9535A relay initialization failed: %d\n", static_cast<int>(status));
+            _Log.printf("PCAL9535A relay initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
@@ -163,7 +164,7 @@ module::InitStatus init() {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
             ESP_LOGE(TAG, "MCP4725 initialization failed: %d", static_cast<int>(status));
-            Log.printf("[amplifier] MCP4725 initialization failed: %d\n", static_cast<int>(status));
+            _Log.printf("MCP4725 initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
@@ -177,7 +178,7 @@ module::InitStatus init() {
         const module::InitStatus status = initAcs();
         if (status != module::MODULE_INIT_SUCCESS) {
             ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
-            Log.printf("[amplifier] ACS37800 initialization failed: %d\n", static_cast<int>(status));
+            _Log.printf("ACS37800 initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
@@ -191,7 +192,7 @@ module::InitStatus init() {
         const module::InitStatus status = initWaveform();
         if (status != module::MODULE_INIT_SUCCESS) {
             ESP_LOGE(TAG, "AD9833 initialization failed: %d", static_cast<int>(status));
-            Log.printf("[amplifier] AD9833 initialization failed: %d\n", static_cast<int>(status));
+            _Log.printf("AD9833 initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
@@ -203,7 +204,7 @@ module::InitStatus init() {
 module::InitStatus initDac() {
     if (!mcp4725_.begin(MCP4725_I2C_ADDRESS, &hardware::i2c())) {
         ESP_LOGE(TAG, "MCP4725 not found at I2C address 0x%02X", MCP4725_I2C_ADDRESS);
-        Log.printf("[amplifier] MCP4725 not found at I2C address 0x%02X\n", MCP4725_I2C_ADDRESS);
+        _Log.printf("MCP4725 not found at I2C address 0x%02X\n", MCP4725_I2C_ADDRESS);
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -328,13 +329,13 @@ void disable() {
 
 void initCoarseCooldown() {
     ESP_LOGD(TAG, "Initializing coarse cooldown");
-    Log.printf("[amplifier] Initializing coarse cooldown\n");
+    _Log.printf("Initializing coarse cooldown\n");
     rampToVoltage(5, AMPLIFIER_RAMP_RATE_MEDIUM);
 }
 
 void initFineCooldown() {
     ESP_LOGD(TAG, "Initializing fine cooldown");
-    Log.printf("[amplifier] Initializing fine cooldown\n");
+    _Log.printf("Initializing fine cooldown\n");
     rampToVoltage(10, AMPLIFIER_RAMP_RATE_SLOW);
 }
 

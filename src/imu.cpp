@@ -29,6 +29,7 @@
 #include "config.h"
 #include "hardware.h"
 #include "pin_config.h"
+#include "logger.h"
 
 namespace imu {
 
@@ -68,6 +69,7 @@ static float frequency_ = 0.0f;
 static bool     motionDetected_ = false;
 static uint32_t lastMotionMs_   = 0u;
 
+static LogStream _Log = Log.createChildLogger("imu");
 // ---------------------------------------------------------------------------
 // FFT frequency detection state
 // ---------------------------------------------------------------------------
@@ -270,7 +272,7 @@ module::InitStatus init() {
     ///hardware::recoverI2c();
 
     if (!sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS)) {
-        log_e("[imu] QMI8658 not found — check wiring and I2C address");
+        _Log.println("QMI8658 not found — check wiring and I2C address");
         return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -330,7 +332,7 @@ module::ServiceStatus service() {
         if (sensor.readTemp(tempReading)) {
             imuTemp_ = tempReading;
         } else {
-            log_w("[imu] readTemp() failed — temperature register unavailable");
+            _Log.println("readTemp() failed — temperature register unavailable");
         }
     }
 

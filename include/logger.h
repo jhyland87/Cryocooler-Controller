@@ -140,17 +140,48 @@ ASSERT_MODULE_INTERFACE(Module);
  * In ARDUINO builds bytes are forwarded to the hardware UART via Serial.
  * In native (host) test builds the byte-write path is a no-op for Serial;
  * the ring buffer still receives everything through logger::push().
+ *
+ * ── Prefixed child loggers ───────────────────────────────────────────────────
+ *
+ * Call createChildLogger() to obtain an independent LogStream that
+ * automatically prepends "[name] " to every flushed line in both the serial
+ * output and the ring buffer:
+ *
+ *   static LogStream kLog = Log.createChildLogger("cold_head");
+ *   kLog.println("Initialising ...");
+ *   // serial + ring buffer receive: "[cold_head] Initialising ..."
+ *
+ * @p name must remain valid for the lifetime of the child instance; string
+ * literals are ideal.  The child has its own independent line buffer so it
+ * is safe to use concurrently with the parent and other children (subject to
+ * the same single-writer-per-instance assumption as the parent).
  */
 class LogStream : public Print {
 public:
+    /** Default constructor — no prefix.  Used for the global Log instance. */
+    LogStream() = default;
+
+    /**
+     * Create an independent LogStream that prepends "[name] " to every
+     * flushed line in both the Serial output and the ring buffer.
+     *
+     * @param name  Module label used as the prefix (e.g. "cold_head").
+     *              Must be a string literal or otherwise outlive the child.
+     */
+    LogStream createChildLogger(const char* name) const;
+
     size_t write(uint8_t c) override;
     size_t write(const uint8_t* buf, size_t size) override;
 
 private:
-    char    line_[logger::MAX_MSG_LEN]; ///< Accumulation buffer for the current line
-    uint8_t pos_ = 0;                   ///< Next write position in line_
+    /** Private constructor used by createChildLogger(). */
+    explicit LogStream(const char* prefix) : prefix_(prefix) {}
 
-    void flushLine(); ///< Push line_[0..pos_] to logger ring buffer and reset pos_
+    char        line_[logger::MAX_MSG_LEN]; ///< Accumulation buffer for the current line
+    uint8_t     pos_    = 0;                ///< Next write position in line_
+    const char* prefix_ = nullptr;          ///< Optional "[name] " prefix; null = no prefix
+
+    void flushLine(); ///< Flush line_[0..pos_] to Serial + ring buffer, then reset pos_
 };
 
 /** Global LogStream — use in place of Serial for all logged output. */

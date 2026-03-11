@@ -49,7 +49,9 @@
 #include "ss_dashboard.h"
 #include "commands.h"
 #include "ota.h"
+#include "logger.h"
 
+static LogStream _Log = Log.createChildLogger("dashboard");
 // AsyncWebSocket is included via ESPAsyncWebServer.h
 
 // ─── WebSocket toggle ─────────────────────────────────────────────────────────
@@ -170,13 +172,13 @@ static void removeClient(AsyncClient* c) {
 // ─── AsyncTCP event callbacks ─────────────────────────────────────────────────
 
 static void onClientDisconnect(void* /*arg*/, AsyncClient* c) {
-    Serial.printf("[dashboard] Client %s disconnected\n",
+    _Log.printf("Client %s disconnected\n",
                   c->remoteIP().toString().c_str());
     removeClient(c);
 }
 
 static void onClientError(void* /*arg*/, AsyncClient* c, int8_t err) {
-    Serial.printf("[dashboard] Client %s error %d\n",
+    _Log.printf("Client %s error %d\n",
                   c->remoteIP().toString().c_str(), err);
     removeClient(c);
 }
@@ -196,7 +198,7 @@ static void onClientData(void* /*arg*/, AsyncClient* c, void* data, size_t len) 
 
     if (end == 0) return;
 
-    Serial.printf("[dashboard] Client %s cmd: %s\n",
+    _Log.printf("Client %s cmd: %s\n",
                   c->remoteIP().toString().c_str(), buf);
 
     // Dispatch — response is sent back over the same TCP connection.
@@ -215,12 +217,12 @@ static void onNewClient(void* /*arg*/, AsyncClient* c) {
             c->onDisconnect(&onClientDisconnect, nullptr);
             c->onError(&onClientError, nullptr);
             c->onData(&onClientData, nullptr);
-            Serial.printf("[dashboard] Client %s connected\n",
+            _Log.printf("Client %s connected\n",
                           c->remoteIP().toString().c_str());
             return;
         }
     }
-    Serial.println(F("[dashboard] Max clients reached, rejecting connection"));
+    _Log.println(F("Max clients reached, rejecting connection"));
     c->close();
 }
 
@@ -275,14 +277,14 @@ static void onWsEvent(AsyncWebSocket* /*srv*/, AsyncWebSocketClient* client,
                       AwsEventType type, void* /*arg*/, uint8_t* /*data*/, size_t /*len*/) {
     switch (type) {
         case WS_EVT_CONNECT:
-            Serial.printf("[dashboard] WS client %u connected from %s\n",
+            _Log.printf("WS client %u connected from %s\n",
                           client->id(), client->remoteIP().toString().c_str());
             break;
         case WS_EVT_DISCONNECT:
-            Serial.printf("[dashboard] WS client %u disconnected\n", client->id());
+            _Log.printf("WS client %u disconnected\n", client->id());
             break;
         case WS_EVT_ERROR:
-            Serial.printf("[dashboard] WS client %u error\n", client->id());
+            _Log.printf("WS client %u error\n", client->id());
             break;
         default:
             break;
@@ -349,7 +351,7 @@ static void dashboardTask(void* /*arg*/) {
             ssDashboard.update(telDoc);
             const size_t len = ssDashboard.serialize(txBuf, txBufSize);
             if (len == 0) {
-                Serial.println(F("[dashboard] serialize() returned 0 — frame dropped"));
+                _Log.println(F("serialize() returned 0 — frame dropped"));
             } else {
                 for (auto* c : clients_) {
                     if (!c || !c->connected()) continue;
@@ -416,17 +418,17 @@ bool setupWifi() {
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
-        Serial.println(F("[dashboard] Failed to connect to WiFi"));
+        _Log.println(F("Failed to connect to WiFi"));
 
         return false;
     }
 
-    Serial.printf("[dashboard] Connected — IP: %s\n", WiFi.localIP().toString().c_str());
+    _Log.printf("Connected — IP: %s\n", WiFi.localIP().toString().c_str());
 
     if (!MDNS.begin(HOSTNAME)) { // Set hostname
-        Serial.println(F("[dashboard] Error setting up MDNS responder!"));
+        _Log.println(F("Error setting up MDNS responder!"));
     } else {
-        Serial.printf("[dashboard] mDNS responder started: %s.local\n", HOSTNAME);
+        _Log.printf("mDNS responder started: %s.local\n", HOSTNAME);
     }
 
     MDNS.addService("http", "tcp", HTTP_API_PORT);
@@ -438,7 +440,7 @@ bool setupWifi() {
     // "MST7" is the POSIX TZ string for Phoenix / Mountain Standard Time:
     // UTC−7, no daylight-saving transition (Arizona does not observe DST).
     configTzTime("MST7", "pool.ntp.org", "time.nist.gov");
-    Serial.println(F("[dashboard] SNTP sync started (MST / Phoenix)"));
+    _Log.println(F("SNTP sync started (MST / Phoenix)"));
 
     return true;
 }
@@ -448,7 +450,7 @@ bool setupWifi() {
 bool setupServer() {
     tcpServer.onClient(&onNewClient, nullptr);
     tcpServer.begin();
-    Serial.printf("[dashboard] TCP server listening on port %u\n",
+    _Log.printf("TCP server listening on port %u\n",
                   static_cast<unsigned>(WS_PORT));
 
     // Static files embedded at compile time by scripts/embed_web.py.
@@ -496,7 +498,7 @@ bool setupServer() {
 
     httpServer.begin();
 
-    Serial.printf("[dashboard] HTTP server listening on port %u\n",
+    _Log.printf("HTTP server listening on port %u\n",
                   static_cast<unsigned>(HTTP_API_PORT));
     return true;
 }

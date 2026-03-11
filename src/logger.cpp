@@ -104,9 +104,18 @@ module::ServiceStatus service() {
 
 LogStream Log;
 
+LogStream LogStream::createChildLogger(const char* name) const {
+    return LogStream(name);
+}
+
 size_t LogStream::write(uint8_t c) {
 #ifdef ARDUINO
-    Serial.write(c);
+    // Prefixed streams defer their Serial output to flushLine() so that the
+    // "[name] " prefix can be prepended to the complete line in one write.
+    // Un-prefixed streams mirror each byte immediately for minimal latency.
+    if (prefix_ == nullptr) {
+        Serial.write(c);
+    }
 #endif
 
     if (pos_ < static_cast<uint8_t>(sizeof(line_) - 1u)) {
@@ -129,6 +138,24 @@ size_t LogStream::write(const uint8_t* buf, size_t size) {
 
 void LogStream::flushLine() {
     line_[pos_] = '\0';
-    logger::push(line_, pos_);
+
+    if (prefix_ != nullptr) {
+        // Build the prefixed line once, then send it to both Serial and the
+        // ring buffer.  snprintf truncates gracefully if the combined string
+        // exceeds MAX_MSG_LEN.
+        char prefixed[logger::MAX_MSG_LEN];
+        const int n = snprintf(prefixed, sizeof(prefixed), "[%s] %s", prefix_, line_);
+        const size_t len = (n > 0 && n < static_cast<int>(logger::MAX_MSG_LEN))
+                           ? static_cast<size_t>(n)
+                           : static_cast<size_t>(logger::MAX_MSG_LEN - 1u);
+#ifdef ARDUINO
+        Serial.print(prefixed);
+        Serial.write('\n');
+#endif
+        logger::push(prefixed, len);
+    } else {
+        logger::push(line_, pos_);
+    }
+
     pos_ = 0;
 }

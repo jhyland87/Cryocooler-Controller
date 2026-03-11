@@ -22,7 +22,9 @@
 #include "sensor_mock.h"
 #include "hardware.h"
 #include "tracking.h"
+#include "logger.h"
 
+static LogStream _Log = Log.createChildLogger("cold_head");
 // ---------------------------------------------------------------------------
 // Module-private types and state
 // ---------------------------------------------------------------------------
@@ -158,13 +160,14 @@ module::InitStatus init() {
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
-    ESP_LOGI(TAG, "Initializing MAX31865...");
+    _Log.println("Initializing MAX31865...");
     const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
         ESP_LOGE(TAG, "MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        _Log.printf("MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         return rtdStatus;
     }
-    ESP_LOGI(TAG, "MAX31865 initialization successful!");
+    _Log.println("MAX31865 initialization successful!");
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -178,13 +181,13 @@ module::InitStatus initACS() {
 module::InitStatus initRTD() {
     // Local mock: skip all hardware access entirely.
     if (sLocalMockEnabled) {
-        ESP_LOGI(TAG, "Local RTD mock active (%.2f K) — skipping MAX31865 hardware init",
+        _Log.printf("Local RTD mock active (%.2f K) — skipping MAX31865 hardware init",
                  sLocalMockTempK);
         return module::MODULE_INIT_SUCCESS;
     }
 
     if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
-        ESP_LOGE(TAG, "Could not initialize MAX31865! Check wiring.");
+        _Log.println("Could not initialize MAX31865! Check wiring.");
         // State machine will see tempK == 0 and fault if appropriate.
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
@@ -194,7 +197,7 @@ module::InitStatus initRTD() {
     ESP_LOGD(TAG, "MAX31865 comms check - RTD raw: %u  Fault: 0x%02X", rtd, fault);
 
     if (rtd == 0 && fault == 0) {
-        ESP_LOGW(TAG, "WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
+        _Log.println("WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
         ESP_LOGW(TAG, "Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
     } else {
         ESP_LOGI(TAG, "MAX31865 initialized successfully!");
@@ -255,10 +258,10 @@ void read(uint32_t nowMs) {
         if (emit) {
             const uint32_t suppressed = fl ? fl->suppressedCt : 0;
             if (suppressed > 0) {
-                ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable"
+                _Log.printf("MAX31865 fault register 0x%02X — temperature reading unreliable"
                               " (+" PRIu32 " suppressed)", hwFault, suppressed);
             } else {
-                ESP_LOGW(TAG, "MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
+                _Log.printf("MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
             }
             if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
         } else {
@@ -287,14 +290,14 @@ void read(uint32_t nowMs) {
         if (emit) {
             const uint32_t suppressed = fl ? fl->suppressedCt : 0;
             if (suppressed > 0) {
-                ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected"
+                _Log.printf("tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected"
                               " (+" PRIu32 " suppressed)",
                          tempK,
                          static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
                          static_cast<float>(MAX_PLAUSIBLE_TEMP_K),
                          suppressed);
             } else {
-                ESP_LOGW(TAG, "tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
+                _Log.printf("tempK %.2f outside plausible range [%.0f, %.0f] — sensor fault suspected",
                          tempK,
                          static_cast<float>(MIN_PLAUSIBLE_TEMP_K),
                          static_cast<float>(MAX_PLAUSIBLE_TEMP_K));
@@ -369,14 +372,14 @@ void checkFaults() {
     const uint8_t fault = max31865.readFault();
     if (fault == 0) return;
 
-    ESP_LOGW(TAG, "Fault detected! Code: 0x%02X", fault);
+    _Log.printf("Fault detected! Code: 0x%02X", fault);
 
-    if (fault & MAX31865_FAULT_HIGHTHRESH)  ESP_LOGW(TAG, "  - RTD High Threshold");
-    if (fault & MAX31865_FAULT_LOWTHRESH)   ESP_LOGW(TAG, "  - RTD Low Threshold");
-    if (fault & MAX31865_FAULT_REFINLOW)    ESP_LOGW(TAG, "  - REFIN- > 0.85 x Bias");
-    if (fault & MAX31865_FAULT_REFINHIGH)   ESP_LOGW(TAG, "  - REFIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_RTDINLOW)    ESP_LOGW(TAG, "  - RTDIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_OVUV)        ESP_LOGW(TAG, "  - Under/Over voltage");
+    if (fault & MAX31865_FAULT_HIGHTHRESH)  _Log.println("  - RTD High Threshold");
+    if (fault & MAX31865_FAULT_LOWTHRESH)   _Log.println("  - RTD Low Threshold");
+    if (fault & MAX31865_FAULT_REFINLOW)    _Log.println("  - REFIN- > 0.85 x Bias");
+    if (fault & MAX31865_FAULT_REFINHIGH)   _Log.println("  - REFIN- < 0.85 x Bias - FORCE- open");
+    if (fault & MAX31865_FAULT_RTDINLOW)    _Log.println("  - RTDIN- < 0.85 x Bias - FORCE- open");
+    if (fault & MAX31865_FAULT_OVUV)        _Log.println("  - Under/Over voltage");
 
     max31865.clearFault();
 }
@@ -504,7 +507,7 @@ TrackingMonitor<float>::State getTemperatureTrackingState() {
 void enableMock(float tempK) {
     sLocalMockEnabled = true;
     sLocalMockTempK   = tempK;
-    ESP_LOGI(TAG, "Local RTD mock enabled at %.2f K (%.2f C)", tempK, tempK - 273.15f);
+    _Log.printf("Local RTD mock enabled at %.2f K (%.2f C)", tempK, tempK - 273.15f);
 #ifdef ARDUINO
     // If the module hasn't initialised successfully yet (e.g. MAX31865 absent),
     // run init() now — it will short-circuit through initRTD()'s mock branch and
@@ -518,7 +521,7 @@ void enableMock(float tempK) {
 
 void disableMock() {
     sLocalMockEnabled = false;
-    ESP_LOGI(TAG, "Local RTD mock disabled — will use real MAX31865 after next reinit");
+    _Log.println("Local RTD mock disabled — will use real MAX31865 after next reinit");
 }
 
 bool isMockEnabled() {
