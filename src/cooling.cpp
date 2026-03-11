@@ -135,8 +135,8 @@ void IRAM_ATTR onFlowPulse() {
 // ---------------------------------------------------------------------------
 // Running averages (sensor noise rejection)
 // ---------------------------------------------------------------------------
-static RunningAverage rpmAvg_(COOLING_SENSOR_AVG_SAMPLES);
-static RunningAverage tempAvg_(COOLING_SENSOR_AVG_SAMPLES);
+static RunningAverage rpmAvg_(COOLING_SENSOR_AVG_SAMPLES);   // coolant flow hall-effect RPM
+static RunningAverage tempAvg_(COOLING_SENSOR_AVG_SAMPLES);  // coolant NTC temperature
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -347,6 +347,11 @@ static module::InitStatus fanInit() {
     ESP_LOGW(TAG, "fanInit: configFanSpinup failed");
   }
 
+  // Set LUT hysteresis to prevent the IC from rapidly hunting between adjacent
+  // duty-cycle steps when the chip temperature oscillates around a threshold.
+  fanController_.setLUTHysteresis(COOLING_FAN_LUT_HYSTERESIS_C);
+  ESP_LOGD(TAG, "fanInit: LUT hyst = %u °C", fanController_.getLUTHysteresis());
+
   // Enable LUT — the IC takes over fan control from here.
   if (!fanController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "fanInit: LUTEnabled(true) failed");
@@ -539,7 +544,7 @@ module::ServiceStatus service() {
   if (selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
     ESP_LOGV(TAG, "service: reading fan EMC2101 (ch %u)", TCA9548A_CHANNEL_FAN);
     cachedDutyCycle_ = fanController_.getDutyCycle();
-    cachedFanRpm_    = fanController_.getFanRPM();
+    cachedFanRpm_ = fanController_.getFanRPM();
   } else {
     ESP_LOGE(TAG, "service: fan mux select failed — skipping fan reads");
   }

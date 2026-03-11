@@ -174,10 +174,16 @@
 // receives its first forced temperature update.
 #define COOLING_PUMP_INITIAL_DUTY_PCT  static_cast<uint8_t>(30)
 
+// LUT hysteresis for the fan EMC2101 (°C).
+// Temperature must drop this many degrees below a threshold before the
+// duty cycle steps back down (prevents rapid hunting / sawtooth RPM).
+#define COOLING_FAN_LUT_HYSTERESIS_C   static_cast<uint8_t>(2)
+
 // LUT hysteresis for the pump EMC2101 (°C).
 // Temperature must drop this many degrees below a threshold before the
 // duty cycle steps back down (prevents rapid hunting).
 #define COOLING_PUMP_LUT_HYSTERESIS_C  static_cast<uint8_t>(3)
+
 
 // =============================================================================
 // Temperature ring-buffer (cooling-rate and stall calculations)
