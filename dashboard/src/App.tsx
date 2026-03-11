@@ -13,6 +13,7 @@ import { PowerChart } from './components/PowerChart';
 import { CoolingChart } from './components/CoolingChart';
 import { AccelSparklines } from './components/AccelSparklines';
 import { SystemSparklines } from './components/SystemSparklines';
+import { ConsoleLog } from './components/ConsoleLog';
 import type { TelemetryData } from './types/telemetry';
 
 // ─── MUI dark theme ───────────────────────────────────────────────────────────
@@ -221,6 +222,13 @@ export function App() {
                   heapUsage={getHistory('system.heap_usage_percent')}
                   psramUsage={getHistory('system.psram_usage_percent')}
                 />
+              </Box>
+            </Grid>
+
+            {/* ── Console log panel ─────────────────────────────────────── */}
+            <Grid size={{ xs: 12 }}>
+              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+                <ConsoleLog />
               </Box>
             </Grid>
 

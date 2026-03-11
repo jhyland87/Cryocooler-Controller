@@ -305,11 +305,31 @@ static void espnowTask(void* /*arg*/) {
 
     TickType_t lastWakeTime = xTaskGetTickCount();
 
+    // ── Backoff state ──────────────────────────────────────────────────────────
+    // After FAIL_THRESHOLD consecutive send failures the task stops logging and
+    // skips sends for BACKOFF_TICKS ticks (~30 s at the default 1 Hz send rate).
+    // This prevents the serial output from being flooded when the peer is off.
+    // The first FAIL_THRESHOLD failures are still logged so the cause is visible.
+    static constexpr uint8_t  FAIL_THRESHOLD  = 5;
+    static constexpr uint32_t BACKOFF_TICKS   = 30;
+
+    uint8_t  consecutiveFails = 0;
+    uint32_t backoffRemaining = 0;
+
     for (;;) {
         // Accurate period regardless of fill / send duration.
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(ESPNOW_SEND_INTERVAL_MS));
 
         if (!ready_) continue;
+
+        // ── Backoff: skip silently until the cooldown expires ──────────────
+        if (backoffRemaining > 0) {
+            if (--backoffRemaining == 0) {
+                ESP_LOGI(TAG, "Backoff expired — retrying peer");
+                consecutiveFails = 0;
+            }
+            continue;
+        }
 
         fillPacket(pkt);
 
@@ -319,8 +339,28 @@ static void espnowTask(void* /*arg*/) {
             sizeof(pkt));
 
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "esp_now_send failed: 0x%x", static_cast<unsigned>(err));
             ++failCount_;
+            ++consecutiveFails;
+            if (consecutiveFails < FAIL_THRESHOLD) {
+                // Log each of the first few failures so the error is visible.
+                ESP_LOGE(TAG, "esp_now_send failed: 0x%x", static_cast<unsigned>(err));
+            } else if (consecutiveFails == FAIL_THRESHOLD) {
+                // One final warning, then go silent for BACKOFF_TICKS ticks.
+                ESP_LOGW(TAG, "Peer unreachable after %u consecutive fails "
+                              "(err 0x%x) — suppressing logs for %lu s",
+                         static_cast<unsigned>(consecutiveFails),
+                         static_cast<unsigned>(err),
+                         static_cast<unsigned long>(
+                             BACKOFF_TICKS * ESPNOW_SEND_INTERVAL_MS / 1000u));
+                backoffRemaining = BACKOFF_TICKS;
+            }
+            // While backoffRemaining > 0, the top-of-loop guard handles silence.
+        } else {
+            // Successful send — reset backoff state.
+            if (consecutiveFails > 0) {
+                ESP_LOGI(TAG, "Peer reachable again");
+            }
+            consecutiveFails = 0;
         }
     }
 }
