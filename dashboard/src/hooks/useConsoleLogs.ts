@@ -98,11 +98,22 @@ export function useConsoleLogs(): { entries: LogEntry[]; clear: () => void } {
 
   useEffect(() => {
     mountedRef.current = true;
-    fetchLogs();                                          // immediate first fetch
-    const id = setInterval(fetchLogs, POLL_INTERVAL_MS);
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    // Sequential loop: schedule the next poll only after the current fetch
+    // resolves (success or error), so there is never more than one request
+    // in flight at a time.
+    const tick = async () => {
+      await fetchLogs();
+      if (mountedRef.current) {
+        timerId = setTimeout(tick, POLL_INTERVAL_MS);
+      }
+    };
+
+    tick(); // kick off immediately
     return () => {
       mountedRef.current = false;
-      clearInterval(id);
+      if (timerId !== null) clearTimeout(timerId);
     };
   }, [fetchLogs]);
 

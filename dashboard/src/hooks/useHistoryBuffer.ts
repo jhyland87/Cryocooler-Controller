@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'preact/hooks';
 import type { DataPoint, HistoryMap, TelemetryData } from '../types/telemetry';
+import { getField } from '../types/telemetry';
 
 /** Number of samples to retain per channel (60 s at 1 Hz). */
 export const HISTORY_LENGTH = 100;
@@ -23,7 +24,7 @@ export function useHistoryBuffer(keys: ReadonlyArray<string>) {
   const push = useCallback(
     (data: TelemetryData, timestamp: number) => {
       for (const key of keys) {
-        const raw = data[key];
+        const raw = getField(data, key);
         if (typeof raw !== 'number') continue;
 
         const buf = buffers.current[key];

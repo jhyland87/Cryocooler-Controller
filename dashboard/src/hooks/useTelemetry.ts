@@ -36,34 +36,6 @@ const ESP32_HOST = 'cryocooler.local';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Recursively flatten a nested JSON object into dot-notation keys.
- *
- * The ESP32 firmware emits a nested structure, e.g.:
- *   { "cold_head": { "temp_c": -101.47 } }
- *
- * The dashboard types use flat dot-notation keys, e.g.:
- *   { "cold_head.temp_c": -101.47 }
- *
- * Arrays are left as-is (stored under their parent key); null is dropped.
- */
-function flatten(
-  obj: Record<string, unknown>,
-  prefix = '',
-  result: Record<string, number | string | undefined> = {},
-): Record<string, number | string | undefined> {
-  for (const [k, v] of Object.entries(obj)) {
-    const key = prefix ? `${prefix}.${k}` : k;
-    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
-      flatten(v as Record<string, unknown>, key, result);
-    } else if (typeof v === 'number' || typeof v === 'string') {
-      result[key] = v;
-    }
-    // null / undefined / arrays are omitted
-  }
-  return result;
-}
-
 function wsUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${proto}//${ESP32_HOST}/ws`;
@@ -87,8 +59,8 @@ function apiUrl(): string {
  * The hook cleans up the WebSocket and polling timer on unmount.
  */
 export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryData, ts: number) => void) => void } {
-  const [data, setData]           = useState<TelemetryData>({});
-  const [status, setStatus]       = useState<ConnectionStatus>('connecting');
+  const [data, setData]             = useState<TelemetryData>({});
+  const [status, setStatus]         = useState<ConnectionStatus>('connecting');
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
   const [frameCount, setFrameCount] = useState(0);
 
@@ -103,22 +75,22 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
   }, []);
 
   /** Apply a decoded TelemetryData frame to React state. */
-  const applyFrame = useCallback((flat: TelemetryData) => {
+  const applyFrame = useCallback((frame: TelemetryData) => {
     if (!mountedRef.current) return;
-    const epochSec = flat['timestamp.epoch'];
+    const epochSec = frame.timestamp?.epoch;
     const now = typeof epochSec === 'number' ? epochSec * 1000 : Date.now();
-    setData(flat);
+    setData(frame);
     setLastUpdate(now);
     setFrameCount((c) => c + 1);
-    onDataCbRef.current?.(flat, now);
+    onDataCbRef.current?.(frame, now);
   }, []);
 
   /** Handle a JSON text frame (used by HTTP polling fallback). */
   const handleFrame = useCallback((raw: string) => {
     try {
-      const nested = JSON.parse(raw) as Record<string, unknown>;
-      const flat   = flatten(nested) as TelemetryData;
-      applyFrame(flat);
+      // /api/telemetry already returns a nested JSON object matching TelemetryData.
+      const frame = JSON.parse(raw) as TelemetryData;
+      applyFrame(frame);
     } catch {
       // Silently drop malformed frames.
     }
@@ -127,8 +99,8 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
   /** Handle a Protobuf binary frame (used by WebSocket). */
   const handleProtobufFrame = useCallback((buf: ArrayBuffer) => {
     try {
-      const flat = decodeTelemetryFrame(new Uint8Array(buf));
-      applyFrame(flat);
+      const frame = decodeTelemetryFrame(new Uint8Array(buf));
+      applyFrame(frame);
     } catch {
       // Silently drop malformed frames.
     }

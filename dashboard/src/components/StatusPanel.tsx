@@ -53,16 +53,16 @@ interface Props {
 }
 
 export function StatusPanel({ data }: Props) {
-  const fault      = Boolean(data['indicator.fault']);
-  const ready      = Boolean(data['indicator.ready']);
-  const alarmRelay = Boolean(data['relay.alarm']);
-  const normalRelay = Boolean(data['relay.normal']);
-  const compressor = Boolean(data['compressor.status']);
-  const motion     = Boolean(data['imu.motion']);
+  const fault       = Boolean(data.indicator?.fault);
+  const ready       = Boolean(data.indicator?.ready);
+  const alarmRelay  = Boolean(data.relay?.alarm);
+  const normalRelay = Boolean(data.relay?.normal);
+  const compressor  = Boolean(data.compressor?.status);
+  const motion      = Boolean(data.imu?.motion);
 
-  const faults10m  = data['faults.count_10m'] ?? 0;
-  const faults30m  = data['faults.count_30m'] ?? 0;
-  const faults60m  = data['faults.count_60m'] ?? 0;
+  const faults10m = data.faults?.count_10m ?? 0;
+  const faults30m = data.faults?.count_30m ?? 0;
+  const faults60m = data.faults?.count_60m ?? 0;
 
   return (
     <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 2, border: '1px solid', borderColor: 'divider' }}>

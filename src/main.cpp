@@ -159,6 +159,7 @@ static void initPersistentModules() {
  * each step so the dashboard shows real-time progress.
  */
 static void initControlModules() {
+    // @todo, if some required modules fail, do not permit a running state (eg: amplifier module).
 #if ENABLE_COMPRESSOR
     // Each relay is an independent SparkFun Qwiic Single Relay on its own I2C
     // address (compressor = 0x18, amplifier = 0x19).  Initialise compressor

@@ -114,9 +114,17 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
     // ── System ───────────────────────────────────────────────────────────────
     frame_.has_system = true;
-    frame_.system.voltage_v = sysinfo::getVoltage();
-    frame_.system.current_a = sysinfo::getCurrent();
-    frame_.system.power_w   = sysinfo::getPower();
+    frame_.system.voltage_v           = sysinfo::getVoltage();
+    frame_.system.current_a           = sysinfo::getCurrent();
+    frame_.system.power_w             = sysinfo::getPower();
+    frame_.system.cpu_usage_percent   = sysinfo::getCpuUsagePercent();
+    frame_.system.cpu_freq_mhz        = sysinfo::getCpuFreqMHz();
+    frame_.system.heap_usage_percent  = sysinfo::getHeapUsagePercent();
+    frame_.system.psram_usage_percent = sysinfo::getPsramUsagePercent();
+    frame_.system.total_heap_bytes    = sysinfo::getTotalHeapBytes();
+    frame_.system.total_psram_bytes   = sysinfo::getTotalPsramBytes();
+    frame_.system.uptime_ms           = sysinfo::getUptimeMs();
+    frame_.system.num_cores           = static_cast<uint32_t>(sysinfo::getNumCores());
 
     // ── IMU ──────────────────────────────────────────────────────────────────
     frame_.has_imu = true;

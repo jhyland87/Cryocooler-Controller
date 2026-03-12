@@ -89,15 +89,32 @@ export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
           valueFormatter: timeFormatter,
           tickMinStep: tickStep
         }]}
-        yAxis={[{ min: -200, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
+        yAxis={[{
+          min: -200,
+          max: 40,
+          valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
         series={series}
         height={220}
         skipAnimation
         sx={{
           '& .MuiChartsLegend-root': { fontSize: '0.7rem' },
         }}
-        slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' }, itemMarkWidth: 10, itemMarkHeight: 10 } }}
-        margin={{ top: 30, right: 10, bottom: 36, left: 52 }}
+        slotProps={{
+          legend: {
+            position: {
+              vertical: 'top',
+              horizontal: 'right'
+            },
+            itemMarkWidth: 10,
+            itemMarkHeight: 10
+          }
+        }}
+        margin={{
+          top: 30,
+          right: 10,
+          bottom: 36,
+          left: 52
+        }}
         grid={{ horizontal: true }}
       />
     </Box>

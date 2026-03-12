@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
+import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -15,6 +16,7 @@ import { AccelSparklines } from './components/AccelSparklines';
 import { SystemSparklines } from './components/SystemSparklines';
 import { ConsoleLog } from './components/ConsoleLog';
 import type { TelemetryData } from './types/telemetry';
+import { getField } from './types/telemetry';
 
 // ─── MUI dark theme ───────────────────────────────────────────────────────────
 
@@ -55,14 +57,14 @@ const HISTORY_KEYS = [
   'cold_head.delta_below_ambient_c',
   'cold_head.voltage_v',
   'cold_head.current_a',
-  'system.voltage_vdc',   // ESP32 key name
+  'system.voltage_v',
   'system.current_a',
   'cooling.fan_speed',
   'cooling.temp_c',
   'cooling.flow_rate_lpm',
-  'imu.roll_deg',         // ESP32 key name (was imu.x)
-  'imu.pitch_deg',        // ESP32 key name (was imu.y)
-  'imu.yaw_deg',          // ESP32 key name (was imu.z)
+  'imu.roll_deg',
+  'imu.pitch_deg',
+  'imu.yaw_deg',
   'imu.accel_mag',
   'system.cpu_usage_percent',
   'system.heap_usage_percent',
@@ -73,7 +75,7 @@ const HISTORY_KEYS = [
 
 interface TileConfig {
   label: string;
-  key:   keyof TelemetryData;
+  key:   string;
   unit:  string;
   dp:    number;
   color: string;
@@ -83,7 +85,7 @@ const TILES: TileConfig[] = [
   { label: 'Cold Head', key: 'cold_head.temp_c',         unit: '°C',   dp: 2, color: '#29b6f6' },
   { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',   dp: 2, color: '#ffa726' },
   { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: '°C/min',dp: 3, color: '#80cbc4' },
-  { label: 'Sys V',     key: 'system.voltage_vdc',       unit: 'V',    dp: 2, color: '#ce93d8' },
+  { label: 'Sys V',     key: 'system.voltage_v',          unit: 'V',    dp: 2, color: '#ce93d8' },
   { label: 'Sys A',     key: 'system.current_a',         unit: 'A',    dp: 2, color: '#f48fb1' },
   { label: 'Sys W',     key: 'system.power_w',           unit: 'W',    dp: 1, color: '#ffcc80' },
   { label: 'Fan Speed', key: 'cooling.fan_speed',        unit: '%',    dp: 0, color: '#4dd0e1' },
@@ -107,6 +109,42 @@ export function App() {
     onData(handleFrame);
   }, [onData, handleFrame]);
 
+  // ── Loading screen ──────────────────────────────────────────────────────────
+  // Show a spinner until the first telemetry frame arrives.  frameCount stays
+  // at 0 for the entire blank-white period, so this fills that gap.
+
+  if (frameCount === 0) {
+    const loadingMsg =
+      status === 'error'
+        ? 'Unable to reach device — retrying…'
+        : 'Waiting for first telemetry frame…';
+
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: 'background.default',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2.5,
+          }}
+        >
+          <CircularProgress size={52} thickness={3.5} />
+          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
+            Loading Dashboard
+          </Typography>
+          <Typography variant="caption" color="text.disabled">
+            {loadingMsg}
+          </Typography>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -115,11 +153,11 @@ export function App() {
         {/* ── Header / status bar ────────────────────────────────────────── */}
         <Header
           connectionStatus={status}
-          stateName={String(data['state.name'] ?? '—')}
-          statusText={String(data['state.status_text'] ?? '')}
-          onDuration={String(data['status.on_duration'] ?? '')}
-          timeInState={String(data['status.time_in_state'] ?? '')}
-          cooldownPct={typeof data['cold_head.cooldown_pct'] === 'number' ? data['cold_head.cooldown_pct'] : undefined}
+          stateName={String(data.state?.name ?? '—')}
+          statusText={String(data.state?.status_text ?? '')}
+          onDuration={String(data.status?.on_duration ?? '')}
+          timeInState={String(data.status?.time_in_state ?? '')}
+          cooldownPct={typeof data.cold_head?.cooldown_pct === 'number' ? data.cold_head.cooldown_pct : undefined}
           frameCount={frameCount}
         />
 
@@ -137,7 +175,7 @@ export function App() {
             <Grid size={{ xs: 12, sm: 12, md: 8, lg: 9 }}>
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignContent: 'flex-start' }}>
                 {TILES.map(({ label, key, unit, dp, color }) => {
-                  const value = data[key];
+                  const value = getField(data, key);
                   return (
                     <Box
                       key={`${label}-${unit}`}
@@ -185,7 +223,7 @@ export function App() {
                 <PowerChart
                   coldHeadVolts={getHistory('cold_head.voltage_v')}
                   coldHeadAmps={getHistory('cold_head.current_a')}
-                  systemVolts={getHistory('system.voltage_vdc')}
+                  systemVolts={getHistory('system.voltage_v')}
                   systemAmps={getHistory('system.current_a')}
                 />
               </Box>
@@ -209,7 +247,7 @@ export function App() {
                   accelY={getHistory('imu.pitch_deg')}
                   accelZ={getHistory('imu.yaw_deg')}
                   accelMag={getHistory('imu.accel_mag')}
-                  motion={typeof data['imu.motion'] === 'number' ? data['imu.motion'] : undefined}
+                  motion={typeof data.imu?.motion === 'number' ? data.imu.motion : undefined}
                 />
               </Box>
             </Grid>
