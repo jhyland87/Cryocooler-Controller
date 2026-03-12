@@ -159,17 +159,17 @@ static void initPersistentModules() {
  * each step so the dashboard shows real-time progress.
  */
 static void initControlModules() {
-    // Both relays share one PCAL9535A at 0x20 (pin 0 = compressor, pin 1 = amplifier).
-    // relay_board::init() is idempotent — whichever of the two modules initialises
-    // first calls begin() exactly once and drives both pins LOW before the state
-    // machine takes control.  Initialise compressor first so the relay is
-    // de-energized as early as possible.
+#if ENABLE_COMPRESSOR
+    // Each relay is an independent SparkFun Qwiic Single Relay on its own I2C
+    // address (compressor = 0x18, amplifier = 0x19).  Initialise compressor
+    // first so its relay is de-energised as early as possible.
     auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
     if (compressorStatus != module::MODULE_INIT_SUCCESS) {
         _Log.printf("Compressor init --> initialization failed (status %d).\n",
                    static_cast<int>(compressorStatus));
     }
     telemetry::emitSafe();
+#endif
 
     auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
     if (coolingStatus != module::MODULE_INIT_SUCCESS) {
@@ -362,7 +362,9 @@ void loop() {
     // dynamic target (CoarseCooldown, FineCooldown, Shutdown).
 
     // ---- 4. Compressor timer -------------------------------------------
+#if ENABLE_COMPRESSOR
     compressor::Module::service();
+#endif
 
     // ---- 5. HTTP API ---------------------------------------------------
     //http_api::service();

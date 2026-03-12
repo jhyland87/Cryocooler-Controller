@@ -35,6 +35,7 @@
 #include "sensor_mock.h"
 #include "ota.h"
 #include "compressor.h"
+#include "utils.h"
 #endif
 #include "logger.h"
 
@@ -276,6 +277,7 @@ static void handleVoutSet(const char* args, Print& out) {
             return;
         }
         amplifier::setRmsVoltagePercent(static_cast<float>(val));
+        amplifier::setVoutOverride(amplifier::getDacCurrent());
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] Voltage set to %u%%", static_cast<unsigned>(val));
         out.println(buf);
@@ -288,8 +290,9 @@ static void handleVoutSet(const char* args, Print& out) {
             out.println(buf);
             return;
         }
-        int setDacValue = map(val, 0, 120, 0, AMPLIFIER_RESOLUTION);
-        amplifier::setRmsVoltage(static_cast<uint16_t>(setDacValue));
+        //int setDacValue = map(val, 0, AMPLIFIER_MAX_VOLTAGE_VAC, 0, AMPLIFIER_RESOLUTION);
+        amplifier::setRmsVoltage(static_cast<float>(val));
+        amplifier::setVoutOverride(amplifier::getDacCurrent());
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
         out.println(buf);
@@ -332,12 +335,41 @@ static void handleFaultClear(const char* /*args*/, Print& out) {
         out.println("[ERR] Not in fault state");
         return;
     }
-    // Capture and display the active fault mask before clearing it.
+
+    // Capture the active fault mask before it is erased by clearFault().
     char reasonBuf[96];
     state_machine::formatFaultReasons(state_machine::getFaultReason(), reasonBuf, sizeof(reasonBuf));
+
+    // clearFault() → Idle (resets fault reason, backoffs, running = false).
     state_machine::clearFault();
-    char msg[120];
-    snprintf(msg, sizeof(msg), "[OK] Fault cleared (%s) — system returned to Idle", reasonBuf);
+
+    // Immediately resume from the correct state for the current temperature
+    // rather than leaving the operator in Idle at -196 °C.  start() uses the
+    // same temperature-based dispatch as a normal start command:
+    //   tempC >= COARSE_FINE_THRESHOLD_C  →  CoarseCooldown
+    //   in setpoint band                  →  Settle
+    //   below setpoint band               →  Overshoot
+    //   otherwise                         →  FineCooldown
+#ifdef ARDUINO
+    const float tempC = sensor_mock::isActive()
+                            ? sensor_mock::get().tempC
+                            : cold_head::getLastTempC();
+    state_machine::start(tempC);
+#else
+    state_machine::start();
+#endif
+
+    char msg[160];
+    snprintf(msg, sizeof(msg),
+             "[OK] Fault cleared (%s) — resumed as %s (%.2f C)",
+             reasonBuf,
+             state_machine::stateName(state_machine::getState()),
+#ifdef ARDUINO
+             tempC
+#else
+             0.0f
+#endif
+    );
     out.println(msg);
 }
 
@@ -437,6 +469,12 @@ static void handleBoard(const char* /*args*/, Print& out) {
     out.println("  (native / host build — no board macros defined)");
 #endif
 }
+
+#ifdef ARDUINO
+static void handleI2cScan(const char* /*args*/, Print& out) {
+    utils::i2cScan(out);
+}
+#endif
 
 static void handleFsmState(const char* /*args*/, Print& out) {
     const auto    s         = state_machine::getState();
@@ -768,6 +806,9 @@ static const Command commandMap[] = {
     {"fault clear",   handleFaultClear,   "Clear an active fault and return to Idle"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
+#ifdef ARDUINO
+    {"i2c scan",      handleI2cScan,      "Scan I2C bus and print all responding device addresses"},
+#endif
 #ifdef ARDUINO
     {"reinit",        handleReinit,       "Re-initialize hardware modules (from Off, Idle, or Fault)"},
 #endif

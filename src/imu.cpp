@@ -49,6 +49,12 @@ static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coef
 
 QMI8658 sensor;
 
+/// Set true by init() only when sensor.begin() confirms the QMI8658 is
+/// present and responding.  Guards service() and calculateFrequency() so
+/// they silently skip rather than flood the log with I2C errors when the
+/// hardware is absent.
+static bool sImuAvailable = false;
+
 // Calibration offsets (set by performCalibration)
 static float accelOffsetX_ = 0.0f, accelOffsetY_ = 0.0f, accelOffsetZ_ = 0.0f;
 //static float gyroOffsetX_  = 0.0f, gyroOffsetY_  = 0.0f, gyroOffsetZ_  = 0.0f;
@@ -272,10 +278,31 @@ module::InitStatus init() {
     // which on Core 2.x can leave the driver state machine non-idle.
     ///hardware::recoverI2c();
 
-    if (!sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS)) {
-        _Log.println("QMI8658 not found — check wiring and I2C address");
-        return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
+    // if (!sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS)) {
+    //     // begin() can return false due to a transient ESP-IDF 5.x I2C error
+    //     // (-1 / ESP_FAIL) on the very first probe after bus initialisation.
+    //     // Before giving up, read WHO_AM_I directly — if it returns 0x05 the
+    //     // chip is actually present and the transient has already cleared.
+    //     const uint8_t whoAmI = sensor.getWhoAmI();
+    //     if (whoAmI != 0x05) {
+    //         _Log.printf("QMI8658 not found (WHO_AM_I=0x%02X) — check wiring and I2C address\n", whoAmI);
+    //         sImuAvailable = false;
+    //         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
+    //     }
+    //     _Log.println("QMI8658 begin() failed transiently but WHO_AM_I confirmed — continuing");
+    // }
+    // sImuAvailable = true;
+
+    sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS);
+    const uint8_t whoAmI = sensor.getWhoAmI();
+    if (whoAmI != 0x05) {
+        _Log.printf("QMI8658 not found (WHO_AM_I=0x%02X) — check wiring and I2C address\n", whoAmI);
+        sImuAvailable = false;
+        return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }
+    _Log.println("QMI8658 confirmed with WHO_AM_I=0x05 — continuing");
+    sImuAvailable = true;
+
 
     sensor.setAccelRange(QMI8658_ACCEL_RANGE_8G);
     sensor.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
@@ -295,7 +322,7 @@ module::InitStatus init() {
 }
 
 module::ServiceStatus service() {
-    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) { return module::MODULE_SERVICE_SKIPPED; }
+    if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
 
     QMI8658_Data data;
     if (!sensor.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
@@ -374,7 +401,7 @@ float getFrequency() {
  *         updated on valid detections.
  */
 float calculateFrequency() {
-    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) return NAN;
+    if (!sImuAvailable) return NAN;
 
     // -- Collect FFT_N samples at FFT_FS_HZ using micros() timing ------------
     uint32_t tNext = micros();
@@ -423,6 +450,7 @@ float calculateFrequency() {
 }
 
 bool  isInitialized()    { return Module::isInitialized(); }
+bool  isAvailable()      { return sImuAvailable; }
 bool  isMotionDetected() { return motionDetected_;  }
 bool  hasOverstroke()    { return motionDetected_;  }
 void  clearOverstroke()  { motionDetected_ = false; }

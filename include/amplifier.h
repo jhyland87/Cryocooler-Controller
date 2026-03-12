@@ -39,9 +39,8 @@ module::InitStatus initAcs();
 module::InitStatus initDac();
 
 /**
- * Initialise the PCAL9535A I2C GPIO expander relay and de-energise it.
- * Address and pin are configured in pin_config.h via AMPLIFIER_RELAY_PCAL_ADDR
- * and AMPLIFIER_RELAY_PIN.
+ * Initialise the SparkFun Qwiic Single Relay and de-energise it.
+ * I2C address is configured in pin_config.h via AMPLIFIER_RELAY_ADDR.
  */
 module::InitStatus initRelay();
 
@@ -59,7 +58,7 @@ bool checkDependencies();
 // ---------------------------------------------------------------------------
 
 /**
- * Energise or de-energise the amplifier relay via the PCAL9535A.
+ * Energise or de-energise the amplifier relay via the Qwiic Single Relay.
  * @param on  true = relay ON (energised), false = relay OFF (de-energised).
  */
 void setRelayState(bool on);
@@ -143,6 +142,18 @@ void setRmsVoltage(float rmsTarget);
 
 /** Return the current MCP4725 DAC output value (0–4095). */
 uint16_t getDacCurrent();
+
+/**
+ * Manual vout override — prevents the FSM tick from re-applying its
+ * computed cooldown DAC target each cycle.  Call setVoutOverride() with the
+ * desired DAC value immediately after a manual setRmsVoltage / setRmsVoltagePercent
+ * call.  The override is cleared automatically when the FSM enters Idle,
+ * Shutdown, or Fault.
+ */
+void     setVoutOverride(uint16_t dacValue);
+void     clearVoutOverride();
+bool     hasVoutOverride();
+uint16_t getVoutOverrideDac();
 
 // ---------------------------------------------------------------------------
 // ACS37800 power monitor readings

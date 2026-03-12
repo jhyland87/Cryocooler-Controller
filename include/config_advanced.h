@@ -22,10 +22,10 @@
 // =============================================================================
 // Relays
 // =============================================================================
-// Both relays share a single PCAL9535A at 0x20 (A000), each on its own pin.
-// Addresses and pins are defined in pin_config.h:
-//   Compressor relay: COMPRESSOR_RELAY_PCAL_ADDR (A000) / COMPRESSOR_RELAY_PIN (0)
-//   Amplifier relay:  AMPLIFIER_RELAY_PCAL_ADDR  (A000) / AMPLIFIER_RELAY_PIN  (1)
+// Each relay is an independent SparkFun Qwiic Single Relay on its own I2C address.
+// Addresses are defined in pin_config.h:
+//   Compressor relay: COMPRESSOR_RELAY_ADDR (0x18)
+//   Amplifier relay:  AMPLIFIER_RELAY_ADDR  (0x19)
 
 // =============================================================================
 // ADC / DAC internals
@@ -41,8 +41,9 @@
 #define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
 
 // I2C address of the MCP4725 DAC.
-// Default: 0x60 (A2=A1=A0 tied to GND on most breakout modules).
-// The Adafruit breakout board uses 0x62; adjust to match your A0 pin wiring.
+// Adafruit breakout (A0 pin unsoldered): 0x62.
+// Generic modules (A2=A1=A0 tied to GND): 0x60.
+// Adjust to match your A0 pin wiring.
 #define MCP4725_I2C_ADDRESS  static_cast<uint8_t>(0x60)
 
 // =============================================================================

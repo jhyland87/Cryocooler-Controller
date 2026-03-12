@@ -376,8 +376,11 @@ static void setStateEntry(State s) {
 
 static void onEnterOff(){
     setStateEntry(State::Off);
-    amplifier::rampTowardShutdown(0u);
+    // Relay is cut first; DAC is zeroed immediately — no ramp needed here
+    // because the load is already disconnected.  Shutdown handles the
+    // graceful ramp for the normal stop path (running → Shutdown → Idle).
     amplifier::setRelayState(false);
+    amplifier::hardStop();
 }
 static void onEnterInitialize() {
     setStateEntry(State::Initialize);
@@ -389,8 +392,16 @@ static void onEnterInitialize() {
 }
 static void onEnterIdle() {
     setStateEntry(State::Idle);
-    amplifier::rampToVoltage(0);
+    amplifier::clearVoutOverride();
+    // Relay off, then immediately zero the DAC.  rampToVoltage() is a
+    // single-step call — it only decrements by one rampRate on each
+    // invocation, so calling it once here would leave the DAC stranded at
+    // a high value.  The Shutdown state is the right place for a gradual
+    // ramp; by the time the normal stop path reaches Idle the DAC is already
+    // 0.  For paths that bypass Shutdown (clearFault → Idle, reinit → Idle)
+    // hardStop() guarantees the DAC is zeroed immediately.
     amplifier::setRelayState(false);
+    amplifier::hardStop();
 }
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
@@ -443,6 +454,7 @@ static void onExitOperating()       {
 }
 static void onEnterShutdown()       {
     setStateEntry(State::Shutdown);
+    amplifier::clearVoutOverride();
     amplifier::rampTowardShutdown(0u);
     amplifier::setRelayState(false);
 }
@@ -454,7 +466,13 @@ static void onEnterDelay() {
 
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
+    amplifier::clearVoutOverride();
+    // Relay off first, then immediately zero the DAC.  The load is now
+    // disconnected, so there is no reason to leave the DAC at the pre-fault
+    // level.  This also ensures that if clearFault() → start() resumes into
+    // a running state, the ramp begins cleanly from 0.
     amplifier::setRelayState(false);
+    amplifier::hardStop();
     running = false;
     if (offStateMs == 0) offStateMs = sNowMs;
 
@@ -855,7 +873,10 @@ Output update(float    tempC,
     uint16_t dacTarget = 0;
     if (currentState == State::CoarseCooldown ||
         currentState == State::FineCooldown) {
-        dacTarget = cooldownDacTarget(tempC, coolingRate);
+        // Honour a manual "set vout" override; fall back to FSM-computed target.
+        dacTarget = amplifier::hasVoutOverride()
+                        ? amplifier::getVoutOverrideDac()
+                        : cooldownDacTarget(tempC, coolingRate);
         amplifier::rampToVoltage(dacTarget);
     } else if (currentState == State::Shutdown) {
         amplifier::rampTowardShutdown(dacTarget);  // dacTarget is 0

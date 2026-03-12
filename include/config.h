@@ -29,6 +29,11 @@
 // Compressor
 // =============================================================================
 
+// Enable the compressor relay subsystem.
+// Set false to skip initialisation and service entirely (e.g. when the
+// Qwiic relay hardware is not fitted or you want to bench-test without it).
+#define ENABLE_COMPRESSOR false
+
 // Hard upper limit on how long a timed compressor run may last.
 // Any 'compressor start' duration exceeding this value is clamped to it.
 // Set to 0 to disable the limit (not recommended).

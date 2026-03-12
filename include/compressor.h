@@ -2,10 +2,10 @@
  * @file compressor.h
  * @brief Air compressor relay control.
  *
- * The compressor is driven through a single output pin on a PCAL9535A I2C
- * GPIO expander (address / pin configured in pin_config.h).  It may only be
- * started via a timed run — there is no indefinite-on mode — and the run
- * duration is hard-capped by COMPRESSOR_MAX_RUN_MS (config.h).
+ * The compressor is driven through a SparkFun Qwiic Single Relay at I2C
+ * address COMPRESSOR_RELAY_ADDR (pin_config.h).  It may only be started via
+ * a timed run — there is no indefinite-on mode — and the run duration is
+ * hard-capped by COMPRESSOR_MAX_RUN_MS (config.h).
  *
  * Typical flow:
  *   compressor::startRun(millis(), durationMs);   // turns relay ON
@@ -26,10 +26,10 @@
 namespace compressor {
 
 /**
- * Initialise the PCAL9535A GPIO expander and drive the relay pin LOW (off).
+ * Initialise the SparkFun Qwiic Single Relay and de-energise it.
  * Must be called once before any other function in this namespace.
  * @return MODULE_INIT_SUCCESS on success, MODULE_INIT_HARDWARE_ERROR if the
- *         expander does not acknowledge on the I2C bus.
+ *         relay does not acknowledge on the I2C bus.
  */
 module::InitStatus init();
 

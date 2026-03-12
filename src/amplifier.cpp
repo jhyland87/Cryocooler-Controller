@@ -20,11 +20,11 @@
 #include <ACS37800.h>
 #include <MD_AD9833.h>
 #include <Adafruit_MCP4725.h>
+#include <SparkFun_Qwiic_Relay.h>
 
 #include "pin_config.h"
 #include "config.h"
 #include "amplifier.h"
-#include "relay_board.h"
 #include "conversions.h"
 #include "module.h"
 #include "imu.h"
@@ -41,7 +41,23 @@
 static constexpr char TAG[] = "amplifier";
 static LogStream _Log = Log.createChildLogger("amplifier");
 
-/// True while the relay output is energised (cached; relay_board is the source of truth on hardware).
+// SparkFun Qwiic Single Relay instance for this module.
+static Qwiic_Relay sRelay(AMPLIFIER_RELAY_ADDR);
+
+/// Set true by initRelay() only when the relay device acknowledged on the I2C
+/// bus.  When false, setRelay() is a no-op so the rest of the amplifier chain
+/// (DAC, waveform, power monitor) can operate normally even if the relay board
+/// is not yet fitted.
+static bool sRelayAvailable = false;
+
+/// Set true by initDac() only when the MCP4725 device is found and begin()
+/// completes without error.  Guards dacWrite() so that hardStop() /
+/// setRmsVoltage() never reach mcp4725_.setVoltage() on an uninitialised DAC
+/// object — a crash that occurs when Adafruit_I2CDevice::begin() re-calls
+/// Wire.begin() and leaves the ESP-IDF 5.x I2C driver in an inconsistent state.
+static bool sDacAvailable = false;
+
+/// True while the relay output is energised (cached).
 static bool sRelayOn = false;
 
 // Waveform generator (AD9833 over SPI)
@@ -53,6 +69,12 @@ static ACS37800 acs_;
 // MCP4725 12-bit I2C DAC — amplitude control
 static Adafruit_MCP4725 mcp4725_;
 uint16_t dacCurrent_ = 0u;
+
+// Manual vout override — set by the "set vout" command to prevent the FSM
+// tick from re-applying its computed cooldown DAC target each cycle.
+// Cleared automatically when the FSM enters Idle, Shutdown, or Fault.
+static bool     voutOverrideActive_ = false;
+static uint16_t voutOverrideDac_    = 0u;
 
 // Set-points
 float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
@@ -91,14 +113,16 @@ static std::optional<TrackingMonitor<float>> voltTracker_;
 // ---------------------------------------------------------------------------
 
 /**
- * Drive the relay coil via the shared relay_board driver.  No-ops when the
+ * Drive the relay coil via the SparkFun Qwiic Single Relay.  No-ops when the
  * requested state matches the cached state to avoid unnecessary I2C traffic.
  */
 static void setRelay(bool on) {
     if (on == sRelayOn) return;
     sRelayOn = on;
-    relay_board::setPin(AMPLIFIER_RELAY_PIN, on);
-    ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
+    if (sRelayAvailable) {
+        if (on) { sRelay.turnRelayOn(); } else { sRelay.turnRelayOff(); }
+    }
+    ESP_LOGD(TAG, "Relay → %s%s", on ? "ON" : "OFF", sRelayAvailable ? "" : " (no hw)");
 }
 
 // ---------------------------------------------------------------------------
@@ -113,11 +137,14 @@ static void setRelay(bool on) {
  * writeEEPROM is always false — we never wear the EEPROM with ramp steps.
  */
 static void dacWrite(uint16_t dacVal) {
+    if (!sDacAvailable) return;   // DAC not initialised — skip silently
     dacVal = constrain(dacVal, 0u, static_cast<uint16_t>(AMPLIFIER_RESOLUTION));
     if (dacCurrent_ == dacVal) return;
 
     dacCurrent_ = dacVal;
+    ESP_LOGD(TAG, "DAC current: %u", dacCurrent_);
     mcp4725_.setVoltage(dacVal, /*writeEEPROM=*/false);
+    ESP_LOGD(TAG, "Writing DAC value: %u", dacVal);
 }
 
 /**
@@ -144,22 +171,22 @@ static void dacRampInternal(uint16_t target, uint16_t maxStep) {
 namespace amplifier {
 
 module::InitStatus init() {
-    // -- PCAL9535A relay ------------------------------------------------------
-    ESP_LOGI(TAG, "Initializing PCAL9535A (Relay)...");
+    // -- Qwiic Single Relay ---------------------------------------------------
+    _Log.println("Initializing Qwiic Single Relay (Amplifier)...");
     {
         const module::InitStatus status = initRelay();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "PCAL9535A relay initialization failed: %d", static_cast<int>(status));
-            _Log.printf("PCAL9535A relay initialization failed: %d\n", static_cast<int>(status));
+            ESP_LOGE(TAG, "Qwiic Single Relay initialization failed: %d", static_cast<int>(status));
+            _Log.printf("Qwiic Single Relay initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
-    ESP_LOGI(TAG, "PCAL9535A relay initialized");
+    _Log.println("Qwiic Single Relay initialized");
 
     // -- MCP4725 DAC ----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
-    ESP_LOGI(TAG, "Initializing MCP4725 (DAC - Amplitude Control)...");
+    _Log.println("Initializing MCP4725 (DAC - Amplitude Control)...");
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -168,12 +195,12 @@ module::InitStatus init() {
             return status;
         }
     }
-    ESP_LOGI(TAG, "MCP4725 DAC initialized");
+    _Log.println("MCP4725 DAC initialized");
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
     // out of the amplifier.
-    ESP_LOGI(TAG, "Initializing ACS37800 (VOUT - Power Monitor)...");
+    _Log.println("Initializing ACS37800 (VOUT - Power Monitor)...");
     {
         const module::InitStatus status = initAcs();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -182,12 +209,12 @@ module::InitStatus init() {
             return status;
         }
     }
-    ESP_LOGI(TAG, "ACS37800 initialized");
+    _Log.println("ACS37800 initialized");
 
     // -- AD9833 waveform generator --------------------------------------------
     // This is the waveform generator that generates the sine wave that is
     // passed to the AD633 voltage multiplier.
-    ESP_LOGI(TAG, "Initializing AD9833 (DDS - Waveform Generator)...");
+    _Log.println("Initializing AD9833 (DDS - Waveform Generator)...");
     {
         const module::InitStatus status = initWaveform();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -196,24 +223,30 @@ module::InitStatus init() {
             return status;
         }
     }
-    ESP_LOGI(TAG, "AD9833 initialized");
-    ESP_LOGI(TAG, "Initialization successful");
+    _Log.println("AD9833 initialized");
+    _Log.println("Initialization successful");
     return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initDac() {
     if (!mcp4725_.begin(MCP4725_I2C_ADDRESS, &hardware::i2c())) {
-        ESP_LOGE(TAG, "MCP4725 not found at I2C address 0x%02X", MCP4725_I2C_ADDRESS);
-        _Log.printf("MCP4725 not found at I2C address 0x%02X\n", MCP4725_I2C_ADDRESS);
-        return module::MODULE_INIT_HARDWARE_ERROR;
+        // DAC not found — non-fatal.  dacWrite() is guarded by sDacAvailable so
+        // hardStop() / setRmsVoltage() calls from the state machine will no-op
+        // rather than reach mcp4725_.setVoltage() on an uninitialised object.
+        ESP_LOGW(TAG, "MCP4725 not found at 0x%02X — DAC disabled", MCP4725_I2C_ADDRESS);
+        _Log.printf("MCP4725 not found at I2C address 0x%02X — DAC disabled\n", MCP4725_I2C_ADDRESS);
+        sDacAvailable = false;
+        return module::MODULE_INIT_SUCCESS;
     }
+
+    sDacAvailable = true;
 
     // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts
     // at 0 after every ESP32 boot, but the MCP4725 retains its volatile register
     // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
     // I2C write and leave the DAC at whatever it was before the reset.
-    dacCurrent_ = 0u;
-    setRmsVoltage(0u);
+    dacCurrent_ = UINT16_MAX;   // force dacWrite() to issue the I2C write
+    setRmsVoltage(0.0f);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -245,13 +278,22 @@ module::InitStatus initAcs() {
 }
 
 module::InitStatus initRelay() {
-    ESP_LOGI(TAG, "Initialising amplifier relay (pin %d via relay_board)",
-             static_cast<int>(AMPLIFIER_RELAY_PIN));
+    ESP_LOGI(TAG, "Initialising amplifier relay (Qwiic Single Relay @ 0x%02X)",
+             static_cast<unsigned>(AMPLIFIER_RELAY_ADDR));
 
-    // relay_board::init() is idempotent — whichever module (compressor or
-    // amplifier) calls it first programmes the PCAL9535A once and drives
-    // both relay pins LOW.  The second call is a no-op.
-    relay_board::init();
+    if (!sRelay.begin(hardware::i2c())) {
+        // Relay not found — log a warning but continue.  The rest of the
+        // amplifier chain (DAC, waveform generator, power monitor) must still
+        // initialise so the state machine can safely call setRmsVoltage() /
+        // hardStop() etc.  setRelay() will no-op silently until the hardware
+        // is fitted and initRelay() succeeds on a subsequent reinit().
+        ESP_LOGW(TAG, "Qwiic Single Relay not found at 0x%02X — relay disabled",
+                 static_cast<unsigned>(AMPLIFIER_RELAY_ADDR));
+        sRelayAvailable = false;
+        return module::MODULE_INIT_SUCCESS;
+    }
+
+    sRelayAvailable = true;
 
     // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
     sRelayOn = true;
@@ -344,9 +386,9 @@ void initFineCooldown() {
 // ---------------------------------------------------------------------------
 
 void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
-    if (dacTarget > AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V) {
-        ESP_LOGW(TAG, "DAC target voltage is greater than the maximum output voltage, setting to %f", AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
-        dacTarget = static_cast<uint16_t>(AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
+    if (dacTarget > AMPLIFIER_RESOLUTION) {
+        ESP_LOGW(TAG, "DAC target exceeds AMPLIFIER_RESOLUTION (%u), clamping", static_cast<unsigned>(AMPLIFIER_RESOLUTION));
+        dacTarget = static_cast<uint16_t>(AMPLIFIER_RESOLUTION);
     }
     // Dead-band: ignore ±1 count differences to avoid chasing temperature noise.
     const int32_t diff = static_cast<int32_t>(dacTarget) - static_cast<int32_t>(dacCurrent_);
@@ -365,17 +407,38 @@ void rampTowardShutdown(uint16_t dacTarget) {
 }
 
 void setRmsVoltage(float rmsTarget) {
+    _Log.printf("Setting RMS voltage to %f\n", rmsTarget);
     if ( rmsTarget > AMPLIFIER_MAX_VOLTAGE_VAC  ) {
         ESP_LOGW(TAG, "RMS target voltage is greater than the maximum output voltage, setting to %f", AMPLIFIER_MAX_VOLTAGE_VAC);
+        _Log.printf("RMS target voltage is greater than the maximum output voltage, setting to %f\n", AMPLIFIER_MAX_VOLTAGE_VAC);
         rmsTarget = AMPLIFIER_MAX_VOLTAGE_VAC;
     }
-    uint16_t dacTarget = map(rmsTarget, 0.0f, AMPLIFIER_MAX_VOLTAGE_VAC, 0.0f, AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V);
+    uint16_t dacTarget = static_cast<uint16_t>(
+        map(rmsTarget, 0.0f, AMPLIFIER_MAX_VOLTAGE_VAC, 0.0f, static_cast<float>(AMPLIFIER_RESOLUTION)));
     ESP_LOGD(TAG, "Setting RMS voltage to %f (DAC target: %u)", rmsTarget, dacTarget);
+    _Log.printf("Setting RMS voltage to %f (DAC target: %u)\n", rmsTarget, dacTarget);
     dacWrite(dacTarget);
 }
 
 uint16_t getDacCurrent() {
     return dacCurrent_;
+}
+
+void setVoutOverride(uint16_t dacValue) {
+    voutOverrideActive_ = true;
+    voutOverrideDac_    = dacValue;
+}
+
+void clearVoutOverride() {
+    voutOverrideActive_ = false;
+}
+
+bool hasVoutOverride() {
+    return voutOverrideActive_;
+}
+
+uint16_t getVoutOverrideDac() {
+    return voutOverrideDac_;
 }
 
 void setRmsVoltagePercent(float percent) {
@@ -384,8 +447,9 @@ void setRmsVoltagePercent(float percent) {
 }
 
 void rampToRmsVoltagePercent(float percent, uint16_t rampRate) {
-    float rmsTarget = percent * AMPLIFIER_MAX_VOLTAGE_VAC / 100.0f;
-    rampToVoltage(static_cast<uint16_t>(rmsTarget), rampRate);
+    const auto dacTarget = static_cast<uint16_t>(
+        percent / 100.0f * static_cast<float>(AMPLIFIER_RESOLUTION));
+    rampToVoltage(dacTarget, rampRate);
 }
 
 // ---------------------------------------------------------------------------

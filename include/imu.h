@@ -32,6 +32,9 @@ module::ServiceStatus service();
 /** True if init() succeeded and the sensor is running. */
 bool isInitialized();
 
+/** True if the QMI8658 was found and acknowledged on the I2C bus during init(). */
+bool isAvailable();
+
 /** True while checkMotion() detects significant acceleration or rotation. */
 bool isMotionDetected();
 

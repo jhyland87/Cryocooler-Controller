@@ -2,10 +2,8 @@
  * @file compressor.cpp
  * @brief Air compressor relay control implementation.
  *
- * The relay is driven through the shared relay_board driver (PCAL9535A at
- * COMPRESSOR_RELAY_PCAL_ADDR / 0x20).  relay_board owns the single library
- * instance and calls begin() exactly once, preventing the register-reset
- * problem that arises when two instances address the same chip.
+ * The relay is driven through a SparkFun Qwiic Single Relay at
+ * COMPRESSOR_RELAY_ADDR (0x19) on the shared I2C bus.
  *
  * Only timed runs are supported.  startRun() enables the relay and records a
  * deadline; service() polls that deadline each tick and disables the relay
@@ -13,17 +11,25 @@
  */
 
 #include <Arduino.h>
+#include <SparkFun_Qwiic_Relay.h>
 
 #include "hardware.h"
 #include "pin_config.h"
 #include "config.h"
 #include "compressor.h"
-#include "relay_board.h"
 #include "esp_log.h"
 
 namespace compressor {
 
 static constexpr char TAG[] = "compressor";
+
+// SparkFun Qwiic Single Relay instance for this module.
+static Qwiic_Relay sRelay(COMPRESSOR_RELAY_ADDR);
+
+/// Set true by init() only when the relay device acknowledged on the I2C bus.
+/// When false, setRelay() is a no-op so the module can be enabled in config
+/// without crashing if the hardware is not yet fitted.
+static bool sRelayAvailable = false;
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -45,8 +51,10 @@ static uint32_t sRunDurationMs = 0;
 static void setRelay(bool on) {
     if (on == sRelayOn) return;
     sRelayOn = on;
-    relay_board::setPin(COMPRESSOR_RELAY_PIN, on);
-    ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
+    if (sRelayAvailable) {
+        if (on) { sRelay.turnRelayOn(); } else { sRelay.turnRelayOff(); }
+    }
+    ESP_LOGD(TAG, "Relay → %s%s", on ? "ON" : "OFF", sRelayAvailable ? "" : " (no hw)");
 }
 
 // ---------------------------------------------------------------------------
@@ -54,16 +62,19 @@ static void setRelay(bool on) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    ESP_LOGI(TAG, "Initialising compressor relay (pin %d via relay_board)",
-             static_cast<int>(COMPRESSOR_RELAY_PIN));
+    ESP_LOGI(TAG, "Initialising compressor relay (Qwiic Single Relay @ 0x%02X)",
+             static_cast<unsigned>(COMPRESSOR_RELAY_ADDR));
 
-    // relay_board::init() is idempotent — whichever module calls it first
-    // programmes the PCAL9535A and drives both relay pins LOW.
-    relay_board::init();
-
-    // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
-    sRelayOn       = true;
-    setRelay(false);
+    if (!sRelay.begin(hardware::i2c())) {
+        ESP_LOGW(TAG, "Qwiic Single Relay not found at 0x%02X — relay disabled",
+                 static_cast<unsigned>(COMPRESSOR_RELAY_ADDR));
+        sRelayAvailable = false;
+    } else {
+        sRelayAvailable = true;
+        // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
+        sRelayOn = true;
+        setRelay(false);
+    }
     sRunStartMs    = 0;
     sRunDurationMs = 0;
 
