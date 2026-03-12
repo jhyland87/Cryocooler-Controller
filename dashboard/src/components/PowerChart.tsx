@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
 import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
+import { createTimeFormatter } from '../utils/formatters';
+import { useMemo } from 'preact/hooks';
 
 interface Props {
   coldHeadVolts:   DataPoint[];
@@ -20,14 +22,6 @@ function toXAxis(buf: DataPoint[]): number[] {
   return buf.map((p) => p.t);
 }
 
-function fmtTime(ms: number): string {
-  return new Date(ms).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-}
 
 export function PowerChart({ coldHeadVolts, coldHeadAmps, systemVolts, systemAmps }: Props) {
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
@@ -36,6 +30,8 @@ export function PowerChart({ coldHeadVolts, coldHeadAmps, systemVolts, systemAmp
   const longest = [coldHeadVolts, coldHeadAmps, systemVolts, systemAmps]
     .reduce((a, b) => (a.length >= b.length ? a : b), []);
   const xData = toXAxis(longest);
+  const timeFormatter = useMemo(() => createTimeFormatter(), [xData]);
+
   const n     = xData.length || 1;
 
   const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
@@ -87,7 +83,11 @@ export function PowerChart({ coldHeadVolts, coldHeadAmps, systemVolts, systemAmp
   ];
 
   return (
-    <Box ref={containerRef} sx={{ width: '100%', height: 260 }}>
+    <Box ref={containerRef}
+      sx={{
+        width: '100%',
+        height: 260
+      }}>
       <Typography variant="subtitle2" sx={{
         mb: 0.5,
         color: 'text.secondary',
@@ -98,8 +98,19 @@ export function PowerChart({ coldHeadVolts, coldHeadAmps, systemVolts, systemAmp
         Power Consumption
       </Typography>
       <LineChart
-        xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
-        yAxis={[{ min: 0, max: yMax, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
+        xAxis={[{
+          data: xData.length > 0 ? xData : [xMax],
+          min: xMin,
+          max: xMax,
+          scaleType: 'linear',
+          valueFormatter: timeFormatter,
+          tickMinStep: tickStep
+        }]}
+        yAxis={[{
+          min: 0,
+          max: yMax,
+          valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1)
+        }]}
         series={series}
         height={220}
         skipAnimation

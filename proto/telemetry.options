@@ -1,0 +1,13 @@
+# Nanopb options — set max string sizes so all structs use fixed-size
+# char arrays (no heap allocation on the ESP32).
+
+cryocooler.Timestamp.local             max_size:20
+cryocooler.State.name                  max_size:24
+cryocooler.State.status_text           max_size:64
+cryocooler.Status.on_duration          max_size:12
+cryocooler.Status.time_in_state        max_size:12
+cryocooler.Firmware.version            max_size:24
+cryocooler.Firmware.build_date         max_size:24
+cryocooler.Firmware.ota_flash_local    max_size:20
+cryocooler.ModuleEntry.init            max_size:16
+cryocooler.ModuleEntry.service         max_size:16

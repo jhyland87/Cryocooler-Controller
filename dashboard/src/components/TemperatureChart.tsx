@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
 import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
+import { createTimeFormatter } from '../utils/formatters';
+import { useMemo } from 'preact/hooks';
 
 interface Props {
   actualC:  DataPoint[];
@@ -21,17 +23,14 @@ function toXAxis(buf: DataPoint[]): number[] {
   return buf.map((p) => p.t);
 }
 
-/** Formats a ms-epoch value as HH:MM:SS for the x-axis tick labels. */
-function fmtTime(ms: number): string {
-  return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-}
-
 export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
   const tickStep = calcTickStep(containerWidth);
 
   const longest = actualC.length >= ambientC.length ? actualC : ambientC;
   const xData   = toXAxis(longest);
+  const timeFormatter = useMemo(() => createTimeFormatter(), [xData]);
+
   const n       = xData.length || 1;
 
   // Pin the x-axis to a fixed rolling window so the domain never rescales as
@@ -71,11 +70,25 @@ export function TemperatureChart({ actualC, ambientC, deltaC }: Props) {
 
   return (
     <Box ref={containerRef} sx={{ width: '100%', height: 260 }}>
-      <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.7rem' }}>
+      <Typography variant="subtitle2" sx={{
+        mb: 0.5,
+        color: 'text.secondary',
+        fontWeight: 600,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        fontSize: '0.7rem'
+      }}>
         Cold Head Temperature
       </Typography>
       <LineChart
-        xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
+        xAxis={[{
+          data: xData.length > 0 ? xData : [xMax],
+          min: xMin,
+          max: xMax,
+          scaleType: 'linear',
+          valueFormatter: timeFormatter,
+          tickMinStep: tickStep
+        }]}
         yAxis={[{ min: -200, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
         series={series}
         height={220}

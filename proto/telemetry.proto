@@ -1,0 +1,144 @@
+syntax = "proto3";
+package cryocooler;
+
+// Single telemetry frame pushed at 1 Hz over WebSocket.
+// Each sub-message corresponds to a dot-notation prefix in the flat JSON.
+// Field numbers must never be renumbered after deployment to maintain
+// wire compatibility.
+
+message TelemetryFrame {
+  Timestamp    timestamp   = 1;
+  State        state       = 2;
+  Status       status      = 3;
+  ColdHead     cold_head   = 4;
+  Amplifier    amplifier   = 5;
+  SystemInfo   system      = 6;
+  Imu          imu         = 7;
+  Cooling      cooling     = 8;
+  Compressor   compressor  = 9;
+  Relay        relay       = 10;
+  Indicator    indicator   = 11;
+  Faults       faults      = 12;
+  Firmware     firmware    = 13;
+  Scores       score       = 14;
+  ModuleStatus modules     = 15;
+}
+
+message Timestamp {
+  int64  epoch = 1;   // Unix seconds (UTC)
+  string local = 2;   // "YYYY-MM-DD HH:MM:SS"
+}
+
+message State {
+  sint32 id          = 1;  // sint32: state.id can be -1
+  string name        = 2;
+  string status_text = 3;
+}
+
+message Status {
+  uint32 on_duration_ms = 1;
+  string on_duration    = 2;  // HH:MM:SS
+  string time_in_state  = 3;  // HH:MM:SS
+  uint32 backoff_count  = 4;
+}
+
+message ColdHead {
+  float temp_c                = 1;
+  float cooling_rate          = 2;
+  float cooldown_pct          = 3;
+  float delta_below_ambient_c = 4;
+  float ambient_temp_c        = 5;
+  float voltage_v             = 6;
+  float current_a             = 7;
+  bool  has_temp              = 8;  // false when sensor fault (temp_c is invalid)
+}
+
+message Amplifier {
+  float voltage_v = 1;
+  float current_a = 2;
+}
+
+message SystemInfo {
+  float  voltage_v          = 1;
+  float  current_a          = 2;
+  float  power_w            = 3;
+}
+
+message Imu {
+  float  roll_deg  = 1;
+  float  pitch_deg = 2;
+  float  yaw_deg   = 3;
+  float  accel_mag = 4;
+  float  temp_c    = 5;
+  uint32 motion    = 6;
+  float  x         = 7;
+  float  y         = 8;
+  float  z         = 9;
+}
+
+message Cooling {
+  int32  status        = 1;
+  int32  pump_on       = 2;
+  float  temp_c        = 3;
+  float  flow_rate_lpm = 4;
+  uint32 fan_speed     = 5;
+  uint32 fan_rpm       = 6;
+  uint32 pump_speed    = 7;
+  uint32 pump_rpm      = 8;
+}
+
+message Compressor {
+  int32 status = 1;
+}
+
+message Relay {
+  int32 compressor_state = 1;
+  int32 amplifier_state  = 2;
+}
+
+message Indicator {
+  int32 fault = 1;
+  int32 ready = 2;
+}
+
+message Faults {
+  uint32 count_10m = 1;
+  uint32 count_30m = 2;
+  uint32 count_60m = 3;
+}
+
+message Firmware {
+  string version         = 1;
+  string build_date      = 2;
+  int64  ota_flash_ts    = 3;
+  string ota_flash_local = 4;
+}
+
+message ScoreCooling {
+  float fan_speed    = 1;
+  float coolant_temp = 2;
+  float coolant_flow = 3;
+  float worst        = 4;
+}
+
+message Scores {
+  ScoreCooling cooling = 1;
+}
+
+message ModuleEntry {
+  string init    = 1;
+  string service = 2;
+}
+
+message ModuleStatus {
+  ModuleEntry hardware      = 1;
+  ModuleEntry sysinfo       = 2;
+  ModuleEntry imu           = 3;
+  ModuleEntry cooling       = 4;
+  ModuleEntry dashboard     = 5;
+  ModuleEntry cold_head     = 6;
+  ModuleEntry indicator     = 7;
+  ModuleEntry state_machine = 8;
+  ModuleEntry commands      = 9;
+  ModuleEntry telemetry     = 10;
+}

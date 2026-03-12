@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    LOG_TELEMETRY?: boolean;
+  }
+}
+
 /**
  * Flat telemetry object received over WebSocket (/ws) or HTTP (/api/telemetry).
  * Keys use dot-notation matching the FrameBuilder / dashboard_config.h names.

@@ -27,8 +27,9 @@
  *   / *{...JSON...}* /\r\n
  *
  * WebSocket (HTTP port 80, path /ws, for the web dashboard SPA):
- *   Plain flat JSON telemetry object pushed at 1 Hz, same key/value pairs
- *   as the GET /api/telemetry HTTP endpoint (dot-notation keys).
+ *   Protobuf binary telemetry frame pushed at 1 Hz.  The schema is defined
+ *   in proto/telemetry.proto (shared with the JS decoder).  Encoded using
+ *   Nanopb on the ESP32, decoded by protobufjs in the browser.
  *   Connect at:  ws://<hostname>/ws
  */
 
@@ -46,6 +47,7 @@
 #include "dashboard_config.h"
 #include "config.h"
 #include "telemetry.h"
+#include "telemetry_pb.h"
 #include "ss_dashboard.h"
 #include "commands.h"
 #include "ota.h"
@@ -121,10 +123,10 @@ static constexpr size_t     txBufSize           = 32768;
 static constexpr uint8_t    maxClients          = 4;
 
 #if DASHBOARD_WEBSOCKET_ENABLED
-// WebSocket JSON buffer — flat telemetry object, same as /api/telemetry.
-// Logs are excluded from the 1 Hz WS push (use GET /api/telemetry for logs)
-// so 8 KB is sufficient for the metrics-only payload.
-static constexpr size_t     wsBufSize           = 8192;
+// Protobuf binary buffer for WebSocket frames.  The Protobuf-encoded
+// telemetry payload is typically ~600-700 bytes; 2 KB gives comfortable
+// headroom for future field growth.
+static constexpr size_t     pbBufSize           = 2048;
 #endif
 
 // FreeRTOS task parameters.
@@ -154,7 +156,7 @@ static AsyncWebSocket   wsServer_("/ws");   // WebSocket endpoint for SPA
 #endif
 static char             txBuf[txBufSize];
 #if DASHBOARD_WEBSOCKET_ENABLED
-static char             wsBuf[wsBufSize];
+static uint8_t          pbBuf[pbBufSize];
 #endif
 
 // Client slot array.  Slots are nulled inside disconnect/error callbacks
@@ -327,27 +329,21 @@ static void dashboardTask(void* /*arg*/) {
         if (!anyTcpClient) continue;
 #endif
 
-        // Snapshot telemetry from Core 1.  Stale values are acceptable for a
-        // monitoring display; fillJsonSafe() is used so the dashboard is
-        // populated immediately on connect, even while other modules are still
-        // initialising (fields from unready modules are emitted as empty strings).
-        // Logs are excluded here (includeLogs=false) to keep the 1 Hz frame
-        // compact — fetch GET /api/telemetry when you need the full log array.
-        JsonDocument telDoc;
-        telemetry::fillJsonSafe(telDoc, /*includeLogs=*/false);
-
 #if DASHBOARD_WEBSOCKET_ENABLED
-        // ── WebSocket: broadcast flat JSON to all SPA clients ─────────────
+        // ── WebSocket: broadcast Protobuf binary to all SPA clients ───────
         if (anyWsClient) {
-            const size_t wsLen = serializeJson(telDoc, wsBuf, wsBufSize);
-            if (wsLen > 0 && wsLen < wsBufSize) {
-                wsServer_.textAll(wsBuf, wsLen);
+            const size_t pbLen = telemetry::encodeProtobuf(pbBuf, pbBufSize);
+            if (pbLen > 0) {
+                wsServer_.binaryAll(pbBuf, pbLen);
             }
         }
 #endif // DASHBOARD_WEBSOCKET_ENABLED
 
         // ── TCP: broadcast Serial Studio frame to Serial Studio clients ───
         if (anyTcpClient) {
+            // Build JSON only when TCP clients are connected (Serial Studio).
+            JsonDocument telDoc;
+            telemetry::fillJsonSafe(telDoc, /*includeLogs=*/false);
             ssDashboard.update(telDoc);
             const size_t len = ssDashboard.serialize(txBuf, txBufSize);
             if (len == 0) {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { TelemetryData } from '../types/telemetry';
+import { decodeTelemetryFrame } from '../utils/decodeTelemetry';
 
 // ─── Connection state ─────────────────────────────────────────────────────────
 
@@ -101,28 +102,37 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
     onDataCbRef.current = cb;
   }, []);
 
+  /** Apply a decoded TelemetryData frame to React state. */
+  const applyFrame = useCallback((flat: TelemetryData) => {
+    if (!mountedRef.current) return;
+    const epochSec = flat['timestamp.epoch'];
+    const now = typeof epochSec === 'number' ? epochSec * 1000 : Date.now();
+    setData(flat);
+    setLastUpdate(now);
+    setFrameCount((c) => c + 1);
+    onDataCbRef.current?.(flat, now);
+  }, []);
+
+  /** Handle a JSON text frame (used by HTTP polling fallback). */
   const handleFrame = useCallback((raw: string) => {
     try {
       const nested = JSON.parse(raw) as Record<string, unknown>;
       const flat   = flatten(nested) as TelemetryData;
-      if (!mountedRef.current) return;
-
-      // Prefer the ESP32's own authoritative timestamp so data points are
-      // indexed by the device clock rather than by network-jittered arrival
-      // time.  The payload field is `timestamp.epoch` (seconds since Unix
-      // epoch); convert to ms for DataPoint.t.  Fall back to Date.now() when
-      // the field is absent (e.g. older firmware, polling before WS connects).
-      const epochSec = flat['timestamp.epoch'];
-      const now = typeof epochSec === 'number' ? epochSec * 1000 : Date.now();
-
-      setData(flat);
-      setLastUpdate(now);
-      setFrameCount((c) => c + 1);
-      onDataCbRef.current?.(flat, now);
+      applyFrame(flat);
     } catch {
       // Silently drop malformed frames.
     }
-  }, []);
+  }, [applyFrame]);
+
+  /** Handle a Protobuf binary frame (used by WebSocket). */
+  const handleProtobufFrame = useCallback((buf: ArrayBuffer) => {
+    try {
+      const flat = decodeTelemetryFrame(new Uint8Array(buf));
+      applyFrame(flat);
+    } catch {
+      // Silently drop malformed frames.
+    }
+  }, [applyFrame]);
 
   // ── Polling fallback ───────────────────────────────────────────────────────
 
@@ -163,6 +173,7 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
     setStatus('connecting');
 
     const ws = new WebSocket(wsUrl());
+    ws.binaryType = 'arraybuffer'; // Receive Protobuf binary frames
     wsRef.current = ws;
 
     ws.addEventListener('open', () => {
@@ -172,7 +183,13 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
     });
 
     ws.addEventListener('message', (ev: MessageEvent) => {
-      handleFrame(typeof ev.data === 'string' ? ev.data : String(ev.data));
+      if (ev.data instanceof ArrayBuffer) {
+        // Binary frame → Protobuf
+        handleProtobufFrame(ev.data);
+      } else {
+        // Text frame → JSON (backward compatibility)
+        handleFrame(typeof ev.data === 'string' ? ev.data : String(ev.data));
+      }
     });
 
     ws.addEventListener('close', () => {
@@ -189,7 +206,7 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
       // Start polling immediately so the dashboard stays live.
       startPolling();
     });
-  }, [handleFrame, startPolling, stopPolling]);
+  }, [handleFrame, handleProtobufFrame, startPolling, stopPolling]);
 
   useEffect(() => {
     mountedRef.current = true;

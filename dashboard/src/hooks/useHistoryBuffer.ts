@@ -2,7 +2,7 @@ import { useRef, useCallback } from 'preact/hooks';
 import type { DataPoint, HistoryMap, TelemetryData } from '../types/telemetry';
 
 /** Number of samples to retain per channel (60 s at 1 Hz). */
-export const HISTORY_LENGTH = 60;
+export const HISTORY_LENGTH = 100;
 
 /** Total rolling window in milliseconds — used by charts to pin the x-axis domain. */
 export const HISTORY_WINDOW_MS = HISTORY_LENGTH * 1_000;

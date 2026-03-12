@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
 import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
+import { createTimeFormatter } from '../utils/formatters';
+import { useMemo } from 'preact/hooks';
 
 interface Props {
   fanSpeed:     DataPoint[];  // 0–100 %
@@ -19,23 +21,15 @@ function toXAxis(buf: DataPoint[]): number[] {
   return buf.map((p) => p.t);
 }
 
-function fmtTime(ms: number): string {
-  return new Date(ms).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    timeZone: 'UTC'
-  });
-}
-
 export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
   const tickStep = calcTickStep(containerWidth);
 
+
   const longest = [fanSpeed, coolantTemp, flowRate]
     .reduce((a, b) => (a.length >= b.length ? a : b), []);
   const xData = toXAxis(longest);
+  const timeFormatter = useMemo(() => createTimeFormatter(), [xData]);
   const n     = xData.length || 1;
 
   const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
@@ -73,18 +67,56 @@ export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
 
   return (
     <Box ref={containerRef} sx={{ width: '100%', height: 260 }}>
-      <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.7rem' }}>
+      <Typography variant="subtitle2" sx={{
+        mb: 0.5,
+        color: 'text.secondary',
+        fontWeight: 600,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        fontSize: '0.7rem'
+      }}>
         Cooling System
       </Typography>
       <LineChart
-        xAxis={[{ data: xData.length > 0 ? xData : [xMax], min: xMin, max: xMax, scaleType: 'linear', valueFormatter: fmtTime, tickMinStep: tickStep }]}
-        yAxis={[{ min: 0, max: yMax, valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1) }]}
+        xAxis={[{
+          data: xData.length > 0 ? xData : [xMax],
+          min: xMin,
+          max: xMax,
+          scaleType: 'linear',
+          valueFormatter: timeFormatter,
+          tickMinStep: tickStep,
+          tickLabelStyle: {
+            //angle: 45, // Use angle for automatic, or transformation for custom
+            textAnchor: 'start',
+            //transform: 'rotateZ(45deg)', // Rotate labels 45 degrees [1]
+            fontSize: 12,
+          },
+        }]}
+        yAxis={[{
+          min: 0,
+          max: yMax,
+          valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1)
+        }]}
         series={series}
         height={220}
         skipAnimation
         sx={{ '& .MuiChartsLegend-root': { fontSize: '0.7rem' } }}
-        slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' }, itemMarkWidth: 10, itemMarkHeight: 10 } }}
-        margin={{ top: 30, right: 10, bottom: 36, left: 52 }}
+        slotProps={{
+          legend: {
+            position: {
+              vertical: 'top',
+              horizontal: 'right'
+            },
+            itemMarkWidth: 10,
+            itemMarkHeight: 10
+          }
+        }}
+        margin={{
+          top: 30,
+          right: 10,
+          bottom: 36,
+          left: 52
+        }}
         grid={{ horizontal: true }}
       />
     </Box>
