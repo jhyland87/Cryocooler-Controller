@@ -1,124 +1,26 @@
-import { LineChart } from '@mui/x-charts/LineChart';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
-import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
-import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
-import { createTimeFormatter } from '../utils/formatters';
-import { useMemo } from 'preact/hooks';
+import { TelemetryLineChart } from './TelemetryLineChart';
 
 interface Props {
-  coldHeadVolts:   DataPoint[];
-  coldHeadAmps:    DataPoint[];
-  systemVolts:     DataPoint[];
-  systemAmps:      DataPoint[];
+  coldHeadVolts: DataPoint[];
+  coldHeadAmps:  DataPoint[];
+  systemVolts:   DataPoint[];
+  systemAmps:    DataPoint[];
 }
-
-function toSeries(buf: DataPoint[]): number[] {
-  return buf.map((p) => p.v);
-}
-
-function toXAxis(buf: DataPoint[]): number[] {
-  return buf.map((p) => p.t);
-}
-
 
 export function PowerChart({ coldHeadVolts, coldHeadAmps, systemVolts, systemAmps }: Props) {
-  const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
-  const tickStep = calcTickStep(containerWidth);
-
-  const longest = [coldHeadVolts, coldHeadAmps, systemVolts, systemAmps]
-    .reduce((a, b) => (a.length >= b.length ? a : b), []);
-  const xData = toXAxis(longest);
-  const timeFormatter = useMemo(() => createTimeFormatter(), [xData]);
-
-  const n     = xData.length || 1;
-
-  const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
-  const xMin = xMax - HISTORY_WINDOW_MS;
-
-  // When all values are 0 the scale domain is [0,0] and MUI's nice() call
-  // expands it symmetrically, placing 0 in the middle.  Force a non-zero
-  // ceiling so the domain is always [0, >0] and 0 stays at the bottom.
-  const rawYMax = Math.max(
-    0,
-    ...coldHeadVolts.map((p) => p.v),
-    ...coldHeadAmps.map((p) => p.v),
-    ...systemVolts.map((p) => p.v),
-    ...systemAmps.map((p) => p.v),
-  );
-  const yMax = rawYMax > 0 ? undefined : 1; // auto when data is positive; fallback to 1 when all-zero
-
-  const padTo = (arr: number[], len: number): (number | null)[] => {
-    const out: (number | null)[] = [...arr];
-    while (out.length < len) out.unshift(null);
-    return out;
-  };
-
   const series = [
-    {
-      label: 'Cold Head V',
-      data: padTo(toSeries(coldHeadVolts), n),
-      color: '#ce93d8',  // purple
-      showMark: false,
-    },
-    {
-      label: 'Cold Head A',
-      data: padTo(toSeries(coldHeadAmps), n),
-      color: '#f48fb1',  // pink
-      showMark: false,
-    },
-    {
-      label: 'System V',
-      data: padTo(toSeries(systemVolts), n),
-      color: '#80cbc4',  // teal
-      showMark: false,
-    },
-    {
-      label: 'System A',
-      data: padTo(toSeries(systemAmps), n),
-      color: '#ffcc80',  // light-orange
-      showMark: false,
-    },
+    { label: 'Cold Head V', data: coldHeadVolts, color: '#ce93d8' },
+    { label: 'Cold Head A', data: coldHeadAmps,  color: '#f48fb1' },
+    { label: 'System V',    data: systemVolts,   color: '#80cbc4' },
+    { label: 'System A',    data: systemAmps,    color: '#ffcc80' },
   ];
 
   return (
-    <Box ref={containerRef}
-      sx={{
-        width: '100%',
-        height: 260
-      }}>
-      <Typography variant="subtitle2" sx={{
-        mb: 0.5,
-        color: 'text.secondary',
-        fontWeight: 600,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        fontSize: '0.7rem' }}>
-        Power Consumption
-      </Typography>
-      <LineChart
-        xAxis={[{
-          data: xData.length > 0 ? xData : [xMax],
-          min: xMin,
-          max: xMax,
-          scaleType: 'linear',
-          valueFormatter: timeFormatter,
-          tickMinStep: tickStep
-        }]}
-        yAxis={[{
-          min: 0,
-          max: yMax,
-          valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1)
-        }]}
-        series={series}
-        height={220}
-        skipAnimation
-        sx={{ '& .MuiChartsLegend-root': { fontSize: '0.7rem' } }}
-        slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' }, itemMarkWidth: 10, itemMarkHeight: 10 } }}
-        margin={{ top: 30, right: 10, bottom: 36, left: 52 }}
-        grid={{ horizontal: true }}
-      />
-    </Box>
+    <TelemetryLineChart
+      title="Power Consumption"
+      series={series}
+      yAxis={{ min: 0 }}
+    />
   );
 }
