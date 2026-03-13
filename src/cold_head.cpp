@@ -233,7 +233,26 @@ void read(uint32_t nowMs) {
     sLastRmsVoltageV = amplifier::getLastRmsVoltage();
     sLastRmsCurrentA = amplifier::getLastRmsCurrent();
 
-    const uint16_t rtd          = max31865.readRTD();
+    // ── Non-blocking RTD measurement ─────────────────────────────────────
+    // The old code called readRTD() + temperature() — two blocking reads
+    // totalling ~150 ms of delay().  The forked library splits this into a
+    // three-phase state machine (bias settling → ADC conversion → read)
+    // that returns immediately each cycle.  One result every ~400 ms with
+    // zero blocking.
+
+    // Kick off a new measurement if none is in flight.
+    if (!max31865.readRTDAsyncInProgress()) {
+        max31865.readRTDAsyncStart();
+        return;  // bias is settling — nothing to process this cycle
+    }
+
+    // Advance the state machine; return early if still converting.
+    if (!max31865.readRTDAsyncReady()) {
+        return;
+    }
+
+    // Measurement complete — process the result.
+    const uint16_t rtd = max31865.readRTDAsyncGetLastRTD();
 
     // RTD raw == 0 means the sensor is disconnected or not communicating.
     // Skip all temperature processing — don't store a bogus value in sLastTempC.
@@ -243,7 +262,7 @@ void read(uint32_t nowMs) {
     }
 
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
-    const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
+    const float    tempC        = max31865.calculateTemperature(rtd, RTD_RNOMINAL, RTD_RREF);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
     const float    ambientTempC = imu::getTemperature();
     // Check MAX31865 fault register and temperature plausibility.
