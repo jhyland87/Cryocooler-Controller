@@ -525,13 +525,12 @@ static const ss::DatasetCfg statusDatasets[] = {
         .overviewDisplay = true
     },
     {
-        .title          = "Cooling Pump",
-        .units          = "",
-        .telemetryKey   = "cooling.pump_on",
-        .widget         = ss::WidgetType::Led,
+        .title          = "Coolant Pump",
+        .units          = "%",
+        .telemetryKey   = "cooling.coolant_flow_rate_lpm",
+        .widget         = ss::WidgetType::Bar,
         .widgetMin      = 0,
-        .widgetMax      = 1,
-        .alarmEnabled   = false,
+        .widgetMax      = 100,
         .led            = true,
         .ledHigh        = 1,
         .overviewDisplay = true
@@ -612,7 +611,7 @@ static const ss::DatasetCfg coolingDatasets[] = {
     {
         .title          = "Pump On",
         .units          = "",
-        .telemetryKey   = "cooling.pump_on",
+        .telemetryKey   = "cooling.coolant_pump_on",
         .widget         = ss::WidgetType::Led,
         .widgetMin      = 0,
         .widgetMax      = 1,
@@ -623,7 +622,7 @@ static const ss::DatasetCfg coolingDatasets[] = {
     {
         .title          = "Coolant Temp",
         .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "cooling.temp_c",
+        .telemetryKey   = "cooling.coolant_temp_c",
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,
         .widgetMax      = 60,
@@ -637,7 +636,7 @@ static const ss::DatasetCfg coolingDatasets[] = {
     {
         .title          = "Flow Rate",
         .units          = "L/min",
-        .telemetryKey   = "cooling.flow_rate_lpm",
+        .telemetryKey   = "cooling.coolant_flow_rate_lpm",
         .widget         = ss::WidgetType::Gauge,
         .widgetMin      = 0,
         .widgetMax      = 5,
