@@ -302,7 +302,7 @@ export function App() {
             {/* ── Console log panel ─────────────────────────────────────── */}
             <Grid size={{ xs: 12 }}>
               <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
-                <ConsoleLog />
+                <ConsoleLog logEpoch={data.log_epoch} />
               </Box>
             </Grid>
 

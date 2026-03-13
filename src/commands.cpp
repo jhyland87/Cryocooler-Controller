@@ -136,6 +136,12 @@ static void handleReinit(const char* /*args*/, Print& out) {
 #endif
 
 static void handleStop(const char* /*args*/, Print& out) {
+    if (state_machine::getState() == state_machine::State::Fault) {
+        // Defer the stop — will suppress auto-start on next fault clear.
+        state_machine::stop();
+        out.println("[OK] Stop deferred — will take effect on fault clear");
+        return;
+    }
     if (!state_machine::isRunning()) {
         out.println("[ERR] Not currently running");
         return;
@@ -351,34 +357,39 @@ static void handleFaultClear(const char* /*args*/, Print& out) {
     // clearFault() → Idle (resets fault reason, backoffs, running = false).
     state_machine::clearFault();
 
-    // Immediately resume from the correct state for the current temperature
-    // rather than leaving the operator in Idle at -196 °C.  start() uses the
-    // same temperature-based dispatch as a normal start command:
-    //   tempC >= COARSE_FINE_THRESHOLD_C  →  CoarseCooldown
-    //   in setpoint band                  →  Settle
-    //   below setpoint band               →  Overshoot
-    //   otherwise                         →  FineCooldown
-#ifdef ARDUINO
-    const float tempC = sensor_mock::isActive()
-                            ? sensor_mock::get().tempC
-                            : cold_head::getLastTempC();
-    state_machine::start(tempC);
-#else
-    state_machine::start();
-#endif
+    // If the operator issued 'stop' while in Fault, honour the deferred stop:
+    // stay in Idle without auto-starting.  Otherwise resume from the correct
+    // temperature-based state (the normal transient-fault path).
+    const bool stopped = state_machine::takeDeferredStop();
 
-    char msg[160];
-    snprintf(msg, sizeof(msg),
-             "[OK] Fault cleared (%s) — resumed as %s (%.2f C)",
-             reasonBuf,
-             state_machine::stateName(state_machine::getState()),
+    if (stopped) {
+        char msg[128];
+        snprintf(msg, sizeof(msg),
+                 "[OK] Fault cleared (%s) — stopped (deferred stop active)",
+                 reasonBuf);
+        out.println(msg);
+    } else {
 #ifdef ARDUINO
-             tempC
+        const float tempC = sensor_mock::isActive()
+                                ? sensor_mock::get().tempC
+                                : cold_head::getLastTempC();
+        state_machine::start(tempC);
 #else
-             0.0f
+        state_machine::start();
 #endif
-    );
-    out.println(msg);
+        char msg[160];
+        snprintf(msg, sizeof(msg),
+                 "[OK] Fault cleared (%s) — resumed as %s (%.2f C)",
+                 reasonBuf,
+                 state_machine::stateName(state_machine::getState()),
+#ifdef ARDUINO
+                 tempC
+#else
+                 0.0f
+#endif
+        );
+        out.println(msg);
+    }
 }
 
 static void handleFaultHistory(const char* /*args*/, Print& out) {

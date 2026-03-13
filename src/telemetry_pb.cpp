@@ -223,6 +223,9 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
     #undef FILL_MOD
 
+    // ── Log epoch ────────────────────────────────────────────────────────────
+    frame_.log_epoch = logger::getLastLogEpoch();
+
     // ── Encode ───────────────────────────────────────────────────────────────
     pb_ostream_t stream = pb_ostream_from_buffer(buf, bufSize);
     if (!pb_encode(&stream, cryocooler_TelemetryFrame_fields, &frame_)) {

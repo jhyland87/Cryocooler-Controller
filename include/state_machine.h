@@ -323,6 +323,19 @@ void reinit(uint32_t nowMs);
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
 
+/**
+ * Return (and consume) the deferred-stop flag.
+ *
+ * When the operator calls stop() while in State::Fault, the FSM records a
+ * "deferred stop" instead of transitioning (since nothing is running).
+ * After clearFault(), command handlers check this flag to decide whether
+ * to auto-start or stay in Idle.
+ *
+ * Returns true at most once per fault; the flag is reset on read and on
+ * every entry into Fault.
+ */
+bool takeDeferredStop();
+
 // ── Fault History ─────────────────────────────────────────────────────────────
 
 /**

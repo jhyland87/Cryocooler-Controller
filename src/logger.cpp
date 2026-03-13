@@ -67,6 +67,11 @@ void clear() {
     count_ = 0;
 }
 
+int64_t getLastLogEpoch() {
+    if (count_ == 0) return 0;
+    return get(count_ - 1).epoch;
+}
+
 // ── fillJson ─────────────────────────────────────────────────────────────────
 
 void fillJson(JsonArray arr, uint8_t maxEntries) {

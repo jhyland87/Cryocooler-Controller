@@ -183,6 +183,9 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
     }
   }
 
+  // ── Top-level scalar fields ──────────────────────────────────────────────
+  out.log_epoch = toLong(f.logEpoch);
+
   if (window.LOG_TELEMETRY === true) {
     console.log('decodeTelemetryFrame', out);
   }

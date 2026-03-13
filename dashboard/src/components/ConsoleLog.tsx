@@ -55,8 +55,12 @@ function lineColor(text: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ConsoleLog() {
-  const { entries, clear } = useConsoleLogs();
+interface ConsoleLogProps {
+  logEpoch?: number;
+}
+
+export function ConsoleLog({ logEpoch }: ConsoleLogProps) {
+  const { entries, clear } = useConsoleLogs(logEpoch);
   const scrollRef          = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
 

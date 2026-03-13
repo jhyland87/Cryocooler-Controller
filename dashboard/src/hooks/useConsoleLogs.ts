@@ -13,9 +13,6 @@ export interface LogEntry {
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
-/** How often (ms) to poll /api/telemetry for new log entries. */
-const POLL_INTERVAL_MS = 1000;
-
 /** Maximum number of log entries retained in the browser. */
 const MAX_ENTRIES = 500;
 
@@ -41,20 +38,23 @@ function fingerprint(e: LogEntry): string {
 /**
  * useConsoleLogs
  *
- * Polls GET /api/telemetry every second and extracts the `logs` array that
- * the ESP32 firmware appends to every telemetry snapshot.  Only entries that
- * did not appear in the previous poll batch are appended to the local buffer,
- * preventing duplicates while naturally handling device reboots (after a
- * reboot all entries are new since none match the previous batch).
+ * Event-driven console log fetcher.  Instead of polling /api/telemetry every
+ * second, it watches the `logEpoch` value from the Protobuf WebSocket stream.
+ * When `logEpoch` changes (meaning the server has new log entries), it fetches
+ * /api/telemetry once to retrieve the latest `logs` array.
  *
- * Returns the accumulated log entries and a `clear()` function.
+ * Falls back to polling every 2 s when logEpoch is not yet available (e.g.
+ * during initial connection or when running against older firmware).
+ *
+ * @param logEpoch  The `log_epoch` field from the latest telemetry WS frame.
  */
-export function useConsoleLogs(): { entries: LogEntry[]; clear: () => void } {
+export function useConsoleLogs(logEpoch: number | undefined): { entries: LogEntry[]; clear: () => void } {
   const [entries, setEntries] = useState<LogEntry[]>([]);
 
-  const mountedRef     = useRef(true);
-  /** Fingerprints of every entry returned by the most-recent successful poll. */
-  const prevBatchRef   = useRef<Set<string>>(new Set());
+  const mountedRef       = useRef(true);
+  const lastFetchedEpoch = useRef<number>(0);
+  /** Fingerprints of every entry returned by the most-recent successful fetch. */
+  const prevBatchRef     = useRef<Set<string>>(new Set());
 
   const fetchLogs = useCallback(async () => {
     if (!mountedRef.current) return;
@@ -96,25 +96,19 @@ export function useConsoleLogs(): { entries: LogEntry[]; clear: () => void } {
     }
   }, []);
 
+  // Event-driven: fetch when logEpoch changes
+  useEffect(() => {
+    if (logEpoch === undefined || logEpoch === 0) return;
+    if (logEpoch === lastFetchedEpoch.current) return;
+    lastFetchedEpoch.current = logEpoch;
+    fetchLogs();
+  }, [logEpoch, fetchLogs]);
+
+  // Initial fetch on mount (before first WS frame arrives)
   useEffect(() => {
     mountedRef.current = true;
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-
-    // Sequential loop: schedule the next poll only after the current fetch
-    // resolves (success or error), so there is never more than one request
-    // in flight at a time.
-    const tick = async () => {
-      await fetchLogs();
-      if (mountedRef.current) {
-        timerId = setTimeout(tick, POLL_INTERVAL_MS);
-      }
-    };
-
-    tick(); // kick off immediately
-    return () => {
-      mountedRef.current = false;
-      if (timerId !== null) clearTimeout(timerId);
-    };
+    fetchLogs();
+    return () => { mountedRef.current = false; };
   }, [fetchLogs]);
 
   const clear = useCallback(() => {

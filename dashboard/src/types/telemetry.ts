@@ -121,6 +121,9 @@ export interface TelemetryData {
       service?: string;
     };
   };
+
+  /** Epoch (Unix seconds) of the most recent log entry; 0 = none. */
+  log_epoch?: number;
 }
 
 // ─── Path traversal helper ────────────────────────────────────────────────────

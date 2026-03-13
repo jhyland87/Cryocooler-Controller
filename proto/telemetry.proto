@@ -22,6 +22,7 @@ message TelemetryFrame {
   Firmware     firmware    = 13;
   Scores       score       = 14;
   ModuleStatus modules     = 15;
+  int64        log_epoch   = 16;  // epoch of most recent log entry (0 = none)
 }
 
 message Timestamp {

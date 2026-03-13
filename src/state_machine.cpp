@@ -90,6 +90,7 @@ enum : int {
 static State        currentState        = State::Off;
 static uint32_t     currentStateEntryMs = 0;
 static bool         running             = false;
+static bool         deferredStop_       = false;   ///< set by stop() while in Fault
 static FaultReason  faultReason         = FaultReason::None;
 static uint32_t     onStateMs           = 0;
 static uint32_t     offStateMs          = 0;
@@ -469,6 +470,7 @@ static void onEnterDelay() {
 
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
+    deferredStop_ = false;         // reset — operator hasn't deferred stop yet
     amplifier::clearVoutOverride();
     // Relay off first, then immediately zero the DAC.  The load is now
     // disconnected, so there is no reason to leave the DAC at the pre-fault
@@ -935,6 +937,11 @@ void start(uint32_t nowMs, float tempC) {
 }
 
 void stop(uint32_t nowMs) {
+    // While in Fault, defer the stop so clearFault() skips auto-start.
+    if (currentState == State::Fault) {
+        deferredStop_ = true;
+        return;
+    }
     if (!running) return;
     running = false;
     sNowMs = nowMs;
@@ -952,6 +959,12 @@ void clearFault(uint32_t nowMs) {
     // resetting faultReason, backoffCount, and backoffDacOffset before Idle
     // is entered.  running remains false; the operator must call start() to resume.
     fsmTrigger(EVT_FAULT_CLEARED, "clearFault");
+}
+
+bool takeDeferredStop() {
+    const bool val = deferredStop_;
+    deferredStop_ = false;
+    return val;
 }
 
 void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {

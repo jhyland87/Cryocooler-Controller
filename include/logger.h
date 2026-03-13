@@ -101,6 +101,9 @@ const Entry& get(uint8_t idx);
 /** Discard all entries. */
 void clear();
 
+/** Return the epoch (Unix seconds) of the most recent log entry, or 0 if empty. */
+int64_t getLastLogEpoch();
+
 /**
  * Append up to @p maxEntries of the most-recent log lines to @p arr.
  * Each element: {"ms": <uint32>, "epoch": <int64>, "text": "<string>"}
