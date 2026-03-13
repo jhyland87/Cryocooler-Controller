@@ -74,20 +74,47 @@ static constexpr uint8_t kLutCount = static_cast<uint8_t>(sizeof(kLut) / sizeof(
 static_assert(kLutCount <= 8, "EMC2101 LUT has only 8 entries");
 
 // ---------------------------------------------------------------------------
+// Pump speed normalisation helpers
+//
+// All user-facing pump speeds are expressed in a normalised 0–100 % range.
+// The actual EMC2101 hardware duty is 0–COOLING_PUMP_MAX_DUTY_PCT %.
+// These two helpers convert at the boundary between application code and HW.
+// ---------------------------------------------------------------------------
+static uint8_t pumpNormToHw(uint8_t normPct) {
+    return static_cast<uint8_t>(
+        (static_cast<uint16_t>(normPct) * COOLING_PUMP_MAX_DUTY_PCT + 50u) / 100u);
+}
+
+static uint8_t pumpHwToNorm(uint8_t hwPct) {
+    if (hwPct == 0u) return 0u;
+    const uint8_t norm = static_cast<uint8_t>(
+        (static_cast<uint16_t>(hwPct) * 100u + COOLING_PUMP_MAX_DUTY_PCT / 2u) / COOLING_PUMP_MAX_DUTY_PCT);
+    return (norm > 100u) ? 100u : norm;
+}
+
+// ---------------------------------------------------------------------------
 // Pump LUT configuration (forced-temperature mode)
 //
 // The pump EMC2101 uses setForcedTemperature() to receive the NTC-averaged
 // coolant temperature from software.  Its LUT then maps that temperature
 // to a pump PWM duty cycle autonomously.
 //
-//   Index  Temp (°C)  Duty (%)  Notes
-//   ─────  ─────────  ────────  ──────────────────────────────────────────
-//     0       20         30     Idle / cool — minimum safe pump speed
-//     1       25         40
-//     2       30         55
-//     3       35         70
-//     4       40         85
-//     5       45        100     Full speed at or above 45 °C
+// NOTE: This pump stalls above ~4400 RPM (~16 % hardware duty).
+// Manual override testing showed:
+//   hw  4 % → ~2360 RPM (steady)     hw 14 % → ~4160 RPM (steady)
+//   hw  9 % → ~3280 RPM (steady)     hw 16 % → ~4400 RPM (stall limit)
+//
+// Values below are in **normalised 0–100 %** space.  pumpNormToHw()
+// converts them to hardware duty (×0.16) when programming the EMC2101 LUT.
+//
+//   Index  Temp (°C)  Norm (%)  HW (%)  Est. RPM    Notes
+//   ─────  ─────────  ────────  ──────  ────────    ──────────────────────
+//     0       20         30       5     ~2360       Idle / cool — minimum
+//     1       25         40       6     ~2720       Normal room temp
+//     2       30         55       9     ~3280       Warm coolant
+//     3       35         70      11     ~3620       Above ambient
+//     4       40         85      14     ~4160       Hot — approaching limit
+//     5       45        100      16     ~4400       Max — at the stall limit
 // ---------------------------------------------------------------------------
 static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kPumpLut[] = {
     { 20,  30 },
@@ -403,7 +430,24 @@ static module::InitStatus pumpInit() {
            pumpController_.getDutyCycle());
 
   // Start at a safe minimum duty until the LUT takes over.
-  pumpController_.setDutyCycle(COOLING_PUMP_INITIAL_DUTY_PCT);
+  // COOLING_PUMP_INITIAL_DUTY_PCT is normalised (0–100 %); convert to HW duty.
+  const uint8_t initHwDuty = pumpNormToHw(COOLING_PUMP_INITIAL_DUTY_PCT);
+  pumpController_.setDutyCycle(initHwDuty);
+  ESP_LOGD(TAG, "pumpInit: initial duty %u%% (hw %u%%)",
+           COOLING_PUMP_INITIAL_DUTY_PCT, initHwDuty);
+
+  // Disable spinup entirely for the pump.  Water pumps don't need a
+  // high-drive burst to overcome static friction (the liquid provides
+  // constant load).  Leaving the IC's power-on default active (75 % drive
+  // for ~3 s) causes the spinup to re-trigger whenever the TACH signal
+  // has a brief dropout, producing a visible ramp-up / drop / ramp-up
+  // oscillation even though getDutyCycle() still reports the LUT target.
+  if (!pumpController_.configFanSpinup(0, 0)) {            // drive=bypass, time=0
+    ESP_LOGW(TAG, "pumpInit: configFanSpinup(0,0) failed");
+  }
+  if (!pumpController_.configFanSpinup(false)) {            // disable TACH-based spinup
+    ESP_LOGW(TAG, "pumpInit: configFanSpinup(false) failed");
+  }
 
   // Reconfigure PWM clock for ~25.7 kHz (same as fan).
   if (!pumpController_.configPWMClock(false, false)) {
@@ -413,12 +457,15 @@ static module::InitStatus pumpInit() {
     ESP_LOGW(TAG, "pumpInit: setPWMFrequency failed");
   }
 
-  // Program the pump LUT entries.
+  // Program the pump LUT entries (normalised → hardware duty conversion).
   for (uint8_t i = 0u; i < kPumpLutCount; ++i) {
-    if (!pumpController_.setLUT(i, kPumpLut[i].tempC, kPumpLut[i].pwmPct)) {
-      ESP_LOGW(TAG, "pumpInit: setLUT(%u, %u°C, %u%%) failed",
-               i, kPumpLut[i].tempC, kPumpLut[i].pwmPct);
+    const uint8_t hwDuty = pumpNormToHw(kPumpLut[i].pwmPct);
+    if (!pumpController_.setLUT(i, kPumpLut[i].tempC, hwDuty)) {
+      ESP_LOGW(TAG, "pumpInit: setLUT(%u, %u°C, %u%% hw) failed",
+               i, kPumpLut[i].tempC, hwDuty);
     }
+    ESP_LOGD(TAG, "pumpInit: LUT[%u] %u°C → %u%% norm → %u%% hw",
+             i, kPumpLut[i].tempC, kPumpLut[i].pwmPct, hwDuty);
   }
 
   // Set LUT hysteresis to prevent rapid hunting between duty steps.
@@ -432,7 +479,7 @@ static module::InitStatus pumpInit() {
   }
 
   // Push a safe initial temperature so the LUT applies the minimum duty
-  // cycle immediately (20 °C → 30 % per the pump LUT).
+  // cycle immediately (20 °C → 30 % normalised / 6 % hardware per the pump LUT).
   pumpController_.setForcedTemperature(static_cast<int8_t>(kPumpLut[0].tempC));
 
   // Enable LUT — the IC takes over pump PWM based on the forced temperature.
@@ -441,6 +488,11 @@ static module::InitStatus pumpInit() {
   }
 
   ESP_LOGD(TAG, "pumpInit: LUT configured (%u entries), forced-temp mode active", kPumpLutCount);
+  ESP_LOGI(TAG, "pumpInit: spinup disabled, LUT hyst=%u°C, initial forcedT=%u°C, hwDuty=%u%% (norm %u%%)",
+           pumpController_.getLUTHysteresis(),
+           kPumpLut[0].tempC,
+           pumpController_.getDutyCycle(),
+           pumpHwToNorm(pumpController_.getDutyCycle()));
   return module::MODULE_INIT_SUCCESS;
 }
 
@@ -574,34 +626,46 @@ module::ServiceStatus service() {
   // isCoolingFanOn, getFanRPM) return these cached copies so that the
   // telemetry emit path never touches the I2C bus outside this function.
   if (selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
-    ESP_LOGV(TAG, "service: reading fan EMC2101 (ch %u)", TCA9548A_CHANNEL_FAN);
     cachedDutyCycle_ = fanController_.getDutyCycle();
     cachedFanRpm_ = fanController_.getFanRPM();
+    ESP_LOGD(TAG, "fan: duty=%u%% rpm=%u", cachedDutyCycle_, cachedFanRpm_);
   } else {
-    //ESP_LOGE(TAG, "service: fan mux select failed — skipping fan reads");
-    _Log.printf("service: fan mux select failed — skipping fan reads\n");
+    ESP_LOGE(TAG, "fan: mux channel select FAILED — skipping fan reads");
   }
   const uint8_t dc = cachedDutyCycle_;
 
   // ── Pump EMC2101: push forced temperature and cache readings ───────────
   if (selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
-    ESP_LOGV(TAG, "service: reading pump EMC2101 (ch %u)", TCA9548A_CHANNEL_PUMP);
-
     // Feed the averaged NTC coolant temperature into the pump EMC2101.
     // The IC's LUT will then set the pump duty cycle accordingly.
+    int16_t forcedTemp = 0;
     if (coolantTemperature_ > 0.0f) {
-      int16_t forcedTemp = static_cast<int16_t>(roundf(coolantTemperature_));
+      forcedTemp = static_cast<int16_t>(roundf(coolantTemperature_));
       if (forcedTemp < 0)   forcedTemp = 0;
       if (forcedTemp > 127) forcedTemp = 127;
       pumpController_.setForcedTemperature(static_cast<int8_t>(forcedTemp));
     }
 
-    cachedPumpDutyCycle_ = pumpController_.getDutyCycle();
-    pumpRpmAvg_.addValue(static_cast<float>(pumpController_.getFanRPM()));
+    const uint8_t  rawDuty  = pumpController_.getDutyCycle();
+    const uint16_t rawRpm   = pumpController_.getFanRPM();
+    const int8_t   intTemp  = pumpController_.getInternalTemperature();
+
+    cachedPumpDutyCycle_ = rawDuty;
+    pumpRpmAvg_.addValue(static_cast<float>(rawRpm));
     cachedPumpRpm_       = static_cast<uint16_t>(pumpRpmAvg_.getAverage());
+
+    ESP_LOGD(TAG, "pump: forcedT=%d intT=%d hwDuty=%u%% norm=%u%% rawRPM=%u avgRPM=%u coolantT=%.1f",
+             forcedTemp, intTemp, rawDuty, pumpHwToNorm(rawDuty),
+             rawRpm, cachedPumpRpm_, coolantTemperature_);
+
+    // Flag when raw RPM drops to zero — indicates a TACH dropout that
+    // could trigger the EMC2101's built-in spinup logic.
+    if (rawRpm == 0) {
+      ESP_LOGW(TAG, "pump: TACH dropout — rawRPM=0 (hwDuty=%u%%, norm=%u%%, forcedT=%d)",
+               rawDuty, pumpHwToNorm(rawDuty), forcedTemp);
+    }
   } else {
-    //ESP_LOGE(TAG, "service: pump mux select failed — skipping pump reads");
-    _Log.printf("service: pump mux select failed — skipping pump reads\n");
+    ESP_LOGE(TAG, "pump: mux channel select FAILED — skipping pump reads");
   }
 
   // Disconnect all mux channels so the downstream bus segments no longer
@@ -626,10 +690,13 @@ module::ServiceStatus service() {
       coolantTempTracker_.reset();
   }
 
-  // Flow rate tracker: only advance when the pump is running and the flow
-  // sensor is returning a non-zero reading.
+  // Flow rate tracker: setpoint scales with current pump speed.
+  // COOLING_FLOW_NOMINAL_LPM is the expected flow at 100 % normalised speed;
+  // at lower speeds the expected flow is proportionally lower.
   if (coolingPumpOn_ && coolantFlowRate_ > 0.0f) {
-      flowTracker_.update(COOLING_FLOW_NOMINAL_LPM, coolantFlowRate_, nowMs);
+      const float normPumpPct = static_cast<float>(pumpHwToNorm(cachedPumpDutyCycle_));
+      const float expectedFlowLpm = COOLING_FLOW_NOMINAL_LPM * normPumpPct / 100.0f;
+      flowTracker_.update(expectedFlowLpm, coolantFlowRate_, nowMs);
   } else {
       flowTracker_.reset();
   }
@@ -656,7 +723,7 @@ uint16_t getFanRPM() {
 }
 
 uint8_t getPumpSpeed() {
-  return cachedPumpDutyCycle_;
+  return pumpHwToNorm(cachedPumpDutyCycle_);
 }
 
 uint16_t getPumpRPM() {
@@ -696,6 +763,36 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGD(TAG, "setFanSpeed(%u): dutyCycle=%u%% LUT=%s",
            percentage, fanController_.getDutyCycle(),
            fanController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
+  deselectMuxChannels();
+}
+
+// ---------------------------------------------------------------------------
+// setPumpSpeed — manual override for diagnostic testing
+//
+// Accepts a normalised pump speed (0–100 %).  Converts to the hardware
+// duty range (0–COOLING_PUMP_MAX_DUTY_PCT %) before writing to the EMC2101.
+// Disables the pump LUT; call enable() to restore LUT control.
+// ---------------------------------------------------------------------------
+void setPumpSpeed(uint8_t percentage) {
+  const uint8_t hwDuty = pumpNormToHw(percentage);
+  ESP_LOGI(TAG, "setPumpSpeed(%u%% norm → %u%% hw): manual override — disabling pump LUT",
+           percentage, hwDuty);
+
+  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  if (!pumpController_.LUTEnabled(false)) {
+    ESP_LOGW(TAG, "setPumpSpeed: LUTEnabled(false) failed");
+  }
+  if (!pumpController_.setDutyCycle(hwDuty)) {
+    ESP_LOGW(TAG, "setPumpSpeed: setDutyCycle(%u) failed", hwDuty);
+  }
+  // Post-write LUTEnabled(false) to override setDutyCycle()'s LUT-state restore.
+  if (!pumpController_.LUTEnabled(false)) {
+    ESP_LOGW(TAG, "setPumpSpeed: LUTEnabled(false) post-write failed");
+  }
+
+  ESP_LOGI(TAG, "setPumpSpeed: norm=%u%% hwDuty=%u%% readback=%u%% LUT=%s",
+           percentage, hwDuty, pumpController_.getDutyCycle(),
+           pumpController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
   deselectMuxChannels();
 }
 

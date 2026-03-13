@@ -176,8 +176,19 @@
 // Pump EMC2101 — forced-temperature LUT configuration
 // =============================================================================
 
-// Initial safe pump duty cycle (%) applied at startup before the LUT
-// receives its first forced temperature update.
+// Maximum hardware PWM duty cycle (%) sent to the pump EMC2101.
+// Manual testing showed the pump stalls above ~80 % normalised
+// (≈16 % hardware / ~4400 RPM).  All user-facing pump speeds are
+// expressed in a normalised 0–100 % range that maps linearly to
+// 0–COOLING_PUMP_MAX_DUTY_PCT % at the hardware level.
+//   user 0 %   → hardware 0 %     user 50 % → hardware 8 %
+//   user 100 % → hardware 16 %
+#define COOLING_PUMP_MAX_DUTY_PCT  static_cast<uint8_t>(16)
+
+// Initial safe pump duty cycle (normalised 0–100 %) applied at startup
+// before the LUT receives its first forced temperature update.
+// Hardware duty = COOLING_PUMP_INITIAL_DUTY_PCT × COOLING_PUMP_MAX_DUTY_PCT / 100.
+// 30 % normalised → ~5 % hardware → ~2360 RPM (steady).
 #define COOLING_PUMP_INITIAL_DUTY_PCT  static_cast<uint8_t>(30)
 
 // LUT hysteresis for the fan EMC2101 (°C).
@@ -319,11 +330,13 @@
 // Tracking Monitor — coolant flow rate (deviation from nominal)
 // =============================================================================
 
-// Acceptable deviation around COOLING_FLOW_NOMINAL_LPM (L/min).
-#define COOLING_FLOW_TRACK_HYSTERESIS_LPM   static_cast<float>(0.3f)
+// Acceptable deviation around the dynamic flow setpoint (L/min).
+// The setpoint is proportional to pump speed, so this is an absolute
+// tolerance around the speed-scaled expected flow.
+#define COOLING_FLOW_TRACK_HYSTERESIS_LPM   static_cast<float>(3.0f)
 
 // Flow deviation (L/min) at which the score reaches 0%.
-#define COOLING_FLOW_TRACK_FULL_SCALE_LPM   static_cast<float>(1.0f)
+#define COOLING_FLOW_TRACK_FULL_SCALE_LPM   static_cast<float>(10.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COOLING_FLOW_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s

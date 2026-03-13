@@ -37,6 +37,7 @@ uint8_t getFanSpeed();
 
 
 void setFanSpeed(uint8_t speedPercentage, bool force = false);
+void setPumpSpeed(uint8_t percentage);
 uint16_t getFanRPM();
 
 uint8_t  getPumpSpeed();

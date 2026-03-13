@@ -26,6 +26,7 @@
 //#include "dac.h"
 #include "indicator.h"
 #include "cooling.h"
+#include "config.h"
 #ifdef ARDUINO
 #include <WiFi.h>
 #include <esp_ota_ops.h>  // esp_app_desc_t lives here on IDF 5.1.x
@@ -342,6 +343,79 @@ static void handleCoolingFan(const char* args, Print& out) {
     char buf[48];
     snprintf(buf, sizeof(buf), "[OK] Fan speed set to %u%%", static_cast<unsigned>(val));
     out.println(buf);
+}
+
+static void handleCoolingPump(const char* args, Print& out) {
+    if (*args == '\0') {
+        out.println("[ERR] Usage: cooling pump <0-20 LPM> | <0-100%>");
+        out.println("       Plain number  = target LPM (approx linear estimate)");
+        out.println("       With '%'      = pump speed 0-100%% (normalised)");
+        out.println("       'cooling on'  = restore LUT control");
+        return;
+    }
+
+    // Parse up to 4 digits.
+    uint16_t val    = 0;
+    uint8_t  digits = 0;
+    const char* p = args;
+    while (*p >= '0' && *p <= '9' && digits < 4u) {
+        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*p - '0'));
+        ++p;
+        ++digits;
+    }
+
+    if (digits == 0) {
+        char buf[64];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] cooling pump: invalid argument '%s' (expected <LPM> or <%%>)", args);
+        out.println(buf);
+        return;
+    }
+
+    // Check for optional trailing '%' to select percent mode.
+    const bool isPercent = (*p == '%');
+    if (isPercent) { ++p; }
+
+    // Reject trailing non-whitespace garbage.
+    if (*p != '\0' && *p != ' ' && *p != '\t') {
+        char buf[64];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] cooling pump: invalid argument '%s' (expected <LPM> or <%%>)", args);
+        out.println(buf);
+        return;
+    }
+
+    if (isPercent) {
+        // ── Normalised pump speed override (0–100 %) ─────────────────────
+        if (val > 100u) {
+            out.println("[ERR] cooling pump: percentage must be 0-100");
+            return;
+        }
+        cooling::setPumpSpeed(static_cast<uint8_t>(val));
+        char buf[64];
+        snprintf(buf, sizeof(buf), "[OK] Pump speed set to %u%% (LUT disabled)",
+                 static_cast<unsigned>(val));
+        out.println(buf);
+    } else {
+        // ── LPM → approximate normalised pump speed ──────────────────────
+        // Linear estimate: 0 LPM = 0 %, max LPM = 100 %.
+        const float maxLpm = COOLING_FLOW_MAX_LPH / 60.0f;
+        if (static_cast<float>(val) > maxLpm) {
+            char buf[64];
+            snprintf(buf, sizeof(buf),
+                     "[ERR] cooling pump: %u LPM exceeds max (%.0f LPM)", val, maxLpm);
+            out.println(buf);
+            return;
+        }
+        const uint8_t normPct = static_cast<uint8_t>(
+            (static_cast<float>(val) / maxLpm) * 100.0f + 0.5f);
+        cooling::setPumpSpeed(normPct);
+        char buf[80];
+        snprintf(buf, sizeof(buf),
+                 "[OK] Pump target ~%u LPM → %u%% (LUT disabled, estimate)",
+                 static_cast<unsigned>(val), normPct);
+        out.println(buf);
+    }
 }
 
 static void handleFaultClear(const char* /*args*/, Print& out) {
@@ -837,8 +911,9 @@ static const Command commandMap[] = {
     {"telemetry delta on",  handleTelemetryDeltaOn,  "Emit only changed values each tick"},
     {"telemetry off",       handleTelemetryOff,      "Disable telemetry output"},
     {"telemetry on",        handleTelemetryOn,       "Enable telemetry output"},
-    // "cooling fan <N>" must precede "cooling on/off" so the longer prefix wins.
+    // "cooling fan/pump <N>" must precede "cooling on/off" so the longer prefix wins.
     {"cooling fan",         handleCoolingFan,         "Set cooling fan speed percentage (0-100)"},
+    {"cooling pump",        handleCoolingPump,        "Set pump speed: <LPM> or <0-100%> (normalised). 'cooling on' restores LUT."},
     {"cooling on",          handleCoolingOn,           "Enable cooling system"},
     {"cooling off",         handleCoolingOff,          "Disable cooling system"},
 #ifdef ARDUINO

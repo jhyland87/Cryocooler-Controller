@@ -286,8 +286,11 @@
 // Nominal coolant operating temperature (°C) — centre of the in-range band.
 #define COOLING_COOLANT_NOMINAL_TEMP_C  static_cast<float>(25.0f)
 
-// Expected coolant flow rate when the pump is running (L/min).
-#define COOLING_FLOW_NOMINAL_LPM        static_cast<float>(1.0f)
+// Expected coolant flow rate (L/min) at 100 % normalised pump speed.
+// The flow tracking monitor scales this proportionally to the current pump
+// duty so the setpoint tracks what the pump *should* be delivering.
+// Calibrated from measured data: 35 % norm → ~16.4 LPM → 100 % ≈ 47 LPM.
+#define COOLING_FLOW_NOMINAL_LPM        static_cast<float>(47.0f)
 
 // =============================================================================
 // Advanced parameters
