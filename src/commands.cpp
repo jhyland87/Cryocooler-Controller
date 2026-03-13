@@ -229,7 +229,15 @@ static void handleVoutGet(const char* /*args*/, Print& out) {
 
 static void handleVoutSet(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: vout set <0-120V> or <0-100%>");
+        out.println("[ERR] Usage: set vout <0-120V> | <0-100%> | auto");
+        return;
+    }
+
+    // "auto" clears the manual override and resumes FSM-driven output.
+    if (strncmp(args, "auto", 4) == 0 &&
+        (args[4] == '\0' || args[4] == ' ' || args[4] == '\t')) {
+        amplifier::clearVoutOverride();
+        out.println("[OK] Vout override cleared — resumed FSM control");
         return;
     }
 
@@ -828,7 +836,7 @@ static const Command commandMap[] = {
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
-    {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V or e.g. 75%)"},
+    {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V, 0-100%, or 'auto' to resume FSM)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
     {"relay amplifier",     handleRelayAmplifier,   "Energise or de-energise the amplifier relay (on|off)"},

@@ -52,6 +52,7 @@
 #include "commands.h"
 #include "ota.h"
 #include "logger.h"
+#include "state_machine.h"
 
 static LogStream _Log = Log.createChildLogger("dashboard");
 // AsyncWebSocket is included via ESPAsyncWebServer.h
@@ -294,12 +295,43 @@ static void onWsEvent(AsyncWebSocket* /*srv*/, AsyncWebSocketClient* client,
 }
 #endif // DASHBOARD_WEBSOCKET_ENABLED
 
+// ─── Fault history JSON helper ────────────────────────────────────────────────
+
+/**
+ * Populate @p doc with the fault_history JSON payload.
+ * Uses the public API from state_machine.h — no internal access needed.
+ */
+static void fillFaultHistoryJson(JsonDocument& doc) {
+    doc["type"]    = "fault_history";
+    doc["version"] = state_machine::getFaultHistoryVersion();
+
+    JsonArray records = doc["records"].to<JsonArray>();
+    const uint8_t count = state_machine::getFaultHistoryCount();
+    char reasonBuf[128];
+
+    for (uint8_t i = 0; i < count; ++i) {
+        const state_machine::FaultRecord rec = state_machine::getFaultRecord(i);
+        JsonObject obj = records.add<JsonObject>();
+
+        state_machine::formatFaultReasons(rec.reason, reasonBuf, sizeof(reasonBuf));
+        obj["reason"]        = String(reasonBuf);
+        obj["reason_mask"]   = static_cast<uint8_t>(rec.reason);
+        obj["entered_epoch"] = static_cast<long long>(rec.enteredEpoch);
+        obj["entered_ms"]    = rec.enteredMs;
+        obj["cleared_epoch"] = static_cast<long long>(rec.clearedEpoch);
+        obj["cleared_ms"]    = rec.clearedMs;
+        obj["cleared_by"]    = rec.clearedBy ? rec.clearedBy : "";
+        obj["active"]        = (rec.clearedBy == nullptr);
+    }
+}
+
 // ─── Dashboard FreeRTOS task ──────────────────────────────────────────────────
 
 static void dashboardTask(void* /*arg*/) {
     TickType_t lastWakeTime  = xTaskGetTickCount();
 #if DASHBOARD_WEBSOCKET_ENABLED
     uint8_t    cleanupTick   = 0;
+    uint32_t   lastFaultVersion_ = state_machine::getFaultHistoryVersion();
 #endif
 
     for (;;) {
@@ -335,6 +367,19 @@ static void dashboardTask(void* /*arg*/) {
             const size_t pbLen = telemetry::encodeProtobuf(pbBuf, pbBufSize);
             if (pbLen > 0) {
                 wsServer_.binaryAll(pbBuf, pbLen);
+            }
+
+            // ── Fault history: push JSON text frame on change ─────────────
+            const uint32_t curFaultVersion = state_machine::getFaultHistoryVersion();
+            if (curFaultVersion != lastFaultVersion_) {
+                lastFaultVersion_ = curFaultVersion;
+                JsonDocument faultDoc;
+                fillFaultHistoryJson(faultDoc);
+                static char faultJsonBuf[2048];
+                const size_t fLen = serializeJson(faultDoc, faultJsonBuf, sizeof(faultJsonBuf));
+                if (fLen > 0 && fLen < sizeof(faultJsonBuf)) {
+                    wsServer_.textAll(faultJsonBuf, fLen);
+                }
             }
         }
 #endif // DASHBOARD_WEBSOCKET_ENABLED
@@ -479,6 +524,19 @@ bool setupServer() {
             return;
         }
         request->send(200, "application/json", jsonBuf);
+    });
+
+    // GET /api/fault-history — full fault history snapshot as JSON.
+    httpServer.on("/api/fault-history", HTTP_GET, [](AsyncWebServerRequest* request) {
+        static char faultBuf[2048];
+        JsonDocument doc;
+        fillFaultHistoryJson(doc);
+        const size_t len = serializeJson(doc, faultBuf, sizeof(faultBuf));
+        if (len == 0 || len >= sizeof(faultBuf)) {
+            request->send(500, "application/json", "{\"error\":\"serialization failed\"}");
+            return;
+        }
+        request->send(200, "application/json", faultBuf);
     });
 
     // OTA firmware-update endpoint (GET /ota — upload form, POST /ota — flash).

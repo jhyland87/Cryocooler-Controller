@@ -7,8 +7,10 @@ import Typography from '@mui/material/Typography';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useTelemetry } from './hooks/useTelemetry';
 import { useHistoryBuffer } from './hooks/useHistoryBuffer';
+import { useFaultHistory } from './hooks/useFaultHistory';
 import { Header } from './components/Header';
 import { StatusPanel } from './components/StatusPanel';
+import { FaultHistoryPanel } from './components/FaultHistoryPanel';
 import { TemperatureChart } from './components/TemperatureChart';
 import { PowerChart } from './components/PowerChart';
 import { CoolingChart } from './components/CoolingChart';
@@ -94,8 +96,9 @@ const TILES: TileConfig[] = [
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export function App() {
-  const { data, status, frameCount, onData } = useTelemetry();
-  const { push, getHistory }                  = useHistoryBuffer([...HISTORY_KEYS]);
+  const { data, status, frameCount, onData, onFaultHistory } = useTelemetry();
+  const { push, getHistory }                                  = useHistoryBuffer([...HISTORY_KEYS]);
+  const { faults, loading: faultsLoading, pushUpdate }        = useFaultHistory();
 
   // Trigger re-render on every incoming frame so charts update.
   const [tick, setTick] = useState(0);
@@ -108,6 +111,10 @@ export function App() {
   useEffect(() => {
     onData(handleFrame);
   }, [onData, handleFrame]);
+
+  useEffect(() => {
+    onFaultHistory(pushUpdate);
+  }, [onFaultHistory, pushUpdate]);
 
   // ── Loading screen ──────────────────────────────────────────────────────────
   // Show a spinner until the first telemetry frame arrives.  frameCount stays
@@ -196,6 +203,9 @@ export function App() {
             {/* ── Row 1: Status panel ──────────────────────────────────── */}
             <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
               <StatusPanel data={data} key={tick} />
+              <Box sx={{ mt: 2 }}>
+                <FaultHistoryPanel faults={faults} loading={faultsLoading} />
+              </Box>
             </Grid>
 
             {/* ── Row 1 right: quick-read numeric tiles ────────────────── */}

@@ -13,7 +13,7 @@
  *    5 Settle         - Near setpoint, Normal relay engaged
  *    6 Baseline       - Collecting baseline: READY ON GREEN
  *    7 Operating      - Normal run: READY ON GREEN
- *    8 Shutdown       - Graceful stop: ramp DAC to 0 over ~5 seconds, then → Idle
+ *    8 Shutdown       - Graceful stop: ramp DAC to 0 (relay stays on), then relay off → Idle
  *    9 Delay          - Timed wait: hold for N ms, then advance to configured next state
  *  127 Fault          - Any fault condition: FAULT flash fast RED, alarm relay active (terminal state), amplifier relay off
  *
@@ -70,7 +70,7 @@ namespace state_machine {
     X(Settle,          5,  "Settle",         "Cold stage temperature is settling; circuits switched to Normal")           \
     X(Baseline,        6,  "Baseline",       "Cold stage temperature has settled; collecting baseline data")              \
     X(Operating,       7,  "Operating",      "System is operating normally; checking for deviations from baseline")      \
-    X(Shutdown,        8,  "Shutdown",       "Gracefully shutting down; ramping DAC to zero")                            \
+    X(Shutdown,        8,  "Shutdown",       "Gracefully shutting down; ramping DAC to zero (relay on)")                 \
     X(Delay,           9,  "Delay",          "Timed wait; will advance to next state after delay expires")               \
     X(Fault,         127,  "Fault",          nullptr)   /* status text is computed at runtime — see statusTextForState() */
 
@@ -342,6 +342,14 @@ struct FaultRecord {
     time_t      clearedEpoch;  ///< wall-clock at clear (0 = still active or pre-sync)
     const char* clearedBy;     ///< how the fault was cleared; nullptr = still active
 };
+
+/**
+ * Return a monotonically increasing version counter for the fault history.
+ * Incremented on every push or close of a fault record.  Dashboard code can
+ * compare against a cached value to detect changes without polling the full
+ * ring buffer.
+ */
+uint32_t getFaultHistoryVersion();
 
 /**
  * Return the number of fault history entries currently stored.

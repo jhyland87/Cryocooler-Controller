@@ -37,6 +37,7 @@ static uint8_t      historyCount = 0;
 static FaultRecord faultHistory[FAULT_HISTORY_LIMIT] = {};
 static uint8_t     faultHistoryHead  = 0;
 static uint8_t     faultHistoryCount = 0;
+static uint32_t    faultHistoryVersion = 0;  ///< incremented on every push/close
 
 // Cause label set just before every fsm->trigger() call; consumed (stored
 // into the HistoryEntry and reset to nullptr) by histPushHistory().
@@ -125,6 +126,7 @@ bool histTakeOscillationFaultPending() {
 }
 
 void histPushFaultRecord(FaultReason r, uint32_t enteredMs) {
+    ++faultHistoryVersion;
     faultHistory[faultHistoryHead] = { r, enteredMs, time(nullptr), 0, 0, nullptr };
     faultHistoryHead = static_cast<uint8_t>(
         (static_cast<uint16_t>(faultHistoryHead) + 1u) % FAULT_HISTORY_LIMIT);
@@ -135,6 +137,7 @@ void histPushFaultRecord(FaultReason r, uint32_t enteredMs) {
 
 void histCloseFaultRecord(uint32_t clearedMs) {
     if (faultHistoryCount == 0) return;
+    ++faultHistoryVersion;
     FaultRecord& rec = faultRingAt(0);
     rec.clearedMs    = clearedMs;
     rec.clearedEpoch = time(nullptr);
@@ -148,6 +151,7 @@ void histReset() {
     oscillationFaultPending = false;
     faultHistoryHead        = 0;
     faultHistoryCount       = 0;
+    faultHistoryVersion     = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -161,6 +165,10 @@ uint8_t getHistoryCount() {
 HistoryEntry getHistoryEntry(uint8_t i) {
     if (i >= historyCount) return HistoryEntry{};
     return ringAt(i);
+}
+
+uint32_t getFaultHistoryVersion() {
+    return faultHistoryVersion;
 }
 
 uint8_t getFaultHistoryCount() {

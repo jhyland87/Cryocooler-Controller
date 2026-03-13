@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { TelemetryData } from '../types/telemetry';
 import { decodeTelemetryFrame } from '../utils/decodeTelemetry';
+import type { FaultHistoryMessage } from '../types/faultHistory';
+import { isFaultHistoryMessage } from '../types/faultHistory';
 
 // ─── Connection state ─────────────────────────────────────────────────────────
 
@@ -58,7 +60,10 @@ function apiUrl(): string {
  *
  * The hook cleans up the WebSocket and polling timer on unmount.
  */
-export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryData, ts: number) => void) => void } {
+export function useTelemetry(): TelemetryState & {
+  onData: (cb: (d: TelemetryData, ts: number) => void) => void;
+  onFaultHistory: (cb: (msg: FaultHistoryMessage) => void) => void;
+} {
   const [data, setData]             = useState<TelemetryData>({});
   const [status, setStatus]         = useState<ConnectionStatus>('connecting');
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
@@ -67,11 +72,17 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
   const wsRef       = useRef<WebSocket | null>(null);
   const pollRef     = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef  = useRef(true);
-  const onDataCbRef = useRef<((d: TelemetryData, ts: number) => void) | null>(null);
+  const onDataCbRef         = useRef<((d: TelemetryData, ts: number) => void) | null>(null);
+  const onFaultHistoryCbRef = useRef<((msg: FaultHistoryMessage) => void) | null>(null);
 
   /** Register a callback that fires on every new telemetry frame. */
   const onData = useCallback((cb: (d: TelemetryData, ts: number) => void) => {
     onDataCbRef.current = cb;
+  }, []);
+
+  /** Register a callback that fires on fault_history WS text frames. */
+  const onFaultHistory = useCallback((cb: (msg: FaultHistoryMessage) => void) => {
+    onFaultHistoryCbRef.current = cb;
   }, []);
 
   /** Apply a decoded TelemetryData frame to React state. */
@@ -156,11 +167,21 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
 
     ws.addEventListener('message', (ev: MessageEvent) => {
       if (ev.data instanceof ArrayBuffer) {
-        // Binary frame → Protobuf
+        // Binary frame → Protobuf telemetry
         handleProtobufFrame(ev.data);
       } else {
-        // Text frame → JSON (backward compatibility)
-        handleFrame(typeof ev.data === 'string' ? ev.data : String(ev.data));
+        // Text frame → typed JSON dispatch
+        const raw = typeof ev.data === 'string' ? ev.data : String(ev.data);
+        try {
+          const parsed = JSON.parse(raw);
+          if (isFaultHistoryMessage(parsed)) {
+            onFaultHistoryCbRef.current?.(parsed);
+            return;
+          }
+        } catch {
+          // Not valid JSON — fall through to legacy telemetry handler
+        }
+        handleFrame(raw);
       }
     });
 
@@ -197,5 +218,5 @@ export function useTelemetry(): TelemetryState & { onData: (cb: (d: TelemetryDat
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { data, status, lastUpdate, frameCount, onData };
+  return { data, status, lastUpdate, frameCount, onData, onFaultHistory };
 }

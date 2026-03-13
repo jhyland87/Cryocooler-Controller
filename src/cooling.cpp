@@ -280,12 +280,11 @@ static float readCoolantTemp() {
                           (COOLING_TEMP_SUPPLY_V - vAdc);
 
     // Beta equation: 1/T = 1/T0 + (1/β) × ln(R/R0)
-    // tempKBeta: intentionally in Kelvin — required for the NTC Beta equation
-    const float tempKBeta = 1.0f / (1.0f / COOLING_TEMP_T0 +
-                                    (1.0f / COOLING_TEMP_BETA) *
-                                    logf(rSensor / COOLING_TEMP_R0));
+    const float tempK = 1.0f / (1.0f / COOLING_TEMP_T0 +
+                                (1.0f / COOLING_TEMP_BETA) *
+                                logf(rSensor / COOLING_TEMP_R0));
 
-    return conversions::kelvinToCelsius(tempKBeta);
+    return tempK - 273.15f;
 }
 
 // ---------------------------------------------------------------------------

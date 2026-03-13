@@ -103,15 +103,15 @@
 // RTD Sensor (MAX31865)
 // =============================================================================
 
-#define ANALOG_RESOLUTION 12
+#define ANALOG_RESOLUTION static_cast<uint8_t>(12)
 
 // Reference resistor on the MAX31865 breakout.
 // Use 430.0 for PT100, 4300.0 for PT1000 (adjust to your measured value).
-#define RTD_RREF        435.3f
+#define RTD_RREF        static_cast<float>(435.3f)
 
 // Nominal 0 °C resistance of the RTD element.
 // Use 100.0 for PT100, 1000.0 for PT1000.
-#define RTD_RNOMINAL    100.0f
+#define RTD_RNOMINAL    static_cast<float>(100.0f)
 
 // Wire configuration: MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE
 #define RTD_WIRE_CONFIG MAX31865_3WIRE
@@ -125,13 +125,13 @@
 
 // Maximum allowable RMS output voltage (VDC).
 // Exceeding this immediately transitions the system to Fault.
-#define AMPLIFIER_MAX_VOLTAGE_VAC  120.0f
+#define AMPLIFIER_MAX_VOLTAGE_VAC  static_cast<float>(120.0f)
 
 // Maximum allowable continuous RMS output current (A).
 // Exceeding this while running immediately transitions to Fault (SensorFault).
 // Set to 0.0f to disable current fault detection.
 // Calibrate to your cryocooler's rated maximum current draw.
-#define AMPLIFIER_MAX_CURRENT_A  5.0f
+#define AMPLIFIER_MAX_CURRENT_A  static_cast<float>(5.0f)
 
 // =============================================================================
 // Safety — system supply voltage
@@ -140,7 +140,7 @@
 // Minimum allowable DC system supply voltage (V).
 // Dropping below this from any state immediately transitions to Fault.
 // Set to 0.0f to disable (treated as "not monitored").
-#define MIN_SYSTEM_VOLTAGE_VDC  11.5f
+#define MIN_SYSTEM_VOLTAGE_VDC  static_cast<float>(11.5f)
 
 // =============================================================================
 // ACS712 AC Current Sensor — calibration
@@ -148,7 +148,7 @@
 
 // Sensitivity of the ACS712-05B module in mV per amp.
 // Nominal 185 mV/A; adjust to the measured value of your specific module.
-#define ACS712_SENSITIVITY_MV_PER_A   185.0f
+#define ACS712_SENSITIVITY_MV_PER_A  static_cast<float>(185.0f)
 
 // =============================================================================
 // Safety — overstroke / back-EMF detection
@@ -156,7 +156,7 @@
 
 // A current reading is flagged as a spike when it exceeds the EMA baseline
 // by more than this many amps.
-#define OVERSTROKE_CURRENT_THRESHOLD_A  2.0f
+#define OVERSTROKE_CURRENT_THRESHOLD_A  static_cast<float>(2.0f)
 
 // Maximum number of backoff events before the state machine enters Fault.
 // Cumulative DAC reduction at this point = BACKOFF_MAX_COUNT × BACKOFF_DAC_STEP.
@@ -172,27 +172,27 @@
 // Checked only while the system is running to avoid false faults on startup.
 // MIN is set well below liquid-nitrogen temperature (-196 °C); MAX is set above
 // any ambient temperature a cryocooler environment could legitimately reach.
-#define MIN_PLAUSIBLE_COLDHEAD_TEMP_C   -210.0f
-#define MAX_PLAUSIBLE_COLDHEAD_TEMP_C    40.85f
+#define MIN_PLAUSIBLE_COLDHEAD_TEMP_C  static_cast<float>(-210.15f)
+#define MAX_PLAUSIBLE_COLDHEAD_TEMP_C  static_cast<float>(50.85f)
 
 
 #define MIN_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(0.0f)
-#define MAX_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(30.0f)
+#define MAX_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(33.0f)
 
 // Target cold-stage temperature.  The system aims to reach and hold this.
-#define SETPOINT_C              -195.15f
+#define SETPOINT_C              static_cast<float>(-195.15f) // 78 kelvin.
 
 // Temperature boundary between Coarse Cool-down (state 2) and
 // Fine Cool-down (state 3).
-#define COARSE_FINE_THRESHOLD_C -180.0f
+#define COARSE_FINE_THRESHOLD_C static_cast<float>(-188.15f)
 
 // Assumed ambient / start temperature — top of the DAC ramp range.
 // DAC output = 0 at AMBIENT_START_C and AMPLIFIER_RESOLUTION at SETPOINT_C.
-#define AMBIENT_START_C         21.85f
+#define AMBIENT_START_C         static_cast<float>(21.85f)
 
 // Cold-stage is considered "at setpoint" when within this many Celsius of
 // SETPOINT_C (used for overshoot / settle transitions).
-#define SETPOINT_TOLERANCE_C    2.0f
+#define SETPOINT_TOLERANCE_C    static_cast<float>(3.0f)
 
 // =============================================================================
 // Cooldown Rate Limiting
@@ -200,7 +200,7 @@
 
 // Maximum allowable cooling rate (C/min).
 // If the measured rate exceeds this the DAC is held (not incremented).
-#define MAX_COOLDOWN_RATE_C_PER_MIN  20.0f
+#define MAX_COOLDOWN_RATE_C_PER_MIN  static_cast<float>(20.0f)
 
 // =============================================================================
 // Temperature Stall Detection
@@ -212,7 +212,7 @@
 #define STALL_DETECT_WINDOW_MS  static_cast<uint32_t>(600000)  // 10 minutes
 
 // Minimum temperature drop required within STALL_DETECT_WINDOW_MS.
-#define STALL_MIN_DROP_C        2.0f
+#define STALL_MIN_DROP_C        static_cast<float>(2.0f)
 
 // =============================================================================
 // Settling / Baseline Timing
@@ -246,7 +246,7 @@
 
 // If the cryocooler is in an OFF state and the coolant temperature drops
 // below this value, turn off the fans and pump to save power.
-#define COOLING_OFF_BELOW_COOLANT_TEMP  30.0f
+#define COOLING_OFF_BELOW_COOLANT_TEMP  static_cast<float>(30.0f)
 
 // =============================================================================
 // Coolant sensor — hardware calibration (Alphacool ES)
@@ -256,20 +256,20 @@
 // Source: https://download.alphacool.com/legacy/kOhm_Sensor_Table_Alphacool.pdf
 
 // Supply voltage for the thermistor voltage divider (V).
-#define COOLING_TEMP_SUPPLY_V      3.3f
+#define COOLING_TEMP_SUPPLY_V       static_cast<float>(3.3f)
 
 // Series reference resistor in the voltage divider (Ω).
 // Match to the actual resistor fitted on your board.
-#define COOLING_TEMP_REF_RESISTOR  10000.0f
+#define COOLING_TEMP_REF_RESISTOR  static_cast<float>(10000.0f)
 
 // NTC nominal resistance at the reference temperature T0 (Ω).
-#define COOLING_TEMP_R0            10000.0f
+#define COOLING_TEMP_R0            static_cast<float>(10000.0f)
 
 // Reference temperature for the Beta equation (K).  25 °C = 298.15 K.
-#define COOLING_TEMP_T0            298.15f
+#define COOLING_TEMP_T0            static_cast<float>(298.15f)
 
 // Beta coefficient of the NTC element (K).
-#define COOLING_TEMP_BETA          3435.0f
+#define COOLING_TEMP_BETA          static_cast<float>(3435.0f)
 
 // ── Flow sensor ───────────────────────────────────────────────────────────
 // Hall-effect pulses emitted per impeller revolution.
@@ -284,10 +284,10 @@
 // =============================================================================
 
 // Nominal coolant operating temperature (°C) — centre of the in-range band.
-#define COOLING_COOLANT_NOMINAL_TEMP_C  25.0f
+#define COOLING_COOLANT_NOMINAL_TEMP_C  static_cast<float>(25.0f)
 
 // Expected coolant flow rate when the pump is running (L/min).
-#define COOLING_FLOW_NOMINAL_LPM        1.0f
+#define COOLING_FLOW_NOMINAL_LPM        static_cast<float>(1.0f)
 
 // =============================================================================
 // Advanced parameters

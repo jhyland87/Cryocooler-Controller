@@ -40,6 +40,7 @@
 // 12-bit DAC full scale (0–4095).  Fixed by the MCP4725 hardware.
 #define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
 
+
 // I2C address of the MCP4725 DAC.
 // Adafruit breakout (A0 pin unsoldered): 0x62.
 // Generic modules (A2=A1=A0 tied to GND): 0x60.
@@ -73,7 +74,7 @@
 // =============================================================================
 
 // ADC supply voltage on the ESP32-S3 (3.3 V rail).
-#define ACS712_ADC_VOLTS      3.3f
+#define ACS712_ADC_VOLTS      static_cast<float>(3.3f)
 
 // Maximum ADC output value for ADC_RESOLUTION = 12 → (2^12) − 1 = 4095.
 #define ACS712_ADC_MAX_VALUE  static_cast<uint16_t>((1u << ADC_RESOLUTION) - 1u)
@@ -90,7 +91,7 @@
 
 // EMA smoothing factor for the current baseline (0 < α ≤ 1).
 // Smaller values track more slowly so brief spikes stand out more clearly.
-#define OVERSTROKE_EMA_ALPHA          0.08f
+#define OVERSTROKE_EMA_ALPHA          static_cast<float>(0.08f)
 
 // Number of readCurrent() calls to prime the EMA before detection is armed.
 // At LOOP_INTERVAL_MS = 200 ms this is ~4 seconds.
@@ -145,10 +146,10 @@
 // =============================================================================
 
 // 12-bit ADC full scale (fixed by hardware).
-#define COOLING_TEMP_ADC_RESOLUTION   4095.0f
+#define COOLING_TEMP_ADC_RESOLUTION   static_cast<float>(4095.0f)
 
 // ADC reference voltage (V) — matches the ESP32-S3 supply rail.
-#define COOLING_TEMP_ADC_VREF         3.3f
+#define COOLING_TEMP_ADC_VREF         static_cast<float>(3.3f)
 
 // ADC oversampling factor for the NTC temperature read (16 samples averaged).
 #define COOLING_TEMP_OVERSAMPLE       static_cast<uint8_t>(16)
@@ -239,10 +240,10 @@
 // =============================================================================
 
 // Deadband: temperature must deviate beyond this to start the warning timer.
-#define COLD_HEAD_TRACK_HYSTERESIS_C        1.0f
+#define COLD_HEAD_TRACK_HYSTERESIS_C        static_cast<float>(1.0f)
 
 // Deviation at which the tracking score reaches 0%.
-#define COLD_HEAD_TRACK_FULL_SCALE_C       10.0f
+#define COLD_HEAD_TRACK_FULL_SCALE_C       static_cast<float>(10.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COLD_HEAD_TRACK_WARNING_MS         static_cast<uint32_t>(60000)   // 60 s
@@ -255,10 +256,10 @@
 // =============================================================================
 
 // Acceptable error (Hz) between IMU-measured and AD9833 set-point.
-#define AMPLIFIER_FREQ_TRACK_HYSTERESIS_HZ  0.5f
+#define AMPLIFIER_FREQ_TRACK_HYSTERESIS_HZ  static_cast<float>(0.5f)
 
 // Frequency error (Hz) at which the score reaches 0%.
-#define AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ  5.0f
+#define AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ  static_cast<float>(5.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define AMPLIFIER_FREQ_TRACK_WARNING_MS    static_cast<uint32_t>(10000)   // 10 s
@@ -271,10 +272,10 @@
 // =============================================================================
 
 // Acceptable RMS voltage error (V) around the target.
-#define AMPLIFIER_VOLT_TRACK_HYSTERESIS_V   0.05f
+#define AMPLIFIER_VOLT_TRACK_HYSTERESIS_V   static_cast<float>(0.05f)
 
 // Voltage error (V) at which the score reaches 0%.
-#define AMPLIFIER_VOLT_TRACK_FULL_SCALE_V   2.0f
+#define AMPLIFIER_VOLT_TRACK_FULL_SCALE_V   static_cast<float>(2.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define AMPLIFIER_VOLT_TRACK_WARNING_MS    static_cast<uint32_t>(15000)   // 15 s
@@ -287,10 +288,10 @@
 // =============================================================================
 
 // Acceptable duty-cycle error (%) between requested and actual fan speed.
-#define COOLING_FAN_TRACK_HYSTERESIS_PCT    5.0f
+#define COOLING_FAN_TRACK_HYSTERESIS_PCT    static_cast<float>(5.0f)
 
 // Duty-cycle error (%) at which the score reaches 0%.
-#define COOLING_FAN_TRACK_FULL_SCALE_PCT   30.0f
+#define COOLING_FAN_TRACK_FULL_SCALE_PCT   static_cast<float>(30.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COOLING_FAN_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s
@@ -303,10 +304,10 @@
 // =============================================================================
 
 // Acceptable deviation around COOLING_COOLANT_NOMINAL_TEMP_C (°C).
-#define COOLING_COOLANT_TRACK_HYSTERESIS_C  15.0f
+#define COOLING_COOLANT_TRACK_HYSTERESIS_C  static_cast<float>(15.0f)
 
 // Deviation (°C) at which the score reaches 0%.
-#define COOLING_COOLANT_TRACK_FULL_SCALE_C  30.0f
+#define COOLING_COOLANT_TRACK_FULL_SCALE_C  static_cast<float>(30.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COOLING_COOLANT_TRACK_WARNING_MS    static_cast<uint32_t>(30000)   // 30 s
@@ -319,10 +320,10 @@
 // =============================================================================
 
 // Acceptable deviation around COOLING_FLOW_NOMINAL_LPM (L/min).
-#define COOLING_FLOW_TRACK_HYSTERESIS_LPM   0.3f
+#define COOLING_FLOW_TRACK_HYSTERESIS_LPM   static_cast<float>(0.3f)
 
 // Flow deviation (L/min) at which the score reaches 0%.
-#define COOLING_FLOW_TRACK_FULL_SCALE_LPM   1.0f
+#define COOLING_FLOW_TRACK_FULL_SCALE_LPM   static_cast<float>(1.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
 #define COOLING_FLOW_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s
@@ -334,7 +335,7 @@
 // ====
 // IMU
 // =============================================================================
-#define QMI8658_IMU_ADDRESS 0x6A // 0x6B is alternative, if A0 is tied high.
+#define QMI8658_IMU_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if A0 is tied high.
 
 // =============================================================================
 // Misc stuff

@@ -449,14 +449,17 @@ static void onEnterOperating() {
 #endif
 }
 static void onExitOperating()       {
-    amplifier::setRelayState(false);
+    // Relay control is delegated to the destination state's on_enter handler.
+    // Shutdown keeps it ON for the ramp-down; Fault/Off/Idle turn it OFF.
     cold_head::stopTemperatureTracking();
 }
 static void onEnterShutdown()       {
     setStateEntry(State::Shutdown);
     amplifier::clearVoutOverride();
     amplifier::rampTowardShutdown(0u);
-    amplifier::setRelayState(false);
+    // Relay stays ON so the load sees the ramp-down.  The relay is turned
+    // off only after the DAC reaches 0, when we transition to Idle.
+    amplifier::setRelayState(true);
 }
 
 static void onEnterDelay() {
@@ -842,6 +845,9 @@ Output update(float    tempC,
                 break;
 
             case State::Shutdown:
+                // The relay stays ON during Shutdown so the load sees the
+                // ramp-down.  SHUTDOWN_DURATION_MS is sized to let the DAC
+                // reach 0; on transition to Idle the relay is switched off.
                 if (elapsed >= SHUTDOWN_DURATION_MS) {
                     _Log.println(F("Triggering EVT_SHUTDOWN_DONE"));
                     fsmTrigger(EVT_SHUTDOWN_DONE, "shutdown_timer");
