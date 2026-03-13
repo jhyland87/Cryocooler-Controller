@@ -172,7 +172,7 @@
 // Checked only while the system is running to avoid false faults on startup.
 // MIN is set well below liquid-nitrogen temperature (-196 °C); MAX is set above
 // any ambient temperature a cryocooler environment could legitimately reach.
-#define MIN_PLAUSIBLE_COLDHEAD_TEMP_C   -200.15f
+#define MIN_PLAUSIBLE_COLDHEAD_TEMP_C   -210.0f
 #define MAX_PLAUSIBLE_COLDHEAD_TEMP_C    40.85f
 
 
@@ -184,7 +184,7 @@
 
 // Temperature boundary between Coarse Cool-down (state 2) and
 // Fine Cool-down (state 3).
-#define COARSE_FINE_THRESHOLD_C -188.15f
+#define COARSE_FINE_THRESHOLD_C -180.0f
 
 // Assumed ambient / start temperature — top of the DAC ramp range.
 // DAC output = 0 at AMBIENT_START_C and AMPLIFIER_RESOLUTION at SETPOINT_C.
@@ -274,6 +274,10 @@
 // ── Flow sensor ───────────────────────────────────────────────────────────
 // Hall-effect pulses emitted per impeller revolution.
 #define COOLING_FLOW_PULSES_PER_REV  static_cast<uint8_t>(1)
+
+// Maximum pump flow rate (L/h).  The Alphacool lookup table is extrapolated
+// linearly above 300 L/h and clamped at this ceiling.
+#define COOLING_FLOW_MAX_LPH         1200.0f
 
 // =============================================================================
 // Coolant tracking setpoints

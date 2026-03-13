@@ -106,6 +106,7 @@ static_assert(kPumpLutCount <= 8, "EMC2101 LUT has only 8 entries");
 // From the Alphacool ES manual; stored as {rpm, lph} pairs sorted ascending
 // by RPM.  service() interpolates L/h from the measured RPM average, then
 // converts to L/min for the tracking monitor and telemetry.
+// Above the table maximum, rpmToLph() extrapolates linearly up to COOLING_FLOW_MAX_LPH.
 // ---------------------------------------------------------------------------
 struct FlowPoint {
     uint16_t rpm;
@@ -140,30 +141,35 @@ void IRAM_ATTR onFlowPulse() {
 // ---------------------------------------------------------------------------
 static RunningAverage rpmAvg_(COOLING_SENSOR_AVG_SAMPLES);   // coolant flow hall-effect RPM
 static RunningAverage tempAvg_(COOLING_SENSOR_AVG_SAMPLES);  // coolant NTC temperature
+// Pump RPM is read once per COOLING_CHECK_CYCLE_MS (1 s), so fewer samples
+// are needed to match the same ~10 s smoothing window as the 100 ms sensors.
+static RunningAverage pumpRpmAvg_(
+    COOLING_SENSOR_AVG_SAMPLES / (COOLING_CHECK_CYCLE_MS / COOLING_SENSOR_SAMPLE_MS)
+);  // pump EMC2101 TACH smoothing
 
 // ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
-static volatile bool    enabled_        = false;
-static volatile bool    coolingPumpOn_  = false;
+static volatile bool    enabled_            = false;
+static volatile bool    coolingPumpOn_      = false;
 static volatile float   coolantTemperature_ = 0.0f;
 static volatile float   coolantFlowRate_    = 0.0f;
-static volatile uint8_t fanSpeed_   = 0;      // only meaningful in manual-override mode
-static volatile bool    forceFanSpeed_ = false;
+static volatile uint8_t fanSpeed_           = 0;      // only meaningful in manual-override mode
+static volatile bool    forceFanSpeed_      = false;
 
 // Cached EMC2101 readings — updated once per COOLING_CHECK_CYCLE_MS in
 // service().  Accessors return these values instead of reading the IC live,
 // which eliminates concurrent I2C transactions between the service loop and
 // the telemetry emit path (the root cause of the Wire repeated-start error).
-static uint8_t  cachedDutyCycle_ = 0u;
-static uint16_t cachedFanRpm_    = 0u;
+static uint8_t  cachedDutyCycle_      = 0u;
+static uint16_t cachedFanRpm_         = 0u;
 
 // Cached pump EMC2101 readings — same pattern as the fan controller.
-static uint8_t  cachedPumpDutyCycle_ = 0u;
-static uint16_t cachedPumpRpm_       = 0u;
+static uint8_t  cachedPumpDutyCycle_  = 0u;
+static uint16_t cachedPumpRpm_        = 0u;
 
-static uint32_t lastCheckCycleMs = 0;
-static uint32_t lastSampleMs_    = 0;
+static uint32_t lastCheckCycleMs      = 0;
+static uint32_t lastSampleMs_         = 0;
 
 // ---------------------------------------------------------------------------
 // Setpoint tracking
@@ -221,9 +227,15 @@ static float rpmToLph(float rpm) {
         return (val > 0.0f) ? val : 0.0f;
     }
 
-    // Above maximum — clamp
+    // Above maximum — extrapolate linearly, capped at pump max (COOLING_FLOW_MAX_LPH)
     if (rpm >= static_cast<float>(kFlowTable[kFlowTableLen - 1u].rpm)) {
-        return kFlowTable[kFlowTableLen - 1u].lph;
+        const uint8_t last = kFlowTableLen - 1u;
+        const uint8_t prev = kFlowTableLen - 2u;
+        const float slope = (kFlowTable[last].lph - kFlowTable[prev].lph) /
+                            static_cast<float>(kFlowTable[last].rpm - kFlowTable[prev].rpm);
+        const float val = kFlowTable[last].lph +
+                          slope * (rpm - static_cast<float>(kFlowTable[last].rpm));
+        return (val < COOLING_FLOW_MAX_LPH) ? val : COOLING_FLOW_MAX_LPH;
     }
 
     // Binary search for the surrounding bracket
@@ -313,13 +325,13 @@ static void deselectMuxChannels() {
 // ---------------------------------------------------------------------------
 static module::InitStatus fanInit() {
   if (!selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
-    ESP_LOGE(TAG, "fanInit: mux channel select failed");
+    //ESP_LOGE(TAG, "fanInit: mux channel select failed");
     _Log.printf("fanInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
   if (!fanController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
-    ESP_LOGE(TAG, "fanInit: failed to find fan EMC2101");
+    //ESP_LOGE(TAG, "fanInit: failed to find fan EMC2101");
     _Log.printf("fanInit: failed to find fan EMC2101\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
@@ -376,13 +388,13 @@ static module::InitStatus fanInit() {
 // ---------------------------------------------------------------------------
 static module::InitStatus pumpInit() {
   if (!selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
-    ESP_LOGE(TAG, "pumpInit: mux channel select failed");
+    //ESP_LOGE(TAG, "pumpInit: mux channel select failed");
     _Log.printf("pumpInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
 
   if (!pumpController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
-    ESP_LOGE(TAG, "pumpInit: failed to find pump EMC2101");
+    //ESP_LOGE(TAG, "pumpInit: failed to find pump EMC2101");
     _Log.printf("pumpInit: failed to find pump EMC2101\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
@@ -437,13 +449,13 @@ static module::InitStatus pumpInit() {
 // init
 // ---------------------------------------------------------------------------
 module::InitStatus init() {
-  ESP_LOGD(TAG, "Initializing cooling system");
+  //ESP_LOGD(TAG, "Initializing cooling system");
   _Log.printf("Initializing cooling system\n");
 
   // ── Verify TCA9548A mux is present ──────────────────────────────────────
   hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
   if (hardware::i2c().endTransmission() != 0) {
-    ESP_LOGE(TAG, "TCA9548A not found at 0x%02X", TCA9548A_I2C_ADDRESS);
+    //ESP_LOGE(TAG, "TCA9548A not found at 0x%02X", TCA9548A_I2C_ADDRESS);
     _Log.printf("TCA9548A not found at 0x%02X\n", TCA9548A_I2C_ADDRESS);
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
@@ -473,6 +485,7 @@ module::InitStatus init() {
 
   // Flow sensor: interrupt on the falling edge of each Hall-effect pulse.
   rpmAvg_.clear();
+  pumpRpmAvg_.clear();
   flowPulseCount_ = 0u;
   pinMode(COOLING_FLOW_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(COOLING_FLOW_PIN), onFlowPulse, FALLING);
@@ -492,11 +505,11 @@ module::InitStatus init() {
   forceFanSpeed_ = false;
   enable();
 
-  ESP_LOGD(TAG, "init: flow sensor GPIO%d, temp ADC GPIO%d",
-           COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
+  //ESP_LOGD(TAG, "init: flow sensor GPIO%d, temp ADC GPIO%d",
+  //       COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
   _Log.printf("init: flow sensor GPIO%d, temp ADC GPIO%d\n",
            COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
-  Log.println("[cooling] Cooling system initialized");
+  _Log.println(F("[cooling] Cooling system initialized"));
   return module::MODULE_INIT_SUCCESS;
 }
 
@@ -566,7 +579,8 @@ module::ServiceStatus service() {
     cachedDutyCycle_ = fanController_.getDutyCycle();
     cachedFanRpm_ = fanController_.getFanRPM();
   } else {
-    ESP_LOGE(TAG, "service: fan mux select failed — skipping fan reads");
+    //ESP_LOGE(TAG, "service: fan mux select failed — skipping fan reads");
+    _Log.printf("service: fan mux select failed — skipping fan reads\n");
   }
   const uint8_t dc = cachedDutyCycle_;
 
@@ -584,9 +598,11 @@ module::ServiceStatus service() {
     }
 
     cachedPumpDutyCycle_ = pumpController_.getDutyCycle();
-    cachedPumpRpm_       = pumpController_.getFanRPM();
+    pumpRpmAvg_.addValue(static_cast<float>(pumpController_.getFanRPM()));
+    cachedPumpRpm_       = static_cast<uint16_t>(pumpRpmAvg_.getAverage());
   } else {
-    ESP_LOGE(TAG, "service: pump mux select failed — skipping pump reads");
+    //ESP_LOGE(TAG, "service: pump mux select failed — skipping pump reads");
+    _Log.printf("service: pump mux select failed — skipping pump reads\n");
   }
 
   // Disconnect all mux channels so the downstream bus segments no longer

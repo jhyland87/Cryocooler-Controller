@@ -162,7 +162,34 @@ export function App() {
         />
 
         {/* ── Main content ───────────────────────────────────────────────── */}
-        <Box sx={{ flex: 1, p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ flex: 1, p: { xs: 1.5, sm: 2 }, position: 'relative' }}>
+
+          {/* ── Connection-lost overlay ─────────────────────────────────── */}
+          {status === 'error' && (
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 50,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'rgba(238, 242, 247, 0.85)',
+                backdropFilter: 'blur(2px)',
+                gap: 1.5,
+                borderRadius: 1,
+              }}
+            >
+              <CircularProgress size={40} thickness={3} />
+              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600 }}>
+                Connection Lost
+              </Typography>
+              <Typography variant="body2" color="text.disabled">
+                Unable to reach device — reconnecting…
+              </Typography>
+            </Box>
+          )}
           {/* MUI v7 Grid: use `size` prop instead of the deprecated `item` prop */}
           <Grid container spacing={2}>
 

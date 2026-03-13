@@ -97,14 +97,16 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     if (!cold_head::hasSensorFault()) {
         frame_.cold_head.temp_c   = cold_head::getLastTempC();
         frame_.cold_head.has_temp = true;
+        frame_.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
+        frame_.cold_head.delta_below_ambient_c = cold_head::getLastTempCBelowAmbient();
     } else {
         frame_.cold_head.temp_c   = 0.0f;
         frame_.cold_head.has_temp = false;
+        frame_.cold_head.cooldown_pct          = 0.0f;
+        frame_.cold_head.delta_below_ambient_c = 0.0f;
     }
     frame_.cold_head.voltage_v             = cold_head::getLastRmsVoltage();
     frame_.cold_head.current_a             = cold_head::getLastRmsCurrent();
-    frame_.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
-    frame_.cold_head.delta_below_ambient_c = cold_head::getLastTempCBelowAmbient();
     frame_.cold_head.ambient_temp_c        = cold_head::getLastAmbientTempC();
 
     // ── Amplifier ────────────────────────────────────────────────────────────

@@ -234,11 +234,18 @@ void read(uint32_t nowMs) {
     sLastRmsCurrentA = amplifier::getLastRmsCurrent();
 
     const uint16_t rtd          = max31865.readRTD();
+
+    // RTD raw == 0 means the sensor is disconnected or not communicating.
+    // Skip all temperature processing — don't store a bogus value in sLastTempC.
+    if (rtd == 0) {
+        sRtdFaultActive = true;
+        return;
+    }
+
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
     const float    ambientTempC = imu::getTemperature();
-
     // Check MAX31865 fault register and temperature plausibility.
     // The two checks are independent so each fault type can clear its own
     // rate-limit slot as soon as it resolves, without waiting for the other
