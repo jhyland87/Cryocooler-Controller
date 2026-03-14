@@ -12,8 +12,8 @@
  *   ESP_ERR_INVALID_STATE on every transaction.  The correct approach is to
  *   use the global Wire exclusively and ensure no library re-calls begin().
  *
- *   The QMI8658 library is vendored in lib/QMI8658 with its internal
- *   Wire.begin() call removed; see lib/QMI8658/src/QMI8658.cpp for details.
+ *   The Adafruit LSM6DS library manages I2C via Adafruit_BusIO, which
+ *   accepts an external TwoWire reference and does not call Wire.begin().
  *
  * Usage:
  *   // In main.cpp setup(), before any module init:

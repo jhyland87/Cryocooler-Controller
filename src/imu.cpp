@@ -1,6 +1,6 @@
 /**
  * @file imu.cpp
- * @brief QMI8658 IMU implementation.
+ * @brief LSM6DSOX IMU implementation (via Adafruit LSM6DS library).
  *
  * Reads 6-DOF IMU data, applies offset calibration and a first-order
  * low-pass filter, computes roll/pitch/yaw orientation, and exposes
@@ -10,18 +10,18 @@
  *   checkFrequency() collects FFT_N samples at FFT_FS_HZ using a
  *   micros()-paced busy-wait loop (no delay() calls), then runs an
  *   FFT with Hann windowing and quadratic peak interpolation.
- *   The QMI8658 ODR is 1000 Hz (1 ms per sample), so each read in the
+ *   The LSM6DSOX ODR is 833 Hz (≈1.2 ms per sample), so each read in the
  *   2500 us-spaced loop returns genuinely fresh data.  The collection
  *   window is ~640 ms and is triggered once every FFT_INTERVAL_MS.
  *
  * Calibration:
- *   performCalibration() is called once from init().  It spins on
- *   sensor.readSensorData() until ACCEL_CAL_SAMPLES valid readings have
- *   been collected — no delay() calls.  At 1000 Hz ODR this takes ~1 s.
- *   Blocking at setup()-time is acceptable; no delay() is used.
+ *   performCalibration() is called once from init().  It reads
+ *   ACCEL_CAL_SAMPLES samples with a brief delay between reads to
+ *   allow the sensor to produce new data.  At 833 Hz ODR this takes ~1.2 s.
+ *   Blocking at setup()-time is acceptable.
  */
 
-#include <QMI8658.h>
+#include <Adafruit_LSM6DSOX.h>
 #include <arduinoFFT.h>
 #include <math.h>
 #include <Wire.h>
@@ -38,7 +38,6 @@ namespace imu {
 // ---------------------------------------------------------------------------
 
 static constexpr float    ACCEL_THRESHOLD_MPS2 = 2.0f;   // m/s² deviation from 9.81 to flag motion
-//static constexpr float    GYRO_THRESHOLD_DPS   = 10.0f;  // deg/s magnitude to flag motion
 static constexpr uint32_t MOTION_TIMEOUT_MS    = 2000u;  // clear motion flag after this ms of stillness
 static constexpr uint16_t ACCEL_CAL_SAMPLES    = 1000u;  // number of valid samples for calibration
 static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coefficient (0–1)
@@ -47,9 +46,9 @@ static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coef
 // Module state
 // ---------------------------------------------------------------------------
 
-QMI8658 sensor;
+static Adafruit_LSM6DSOX sensor;
 
-/// Set true by init() only when sensor.begin() confirms the QMI8658 is
+/// Set true by init() only when sensor.begin_I2C() confirms the LSM6DSOX is
 /// present and responding.  Guards service() and calculateFrequency() so
 /// they silently skip rather than flood the log with I2C errors when the
 /// hardware is absent.
@@ -57,18 +56,15 @@ static bool sImuAvailable = false;
 
 // Calibration offsets (set by performCalibration)
 static float accelOffsetX_ = 0.0f, accelOffsetY_ = 0.0f, accelOffsetZ_ = 0.0f;
-//static float gyroOffsetX_  = 0.0f, gyroOffsetY_  = 0.0f, gyroOffsetZ_  = 0.0f;
 
 // Low-pass filter state
 static float filtAccelX_ = 0.0f, filtAccelY_ = 0.0f, filtAccelZ_ = 0.0f;
-//static float filtGyroX_  = 0.0f, filtGyroY_  = 0.0f, filtGyroZ_  = 0.0f;
 
 // Latest processed readings — updated each service() call
 static float roll_     = 0.0f;
 static float pitch_    = 0.0f;
 static float yaw_      = 0.0f;
 static float accelMag_ = 0.0f;
-//static float gyroMag_  = 0.0f;
 static float imuTemp_         = 0.0f;
 static bool  imuTempPlausible_ = false;
 static float frequency_ = 0.0f;
@@ -84,7 +80,7 @@ static LogStream _Log = Log.createChildLogger("imu");
 // Number of samples per FFT window.
 static constexpr uint16_t FFT_N            = 256u;
 // Sampling rate for the FFT collection loop (Hz).
-// Must be > 2 × max expected frequency.  QMI8658 ODR (1000 Hz) >> 400 Hz,
+// Must be > 2 × max expected frequency.  LSM6DSOX ODR (833 Hz) >> 400 Hz,
 // so each read in the 2500 us-paced loop always returns fresh data.
 static constexpr float    FFT_FS_HZ        = 400.0f;
 // Inter-sample period in microseconds (1 000 000 / FFT_FS_HZ).
@@ -116,39 +112,30 @@ static uint32_t lastFftMs_   = 0u;    // millis() of last FFT run
 // ---------------------------------------------------------------------------
 
 /**
- * Blocks until ACCEL_CAL_SAMPLES valid readings are collected; no delay()
- * used — the function spins on sensor.readSensorData() which returns false
- * when no new sample is ready.
+ * Read ACCEL_CAL_SAMPLES from the sensor with brief delays between reads
+ * to allow the sensor to produce fresh data at its configured ODR.
  */
 static void performCalibration() {
     float    accelSumX = 0.0f, accelSumY = 0.0f, accelSumZ = 0.0f;
-    //float    gyroSumX  = 0.0f, gyroSumY  = 0.0f, gyroSumZ  = 0.0f;
     uint16_t collected = 0u;
 
+    sensors_event_t accel, gyro, temp;
     while (collected < ACCEL_CAL_SAMPLES) {
-        QMI8658_Data data;
-        if (sensor.readSensorData(data)) {
-            accelSumX += data.accelX;
-            accelSumY += data.accelY;
-            accelSumZ += data.accelZ;
-            //gyroSumX  += data.gyroX;
-            //gyroSumY  += data.gyroY;
-            //gyroSumZ  += data.gyroZ;
-            ++collected;
-        }
+        sensor.getEvent(&accel, &gyro, &temp);
+        accelSumX += accel.acceleration.x;
+        accelSumY += accel.acceleration.y;
+        accelSumZ += accel.acceleration.z;
+        ++collected;
+        delayMicroseconds(1200);  // ~833 Hz ODR → 1.2 ms per fresh sample
     }
 
     const float n = static_cast<float>(collected);
     accelOffsetX_ = accelSumX / n;
     accelOffsetY_ = accelSumY / n;
     accelOffsetZ_ = (accelSumZ / n) - 9.81f;  // remove gravity component
-    //gyroOffsetX_  = gyroSumX  / n;
-    //gyroOffsetY_  = gyroSumY  / n;
-    //gyroOffsetZ_  = gyroSumZ  / n;
 }
 
 static void calculateOrientation(float ax, float ay, float az,
-                                 //float gx, float gy, float gz,
                                  float& roll, float& pitch, float& yaw) {
     roll  = atan2f(ay, sqrtf(ax*ax + az*az)) * 180.0f / M_PI;
     pitch = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
@@ -160,7 +147,7 @@ static void calculateOrientation(float ax, float ay, float az,
     const uint32_t now = millis();
     if (lastTimeMs > 0u) {
         const float dt = static_cast<float>(now - lastTimeMs) / 1000.0f;
-        //yawInteg_ += gz * dt;
+        (void)dt;  // gyro yaw integration currently disabled
     }
     lastTimeMs = now;
 
@@ -269,53 +256,18 @@ static void checkMotion(float accelMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    // SA0 is tied high on this board so the device is at QMI8658_ADDRESS_HIGH
-    // (0x6B).  Pass the address explicitly so begin()'s first probe ACKs and
-    // the fallback path to the alternate address is never taken.
-    //
-    // Guarantee a clean bus state immediately before begin().  Earlier modules
-    // (e.g. INA237 via Adafruit_I2CDevice) call _wire->begin() internally,
-    // which on Core 2.x can leave the driver state machine non-idle.
-    ///hardware::recoverI2c();
-
-    // if (!sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS)) {
-    //     // begin() can return false due to a transient ESP-IDF 5.x I2C error
-    //     // (-1 / ESP_FAIL) on the very first probe after bus initialisation.
-    //     // Before giving up, read WHO_AM_I directly — if it returns 0x05 the
-    //     // chip is actually present and the transient has already cleared.
-    //     const uint8_t whoAmI = sensor.getWhoAmI();
-    //     if (whoAmI != 0x05) {
-    //         _Log.printf("QMI8658 not found (WHO_AM_I=0x%02X) — check wiring and I2C address\n", whoAmI);
-    //         sImuAvailable = false;
-    //         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
-    //     }
-    //     _Log.println("QMI8658 begin() failed transiently but WHO_AM_I confirmed — continuing");
-    // }
-    // sImuAvailable = true;
-
-    sensor.begin(hardware::i2c(), QMI8658_IMU_ADDRESS);
-    const uint8_t whoAmI = sensor.getWhoAmI();
-    if (whoAmI != 0x05) {
-        _Log.printf("QMI8658 not found (WHO_AM_I=0x%02X) — check wiring and I2C address\n", whoAmI);
+    if (!sensor.begin_I2C(LSM6DSOX_IMU_ADDRESS, &hardware::i2c())) {
+        _Log.println("LSM6DSOX not found — check wiring and I2C address");
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }
-    _Log.println("QMI8658 confirmed with WHO_AM_I=0x05 — continuing");
+    _Log.println("LSM6DSOX found — continuing");
     sImuAvailable = true;
 
-
-    sensor.setAccelRange(QMI8658_ACCEL_RANGE_8G);
-    sensor.setAccelODR(QMI8658_ACCEL_ODR_1000HZ);
-    // Gyro is enabled to keep the gyro die powered so its on-chip temperature
-    // sensor produces valid readings.  Actual gyro orientation data is not
-    // used.  ODR must match the accel ODR: a mismatch triggers the QMI8658's
-    // sync-sample mode which gates the accel output registers at the lower
-    // gyro ODR, making the accel data appear completely frozen.
-    sensor.setGyroRange(QMI8658_GYRO_RANGE_512DPS);
-    sensor.setGyroODR(QMI8658_GYRO_ODR_1000HZ);
-    sensor.setAccelUnit_mps2(true);   // m/s²
-    //sensor.setGyroUnit_rads(false);   // degrees per second
-    sensor.enableSensors(QMI8658_ENABLE_ACCEL | QMI8658_ENABLE_GYRO);
+    sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
+    sensor.setAccelDataRate(LSM6DS_RATE_833_HZ);
+    sensor.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS);
+    sensor.setGyroDataRate(LSM6DS_RATE_833_HZ);
 
     performCalibration();
     return module::InitStatus::MODULE_INIT_SUCCESS;
@@ -324,48 +276,33 @@ module::InitStatus init() {
 module::ServiceStatus service() {
     if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
 
-    QMI8658_Data data;
-    if (!sensor.readSensorData(data)) { return module::MODULE_SERVICE_SKIPPED; }
+    sensors_event_t accelEvt, gyroEvt, tempEvt;
+    sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
 
-    // Apply calibration offsets
-    const float ax = data.accelX - accelOffsetX_;
-    const float ay = data.accelY - accelOffsetY_;
-    const float az = data.accelZ - accelOffsetZ_;
-    //const float gx = data.gyroX  - gyroOffsetX_;
-    //const float gy = data.gyroY  - gyroOffsetY_;
-    //const float gz = data.gyroZ  - gyroOffsetZ_;
+    // Apply calibration offsets (Adafruit unified sensor returns m/s²)
+    const float ax = accelEvt.acceleration.x - accelOffsetX_;
+    const float ay = accelEvt.acceleration.y - accelOffsetY_;
+    const float az = accelEvt.acceleration.z - accelOffsetZ_;
 
     // First-order low-pass filter
     filtAccelX_ = FILTER_ALPHA * ax + (1.0f - FILTER_ALPHA) * filtAccelX_;
     filtAccelY_ = FILTER_ALPHA * ay + (1.0f - FILTER_ALPHA) * filtAccelY_;
     filtAccelZ_ = FILTER_ALPHA * az + (1.0f - FILTER_ALPHA) * filtAccelZ_;
-    //filtGyroX_  = FILTER_ALPHA * gx + (1.0f - FILTER_ALPHA) * filtGyroX_;
-    //filtGyroY_  = FILTER_ALPHA * gy + (1.0f - FILTER_ALPHA) * filtGyroY_;
-    //filtGyroZ_  = FILTER_ALPHA * gz + (1.0f - FILTER_ALPHA) * filtGyroZ_;
 
     // Orientation from filtered data
     calculateOrientation(filtAccelX_, filtAccelY_, filtAccelZ_,
-                         //filtGyroX_,  filtGyroY_,  filtGyroZ_,
                          roll_, pitch_, yaw_);
 
     // Magnitudes from unfiltered data for spike sensitivity
     accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
-    //gyroMag_  = sqrtf(gx*gx + gy*gy + gz*gz);
 
-    // Read temperature explicitly — readSensorData() calls readTemp() internally
-    // but does not check its return value, silently leaving data.temperature = 0
-    // on I2C failure.  Call it directly so we can detect and log the failure.
+    // Temperature from the unified sensor event
     {
-        float tempReading = imuTemp_;  // keep last good value on failure
-        if (sensor.readTemp(tempReading)) {
-            if (tempReading >= MIN_PLAUSIBLE_AMBIENT_TEMP_C && tempReading <= MAX_PLAUSIBLE_AMBIENT_TEMP_C) {
-                imuTemp_          = tempReading;
-                imuTempPlausible_ = true;
-            } else {
-                imuTempPlausible_ = false;
-            }
+        const float tempReading = tempEvt.temperature;
+        if (tempReading >= MIN_PLAUSIBLE_AMBIENT_TEMP_C && tempReading <= MAX_PLAUSIBLE_AMBIENT_TEMP_C) {
+            imuTemp_          = tempReading;
+            imuTempPlausible_ = true;
         } else {
-            _Log.println("readTemp() failed — temperature register unavailable");
             imuTempPlausible_ = false;
         }
     }
@@ -392,7 +329,7 @@ float getFrequency() {
  * update frequency_ with the IIR-smoothed result.
  *
  * Timing: uses a micros()-paced busy-wait loop (~640 ms total).  No delay()
- * is used.  The QMI8658 ODR is 1000 Hz so each read in the 2500 us loop
+ * is used.  The LSM6DSOX ODR is 833 Hz so each read in the 2500 us loop
  * always returns a genuinely fresh sample.  This function should be called
  * infrequently (every FFT_INTERVAL_MS) to limit its impact on the main loop.
  *
@@ -409,17 +346,15 @@ float calculateFrequency() {
     float    zMin   =  999.0f;
     float    zMax   = -999.0f;
 
+    sensors_event_t accelEvt, gyroEvt, tempEvt;
+
     for (uint16_t i = 0u; i < FFT_N; ++i) {
         // Busy-wait for the next sample slot — no delay().
         while (static_cast<int32_t>(micros() - tNext) < 0) { /* spin */ }
         tNext += FFT_SAMPLE_US;
 
-        QMI8658_Data d;
-        if (sensor.readSensorData(d)) {
-            fftZBuf_[i] = d.accelZ / 9.80665f;   // convert m/s² → g
-        } else {
-            fftZBuf_[i] = (i > 0u) ? fftZBuf_[i - 1u] : 0.0f;
-        }
+        sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
+        fftZBuf_[i] = accelEvt.acceleration.z / 9.80665f;   // convert m/s² → g
 
         const float z = fftZBuf_[i];
         sumSq += z * z;
@@ -461,7 +396,6 @@ float getAccelX()        { return filtAccelX_;      }
 float getAccelY()        { return filtAccelY_;      }
 float getAccelZ()        { return filtAccelZ_;      }
 float getAccelMag()      { return accelMag_;        }
-//float getGyroMag()       { return gyroMag_;         }
 float getTemperature()         { return imuTemp_;          }
 bool  isTemperaturePlausible() { return imuTempPlausible_; }
 

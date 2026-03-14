@@ -156,21 +156,21 @@
 
 
 // =============================================================================
-// TCA9548A I2C Multiplexer (EMC2101 fan + pump routing)
+// PCA9548 I2C Multiplexer (EMC2101 fan + pump routing)
 // =============================================================================
 //
 // Only the two EMC2101s are routed through the mux; all other I2C devices
-// (relays, MCP4725, QMI8658, etc.) remain directly on the main bus.
+// (relays, MCP4725, LSM6DSOX, etc.) remain directly on the main bus.
 // A0 = A1 = A2 = GND → base address 0x70.
 
-// I2C address of the TCA9548A multiplexer.
-#define TCA9548A_I2C_ADDRESS      static_cast<uint8_t>(0x70)
+// I2C address of the PCA9548 multiplexer.
+#define PCA9548_I2C_ADDRESS      static_cast<uint8_t>(0x70)
 
-// Mux channel for the fan EMC2101 (existing).
-#define TCA9548A_CHANNEL_FAN      static_cast<uint8_t>(0)
+// Mux channel for the fan EMC2101.
+#define PCA9548_CHANNEL_FAN      static_cast<uint8_t>(2)
 
-// Mux channel for the pump EMC2101 (new).
-#define TCA9548A_CHANNEL_PUMP     static_cast<uint8_t>(1)
+// Mux channel for the pump EMC2101.
+#define PCA9548_CHANNEL_PUMP     static_cast<uint8_t>(7)
 
 // =============================================================================
 // Pump EMC2101 — forced-temperature LUT configuration
@@ -348,7 +348,7 @@
 // ====
 // IMU
 // =============================================================================
-#define QMI8658_IMU_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if A0 is tied high.
+#define LSM6DSOX_IMU_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if SA0 is tied high.
 
 // =============================================================================
 // Misc stuff

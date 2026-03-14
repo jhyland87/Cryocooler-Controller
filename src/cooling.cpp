@@ -315,21 +315,44 @@ static float readCoolantTemp() {
 }
 
 // ---------------------------------------------------------------------------
-// TCA9548A I2C multiplexer — channel selection
+// PCA9548 I2C multiplexer — channel selection
 //
-// The TCA9548A is controlled by a single-byte I2C write: bit N enables
+// The PCA9548 is controlled by a single-byte I2C write: bit N enables
 // downstream channel N.  We select exactly one channel at a time.
 // Only the two EMC2101s are routed through the mux; all other I2C devices
 // remain on the main bus.
 // ---------------------------------------------------------------------------
 static bool selectMuxChannel(uint8_t channel) {
-    hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
-    hardware::i2c().write(static_cast<uint8_t>(1u << channel));
+    const uint8_t expected = static_cast<uint8_t>(1u << channel);
+
+    hardware::i2c().beginTransmission(PCA9548_I2C_ADDRESS);
+    hardware::i2c().write(expected);
     const uint8_t err = hardware::i2c().endTransmission();
     if (err != 0) {
-        ESP_LOGE(TAG, "TCA9548A channel select %u failed (I2C error %u)", channel, err);
+        ESP_LOGE(TAG, "PCA9548 channel select %u failed (I2C error %u)", channel, err);
         return false;
     }
+
+    // Brief settling delay — allow the downstream bus pull-ups to charge
+    // through the mux's FET switches before issuing the first transaction.
+    delayMicroseconds(100);
+
+    // Read back the control register to verify the channel is latched.
+    // If RESET is held LOW the PCA9548 ACKs writes but keeps all channels
+    // deselected (readback = 0x00).
+    const uint8_t nRead = hardware::i2c().requestFrom(
+        static_cast<uint8_t>(PCA9548_I2C_ADDRESS), static_cast<uint8_t>(1u));
+    if (nRead != 1u) {
+        ESP_LOGE(TAG, "PCA9548 readback failed (got %u bytes)", nRead);
+        return false;
+    }
+    const uint8_t actual = hardware::i2c().read();
+    if (actual != expected) {
+        ESP_LOGE(TAG, "PCA9548 channel %u readback mismatch: wrote 0x%02X, read 0x%02X "
+                 "(RESET pin may be floating or held LOW)", channel, expected, actual);
+        return false;
+    }
+
     return true;
 }
 
@@ -338,19 +361,19 @@ static bool selectMuxChannel(uint8_t channel) {
 // Other devices (IMU, INA237, relays) communicate on the main bus without
 // the extra electrical path through the mux's FET switches.
 static void deselectMuxChannels() {
-    hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
+    hardware::i2c().beginTransmission(PCA9548_I2C_ADDRESS);
     hardware::i2c().write(static_cast<uint8_t>(0x00));
     hardware::i2c().endTransmission();
 }
 
 // ---------------------------------------------------------------------------
-// fanInit — configure the fan EMC2101 on TCA9548A channel 0
+// fanInit — configure the fan EMC2101 on PCA9548 channel 0
 //
 // The fan EMC2101 reads its own internal temperature sensor and drives the
 // fan PWM duty cycle via its LUT.  No forced-temperature mode is used.
 // ---------------------------------------------------------------------------
 static module::InitStatus fanInit() {
-  if (!selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
+  if (!selectMuxChannel(PCA9548_CHANNEL_FAN)) {
     //ESP_LOGE(TAG, "fanInit: mux channel select failed");
     _Log.printf("fanInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
@@ -406,14 +429,14 @@ static module::InitStatus fanInit() {
 }
 
 // ---------------------------------------------------------------------------
-// pumpInit — configure the pump EMC2101 on TCA9548A channel 1
+// pumpInit — configure the pump EMC2101 on PCA9548 channel 1
 //
 // The pump EMC2101 runs in forced-temperature LUT mode: software pushes the
 // averaged NTC coolant temperature via setForcedTemperature() every 1000 ms,
 // and the IC's LUT drives the pump PWM output accordingly.
 // ---------------------------------------------------------------------------
 static module::InitStatus pumpInit() {
-  if (!selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
+  if (!selectMuxChannel(PCA9548_CHANNEL_PUMP)) {
     //ESP_LOGE(TAG, "pumpInit: mux channel select failed");
     _Log.printf("pumpInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
@@ -503,27 +526,35 @@ module::InitStatus init() {
   //ESP_LOGD(TAG, "Initializing cooling system");
   _Log.printf("Initializing cooling system\n");
 
-  // ── Verify TCA9548A mux is present ──────────────────────────────────────
-  hardware::i2c().beginTransmission(TCA9548A_I2C_ADDRESS);
+  // ── Verify PCA9548 mux is present ──────────────────────────────────────
+  hardware::i2c().beginTransmission(PCA9548_I2C_ADDRESS);
   if (hardware::i2c().endTransmission() != 0) {
-    //ESP_LOGE(TAG, "TCA9548A not found at 0x%02X", TCA9548A_I2C_ADDRESS);
-    _Log.printf("TCA9548A not found at 0x%02X\n", TCA9548A_I2C_ADDRESS);
+    //ESP_LOGE(TAG, "PCA9548 not found at 0x%02X", PCA9548_I2C_ADDRESS);
+    _Log.printf("PCA9548 not found at 0x%02X\n", PCA9548_I2C_ADDRESS);
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
-  ESP_LOGD(TAG, "TCA9548A found at 0x%02X", TCA9548A_I2C_ADDRESS);
+  ESP_LOGD(TAG, "PCA9548 found at 0x%02X", PCA9548_I2C_ADDRESS);
 
-  // ── Fan EMC2101 (mux channel 0) ────────────────────────────────────────
+  // ── Fan EMC2101 (mux channel 2) ────────────────────────────────────────
   {
     const module::InitStatus st = fanInit();
     if (st != module::MODULE_INIT_SUCCESS) {
+      deselectMuxChannels();
+      // A failed mux/EMC2101 transaction can leave the ESP32's I2C driver
+      // in a stuck state (Error 263 / timeout), which causes subsequent
+      // modules (relays, DAC, etc.) to also fail.  Recover the bus so
+      // downstream init proceeds cleanly.
+      hardware::recoverI2c();
       return st;
     }
   }
 
-  // ── Pump EMC2101 (mux channel 1) ───────────────────────────────────────
+  // ── Pump EMC2101 (mux channel 7) ───────────────────────────────────────
   {
     const module::InitStatus st = pumpInit();
     if (st != module::MODULE_INIT_SUCCESS) {
+      deselectMuxChannels();
+      hardware::recoverI2c();
       return st;
     }
   }
@@ -625,7 +656,7 @@ module::ServiceStatus service() {
   // Snapshot all EMC2101 values in one place.  Accessors (getFanSpeed,
   // isCoolingFanOn, getFanRPM) return these cached copies so that the
   // telemetry emit path never touches the I2C bus outside this function.
-  if (selectMuxChannel(TCA9548A_CHANNEL_FAN)) {
+  if (selectMuxChannel(PCA9548_CHANNEL_FAN)) {
     cachedDutyCycle_ = fanController_.getDutyCycle();
     cachedFanRpm_ = fanController_.getFanRPM();
     ESP_LOGD(TAG, "fan: duty=%u%% rpm=%u", cachedDutyCycle_, cachedFanRpm_);
@@ -635,7 +666,7 @@ module::ServiceStatus service() {
   const uint8_t dc = cachedDutyCycle_;
 
   // ── Pump EMC2101: push forced temperature and cache readings ───────────
-  if (selectMuxChannel(TCA9548A_CHANNEL_PUMP)) {
+  if (selectMuxChannel(PCA9548_CHANNEL_PUMP)) {
     // Feed the averaged NTC coolant temperature into the pump EMC2101.
     // The IC's LUT will then set the pump duty cycle accordingly.
     int16_t forcedTemp = 0;
@@ -746,7 +777,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGI(TAG, "setFanSpeed(%u): manual override — disabling LUT", percentage);
   forceFanSpeed_ = true;
 
-  selectMuxChannel(TCA9548A_CHANNEL_FAN);
+  selectMuxChannel(PCA9548_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "setFanSpeed: LUTEnabled(false) failed");
   }
@@ -778,7 +809,7 @@ void setPumpSpeed(uint8_t percentage) {
   ESP_LOGI(TAG, "setPumpSpeed(%u%% norm → %u%% hw): manual override — disabling pump LUT",
            percentage, hwDuty);
 
-  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  selectMuxChannel(PCA9548_CHANNEL_PUMP);
   if (!pumpController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "setPumpSpeed: LUTEnabled(false) failed");
   }
@@ -810,12 +841,12 @@ void enable() {
   coolingPumpOn_ = true;
   forceFanSpeed_ = false;
 
-  selectMuxChannel(TCA9548A_CHANNEL_FAN);
+  selectMuxChannel(PCA9548_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "enable(): fan LUTEnabled(true) failed");
   }
 
-  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  selectMuxChannel(PCA9548_CHANNEL_PUMP);
   if (!pumpController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "enable(): pump LUTEnabled(true) failed");
   }
@@ -835,7 +866,7 @@ void disable() {
   forceFanSpeed_ = false;
 
   // ── Stop the fan ──────────────────────────────────────────────────────
-  selectMuxChannel(TCA9548A_CHANNEL_FAN);
+  selectMuxChannel(PCA9548_CHANNEL_FAN);
   if (!fanController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "disable(): fan LUTEnabled(false) failed");
   }
@@ -848,7 +879,7 @@ void disable() {
   }
 
   // ── Stop the pump ─────────────────────────────────────────────────────
-  selectMuxChannel(TCA9548A_CHANNEL_PUMP);
+  selectMuxChannel(PCA9548_CHANNEL_PUMP);
   if (!pumpController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) failed");
   }

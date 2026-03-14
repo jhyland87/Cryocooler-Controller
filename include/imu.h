@@ -11,7 +11,7 @@ namespace imu {
 // ---------------------------------------------------------------------------
 
 /**
- * Initialise the QMI8658, configure ranges/ODR, and perform calibration.
+ * Initialise the LSM6DSOX, configure ranges/ODR, and perform calibration.
  * Safe to call if hardware is absent — isInitialized() will return false
  * and all getters will return 0 / false.
  */
@@ -32,7 +32,7 @@ module::ServiceStatus service();
 /** True if init() succeeded and the sensor is running. */
 bool isInitialized();
 
-/** True if the QMI8658 was found and acknowledged on the I2C bus during init(). */
+/** True if the LSM6DSOX was found and acknowledged on the I2C bus during init(). */
 bool isAvailable();
 
 /** True while checkMotion() detects significant acceleration or rotation. */
