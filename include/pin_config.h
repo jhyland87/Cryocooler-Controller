@@ -30,7 +30,7 @@
 #define SCL_PIN            9
 
 
-// MCP4921_CS (GPIO 6) removed — DAC is now MCP4725 on the shared I2C bus
+// MCP4921_CS (GPIO 6) removed — DAC is now AD5693R on the shared I2C bus
 // (SDA = GPIO 8, SCL = GPIO 9).  GPIO 6 is available for other use.
 
 // =============================================================================

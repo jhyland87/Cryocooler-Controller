@@ -37,33 +37,35 @@
 // ADC readings below this raw count are treated as 0 (noise floor / off).
 #define ADC_MIN_VOLTAGE   static_cast<uint8_t>(15)
 
-// 12-bit DAC full scale (0–4095).  Fixed by the MCP4725 hardware.
-#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
+// 16-bit DAC full scale (0–65535).  Fixed by the AD5693R hardware.
+#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(65535)
 
 
-// I2C address of the MCP4725 DAC.
-// Adafruit breakout (A0 pin unsoldered): 0x62.
-// Generic modules (A2=A1=A0 tied to GND): 0x60.
-// Adjust to match your A0 pin wiring.
-#define MCP4725_I2C_ADDRESS  static_cast<uint8_t>(0x60)
+// I2C address of the AD5693R DAC.
+// A0 = GND → 0x4C (conflicts with pump EMC2101).
+// A0 = VDD → 0x4E.
+#define AD5693_I2C_ADDRESS  static_cast<uint8_t>(0x4E)
 
 // =============================================================================
 // Amplifier ramp rates (DAC counts per LOOP_INTERVAL_MS tick)
 // =============================================================================
+//
+// Scaled ×16 from 12-bit values to preserve the same wall-clock ramp speed
+// at 16-bit resolution.
 
 // Maximum DAC increment per main-loop tick (soft ramp-rate cap).
-// At LOOP_INTERVAL_MS = 200 ms a step of 5 → full-scale ramp in ~164 s.
-#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(5)
+// At LOOP_INTERVAL_MS = 200 ms a step of 80 → full-scale ramp in ~164 s.
+#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(80)
 
-#define AMPLIFIER_RAMP_RATE_VERY_FAST         static_cast<uint16_t>(1)
-#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(5)
-#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(10)
-#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(20)
-#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(50)
+#define AMPLIFIER_RAMP_RATE_VERY_FAST         static_cast<uint16_t>(16)
+#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(80)
+#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(160)
+#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(320)
+#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(800)
 
 // DAC step size during the shutdown ramp (ramps down much faster than up).
-// At LOOP_INTERVAL_MS = 200 ms a step of 200 → full-scale ramp in ~4 s.
-#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(200)
+// At LOOP_INTERVAL_MS = 200 ms a step of 3200 → full-scale ramp in ~4 s.
+#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(3200)
 
 // The DAC output should only output 0-10vdc. This is the multiplier voltage
 // that gets passed to the AD633 voltage
@@ -156,20 +158,21 @@
 
 
 // =============================================================================
-// PCA9548 I2C Multiplexer (EMC2101 fan + pump routing)
+// EMC2101 I2C Addresses & Routing
 // =============================================================================
 //
-// Only the two EMC2101s are routed through the mux; all other I2C devices
-// (relays, MCP4725, LSM6DSOX, etc.) remain directly on the main bus.
-// A0 = A1 = A2 = GND → base address 0x70.
+// Set USE_I2C_MUX to 1 to route both EMC2101s through a PCA9548 multiplexer.
+// Set to 0 when using an I2C address translator instead (current config).
+#define USE_I2C_MUX  0
 
-// I2C address of the PCA9548 multiplexer.
+// Fan EMC2101 address (via I2C address translator — used when USE_I2C_MUX=0).
+#define EMC2101_FAN_I2C_ADDRESS  static_cast<uint8_t>(0x3C)
+
+// Pump EMC2101 address (default 0x4C — EMC2101_I2CADDR_DEFAULT).
+
+// PCA9548 mux settings (used only when USE_I2C_MUX=1).
 #define PCA9548_I2C_ADDRESS      static_cast<uint8_t>(0x70)
-
-// Mux channel for the fan EMC2101.
 #define PCA9548_CHANNEL_FAN      static_cast<uint8_t>(2)
-
-// Mux channel for the pump EMC2101.
 #define PCA9548_CHANNEL_PUMP     static_cast<uint8_t>(7)
 
 // =============================================================================

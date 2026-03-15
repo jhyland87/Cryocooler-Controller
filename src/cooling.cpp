@@ -314,6 +314,7 @@ static float readCoolantTemp() {
     return tempK - 273.15f;
 }
 
+#if USE_I2C_MUX
 // ---------------------------------------------------------------------------
 // PCA9548 I2C multiplexer — channel selection
 //
@@ -365,21 +366,26 @@ static void deselectMuxChannels() {
     hardware::i2c().write(static_cast<uint8_t>(0x00));
     hardware::i2c().endTransmission();
 }
+#endif // USE_I2C_MUX
 
 // ---------------------------------------------------------------------------
-// fanInit — configure the fan EMC2101 on PCA9548 channel 0
+// fanInit — configure the fan EMC2101
 //
 // The fan EMC2101 reads its own internal temperature sensor and drives the
 // fan PWM duty cycle via its LUT.  No forced-temperature mode is used.
 // ---------------------------------------------------------------------------
 static module::InitStatus fanInit() {
+#if USE_I2C_MUX
   if (!selectMuxChannel(PCA9548_CHANNEL_FAN)) {
-    //ESP_LOGE(TAG, "fanInit: mux channel select failed");
     _Log.printf("fanInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
+  const uint8_t fanAddr = EMC2101_I2CADDR_DEFAULT;
+#else
+  const uint8_t fanAddr = EMC2101_FAN_I2C_ADDRESS;
+#endif
 
-  if (!fanController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
+  if (!fanController_.begin(fanAddr, &hardware::i2c())) {
     //ESP_LOGE(TAG, "fanInit: failed to find fan EMC2101");
     _Log.printf("fanInit: failed to find fan EMC2101\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
@@ -436,11 +442,12 @@ static module::InitStatus fanInit() {
 // and the IC's LUT drives the pump PWM output accordingly.
 // ---------------------------------------------------------------------------
 static module::InitStatus pumpInit() {
+#if USE_I2C_MUX
   if (!selectMuxChannel(PCA9548_CHANNEL_PUMP)) {
-    //ESP_LOGE(TAG, "pumpInit: mux channel select failed");
     _Log.printf("pumpInit: mux channel select failed\n");
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
+#endif
 
   if (!pumpController_.begin(EMC2101_I2CADDR_DEFAULT, &hardware::i2c())) {
     //ESP_LOGE(TAG, "pumpInit: failed to find pump EMC2101");
@@ -523,23 +530,25 @@ static module::InitStatus pumpInit() {
 // init
 // ---------------------------------------------------------------------------
 module::InitStatus init() {
-  //ESP_LOGD(TAG, "Initializing cooling system");
   _Log.printf("Initializing cooling system\n");
 
+#if USE_I2C_MUX
   // ── Verify PCA9548 mux is present ──────────────────────────────────────
   hardware::i2c().beginTransmission(PCA9548_I2C_ADDRESS);
   if (hardware::i2c().endTransmission() != 0) {
-    //ESP_LOGE(TAG, "PCA9548 not found at 0x%02X", PCA9548_I2C_ADDRESS);
     _Log.printf("PCA9548 not found at 0x%02X\n", PCA9548_I2C_ADDRESS);
     return module::MODULE_INIT_HARDWARE_ERROR;
   }
   ESP_LOGD(TAG, "PCA9548 found at 0x%02X", PCA9548_I2C_ADDRESS);
+#endif
 
-  // ── Fan EMC2101 (mux channel 2) ────────────────────────────────────────
+  // ── Fan EMC2101 ───────────────────────────────────────────────────────
   {
     const module::InitStatus st = fanInit();
     if (st != module::MODULE_INIT_SUCCESS) {
+#if USE_I2C_MUX
       deselectMuxChannels();
+#endif
       // A failed mux/EMC2101 transaction can leave the ESP32's I2C driver
       // in a stuck state (Error 263 / timeout), which causes subsequent
       // modules (relays, DAC, etc.) to also fail.  Recover the bus so
@@ -549,19 +558,23 @@ module::InitStatus init() {
     }
   }
 
-  // ── Pump EMC2101 (mux channel 7) ───────────────────────────────────────
+  // ── Pump EMC2101 ───────────────────────────────────────────────────────
   {
     const module::InitStatus st = pumpInit();
     if (st != module::MODULE_INIT_SUCCESS) {
+#if USE_I2C_MUX
       deselectMuxChannels();
+#endif
       hardware::recoverI2c();
       return st;
     }
   }
 
+#if USE_I2C_MUX
   // Disconnect mux channels — no downstream bus segments stay connected
   // while other modules initialise or run their service loops.
   deselectMuxChannels();
+#endif
 
   // ── Coolant sensor setup ───────────────────────────────────────────────────
 
@@ -656,17 +669,25 @@ module::ServiceStatus service() {
   // Snapshot all EMC2101 values in one place.  Accessors (getFanSpeed,
   // isCoolingFanOn, getFanRPM) return these cached copies so that the
   // telemetry emit path never touches the I2C bus outside this function.
+#if USE_I2C_MUX
   if (selectMuxChannel(PCA9548_CHANNEL_FAN)) {
+#endif
     cachedDutyCycle_ = fanController_.getDutyCycle();
     cachedFanRpm_ = fanController_.getFanRPM();
     ESP_LOGD(TAG, "fan: duty=%u%% rpm=%u", cachedDutyCycle_, cachedFanRpm_);
+#if USE_I2C_MUX
   } else {
     ESP_LOGE(TAG, "fan: mux channel select FAILED — skipping fan reads");
   }
+#endif
   const uint8_t dc = cachedDutyCycle_;
 
   // ── Pump EMC2101: push forced temperature and cache readings ───────────
+#if USE_I2C_MUX
   if (selectMuxChannel(PCA9548_CHANNEL_PUMP)) {
+#else
+  {
+#endif
     // Feed the averaged NTC coolant temperature into the pump EMC2101.
     // The IC's LUT will then set the pump duty cycle accordingly.
     int16_t forcedTemp = 0;
@@ -695,6 +716,7 @@ module::ServiceStatus service() {
       ESP_LOGW(TAG, "pump: TACH dropout — rawRPM=0 (hwDuty=%u%%, norm=%u%%, forcedT=%d)",
                rawDuty, pumpHwToNorm(rawDuty), forcedTemp);
     }
+#if USE_I2C_MUX
   } else {
     ESP_LOGE(TAG, "pump: mux channel select FAILED — skipping pump reads");
   }
@@ -702,6 +724,9 @@ module::ServiceStatus service() {
   // Disconnect all mux channels so the downstream bus segments no longer
   // load the shared I2C bus while other modules (IMU, INA237, etc.) talk.
   deselectMuxChannels();
+#else
+  }
+#endif
 
   // Fan speed tracker: only meaningful in forced/manual mode.
   // In LUT mode the IC owns the duty cycle — no external setpoint exists.
@@ -777,7 +802,9 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGI(TAG, "setFanSpeed(%u): manual override — disabling LUT", percentage);
   forceFanSpeed_ = true;
 
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_FAN);
+#endif
   if (!fanController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "setFanSpeed: LUTEnabled(false) failed");
   }
@@ -794,7 +821,9 @@ void setFanSpeed(uint8_t percentage, bool force) {
   ESP_LOGD(TAG, "setFanSpeed(%u): dutyCycle=%u%% LUT=%s",
            percentage, fanController_.getDutyCycle(),
            fanController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
+#if USE_I2C_MUX
   deselectMuxChannels();
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -809,7 +838,9 @@ void setPumpSpeed(uint8_t percentage) {
   ESP_LOGI(TAG, "setPumpSpeed(%u%% norm → %u%% hw): manual override — disabling pump LUT",
            percentage, hwDuty);
 
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_PUMP);
+#endif
   if (!pumpController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "setPumpSpeed: LUTEnabled(false) failed");
   }
@@ -824,7 +855,9 @@ void setPumpSpeed(uint8_t percentage) {
   ESP_LOGI(TAG, "setPumpSpeed: norm=%u%% hwDuty=%u%% readback=%u%% LUT=%s",
            percentage, hwDuty, pumpController_.getDutyCycle(),
            pumpController_.LUTEnabled() ? "ENABLED(!)" : "disabled");
+#if USE_I2C_MUX
   deselectMuxChannels();
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -841,17 +874,23 @@ void enable() {
   coolingPumpOn_ = true;
   forceFanSpeed_ = false;
 
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_FAN);
+#endif
   if (!fanController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "enable(): fan LUTEnabled(true) failed");
   }
 
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_PUMP);
+#endif
   if (!pumpController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "enable(): pump LUTEnabled(true) failed");
   }
 
+#if USE_I2C_MUX
   deselectMuxChannels();
+#endif
   ESP_LOGD(TAG, "enable(): fan and pump LUT enabled");
 }
 
@@ -866,7 +905,9 @@ void disable() {
   forceFanSpeed_ = false;
 
   // ── Stop the fan ──────────────────────────────────────────────────────
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_FAN);
+#endif
   if (!fanController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "disable(): fan LUTEnabled(false) failed");
   }
@@ -879,7 +920,9 @@ void disable() {
   }
 
   // ── Stop the pump ─────────────────────────────────────────────────────
+#if USE_I2C_MUX
   selectMuxChannel(PCA9548_CHANNEL_PUMP);
+#endif
   if (!pumpController_.LUTEnabled(false)) {
     ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) failed");
   }
@@ -890,7 +933,9 @@ void disable() {
     ESP_LOGW(TAG, "disable(): pump LUTEnabled(false) post-write failed");
   }
 
+#if USE_I2C_MUX
   deselectMuxChannels();
+#endif
   ESP_LOGD(TAG, "disable(): fan and pump stopped");
 }
 

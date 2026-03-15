@@ -21,6 +21,7 @@ void i2cScan(Print& out) {
     hardware::recoverI2c();
     delay(5);
 
+#if USE_I2C_MUX
     // ── Ensure all mux channels are deselected before main bus scan ────────
     // A previous failed init may have left a channel selected, which would
     // make downstream devices appear as if they were on the main bus.
@@ -28,6 +29,7 @@ void i2cScan(Print& out) {
     wire.write(static_cast<uint8_t>(0x00));
     wire.endTransmission();  // ignore errors — mux may not be present
     delay(1);
+#endif
 
     // ── Main bus scan ───────────────────────────────────────────────────────
     out.println("Scanning main I2C bus (0x08-0x77)...");
@@ -47,6 +49,7 @@ void i2cScan(Print& out) {
         out.printf("  %u device(s) found.\n", static_cast<unsigned>(found));
     }
 
+#if USE_I2C_MUX
     // ── PCA9548 mux channel scan ────────────────────────────────────────────
     // If the PCA9548 is present, select each active channel in turn and
     // report which downstream addresses respond.  Restores all channels
@@ -90,6 +93,7 @@ void i2cScan(Print& out) {
     wire.endTransmission();
 
     out.println("Mux scan complete.");
+#endif
 }
 
 } // namespace utils

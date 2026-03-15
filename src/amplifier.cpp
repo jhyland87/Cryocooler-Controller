@@ -4,22 +4,21 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4725 12-bit I2C DAC                            (amplitude control)
+ *   AD5693R 16-bit I2C DAC                             (amplitude control)
  *
  * The former dac / waveform / rms modules have been consolidated here.
  *
- * MCP4725 I2C protocol notes:
- *   Fast-mode (400 kHz) is used.  setVoltage() is called with writeEEPROM=false
- *   so only the volatile output register is updated — no EEPROM wear on every
- *   ramp step.  The MCP4725 retains its volatile register value across software
- *   resets (esp_restart()), so dacCurrent_ is invalidated in initDac() to force
- *   a write to zero on every boot, matching the previous MCP4921 behaviour.
+ * AD5693R I2C protocol notes:
+ *   Fast-mode (400 kHz) is used.  writeUpdateDAC() writes to the volatile
+ *   output register only.  The AD5693R retains its volatile register value
+ *   across software resets (esp_restart()), so dacCurrent_ is invalidated in
+ *   initDac() to force a write to zero on every boot.
  */
 
 #include <Arduino.h>
 #include <ACS37800.h>
 #include <MD_AD9833.h>
-#include <Adafruit_MCP4725.h>
+#include <Adafruit_AD569x.h>
 #include <SparkFun_Qwiic_Relay.h>
 
 #include "pin_config.h"
@@ -50,11 +49,10 @@ static Qwiic_Relay sRelay(AMPLIFIER_RELAY_ADDR);
 /// is not yet fitted.
 static bool sRelayAvailable = false;
 
-/// Set true by initDac() only when the MCP4725 device is found and begin()
+/// Set true by initDac() only when the AD5693 device is found and begin()
 /// completes without error.  Guards dacWrite() so that hardStop() /
-/// setRmsVoltage() never reach mcp4725_.setVoltage() on an uninitialised DAC
-/// object — a crash that occurs when Adafruit_I2CDevice::begin() re-calls
-/// Wire.begin() and leaves the ESP-IDF 5.x I2C driver in an inconsistent state.
+/// setRmsVoltage() never reach ad5693_.writeUpdateDAC() on an uninitialised
+/// DAC object.
 static bool sDacAvailable = false;
 
 /// True while the relay output is energised (cached).
@@ -66,8 +64,8 @@ static MD_AD9833 ad9833_(AD9833_CS);
 // RMS power monitor (ACS37800 over I2C)
 static ACS37800 acs_;
 
-// MCP4725 12-bit I2C DAC — amplitude control
-static Adafruit_MCP4725 mcp4725_;
+// AD5693R 16-bit I2C DAC — amplitude control
+static Adafruit_AD569x ad5693_;
 uint16_t dacCurrent_ = 0u;
 
 // Manual vout override — set by the "set vout" command to prevent the FSM
@@ -130,11 +128,9 @@ static void setRelay(bool on) {
 // ---------------------------------------------------------------------------
 
 /**
- * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the MCP4725 volatile output
- * register over I2C.  The cached value is checked first so unchanged
- * set-points do not generate unnecessary I2C traffic.
- *
- * writeEEPROM is always false — we never wear the EEPROM with ramp steps.
+ * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the AD5693 DAC register
+ * over I2C.  The cached value is checked first so unchanged set-points
+ * do not generate unnecessary I2C traffic.
  */
 static void dacWrite(uint16_t dacVal) {
     if (!sDacAvailable) return;   // DAC not initialised — skip silently
@@ -143,7 +139,7 @@ static void dacWrite(uint16_t dacVal) {
 
     dacCurrent_ = dacVal;
     ESP_LOGD(TAG, "DAC current: %u", dacCurrent_);
-    mcp4725_.setVoltage(dacVal, /*writeEEPROM=*/false);
+    ad5693_.writeUpdateDAC(dacVal);
     ESP_LOGD(TAG, "Writing DAC value: %u", dacVal);
 }
 
@@ -183,19 +179,19 @@ module::InitStatus init() {
     }
     _Log.println("Qwiic Single Relay initialized");
 
-    // -- MCP4725 DAC ----------------------------------------------------------
+    // -- AD5693R DAC -----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
-    _Log.println("Initializing MCP4725 (DAC - Amplitude Control)...");
+    _Log.println("Initializing AD5693R (DAC - Amplitude Control)...");
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "MCP4725 initialization failed: %d", static_cast<int>(status));
-            _Log.printf("MCP4725 initialization failed: %d\n", static_cast<int>(status));
+            ESP_LOGE(TAG, "AD5693R initialization failed: %d", static_cast<int>(status));
+            _Log.printf("AD5693R initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
-    _Log.println("MCP4725 DAC initialized");
+    _Log.println("AD5693R DAC initialized");
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
@@ -229,12 +225,16 @@ module::InitStatus init() {
 }
 
 module::InitStatus initDac() {
-    if (!mcp4725_.begin(MCP4725_I2C_ADDRESS, &hardware::i2c())) {
-        // DAC not found — non-fatal.  dacWrite() is guarded by sDacAvailable so
-        // hardStop() / setRmsVoltage() calls from the state machine will no-op
-        // rather than reach mcp4725_.setVoltage() on an uninitialised object.
-        ESP_LOGW(TAG, "MCP4725 not found at 0x%02X — DAC disabled", MCP4725_I2C_ADDRESS);
-        _Log.printf("MCP4725 not found at I2C address 0x%02X — DAC disabled\n", MCP4725_I2C_ADDRESS);
+    // begin() internally calls reset() then setMode() with no delay between
+    // them.  The AD5693R reboots mid-reset so the immediate setMode() NAKs and
+    // begin() returns false even though the chip is fine.  We ignore that
+    // return value, add a 10 ms settling delay, and call setMode() ourselves.
+    ad5693_.begin(AD5693_I2C_ADDRESS, &hardware::i2c());
+    delay(10);   // allow the chip to finish rebooting after the soft-reset
+
+    if (!ad5693_.setMode(NORMAL_MODE, /*enable_ref=*/true, /*gain2x=*/false)) {
+        ESP_LOGW(TAG, "AD5693R not found or setMode failed at 0x%02X — DAC disabled", AD5693_I2C_ADDRESS);
+        _Log.printf("AD5693R not found at I2C address 0x%02X — DAC disabled\n", AD5693_I2C_ADDRESS);
         sDacAvailable = false;
         return module::MODULE_INIT_SUCCESS;
     }
@@ -242,7 +242,7 @@ module::InitStatus initDac() {
     sDacAvailable = true;
 
     // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts
-    // at 0 after every ESP32 boot, but the MCP4725 retains its volatile register
+    // at 0 after every ESP32 boot, but the AD5693 retains its volatile register
     // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
     // I2C write and leave the DAC at whatever it was before the reset.
     dacCurrent_ = UINT16_MAX;   // force dacWrite() to issue the I2C write

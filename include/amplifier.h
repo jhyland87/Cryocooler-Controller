@@ -4,7 +4,7 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4725 12-bit I2C DAC                            (amplitude control)
+ *   AD5693R 16-bit I2C DAC                             (amplitude control)
  *
  * The legacy dac / waveform / rms modules have been consolidated here.
  */
@@ -35,7 +35,7 @@ module::InitStatus initWaveform();
 /** Initialise the ACS37800 RMS power monitor over I2C. */
 module::InitStatus initAcs();
 
-/** Initialise the MCP4725 12-bit I2C DAC and drive output to zero. */
+/** Initialise the AD5693R 16-bit I2C DAC and drive output to zero. */
 module::InitStatus initDac();
 
 /**
@@ -103,10 +103,10 @@ float getFrequency();
 // ---------------------------------------------------------------------------
 
 /**
- * Rate-limited ramp of the MCP4725 DAC toward @p dacTarget.
+ * Rate-limited ramp of the AD5693 DAC toward @p dacTarget.
  * Each call advances at most AMPLIFIER_MAX_STEP_PER_INTERVAL counts.
  *
- * @param dacTarget  Desired 12-bit DAC value (0–4095).
+ * @param dacTarget  Desired 16-bit DAC value (0–65535).
  */
 void rampToVoltage(uint16_t dacTarget, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
 
@@ -114,7 +114,7 @@ void rampToVoltage(uint16_t dacTarget, uint16_t rampRate = AMPLIFIER_RAMP_RATE_S
  * Fast rate-limited ramp toward @p dacTarget (used during Shutdown).
  * Each call advances at most AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL counts.
  *
- * @param dacTarget  Desired 12-bit DAC value (0–4095).
+ * @param dacTarget  Desired 16-bit DAC value (0–65535).
  */
 void rampTowardShutdown(uint16_t dacTarget);
 
@@ -125,7 +125,7 @@ void rampToRmsVoltagePercent(float percent, uint16_t rampRate = AMPLIFIER_RAMP_R
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
  * the cached-value guard.  Call from any hard power-off or emergency-stop
- * path to guarantee the MCP4725 output is zeroed regardless of the current
+ * path to guarantee the AD5693 output is zeroed regardless of the current
  * cached DAC value.
  */
 void hardStop();
@@ -140,7 +140,7 @@ void initFineCooldown();
  */
 void setRmsVoltage(float rmsTarget);
 
-/** Return the current MCP4725 DAC output value (0–4095). */
+/** Return the current AD5693 DAC output value (0–65535). */
 uint16_t getDacCurrent();
 
 /**
