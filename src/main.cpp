@@ -342,7 +342,7 @@ void loop() {
     //Serial.printf("stalled: %d\n", stalled);
 
     const float rmsV        = amplifier::getLastRmsVoltage();
-    //Serial.printf("rmsV: %f\n", rmsV);
+
     const bool  overstroke  = imu::hasOverstroke();
     //Serial.printf("overstroke: %d\n", overstroke);
     const float sysVoltage  = sysinfo::getVoltage();

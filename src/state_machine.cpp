@@ -1002,17 +1002,17 @@ void reinit(uint32_t nowMs) {
     // exists.  We keep the existing FSM (all transitions remain valid) and
     // simply reset our own state then trigger EVT_REINITIALIZE, which moves
     // the machine to Initialize where onEnterInitialize fires onInitializeCb.
-    sNowMs          = nowMs;
-    running          = false;
-    onStateMs        = 0;
-    offStateMs       = 0;
-    faultReason      = FaultReason::None;
-    backoffCount     = 0;
-    backoffDacOffset = 0;
-    settleTimerActive= false;
-    settleStartMs    = 0;
-    delayMs        = 0;
-    delayNextEvent = EVT_DELAY_TO_IDLE;
+    sNowMs              = nowMs;
+    running             = false;
+    onStateMs           = 0;
+    offStateMs          = 0;
+    faultReason         = FaultReason::None;
+    backoffCount        = 0;
+    backoffDacOffset    = 0;
+    settleTimerActive   = false;
+    settleStartMs       = 0;
+    delayMs             = 0;
+    delayNextEvent      = EVT_DELAY_TO_IDLE;
     histReset();
     // Transition current state → Initialize.
     // Valid from Off, Idle, and Fault (all three transitions are registered

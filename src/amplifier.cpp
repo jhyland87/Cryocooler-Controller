@@ -221,6 +221,7 @@ module::InitStatus init() {
     }
     _Log.println("AD9833 initialized");
     _Log.println("Initialization successful");
+
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -461,15 +462,14 @@ module::ServiceStatus service() {
     // amplifier::initAcs() detects ACS37800 absence via Wire.endTransmission()
     // return codes; if init failed, reading from it every tick would flood the
     // log with ESP_ERR_INVALID_STATE errors.
+    //Serial.printf("Module::getInitStatus(): %d\n", Module::getInitStatus());
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    return module::MODULE_SERVICE_SKIPPED;
-
     acs_.readRMSVoltageAndCurrent();
-    lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts);// / 1000.0f;
-    lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps);// / 1000.0f;
+    lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
+    lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps) / 1000.0f;
     lastFrequency_  = imu::getFrequency();
 
     const uint32_t nowMs = millis();
