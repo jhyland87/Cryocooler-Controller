@@ -642,18 +642,18 @@ static void fsmTrigger(int event, const char* cause) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init(uint32_t nowMs) {
-    sNowMs          = nowMs;
-    running          = false;
-    onStateMs        = 0;
-    offStateMs       = 0;
-    faultReason      = FaultReason::None;
-    backoffCount     = 0;
-    backoffDacOffset = 0;
-    settleTimerActive= false;
-    settleStartMs    = 0;
-    delayMs            = 0;
-    delayNextEvent     = EVT_DELAY_TO_IDLE;
-    dependencyFaultPending = false;
+    sNowMs                  = nowMs;
+    running                 = false;
+    onStateMs               = 0;
+    offStateMs              = 0;
+    faultReason             = FaultReason::None;
+    backoffCount            = 0;
+    backoffDacOffset        = 0;
+    settleTimerActive       = false;
+    settleStartMs           = 0;
+    delayMs                 = 0;
+    delayNextEvent          = EVT_DELAY_TO_IDLE;
+    dependencyFaultPending  = false;
     histReset();
 
     delete fsm;
