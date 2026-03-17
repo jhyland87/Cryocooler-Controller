@@ -392,8 +392,16 @@ void setLastReadings(uint32_t nowMs, float tempC,
 
 void checkFaults() {
     if (sensor_mock::isActive()) return;
+
+    static uint8_t lastFaultCode_ = 0;
     const uint8_t fault = max31865.readFault();
-    if (fault == 0) return;
+
+    // Only log when the fault code changes — suppresses repeated messages
+    // for the same persistent fault.  Resets when the fault clears so any
+    // recurrence is logged immediately.
+    if (fault == lastFaultCode_) return;
+    lastFaultCode_ = fault;
+    if (fault == 0) return;   // fault just cleared — nothing to log
 
     _Log.printf("Fault detected! Code: 0x%02X", fault);
 

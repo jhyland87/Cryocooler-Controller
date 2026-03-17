@@ -208,13 +208,8 @@ static bool overshot(float tempC) {
 /**
  * Compute the target DAC value for cooldown states.
  * Proportional to how far the temperature has dropped from AMBIENT_START_C
- * toward SETPOINT_C.
+ * toward SETPOINT_C.  Returns a fraction (0.0 – 1.0).
  */
-static uint16_t cooldownDacTarget(float tempC, float coolingRate) {
-    (void)coolingRate;   // rate guard reserved for future use
-    return conversions::tempCToDacValue(
-        tempC, AMBIENT_START_C, SETPOINT_C, AMPLIFIER_RESOLUTION);
-}
 
 /**
  * Return the human-readable status string for a state.
@@ -255,8 +250,12 @@ static const char* statusTextForState(State s) {
  * Build the Output struct for a given state.
  * Relay and indicator assignments follow the design spec exactly.
  */
-static Output buildOutput(State s, uint16_t dacTarget) {
+static Output buildOutput(State s, float fraction) {
     using Mode = indicator::Mode;
+
+    // Convert fraction to DAC counts for the Output struct.
+    uint16_t dacTarget = static_cast<uint16_t>(
+        fraction * static_cast<float>(AMPLIFIER_RESOLUTION));
 
     // Apply accumulated backoff reduction (floor at 0).
     if (backoffDacOffset > 0 && dacTarget > 0) {
@@ -394,7 +393,7 @@ static void onEnterInitialize() {
 static void onEnterIdle() {
     setStateEntry(State::Idle);
     amplifier::clearVoutOverride();
-    // Relay off, then immediately zero the DAC.  rampToVoltage() is a
+    // Relay off, then immediately zero the DAC.  rampTo() is a
     // single-step call — it only decrements by one rampRate on each
     // invocation, so calling it once here would leave the DAC stranded at
     // a high value.  The Shutdown state is the right place for a gradual
@@ -457,7 +456,7 @@ static void onExitOperating()       {
 static void onEnterShutdown()       {
     setStateEntry(State::Shutdown);
     amplifier::clearVoutOverride();
-    amplifier::rampTowardShutdown(0u);
+    amplifier::rampTowardShutdown();
     // Relay stays ON so the load sees the ramp-down.  The relay is turned
     // off only after the DAC reaches 0, when we transition to Idle.
     amplifier::setRelayState(true);
@@ -705,13 +704,22 @@ Output update(float    tempC,
             _Log.println(F("Fault: FSM oscillating between states"));
         }
 
-        // RMS overvoltage — checked only while running (relay is energised and
-        // amplifier is actively driving the load).  The ACS37800 measures the
-        // AC line side, so it will always read mains voltage when idle; checking
-        // here without the guard would produce an immediate false fault on startup.
-        if (running && amplifier::getLastRmsVoltage() > AMPLIFIER_MAX_VOLTAGE_VAC) {
-            faultMask |= static_cast<uint8_t>(FaultReason::RmsOvervoltage);
-            _Log.println(F("Fault: RMS voltage exceeded safe limit"));
+        // RMS overvoltage — proportional to cold-head temperature.
+        // The allowable voltage scales linearly from 0 V at ambient to
+        // AMPLIFIER_MAX_VOLTAGE_VAC at setpoint, plus a fixed margin (VAC)
+        // to absorb measurement noise and transient overshoot.
+        // Checked only while running (relay energised, amplifier driving load).
+        if (running) {
+            const float fraction = conversions::tempCToFraction(
+                tempC, AMBIENT_START_C, SETPOINT_C);
+            const float allowedV =
+                fraction * AMPLIFIER_MAX_VOLTAGE_VAC
+                + static_cast<float>(AMPLIFIER_OVERVOLTAGE_MARGIN_VAC);
+            if (amplifier::getLastRmsVoltage() > allowedV) {
+                faultMask |= static_cast<uint8_t>(FaultReason::RmsOvervoltage);
+                _Log.printf("Fault: RMS voltage %.1fV exceeded proportional limit %.1fV (tempC=%.1f)\n",
+                            amplifier::getLastRmsVoltage(), allowedV, tempC);
+            }
         }
 
         if (systemVoltage > 0.0f && systemVoltage < MIN_SYSTEM_VOLTAGE_VDC) {
@@ -876,20 +884,30 @@ Output update(float    tempC,
     fsm->run_machine();
 
     // ------------------------------------------------------------------
-    // 4. Compute DAC target, drive amplifier, and assemble output
+    // 4. Compute output fraction, drive amplifier, and assemble output
     // ------------------------------------------------------------------
-    uint16_t dacTarget = 0;
+    float fraction = 0.0f;
     if (currentState == State::CoarseCooldown ||
         currentState == State::FineCooldown) {
-        // Honour a manual "set vout" override; fall back to FSM-computed target.
-        dacTarget = amplifier::hasVoutOverride()
-                        ? amplifier::getVoutOverrideDac()
-                        : cooldownDacTarget(tempC, coolingRate);
-        amplifier::rampToVoltage(dacTarget);
+        // Honour a manual "set vout" override; fall back to temperature-proportional target.
+        fraction = amplifier::hasVoutOverride()
+                       ? amplifier::getVoutOverride()
+                       : conversions::tempCToFraction(tempC, AMBIENT_START_C, SETPOINT_C);
+        amplifier::rampTo(fraction);
     } else if (currentState == State::Shutdown) {
-        amplifier::rampTowardShutdown(dacTarget);  // dacTarget is 0
+        amplifier::rampTowardShutdown();
     }
-    return buildOutput(currentState, dacTarget);
+
+    // Keep the voltage tracking monitor's setpoint in sync with the
+    // proportional target so the tracker can detect real deviations
+    // rather than faulting on a stale / zero target.
+    if (running) {
+        const float trackFraction = conversions::tempCToFraction(
+            tempC, AMBIENT_START_C, SETPOINT_C);
+        amplifier::setTargetVoltage(trackFraction * AMPLIFIER_MAX_VOLTAGE_VAC);
+    }
+
+    return buildOutput(currentState, fraction);
 }
 
 State getState() {

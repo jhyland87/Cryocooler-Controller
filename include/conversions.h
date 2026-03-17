@@ -82,6 +82,34 @@ inline uint16_t tempCToDacValue(float tempC,
     return static_cast<uint16_t>(raw);
 }
 
+/**
+ * Map a cold-head temperature to a cooldown fraction in [0.0, 1.0].
+ *
+ * Returns 0.0 when the temperature is at or above @p ambientC and 1.0
+ * when it has reached @p setpointC.  Callers multiply by whatever
+ * ceiling they need (voltage, DAC counts, etc.).
+ *
+ * @param tempC      Current cold-head temperature in Celsius
+ * @param ambientC   Reference "warm" temperature (fraction = 0 here)
+ * @param setpointC  Target cold temperature (fraction = 1 here)
+ * @return           Cooldown fraction clamped to [0.0, 1.0]
+ */
+inline float tempCToFraction(float tempC,
+                             float ambientC,
+                             float setpointC)
+{
+    if (tempC >= ambientC)  return 0.0f;
+    if (tempC <= setpointC) return 1.0f;
+
+    const float span     = ambientC - setpointC;
+    const float dropped  = ambientC - tempC;
+    const float fraction = dropped / span;
+
+    if (fraction < 0.0f) return 0.0f;
+    if (fraction > 1.0f) return 1.0f;
+    return fraction;
+}
+
 inline void msToHHMMSS(uint32_t durationMs, char* hmsBuf, size_t len)
 {
     const uint32_t totalSec = durationMs / 1000u;

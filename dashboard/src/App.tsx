@@ -122,7 +122,7 @@ export function App() {
 
   if (frameCount === 0) {
     const loadingMsg =
-      status === 'error'
+      status === 'disconnected'
         ? 'Unable to reach device — retrying…'
         : 'Waiting for first telemetry frame…';
 
@@ -172,7 +172,7 @@ export function App() {
         <Box sx={{ flex: 1, p: { xs: 1.5, sm: 2 }, position: 'relative' }}>
 
           {/* ── Connection-lost overlay ─────────────────────────────────── */}
-          {status === 'error' && (
+          {status === 'disconnected' && (
             <Box
               sx={{
                 position: 'absolute',

@@ -9,17 +9,15 @@ import type { ConnectionStatus } from '../hooks/useTelemetry';
 // ─── Connection badge ─────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<ConnectionStatus, string> = {
-  connecting: 'Connecting…',
-  connected:  'WebSocket',
-  polling:    'Polling',
-  error:      'Error',
+  connecting:   'Connecting…',
+  connected:    'WebSocket',
+  disconnected: 'Disconnected',
 };
 
 const STATUS_COLORS: Record<ConnectionStatus, 'success' | 'warning' | 'error' | 'default'> = {
-  connecting: 'default',
-  connected:  'success',
-  polling:    'warning',
-  error:      'error',
+  connecting:   'default',
+  connected:    'success',
+  disconnected: 'error',
 };
 
 // ─── Live clock ───────────────────────────────────────────────────────────────

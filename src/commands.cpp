@@ -291,23 +291,25 @@ static void handleVoutSet(const char* args, Print& out) {
             out.println(buf);
             return;
         }
-        amplifier::setRmsVoltagePercent(static_cast<float>(val));
-        amplifier::setVoutOverride(amplifier::getDacCurrent());
+        const float fraction = static_cast<float>(val) / 100.0f;
+        amplifier::setOutput(fraction);
+        amplifier::setVoutOverride(fraction);
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] Voltage set to %u%%", static_cast<unsigned>(val));
         out.println(buf);
     } else {
-        if (val > 120u) {
+        if (val > static_cast<uint16_t>(AMPLIFIER_MAX_VOLTAGE_VAC)) {
             char buf[64];
             snprintf(buf, sizeof(buf),
-                     "[ERR] vout set: voltage out of range '%uV' (expected 0-120V)",
-                     static_cast<unsigned>(val));
+                     "[ERR] vout set: voltage out of range '%uV' (expected 0-%uV)",
+                     static_cast<unsigned>(val),
+                     static_cast<unsigned>(AMPLIFIER_MAX_VOLTAGE_VAC));
             out.println(buf);
             return;
         }
-        //int setDacValue = map(val, 0, AMPLIFIER_MAX_VOLTAGE_VAC, 0, AMPLIFIER_RESOLUTION);
-        amplifier::setRmsVoltage(static_cast<float>(val));
-        amplifier::setVoutOverride(amplifier::getDacCurrent());
+        const float fraction = static_cast<float>(val) / AMPLIFIER_MAX_VOLTAGE_VAC;
+        amplifier::setOutput(fraction);
+        amplifier::setVoutOverride(fraction);
         char buf[48];
         snprintf(buf, sizeof(buf), "[OK] Voltage set to %uV", static_cast<unsigned>(val));
         out.println(buf);

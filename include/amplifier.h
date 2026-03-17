@@ -7,6 +7,10 @@
  *   AD5693R 16-bit I2C DAC                             (amplitude control)
  *
  * The legacy dac / waveform / rms modules have been consolidated here.
+ *
+ * All output-level functions accept a **fraction** (0.0 – 1.0) representing
+ * the proportion of AMPLIFIER_MAX_VOLTAGE_VAC.  The fraction is converted to
+ * DAC counts internally.
  */
 
 #ifndef AMPLIFIER_H
@@ -99,28 +103,23 @@ void setFrequency(float frequencyHz);
 float getFrequency();
 
 // ---------------------------------------------------------------------------
-// DAC / amplitude control
+// Amplitude control
 // ---------------------------------------------------------------------------
 
 /**
- * Rate-limited ramp of the AD5693 DAC toward @p dacTarget.
- * Each call advances at most AMPLIFIER_MAX_STEP_PER_INTERVAL counts.
+ * Rate-limited ramp toward a target output level.
+ * Each call advances at most @p rampRate DAC counts internally.
  *
- * @param dacTarget  Desired 16-bit DAC value (0–65535).
+ * @param fraction  Desired output as a fraction of full scale (0.0 – 1.0).
+ * @param rampRate  DAC counts per tick (default AMPLIFIER_RAMP_RATE_SLOW).
  */
-void rampToVoltage(uint16_t dacTarget, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
+void rampTo(float fraction, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
 
 /**
- * Fast rate-limited ramp toward @p dacTarget (used during Shutdown).
+ * Fast rate-limited ramp toward zero (used during Shutdown).
  * Each call advances at most AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL counts.
- *
- * @param dacTarget  Desired 16-bit DAC value (0–65535).
  */
-void rampTowardShutdown(uint16_t dacTarget);
-
-void setRmsVoltagePercent(float percent);
-
-void rampToRmsVoltagePercent(float percent, uint16_t rampRate = AMPLIFIER_RAMP_RATE_SLOW);
+void rampTowardShutdown();
 
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
@@ -130,30 +129,34 @@ void rampToRmsVoltagePercent(float percent, uint16_t rampRate = AMPLIFIER_RAMP_R
  */
 void hardStop();
 
+/** Initialise coarse cooldown ramp (stage-specific fraction + ramp rate). */
 void initCoarseCooldown();
 
+/** Initialise fine cooldown ramp (stage-specific fraction + ramp rate). */
 void initFineCooldown();
 
 /**
- * Write @p dacTarget directly to the DAC with no rate limiting.
- * @param rmsTarget  The 0-120 VAC RMS target voltage.
+ * Set the output level immediately (no rate limiting).
+ * @param fraction  Desired output as a fraction of full scale (0.0 – 1.0).
  */
-void setRmsVoltage(float rmsTarget);
+void setOutput(float fraction);
 
 /** Return the current AD5693 DAC output value (0–65535). */
 uint16_t getDacCurrent();
 
 /**
  * Manual vout override — prevents the FSM tick from re-applying its
- * computed cooldown DAC target each cycle.  Call setVoutOverride() with the
- * desired DAC value immediately after a manual setRmsVoltage / setRmsVoltagePercent
- * call.  The override is cleared automatically when the FSM enters Idle,
+ * computed cooldown target each cycle.  Call setVoutOverride() with the
+ * desired fraction immediately after a manual setOutput() call.
+ * The override is cleared automatically when the FSM enters Idle,
  * Shutdown, or Fault.
+ *
+ * @param fraction  Override output as a fraction of full scale (0.0 – 1.0).
  */
-void     setVoutOverride(uint16_t dacValue);
-void     clearVoutOverride();
-bool     hasVoutOverride();
-uint16_t getVoutOverrideDac();
+void  setVoutOverride(float fraction);
+void  clearVoutOverride();
+bool  hasVoutOverride();
+float getVoutOverride();
 
 // ---------------------------------------------------------------------------
 // ACS37800 power monitor readings
@@ -183,7 +186,7 @@ float getOutputRmsCurrent();
 
 /**
  * Set the expected RMS output voltage (V) for tracking purposes.
- * Should be called by the state machine whenever the DAC target changes.
+ * Should be called by the state machine whenever the output target changes.
  * Resets the voltage tracking timer when the target changes by more than
  * the hysteresis band.
  *

@@ -202,6 +202,7 @@ static void initControlModules() {
 // =============================================================================
 
 void setup() {
+    Serial.setRxBufferSize(1024);
     Serial.begin(SERIAL_BAUD);
     delay(1000);
     //while (!Serial.available()) delay(100);

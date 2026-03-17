@@ -1,7 +1,7 @@
 import { LineChart } from '@mui/x-charts/LineChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState, useCallback } from 'preact/hooks';
 import type { DataPoint } from '../types/telemetry';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
 import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
@@ -56,32 +56,57 @@ function padTo(arr: number[], len: number): (number | null)[] {
 export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartProps) {
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
   const tickStep = calcTickStep(containerWidth);
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
 
-  // Use whichever series is longest as the shared x-axis source.
+  const toggleSeries = useCallback((label: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }, []);
+
+  // Filter to only visible series for rendering and y-axis scaling.
+  const visibleSeries = series.filter((s) => !hidden.has(s.label));
+
+  // Use whichever series is longest as the shared x-axis source (from ALL
+  // series so the x-axis stays stable when toggling).
   const longest = series.reduce<DataPoint[]>(
     (best, s) => (s.data.length >= best.length ? s.data : best),
     [],
   );
 
   const xData        = longest.map((p) => p.t);
-  // Recreate the formatter only when the x-axis data changes.
   const timeFormatter = useMemo(() => createTimeFormatter(), [xData.length > 0 ? xData[0] : 0]);
 
   const n    = xData.length || 1;
   const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
   const xMin = xMax - HISTORY_WINDOW_MS;
 
-  // Compute a dynamic y-axis ceiling when the caller hasn't pinned `max`.
-  // If there is positive data, pass `undefined` so MUI auto-scales; when all
-  // values are zero, pass `1` so the axis doesn't degenerate to [0, 0].
+  // Compute y-axis bounds from VISIBLE series only so the chart auto-scales
+  // to just the data the user has selected.  When some series are hidden, we
+  // let MUI auto-scale even if the caller provided fixed bounds — this gives
+  // the best zoom experience when toggling series on/off.
+  const someHidden = hidden.size > 0;
+
+  const yMin: number | undefined = (() => {
+    if (visibleSeries.length === 0) return yAxis?.min ?? 0;
+    if (!someHidden && yAxis?.min !== undefined) return yAxis.min;
+    // Auto-scale: let MUI pick, but anchor at caller's min if provided.
+    return yAxis?.min !== undefined ? undefined : undefined;
+  })();
+
   const yMax: number | undefined = (() => {
-    if (yAxis?.max !== undefined) return yAxis.max;
-    const allValues = series.flatMap((s) => s.data.map((p) => p.v));
+    if (visibleSeries.length === 0) return yAxis?.max ?? 1;
+    if (!someHidden && yAxis?.max !== undefined) return yAxis.max;
+    // Auto-scale from visible data only.
+    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v));
     const raw = allValues.length > 0 ? Math.max(0, ...allValues) : 0;
     return raw > 0 ? undefined : 1;
   })();
 
-  const chartSeries = series.map((s) => ({
+  const chartSeries = visibleSeries.map((s) => ({
     label:    s.label,
     data:     padTo(s.data.map((p) => p.v), n),
     color:    s.color,
@@ -89,20 +114,58 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
   }));
 
   return (
-    <Box ref={containerRef} sx={{ width: '100%', height: 260 }}>
-      <Typography
-        variant="subtitle2"
-        sx={{
-          mb: 0.5,
-          color: 'text.secondary',
-          fontWeight: 600,
-          letterSpacing: 1,
-          textTransform: 'uppercase',
-          fontSize: '0.7rem',
-        }}
-      >
-        {title}
-      </Typography>
+    <Box ref={containerRef} sx={{ width: '100%', height: 280 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5, gap: 1, flexWrap: 'wrap' }}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 600,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            fontSize: '0.7rem',
+            mr: 1,
+          }}
+        >
+          {title}
+        </Typography>
+        {series.map((s) => {
+          const isVisible = !hidden.has(s.label);
+          return (
+            <Box
+              key={s.label}
+              onClick={() => toggleSeries(s.label)}
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+                cursor: 'pointer',
+                userSelect: 'none',
+                px: 0.75,
+                py: 0.25,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: isVisible ? s.color : 'divider',
+                opacity: isVisible ? 1 : 0.4,
+                transition: 'opacity 0.15s, border-color 0.15s',
+                '&:hover': { opacity: isVisible ? 0.85 : 0.6 },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: isVisible ? s.color : 'text.disabled',
+                }}
+              />
+              <Typography sx={{ fontSize: '0.65rem', color: isVisible ? 'text.primary' : 'text.disabled' }}>
+                {s.label}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
 
       <LineChart
         xAxis={[{
@@ -114,22 +177,15 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
           tickMinStep:    tickStep,
         }]}
         yAxis={[{
-          min:            yAxis?.min,
+          min:            yMin,
           max:            yMax,
           valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1),
         }]}
         series={chartSeries}
         height={220}
         skipAnimation
-        sx={{ '& .MuiChartsLegend-root': { fontSize: '0.7rem' } }}
-        slotProps={{
-          legend: {
-            position:       { vertical: 'top', horizontal: 'right' },
-            itemMarkWidth:  10,
-            itemMarkHeight: 10,
-          },
-        }}
-        margin={{ top: 30, right: 10, bottom: 36, left: 52 }}
+        slotProps={{ legend: { hidden: true } }}
+        margin={{ top: 10, right: 10, bottom: 36, left: 52 }}
         grid={{ horizontal: true }}
       />
     </Box>

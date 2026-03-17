@@ -6,7 +6,7 @@ import { isFaultHistoryMessage } from '../types/faultHistory';
 
 // ─── Connection state ─────────────────────────────────────────────────────────
 
-export type ConnectionStatus = 'connecting' | 'connected' | 'polling' | 'error';
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 
 export interface TelemetryState {
   data: TelemetryData;
@@ -18,11 +18,18 @@ export interface TelemetryState {
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
-/** How often (ms) to poll /api/telemetry when WebSocket is unavailable. */
-const POLL_INTERVAL_MS = 1000;
-
 /** WebSocket reconnect delay (ms) after an unexpected close. */
 const WS_RECONNECT_MS = 3000;
+
+/**
+ * If no WS message arrives within this window, treat the connection as dead.
+ * The ESP32 sends frames at 1 Hz, so 5 s of silence means the device is gone
+ * (e.g. unplugged) even though the browser hasn't fired a 'close' event yet.
+ */
+const STALE_TIMEOUT_MS = 5000;
+
+/** How often (ms) to check for staleness. */
+const STALE_CHECK_MS = 2000;
 
 /**
  * Target ESP32 hostname.
@@ -43,22 +50,15 @@ function wsUrl(): string {
   return `${proto}//${ESP32_HOST}/ws`;
 }
 
-function apiUrl(): string {
-  const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
-  return `${proto}//${ESP32_HOST}/api/telemetry`;
-}
-
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 /**
  * useTelemetry
  *
  * Connects to the ESP32 WebSocket endpoint (ws://<host>/ws) and maintains a
- * live TelemetryData object.  If WebSocket is unavailable (firmware without
- * WebSocket support, or network issue), the hook transparently falls back to
- * polling GET /api/telemetry every second.
- *
- * The hook cleans up the WebSocket and polling timer on unmount.
+ * live TelemetryData object.  WebSocket is the only transport — no HTTP
+ * polling.  When the WebSocket disconnects, the hook shows 'disconnected'
+ * status and attempts to reconnect automatically.
  */
 export function useTelemetry(): TelemetryState & {
   onData: (cb: (d: TelemetryData, ts: number) => void) => void;
@@ -69,11 +69,23 @@ export function useTelemetry(): TelemetryState & {
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
   const [frameCount, setFrameCount] = useState(0);
 
-  const wsRef       = useRef<WebSocket | null>(null);
-  const pollRef     = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mountedRef  = useRef(true);
+  const wsRef        = useRef<WebSocket | null>(null);
+  const mountedRef   = useRef(true);
+  const lastMsgRef   = useRef<number>(0);  // Date.now() of last WS message
+  const statusRef    = useRef<ConnectionStatus>('connecting');
+  const staleRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** True once we've been connected at least once — prevents reconnect
+   *  attempts from briefly flashing 'connecting' and hiding the overlay. */
+  const wasConnectedRef = useRef(false);
   const onDataCbRef         = useRef<((d: TelemetryData, ts: number) => void) | null>(null);
   const onFaultHistoryCbRef = useRef<((msg: FaultHistoryMessage) => void) | null>(null);
+
+  /** Update both the ref (for use inside callbacks) and state (for render). */
+  const updateStatus = useCallback((s: ConnectionStatus) => {
+    statusRef.current = s;
+    setStatus(s);
+  }, []);
 
   /** Register a callback that fires on every new telemetry frame. */
   const onData = useCallback((cb: (d: TelemetryData, ts: number) => void) => {
@@ -96,17 +108,6 @@ export function useTelemetry(): TelemetryState & {
     onDataCbRef.current?.(frame, now);
   }, []);
 
-  /** Handle a JSON text frame (used by HTTP polling fallback). */
-  const handleFrame = useCallback((raw: string) => {
-    try {
-      // /api/telemetry already returns a nested JSON object matching TelemetryData.
-      const frame = JSON.parse(raw) as TelemetryData;
-      applyFrame(frame);
-    } catch {
-      // Silently drop malformed frames.
-    }
-  }, [applyFrame]);
-
   /** Handle a Protobuf binary frame (used by WebSocket). */
   const handleProtobufFrame = useCallback((buf: ArrayBuffer) => {
     try {
@@ -117,43 +118,23 @@ export function useTelemetry(): TelemetryState & {
     }
   }, [applyFrame]);
 
-  // ── Polling fallback ───────────────────────────────────────────────────────
-
-  const startPolling = useCallback(() => {
-    if (pollRef.current) return; // already polling
-    if (!mountedRef.current) return;
-    setStatus('polling');
-
-    const tick = async () => {
-      if (!mountedRef.current) return;
-      try {
-        const res = await fetch(apiUrl());
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        handleFrame(await res.text());
-        if (status !== 'polling') setStatus('polling');
-      } catch {
-        if (mountedRef.current) setStatus('error');
-      }
-    };
-
-    tick();
-    pollRef.current = setInterval(tick, POLL_INTERVAL_MS);
-  }, [handleFrame, status]);
-
-  const stopPolling = useCallback(() => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-  }, []);
-
   // ── WebSocket connection ───────────────────────────────────────────────────
 
   const connect = useCallback(() => {
     if (!mountedRef.current) return;
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    setStatus('connecting');
+    // Clean up any previous socket that hasn't fully closed yet.
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    // Only show 'connecting' on the very first attempt.  After we've been
+    // connected once, stay in 'disconnected' until a message actually arrives
+    // so the overlay doesn't flicker away during failed reconnect attempts.
+    if (!wasConnectedRef.current) {
+      updateStatus('connecting');
+    }
 
     const ws = new WebSocket(wsUrl());
     ws.binaryType = 'arraybuffer'; // Receive Protobuf binary frames
@@ -161,60 +142,72 @@ export function useTelemetry(): TelemetryState & {
 
     ws.addEventListener('open', () => {
       if (!mountedRef.current) { ws.close(); return; }
-      setStatus('connected');
-      stopPolling(); // WebSocket is working — stop polling
+      lastMsgRef.current = Date.now();
+      // Don't set 'connected' here — wait for the first message so we know
+      // the device is truly alive (open can succeed even if the device is
+      // about to go away).
     });
 
     ws.addEventListener('message', (ev: MessageEvent) => {
+      lastMsgRef.current = Date.now();
+
+      // Transition to 'connected' on the first real message.
+      if (statusRef.current !== 'connected') {
+        wasConnectedRef.current = true;
+        updateStatus('connected');
+
+        // (Re)start the staleness watchdog.
+        if (staleRef.current) clearInterval(staleRef.current);
+        staleRef.current = setInterval(() => {
+          if (!mountedRef.current) return;
+          if (Date.now() - lastMsgRef.current > STALE_TIMEOUT_MS) {
+            ws.close(); // force-close the zombie socket
+          }
+        }, STALE_CHECK_MS);
+      }
+
       if (ev.data instanceof ArrayBuffer) {
         // Binary frame → Protobuf telemetry
         handleProtobufFrame(ev.data);
       } else {
-        // Text frame → typed JSON dispatch
+        // Text frame → typed JSON dispatch (e.g. fault_history)
         const raw = typeof ev.data === 'string' ? ev.data : String(ev.data);
         try {
           const parsed = JSON.parse(raw);
           if (isFaultHistoryMessage(parsed)) {
             onFaultHistoryCbRef.current?.(parsed);
-            return;
           }
         } catch {
-          // Not valid JSON — fall through to legacy telemetry handler
+          // Not valid JSON — ignore
         }
-        handleFrame(raw);
       }
     });
 
     ws.addEventListener('close', () => {
+      if (staleRef.current) { clearInterval(staleRef.current); staleRef.current = null; }
       if (!mountedRef.current) return;
-      setStatus('polling');
-      // Fall back to polling while we wait to reconnect.
-      startPolling();
-      // Schedule a reconnect attempt.
-      setTimeout(connect, WS_RECONNECT_MS);
+      updateStatus('disconnected');
+      reconnectRef.current = setTimeout(connect, WS_RECONNECT_MS);
     });
 
     ws.addEventListener('error', () => {
       // 'close' fires after 'error', so the reconnect logic lives there.
-      // Start polling immediately so the dashboard stays live.
-      startPolling();
     });
-  }, [handleFrame, handleProtobufFrame, startPolling, stopPolling]);
+  }, [handleProtobufFrame, updateStatus]);
 
   useEffect(() => {
     mountedRef.current = true;
 
-    // Try WebSocket first; polling is the fallback.
     connect();
 
     return () => {
       mountedRef.current = false;
+      if (staleRef.current) { clearInterval(staleRef.current); staleRef.current = null; }
+      if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null; }
       wsRef.current?.close();
       wsRef.current = null;
-      stopPolling();
     };
-    // connect / stopPolling are stable refs — exhaustive-deps warning is a
-    // false positive here.
+    // connect is a stable ref — exhaustive-deps warning is a false positive.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

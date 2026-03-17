@@ -51,7 +51,7 @@ static bool sRelayAvailable = false;
 
 /// Set true by initDac() only when the AD5693 device is found and begin()
 /// completes without error.  Guards dacWrite() so that hardStop() /
-/// setRmsVoltage() never reach ad5693_.writeUpdateDAC() on an uninitialised
+/// setOutput() never reach ad5693_.writeUpdateDAC() on an uninitialised
 /// DAC object.
 static bool sDacAvailable = false;
 
@@ -69,10 +69,10 @@ static Adafruit_AD569x ad5693_;
 uint16_t dacCurrent_ = 0u;
 
 // Manual vout override — set by the "set vout" command to prevent the FSM
-// tick from re-applying its computed cooldown DAC target each cycle.
+// tick from re-applying its computed cooldown target each cycle.
 // Cleared automatically when the FSM enters Idle, Shutdown, or Fault.
-static bool     voutOverrideActive_ = false;
-static uint16_t voutOverrideDac_    = 0u;
+static bool  voutOverrideActive_ = false;
+static float voutOverride_       = 0.0f;
 
 // Set-points
 float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
@@ -247,7 +247,7 @@ module::InitStatus initDac() {
     // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
     // I2C write and leave the DAC at whatever it was before the reset.
     dacCurrent_ = UINT16_MAX;   // force dacWrite() to issue the I2C write
-    setRmsVoltage(0.0f);
+    setOutput(0.0f);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -285,7 +285,7 @@ module::InitStatus initRelay() {
     if (!sRelay.begin(hardware::i2c())) {
         // Relay not found — log a warning but continue.  The rest of the
         // amplifier chain (DAC, waveform generator, power monitor) must still
-        // initialise so the state machine can safely call setRmsVoltage() /
+        // initialise so the state machine can safely call setOutput() /
         // hardStop() etc.  setRelay() will no-op silently until the hardware
         // is fitted and initRelay() succeeds on a subsequent reinit().
         ESP_LOGW(TAG, "Qwiic Single Relay not found at 0x%02X — relay disabled",
@@ -373,51 +373,52 @@ void disable() {
 void initCoarseCooldown() {
     ESP_LOGD(TAG, "Initializing coarse cooldown");
     _Log.printf("Initializing coarse cooldown\n");
-    rampToVoltage(5, AMPLIFIER_RAMP_RATE_MEDIUM);
+    rampTo(5.0f / static_cast<float>(AMPLIFIER_RESOLUTION), AMPLIFIER_RAMP_RATE_MEDIUM);
 }
 
 void initFineCooldown() {
     ESP_LOGD(TAG, "Initializing fine cooldown");
     _Log.printf("Initializing fine cooldown\n");
-    rampToVoltage(10, AMPLIFIER_RAMP_RATE_SLOW);
+    rampTo(10.0f / static_cast<float>(AMPLIFIER_RESOLUTION), AMPLIFIER_RAMP_RATE_SLOW);
 }
 
 // ---------------------------------------------------------------------------
-// DAC / amplitude control
+// Amplitude control
 // ---------------------------------------------------------------------------
 
-void rampToVoltage(uint16_t dacTarget, uint16_t rampRate) {
-    if (dacTarget > AMPLIFIER_RESOLUTION) {
-        ESP_LOGW(TAG, "DAC target exceeds AMPLIFIER_RESOLUTION (%u), clamping", static_cast<unsigned>(AMPLIFIER_RESOLUTION));
-        dacTarget = static_cast<uint16_t>(AMPLIFIER_RESOLUTION);
-    }
+/**
+ * Clamp a fraction to [0.0, 1.0] and convert to a 16-bit DAC value.
+ */
+static uint16_t fractionToDac(float fraction) {
+    if (fraction < 0.0f) fraction = 0.0f;
+    if (fraction > 1.0f) fraction = 1.0f;
+    return static_cast<uint16_t>(fraction * static_cast<float>(AMPLIFIER_RESOLUTION));
+}
+
+void rampTo(float fraction, uint16_t rampRate) {
+    const uint16_t dacTarget = fractionToDac(fraction);
     // Dead-band: ignore ±1 count differences to avoid chasing temperature noise.
     const int32_t diff = static_cast<int32_t>(dacTarget) - static_cast<int32_t>(dacCurrent_);
     if (diff >= -1 && diff <= 1) return;
-    dacRampInternal(dacTarget, static_cast<uint16_t>(rampRate));
+    dacRampInternal(dacTarget, rampRate);
 }
 
 void hardStop() {
     dacCurrent_ = UINT16_MAX;   // invalidate cache so dacWrite() cannot short-circuit
-    setRmsVoltage(0.0f);
+    setOutput(0.0f);
 }
 
-void rampTowardShutdown(uint16_t dacTarget) {
-    if (dacCurrent_ == dacTarget) return;
-    dacRampInternal(dacTarget, static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
+void rampTowardShutdown() {
+    if (dacCurrent_ == 0u) return;
+    dacRampInternal(0u, static_cast<uint16_t>(AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL));
 }
 
-void setRmsVoltage(float rmsTarget) {
-    _Log.printf("Setting RMS voltage to %f\n", rmsTarget);
-    if ( rmsTarget > AMPLIFIER_MAX_VOLTAGE_VAC  ) {
-        ESP_LOGW(TAG, "RMS target voltage is greater than the maximum output voltage, setting to %f", AMPLIFIER_MAX_VOLTAGE_VAC);
-        _Log.printf("RMS target voltage is greater than the maximum output voltage, setting to %f\n", AMPLIFIER_MAX_VOLTAGE_VAC);
-        rmsTarget = AMPLIFIER_MAX_VOLTAGE_VAC;
-    }
-    uint16_t dacTarget = static_cast<uint16_t>(
-        map(rmsTarget, 0.0f, AMPLIFIER_MAX_VOLTAGE_VAC, 0.0f, static_cast<float>(AMPLIFIER_RESOLUTION)));
-    ESP_LOGD(TAG, "Setting RMS voltage to %f (DAC target: %u)", rmsTarget, dacTarget);
-    _Log.printf("Setting RMS voltage to %f (DAC target: %u)\n", rmsTarget, dacTarget);
+void setOutput(float fraction) {
+    const uint16_t dacTarget = fractionToDac(fraction);
+    const float rmsV = fraction * AMPLIFIER_MAX_VOLTAGE_VAC;
+    ESP_LOGD(TAG, "setOutput(%.3f) → %.1fV RMS (DAC %u)", fraction, rmsV, dacTarget);
+    _Log.printf("Setting output to %.1f%% (%.1fV RMS, DAC %u)\n",
+                fraction * 100.0f, rmsV, dacTarget);
     dacWrite(dacTarget);
 }
 
@@ -425,9 +426,9 @@ uint16_t getDacCurrent() {
     return dacCurrent_;
 }
 
-void setVoutOverride(uint16_t dacValue) {
+void setVoutOverride(float fraction) {
     voutOverrideActive_ = true;
-    voutOverrideDac_    = dacValue;
+    voutOverride_       = fraction;
 }
 
 void clearVoutOverride() {
@@ -438,19 +439,8 @@ bool hasVoutOverride() {
     return voutOverrideActive_;
 }
 
-uint16_t getVoutOverrideDac() {
-    return voutOverrideDac_;
-}
-
-void setRmsVoltagePercent(float percent) {
-    float rmsTarget = percent * AMPLIFIER_MAX_VOLTAGE_VAC / 100.0f;
-    setRmsVoltage(static_cast<float>(rmsTarget));
-}
-
-void rampToRmsVoltagePercent(float percent, uint16_t rampRate) {
-    const auto dacTarget = static_cast<uint16_t>(
-        percent / 100.0f * static_cast<float>(AMPLIFIER_RESOLUTION));
-    rampToVoltage(dacTarget, rampRate);
+float getVoutOverride() {
+    return voutOverride_;
 }
 
 // ---------------------------------------------------------------------------

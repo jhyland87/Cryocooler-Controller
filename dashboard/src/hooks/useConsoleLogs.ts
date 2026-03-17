@@ -38,13 +38,11 @@ function fingerprint(e: LogEntry): string {
 /**
  * useConsoleLogs
  *
- * Event-driven console log fetcher.  Instead of polling /api/telemetry every
- * second, it watches the `logEpoch` value from the Protobuf WebSocket stream.
- * When `logEpoch` changes (meaning the server has new log entries), it fetches
- * /api/telemetry once to retrieve the latest `logs` array.
- *
- * Falls back to polling every 2 s when logEpoch is not yet available (e.g.
- * during initial connection or when running against older firmware).
+ * Event-driven console log fetcher.  Watches the `logEpoch` value from the
+ * Protobuf WebSocket stream.  When `logEpoch` increases (meaning the server
+ * has new log entries), it fetches /api/telemetry once to retrieve the latest
+ * `logs` array.  No polling — HTTP is only called when the WebSocket signals
+ * new logs are available.
  *
  * @param logEpoch  The `log_epoch` field from the latest telemetry WS frame.
  */
@@ -96,20 +94,18 @@ export function useConsoleLogs(logEpoch: number | undefined): { entries: LogEntr
     }
   }, []);
 
-  // Event-driven: fetch when logEpoch changes
+  // Only fetch when logEpoch increases (WS signals new logs are available)
   useEffect(() => {
     if (logEpoch === undefined || logEpoch === 0) return;
-    if (logEpoch === lastFetchedEpoch.current) return;
+    if (logEpoch <= lastFetchedEpoch.current) return;
     lastFetchedEpoch.current = logEpoch;
     fetchLogs();
   }, [logEpoch, fetchLogs]);
 
-  // Initial fetch on mount (before first WS frame arrives)
   useEffect(() => {
     mountedRef.current = true;
-    fetchLogs();
     return () => { mountedRef.current = false; };
-  }, [fetchLogs]);
+  }, []);
 
   const clear = useCallback(() => {
     setEntries([]);

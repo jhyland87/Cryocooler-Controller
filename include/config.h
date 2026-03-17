@@ -123,9 +123,20 @@
 // Output frequency in Hz.
 #define AMPLIFIER_FREQ_HZ  static_cast<uint16_t>(60)
 
-// Maximum allowable RMS output voltage (VDC).
-// Exceeding this immediately transitions the system to Fault.
+// Maximum allowable RMS output voltage (VAC).
+// This is the absolute ceiling — the system can never exceed this even at
+// full cooldown.  The proportional overvoltage check uses this as the
+// upper bound of a temperature-scaled limit (see AMPLIFIER_OVERVOLTAGE_MARGIN_VAC).
 #define AMPLIFIER_MAX_VOLTAGE_VAC  static_cast<float>(120.0f)
+
+// Margin (VAC) above the proportional voltage target before an overvoltage
+// fault is raised.  The allowable RMS voltage is:
+//   allowed = proportional_target(tempC) + AMPLIFIER_OVERVOLTAGE_MARGIN_VAC
+// where proportional_target scales linearly from 0 V at AMBIENT_START_C to
+// AMPLIFIER_MAX_VOLTAGE_VAC at SETPOINT_C.  A margin of 5 V means the
+// system tolerates minor measurement noise / transient overshoot without
+// false-faulting.
+#define AMPLIFIER_OVERVOLTAGE_MARGIN_VAC  static_cast<float>(5.0f)
 
 // Maximum allowable continuous RMS output current (A).
 // Exceeding this while running immediately transitions to Fault (SensorFault).
