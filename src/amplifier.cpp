@@ -230,12 +230,12 @@ module::InitStatus initDac() {
     // them.  The AD5693R reboots mid-reset so the immediate setMode() NAKs and
     // begin() returns false even though the chip is fine.  We ignore that
     // return value, add a 10 ms settling delay, and call setMode() ourselves.
-    ad5693_.begin(AD5693_I2C_ADDRESS, &hardware::i2c());
+    ad5693_.begin(AD5693_DAC_I2C_ADDRESS, &hardware::i2c());
     delay(10);   // allow the chip to finish rebooting after the soft-reset
 
     if (!ad5693_.setMode(NORMAL_MODE, /*enable_ref=*/true, /*gain2x=*/false)) {
-        ESP_LOGW(TAG, "AD5693R not found or setMode failed at 0x%02X — DAC disabled", AD5693_I2C_ADDRESS);
-        _Log.printf("AD5693R not found at I2C address 0x%02X — DAC disabled\n", AD5693_I2C_ADDRESS);
+        ESP_LOGW(TAG, "AD5693R not found or setMode failed at 0x%02X — DAC disabled", AD5693_DAC_I2C_ADDRESS);
+        _Log.printf("AD5693R not found at I2C address 0x%02X — DAC disabled\n", AD5693_DAC_I2C_ADDRESS);
         sDacAvailable = false;
         return module::MODULE_INIT_SUCCESS;
     }

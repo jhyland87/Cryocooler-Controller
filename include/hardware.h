@@ -65,6 +65,28 @@ namespace hardware {
      */
     void recoverI2c();
 
+    // ── I2C error monitor ────────────────────────────────────────────────────
+    //
+    // The noisy Wire.cpp ESP_LOGE messages are suppressed at boot.  Instead,
+    // callers report errors via reportI2cError(); serviceI2c() logs a periodic
+    // summary and triggers bus recovery when a threshold is exceeded.
+
+    /** Record a single I2C transaction error. */
+    void reportI2cError();
+
+    /**
+     * Periodic I2C health check — call once per main-loop tick.
+     * Logs a summary every 10 s if errors occurred and triggers
+     * recoverI2c() when the per-window count exceeds the threshold.
+     */
+    void serviceI2c(uint32_t nowMs);
+
+    /** Lifetime I2C error count since boot. */
+    uint32_t getI2cErrorTotal();
+
+    /** Number of automatic bus recovery attempts since boot. */
+    uint32_t getI2cRecoveryCount();
+
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // hardware provides shared I2C and SPI buses; all other modules depend on it.

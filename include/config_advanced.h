@@ -44,7 +44,7 @@
 // I2C address of the AD5693R DAC.
 // A0 = GND → 0x4C (conflicts with pump EMC2101).
 // A0 = VDD → 0x4E.
-#define AD5693_I2C_ADDRESS  static_cast<uint8_t>(0x4E)
+#define AD5693_DAC_I2C_ADDRESS  static_cast<uint8_t>(0x4E)
 
 // =============================================================================
 // Amplifier ramp rates (DAC counts per LOOP_INTERVAL_MS tick)
@@ -174,6 +174,12 @@
 #define PCA9548_I2C_ADDRESS      static_cast<uint8_t>(0x70)
 #define PCA9548_CHANNEL_FAN      static_cast<uint8_t>(2)
 #define PCA9548_CHANNEL_PUMP     static_cast<uint8_t>(7)
+
+// =============================================================================
+// EMC2302_2 I2C Address and settings
+// =============================================================================
+
+#define EMC2302_2_I2C_ADDRESS  static_cast<uint8_t>(0x2F)
 
 // =============================================================================
 // Pump EMC2101 — forced-temperature LUT configuration
@@ -351,7 +357,7 @@
 // ====
 // IMU
 // =============================================================================
-#define LSM6DSOX_IMU_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if SA0 is tied high.
+#define LSM6DSOX_IMU_IC2_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if SA0 is tied high.
 
 // =============================================================================
 // Misc stuff

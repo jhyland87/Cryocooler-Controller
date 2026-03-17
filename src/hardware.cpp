@@ -6,6 +6,8 @@
  * See hardware.h for rationale and usage.
  */
 
+#include <cstring>               // strstr()
+
 #include "hardware.h"
 #include "pin_config.h"
 #include "esp32-hal-i2c.h"      // i2cIsInit(), i2cBusHandle() (Core 3.x / IDF 5.x)
@@ -15,6 +17,41 @@
 #include "driver/i2c_master.h"  // i2c_master_bus_reset() — IDF 5.x only
 #endif
 
+
+static LogStream _Log = Log.createChildLogger("hardware");
+
+// ---------------------------------------------------------------------------
+// I2C error monitor — counts Wire errors, logs periodic summaries, and
+// triggers bus recovery when a threshold is exceeded.
+// ---------------------------------------------------------------------------
+
+static uint32_t sI2cErrorCount    = 0;   // errors since last summary window
+static uint32_t sI2cErrorTotal    = 0;   // lifetime total
+static uint32_t sI2cLastSummaryMs = 0;
+static uint32_t sI2cRecoveryCount = 0;   // how many bus resets performed
+
+static constexpr uint32_t I2C_SUMMARY_INTERVAL_MS = 10'000;
+static constexpr uint32_t I2C_RECOVERY_THRESHOLD  = 10;  // errors per window
+
+// Original vprintf handler — saved so we can chain through for non-Wire logs.
+static vprintf_like_t sOriginalVprintf = nullptr;
+
+/**
+ * Custom ESP log handler that intercepts Wire.cpp error messages.
+ * Wire errors are counted silently; all other log output is passed through
+ * to the original handler unchanged.
+ */
+static int filteredVprintf(const char* fmt, va_list args) {
+    // Wire.cpp errors contain the tag "Wire" embedded in the format string
+    // via the LOG_FORMAT macro: "[%d][E][Wire.cpp:%d] ..."
+    // We detect this by checking for the "[Wire.cpp:" substring in fmt.
+    if (fmt != nullptr && strstr(fmt, "[Wire.cpp:") != nullptr) {
+        ++sI2cErrorCount;
+        ++sI2cErrorTotal;
+        return 0;   // suppress output
+    }
+    return sOriginalVprintf ? sOriginalVprintf(fmt, args) : vprintf(fmt, args);
+}
 
 namespace hardware {
     // -------------------------------------------------------------------------
@@ -65,6 +102,12 @@ namespace hardware {
         ESP_LOGI("hardware", "I2C bus initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         #endif
 
+        // Install a custom log handler that silently counts Wire.cpp error
+        // messages instead of printing them.  All other ESP log output is
+        // passed through unchanged.  The I2C health monitor (serviceI2c)
+        // logs periodic summaries and triggers bus recovery as needed.
+        sOriginalVprintf = esp_log_set_vprintf(filteredVprintf);
+
         return module::InitStatus::MODULE_INIT_SUCCESS;
     }
 
@@ -98,5 +141,38 @@ namespace hardware {
 
     TwoWire&  i2c() { return Wire; }
     SPIClass& spi() { return SPI;  }
+
+    // -------------------------------------------------------------------------
+    // I2C error monitor
+    // -------------------------------------------------------------------------
+
+    void reportI2cError() {
+        ++sI2cErrorCount;
+        ++sI2cErrorTotal;
+    }
+
+    void serviceI2c(uint32_t nowMs) {
+        if (nowMs - sI2cLastSummaryMs < I2C_SUMMARY_INTERVAL_MS) return;
+        sI2cLastSummaryMs = nowMs;
+        if (sI2cErrorCount == 0) return;
+
+        _Log.printf("I2C: %u errors in last %us (total: %u, recoveries: %u)\n",
+                    sI2cErrorCount,
+                    static_cast<unsigned>(I2C_SUMMARY_INTERVAL_MS / 1000),
+                    sI2cErrorTotal,
+                    sI2cRecoveryCount);
+
+        if (sI2cErrorCount >= I2C_RECOVERY_THRESHOLD) {
+            ++sI2cRecoveryCount;
+            _Log.printf("I2C: error threshold reached — resetting bus (recovery #%u)\n",
+                        sI2cRecoveryCount);
+            recoverI2c();
+        }
+
+        sI2cErrorCount = 0;
+    }
+
+    uint32_t getI2cErrorTotal()    { return sI2cErrorTotal; }
+    uint32_t getI2cRecoveryCount() { return sI2cRecoveryCount; }
 
 } // namespace hardware
