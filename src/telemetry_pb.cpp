@@ -113,6 +113,7 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     frame_.has_amplifier = true;
     frame_.amplifier.voltage_v = amplifier::getLastRmsVoltage();
     frame_.amplifier.current_a = amplifier::getLastRmsCurrent();
+    frame_.amplifier.power_w   = amplifier::getApparentPowerWatts();
 
     // ── System ───────────────────────────────────────────────────────────────
     frame_.has_system = true;
@@ -139,6 +140,10 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     frame_.imu.x         = imu::getAccelX();
     frame_.imu.y         = imu::getAccelY();
     frame_.imu.z         = imu::getAccelZ();
+    {
+        float freq = imu::getFrequency();
+        frame_.imu.freq_hz = isnan(freq) ? 0.0f : freq;
+    }
 
     // ── Cooling ──────────────────────────────────────────────────────────────
     frame_.has_cooling = true;

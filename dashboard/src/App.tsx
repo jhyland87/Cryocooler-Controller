@@ -17,6 +17,7 @@ import { CoolingChart } from './components/CoolingChart';
 import { AccelSparklines } from './components/AccelSparklines';
 import { SystemSparklines } from './components/SystemSparklines';
 import { ConsoleLog } from './components/ConsoleLog';
+import { CollapsiblePanel } from './components/CollapsiblePanel';
 import type { TelemetryData } from './types/telemetry';
 import { getField } from './types/telemetry';
 
@@ -58,15 +59,17 @@ const HISTORY_KEYS = [
   'cold_head.ambient_temp_c',
   'cold_head.voltage_v',
   'cold_head.current_a',
+  'amplifier.power_w',
   'system.voltage_v',
   'system.current_a',
   'cooling.fan_speed',
   'cooling.temp_c',
   'cooling.flow_rate_lpm',
-  'imu.roll_deg',
-  'imu.pitch_deg',
-  'imu.yaw_deg',
+  'imu.x',
+  'imu.y',
+  'imu.z',
   'imu.accel_mag',
+  'imu.freq_hz',
   'system.cpu_usage_percent',
   'system.heap_usage_percent',
   'system.psram_usage_percent',
@@ -201,107 +204,119 @@ export function App() {
 
             {/* ── Row 1: Status panel ──────────────────────────────────── */}
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-              <StatusPanel data={data} key={tick} />
+              <CollapsiblePanel title="Status & Indicators">
+                <StatusPanel data={data} key={tick} />
+              </CollapsiblePanel>
               <Box sx={{ mt: 2 }}>
-                <FaultHistoryPanel faults={faults} loading={faultsLoading} />
+                <CollapsiblePanel
+                  title="Fault History"
+                  defaultExpanded={false}
+                  expanded={faults.some((f) => f.active) ? true : undefined}
+                >
+                  <FaultHistoryPanel faults={faults} loading={faultsLoading} />
+                </CollapsiblePanel>
               </Box>
             </Grid>
 
             {/* ── Row 1 right: quick-read numeric tiles ────────────────── */}
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignContent: 'flex-start' }}>
-                {TILES.map(({ label, key, unit, dp, color }) => {
-                  const value = getField(data, key);
-                  return (
-                    <Box
-                      key={`${label}-${unit}`}
-                      sx={{
-                        flex: '1 1 90px',
-                        minWidth: 80,
-                        bgcolor: 'background.paper',
-                        borderRadius: 1,
-                        p: 1.25,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Typography
-                        sx={{ fontSize: '1.2rem', fontWeight: 700, color, lineHeight: 1.1, fontFamily: 'monospace' }}
+              <CollapsiblePanel title="Quick Read">
+                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignContent: 'flex-start' }}>
+                  {TILES.map(({ label, key, unit, dp, color }) => {
+                    const value = getField(data, key);
+                    return (
+                      <Box
+                        key={`${label}-${unit}`}
+                        sx={{
+                          flex: '1 1 90px',
+                          minWidth: 80,
+                          bgcolor: 'background.paper',
+                          borderRadius: 1,
+                          p: 1.25,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          textAlign: 'center',
+                        }}
                       >
-                        {typeof value === 'number' ? value.toFixed(dp) : '—'}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6rem', display: 'block' }}>
-                        {unit}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.62rem', letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                        {label}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
+                        <Typography
+                          sx={{ fontSize: '1.2rem', fontWeight: 700, color, lineHeight: 1.1, fontFamily: 'monospace' }}
+                        >
+                          {typeof value === 'number' ? value.toFixed(dp) : '—'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6rem', display: 'block' }}>
+                          {unit}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.62rem', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                          {label}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </CollapsiblePanel>
             </Grid>
 
             {/* ── Row 2: Main line charts ───────────────────────────────── */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="Cold Head Temperature">
                 <TemperatureChart
                   actualC={getHistory('cold_head.temp_c')}
                   ambientC={getHistory('cold_head.ambient_temp_c')}
                 />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="Power Consumption">
                 <PowerChart
                   coldHeadVolts={getHistory('cold_head.voltage_v')}
                   coldHeadAmps={getHistory('cold_head.current_a')}
+                  coldHeadWatts={getHistory('amplifier.power_w')}
                   systemVolts={getHistory('system.voltage_v')}
                   systemAmps={getHistory('system.current_a')}
                 />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="Cooling System">
                 <CoolingChart
                   fanSpeed={getHistory('cooling.fan_speed')}
                   coolantTemp={getHistory('cooling.temp_c')}
                   flowRate={getHistory('cooling.flow_rate_lpm')}
                 />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
             {/* ── Row 3: Sparkline panels ───────────────────────────────── */}
             <Grid size={{ xs: 12, md: 7 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="Accelerometer">
                 <AccelSparklines
-                  accelX={getHistory('imu.roll_deg')}
-                  accelY={getHistory('imu.pitch_deg')}
-                  accelZ={getHistory('imu.yaw_deg')}
+                  accelX={getHistory('imu.x')}
+                  accelY={getHistory('imu.y')}
+                  accelZ={getHistory('imu.z')}
                   accelMag={getHistory('imu.accel_mag')}
+                  freqHz={getHistory('imu.freq_hz')}
                   motion={typeof data.imu?.motion === 'number' ? data.imu.motion : undefined}
                 />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
             <Grid size={{ xs: 12, md: 5 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="System Resources">
                 <SystemSparklines
                   cpuUsage={getHistory('system.cpu_usage_percent')}
                   heapUsage={getHistory('system.heap_usage_percent')}
                   psramUsage={getHistory('system.psram_usage_percent')}
                 />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
             {/* ── Console log panel ─────────────────────────────────────── */}
             <Grid size={{ xs: 12 }}>
-              <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 1.5, border: '1px solid', borderColor: 'divider' }}>
+              <CollapsiblePanel title="Console">
                 <ConsoleLog logEpoch={data.log_epoch} />
-              </Box>
+              </CollapsiblePanel>
             </Grid>
 
           </Grid>

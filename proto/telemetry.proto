@@ -57,6 +57,7 @@ message ColdHead {
 message Amplifier {
   float voltage_v = 1;
   float current_a = 2;
+  float power_w   = 3;
 }
 
 message SystemInfo {
@@ -83,6 +84,7 @@ message Imu {
   float  x         = 7;
   float  y         = 8;
   float  z         = 9;
+  float  freq_hz   = 10;  // Z-axis vibration frequency from FFT (Hz), 0 = no signal
 }
 
 message Cooling {

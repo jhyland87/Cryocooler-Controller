@@ -78,8 +78,9 @@ static float voutOverride_       = 0.0f;
 float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
 
 // Latest ACS37800 readings (updated each service() call)
-float lastRmsVoltage_ = 0.0f;
-float lastRmsCurrent_ = 0.0f;
+float lastRmsVoltage_      = 0.0f;
+float lastRmsCurrent_      = 0.0f;
+float lastApparentPowerW_  = 0.0f;
 
 // Latest measured frequency from IMU FFT
 float lastFrequency_ = 0.0f;
@@ -458,8 +459,9 @@ module::ServiceStatus service() {
     }
 
     acs_.readRMSVoltageAndCurrent();
-    lastRmsVoltage_ = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
-    lastRmsCurrent_ = static_cast<float>(acs_.rmsCurrentMilliamps) / 1000.0f;
+    lastRmsVoltage_     = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
+    lastRmsCurrent_     = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
+    lastApparentPowerW_ = static_cast<float>(acs_.readApparentPowerMilliwatts()) / 1000.0f;
     lastFrequency_  = imu::getFrequency();
 
     const uint32_t nowMs = millis();
@@ -484,10 +486,11 @@ module::ServiceStatus service() {
 // ACS37800 getters
 // ---------------------------------------------------------------------------
 
-float getLastRmsVoltage()   { return lastRmsVoltage_; }
-float getLastRmsCurrent()   { return lastRmsCurrent_; }
-float getOutputRmsVoltage() { return lastRmsVoltage_; }
-float getOutputRmsCurrent() { return lastRmsCurrent_; }
+float getLastRmsVoltage()       { return lastRmsVoltage_; }
+float getLastRmsCurrent()       { return lastRmsCurrent_; }
+float getApparentPowerWatts()   { return lastApparentPowerW_; }
+float getOutputRmsVoltage()     { return lastRmsVoltage_; }
+float getOutputRmsCurrent()     { return lastRmsCurrent_; }
 
 // ---------------------------------------------------------------------------
 // Output validation

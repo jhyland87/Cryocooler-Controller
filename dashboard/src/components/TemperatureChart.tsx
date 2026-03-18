@@ -15,7 +15,7 @@ export function TemperatureChart({ actualC, ambientC }: Props) {
 
   return (
     <TelemetryLineChart
-      title="Cold Head Temperature"
+      title=""
       series={series}
       yAxis={{ min: -200, max: 40 }}
     />

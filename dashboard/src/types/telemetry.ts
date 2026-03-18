@@ -37,6 +37,7 @@ export interface TelemetryData {
   amplifier?: {
     voltage_v?: number;
     current_a?: number;
+    power_w?:   number;
   };
 
   system?: {
@@ -63,6 +64,7 @@ export interface TelemetryData {
     x?: number;
     y?: number;
     z?: number;
+    freq_hz?: number;
   };
 
   cooling?: {

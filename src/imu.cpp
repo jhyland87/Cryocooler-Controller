@@ -96,7 +96,7 @@ static constexpr float    FFT_MIN_SNR      = 5.0f;
 static constexpr float    FFT_FREQ_ALPHA   = 0.15f;
 // Minimum interval between FFT runs (ms).
 // The ~640 ms collection window is included in this interval.
-static constexpr uint32_t FFT_INTERVAL_MS  = 5000u;
+static constexpr uint32_t FFT_INTERVAL_MS  = 1000u;
 
 static float fftVReal_[FFT_N];
 static float fftVImag_[FFT_N];
@@ -377,7 +377,7 @@ float calculateFrequency() {
         frequency_ = fftFiltered_;
     } else {
         fftFiltered_ = NAN;
-        // Keep the last valid frequency_ when signal is absent.
+        frequency_   = NAN;   // clear stale reading when vibration stops
     }
 
     if (!isfinite(fftFiltered_)) return NAN;

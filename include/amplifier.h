@@ -174,6 +174,12 @@ float getLastRmsVoltage();
  */
 float getLastRmsCurrent();
 
+/**
+ * Most recently measured apparent power in Watts (from ACS37800).
+ * Returns 0.0f before the first successful service() call.
+ */
+float getApparentPowerWatts();
+
 /** Alias for getLastRmsVoltage(). */
 float getOutputRmsVoltage();
 

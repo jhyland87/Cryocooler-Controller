@@ -16,7 +16,7 @@ export function CoolingChart({ fanSpeed, coolantTemp, flowRate }: Props) {
 
   return (
     <TelemetryLineChart
-      title="Cooling System"
+      title=""
       series={series}
       yAxis={{ min: 0 }}
     />

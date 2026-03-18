@@ -116,19 +116,21 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
   return (
     <Box ref={containerRef} sx={{ width: '100%', height: 280 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5, gap: 1, flexWrap: 'wrap' }}>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            color: 'text.secondary',
-            fontWeight: 600,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            fontSize: '0.7rem',
-            mr: 1,
-          }}
-        >
-          {title}
-        </Typography>
+        {title && (
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 600,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              fontSize: '0.7rem',
+              mr: 1,
+            }}
+          >
+            {title}
+          </Typography>
+        )}
         {series.map((s) => {
           const isVisible = !hidden.has(s.label);
           return (

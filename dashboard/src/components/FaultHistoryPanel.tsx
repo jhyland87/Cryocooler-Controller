@@ -30,14 +30,7 @@ export function FaultHistoryPanel({ faults, loading }: Props) {
   const visible = faults.slice(start, start + PAGE_SIZE);
 
   return (
-    <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 2, border: '1px solid', borderColor: 'divider' }}>
-      <Typography
-        variant="subtitle2"
-        sx={{ mb: 1.5, color: 'text.secondary', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.7rem' }}
-      >
-        Fault History
-      </Typography>
-
+    <Box>
       {loading && (
         <Typography variant="body2" color="text.disabled">Loading...</Typography>
       )}

@@ -65,11 +65,7 @@ export function StatusPanel({ data }: Props) {
   const faults60m = data.faults?.count_60m ?? 0;
 
   return (
-    <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, p: 2, border: '1px solid', borderColor: 'divider' }}>
-      <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'text.secondary', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.7rem' }}>
-        Status &amp; Indicators
-      </Typography>
-
+    <Box>
       {/* LED row */}
       <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap', mb: 2 }}>
         <Led

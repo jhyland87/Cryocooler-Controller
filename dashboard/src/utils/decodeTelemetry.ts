@@ -66,6 +66,7 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
     out.amplifier = {
       voltage_v: f.amplifier.voltageV ?? undefined,
       current_a: f.amplifier.currentA ?? undefined,
+      power_w:   f.amplifier.powerW   ?? undefined,
     };
   }
 
@@ -96,6 +97,7 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
       x:         f.imu.x ?? undefined,
       y:         f.imu.y ?? undefined,
       z:         f.imu.z ?? undefined,
+      freq_hz:   f.imu.freqHz ?? undefined,
     };
   }
 
