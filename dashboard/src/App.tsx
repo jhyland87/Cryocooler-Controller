@@ -56,7 +56,6 @@ const theme = createTheme({
 const HISTORY_KEYS = [
   'cold_head.temp_c',
   'cold_head.ambient_temp_c',
-  'cold_head.delta_below_ambient_c',
   'cold_head.voltage_v',
   'cold_head.current_a',
   'system.voltage_v',
@@ -201,7 +200,7 @@ export function App() {
           <Grid container spacing={2}>
 
             {/* ── Row 1: Status panel ──────────────────────────────────── */}
-            <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
               <StatusPanel data={data} key={tick} />
               <Box sx={{ mt: 2 }}>
                 <FaultHistoryPanel faults={faults} loading={faultsLoading} />
@@ -209,7 +208,7 @@ export function App() {
             </Grid>
 
             {/* ── Row 1 right: quick-read numeric tiles ────────────────── */}
-            <Grid size={{ xs: 12, sm: 12, md: 8, lg: 9 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignContent: 'flex-start' }}>
                 {TILES.map(({ label, key, unit, dp, color }) => {
                   const value = getField(data, key);
@@ -250,7 +249,6 @@ export function App() {
                 <TemperatureChart
                   actualC={getHistory('cold_head.temp_c')}
                   ambientC={getHistory('cold_head.ambient_temp_c')}
-                  deltaC={getHistory('cold_head.delta_below_ambient_c')}
                 />
               </Box>
             </Grid>

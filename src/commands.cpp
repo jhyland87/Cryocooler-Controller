@@ -37,6 +37,10 @@
 #include "ota.h"
 #include "compressor.h"
 #include "utils.h"
+#include "hardware.h"
+#include "imu.h"
+#include "sysinfo.h"
+#include "espnow.h"
 #endif
 #include "logger.h"
 
@@ -106,7 +110,28 @@ static void handleStart(const char* /*args*/, Print& out) {
 }
 
 #ifdef ARDUINO
-static void handleReinit(const char* /*args*/, Print& out) {
+
+/**
+ * Helper: check if a whitespace-delimited token list contains a given name.
+ * Returns true if `name` appears as an exact whitespace-separated token in `args`.
+ */
+static bool argsContain(const char* args, const char* name) {
+    const size_t nameLen = strlen(name);
+    const char* p = args;
+    while (*p) {
+        while (*p == ' ' || *p == '\t') ++p;
+        if (*p == '\0') break;
+        const char* start = p;
+        while (*p && *p != ' ' && *p != '\t') ++p;
+        if (static_cast<size_t>(p - start) == nameLen &&
+            strncmp(start, name, nameLen) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void handleReinit(const char* args, Print& out) {
     // Allow reinit only from safe non-running states.  If the process is
     // actively running the operator should stop it first to allow a clean
     // shutdown ramp before re-initialising hardware.
@@ -125,14 +150,68 @@ static void handleReinit(const char* /*args*/, Print& out) {
         out.println(buf);
         return;
     }
-    // reinit() fully resets all FSM state, re-runs initControlModules() via
-    // the registered onInitialize callback, and enters Initialize → Idle.
-    state_machine::reinit();
-    char buf[72];
-    snprintf(buf, sizeof(buf), "[OK] Reinitializing — state: %s | mock: %s",
-             state_machine::stateName(state_machine::getState()),
-             sensor_mock::isActive() ? "ACTIVE" : "inactive");
-    out.println(buf);
+
+    // If no arguments, do a full reinit (all control modules via the FSM).
+    if (*args == '\0') {
+        state_machine::reinit();
+        char buf[72];
+        snprintf(buf, sizeof(buf), "[OK] Reinitializing all — state: %s | mock: %s",
+                 state_machine::stateName(state_machine::getState()),
+                 sensor_mock::isActive() ? "ACTIVE" : "inactive");
+        out.println(buf);
+        return;
+    }
+
+    // ── Selective reinit: re-initialise only the named module(s) ─────────
+    // Accepted names match the module namespaces used throughout the system.
+
+    struct SelectiveModule {
+        const char* name;
+        module::InitStatus (*initFn)();
+    };
+
+    const SelectiveModule selectableModules[] = {
+        { "amplifier",  [] () -> module::InitStatus { return amplifier::Module::init(); }  },
+        { "cooling",    [] () -> module::InitStatus { return cooling::Module::init(); }    },
+        { "cold_head",  [] () -> module::InitStatus { return cold_head::Module::init(); }  },
+#if ENABLE_COMPRESSOR
+        { "compressor", [] () -> module::InitStatus { return compressor::Module::init(); } },
+#endif
+        { "imu",        [] () -> module::InitStatus { return imu::Module::init(); }        },
+        { "dashboard",  [] () -> module::InitStatus { return dashboard::Module::init(); }  },
+        { "indicator",  [] () -> module::InitStatus { return indicator::Module::init(); }   },
+        { "ota",        [] () -> module::InitStatus { return ota::Module::init(); }         },
+        { "sysinfo",    [] () -> module::InitStatus { return sysinfo::Module::init(); }     },
+        { "hardware",   [] () -> module::InitStatus { return hardware::Module::init(); }    },
+#if ENABLE_ESPNOW
+        { "espnow",     [] () -> module::InitStatus { return espnow::Module::init(); }     },
+#endif
+    };
+
+    uint8_t reinitCount = 0;
+    for (const auto& m : selectableModules) {
+        if (!argsContain(args, m.name)) continue;
+
+        const auto status = m.initFn();
+        char buf[80];
+        snprintf(buf, sizeof(buf), "  %-14s  %s",
+                 m.name, module::initStatusName(status));
+        out.println(buf);
+        ++reinitCount;
+    }
+
+    if (reinitCount == 0) {
+        out.println("[ERR] No valid module names found. Available:");
+        for (const auto& m : selectableModules) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "  %s", m.name);
+            out.println(buf);
+        }
+    } else {
+        char buf[48];
+        snprintf(buf, sizeof(buf), "[OK] Reinitialized %u module(s)", reinitCount);
+        out.println(buf);
+    }
 }
 #endif
 
@@ -174,6 +253,51 @@ static void handleStatus(const char* /*args*/, Print& out) {
              static_cast<int8_t>(state_machine::getState()),
              state_machine::isRunning() ? "yes" : "no");
     out.println(buf);
+
+#ifdef ARDUINO
+    // ── Module status table ──────────────────────────────────────────────────
+    // Show init and service status for every registered module so the
+    // operator can quickly see which subsystems are healthy.
+    out.println("  Module status:");
+
+    struct ModuleInfo {
+        const char*          name;
+        module::InitStatus    init;
+        module::ServiceStatus svc;
+    };
+
+    const ModuleInfo modules[] = {
+        { "hardware",    hardware::Module::getInitStatus(),    hardware::Module::getServiceStatus()    },
+        { "indicator",   indicator::Module::getInitStatus(),   indicator::Module::getServiceStatus()   },
+        { "logger",      logger::Module::getInitStatus(),      logger::Module::getServiceStatus()      },
+        { "commands",    commands::Module::getInitStatus(),    commands::Module::getServiceStatus()    },
+        { "ota",         ota::Module::getInitStatus(),         ota::Module::getServiceStatus()         },
+        { "dashboard",   dashboard::Module::getInitStatus(),   dashboard::Module::getServiceStatus()   },
+        { "telemetry",   telemetry::Module::getInitStatus(),   telemetry::Module::getServiceStatus()   },
+        { "sysinfo",     sysinfo::Module::getInitStatus(),     sysinfo::Module::getServiceStatus()     },
+        { "imu",         imu::Module::getInitStatus(),         imu::Module::getServiceStatus()         },
+        { "amplifier",   amplifier::Module::getInitStatus(),   amplifier::Module::getServiceStatus()   },
+        { "cooling",     cooling::Module::getInitStatus(),     cooling::Module::getServiceStatus()     },
+        { "cold_head",   cold_head::Module::getInitStatus(),   cold_head::Module::getServiceStatus()   },
+#if ENABLE_COMPRESSOR
+        { "compressor",  compressor::Module::getInitStatus(),  compressor::Module::getServiceStatus()  },
+#endif
+#if ENABLE_ESPNOW
+        { "espnow",      espnow::Module::getInitStatus(),      espnow::Module::getServiceStatus()      },
+#endif
+        { "state_machine", state_machine::Module::getInitStatus(), state_machine::Module::getServiceStatus() },
+    };
+
+    for (const auto& m : modules) {
+        char line[80];
+        snprintf(line, sizeof(line), "    %-14s  init: %-16s  svc: %s",
+                 m.name,
+                 module::initStatusName(m.init),
+                 module::serviceStatusName(m.svc));
+        out.println(line);
+    }
+#endif
+    out.println("");
 }
 
 static void handleTelemetryOff(const char* /*args*/, Print& out) {
@@ -655,10 +779,6 @@ static void handleSummary(const char* /*args*/, Print& out) {
     //          cold_head::getLastAmbientTempC());
     // out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  Below ambient   : %.2f C",
-             cold_head::getLastTempCBelowAmbient());
-    out.println(buf);
-
     snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f C/min",
              cold_head::getCoolingRateCPerMin());
     out.println(buf);
@@ -905,7 +1025,7 @@ static const Command commandMap[] = {
     {"i2c scan",      handleI2cScan,      "Scan I2C bus and print all responding device addresses"},
 #endif
 #ifdef ARDUINO
-    {"reinit",        handleReinit,       "Re-initialize hardware modules (from Off, Idle, or Fault)"},
+    {"reinit",        handleReinit,       "Re-initialize modules: 'reinit' (all) or 'reinit <name> [name...]'"},
 #endif
     // "telemetry delta ..." must precede "telemetry on/off" so the longer
     // prefix is matched first by the linear scan in processLine().

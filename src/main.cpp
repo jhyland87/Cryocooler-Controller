@@ -312,6 +312,10 @@ void loop() {
 
     const uint32_t nowMs = millis();
 
+    // I2C health monitor — Wire ESP_LOGE messages are suppressed; we count
+    // errors via module service return codes and log periodic summaries.
+    hardware::serviceI2c(nowMs);
+
     if ((nowMs - previousIndicatorUpdateMs) < INDICATOR_UPDATE_INTERVAL_MS) {
         indicator::update();
         previousIndicatorUpdateMs = nowMs;

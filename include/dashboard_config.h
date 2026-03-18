@@ -258,13 +258,7 @@ static const ss::DatasetCfg tempDatasets[] = {
         .graph          = true,
         .log            = true,
         .overviewDisplay = true,
-    },
-    {   // Delta below ambient
-        .title          = "Temp below ambient",
-        .units          = "\xC2\xB0" "C",
-        .telemetryKey   = "cold_head.delta_below_ambient_c",
-        .graph          = true,
-    },
+    }
 };
 
 // ═════════════════════════════════════════════════════════════════════════════

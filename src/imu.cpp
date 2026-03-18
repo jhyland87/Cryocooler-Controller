@@ -256,7 +256,7 @@ static void checkMotion(float accelMag) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    if (!sensor.begin_I2C(LSM6DSOX_IMU_ADDRESS, &hardware::i2c())) {
+    if (!sensor.begin_I2C(LSM6DSOX_IMU_IC2_ADDRESS, &hardware::i2c())) {
         _Log.println("LSM6DSOX not found — check wiring and I2C address");
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
