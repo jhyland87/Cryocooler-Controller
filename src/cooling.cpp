@@ -60,8 +60,8 @@ static constexpr char TAG[] = "cooling";
 // and applies the last (highest) entry — full speed, which is the safe
 // default for a cryocooler compressor.
 // ---------------------------------------------------------------------------
-static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kLut[] = {
-    {  0,  2 },   //  0 °C →  50 % (minimum — keeps the fan spinning at all times)
+static constexpr struct { uint8_t tempC; uint8_t pwmPct; } fanLut[] = {
+    {  0,  1 },   //  0 °C →  50 % (minimum — keeps the fan spinning at all times)
     { 25,  4 },   // 25 °C →  55 %
     { 35,  6 },   // 35 °C →  60 %
     { 45,  8 },   // 45 °C →  65 %
@@ -70,8 +70,8 @@ static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kLut[] = {
     { 60,  14 },   // 60 °C →  95 %
     { 65,  16 },   // 65 °C → 100 %
 };
-static constexpr uint8_t kLutCount = static_cast<uint8_t>(sizeof(kLut) / sizeof(kLut[0]));
-static_assert(kLutCount <= 8, "EMC2101 LUT has only 8 entries");
+static constexpr uint8_t fanLutCount = static_cast<uint8_t>(sizeof(fanLut) / sizeof(fanLut[0]));
+static_assert(fanLutCount <= 8, "EMC2101 LUT has only 8 entries");
 
 // ---------------------------------------------------------------------------
 // Pump speed normalisation helpers
@@ -116,16 +116,16 @@ static uint8_t pumpHwToNorm(uint8_t hwPct) {
 //     4       40         85      14     ~4160       Hot — approaching limit
 //     5       45        100      16     ~4400       Max — at the stall limit
 // ---------------------------------------------------------------------------
-static constexpr struct { uint8_t tempC; uint8_t pwmPct; } kPumpLut[] = {
-    { 20,  30 },
-    { 25,  40 },
-    { 30,  55 },
+static constexpr struct { uint8_t tempC; uint8_t pwmPct; } pumpLut[] = {
+    { 20,  10 },
+    { 25,  15 },
+    { 30,  20 },
     { 35,  70 },
     { 40,  85 },
     { 45, 100 },
 };
-static constexpr uint8_t kPumpLutCount = static_cast<uint8_t>(sizeof(kPumpLut) / sizeof(kPumpLut[0]));
-static_assert(kPumpLutCount <= 8, "EMC2101 LUT has only 8 entries");
+static constexpr uint8_t pumpLutCount = static_cast<uint8_t>(sizeof(pumpLut) / sizeof(pumpLut[0]));
+static_assert(pumpLutCount <= 8, "EMC2101 LUT has only 8 entries");
 
 // ---------------------------------------------------------------------------
 // Flow lookup table (Alphacool ES, RPM → L/h)
@@ -140,7 +140,7 @@ struct FlowPoint {
     float    lph;
 };
 
-static constexpr FlowPoint kFlowTable[] = {
+static constexpr FlowPoint pumpFlowTable[] = {
     {  327,  40.0f }, {  369,  50.0f }, {  404,  60.0f },
     {  449,  70.0f }, {  493,  80.0f }, {  510,  90.0f },
     {  560, 100.0f }, {  640, 110.0f }, {  700, 120.0f },
@@ -151,8 +151,8 @@ static constexpr FlowPoint kFlowTable[] = {
     { 1430, 250.0f }, { 1477, 260.0f }, { 1560, 270.0f },
     { 1608, 280.0f }, { 1640, 290.0f }, { 1685, 300.0f },
 };
-static constexpr uint8_t kFlowTableLen =
-    static_cast<uint8_t>(sizeof(kFlowTable) / sizeof(kFlowTable[0]));
+static constexpr uint8_t flowTableLen =
+    static_cast<uint8_t>(sizeof(pumpFlowTable) / sizeof(pumpFlowTable[0]));
 
 // ---------------------------------------------------------------------------
 // Flow sensor ISR state
@@ -246,37 +246,37 @@ static float rpmToLph(float rpm) {
     if (rpm <= 0.0f) return 0.0f;
 
     // Below minimum — extrapolate toward zero
-    if (rpm < static_cast<float>(kFlowTable[0].rpm)) {
-        const float slope = (kFlowTable[1].lph - kFlowTable[0].lph) /
-                            static_cast<float>(kFlowTable[1].rpm - kFlowTable[0].rpm);
-        const float val = kFlowTable[0].lph +
-                          slope * (rpm - static_cast<float>(kFlowTable[0].rpm));
+    if (rpm < static_cast<float>(pumpFlowTable[0].rpm)) {
+        const float slope = (pumpFlowTable[1].lph - pumpFlowTable[0].lph) /
+                            static_cast<float>(pumpFlowTable[1].rpm - pumpFlowTable[0].rpm);
+        const float val = pumpFlowTable[0].lph +
+                          slope * (rpm - static_cast<float>(pumpFlowTable[0].rpm));
         return (val > 0.0f) ? val : 0.0f;
     }
 
     // Above maximum — extrapolate linearly, capped at pump max (COOLING_FLOW_MAX_LPH)
-    if (rpm >= static_cast<float>(kFlowTable[kFlowTableLen - 1u].rpm)) {
-        const uint8_t last = kFlowTableLen - 1u;
-        const uint8_t prev = kFlowTableLen - 2u;
-        const float slope = (kFlowTable[last].lph - kFlowTable[prev].lph) /
-                            static_cast<float>(kFlowTable[last].rpm - kFlowTable[prev].rpm);
-        const float val = kFlowTable[last].lph +
-                          slope * (rpm - static_cast<float>(kFlowTable[last].rpm));
+    if (rpm >= static_cast<float>(pumpFlowTable[flowTableLen - 1u].rpm)) {
+        const uint8_t last = flowTableLen - 1u;
+        const uint8_t prev = flowTableLen - 2u;
+        const float slope = (pumpFlowTable[last].lph - pumpFlowTable[prev].lph) /
+                            static_cast<float>(pumpFlowTable[last].rpm - pumpFlowTable[prev].rpm);
+        const float val = pumpFlowTable[last].lph +
+                          slope * (rpm - static_cast<float>(pumpFlowTable[last].rpm));
         return (val < COOLING_FLOW_MAX_LPH) ? val : COOLING_FLOW_MAX_LPH;
     }
 
     // Binary search for the surrounding bracket
     uint8_t lo = 0u;
-    uint8_t hi = kFlowTableLen - 1u;
+    uint8_t hi = flowTableLen - 1u;
     while (hi - lo > 1u) {
         const uint8_t mid = static_cast<uint8_t>((lo + hi) / 2u);
-        if (static_cast<float>(kFlowTable[mid].rpm) <= rpm) lo = mid;
+        if (static_cast<float>(pumpFlowTable[mid].rpm) <= rpm) lo = mid;
         else                                                 hi = mid;
     }
 
-    const float t = (rpm - static_cast<float>(kFlowTable[lo].rpm)) /
-                    static_cast<float>(kFlowTable[hi].rpm - kFlowTable[lo].rpm);
-    return kFlowTable[lo].lph + t * (kFlowTable[hi].lph - kFlowTable[lo].lph);
+    const float t = (rpm - static_cast<float>(pumpFlowTable[lo].rpm)) /
+                    static_cast<float>(pumpFlowTable[hi].rpm - pumpFlowTable[lo].rpm);
+    return pumpFlowTable[lo].lph + t * (pumpFlowTable[hi].lph - pumpFlowTable[lo].lph);
 }
 
 // ---------------------------------------------------------------------------
@@ -409,9 +409,9 @@ static module::InitStatus fanInit() {
   ESP_LOGD(TAG, "fanInit: PWM clock reconfigured: 360 kHz base, FDIV=6 → ~25.7 kHz");
 
   // Program the fan LUT entries.
-  for (uint8_t i = 0u; i < kLutCount; ++i) {
-    if (!fanController_.setLUT(i, kLut[i].tempC, kLut[i].pwmPct)) {
-      ESP_LOGW(TAG, "fanInit: setLUT(%u, %u°C, %u%%) failed", i, kLut[i].tempC, kLut[i].pwmPct);
+  for (uint8_t i = 0u; i < fanLutCount; ++i) {
+    if (!fanController_.setLUT(i, fanLut[i].tempC, fanLut[i].pwmPct)) {
+      ESP_LOGW(TAG, "fanInit: setLUT(%u, %u°C, %u%%) failed", i, fanLut[i].tempC, fanLut[i].pwmPct);
     }
   }
 
@@ -430,7 +430,7 @@ static module::InitStatus fanInit() {
     ESP_LOGW(TAG, "fanInit: LUTEnabled(true) failed");
   }
 
-  ESP_LOGD(TAG, "fanInit: LUT configured (%u entries), IC fan control active", kLutCount);
+  ESP_LOGD(TAG, "fanInit: LUT configured (%u entries), IC fan control active", fanLutCount);
   return module::MODULE_INIT_SUCCESS;
 }
 
@@ -488,14 +488,14 @@ static module::InitStatus pumpInit() {
   }
 
   // Program the pump LUT entries (normalised → hardware duty conversion).
-  for (uint8_t i = 0u; i < kPumpLutCount; ++i) {
-    const uint8_t hwDuty = pumpNormToHw(kPumpLut[i].pwmPct);
-    if (!pumpController_.setLUT(i, kPumpLut[i].tempC, hwDuty)) {
+  for (uint8_t i = 0u; i < pumpLutCount; ++i) {
+    const uint8_t hwDuty = pumpNormToHw(pumpLut[i].pwmPct);
+    if (!pumpController_.setLUT(i, pumpLut[i].tempC, hwDuty)) {
       ESP_LOGW(TAG, "pumpInit: setLUT(%u, %u°C, %u%% hw) failed",
-               i, kPumpLut[i].tempC, hwDuty);
+               i, pumpLut[i].tempC, hwDuty);
     }
     ESP_LOGD(TAG, "pumpInit: LUT[%u] %u°C → %u%% norm → %u%% hw",
-             i, kPumpLut[i].tempC, kPumpLut[i].pwmPct, hwDuty);
+             i, pumpLut[i].tempC, pumpLut[i].pwmPct, hwDuty);
   }
 
   // Set LUT hysteresis to prevent rapid hunting between duty steps.
@@ -510,17 +510,17 @@ static module::InitStatus pumpInit() {
 
   // Push a safe initial temperature so the LUT applies the minimum duty
   // cycle immediately (20 °C → 30 % normalised / 6 % hardware per the pump LUT).
-  pumpController_.setForcedTemperature(static_cast<int8_t>(kPumpLut[0].tempC));
+  pumpController_.setForcedTemperature(static_cast<int8_t>(pumpLut[0].tempC));
 
   // Enable LUT — the IC takes over pump PWM based on the forced temperature.
   if (!pumpController_.LUTEnabled(true)) {
     ESP_LOGW(TAG, "pumpInit: LUTEnabled(true) failed");
   }
 
-  ESP_LOGD(TAG, "pumpInit: LUT configured (%u entries), forced-temp mode active", kPumpLutCount);
+  ESP_LOGD(TAG, "pumpInit: LUT configured (%u entries), forced-temp mode active", pumpLutCount);
   ESP_LOGI(TAG, "pumpInit: spinup disabled, LUT hyst=%u°C, initial forcedT=%u°C, hwDuty=%u%% (norm %u%%)",
            pumpController_.getLUTHysteresis(),
-           kPumpLut[0].tempC,
+           pumpLut[0].tempC,
            pumpController_.getDutyCycle(),
            pumpHwToNorm(pumpController_.getDutyCycle()));
   return module::MODULE_INIT_SUCCESS;

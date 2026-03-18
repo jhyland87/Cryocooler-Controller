@@ -65,7 +65,6 @@ struct __attribute__((packed)) TelemetryPacket {
     // ── Cold head ─────────────────────────────────────────────────────────
     float    cold_head_temp_c;              ///< Temperature in Celsius
     float    cold_head_ambient_temp_c;
-    float    cold_head_delta_below_ambient_c;
     float    cold_head_cooling_rate;        ///< C/min; positive = cooling
     float    cold_head_cooldown_pct;        ///< 0–100 %
     float    cold_head_voltage_v;

@@ -779,10 +779,6 @@ static void handleSummary(const char* /*args*/, Print& out) {
     //          cold_head::getLastAmbientTempC());
     // out.println(buf);
 
-    snprintf(buf, sizeof(buf), "  Below ambient   : %.2f C",
-             cold_head::getLastTempCBelowAmbient());
-    out.println(buf);
-
     snprintf(buf, sizeof(buf), "  Cooling rate    : %.3f C/min",
              cold_head::getCoolingRateCPerMin());
     out.println(buf);

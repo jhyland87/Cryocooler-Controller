@@ -66,7 +66,7 @@ static float sLocalMockTempC   = 26.85f;
 // or a temperature reading outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
 static bool sRtdFaultActive = false;
-
+static uint8_t sLastFaultCode = 0;
 // Per-key fault rate-limiter.
 // Each distinct fault type gets its own slot so that two simultaneously
 // oscillating faults don't reset each other's timers and cause spam.
@@ -273,9 +273,10 @@ void read(uint32_t nowMs) {
 
     // --- hw fault register ---
     const uint8_t hwFault = max31865.readFault();
+    //_Log.printf("HW fault: 0x%02X, Last fault: 0x%02X\n", hwFault, sLastFaultCode);
     if (hwFault != 0) {
         anyFault = true;
-        max31865.clearFault();
+        //max31865.clearFault();
         const uint16_t  key  = static_cast<uint16_t>(hwFault);
         FaultRateLimit* fl   = findFaultLimit(key);
         const bool      emit = (fl == nullptr) ||
@@ -316,13 +317,13 @@ void read(uint32_t nowMs) {
             const uint32_t suppressed = fl ? fl->suppressedCt : 0;
             if (suppressed > 0) {
                 _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected"
-                              " (+" PRIu32 " suppressed)",
+                              " (%u suppressed)\n",
                          tempC,
                          static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
                          static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C),
                          suppressed);
             } else {
-                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected",
+                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected\n",
                          tempC,
                          static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
                          static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
@@ -393,17 +394,23 @@ void setLastReadings(uint32_t nowMs, float tempC,
 void checkFaults() {
     if (sensor_mock::isActive()) return;
 
-    static uint8_t lastFaultCode_ = 0;
-    const uint8_t fault = max31865.readFault();
 
+    const uint8_t fault = max31865.readFault();
+    //_Log.printf("Fault: 0x%02X, Last fault: 0x%02X\n", fault, sLastFaultCode);
     // Only log when the fault code changes — suppresses repeated messages
     // for the same persistent fault.  Resets when the fault clears so any
     // recurrence is logged immediately.
-    if (fault == lastFaultCode_) return;
-    lastFaultCode_ = fault;
-    if (fault == 0) return;   // fault just cleared — nothing to log
+    if (fault == sLastFaultCode){
+        //_Log.println("Fault code is the same as the last one");
+        return;
+    }
+    sLastFaultCode = fault;
+    if (fault == 0) {
+        //_Log.println("Fault just cleared");
+        return;
+    }   // fault just cleared — nothing to log
 
-    _Log.printf("Fault detected! Code: 0x%02X", fault);
+    _Log.printf("Fault detected! Code: 0x%02X\n", fault);
 
     if (fault & MAX31865_FAULT_HIGHTHRESH)  _Log.println("  - RTD High Threshold");
     if (fault & MAX31865_FAULT_LOWTHRESH)   _Log.println("  - RTD Low Threshold");
@@ -412,7 +419,7 @@ void checkFaults() {
     if (fault & MAX31865_FAULT_RTDINLOW)    _Log.println("  - RTDIN- < 0.85 x Bias - FORCE- open");
     if (fault & MAX31865_FAULT_OVUV)        _Log.println("  - Under/Over voltage");
 
-    max31865.clearFault();
+    //max31865.clearFault();
 }
 
 float getLastTempC() {

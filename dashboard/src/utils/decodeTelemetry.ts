@@ -56,7 +56,6 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
       temp_c:                f.coldHead.hasTemp ? (f.coldHead.tempC ?? undefined) : undefined,
       cooling_rate:          f.coldHead.coolingRate ?? undefined,
       cooldown_pct:          f.coldHead.cooldownPct ?? undefined,
-      delta_below_ambient_c: f.coldHead.deltaBelowAmbientC ?? undefined,
       ambient_temp_c:        f.coldHead.ambientTempC ?? undefined,
       voltage_v:             f.coldHead.voltageV ?? undefined,
       current_a:             f.coldHead.currentA ?? undefined,

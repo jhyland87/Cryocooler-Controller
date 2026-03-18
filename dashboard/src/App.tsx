@@ -56,7 +56,6 @@ const theme = createTheme({
 const HISTORY_KEYS = [
   'cold_head.temp_c',
   'cold_head.ambient_temp_c',
-  'cold_head.delta_below_ambient_c',
   'cold_head.voltage_v',
   'cold_head.current_a',
   'system.voltage_v',
@@ -250,7 +249,6 @@ export function App() {
                 <TemperatureChart
                   actualC={getHistory('cold_head.temp_c')}
                   ambientC={getHistory('cold_head.ambient_temp_c')}
-                  deltaC={getHistory('cold_head.delta_below_ambient_c')}
                 />
               </Box>
             </Grid>
