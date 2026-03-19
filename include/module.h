@@ -206,6 +206,13 @@ struct ModuleBase {
     static bool isInitialized() { return _initStatus == module::MODULE_INIT_SUCCESS; }
 
     /**
+     * Override the cached init status — used by modules that support
+     * deferred (hot-plug) initialisation.  The module's service() can
+     * promote itself to MODULE_INIT_SUCCESS once the hardware appears.
+     */
+    static void overrideInitStatus(module::InitStatus s) { _initStatus = s; }
+
+    /**
      * Return the ServiceStatus produced by the most recent service() call.
      * Defaults to SKIPPED for modules that inherit the no-op service().
      */

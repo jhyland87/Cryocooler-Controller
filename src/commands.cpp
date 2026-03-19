@@ -442,11 +442,14 @@ static void handleVoutSet(const char* args, Print& out) {
 
 static void handleCoolingFan(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: cooling fan <0-100>");
+        out.println("[ERR] Usage: cooling fan <0-255> | <0-100%>");
+        out.println("       Plain number  = raw duty cycle (0-255)");
+        out.println("       With '%'      = fan speed 0-100%%");
+        out.println("       'cooling on'  = restore LUT control");
         return;
     }
 
-    // Parse up to 4 digits (anything ≥ 1000 will fail the range check).
+    // Parse up to 4 digits.
     uint16_t val    = 0;
     uint8_t  digits = 0;
     const char* p = args;
@@ -456,25 +459,54 @@ static void handleCoolingFan(const char* args, Print& out) {
         ++digits;
     }
 
-    // Reject: no digits, trailing non-whitespace garbage, or out-of-range.
-    if (digits == 0 || (*p != '\0' && *p != ' ' && *p != '\t') || val > 100u) {
+    if (digits == 0) {
         char buf[64];
         snprintf(buf, sizeof(buf),
-                 "[ERR] cooling fan: invalid argument '%s' (expected 0-100)", args);
+                 "[ERR] cooling fan: invalid argument '%s' (expected <duty> or <%%>)", args);
         out.println(buf);
         return;
     }
 
-    cooling::setFanSpeed(static_cast<uint8_t>(val), true);
-    char buf[48];
-    snprintf(buf, sizeof(buf), "[OK] Fan speed set to %u%%", static_cast<unsigned>(val));
-    out.println(buf);
+    // Check for optional trailing '%' to select percent mode.
+    const bool isPercent = (*p == '%');
+    if (isPercent) { ++p; }
+
+    // Reject trailing non-whitespace garbage.
+    if (*p != '\0' && *p != ' ' && *p != '\t') {
+        char buf[64];
+        snprintf(buf, sizeof(buf),
+                 "[ERR] cooling fan: invalid argument '%s' (expected <duty> or <%%>)", args);
+        out.println(buf);
+        return;
+    }
+
+    if (isPercent) {
+        if (val > 100u) {
+            out.println("[ERR] cooling fan: percentage must be 0-100");
+            return;
+        }
+        cooling::setFanSpeed(static_cast<uint8_t>(val), true);
+        char buf[48];
+        snprintf(buf, sizeof(buf), "[OK] Fan speed set to %u%% (LUT disabled)",
+                 static_cast<unsigned>(val));
+        out.println(buf);
+    } else {
+        if (val > 255u) {
+            out.println("[ERR] cooling fan: duty cycle must be 0-255");
+            return;
+        }
+        cooling::setFanDutyCycle(static_cast<uint8_t>(val));
+        char buf[48];
+        snprintf(buf, sizeof(buf), "[OK] Fan duty set to %u/255 (LUT disabled)",
+                 static_cast<unsigned>(val));
+        out.println(buf);
+    }
 }
 
 static void handleCoolingPump(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: cooling pump <0-20 LPM> | <0-100%>");
-        out.println("       Plain number  = target LPM (approx linear estimate)");
+        out.println("[ERR] Usage: cooling pump <0-255> | <0-100%>");
+        out.println("       Plain number  = raw duty cycle (0-255)");
         out.println("       With '%'      = pump speed 0-100%% (normalised)");
         out.println("       'cooling on'  = restore LUT control");
         return;
@@ -493,7 +525,7 @@ static void handleCoolingPump(const char* args, Print& out) {
     if (digits == 0) {
         char buf[64];
         snprintf(buf, sizeof(buf),
-                 "[ERR] cooling pump: invalid argument '%s' (expected <LPM> or <%%>)", args);
+                 "[ERR] cooling pump: invalid argument '%s' (expected <duty> or <%%>)", args);
         out.println(buf);
         return;
     }
@@ -506,7 +538,7 @@ static void handleCoolingPump(const char* args, Print& out) {
     if (*p != '\0' && *p != ' ' && *p != '\t') {
         char buf[64];
         snprintf(buf, sizeof(buf),
-                 "[ERR] cooling pump: invalid argument '%s' (expected <LPM> or <%%>)", args);
+                 "[ERR] cooling pump: invalid argument '%s' (expected <duty> or <%%>)", args);
         out.println(buf);
         return;
     }
@@ -523,23 +555,16 @@ static void handleCoolingPump(const char* args, Print& out) {
                  static_cast<unsigned>(val));
         out.println(buf);
     } else {
-        // ── LPM → approximate normalised pump speed ──────────────────────
-        // Linear estimate: 0 LPM = 0 %, max LPM = 100 %.
-        const float maxLpm = COOLING_FLOW_MAX_LPH / 60.0f;
-        if (static_cast<float>(val) > maxLpm) {
-            char buf[64];
-            snprintf(buf, sizeof(buf),
-                     "[ERR] cooling pump: %u LPM exceeds max (%.0f LPM)", val, maxLpm);
-            out.println(buf);
+        // ── Raw duty cycle (0–255) ───────────────────────────────────────
+        if (val > 255u) {
+            out.println("[ERR] cooling pump: duty cycle must be 0-255");
             return;
         }
-        const uint8_t normPct = static_cast<uint8_t>(
-            (static_cast<float>(val) / maxLpm) * 100.0f + 0.5f);
-        cooling::setPumpSpeed(normPct);
-        char buf[80];
+        cooling::setPumpDutyCycle(static_cast<uint8_t>(val));
+        char buf[48];
         snprintf(buf, sizeof(buf),
-                 "[OK] Pump target ~%u LPM → %u%% (LUT disabled, estimate)",
-                 static_cast<unsigned>(val), normPct);
+                 "[OK] Pump duty set to %u/255 (LUT disabled)",
+                 static_cast<unsigned>(val));
         out.println(buf);
     }
 }
@@ -1034,8 +1059,8 @@ static const Command commandMap[] = {
     {"telemetry off",       handleTelemetryOff,      "Disable telemetry output"},
     {"telemetry on",        handleTelemetryOn,       "Enable telemetry output"},
     // "cooling fan/pump <N>" must precede "cooling on/off" so the longer prefix wins.
-    {"cooling fan",         handleCoolingFan,         "Set cooling fan speed percentage (0-100)"},
-    {"cooling pump",        handleCoolingPump,        "Set pump speed: <LPM> or <0-100%> (normalised). 'cooling on' restores LUT."},
+    {"cooling fan",         handleCoolingFan,         "Set fan: <0-255> raw duty or <0-100%> percent. 'cooling on' restores LUT."},
+    {"cooling pump",        handleCoolingPump,        "Set pump: <0-255> raw duty or <0-100%> percent. 'cooling on' restores LUT."},
     {"cooling on",          handleCoolingOn,           "Enable cooling system"},
     {"cooling off",         handleCoolingOff,          "Disable cooling system"},
 #ifdef ARDUINO

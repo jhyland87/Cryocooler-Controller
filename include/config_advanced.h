@@ -42,7 +42,7 @@
 
 
 // I2C address of the AD5693R DAC.
-// A0 = GND → 0x4C (conflicts with pump EMC2101).
+// A0 = GND → 0x4C.
 // A0 = VDD → 0x4E.
 #define AD5693_DAC_I2C_ADDRESS  static_cast<uint8_t>(0x4E)
 
@@ -158,54 +158,40 @@
 
 
 // =============================================================================
-// EMC2101 I2C Addresses & Routing
+// EMC2302 I2C Address & Configuration
 // =============================================================================
 //
-// Set USE_I2C_MUX to 1 to route both EMC2101s through a PCA9548 multiplexer.
-// Set to 0 when using an I2C address translator instead (current config).
-#define USE_I2C_MUX  0
-
-// Fan EMC2101 address (via I2C address translator — used when USE_I2C_MUX=0).
-#define EMC2101_FAN_I2C_ADDRESS  static_cast<uint8_t>(0x3C)
-
-// Pump EMC2101 address (default 0x4C — EMC2101_I2CADDR_DEFAULT).
-
-// PCA9548 mux settings (used only when USE_I2C_MUX=1).
-#define PCA9548_I2C_ADDRESS      static_cast<uint8_t>(0x70)
-#define PCA9548_CHANNEL_FAN      static_cast<uint8_t>(2)
-#define PCA9548_CHANNEL_PUMP     static_cast<uint8_t>(7)
-
-// =============================================================================
-// EMC2302_2 I2C Address and settings
-// =============================================================================
+// A single EMC2302-2 dual PWM fan controller drives both the fan (channel 0)
+// and the pump (channel 1).  No I2C mux or address translator is needed.
 
 #define EMC2302_2_I2C_ADDRESS  static_cast<uint8_t>(0x2F)
 
 // =============================================================================
-// Pump EMC2101 — forced-temperature LUT configuration
+// Pump — duty-cycle normalisation & software LUT configuration
 // =============================================================================
 
-// Maximum hardware PWM duty cycle (%) sent to the pump EMC2101.
-// Manual testing showed the pump stalls above ~80 % normalised
-// (≈16 % hardware / ~4400 RPM).  All user-facing pump speeds are
-// expressed in a normalised 0–100 % range that maps linearly to
-// 0–COOLING_PUMP_MAX_DUTY_PCT % at the hardware level.
-//   user 0 %   → hardware 0 %     user 50 % → hardware 8 %
-//   user 100 % → hardware 16 %
-#define COOLING_PUMP_MAX_DUTY_PCT  static_cast<uint8_t>(16)
+// Maximum hardware PWM duty (0–255 raw) sent to the pump channel.
+// The old EMC2101 used a 0–100 % scale mapped to 0–63 hardware steps.
+// setDutyCycle(16) on EMC2101 → 16*63/100 = hw 10 → 10/63 ≈ 16 % duty.
+// On the EMC2302 (0–255 raw), equivalent = ~41.  Bumped to 51 (~20 %)
+// to give extra headroom — adjust down if pump stalls.
+// All user-facing pump speeds are expressed in a normalised 0–100 % range
+// that maps linearly to 0–COOLING_PUMP_MAX_DUTY_PCT at the hardware level.
+//   user 0 %   → hardware 0      user 50 % → hardware ~26
+//   user 100 % → hardware 51
+#define COOLING_PUMP_MAX_DUTY_PCT  static_cast<uint8_t>(51)
 
-// Initial safe pump duty cycle (normalised 0–100 %) applied at startup
-// before the LUT receives its first forced temperature update.
-// Hardware duty = COOLING_PUMP_INITIAL_DUTY_PCT × COOLING_PUMP_MAX_DUTY_PCT / 100.
-// 30 % normalised → ~5 % hardware → ~2360 RPM (steady).
+// Initial safe pump duty (normalised 0–100 %) applied at startup before
+// the software LUT evaluates its first temperature update.
+// 30 % normalised → ~5 hw duty → ~2360 RPM (steady).
 #define COOLING_PUMP_INITIAL_DUTY_PCT  static_cast<uint8_t>(30)
 
-// LUT hysteresis for the fan EMC2101 (°C).
+// Software LUT hysteresis for the fan (°C).
 // Temperature must drop this many degrees below a threshold before the
 // duty cycle steps back down (prevents rapid hunting / sawtooth RPM).
 #define COOLING_FAN_LUT_HYSTERESIS_C   static_cast<uint8_t>(2)
 
-// LUT hysteresis for the pump EMC2101 (°C).
+// Software LUT hysteresis for the pump (°C).
 // Temperature must drop this many degrees below a threshold before the
 // duty cycle steps back down (prevents rapid hunting).
 #define COOLING_PUMP_LUT_HYSTERESIS_C  static_cast<uint8_t>(3)
