@@ -1,25 +1,30 @@
 # ESP32-S3 Cryocooler Controller
 
-Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryogenic cooler. The controller manages a compressor-driven cold stage through ten operational states — from a cold start at room temperature (~295 K) down to an operating setpoint of 78 K, with a graceful shutdown sequence — while enforcing thermal safety limits, detecting back-EMF current spikes, streaming live telemetry to Serial Studio, and serving real-time data as JSON over WiFi.
+Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryogenic cooler. The controller manages a compressor-driven cold stage through ten operational states — from a cold start at room temperature (~295 K) down to an operating setpoint of 78 K, with a graceful shutdown sequence — while enforcing thermal safety limits, detecting back-EMF current spikes, streaming live telemetry via Protobuf over WebSocket, and serving a real-time Preact dashboard over WiFi.
 
 ---
 
 ## Hardware
 
-| Component | Part | Interface | Purpose |
-|-----------|------|-----------|---------|
-| Microcontroller | ESP32-S3 DevKitC-1 | — | Host MCU |
-| Cold-stage sensor | MAX31865 + PT100 RTD | SPI (CS: GPIO 1) | Cold-stage temperature |
-| Ambient sensor | DS18B20 / DS18S20 | 1-Wire (GPIO 4) | Room temperature |
-| Waveform generator | AD9833 DDS | SPI (CS: GPIO 7) | 60 Hz sine wave for compressor |
-| DAC | MCP4921 12-bit | SPI (CS: GPIO 6) | Compressor power control |
-| Power monitor | INA260 | I²C (SDA: GPIO 8, SCL: GPIO 9) | Bus voltage + current |
-| IMU | QMI8658 | I²C (SDA: GPIO 8, SCL: GPIO 9) | Vibration / overstroke detection |
-| Status LED | WS2812 RGB | GPIO 38 | Fault / Ready indication |
-| Bypass relay | — | GPIO 11 | Normal / Bypass switching |
-| Alarm relay | — | GPIO 12 | External fault signalling |
+| Component | Part | Interface | Address / Pin | Purpose |
+|-----------|------|-----------|---------------|---------|
+| Microcontroller | ESP32-S3 DevKitC-1-N32R16V | — | — | Host MCU (32 MB flash, 16 MB PSRAM) |
+| Cold-stage sensor | MAX31865 + PT100 RTD | SPI | CS: GPIO 1 | Cold-stage temperature (3-wire) |
+| Waveform generator | AD9833 DDS | SPI | CS: GPIO 7 | 60 Hz sine wave for compressor |
+| DAC | AD5693R 16-bit | I2C | 0x4E | Amplifier power control |
+| Power monitor | INA237 | I2C | auto | Bus voltage + current |
+| IMU | LSM6DSOX 6-DOF | I2C | 0x6A | Vibration / overstroke detection |
+| Fan / pump controller | EMC2302-2 dual PWM | I2C | 0x2F | Cooling fan (ch 0) + pump (ch 1) |
+| Current sensor | ACS37800 | I2C | auto | Amplifier AC current monitoring |
+| Compressor relay | SparkFun Qwiic Single Relay | I2C | 0x19 | Compressor on/off |
+| Amplifier relay | SparkFun Qwiic Single Relay | I2C | 0x18 | Amplifier on/off |
+| Coolant flow sensor | Alphacool ES (Hall-effect) | GPIO 10 | — | Coolant flow pulses |
+| Coolant temperature | NTC thermistor | ADC GPIO 2 | — | Coolant temp via voltage divider |
+| Status LED | WS2812 RGB | GPIO 38 | — | Fault / Ready indication |
 
-**SPI bus** (shared by MAX31865, AD9833, MCP4921): MOSI → GPIO 42, MISO → GPIO 41, CLK → GPIO 40.
+**I2C bus:** SDA → GPIO 8, SCL → GPIO 9.
+
+**SPI bus** (shared by MAX31865, AD9833): CLK → GPIO 42, MISO → GPIO 41, MOSI → GPIO 40.
 
 ---
 
@@ -28,19 +33,20 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 ```mermaid
 flowchart TD
     subgraph Persistent ["Persistent Modules (init once at startup)"]
-        HW[hardware<br/>Shared I²C + SPI buses]
-        IMU[imu<br/>QMI8658 accelerometer]
+        HW[hardware<br/>Shared I2C + SPI buses]
+        IMU[imu<br/>LSM6DSOX accelerometer]
         CMD[commands<br/>Serial console]
-        DASH[dashboard<br/>WiFi + web UI]
-        TEL[telemetry<br/>Frame builder]
-        SYS[sysinfo<br/>INA260 power monitor]
+        DASH[dashboard<br/>WiFi + Preact SPA + WebSocket]
+        TEL[telemetry<br/>Protobuf frame builder]
+        SYS[sysinfo<br/>INA237 power monitor]
+        OTA[ota<br/>HTTP firmware updates]
     end
 
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
-        COOL[cooling<br/>Fan + TEC control]
-        CH[cold_head<br/>MAX31865 RTD + DS18B20]
-        AMP[amplifier<br/>AD9833 + MCP4921 DAC + ACS37800]
-        REL[relay<br/>Bypass + Alarm relays]
+        COOL[cooling<br/>EMC2302 fan + pump<br/>software LUT]
+        CH[cold_head<br/>MAX31865 RTD]
+        AMP[amplifier<br/>AD9833 + AD5693R DAC + ACS37800]
+        COMP[compressor<br/>Qwiic relay]
         IND[indicator<br/>WS2812 RGB LED]
     end
 
@@ -48,13 +54,13 @@ flowchart TD
         SM[state_machine<br/>Pure FSM — no hardware calls]
     end
 
-    CH  -->|tempK, coolingRate, stalled| SM
+    CH  -->|tempC, coolingRate, stalled| SM
     AMP -->|rmsV, overstroke| SM
     IMU -->|overstroke| SM
     SYS -->|sysVoltage| SM
 
     SM -->|dacTarget| AMP
-    SM -->|bypassRelay, alarmRelay| REL
+    SM -->|compressorRelay, amplifierRelay| COMP
     SM -->|faultIndMode, readyIndMode| IND
     SM -->|Output| TEL
 
@@ -65,8 +71,8 @@ flowchart TD
     classDef control    fill:#dcfce7,stroke:#16a34a,color:#14532d
     classDef fsm        fill:#fef3c7,stroke:#d97706,color:#78350f
 
-    class HW,IMU,CMD,DASH,TEL,SYS persistent
-    class COOL,CH,AMP,REL,IND control
+    class HW,IMU,CMD,DASH,TEL,SYS,OTA persistent
+    class COOL,CH,AMP,COMP,IND control
     class SM fsm
 
     style Persistent fill:#eff6ff,stroke:#93c5fd
@@ -80,7 +86,7 @@ flowchart TD
 
 ### `hardware`
 
-Initialises the shared I²C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I²C bus to a clean idle state — used by `imu::init()` before probing the QMI8658.
+Initialises the shared I2C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction.
 
 ---
 
@@ -109,38 +115,36 @@ The core of the controller. Ingests sensor readings every tick and outputs a com
 
 | Constant | Default | Description |
 |----------|---------|-------------|
-| `SETPOINT_K` | 78.0 K | Target cold-stage temperature |
-| `COARSE_FINE_THRESHOLD_K` | 85.0 K | Coarse/Fine transition boundary |
-| `SETPOINT_TOLERANCE_K` | 2.0 K | Band around setpoint for settle/overshoot logic |
+| `SETPOINT_C` | -195.15 °C (78 K) | Target cold-stage temperature |
+| `COARSE_FINE_THRESHOLD_C` | -188.15 °C (85 K) | Coarse/Fine transition boundary |
+| `SETPOINT_TOLERANCE_C` | 3.0 °C | Band around setpoint for settle/overshoot logic |
 | `SETTLE_DURATION_MS` | 60 000 ms | Time stable before advancing to Baseline |
 | `BASELINE_DURATION_MS` | 300 000 ms | Baseline collection window |
 | `SHUTDOWN_DURATION_MS` | 5 000 ms | Graceful shutdown ramp duration |
 | `STALL_DETECT_WINDOW_MS` | 600 000 ms | Stall detection observation window |
-| `STALL_MIN_DROP_K` | 2.0 K | Minimum temp drop required in the window |
-| `BACKOFF_DAC_STEP` | 200 counts | DAC reduction per overstroke event |
+| `STALL_MIN_DROP_C` | 2.0 °C | Minimum temp drop required in the window |
 | `BACKOFF_MAX_COUNT` | 10 | Max overstroke events before TooManyBackoffs fault |
 
 ---
 
 ### `cold_head`
 
-Drives the MAX31865 breakout board over SPI to read the PT100 RTD and converts raw resistance to Kelvin/Celsius. Also reads a DS18B20/DS18S20 on the 1-Wire bus for ambient temperature.
+Drives the MAX31865 breakout board over SPI to read the PT100 RTD and converts raw resistance to Kelvin/Celsius.
 
-Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (K/min), stall detection, and cooldown progress (0–100 %).
+Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
 
 | Function | Returns |
 |----------|---------|
 | `getLastTempK()` | Cold-stage temperature in Kelvin |
 | `getLastTempC()` | Cold-stage temperature in Celsius |
-| `getLastAmbientTempC()` | Room temperature in Celsius |
-| `getCoolingRateKPerMin()` | K/min, positive = cooling |
+| `getCoolingRateCPerMin()` | °C/min, positive = cooling |
 | `isStalled()` | True if stall threshold exceeded |
 
 ---
 
 ### `amplifier`
 
-Drives the AD9833 DDS (60 Hz sine wave), MCP4921 12-bit DAC (compressor power), and ACS37800 current sensor. Provides two ramp modes:
+Drives the AD9833 DDS (60 Hz sine wave), AD5693R 16-bit DAC (compressor power), and ACS37800 current sensor. Provides two ramp modes:
 
 - `rampToVoltage(target)` — smooth ramp at ±`DAC_MAX_STEP_PER_INTERVAL` per tick
 - `rampTowardShutdown(target)` — fast ramp at ±`DAC_SHUTDOWN_STEP_PER_INTERVAL` per tick
@@ -151,11 +155,11 @@ Drives the AD9833 DDS (60 Hz sine wave), MCP4921 12-bit DAC (compressor power), 
 
 ### `imu`
 
-Drives the QMI8658 6-DOF IMU over I²C (accelerometer only; SA0 is tied high so the device is at address 0x6B). On `init()` the accelerometer is configured at 1000 Hz ODR (±8 g), then a one-time blocking calibration collects 1000 samples to compute per-axis offsets (gravity is removed from the Z offset). No `delay()` calls are used.
+Drives the LSM6DSOX 6-DOF IMU over I2C (accelerometer only). On `init()` the accelerometer is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
-Each `service()` call applies calibration offsets, runs a first-order low-pass filter (α = 0.1), and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2` (2.0); it clears after `MOTION_TIMEOUT_MS` (2000 ms) of stillness.
+Each `service()` call applies calibration offsets, runs a first-order low-pass filter, and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2`; it clears after `MOTION_TIMEOUT_MS` of stillness.
 
-A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequency in the 45–75 Hz band using 256 samples at 400 Hz, with Hann windowing and quadratic peak interpolation. It runs at most once every `FFT_INTERVAL_MS`.
+A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequency in the 45–75 Hz band using 256 samples at 400 Hz, with Hann windowing and quadratic peak interpolation.
 
 | Function | Returns |
 |----------|---------|
@@ -170,24 +174,36 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ### `sysinfo`
 
-Reads bus voltage and current via the INA260 power monitor over I²C. Applies EMA smoothing and exposes `getVoltage()`.
+Reads bus voltage and current via the INA237 power monitor over I2C. Applies EMA smoothing and exposes `getVoltage()`.
 
 ---
 
 ### `cooling`
 
-Controls the cooling hardware (fan / TEC). Initialised as part of the control module group on every `Initialize` state entry.
+Controls the cooling fan and pump via a single EMC2302-2 dual-channel PWM controller over I2C (address 0x2F). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
+
+**Software LUT:** Replaces the previous EMC2101 hardware LUT. Each channel has an independently-configured temperature-to-duty lookup table with hysteresis, evaluated once per second from coolant temperature. Entries are sorted ascending by temperature; the evaluator only writes to the chip when the active row changes.
+
+**Deferred init:** The EMC2302 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
+
+**Pump normalisation:** User-facing pump speeds are 0–100 % normalised, mapped to 0–`COOLING_PUMP_MAX_DUTY_PCT` (raw 0–255) at the hardware boundary. The pump stalls above ~16 % effective duty (~4400 RPM).
+
+**Tracking monitors:** Score-based monitors for fan duty, coolant temperature, and flow rate detect sustained deviations from expected values.
+
+| Function | Returns |
+|----------|---------|
+| `getCoolantTemperature()` | Coolant temperature in °C |
+| `getCoolantFlowRate()` | Coolant flow rate in L/min |
+| `getFanSpeed()` | Fan duty (0–255) |
+| `getFanRPM()` | Fan tachometer RPM |
+| `getPumpSpeed()` | Pump speed (normalised 0–100 %) |
+| `getPumpRPM()` | Pump tachometer RPM |
 
 ---
 
-### `relay`
+### `compressor`
 
-Controls two GPIO-driven relays:
-
-- **Bypass relay** (GPIO 11) — LOW = Bypass (safe default); HIGH = Normal (engaged during Settle, Baseline, Operating)
-- **Alarm relay** (GPIO 12) — HIGH in Fault state only
-
-Both pins are driven LOW during `init()`, ensuring a safe-default state at boot.
+Manages the compressor relay (SparkFun Qwiic Single Relay at 0x19) with timed-run support. `compressor start <duration>` energises the relay for a specified duration (e.g. `1h30m`, `45s`), clamped to `COMPRESSOR_MAX_RUN_MS`. Can be disabled at compile time with `ENABLE_COMPRESSOR false`.
 
 ---
 
@@ -208,29 +224,65 @@ Drives the on-board WS2812 RGB LED (GPIO 38) according to the state machine's re
 
 ### `dashboard`
 
-Connects to WiFi and serves the telemetry frame as JSON on port 80 (`GET /`). The response is built from `telemetry::fillJson()` — no additional hardware reads. WiFi credentials live in `src/arduino_secrets.h`.
+Connects to WiFi and serves a Preact single-page application with real-time telemetry:
+
+- **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`) and a JSON telemetry endpoint at `GET /api/telemetry`
+- **WebSocket** (port 8080): streams Protobuf-encoded telemetry frames at 1 Hz
+- **mDNS**: `cryocooler.local`
+
+The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials live in `include/arduino_secrets.h`.
+
+---
+
+### `ota`
+
+HTTP OTA firmware update endpoint. `GET /ota` serves an upload form; `POST /ota` flashes new firmware. Enabled with `ENABLE_OTA true` in `config.h`.
 
 ---
 
 ### `commands`
 
-Non-blocking USB serial command handler. `service()` accumulates characters and dispatches completed lines. The same `processLine()` function is used by unit tests with a stub `Print`.
+Non-blocking USB serial command handler. `service()` accumulates characters and dispatches completed lines. The same `processLine()` function is used by the TCP server and by unit tests with a stub `Print`.
 
 | Command | Action |
 |---------|--------|
-| `start` | Begin cooldown; resumes at the correct state if already cold |
-| `stop` | Abort cooldown, return to Idle |
-| `off` | Return to Off state |
-| `status` | Print current state and run duration |
+| `start` | Begin cooldown (from Off or Idle) |
+| `stop` | Abort and return to Idle |
+| `off` | Power off the system entirely |
+| `reboot` | Reboot the MCU |
+| `status` | Print current state and running flag |
 | `summary` | Full snapshot of all sensor and actuator values |
-| `board` | Print platform/build info |
+| `fsm state` | Print current FSM state with time-in-state |
+| `fsm history` | Print recent FSM state transitions |
+| `fault clear` | Clear an active fault and return to Idle |
+| `fault history` | Print fault log with reason and clear method |
+| `board` | Print compile-time board/platform info |
+| `i2c scan` | Scan I2C bus and print responding addresses |
+| `reinit` | Re-initialise all or named modules |
+| `cooling on/off` | Enable / disable cooling system |
+| `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
+| `cooling pump <N>` | Set pump: raw duty (0–255) or percent (0–100%) |
+| `set vout <V>` | Set DAC output voltage (0–120 V, 0–100 %, or `auto`) |
+| `get vout` | Get current DAC output voltage |
+| `relay` | Show current state of both relays |
+| `relay amplifier on/off` | Control amplifier relay |
+| `relay compressor on/off` | Control compressor relay |
+| `compressor start <dur>` | Start timed compressor run (e.g. `1h30m`) |
+| `compressor status` | Show compressor state and remaining time |
+| `compressor stop` | Stop the compressor immediately |
+| `telemetry on/off` | Enable / disable telemetry output |
+| `telemetry delta on/off` | Delta-only or full frames |
+| `dashboard on/off` | Enable / disable dashboard TCP broadcasts |
+| `mock ...` | Sensor mock: `enable`, `disable`, `status`, `temp`, etc. |
+| `ota status` | Print OTA partition and firmware version info |
+| `update image` | Flash new firmware via HTTP upload |
 | `help` | List all commands |
 
 ---
 
 ### `telemetry`
 
-Snapshots all module values each tick into a `FrameBuilder`, sends the Serial Studio wire frame (`/*v1|v2|...*/\r<br/>`), and stores the last frame for `dashboard` and `commands` to retrieve without re-reading hardware.
+Snapshots all module values each tick into a `FrameBuilder`. The WebSocket path encodes frames as Protobuf binary via Nanopb; the HTTP `/api/telemetry` endpoint returns JSON. The schema source of truth is `proto/telemetry.proto`.
 
 ---
 
@@ -373,144 +425,79 @@ These originate from all non-Fault states and are omitted from the diagrams abov
 | Trigger | Condition | To |
 |---------|-----------|-----|
 | `off()` | — | Off |
-| RMS overvoltage | `amplifier RMS V > AMPLIFIER_MAX_VOLTAGE` | Fault |
+| RMS overvoltage | `amplifier RMS V > AMPLIFIER_MAX_VOLTAGE_VAC` | Fault |
 | Low system voltage | `systemVoltage > 0` and `< MIN_SYSTEM_VOLTAGE_VDC` | Fault |
 | State oscillation | Same two states alternate ≥ `FSM_OSCILLATION_MIN_CYCLES` times in window | Fault |
 | `startDelay()` | — | Delay |
 
 ---
 
-## Setup Sequence
+## Build Pipeline
 
-```mermaid
-flowchart TD
-    A([Serial.begin]) --> B
+The firmware build runs three pre-build scripts in order before PlatformIO compiles:
 
-    B[hardware::init<br/>Wire.begin + SPI.begin] --> C
+### 1. Protobuf compilation (`scripts/compile_proto.py`)
 
-    subgraph Persistent ["initPersistentModules()"]
-        C[imu::init<br/>QMI8658 + accel calibration] --> D
-        D[commands::init<br/>Serial console] --> E
-        E[dashboard::init<br/>WiFi + web server] --> F
-        F[telemetry::init] --> G
-        G[sysinfo::init<br/>INA260]
-    end
+Compiles `proto/telemetry.proto` into Nanopb C stubs (`src/generated/telemetry.pb.c`, `include/generated/telemetry.pb.h`). Auto-installs the `google.protobuf` Python package if missing.
 
-    G --> H[state_machine::init]
-    H --> I[reinit → Initialize state]
+Skip with `SKIP_PROTO_BUILD=1 pio run`.
 
-    subgraph Control ["initControlModules()  — also called on every reinit"]
-        I --> J[cooling::init]
-        J --> K[cold_head::init<br/>MAX31865 + DS18B20]
-        K --> L[amplifier::init<br/>AD9833 + MCP4921 + ACS37800]
-        L --> M[relay::init<br/>both relays LOW]
-        M --> N[indicator::init<br/>WS2812]
-    end
+### 2. Dashboard build (`scripts/build_dashboard.py`)
 
-    N --> O([loop])
+Runs `npm ci` in `dashboard/`, generates protobufjs stubs (`npm run proto:build`), then builds the Vite SPA (`npm run build`) into `data/`.
 
-    classDef terminal   fill:#1e293b,stroke:#0f172a,color:#f8fafc
-    classDef infra      fill:#fef3c7,stroke:#d97706,color:#78350f
-    classDef persistent fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
-    classDef control    fill:#dcfce7,stroke:#16a34a,color:#14532d
+Skip with `SKIP_DASHBOARD_BUILD=1 pio run`.
 
-    class A,O terminal
-    class B,H,I infra
-    class C,D,E,F,G persistent
-    class J,K,L,M,N control
+### 3. Web embedding (`scripts/embed_web.py`)
 
-    style Persistent fill:#eff6ff,stroke:#93c5fd
-    style Control    fill:#f0fdf4,stroke:#86efac
+Embeds `data/*.html/css/js` as `PROGMEM const char[]` arrays in `include/web_content.h`. The SPA is served directly from flash — no filesystem needed.
+
+### Quick firmware iteration
+
+```bash
+SKIP_DASHBOARD_BUILD=1 pio run          # firmware only, skip npm/vite
+SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 ```
 
 ---
 
-## Loop Sequence
+## Dependencies
 
-```mermaid
-flowchart TD
-    START([loop entry]) --> CMDS
-
-    subgraph Every ["Every Iteration"]
-        CMDS[commands::service<br/>accumulate + dispatch serial] --> SS
-        SS[sysinfo::service<br/>INA260 EMA] --> IS
-        IS[imu::service<br/>accel + motion + FFT] --> AS
-        AS[amplifier::service<br/>ACS37800 EMA] --> CS
-        CS[cooling::service] --> DA
-        DA[dacVoltageAdc.service<br/>smoothed readback ADC] --> IND
-        IND[indicator::update<br/>advance flash timers]
-    end
-
-    IND --> GATE{LOOP_INTERVAL_MS<br/>elapsed?}
-    GATE -->|No| START
-    GATE -->|Yes| MOCK
-
-    subgraph Tick ["Every LOOP_INTERVAL_MS  (200 ms)"]
-        MOCK[sensor_mock::service<br/>advance mock ramps] --> READ
-        READ[cold_head::read<br/>RTD + DS18B20 + ring buffer] --> FAULTS
-        FAULTS[cold_head::checkFaults] --> SM
-
-        SM[state_machine::update<br/>tempK · coolingRate · rmsV<br/>stalled · overstroke · sysVoltage] --> ACT
-
-        subgraph Actuators ["Drive Actuators"]
-            ACT[relay::setBypass / setAlarm] --> IND2
-            IND2[indicator::setFaultMode / setReadyMode] --> RAMP
-            RAMP[amplifier::rampToVoltage<br/>or rampTowardShutdown]
-        end
-
-        RAMP --> EMIT
-        EMIT[telemetry::emit<br/>Serial Studio frame] --> DSVC
-        DSVC[dashboard::service<br/>HTTP client handler]
-    end
-
-    DSVC --> START
-
-    classDef terminal fill:#1e293b,stroke:#0f172a,color:#f8fafc
-    classDef iter     fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
-    classDef gate     fill:#fff7ed,stroke:#ea580c,color:#7c2d12
-    classDef tick     fill:#dcfce7,stroke:#16a34a,color:#14532d
-    classDef fsm      fill:#fef3c7,stroke:#d97706,color:#78350f
-    classDef actuator fill:#ede9fe,stroke:#7c3aed,color:#3b0764
-    classDef output   fill:#f1f5f9,stroke:#94a3b8,color:#334155
-
-    class START terminal
-    class CMDS,SS,IS,AS,CS,DA,IND iter
-    class GATE gate
-    class MOCK,READ,FAULTS tick
-    class SM fsm
-    class ACT,IND2,RAMP actuator
-    class EMIT,DSVC output
-
-    style Every    fill:#eff6ff,stroke:#93c5fd
-    style Tick     fill:#f0fdf4,stroke:#86efac
-    style Actuators fill:#f5f3ff,stroke:#c4b5fd
-```
-
----
-
-## Build & Configuration
-
-### Dependencies (`platformio.ini`)
+### PlatformIO libraries (`platformio.ini`)
 
 | Library | Purpose |
 |---------|---------|
-| `adafruit/Adafruit MAX31865 library` | PT100 RTD sensor |
 | `majicdesigns/MD_AD9833` | DDS waveform generator |
 | `bblanchon/ArduinoJson` | JSON serialisation |
-| `mathieucarbou/ESPAsyncWebServer` | Async HTTP server |
+| `mathieucarbou/ESPAsyncWebServer` | Async HTTP + WebSocket server |
 | `robtillaart/RunningAverage` | Running average utility |
 | `jonblack/arduino-fsm` | Finite state machine |
-| `adafruit/Adafruit INA260 Library` | I²C power monitor |
+| `adafruit/Adafruit INA237 and INA238 Library` | I2C power monitor |
 | `pololu/ACS37800` | AC current sensor |
 | `kosme/arduinoFFT` | FFT for vibration frequency detection |
-| `lahavg/QMI8658` | 6-DOF IMU driver |
+| `adafruit/Adafruit LSM6DS` | 6-DOF IMU driver |
+| `adafruit/Adafruit AD569x Library` | AD5693R DAC |
+| `sparkfun/SparkFun Qwiic Relay Arduino Library` | Relay control |
+| `nanopb/Nanopb` | Protobuf C encoder/decoder |
 
-Local libraries in `lib/` (project-specific, not from the registry):
+### Local libraries (`lib/`)
 
 | Library | Purpose |
 |---------|---------|
+| `EMC230x` | EMC2301/02/03/05 dual PWM fan/pump controller |
+| `Adafruit_MAX31865` | PT100 RTD sensor (local fork) |
 | `ContinuousZMCT103C` | Non-blocking AC current RMS sampling |
 | `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
+
+### Dashboard (`dashboard/package.json`)
+
+| Package | Purpose |
+|---------|---------|
+| Preact | Lightweight UI framework |
+| MUI (Material UI) | Component library |
+| MUI X-Charts | Telemetry chart components |
+| Vite | Build tooling |
+| protobufjs | WebSocket telemetry decoding |
 
 ### Platform
 
@@ -519,14 +506,13 @@ platform = espressif32@5.3.0   ; Arduino Core 2.0.6 + IDF 4.4.x
 board    = esp32-s3-devkitc-1-n32r16v
 ```
 
-To revert to pioarduino Core 3.x, replace with:
-```
-platform = https://github.com/pioarduino/platform-espressif32/releases/download/55.03.37/platform-espressif32.zip
-```
+---
+
+## Setup
 
 ### WiFi credentials
 
-Create `src/arduino_secrets.h` (excluded from version control):
+Create `include/arduino_secrets.h` (excluded from version control):
 
 ```cpp
 #define WIFI_SSID "your-network-name"
@@ -535,7 +521,7 @@ Create `src/arduino_secrets.h` (excluded from version control):
 
 ### Key tuning parameters
 
-All application-level constants live in `config.h`. Hardware pin assignments live in `pin_config.h`. Neither file has hardware includes, so both are safe to include in native unit tests.
+All application-level constants live in `config.h`. Hardware pin assignments live in `pin_config.h`. Internal algorithm parameters live in `config_advanced.h`. None have hardware includes, so all are safe to include in native unit tests.
 
 ---
 
