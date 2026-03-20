@@ -621,7 +621,7 @@ module::ServiceStatus service() {
     cachedPumpRpm_ = static_cast<uint16_t>(pumpRpmAvg_.getAverage());
 
     // ── Per-second RPM / duty logging (always visible) ──────────────────
-    _Log.printf("fan: duty=%u rpm=%u  |  pump: hwDuty=%u norm=%u%% rpm=%u avgRpm=%u  |  coolantT=%.1f\n",
+    ESP_LOGV(TAG, "fan: duty=%u rpm=%u  |  pump: hwDuty=%u norm=%u%% rpm=%u avgRpm=%u  |  coolantT=%.1f\n",
                 cachedDutyCycle_, cachedFanRpm_,
                 rawPumpDuty, pumpHwToNorm(rawPumpDuty),
                 rawPumpRpm, cachedPumpRpm_, coolantTemperature_);

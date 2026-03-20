@@ -506,7 +506,11 @@ bool setupServer() {
         r->send(200, "text/css", style_css);
     });
     httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "application/javascript", app_js);
+        AsyncWebServerResponse* resp = r->beginResponse(
+            200, "application/javascript", app_js_gz, app_js_gz_len);
+        resp->addHeader("Content-Encoding", "gzip");
+        resp->addHeader("Cache-Control", "no-cache");
+        r->send(resp);
     });
 
     // GET /api/telemetry — latest telemetry snapshot as flat JSON.

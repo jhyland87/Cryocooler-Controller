@@ -90,27 +90,28 @@ export function App() {
 
   // ── Loading screen ──────────────────────────────────────────────────────────
 
-  if (frameCount === 0) {
-    const loadingMsg =
-      status === 'disconnected'
-        ? 'Unable to reach device — retrying…'
-        : 'Waiting for first telemetry frame…';
-
-    return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Box sx={sx.loadingScreen}>
-          <CircularProgress size={52} thickness={3.5} />
-          <Typography variant="h6" color="text.secondary" sx={sx.loadingTitle}>
-            Loading Dashboard
-          </Typography>
-          <Typography variant="caption" color="text.disabled">
-            {loadingMsg}
-          </Typography>
-        </Box>
-      </ThemeProvider>
-    );
-  }
+  // TODO: re-enable once skeleton styling is confirmed
+  // if (frameCount === 0) {
+  //   const loadingMsg =
+  //     status === 'disconnected'
+  //       ? 'Unable to reach device — retrying…'
+  //       : 'Waiting for first telemetry frame…';
+  //
+  //   return (
+  //     <ThemeProvider theme={theme}>
+  //       <CssBaseline />
+  //       <Box sx={sx.loadingScreen}>
+  //         <CircularProgress size={52} thickness={3.5} />
+  //         <Typography variant="h6" color="text.secondary" sx={sx.loadingTitle}>
+  //           Loading Dashboard
+  //         </Typography>
+  //         <Typography variant="caption" color="text.disabled">
+  //           {loadingMsg}
+  //         </Typography>
+  //       </Box>
+  //     </ThemeProvider>
+  //   );
+  // }
 
   return (
     <ThemeProvider theme={theme}>
