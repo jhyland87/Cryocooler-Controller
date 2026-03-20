@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import type { ConnectionStatus } from '../hooks/useTelemetry';
+import * as sx from '../theme/styles';
 
 // ─── Connection badge ─────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ function LiveClock() {
   }, []);
 
   return (
-    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+    <Typography variant="caption" sx={sx.headerClock}>
       {time}
     </Typography>
   );
@@ -59,13 +60,10 @@ export function Header({
   frameCount,
 }: Props) {
   return (
-    <AppBar position="static" sx={{ bgcolor: '#0d1117', borderBottom: '1px solid rgba(255,255,255,0.08)' }} elevation={0}>
-      <Toolbar sx={{ gap: 2, flexWrap: 'wrap', minHeight: { xs: 56 } }}>
+    <AppBar position="static" sx={sx.headerAppBar} elevation={0}>
+      <Toolbar sx={sx.headerToolbar}>
         {/* Title */}
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, letterSpacing: 1, fontSize: '1rem', color: '#90caf9', flexShrink: 0 }}
-        >
+        <Typography variant="h6" sx={sx.headerTitle}>
           ❄ Cryocooler
         </Typography>
 
@@ -73,47 +71,47 @@ export function Header({
         <Chip
           label={stateName || '—'}
           size="small"
-          sx={{ bgcolor: '#1565c0', color: '#fff', fontWeight: 700, fontSize: '0.72rem', letterSpacing: 0.5 }}
+          sx={sx.headerStateChip}
         />
 
         {/* Status text */}
         {statusText && (
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', flexShrink: 0, maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Typography variant="caption" sx={sx.headerStatusText}>
             {statusText}
           </Typography>
         )}
 
         {/* Cooldown bar */}
         {cooldownPct !== undefined && cooldownPct > 0 && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem' }}>Cooldown</Typography>
-            <Box sx={{ width: 80, height: 6, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <Box sx={{ width: `${cooldownPct}%`, height: '100%', bgcolor: '#29b6f6', borderRadius: 3, transition: 'width 0.5s ease' }} />
+          <Box sx={sx.headerCooldownGroup}>
+            <Typography variant="caption" sx={sx.headerCooldownLabel}>Cooldown</Typography>
+            <Box sx={sx.headerCooldownTrack}>
+              <Box sx={sx.headerCooldownBarFill(cooldownPct)} />
             </Box>
-            <Typography variant="caption" sx={{ color: '#29b6f6', fontSize: '0.65rem', fontWeight: 700 }}>{cooldownPct.toFixed(0)}%</Typography>
+            <Typography variant="caption" sx={sx.headerCooldownPct}>{cooldownPct.toFixed(0)}%</Typography>
           </Box>
         )}
 
-        <Box sx={{ flex: 1 }} />
+        <Box sx={sx.headerSpacer} />
 
         {/* On duration & time in state */}
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={sx.headerDurationGroup}>
           {onDuration && (
-            <Box sx={{ textAlign: 'right' }}>
-              <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: '0.6rem', lineHeight: 1 }}>On Duration</Typography>
-              <Typography variant="caption" sx={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)', fontSize: '0.78rem' }}>{onDuration}</Typography>
+            <Box sx={sx.headerDurationBlock}>
+              <Typography variant="caption" sx={sx.headerDurationLabel}>On Duration</Typography>
+              <Typography variant="caption" sx={sx.headerDurationValue}>{onDuration}</Typography>
             </Box>
           )}
           {timeInState && (
-            <Box sx={{ textAlign: 'right' }}>
-              <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: '0.6rem', lineHeight: 1 }}>In State</Typography>
-              <Typography variant="caption" sx={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)', fontSize: '0.78rem' }}>{timeInState}</Typography>
+            <Box sx={sx.headerDurationBlock}>
+              <Typography variant="caption" sx={sx.headerDurationLabel}>In State</Typography>
+              <Typography variant="caption" sx={sx.headerDurationValue}>{timeInState}</Typography>
             </Box>
           )}
         </Box>
 
         {/* Frame counter */}
-        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.6rem', fontFamily: 'monospace' }}>
+        <Typography variant="caption" sx={sx.headerFrameCounter}>
           #{frameCount}
         </Typography>
 
@@ -123,7 +121,7 @@ export function Header({
           size="small"
           color={STATUS_COLORS[connectionStatus]}
           variant="outlined"
-          sx={{ fontSize: '0.65rem', height: 20, flexShrink: 0 }}
+          sx={sx.headerConnectionChip}
         />
 
         <LiveClock />

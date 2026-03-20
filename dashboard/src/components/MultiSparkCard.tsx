@@ -2,6 +2,7 @@ import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
+import * as sx from '../theme/styles';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -20,47 +21,27 @@ export interface MultiSparkCardProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-/**
- * MultiSparkCard
- *
- * Renders multiple overlaid sparklines inside a single card.
- * Each series gets its own coloured sparkline and a legend chip
- * showing its latest value.
- */
 export function MultiSparkCard({ label, series, unit, dp = 1 }: MultiSparkCardProps) {
   return (
-    <Box
-      sx={{
-        flex: '1 1 140px',
-        minWidth: 120,
-        bgcolor: 'background.paper',
-        borderRadius: 1,
-        p: 1.5,
-        border: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
+    <Box sx={sx.sparkCardRoot}>
       {/* ── Header ────────────────────────────────────────────────────────── */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-        <Typography
-          variant="caption"
-          sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, fontSize: '0.65rem' }}
-        >
+      <Box sx={sx.cardHeader}>
+        <Typography variant="caption" sx={sx.sectionLabel}>
           {label}
         </Typography>
       </Box>
 
       {/* ── Legend chips ───────────────────────────────────────────────────── */}
-      <Box sx={{ display: 'flex', gap: 1.5, mb: 0.5, flexWrap: 'wrap' }}>
+      <Box sx={sx.legendChipRow}>
         {series.map((s) => {
           const last = s.data.length > 0 ? s.data[s.data.length - 1].v : null;
           return (
-            <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: s.color, flexShrink: 0 }} />
-              <Typography variant="caption" sx={{ fontSize: '0.62rem', color: 'text.secondary', fontWeight: 600 }}>
+            <Box key={s.label} sx={sx.legendChipItem}>
+              <Box sx={sx.legendDot(s.color)} />
+              <Typography variant="caption" sx={sx.legendChipLabel}>
                 {s.label}
               </Typography>
-              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: s.color, fontWeight: 700 }}>
+              <Typography variant="caption" sx={sx.legendChipValue(s.color)}>
                 {last !== null ? `${last.toFixed(dp)}${unit}` : '—'}
               </Typography>
             </Box>
@@ -69,29 +50,16 @@ export function MultiSparkCard({ label, series, unit, dp = 1 }: MultiSparkCardPr
       </Box>
 
       {/* ── Stacked sparklines ────────────────────────────────────────────── */}
-      <Box sx={{ position: 'relative', height: 60 }}>
+      <Box sx={sx.overlayContainer}>
         {series.map((s, i) => {
           const values = s.data.map((p) => p.v);
           return (
-            <Box
-              key={s.label}
-              sx={{
-                position: i === 0 ? 'relative' : 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-              }}
-            >
+            <Box key={s.label} sx={sx.overlayLayer(i === 0)}>
               <SparkLineChart
                 data={values.length > 0 ? values : [0]}
                 height={60}
                 colors={[s.color]}
-                sx={{
-                  '& .MuiLineElement-root': { strokeWidth: 1.5 },
-                  // Make the area fill transparent so lines underneath show through.
-                  '& .MuiAreaElement-root': { opacity: 0 },
-                }}
+                sx={sx.sparklineOverlayStyles}
               />
             </Box>
           );

@@ -3,15 +3,13 @@ import type { ComponentChildren } from 'preact';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import * as sx from '../theme/styles';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 interface Props {
-  /** Panel heading shown in the collapse bar. */
   title: string;
-  /** Whether the panel starts expanded. Default: true */
   defaultExpanded?: boolean;
-  /** Controlled expanded state — overrides internal state when it changes. */
   expanded?: boolean;
   children: ComponentChildren;
 }
@@ -22,7 +20,6 @@ export function CollapsiblePanel({ title, defaultExpanded = true, expanded: cont
   const [open, setOpen] = useState(defaultExpanded);
   const prevControlled = useRef(controlledExpanded);
 
-  // React to controlled `expanded` prop changes (e.g. faults appearing).
   useEffect(() => {
     if (controlledExpanded !== undefined && controlledExpanded !== prevControlled.current) {
       setOpen(controlledExpanded);
@@ -31,49 +28,20 @@ export function CollapsiblePanel({ title, defaultExpanded = true, expanded: cont
   }, [controlledExpanded]);
 
   return (
-    <Box
-      sx={{
-        bgcolor: 'background.paper',
-        borderRadius: 1,
-        border: '1px solid',
-        borderColor: 'divider',
-        overflow: 'hidden',
-      }}
-    >
+    <Box sx={sx.card}>
       {/* ── Clickable header bar ──────────────────────────────────────────── */}
-      <Box
-        onClick={() => setOpen((v) => !v)}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          px: 1.5,
-          py: 0.75,
-          cursor: 'pointer',
-          userSelect: 'none',
-          '&:hover': { bgcolor: 'action.hover' },
-        }}
-      >
-        <Typography
-          variant="subtitle2"
-          sx={{
-            color: 'text.secondary',
-            fontWeight: 600,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            fontSize: '0.7rem',
-          }}
-        >
+      <Box onClick={() => setOpen((v) => !v)} sx={sx.collapsibleHeader}>
+        <Typography variant="subtitle2" sx={sx.panelTitle}>
           {title}
         </Typography>
-        <IconButton size="small" sx={{ p: 0.25, color: 'text.disabled', fontSize: '0.85rem' }}>
+        <IconButton size="small" sx={sx.collapsibleToggle}>
           {open ? '▲' : '▼'}
         </IconButton>
       </Box>
 
       {/* ── Collapsible body ─────────────────────────────────────────────── */}
       {open && (
-        <Box sx={{ px: 1.5, pb: 1.5 }}>
+        <Box sx={sx.collapsibleBody}>
           {children}
         </Box>
       )}

@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
+import * as sx from '../theme/styles';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -10,33 +11,16 @@ export interface SparkCardProps {
   label: string;
   data:  DataPoint[];
   color: string;
-  /** Unit suffix appended directly after the formatted value (e.g. "%", "°"). */
   unit:  string;
-  /** Decimal places for the current-value label. Default: 1 */
   dp?:   number;
-  /**
-   * When provided, a LinearProgress gauge bar is rendered between the header
-   * row and the sparkline.  Enables warning-colour styling when the latest
-   * value exceeds `warnAbove`.
-   */
   gauge?: {
-    /** Scale ceiling for the progress bar.  Default: 100 */
     max?:       number;
-    /** Activates warning styling when `last > warnAbove`. */
     warnAbove?: number;
   };
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-/**
- * SparkCard
- *
- * Shared card shell used by AccelSparklines (plain sparkline) and
- * SystemSparklines (sparkline + LinearProgress gauge).  Callers opt into the
- * gauge by passing the `gauge` prop; without it the component behaves exactly
- * like the old `SparkItem`.
- */
 export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCardProps) {
   const values = data.map((p) => p.v);
   const last   = values.length > 0 ? values[values.length - 1] : null;
@@ -48,33 +32,20 @@ export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCard
     ? (last !== null ? Math.min(100, (last / (gauge.max ?? 100)) * 100) : 0)
     : 0;
 
-  // Sparkline is taller when there's no gauge bar.
   const chartHeight = gauge ? 40 : 50;
 
   return (
-    <Box
-      sx={{
-        flex: '1 1 140px',
-        minWidth: 120,
-        bgcolor: 'background.paper',
-        borderRadius: 1,
-        p: 1.5,
-        border: '1px solid',
-        borderColor: warn ? 'warning.dark' : 'divider',
-      }}
-    >
+    <Box sx={sx.sparkCardWarn(warn)}>
+
       {/* ── Header: label + current value ──────────────────────────────── */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-        <Typography
-          variant="caption"
-          sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, fontSize: '0.65rem' }}
-        >
+      <Box sx={sx.cardHeader}>
+        <Typography variant="caption" sx={sx.sectionLabel}>
           {label}
         </Typography>
         {last !== null && (
           <Typography
             variant="caption"
-            sx={{ color: warn ? 'warning.light' : color, fontWeight: 700, fontSize: '0.75rem' }}
+            sx={sx.sparkCurrentValue(warn, color)}
           >
             {last.toFixed(dp)}{unit}
           </Typography>
@@ -86,13 +57,7 @@ export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCard
         <LinearProgress
           variant="determinate"
           value={pct}
-          sx={{
-            mb: 0.75,
-            height: 4,
-            borderRadius: 2,
-            bgcolor: 'action.disabledBackground',
-            '& .MuiLinearProgress-bar': { bgcolor: warn ? 'warning.main' : color },
-          }}
+          sx={sx.sparkGaugeBarWithColor(warn, color)}
         />
       )}
 
@@ -103,7 +68,7 @@ export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCard
         colors={[activeColor]}
         showHighlight
         showTooltip
-        sx={{ '& .MuiLineElement-root': { strokeWidth: 1.5 } }}
+        sx={sx.sparklineStroke}
       />
     </Box>
   );

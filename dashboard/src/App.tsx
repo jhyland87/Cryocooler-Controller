@@ -4,7 +4,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import { theme } from './theme/theme';
+import * as sx from './theme/styles';
 import { useTelemetry } from './hooks/useTelemetry';
 import { useHistoryBuffer } from './hooks/useHistoryBuffer';
 import { useFaultHistory } from './hooks/useFaultHistory';
@@ -20,37 +22,6 @@ import { ConsoleLog } from './components/ConsoleLog';
 import { CollapsiblePanel } from './components/CollapsiblePanel';
 import type { TelemetryData } from './types/telemetry';
 import { getField } from './types/telemetry';
-
-// ─── MUI dark theme ───────────────────────────────────────────────────────────
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary:    { main: '#0277bd' },
-    secondary:  { main: '#7b1fa2' },
-    background: { default: '#eef2f7', paper: '#ffffff' },
-    text:       { primary: '#1a2638', secondary: '#546e7a' },
-    divider: 'rgba(0,0,0,0.10)',
-  },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: 13,
-  },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          scrollbarColor: '#b0bec5 #eef2f7',
-          '&::-webkit-scrollbar': { width: 8 },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: '#b0bec5', borderRadius: 4 },
-        },
-      },
-    },
-    MuiPaper: {
-      defaultProps: { elevation: 0 },
-    },
-  },
-});
 
 // ─── History buffer keys ──────────────────────────────────────────────────────
 
@@ -102,7 +73,6 @@ export function App() {
   const { push, getHistory }                                  = useHistoryBuffer([...HISTORY_KEYS]);
   const { faults, loading: faultsLoading, pushUpdate }        = useFaultHistory();
 
-  // Trigger re-render on every incoming frame so charts update.
   const [tick, setTick] = useState(0);
 
   const handleFrame = useCallback((d: TelemetryData, ts: number) => {
@@ -119,8 +89,6 @@ export function App() {
   }, [onFaultHistory, pushUpdate]);
 
   // ── Loading screen ──────────────────────────────────────────────────────────
-  // Show a spinner until the first telemetry frame arrives.  frameCount stays
-  // at 0 for the entire blank-white period, so this fills that gap.
 
   if (frameCount === 0) {
     const loadingMsg =
@@ -131,19 +99,9 @@ export function App() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            bgcolor: 'background.default',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2.5,
-          }}
-        >
+        <Box sx={sx.loadingScreen}>
           <CircularProgress size={52} thickness={3.5} />
-          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
+          <Typography variant="h6" color="text.secondary" sx={sx.loadingTitle}>
             Loading Dashboard
           </Typography>
           <Typography variant="caption" color="text.disabled">
@@ -157,7 +115,7 @@ export function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={sx.appShell}>
 
         {/* ── Header / status bar ────────────────────────────────────────── */}
         <Header
@@ -171,27 +129,13 @@ export function App() {
         />
 
         {/* ── Main content ───────────────────────────────────────────────── */}
-        <Box sx={{ flex: 1, p: { xs: 1.5, sm: 2 }, position: 'relative' }}>
+        <Box sx={sx.mainContent}>
 
           {/* ── Connection-lost overlay ─────────────────────────────────── */}
           {status === 'disconnected' && (
-            <Box
-              sx={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 50,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'rgba(238, 242, 247, 0.85)',
-                backdropFilter: 'blur(2px)',
-                gap: 1.5,
-                borderRadius: 1,
-              }}
-            >
+            <Box sx={sx.disconnectedOverlay}>
               <CircularProgress size={40} thickness={3} />
-              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600 }}>
+              <Typography variant="h6" color="text.secondary" sx={sx.disconnectedTitle}>
                 Connection Lost
               </Typography>
               <Typography variant="body2" color="text.disabled">
@@ -199,7 +143,7 @@ export function App() {
               </Typography>
             </Box>
           )}
-          {/* MUI v7 Grid: use `size` prop instead of the deprecated `item` prop */}
+
           <Grid container spacing={2}>
 
             {/* ── Row 1: Status panel ──────────────────────────────────── */}
@@ -207,7 +151,7 @@ export function App() {
               <CollapsiblePanel title="Status & Indicators">
                 <StatusPanel data={data} key={tick} />
               </CollapsiblePanel>
-              <Box sx={{ mt: 2 }}>
+              <Box sx={sx.faultHistorySpacer}>
                 <CollapsiblePanel
                   title="Fault History"
                   defaultExpanded={false}
@@ -221,32 +165,18 @@ export function App() {
             {/* ── Row 1 right: quick-read numeric tiles ────────────────── */}
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
               <CollapsiblePanel title="Quick Read">
-                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignContent: 'flex-start' }}>
+                <Box sx={sx.quickReadContainer}>
                   {TILES.map(({ label, key, unit, dp, color }) => {
                     const value = getField(data, key);
                     return (
-                      <Box
-                        key={`${label}-${unit}`}
-                        sx={{
-                          flex: '1 1 90px',
-                          minWidth: 80,
-                          bgcolor: 'background.paper',
-                          borderRadius: 1,
-                          p: 1.25,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <Typography
-                          sx={{ fontSize: '1.2rem', fontWeight: 700, color, lineHeight: 1.1, fontFamily: 'monospace' }}
-                        >
+                      <Box key={`${label}-${unit}`} sx={sx.quickReadTile}>
+                        <Typography sx={sx.tileValueColored(color)}>
                           {typeof value === 'number' ? value.toFixed(dp) : '—'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6rem', display: 'block' }}>
+                        <Typography variant="caption" sx={sx.tileUnit}>
                           {unit}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.62rem', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                        <Typography variant="caption" sx={sx.tileLabel}>
                           {label}
                         </Typography>
                       </Box>
