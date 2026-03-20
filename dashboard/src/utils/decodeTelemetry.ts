@@ -18,6 +18,23 @@ function toLong(v: number | Long | null | undefined): number | undefined {
 interface Long { toNumber(): number; }
 
 /**
+ * Recursively convert any NaN float values to undefined.
+ * When an I2C module is offline the firmware sends NaN for that tick;
+ * converting to undefined lets the history buffer record a gap.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function stripNaN(obj: any): void {
+  for (const key in obj) {
+    const v = obj[key];
+    if (typeof v === 'number' && Number.isNaN(v)) {
+      obj[key] = undefined;
+    } else if (typeof v === 'object' && v !== null) {
+      stripNaN(v);
+    }
+  }
+}
+
+/**
  * Decode a Protobuf binary WebSocket frame into a nested TelemetryData object.
  */
 export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
@@ -59,6 +76,7 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
       ambient_temp_c:        f.coldHead.ambientTempC ?? undefined,
       voltage_v:             f.coldHead.voltageV ?? undefined,
       current_a:             f.coldHead.currentA ?? undefined,
+      target_temp_c:         f.coldHead.targetTempC ?? undefined,
     };
   }
 
@@ -186,6 +204,10 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
 
   // ── Top-level scalar fields ──────────────────────────────────────────────
   out.log_epoch = toLong(f.logEpoch);
+
+  // Convert any NaN values (from offline I2C modules) to undefined so the
+  // history buffer records a gap instead of a bogus data point.
+  stripNaN(out);
 
   if (window.LOG_TELEMETRY === true) {
     console.log('decodeTelemetryFrame', out);

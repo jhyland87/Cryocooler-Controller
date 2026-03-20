@@ -1,21 +1,12 @@
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import type { DataPoint } from '../types/telemetry';
 import { SparkCard } from './SparkCard';
 import { MultiSparkCard } from './MultiSparkCard';
 import { VibrationWave } from './VibrationWave';
+import type { AccelSparklinesProps } from '../types/components';
 import * as sx from '../theme/styles';
 
-interface Props {
-  accelX:   DataPoint[];
-  accelY:   DataPoint[];
-  accelZ:   DataPoint[];
-  accelMag: DataPoint[];
-  freqHz:   DataPoint[];
-  motion:   number | undefined;
-}
-
-export function AccelSparklines({ accelX, accelY, accelZ, accelMag, freqHz, motion }: Props) {
+export function AccelSparklines({ accelX, accelY, accelZ, accelMag, freqHz, motion }: AccelSparklinesProps) {
   return (
     <Box>
       {/* Motion chip */}

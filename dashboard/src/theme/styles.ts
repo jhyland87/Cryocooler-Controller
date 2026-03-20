@@ -92,7 +92,7 @@ export const quickReadTile: SxProps<Theme> = {
 /** CSS Grid cell — children fill the cell regardless of their own flex/minWidth. */
 export const gridCell: SxProps<Theme> = {
   minWidth: 0,
-  '& > *': { flex: 'none', minWidth: 0, width: '100%' },
+  '& > *': { flex: 'none', minWidth: 0, width: '100%', height: '100%' },
 };
 
 // ─── Header rows ────────────────────────────────────────────────────────────
@@ -523,6 +523,7 @@ export const motionChipWrapper: SxProps<Theme> = {
 export const accelGrid: SxProps<Theme> = {
   display: 'grid',
   gridTemplateColumns: 'repeat(2, 1fr)',
+  gridTemplateRows: '1fr 1fr',
   gap: 1,
 };
 
@@ -745,4 +746,45 @@ export const faultPagination: SxProps<Theme> = {
 export const faultPageLabel: SxProps<Theme> = {
   color: 'text.secondary',
   fontSize: '0.7rem',
+};
+
+// ─── Skeleton helpers ──────────────────────────────────────────────────────
+
+export const skeletonCentered: SxProps<Theme> = {
+  mx: 'auto',
+};
+
+export const skeletonGaugeBar: SxProps<Theme> = {
+  mb: 0.75,
+  borderRadius: 2,
+};
+
+export const skeletonChartTitle: SxProps<Theme> = {
+  mr: 1,
+};
+
+export const skeletonLegendChip: SxProps<Theme> = {
+  borderRadius: 1,
+};
+
+export const skeletonFaultRow: SxProps<Theme> = {
+  borderRadius: 0.75,
+};
+
+export const skeletonFaultCounter: SxProps<Theme> = {
+  flex: '1 1 80px',
+};
+
+export const skeletonConsoleFlex: SxProps<Theme> = {
+  flex: 1,
+};
+
+export const skeletonConsoleDarkTimestamp: SxProps<Theme> = {
+  bgcolor: '#161b22',
+  flexShrink: 0,
+};
+
+export const skeletonConsoleDarkLine: SxProps<Theme> = {
+  bgcolor: '#161b22',
+  flex: 1,
 };

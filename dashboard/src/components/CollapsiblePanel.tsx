@@ -1,22 +1,13 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import type { ComponentChildren } from 'preact';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import type { CollapsiblePanelProps } from '../types/components';
 import * as sx from '../theme/styles';
-
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-interface Props {
-  title: string;
-  defaultExpanded?: boolean;
-  expanded?: boolean;
-  children: ComponentChildren;
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function CollapsiblePanel({ title, defaultExpanded = true, expanded: controlledExpanded, children }: Props) {
+export function CollapsiblePanel({ title, defaultExpanded = true, expanded: controlledExpanded, children }: CollapsiblePanelProps) {
   const [open, setOpen] = useState(defaultExpanded);
   const prevControlled = useRef(controlledExpanded);
 

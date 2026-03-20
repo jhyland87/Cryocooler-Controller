@@ -1,17 +1,9 @@
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
-import type { TelemetryData } from '../types/telemetry';
+import type { LedProps, StatusPanelProps } from '../types/components';
 import * as sx from '../theme/styles';
-
-// ─── Individual LED indicator ─────────────────────────────────────────────────
-
-interface LedProps {
-  label:   string;
-  active:  boolean;
-  color:   string;
-  tooltip?: string;
-}
 
 function Led({ label, active, color, tooltip }: LedProps) {
   const dot = (
@@ -28,11 +20,27 @@ function Led({ label, active, color, tooltip }: LedProps) {
 
 // ─── Status panel ─────────────────────────────────────────────────────────────
 
-interface Props {
-  data: TelemetryData;
-}
+export function StatusPanel({ data, loading }: StatusPanelProps) {
+  if (loading) {
+    return (
+      <Box>
+        <Box sx={sx.ledRow}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Box key={i} sx={sx.ledContainer}>
+              <Skeleton variant="circular" width={18} height={18} />
+              <Skeleton variant="text" width={36} height={10} />
+            </Box>
+          ))}
+        </Box>
+        <Box sx={sx.faultCounterRow}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={56} sx={sx.skeletonFaultCounter} />
+          ))}
+        </Box>
+      </Box>
+    );
+  }
 
-export function StatusPanel({ data }: Props) {
   const fault       = Boolean(data.indicator?.fault);
   const ready       = Boolean(data.indicator?.ready);
   const alarmRelay  = Boolean(data.relay?.alarm);

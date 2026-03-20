@@ -1,15 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import type { LogEntry } from '../types/hooks';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface LogEntry {
-  /** Device uptime in milliseconds when the line was flushed (from millis()). */
-  ms: number;
-  /** Unix epoch seconds (UTC).  0 until SNTP syncs. */
-  epoch: number;
-  /** Log message text (may include a trailing newline). */
-  text: string;
-}
+// Re-export for existing consumers
+export type { LogEntry } from '../types/hooks';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 

@@ -1,33 +1,18 @@
 import { LineChart } from '@mui/x-charts/LineChart';
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import { useMemo, useState, useCallback } from 'preact/hooks';
 import type { DataPoint } from '../types/telemetry';
+import type { TelemetryLineChartProps } from '../types/components';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
 import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
 import { createTimeFormatter } from '../utils/formatters';
 import * as sx from '../theme/styles';
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-export interface ChartSeries {
-  label: string;
-  data:  DataPoint[];
-  color: string;
-}
-
-export interface TelemetryLineChartProps {
-  title:  string;
-  series: ChartSeries[];
-  yAxis?: {
-    min?: number;
-    max?: number;
-  };
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function padTo(arr: number[], len: number): (number | null)[] {
+function padTo(arr: (number | null)[], len: number): (number | null)[] {
   const out: (number | null)[] = [...arr];
   while (out.length < len) out.unshift(null);
   return out;
@@ -36,6 +21,7 @@ function padTo(arr: number[], len: number): (number | null)[] {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartProps) {
+  const loading = series.every((s) => s.data.length === 0);
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
   const tickStep = calcTickStep(containerWidth);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
@@ -63,20 +49,20 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
   const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
   const xMin = xMax - HISTORY_WINDOW_MS;
 
-  const someHidden = hidden.size > 0;
+  const PADDING = 10;
 
   const yMin: number | undefined = (() => {
-    if (visibleSeries.length === 0) return yAxis?.min ?? 0;
-    if (!someHidden && yAxis?.min !== undefined) return yAxis.min;
-    return yAxis?.min !== undefined ? undefined : undefined;
+    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v)).filter((v): v is number => v !== null);
+    if (allValues.length === 0) return yAxis?.min ?? 0;
+    const dataMin = Math.min(...allValues);
+    return Math.floor(dataMin - PADDING);
   })();
 
   const yMax: number | undefined = (() => {
-    if (visibleSeries.length === 0) return yAxis?.max ?? 1;
-    if (!someHidden && yAxis?.max !== undefined) return yAxis.max;
-    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v));
-    const raw = allValues.length > 0 ? Math.max(0, ...allValues) : 0;
-    return raw > 0 ? undefined : 1;
+    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v)).filter((v): v is number => v !== null);
+    if (allValues.length === 0) return yAxis?.max ?? 1;
+    const dataMax = Math.max(...allValues);
+    return Math.ceil(dataMax + PADDING);
   })();
 
   const chartSeries = visibleSeries.map((s) => ({
@@ -84,7 +70,35 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
     data:     padTo(s.data.map((p) => p.v), n),
     color:    s.color,
     showMark: false,
+    id:       s.label.replace(/[^a-zA-Z0-9]/g, '_'),
   }));
+
+  // Build sx overrides for dashed series
+  const dashedIds = visibleSeries
+    .filter((s) => s.dashed)
+    .map((s) => s.label.replace(/[^a-zA-Z0-9]/g, '_'));
+  const dashedSx = dashedIds.length > 0
+    ? Object.fromEntries(
+        dashedIds.map((id) => [
+          `& .MuiLineElement-series-${id}`,
+          { strokeDasharray: '6 4' },
+        ])
+      )
+    : {};
+
+  if (loading) {
+    return (
+      <Box ref={containerRef} sx={sx.chartContainer}>
+        <Box sx={sx.chartLegendRow}>
+          {title && <Skeleton variant="text" width={title.length * 7} height={16} sx={sx.skeletonChartTitle} />}
+          {series.map((s) => (
+            <Skeleton key={s.label} variant="rounded" width={70} height={22} sx={sx.skeletonLegendChip} />
+          ))}
+        </Box>
+        <Skeleton variant="rounded" height={220} />
+      </Box>
+    );
+  }
 
   return (
     <Box ref={containerRef} sx={sx.chartContainer}>
@@ -123,7 +137,11 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
         yAxis={[{
           min:            yMin,
           max:            yMax,
-          valueFormatter: (v: number) => v % 1 === 0 ? String(v) : v.toFixed(1),
+          valueFormatter: (v: number) => {
+            if (v % 1 === 0) return String(v);
+            const s = v.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+            return s;
+          },
         }]}
         series={chartSeries}
         height={220}
@@ -131,6 +149,7 @@ export function TelemetryLineChart({ title, series, yAxis }: TelemetryLineChartP
         slotProps={{ legend: { hidden: true } }}
         margin={{ top: 10, right: 10, bottom: 36, left: 52 }}
         grid={{ horizontal: true }}
+        sx={dashedSx}
       />
     </Box>
   );

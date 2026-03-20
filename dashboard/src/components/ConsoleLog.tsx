@@ -1,11 +1,13 @@
 import { useRef, useEffect, useState, useCallback } from 'preact/hooks';
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { useConsoleLogs } from '../hooks/useConsoleLogs';
-import type { LogEntry } from '../hooks/useConsoleLogs';
+import type { LogEntry } from '../types/hooks';
+import type { ConsoleLogProps } from '../types/components';
 import * as sx from '../theme/styles';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -46,11 +48,7 @@ function lineColor(text: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-interface ConsoleLogProps {
-  logEpoch?: number;
-}
-
-export function ConsoleLog({ logEpoch }: ConsoleLogProps) {
+export function ConsoleLog({ logEpoch, loading }: ConsoleLogProps) {
   const { entries, clear } = useConsoleLogs(logEpoch);
   const scrollRef          = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -71,6 +69,25 @@ export function ConsoleLog({ logEpoch }: ConsoleLogProps) {
     setAutoScroll(true);
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, []);
+
+  if (loading) {
+    return (
+      <Box>
+        <Box sx={sx.consoleHeaderRow}>
+          <Skeleton variant="text" width={120} height={16} sx={sx.skeletonConsoleFlex} />
+          <Skeleton variant="rounded" width={30} height={18} />
+        </Box>
+        <Box sx={sx.consoleTerminal}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Box key={i} sx={sx.consoleEntryRow}>
+              <Skeleton variant="text" width={60} height={14} sx={sx.skeletonConsoleDarkTimestamp} />
+              <Skeleton variant="text" height={14} sx={sx.skeletonConsoleDarkLine} />
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>

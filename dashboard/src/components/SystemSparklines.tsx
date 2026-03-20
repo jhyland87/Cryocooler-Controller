@@ -1,15 +1,9 @@
 import Box from '@mui/material/Box';
-import type { DataPoint } from '../types/telemetry';
 import { SparkCard } from './SparkCard';
+import type { SystemSparklinesProps } from '../types/components';
 import * as sx from '../theme/styles';
 
-interface Props {
-  cpuUsage:   DataPoint[];
-  heapUsage:  DataPoint[];
-  psramUsage: DataPoint[];
-}
-
-export function SystemSparklines({ cpuUsage, heapUsage, psramUsage }: Props) {
+export function SystemSparklines({ cpuUsage, heapUsage, psramUsage }: SystemSparklinesProps) {
   return (
     <Box>
       <Box sx={sx.sparkWrapRow}>

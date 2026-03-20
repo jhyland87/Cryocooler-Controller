@@ -25,10 +25,11 @@ export function useHistoryBuffer(keys: ReadonlyArray<string>) {
     (data: TelemetryData, timestamp: number) => {
       for (const key of keys) {
         const raw = getField(data, key);
-        if (typeof raw !== 'number') continue;
-
         const buf = buffers.current[key];
-        buf.push({ t: timestamp, v: raw });
+        // Always push — valid readings get a number, failed reads get null.
+        // Null values render as gaps in the chart line while keeping the
+        // x-axis advancing in sync with other series.
+        buf.push({ t: timestamp, v: typeof raw === 'number' ? raw : null });
         if (buf.length > HISTORY_LENGTH) buf.shift();
       }
     },

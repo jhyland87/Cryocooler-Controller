@@ -1,13 +1,10 @@
 import { useMemo } from 'preact/hooks';
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import type { DataPoint } from '../types/telemetry';
+import type { VibrationWaveProps } from '../types/components';
 import * as sx from '../theme/styles';
-
-interface Props {
-  accelMag: DataPoint[];
-  freqHz: DataPoint[];
-}
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -26,16 +23,20 @@ const AVG_WINDOW = 10;
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function trailingMax(pts: DataPoint[], n: number, fallback: number): number {
-  if (pts.length === 0) return fallback;
-  const slice = pts.slice(-n);
-  return slice.reduce((mx, p) => (p.v > mx ? p.v : mx), slice[0].v);
+  const valid = pts.filter((p) => p.v !== null);
+  if (valid.length === 0) return fallback;
+  const slice = valid.slice(-n);
+  return slice.reduce((mx, p) => ((p.v as number) > mx ? (p.v as number) : mx), slice[0].v as number);
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function VibrationWave({ accelMag, freqHz }: Props) {
+export function VibrationWave({ accelMag, freqHz }: VibrationWaveProps) {
+  const validAccel = accelMag.filter((p) => p.v !== null);
+  const validFreq  = freqHz.filter((p) => p.v !== null);
+  const loading = validAccel.length === 0 && validFreq.length === 0;
   const peakMag = trailingMax(accelMag, AVG_WINDOW, GRAVITY);
-  const lastFreq = freqHz.length > 0 ? freqHz[freqHz.length - 1].v : 0;
+  const lastFreq = validFreq.length > 0 ? (validFreq[validFreq.length - 1].v as number) : 0;
 
   const pathD = useMemo(() => {
     const amp = Math.min(Math.max((peakMag - GRAVITY) / MAX_AMP, 0), 1) * (MID_Y - 4);
@@ -58,6 +59,18 @@ export function VibrationWave({ accelMag, freqHz }: Props) {
     }
     return parts.join(' ');
   }, [peakMag, lastFreq]);
+
+  if (loading) {
+    return (
+      <Box sx={sx.vibrationCardRoot}>
+        <Box sx={sx.cardHeader}>
+          <Skeleton variant="text" width={100} height={12} />
+          <Skeleton variant="text" width={50} height={12} />
+        </Box>
+        <Skeleton variant="rounded" height={HEIGHT} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={sx.vibrationCardRoot}>

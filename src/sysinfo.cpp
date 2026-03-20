@@ -92,6 +92,7 @@ module::InitStatus init() {
 
     for (uint8_t attempt = 0; attempt < 2; ++attempt) {
         if (ina237.begin(INA237_I2CADDR_DEFAULT, &i2c)) {
+            ina237.setShunt(0.015f, 10.0f);  // 15 mΩ shunt, 10 A max
             Serial.println(F("[sysinfo] INA237 chip found and initialized"));
             analogReadResolution(ADC_RESOLUTION);
             return module::MODULE_INIT_SUCCESS;
@@ -120,9 +121,34 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    voltage = ina237.readBusVoltage();
-    current = ina237.readCurrent();
-    power   = ina237.readPower();
+    // I2C ping: when 12 V drops, the INA237 goes offline (NACK).
+    // Send NaN so the dashboard shows a gap for this tick.
+    {
+        TwoWire& i2c = hardware::i2c();
+        i2c.beginTransmission(INA237_I2CADDR_DEFAULT);
+        if (i2c.endTransmission() != 0) {
+            voltage = NAN;
+            current = NAN;
+            power   = NAN;
+            return module::MODULE_SERVICE_ERROR;
+        }
+    }
+
+    float rawV = ina237.readBusVoltage();
+
+    // Sanity check: INA237 returns garbage when the bus has no power
+    // (floating pins read ~200 V, ~260 kW).  Send NaN so the dashboard
+    // shows a gap in the chart for this tick.
+    if (rawV > 60.0f || rawV < -1.0f) {
+        voltage = NAN;
+        current = NAN;
+        power   = NAN;
+        return module::MODULE_SERVICE_OK;
+    }
+
+    voltage = rawV;
+    current = ina237.readCurrent() / 1000.0f;  // mA → A
+    power   = ina237.readPower()   / 1000.0f;  // mW → W
     return module::MODULE_SERVICE_OK;
 }
 

@@ -45,6 +45,24 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     // Zero the frame so proto3 defaults apply for any fields we don't set.
     memset(&frame_, 0, sizeof(frame_));
 
+    // ── Service-status gating ────────────────────────────────────────────────
+    // Mirror the buildStartupFrame() pattern from telemetry.cpp: if a module's
+    // service() did not return OK or SKIPPED this tick, emit NAN for all its
+    // float fields so the dashboard shows a gap in the chart line.  SKIPPED is
+    // treated as valid because time-gated modules (e.g. cooling's 1 s check
+    // cycle) return SKIPPED on ticks where they didn't run but their cached
+    // readings are still valid.
+    const auto svcOk = [](module::ServiceStatus s) {
+        return s == module::MODULE_SERVICE_OK
+            || s == module::MODULE_SERVICE_SKIPPED;
+    };
+
+    const bool coldHeadOk   = svcOk(cold_head::Module::getServiceStatus());
+    const bool amplifierOk  = svcOk(amplifier::Module::getServiceStatus());
+    const bool sysinfoOk    = svcOk(sysinfo::Module::getServiceStatus());
+    const bool imuOk        = svcOk(imu::Module::getServiceStatus());
+    const bool coolingOk    = svcOk(cooling::Module::getServiceStatus());
+
     // ── Timestamp ────────────────────────────────────────────────────────────
     frame_.has_timestamp = true;
     frame_.timestamp.epoch = static_cast<int64_t>(time(nullptr));
@@ -83,43 +101,53 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
                  static_cast<unsigned long>((stateSec % 3600u) / 60u),
                  static_cast<unsigned long>(stateSec % 60u));
 
-        // backoff_count: not directly accessible without the Output struct,
-        // but it's available from the last emit() frame.  For now, read from
-        // the last FrameBuilder frame if available.
-        // Note: The FrameBuilder stores this as a uint, but we can't easily
-        // extract it by name.  Set to 0 as a safe default — the JSON path
-        // via fillJsonSafe already has this limitation during startup.
         frame_.status.backoff_count = 0;
     }
 
     // ── Cold head ────────────────────────────────────────────────────────────
     frame_.has_cold_head = true;
-    if (!cold_head::hasSensorFault()) {
+    if (coldHeadOk && !cold_head::hasSensorFault()) {
         frame_.cold_head.temp_c   = cold_head::getLastTempC();
         frame_.cold_head.has_temp = true;
         frame_.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
         frame_.cold_head.delta_below_ambient_c = cold_head::getLastTempCBelowAmbient();
     } else {
-        frame_.cold_head.temp_c   = 0.0f;
+        frame_.cold_head.temp_c   = NAN;
         frame_.cold_head.has_temp = false;
-        frame_.cold_head.cooldown_pct          = 0.0f;
-        frame_.cold_head.delta_below_ambient_c = 0.0f;
+        frame_.cold_head.cooldown_pct          = NAN;
+        frame_.cold_head.delta_below_ambient_c = NAN;
     }
-    frame_.cold_head.voltage_v             = cold_head::getLastRmsVoltage();
-    frame_.cold_head.current_a             = cold_head::getLastRmsCurrent();
-    frame_.cold_head.ambient_temp_c        = cold_head::getLastAmbientTempC();
+    // voltage_v / current_a come from the amplifier module, gate on its status
+    frame_.cold_head.voltage_v  = amplifierOk ? cold_head::getLastRmsVoltage()  : NAN;
+    frame_.cold_head.current_a  = amplifierOk ? cold_head::getLastRmsCurrent()  : NAN;
+    // ambient_temp_c comes from the IMU module, gate on its status
+    frame_.cold_head.ambient_temp_c = imuOk ? cold_head::getLastAmbientTempC() : NAN;
+    frame_.cold_head.target_temp_c  = cold_head::getTargetTempC();
 
     // ── Amplifier ────────────────────────────────────────────────────────────
     frame_.has_amplifier = true;
-    frame_.amplifier.voltage_v = amplifier::getLastRmsVoltage();
-    frame_.amplifier.current_a = amplifier::getLastRmsCurrent();
-    frame_.amplifier.power_w   = amplifier::getApparentPowerWatts();
+    if (amplifierOk) {
+        frame_.amplifier.voltage_v = amplifier::getLastRmsVoltage();
+        frame_.amplifier.current_a = amplifier::getLastRmsCurrent();
+        frame_.amplifier.power_w   = amplifier::getApparentPowerWatts();
+    } else {
+        frame_.amplifier.voltage_v = NAN;
+        frame_.amplifier.current_a = NAN;
+        frame_.amplifier.power_w   = NAN;
+    }
 
     // ── System ───────────────────────────────────────────────────────────────
     frame_.has_system = true;
-    frame_.system.voltage_v           = sysinfo::getVoltage();
-    frame_.system.current_a           = sysinfo::getCurrent();
-    frame_.system.power_w             = sysinfo::getPower();
+    if (sysinfoOk) {
+        frame_.system.voltage_v           = sysinfo::getVoltage();
+        frame_.system.current_a           = sysinfo::getCurrent();
+        frame_.system.power_w             = sysinfo::getPower();
+    } else {
+        frame_.system.voltage_v           = NAN;
+        frame_.system.current_a           = NAN;
+        frame_.system.power_w             = NAN;
+    }
+    // CPU/heap/PSRAM metrics come from the ESP32 itself (always available)
     frame_.system.cpu_usage_percent   = sysinfo::getCpuUsagePercent();
     frame_.system.cpu_freq_mhz        = sysinfo::getCpuFreqMHz();
     frame_.system.heap_usage_percent  = sysinfo::getHeapUsagePercent();
@@ -131,30 +159,54 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
     // ── IMU ──────────────────────────────────────────────────────────────────
     frame_.has_imu = true;
-    frame_.imu.roll_deg  = imu::getRoll();
-    frame_.imu.pitch_deg = imu::getPitch();
-    frame_.imu.yaw_deg   = imu::getYaw();
-    frame_.imu.accel_mag = imu::getAccelMag();
-    frame_.imu.temp_c    = imu::getTemperature();
-    frame_.imu.motion    = imu::isMotionDetected() ? 1u : 0u;
-    frame_.imu.x         = imu::getAccelX();
-    frame_.imu.y         = imu::getAccelY();
-    frame_.imu.z         = imu::getAccelZ();
-    {
-        float freq = imu::getFrequency();
-        frame_.imu.freq_hz = isnan(freq) ? 0.0f : freq;
+    if (imuOk) {
+        frame_.imu.roll_deg  = imu::getRoll();
+        frame_.imu.pitch_deg = imu::getPitch();
+        frame_.imu.yaw_deg   = imu::getYaw();
+        frame_.imu.accel_mag = imu::getAccelMag();
+        frame_.imu.temp_c    = imu::getTemperature();
+        frame_.imu.motion    = imu::isMotionDetected() ? 1u : 0u;
+        frame_.imu.x         = imu::getAccelX();
+        frame_.imu.y         = imu::getAccelY();
+        frame_.imu.z         = imu::getAccelZ();
+        {
+            const float freq = imu::getFrequency();
+            frame_.imu.freq_hz = isnan(freq) ? 0.0f : freq;
+        }
+    } else {
+        frame_.imu.roll_deg  = NAN;
+        frame_.imu.pitch_deg = NAN;
+        frame_.imu.yaw_deg   = NAN;
+        frame_.imu.accel_mag = NAN;
+        frame_.imu.temp_c    = NAN;
+        frame_.imu.motion    = 0u;
+        frame_.imu.x         = NAN;
+        frame_.imu.y         = NAN;
+        frame_.imu.z         = NAN;
+        frame_.imu.freq_hz   = NAN;
     }
 
     // ── Cooling ──────────────────────────────────────────────────────────────
     frame_.has_cooling = true;
-    frame_.cooling.status        = cooling::isEnabled() ? 1 : 0;
-    frame_.cooling.pump_on       = cooling::isCoolingPumpOn() ? 1 : 0;
-    frame_.cooling.temp_c        = cooling::getCoolantTemperature();
-    frame_.cooling.flow_rate_lpm = cooling::getCoolantFlowRate();
-    frame_.cooling.fan_speed     = cooling::getFanSpeed();
-    frame_.cooling.fan_rpm       = cooling::getFanRPM();
-    frame_.cooling.pump_speed    = cooling::getPumpSpeed();
-    frame_.cooling.pump_rpm      = cooling::getPumpRPM();
+    if (coolingOk) {
+        frame_.cooling.status        = cooling::isEnabled() ? 1 : 0;
+        frame_.cooling.pump_on       = cooling::isCoolingPumpOn() ? 1 : 0;
+        frame_.cooling.temp_c        = cooling::getCoolantTemperature();
+        frame_.cooling.flow_rate_lpm = cooling::getCoolantFlowRate();
+        frame_.cooling.fan_speed     = static_cast<float>(cooling::getFanSpeed());
+        frame_.cooling.fan_rpm       = cooling::getFanRPM();
+        frame_.cooling.pump_speed    = static_cast<float>(cooling::getPumpSpeed());
+        frame_.cooling.pump_rpm      = cooling::getPumpRPM();
+    } else {
+        frame_.cooling.status        = 0;
+        frame_.cooling.pump_on       = 0;
+        frame_.cooling.temp_c        = NAN;
+        frame_.cooling.flow_rate_lpm = NAN;
+        frame_.cooling.fan_speed     = NAN;
+        frame_.cooling.fan_rpm       = 0;
+        frame_.cooling.pump_speed    = NAN;
+        frame_.cooling.pump_rpm      = 0;
+    }
 
     // ── Compressor ───────────────────────────────────────────────────────────
     frame_.has_compressor = true;

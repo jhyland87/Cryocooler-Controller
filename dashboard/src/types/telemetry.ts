@@ -32,6 +32,7 @@ export interface TelemetryData {
     cooldown_pct?: number;
     voltage_v?: number;
     current_a?: number;
+    target_temp_c?: number;
   };
 
   amplifier?: {
@@ -150,8 +151,8 @@ export function getField(data: TelemetryData, path: string): number | string | u
 
 /** A timestamped snapshot appended to every rolling history buffer. */
 export interface DataPoint {
-  t: number; // wall-clock ms since epoch
-  v: number;
+  t: number;       // wall-clock ms since epoch
+  v: number | null; // null = no valid reading (renders as a gap in charts)
 }
 
 export type HistoryMap = Record<string, DataPoint[]>;

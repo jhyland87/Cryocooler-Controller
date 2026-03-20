@@ -458,6 +458,20 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
+    // I2C check: when 12 V drops, the ACS37800 goes offline (NACK).
+    // Send NaN so the dashboard shows a gap for this tick.
+    {
+        TwoWire& i2c = hardware::i2c();
+        i2c.beginTransmission(acs_.getAddress());
+        if (i2c.endTransmission() != 0) {
+            lastRmsVoltage_     = NAN;
+            lastRmsCurrent_     = NAN;
+            lastApparentPowerW_ = NAN;
+            lastFrequency_      = NAN;
+            return module::MODULE_SERVICE_ERROR;
+        }
+    }
+
     acs_.readRMSVoltageAndCurrent();
     lastRmsVoltage_     = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_     = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;

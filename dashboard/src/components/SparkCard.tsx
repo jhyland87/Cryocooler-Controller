@@ -1,28 +1,17 @@
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import type { DataPoint } from '../types/telemetry';
+import type { SparkCardProps } from '../types/components';
 import * as sx from '../theme/styles';
-
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-export interface SparkCardProps {
-  label: string;
-  data:  DataPoint[];
-  color: string;
-  unit:  string;
-  dp?:   number;
-  gauge?: {
-    max?:       number;
-    warnAbove?: number;
-  };
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCardProps) {
-  const values = data.map((p) => p.v);
+  const loading = data.length === 0;
+  const validValues = data.map((p) => p.v).filter((v): v is number => v !== null);
+  const values = validValues;
   const last   = values.length > 0 ? values[values.length - 1] : null;
 
   const warn        = gauge?.warnAbove !== undefined && last !== null && last > gauge.warnAbove;
@@ -33,6 +22,19 @@ export function SparkCard({ label, data, color, unit, dp = 1, gauge }: SparkCard
     : 0;
 
   const chartHeight = gauge ? 40 : 50;
+
+  if (loading) {
+    return (
+      <Box sx={sx.sparkCardRoot}>
+        <Box sx={sx.cardHeader}>
+          <Skeleton variant="text" width={60} height={12} />
+          <Skeleton variant="text" width={40} height={12} />
+        </Box>
+        {gauge && <Skeleton variant="rounded" height={4} sx={sx.skeletonGaugeBar} />}
+        <Skeleton variant="rounded" height={chartHeight} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={sx.sparkCardWarn(warn)}>

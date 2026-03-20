@@ -335,7 +335,7 @@ void loop() {
 
     // Each module handles mock mode internally: when sensor_mock::isActive(),
     // read()/service() pulls from sensor_mock::get() instead of hardware.
-    cold_head::read();
+    cold_head::service();
     cold_head::checkFaults();
 
     // Read cached values.

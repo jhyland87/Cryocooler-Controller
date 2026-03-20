@@ -206,7 +206,7 @@ module::InitStatus initRTD() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-void read(uint32_t nowMs) {
+module::ServiceStatus service(uint32_t nowMs) {
     // Global sensor_mock takes precedence over the local RTD mock.
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
@@ -214,7 +214,7 @@ void read(uint32_t nowMs) {
         // Check plausibility even for mock readings so tests can exercise the fault path.
         sRtdFaultActive = (sLastTempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C) ||
                           sLastTempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
-        return;
+        return module::MODULE_SERVICE_OK;
     }
 
     // Local RTD mock: return the configured temperature, everything else zeroed.
@@ -224,7 +224,7 @@ void read(uint32_t nowMs) {
     if (sLocalMockEnabled) {
         setLastReadings(nowMs, sLocalMockTempC, 0.0f, false, 0.0f, 0.0f);
         sRtdFaultActive = false;
-        return;
+        return module::MODULE_SERVICE_OK;
     }
 
     {
@@ -232,6 +232,9 @@ void read(uint32_t nowMs) {
     // Voltage/current are owned by the amplifier module; pull the latest reading.
     sLastRmsVoltageV = amplifier::getLastRmsVoltage();
     sLastRmsCurrentA = amplifier::getLastRmsCurrent();
+    // Ambient temp is owned by the IMU module; pull every tick so the value
+    // stays current even when the RTD read returns early (timeout / offline).
+    sLastAmbientTempC = imu::getTemperature();
 
     // ── Non-blocking RTD measurement ─────────────────────────────────────
     // The old code called readRTD() + temperature() — two blocking reads
@@ -241,14 +244,29 @@ void read(uint32_t nowMs) {
     // zero blocking.
 
     // Kick off a new measurement if none is in flight.
+    static uint32_t sRtdStartMs = 0;
     if (!max31865.readRTDAsyncInProgress()) {
+        // If a fault was active, the chip may have been power-cycled (POR
+        // resets registers to defaults — including 2-wire mode).  Re-run
+        // begin() to restore the 3-wire configuration before starting the
+        // next measurement.
+        if (sRtdFaultActive) {
+            max31865.begin(RTD_WIRE_CONFIG);
+        }
         max31865.readRTDAsyncStart();
-        return;  // bias is settling — nothing to process this cycle
+        sRtdStartMs = nowMs;
+        return module::MODULE_SERVICE_OK;  // bias is settling — nothing to process this cycle
     }
 
     // Advance the state machine; return early if still converting.
     if (!max31865.readRTDAsyncReady()) {
-        return;
+        // Timeout: if the read has been in progress for >2 s the chip is
+        // likely dead (12 V off).  Flag a sensor fault so the dashboard
+        // stops showing the stale temperature line.
+        if ((nowMs - sRtdStartMs) > 2000u) {
+            sRtdFaultActive = true;
+        }
+        return module::MODULE_SERVICE_ERROR;
     }
 
     // Measurement complete — process the result.
@@ -258,13 +276,12 @@ void read(uint32_t nowMs) {
     // Skip all temperature processing — don't store a bogus value in sLastTempC.
     if (rtd == 0) {
         sRtdFaultActive = true;
-        return;
+        return module::MODULE_SERVICE_ERROR;
     }
 
     const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
     const float    tempC        = max31865.calculateTemperature(rtd, RTD_RNOMINAL, RTD_RREF);
     const float    tempF        = conversions::celsiusToFahrenheit(tempC);
-    const float    ambientTempC = imu::getTemperature();
     // Check MAX31865 fault register and temperature plausibility.
     // The two checks are independent so each fault type can clear its own
     // rate-limit slot as soon as it resolves, without waiting for the other
@@ -344,8 +361,7 @@ void read(uint32_t nowMs) {
     sRtdFaultActive = anyFault;
 
     sLastTempC = tempC;
-    sLastAmbientTempC = ambientTempC;
-    pushSample(nowMs, tempC, ambientTempC, sLastRmsVoltageV, sLastRmsCurrentA);
+    pushSample(nowMs, tempC, sLastAmbientTempC, sLastRmsVoltageV, sLastRmsCurrentA);
 
     // Feed the freshly computed ring-buffer rate into the running average so
     // that getCoolingRateCPerMin() returns a smoothed value.
@@ -368,6 +384,7 @@ void read(uint32_t nowMs) {
     if (tempTracker_) {
         tempTracker_->update(targetTempC_, sLastTempC, nowMs);
     }
+    return module::MODULE_SERVICE_OK;
 }
 
 void setLastReadings(uint32_t nowMs, float tempC,
@@ -509,6 +526,10 @@ void setTargetTempC(float targetC) {
         tempTracker_->reset();
     }
     targetTempC_ = targetC;
+}
+
+float getTargetTempC() {
+    return targetTempC_;
 }
 
 void startTemperatureTracking() {

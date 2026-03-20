@@ -132,6 +132,14 @@ static void buildStartupFrame(FrameBuilder& frame)
         return s == module::MODULE_INIT_SUCCESS;
     };
 
+ /* The above code is defining a lambda function called `readyService` that takes a parameter of type
+ `module::ServiceStatus` and returns a boolean value. The lambda function checks if the input
+ parameter `s` is equal to `module::MODULE_SERVICE_OK` and returns `true` if it is, indicating that
+ the service is ready. */
+    // const auto readyService = [](module::ServiceStatus s) {
+    //     return s == module::MODULE_SERVICE_OK;
+    // };
+
     const bool smReady          = ready(state_machine::Module::getInitStatus());
     const bool coldHeadReady    = ready(cold_head::Module::getInitStatus());
     const bool amplifierReady   = ready(amplifier::Module::getInitStatus());
@@ -140,6 +148,7 @@ static void buildStartupFrame(FrameBuilder& frame)
     const bool sysinfoReady     = ready(sysinfo::Module::getInitStatus());
     const bool accelReady       = ready(imu::Module::getInitStatus());
     const bool coolingReady     = ready(cooling::Module::getInitStatus());
+
     const float amplifierVoltageScore = amplifier::getVoltageScore();
     const float amplifierFrequencyScore = amplifier::getFrequencyScore();
     const float coolingFanSpeedScore = cooling::getFanSpeedScore();
@@ -187,7 +196,7 @@ static void buildStartupFrame(FrameBuilder& frame)
         frame
             .field("state.id",              "%d",  static_cast<int8_t>(st))
             .field("state.name",            "%s",  state_machine::stateName(st))
-            .field("state.status_text",      "%s",  state_machine::getStatusText())
+            .field("state.status_text",     "%s",  state_machine::getStatusText())
             .field("status.on_duration_ms", "%lu", static_cast<unsigned long>(durationMs))
             .field("status.on_duration",    "%s",  hmsBuf)
             .field("status.time_in_state",  "%s",  tisHmsBuf)
@@ -255,7 +264,7 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cold_head.cooling_rate",          "%.3f", cold_head::getCoolingRateCPerMin())
             .field("cold_head.cooldown_pct",          "%.2f", cold_head::getTemperatureToPercent())
             .field("cold_head.delta_below_ambient_c", "%.2f", cold_head::getLastTempCBelowAmbient())
-            .field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC())
+            //.field("cold_head.ambient_temp_c",        "%.2f", cold_head::getLastAmbientTempC())
             .field("cold_head.voltage_v",             "%.2f", cold_head::getLastRmsVoltage())
             .field("cold_head.current_a",             "%.2f", cold_head::getLastRmsCurrent());
     } else {
@@ -264,7 +273,7 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cold_head.cooling_rate",          "%s", "")
             .field("cold_head.cooldown_pct",          "%s", "")
             .field("cold_head.delta_below_ambient_c", "%s", "")
-            .field("cold_head.ambient_temp_c",        "%s", "")
+            //.field("cold_head.ambient_temp_c",        "%s", "")
             .field("cold_head.voltage_v",             "%s", "")
             .field("cold_head.current_a",             "%s", "");
     }
@@ -350,7 +359,8 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("imu.roll_deg",  "%.2f", imu::getRoll())
             .field("imu.pitch_deg", "%.2f", imu::getPitch())
             .field("imu.yaw_deg",   "%.2f", imu::getYaw())
-            .field("imu.accel_mag", "%.2f", imu::getAccelMag());
+            .field("imu.accel_mag", "%.2f", imu::getAccelMag())
+            .field("cold_head.ambient_temp_c",  "%.2f", imu::getTemperature());
             // .field("imu.gyro_mag", "%.2f", imu::getGyroMag())  // disabled
         // Emit temp only when within the plausible ambient range
         if (imu::isTemperaturePlausible()) {
@@ -374,7 +384,8 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("imu.motion",    "%s", "")
             .field("imu.x",         "%s", "")
             .field("imu.y",         "%s", "")
-            .field("imu.z",         "%s", "");
+            .field("imu.z",         "%s", "")
+            .field("cold_head.ambient_temp_c",  "%s", "");
     }
 
     // ── Cooling ───────────────────────────────────────────────────────────
@@ -580,8 +591,8 @@ void emit(const state_machine::Output& out)
         .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(600000u)))
         .field("faults.count_30m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(1800000u)))
         .field("faults.count_60m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(3600000u)))
-        .field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
-        .field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
+        //.field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
+        //.field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())
         .field("system.current_a",                  "%.2f", sysinfo::getCurrent())
         .field("system.power_w",                    "%.2f", sysinfo::getPower())

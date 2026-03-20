@@ -416,6 +416,10 @@ static module::InitStatus controllerInit() {
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
+    // Allow the chip to finish any POR spin-up handshake before writing
+    // configuration registers — ensures register writes are not ignored.
+    delay(5);
+
     // ── Configure both channels for direct-drive PWM ────────────────────
     // For each channel: disable RPM closed-loop, clear minimum drive,
     // disable spin-up (prevents full-speed blasts on tach stall), set
@@ -507,7 +511,7 @@ module::ServiceStatus service() {
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         static uint32_t lastRetryMs = 0;
         const uint32_t now = millis();
-        if ((now - lastRetryMs) >= 1000u) {
+        if ((now - lastRetryMs) >= 250u) {
             lastRetryMs = now;
             if (controllerInit() == module::MODULE_INIT_SUCCESS) {
                 _Log.println(F("EMC2302 appeared — deferred init succeeded"));
@@ -524,7 +528,12 @@ module::ServiceStatus service() {
 
                 const uint32_t initMs = millis();
                 lastSampleMs_    = initMs;
-                lastCheckCycleMs = initMs;
+                // Force the check cycle to fire immediately on the next
+                // service() tick so the LUT evaluates and cachedDutyCycle_
+                // is read from the chip right away — prevents the chart
+                // from showing the POR default (255 = 100 %) for a full
+                // second while waiting for the normal 1 s interval.
+                lastCheckCycleMs = initMs - COOLING_CHECK_CYCLE_MS;
 
                 enabled_       = true;
                 coolingPumpOn_ = true;
@@ -544,6 +553,23 @@ module::ServiceStatus service() {
 
     const uint32_t nowMs = millis();
     bool didWork = false;
+
+    // ── I2C liveness check ──────────────────────────────────────────────
+    // If the 12 V rail drops after boot, the EMC2302 loses power and I2C
+    // reads return NACK.  Send NaN so the dashboard shows a gap for this
+    // tick.  Demote init status so the deferred-init retry path (above)
+    // reconfigures the chip when 12 V returns — without this the EMC2302
+    // powers up in its default 100 % duty-cycle state.
+    if (!sensor_mock::isActive()) {
+        TwoWire& i2c = hardware::i2c();
+        i2c.beginTransmission(EMC2302_2_I2C_ADDRESS);
+        if (i2c.endTransmission() != 0) {
+            coolantTemperature_ = NAN;
+            coolantFlowRate_    = NAN;
+            Module::overrideInitStatus(module::MODULE_INIT_HARDWARE_ERROR);
+            return module::MODULE_SERVICE_OK;
+        }
+    }
 
     // ── 100 ms sensor sampling ──────────────────────────────────────────
     // Skipped in mock mode — coolantTemperature_ / coolantFlowRate_ remain
@@ -612,6 +638,25 @@ module::ServiceStatus service() {
     // this function.
     cachedDutyCycle_ = controller_.getDutyCycle(FAN_CHANNEL);
     cachedFanRpm_    = controller_.getFanRPM(FAN_CHANNEL);
+
+    // ── Self-healing guard ──────────────────────────────────────────────
+    // After a 12 V power cycle the EMC2302 POR can leave the chip in its
+    // default 100 % duty / RPM-control state.  If the cached duty diverges
+    // from what we last programmed, reconfigure the channel immediately.
+    for (uint8_t ch = 0; ch < 2; ++ch) {
+        const uint8_t actual   = (ch == FAN_CHANNEL)
+                                 ? cachedDutyCycle_
+                                 : controller_.getDutyCycle(PUMP_CHANNEL);
+        if (actual != expectedDuty_[ch]) {
+            _Log.printf("ch%u duty mismatch: expected=%u actual=%u — re-applying\n",
+                        ch, expectedDuty_[ch], actual);
+            controller_.enableRPMControl(false, ch);
+            controller_.writeRegister(0x36 + ch * 0x10, 0x20); // NOKICK
+            controller_.setDutyCycle(expectedDuty_[ch], ch);
+        }
+    }
+    // Re-read after potential fix-up
+    cachedDutyCycle_ = controller_.getDutyCycle(FAN_CHANNEL);
 
     const uint8_t  rawPumpDuty = controller_.getDutyCycle(PUMP_CHANNEL);
     const uint16_t rawPumpRpm  = controller_.getFanRPM(PUMP_CHANNEL);

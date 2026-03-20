@@ -1,14 +1,10 @@
 import { useState } from 'preact/hooks';
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import type { FaultRecord } from '../types/faultHistory';
+import type { FaultHistoryPanelProps } from '../types/components';
 import * as sx from '../theme/styles';
-
-interface Props {
-  faults:  FaultRecord[];
-  loading: boolean;
-}
 
 const PAGE_SIZE = 4;
 
@@ -18,7 +14,7 @@ function fmtTime(epoch: number): string {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-export function FaultHistoryPanel({ faults, loading }: Props) {
+export function FaultHistoryPanel({ faults, loading }: FaultHistoryPanelProps) {
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(faults.length / PAGE_SIZE));
 
@@ -31,7 +27,11 @@ export function FaultHistoryPanel({ faults, loading }: Props) {
   return (
     <Box>
       {loading && (
-        <Typography variant="body2" color="text.disabled">Loading...</Typography>
+        <Box sx={sx.faultList}>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={36} sx={sx.skeletonFaultRow} />
+          ))}
+        </Box>
       )}
 
       {!loading && faults.length === 0 && (

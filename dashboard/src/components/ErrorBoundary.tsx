@@ -1,17 +1,5 @@
 import { Component } from 'preact';
-import type { ComponentChildren } from 'preact';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface Props {
-  children: ComponentChildren;
-}
-
-interface State {
-  hasError: boolean;
-  error: Error | null;
-  componentStack: string;
-}
+import type { ErrorBoundaryProps, ErrorBoundaryState } from '../types/components';
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
@@ -102,10 +90,10 @@ const S = {
  *
  * Uses only inline styles so it remains usable even when MUI fails to mount.
  */
-export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null, componentStack: '' };
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false, error: null, componentStack: '' };
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
   }
 

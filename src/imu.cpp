@@ -276,6 +276,28 @@ module::InitStatus init() {
 module::ServiceStatus service() {
     if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
 
+    // I2C ping: when 12 V drops, the LSM6DSOX goes offline (NACK).
+    // Set all readings to NAN so the dashboard shows a gap for this tick.
+    {
+        TwoWire& i2c = hardware::i2c();
+        i2c.beginTransmission(LSM6DSOX_IMU_IC2_ADDRESS);
+        if (i2c.endTransmission() != 0) {
+            filtAccelX_      = NAN;
+            filtAccelY_      = NAN;
+            filtAccelZ_      = NAN;
+            accelMag_        = NAN;
+            imuTemp_         = NAN;
+            imuTempPlausible_ = false;
+            roll_            = NAN;
+            pitch_           = NAN;
+            yaw_             = NAN;
+            frequency_       = NAN;
+            fftFiltered_     = NAN;
+            motionDetected_  = false;
+            return module::MODULE_SERVICE_ERROR;
+        }
+    }
+
     sensors_event_t accelEvt, gyroEvt, tempEvt;
     sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
 

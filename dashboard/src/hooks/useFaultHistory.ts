@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { FaultRecord, FaultHistoryMessage } from '../types/faultHistory';
+import type { FaultHistoryState } from '../types/hooks';
+
+// Re-export for existing consumers
+export type { FaultHistoryState } from '../types/hooks';
 
 const ESP32_HOST = 'cryocooler.local';
 
 function faultHistoryUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
   return `${proto}//${ESP32_HOST}/api/fault-history`;
-}
-
-export interface FaultHistoryState {
-  faults:  FaultRecord[];
-  loading: boolean;
 }
 
 /**

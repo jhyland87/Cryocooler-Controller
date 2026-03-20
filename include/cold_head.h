@@ -126,6 +126,11 @@ float getTemperatureToPercent();
 void setTargetTempC(float targetC);
 
 /**
+ * Return the current target temperature in Celsius.
+ */
+float getTargetTempC();
+
+/**
  * Construct the temperature tracking monitor and begin tracking.
  * Must be called when the FSM enters the Operating state.
  */
@@ -193,6 +198,8 @@ void disableMock();
 /** Returns true while the module-local RTD mock is active. */
 bool isMockEnabled();
 
+module::ServiceStatus service(uint32_t nowMs);
+inline module::ServiceStatus service() { return service(millis()); }
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // read() accepts a nowMs argument so cooling-rate history is correctly
@@ -206,8 +213,10 @@ bool isMockEnabled();
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return _initStatus = cold_head::init(); }
+    static module::ServiceStatus service() { return _serviceStatus = cold_head::service(); }
+
     /** Calls temperature::read(millis()) — must be called every loop tick. */
-    static module::ServiceStatus service() { cold_head::read(millis()); return _serviceStatus = module::MODULE_SERVICE_OK; }
+    //static module::ServiceStatus service() { return _serviceStatus = cold_head::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import type { ConnectionStatus } from '../hooks/useTelemetry';
+import type { ConnectionStatus } from '../types/hooks';
+import type { HeaderProps } from '../types/components';
 import * as sx from '../theme/styles';
 
 // ─── Connection badge ─────────────────────────────────────────────────────────
@@ -38,17 +40,8 @@ function LiveClock() {
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
-interface Props {
-  connectionStatus:  ConnectionStatus;
-  stateName:         string;
-  statusText:        string;
-  onDuration:        string;
-  timeInState:       string;
-  cooldownPct:       number | undefined;
-  frameCount:        number;
-}
+const skeletonSx = { bgcolor: 'rgba(255,255,255,0.08)' };
+const skeletonDimSx = { bgcolor: 'rgba(255,255,255,0.05)' };
 
 export function Header({
   connectionStatus,
@@ -58,7 +51,25 @@ export function Header({
   timeInState,
   cooldownPct,
   frameCount,
-}: Props) {
+  loading,
+}: HeaderProps) {
+  if (loading) {
+    return (
+      <AppBar position="static" sx={sx.headerAppBar} elevation={0}>
+        <Toolbar sx={sx.headerToolbar}>
+          <Skeleton variant="text" width={120} height={24} sx={skeletonSx} />
+          <Skeleton variant="rounded" width={60} height={24} sx={skeletonSx} />
+          <Skeleton variant="text" width={180} height={16} sx={skeletonDimSx} />
+          <Box sx={sx.headerSpacer} />
+          <Skeleton variant="text" width={70} height={16} sx={skeletonDimSx} />
+          <Skeleton variant="text" width={70} height={16} sx={skeletonDimSx} />
+          <Skeleton variant="rounded" width={80} height={20} sx={skeletonSx} />
+          <Skeleton variant="text" width={80} height={16} sx={skeletonDimSx} />
+        </Toolbar>
+      </AppBar>
+    );
+  }
+
   return (
     <AppBar position="static" sx={sx.headerAppBar} elevation={0}>
       <Toolbar sx={sx.headerToolbar}>

@@ -1,20 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { TelemetryData } from '../types/telemetry';
+import type { ConnectionStatus, TelemetryState } from '../types/hooks';
 import { decodeTelemetryFrame } from '../utils/decodeTelemetry';
 import type { FaultHistoryMessage } from '../types/faultHistory';
 import { isFaultHistoryMessage } from '../types/faultHistory';
 
-// ─── Connection state ─────────────────────────────────────────────────────────
-
-export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
-
-export interface TelemetryState {
-  data: TelemetryData;
-  status: ConnectionStatus;
-  lastUpdate: number | null;
-  /** Frames received since last mount */
-  frameCount: number;
-}
+// Re-export types so existing consumers don't break
+export type { ConnectionStatus, TelemetryState } from '../types/hooks';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 

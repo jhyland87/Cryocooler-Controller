@@ -52,6 +52,7 @@ message ColdHead {
   float voltage_v             = 6;
   float current_a             = 7;
   bool  has_temp              = 8;  // false when sensor fault (temp_c is invalid)
+  float target_temp_c         = 9;  // current setpoint the system is aiming for
 }
 
 message Amplifier {
@@ -92,9 +93,9 @@ message Cooling {
   int32  pump_on       = 2;
   float  temp_c        = 3;
   float  flow_rate_lpm = 4;
-  uint32 fan_speed     = 5;
+  float  fan_speed     = 5;
   uint32 fan_rpm       = 6;
-  uint32 pump_speed    = 7;
+  float  pump_speed    = 7;
   uint32 pump_rpm      = 8;
 }
 
