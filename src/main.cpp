@@ -277,7 +277,41 @@ void loop() {
         //while (Serial.available()) { Serial.print("Serial:"); Serial.println(Serial.read()); }
         Log.println();
         Log.println(">>> Serial console active. Type 'help' for commands. <<<");
-        Log.println("    (setup may have partially failed — check status above)");
+
+        // Scan all modules for init failures and list them explicitly.
+        struct ModCheck { const char* name; module::InitStatus status; };
+        const ModCheck modules[] = {
+            { "hardware",      hardware::Module::getInitStatus()      },
+            { "indicator",     indicator::Module::getInitStatus()     },
+            { "logger",        logger::Module::getInitStatus()        },
+            { "imu",           imu::Module::getInitStatus()           },
+            { "commands",      commands::Module::getInitStatus()      },
+            { "ota",           ota::Module::getInitStatus()           },
+            { "dashboard",     dashboard::Module::getInitStatus()     },
+            { "sysinfo",       sysinfo::Module::getInitStatus()       },
+            { "cooling",       cooling::Module::getInitStatus()       },
+            { "amplifier",     amplifier::Module::getInitStatus()     },
+            { "cold_head",     cold_head::Module::getInitStatus()     },
+            { "state_machine", state_machine::Module::getInitStatus() },
+#if ENABLE_COMPRESSOR
+            { "compressor",    compressor::Module::getInitStatus()    },
+#endif
+        };
+        uint8_t failCount = 0;
+        for (const auto& m : modules) {
+            if (m.status != module::MODULE_INIT_SUCCESS) ++failCount;
+        }
+        if (failCount == 0) {
+            Log.println("    All modules initialized successfully.");
+        } else {
+            Log.printf( "    %u module(s) failed to initialize:\n", failCount);
+            for (const auto& m : modules) {
+                if (m.status != module::MODULE_INIT_SUCCESS) {
+                    Log.printf("      - %s: %s\n", m.name,
+                               module::initStatusName(m.status));
+                }
+            }
+        }
         Log.println();
     }
 
@@ -297,17 +331,45 @@ void loop() {
     // read() / service() pull values from sensor_mock::get() and skip hardware
     // access entirely.  No conditional logic is needed here.
 
-    if (sysinfo::Module::service() == module::MODULE_SERVICE_ERROR) {
-        _Log.println("loop --> sysinfo service error");
-    }
-    if (imu::Module::service() == module::MODULE_SERVICE_ERROR) {
-        _Log.println("loop --> imu service error");
-    }
-    if (amplifier::Module::service() == module::MODULE_SERVICE_ERROR) {
-        _Log.println("loop --> amplifier service error");
-    }
-    if (cooling::Module::service() == module::MODULE_SERVICE_ERROR) {
-        _Log.println("loop --> cooling service error");
+    // Service each module and log only on status transitions (not every tick).
+    {
+        static module::ServiceStatus prevSysinfo   = module::MODULE_SERVICE_OK;
+        static module::ServiceStatus prevImu       = module::MODULE_SERVICE_OK;
+        static module::ServiceStatus prevAmplifier = module::MODULE_SERVICE_OK;
+        static module::ServiceStatus prevCooling   = module::MODULE_SERVICE_OK;
+
+        // Treat OK and SKIPPED as equivalent ("healthy") so time-gated
+        // modules like cooling don't spam on every tick.
+        const auto isHealthy = [](module::ServiceStatus s) {
+            return s == module::MODULE_SERVICE_OK
+                || s == module::MODULE_SERVICE_SKIPPED;
+        };
+        const auto logTransition = [&](const char* name,
+                                       module::ServiceStatus prev,
+                                       module::ServiceStatus cur) {
+            if (isHealthy(prev) != isHealthy(cur)) {
+                _Log.printf("loop --> %s service %s -> %s\n",
+                            name,
+                            module::serviceStatusName(prev),
+                            module::serviceStatusName(cur));
+            }
+        };
+
+        auto s = sysinfo::Module::service();
+        logTransition("sysinfo", prevSysinfo, s);
+        prevSysinfo = s;
+
+        s = imu::Module::service();
+        logTransition("imu", prevImu, s);
+        prevImu = s;
+
+        s = amplifier::Module::service();
+        logTransition("amplifier", prevAmplifier, s);
+        prevAmplifier = s;
+
+        s = cooling::Module::service();
+        logTransition("cooling", prevCooling, s);
+        prevCooling = s;
     }
 
     const uint32_t nowMs = millis();
