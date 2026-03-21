@@ -54,7 +54,7 @@ namespace sensor_mock {
 
 /** All injectable sensor values in one flat struct. */
 struct Overrides {
-    // ── Cold head (PT100 / MAX31865) ────────────────────────────────────────
+    // ── Cold head (PT1000 / ADS122C04) ───────────────────────────────────────
     float tempC       = 26.85f;   ///< Cold-stage temperature, Celsius
     float coolingRate = 0.0f;     ///< Cooling rate, C/min (positive = cooling down)
 

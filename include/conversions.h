@@ -11,19 +11,44 @@
 
 #include <Arduino.h>
 #include <stdint.h>
+#include <cmath>
 
 
 namespace conversions {
 
 /**
- * Convert a raw 15-bit RTD register value to resistance (ohms).
+ * Convert PT1000 resistance to temperature using Callendar-Van Dusen equation.
  *
- * @param rtdRaw  Raw 15-bit value from MAX31865 readRTD()
- * @param rRef    Reference resistor value (e.g. 435.3 for PT100)
- * @return        Measured resistance in ohms
+ * Above 0 °C: R(T) = R0 * (1 + A*T + B*T^2)  → solve quadratic for T.
+ * Below 0 °C: polynomial approximation (Analog Devices AN709).
+ *
+ * @param R  Measured PT1000 resistance in ohms
+ * @return   Temperature in Celsius (NAN if discriminant < 0)
  */
-inline float rtdRawToResistance(uint16_t rtdRaw, float rRef) {
-    return rRef * (static_cast<float>(rtdRaw) / 32768.0f);
+inline float resistanceToTemperaturePT1000(float R) {
+    constexpr float R0  = 1000.0f;   // PT1000 nominal at 0 °C
+    constexpr float A   = 3.9083e-3f;
+    constexpr float B   = -5.775e-7f;
+
+    if (R >= R0) {
+        // Above 0 °C: quadratic  B*T^2 + A*T + (1 - R/R0) = 0
+        const float disc = (A * A) - 4.0f * B * (1.0f - R / R0);
+        if (disc < 0.0f) return NAN;
+        return (-A + sqrtf(disc)) / (2.0f * B);
+    } else {
+        // Below 0 °C: polynomial approximation
+        float ret = -242.02f;
+        ret += 2.2228f     * R;
+        float poly = R * R;
+        ret += 2.5859e-3f  * poly;
+        poly *= R;
+        ret -= 4.8260e-6f  * poly;
+        poly *= R;
+        ret -= 2.8183e-8f  * poly;
+        poly *= R;
+        ret += 1.5243e-10f * poly;
+        return ret;
+    }
 }
 
 /**

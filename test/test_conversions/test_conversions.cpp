@@ -9,25 +9,26 @@
 #include "conversions.h"
 #include "config.h"
 
-// ── rtdRawToResistance ──────────────────────────────────────────────────────
+// ── resistanceToTemperaturePT1000 ────────────────────────────────────────────
 
-void test_rtdRawToResistance_zero(void) {
-    TEST_ASSERT_EQUAL_FLOAT(0.0f, conversions::rtdRawToResistance(0, RTD_RREF));
+void test_pt1000_resistance_at_0C(void) {
+    // PT1000 at 0 °C should be exactly 1000 Ω → 0 °C
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 0.0f, conversions::resistanceToTemperaturePT1000(1000.0f));
 }
 
-void test_rtdRawToResistance_fullScale(void) {
-    TEST_ASSERT_EQUAL_FLOAT(RTD_RREF, conversions::rtdRawToResistance(32768, RTD_RREF));
+void test_pt1000_resistance_at_25C(void) {
+    // PT1000 at 25 °C ≈ 1097.3 Ω
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, 25.0f, conversions::resistanceToTemperaturePT1000(1097.3f));
 }
 
-void test_rtdRawToResistance_halfScale(void) {
-    float expected = RTD_RREF / 2.0f;
-    TEST_ASSERT_FLOAT_WITHIN(0.01f, expected, conversions::rtdRawToResistance(16384, RTD_RREF));
+void test_pt1000_resistance_at_minus196C(void) {
+    // PT1000 at -196 °C (LN2) ≈ 214.2 Ω
+    TEST_ASSERT_FLOAT_WITHIN(2.0f, -196.0f, conversions::resistanceToTemperaturePT1000(214.2f));
 }
 
-void test_rtdRawToResistance_knownPT100(void) {
-    uint16_t raw = 7528;
-    float result = conversions::rtdRawToResistance(raw, 435.3f);
-    TEST_ASSERT_FLOAT_WITHIN(0.5f, 100.0f, result);
+void test_pt1000_resistance_at_100C(void) {
+    // PT1000 at 100 °C ≈ 1385.1 Ω
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, 100.0f, conversions::resistanceToTemperaturePT1000(1385.1f));
 }
 
 // ── celsiusToFahrenheit ─────────────────────────────────────────────────────
@@ -189,11 +190,11 @@ void test_config_temp_history_size_at_least_two(void) {
 int main(int argc, char **argv) {
     UNITY_BEGIN();
 
-    // Resistance conversion
-    RUN_TEST(test_rtdRawToResistance_zero);
-    RUN_TEST(test_rtdRawToResistance_fullScale);
-    RUN_TEST(test_rtdRawToResistance_halfScale);
-    RUN_TEST(test_rtdRawToResistance_knownPT100);
+    // PT1000 resistance → temperature
+    RUN_TEST(test_pt1000_resistance_at_0C);
+    RUN_TEST(test_pt1000_resistance_at_25C);
+    RUN_TEST(test_pt1000_resistance_at_minus196C);
+    RUN_TEST(test_pt1000_resistance_at_100C);
 
     // Temperature conversion
     RUN_TEST(test_celsiusToFahrenheit_freezing);

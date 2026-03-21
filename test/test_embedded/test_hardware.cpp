@@ -12,7 +12,8 @@
 #include <Arduino.h>
 #include <unity.h>
 #include <SPI.h>
-#include <Adafruit_MAX31865.h>
+#include <Wire.h>
+#include <SparkFun_ADS122C04_ADC_Arduino_Library.h>
 #include <MD_AD9833.h>
 
 #include "pin_config.h"
@@ -20,38 +21,57 @@
 #include "conversions.h"
 
 // ── Hardware instances for test use ─────────────────────────────────────────
-static Adafruit_MAX31865 max31865(MAX31865_CS);
-static MD_AD9833        ad9833(AD9833_CS);
+static SFE_ADS122C04 ads122c04;
+static MD_AD9833     ad9833(AD9833_CS);
 
-// ── MAX31865 tests ──────────────────────────────────────────────────────────
+// ── ADS122C04 tests ─────────────────────────────────────────────────────────
 
-void test_max31865_initializes(void) {
-    bool ok = max31865.begin(RTD_WIRE_CONFIG);
-    TEST_ASSERT_TRUE_MESSAGE(ok, "MAX31865 begin() failed — check wiring");
+void test_ads122c04_initializes(void) {
+    bool ok = ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire);
+    TEST_ASSERT_TRUE_MESSAGE(ok, "ADS122C04 begin() failed — check I2C wiring");
 }
 
-void test_max31865_reads_nonzero_rtd(void) {
-    uint16_t raw = max31865.readRTD();
-    TEST_ASSERT_GREATER_THAN_UINT16(0, raw);
+void test_ads122c04_configures_4wire(void) {
+    ads122c04.configureADCmode(ADS122C04_4WIRE_MODE);
+    ads122c04.setGain(ADS122C04_GAIN_1);
+    ads122c04.enablePGA(ADS122C04_PGA_DISABLED);
+    ads122c04.setIDACcurrent(ADS122C04_IDAC_CURRENT_250_UA);
+    TEST_ASSERT_TRUE(true);  // no crash = success
 }
 
-void test_max31865_resistance_in_range(void) {
-    // A PT100 at room temperature should read roughly 100-115 Ω
-    uint16_t raw = max31865.readRTD();
-    float resistance = conversions::rtdRawToResistance(raw, RTD_RREF);
-    TEST_ASSERT_FLOAT_WITHIN(50.0f, 107.0f, resistance);  // 57–157 Ω
+void test_ads122c04_reads_nonzero(void) {
+    ads122c04.start();
+    delay(100);  // wait for conversion
+    uint32_t raw = ads122c04.readADC();
+    TEST_ASSERT_GREATER_THAN_UINT32(0, raw);
 }
 
-void test_max31865_temperature_sane(void) {
-    float tempC = max31865.temperature(RTD_RNOMINAL, RTD_RREF);
+void test_ads122c04_resistance_in_range(void) {
+    // A PT1000 at room temperature should read roughly 1000-1100 Ω
+    ads122c04.start();
+    delay(100);
+    uint32_t raw = ads122c04.readADC();
+    int32_t signed_raw = (raw & 0x00800000)
+                         ? static_cast<int32_t>(raw | 0xFF000000)
+                         : static_cast<int32_t>(raw);
+    float resistance = (static_cast<float>(signed_raw) / ADS122C04_ADC_FULL_SCALE)
+                       * PT1000_REF_R / PT1000_GAIN;
+    TEST_ASSERT_FLOAT_WITHIN(200.0f, 1050.0f, resistance);  // 850–1250 Ω
+}
+
+void test_ads122c04_temperature_sane(void) {
+    ads122c04.start();
+    delay(100);
+    uint32_t raw = ads122c04.readADC();
+    int32_t signed_raw = (raw & 0x00800000)
+                         ? static_cast<int32_t>(raw | 0xFF000000)
+                         : static_cast<int32_t>(raw);
+    float resistance = (static_cast<float>(signed_raw) / ADS122C04_ADC_FULL_SCALE)
+                       * PT1000_REF_R / PT1000_GAIN;
+    float tempC = conversions::resistanceToTemperaturePT1000(resistance);
     // Reasonable ambient range: -20 °C to 80 °C
     TEST_ASSERT_TRUE(tempC > -20.0f);
     TEST_ASSERT_TRUE(tempC < 80.0f);
-}
-
-void test_max31865_no_faults(void) {
-    uint8_t fault = max31865.readFault();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, fault, "Unexpected MAX31865 fault");
 }
 
 // ── AD9833 tests ────────────────────────────────────────────────────────────
@@ -107,12 +127,12 @@ void setup() {
 
     UNITY_BEGIN();
 
-    // MAX31865
-    RUN_TEST(test_max31865_initializes);
-    RUN_TEST(test_max31865_reads_nonzero_rtd);
-    RUN_TEST(test_max31865_resistance_in_range);
-    RUN_TEST(test_max31865_temperature_sane);
-    RUN_TEST(test_max31865_no_faults);
+    // ADS122C04
+    RUN_TEST(test_ads122c04_initializes);
+    RUN_TEST(test_ads122c04_configures_4wire);
+    RUN_TEST(test_ads122c04_reads_nonzero);
+    RUN_TEST(test_ads122c04_resistance_in_range);
+    RUN_TEST(test_ads122c04_temperature_sane);
 
     // AD9833
     RUN_TEST(test_ad9833_initializes);

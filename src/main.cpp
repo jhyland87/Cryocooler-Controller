@@ -7,7 +7,7 @@
  * the full Serial Studio frame format and column definitions.
  *
  * Required Libraries (platformio.ini lib_deps):
- *   - Adafruit MAX31865
+ *   - SparkFun ADS122C04 ADC Arduino Library
  *   - MD_AD9833
  */
 

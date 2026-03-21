@@ -48,6 +48,20 @@ void enable();
 void disable();
 bool isEnabled();
 
+/**
+ * Return true while the EMC2302 ALERT# pin is asserted (active LOW).
+ * Indicates a stall, spin-up failure, or drive failure on one or both
+ * fan/pump channels.  Self-clears once the EMC2302 status registers
+ * are read and the fault condition resolves.
+ */
+bool hasFanFault();
+
+/**
+ * Duration in milliseconds that ALERT# has been continuously asserted.
+ * Returns 0 when no fault is active.
+ */
+uint32_t getFanFaultDurationMs();
+
 // ---------------------------------------------------------------------------
 // Setpoint tracking
 // ---------------------------------------------------------------------------

@@ -1,13 +1,20 @@
 /**
  * @file cold_head.cpp
- * @brief MAX31865 RTD cold_head sensor implementation
+ * @brief ADS122C04 RTD cold_head sensor implementation
  *
  * Maintains a ring buffer of (timestamp, tempC) samples for cooling-rate
  * calculation and cold_head-stall detection.
+ *
+ * Hardware:
+ *   - ADS122C04 at I2C address 0x45 (A0 and A1 HIGH)
+ *   - PT1000 RTD in 4-wire configuration
+ *   - R_ref = 3854 ohm 0.1% reference resistor
+ *   - IDAC1 routed to AIN3, sense on AIN1(+)/AIN0(-)
+ *   - External REFP/REFN (ratiometric measurement)
  */
 
 #include <Arduino.h>
-#include <Adafruit_MAX31865.h>
+#include <SparkFun_ADS122C04_ADC_Arduino_Library.h>
 #include <RunningAverage.h>
 #include <optional>
 
@@ -38,7 +45,7 @@ struct TempSample {
     float    rmsCurrentA;
 };
 
-static Adafruit_MAX31865 max31865(MAX31865_CS);
+static SFE_ADS122C04 ads122c04;
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
 static TempSample  sHistory[TEMP_HISTORY_SIZE];
@@ -62,16 +69,16 @@ static bool  sMockStalled     = false;
 static bool  sLocalMockEnabled = false;
 static float sLocalMockTempC   = 26.85f;
 
-// Set to true when the most recent read() detected a MAX31865 hardware fault
-// or a temperature reading outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
+// Set to true when the most recent read() detected an ADS122C04 communication
+// failure or a temperature reading outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C,
+// MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
 static bool sRtdFaultActive = false;
-static uint8_t sLastFaultCode = 0;
 // Per-key fault rate-limiter.
 // Each distinct fault type gets its own slot so that two simultaneously
 // oscillating faults don't reset each other's timers and cause spam.
 // Keys:
-//   1–255  → MAX31865 hw fault register value (bitmask)
+//   1      → ADS122C04 communication / DRDY timeout fault
 //   256    → plausibility fault, reading too low
 //   257    → plausibility fault, reading too high
 //   0      → unused slot
@@ -160,14 +167,14 @@ module::InitStatus init() {
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
-    _Log.println("Initializing MAX31865...");
+    _Log.println("Initializing ADS122C04...");
     const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
-        ESP_LOGE(TAG, "MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
-        _Log.printf("MAX31865 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        ESP_LOGE(TAG, "ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        _Log.printf("ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         return rtdStatus;
     }
-    _Log.println("MAX31865 initialization successful!");
+    _Log.println("ADS122C04 initialization successful!");
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -181,28 +188,32 @@ module::InitStatus initACS() {
 module::InitStatus initRTD() {
     // Local mock: skip all hardware access entirely.
     if (sLocalMockEnabled) {
-        _Log.printf("Local RTD mock active (%.2f C) — skipping MAX31865 hardware init",
+        _Log.printf("Local RTD mock active (%.2f C) — skipping ADS122C04 hardware init",
                  sLocalMockTempC);
         return module::MODULE_INIT_SUCCESS;
     }
 
-    if (!max31865.begin(RTD_WIRE_CONFIG) && !sensor_mock::isActive()) {
-        _Log.println("Could not initialize MAX31865! Check wiring.");
-        // State machine will see tempC == 0 and fault if appropriate.
+    if (!ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire) && !sensor_mock::isActive()) {
+        _Log.println("Could not initialize ADS122C04! Check I2C wiring.");
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
-    const uint16_t rtd   = max31865.readRTD();
-    const uint8_t  fault = max31865.readFault();
-    ESP_LOGD(TAG, "MAX31865 comms check - RTD raw: %u  Fault: 0x%02X", rtd, fault);
+    // Configure for PT1000 4-wire RTD measurement:
+    //   - MUX: AIN1(+) / AIN0(-)
+    //   - Vref: external REFP/REFN (ratiometric)
+    //   - IDAC1 routed to AIN3
+    //   - Single-shot mode
+    ads122c04.configureADCmode(ADS122C04_4WIRE_MODE);
 
-    if (rtd == 0 && fault == 0) {
-        _Log.println("WARNING: MAX31865 may not be communicating (RTD=0, Fault=0).");
-        ESP_LOGW(TAG, "Check CS, CLK, SDI, SDO wiring and 3.3V supply.");
-    } else {
-        ESP_LOGI(TAG, "MAX31865 initialized successfully!");
-    }
+    // PT1000 produces ~10x more signal than PT100 — gain 8 overranges.
+    // Drop to gain 1 and disable PGA (required when gain < 4).
+    ads122c04.setGain(ADS122C04_GAIN_1);
+    ads122c04.enablePGA(ADS122C04_PGA_DISABLED);
 
+    // Drop IDAC to 250uA to keep signal within range with gain 1.
+    ads122c04.setIDACcurrent(ADS122C04_IDAC_CURRENT_250_UA);
+
+    ESP_LOGI(TAG, "ADS122C04 configured for PT1000 4-wire measurement");
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -236,92 +247,69 @@ module::ServiceStatus service(uint32_t nowMs) {
     // stays current even when the RTD read returns early (timeout / offline).
     sLastAmbientTempC = imu::getTemperature();
 
-    // ── Non-blocking RTD measurement ─────────────────────────────────────
-    // The old code called readRTD() + temperature() — two blocking reads
-    // totalling ~150 ms of delay().  The forked library splits this into a
-    // three-phase state machine (bias settling → ADC conversion → read)
-    // that returns immediately each cycle.  One result every ~400 ms with
-    // zero blocking.
+    // ── Non-blocking ADS122C04 RTD measurement ──────────────────────────
+    // Uses a two-phase state machine:
+    //   Phase 0: Kick off a single-shot conversion via ads122c04.start()
+    //   Phase 1: Poll DRDY; when ready, read the 24-bit result
+    // Returns early each cycle that DRDY is not yet asserted, keeping the
+    // main loop non-blocking.
 
-    // Kick off a new measurement if none is in flight.
-    static uint32_t sRtdStartMs = 0;
-    if (!max31865.readRTDAsyncInProgress()) {
-        // If a fault was active, the chip may have been power-cycled (POR
-        // resets registers to defaults — including 2-wire mode).  Re-run
-        // begin() to restore the 3-wire configuration before starting the
-        // next measurement.
+    static uint32_t sRtdStartMs  = 0;
+    static bool     sConvStarted = false;
+
+    if (!sConvStarted) {
+        // If a fault was active, re-initialise the ADC to restore its
+        // configuration (the chip may have been power-cycled).
         if (sRtdFaultActive) {
-            max31865.begin(RTD_WIRE_CONFIG);
+            ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire);
+            ads122c04.configureADCmode(ADS122C04_4WIRE_MODE);
+            ads122c04.setGain(ADS122C04_GAIN_1);
+            ads122c04.enablePGA(ADS122C04_PGA_DISABLED);
+            ads122c04.setIDACcurrent(ADS122C04_IDAC_CURRENT_250_UA);
         }
-        max31865.readRTDAsyncStart();
-        sRtdStartMs = nowMs;
-        return module::MODULE_SERVICE_OK;  // bias is settling — nothing to process this cycle
+        ads122c04.start();
+        sConvStarted = true;
+        sRtdStartMs  = nowMs;
+        return module::MODULE_SERVICE_OK;  // conversion starting — nothing to read yet
     }
 
-    // Advance the state machine; return early if still converting.
-    if (!max31865.readRTDAsyncReady()) {
-        // Timeout: if the read has been in progress for >2 s the chip is
-        // likely dead (12 V off).  Flag a sensor fault so the dashboard
-        // stops showing the stale temperature line.
+    // Poll DRDY; return early if still converting.
+    if (!ads122c04.checkDataReady()) {
+        // Timeout: if >2 s the chip is likely dead.
         if ((nowMs - sRtdStartMs) > 2000u) {
             sRtdFaultActive = true;
+            sConvStarted    = false;  // allow retry next cycle
         }
         return module::MODULE_SERVICE_ERROR;
     }
 
-    // Measurement complete — process the result.
-    const uint16_t rtd = max31865.readRTDAsyncGetLastRTD();
+    // Measurement complete — read 24-bit result.
+    sConvStarted = false;  // ready for next cycle
 
-    // RTD raw == 0 means the sensor is disconnected or not communicating.
-    // Skip all temperature processing — don't store a bogus value in sLastTempC.
-    if (rtd == 0) {
+    const uint32_t raw = ads122c04.readADC();
+
+    // Sign-extend from 24-bit two's complement to 32-bit.
+    int32_t signed_raw;
+    if (raw & 0x00800000) {
+        signed_raw = static_cast<int32_t>(raw | 0xFF000000);
+    } else {
+        signed_raw = static_cast<int32_t>(raw);
+    }
+
+    // raw == 0 likely means disconnected / not communicating.
+    if (raw == 0) {
         sRtdFaultActive = true;
         return module::MODULE_SERVICE_ERROR;
     }
 
-    const float    resistance   = conversions::rtdRawToResistance(rtd, RTD_RREF);
-    const float    tempC        = max31865.calculateTemperature(rtd, RTD_RNOMINAL, RTD_RREF);
-    const float    tempF        = conversions::celsiusToFahrenheit(tempC);
-    // Check MAX31865 fault register and temperature plausibility.
-    // The two checks are independent so each fault type can clear its own
-    // rate-limit slot as soon as it resolves, without waiting for the other
-    // to also clear.  rtdFaultActive is true if either fault is present.
-    bool anyFault = false;
-
-    // --- hw fault register ---
-    const uint8_t hwFault = max31865.readFault();
-    //_Log.printf("HW fault: 0x%02X, Last fault: 0x%02X\n", hwFault, sLastFaultCode);
-    if (hwFault != 0) {
-        anyFault = true;
-        //max31865.clearFault();
-        const uint16_t  key  = static_cast<uint16_t>(hwFault);
-        FaultRateLimit* fl   = findFaultLimit(key);
-        const bool      emit = (fl == nullptr) ||
-                               (nowMs - fl->lastLogMs >= FAULT_LOG_INTERVAL_MS);
-        if (emit) {
-            const uint32_t suppressed = fl ? fl->suppressedCt : 0;
-            if (suppressed > 0) {
-                _Log.printf("MAX31865 fault register 0x%02X — temperature reading unreliable"
-                              " (+" PRIu32 " suppressed)", hwFault, suppressed);
-            } else {
-                _Log.printf("MAX31865 fault register 0x%02X — temperature reading unreliable", hwFault);
-            }
-            if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
-        } else {
-            ++fl->suppressedCt;
-        }
-    } else {
-        // hw fault cleared — reset its slot(s) so any recurrence emits immediately.
-        for (auto& fl : sFaultLimits) {
-            if (fl.key != FAULT_KEY_NONE &&
-                fl.key != FAULT_KEY_PLAUS_LOW &&
-                fl.key != FAULT_KEY_PLAUS_HIGH) {
-                fl = {};
-            }
-        }
-    }
+    // Convert ADC counts to PT1000 resistance (ratiometric).
+    // R_pt1000 = (ADC / 2^23) * R_ref / gain
+    const float resistance = (static_cast<float>(signed_raw) / ADS122C04_ADC_FULL_SCALE)
+                             * PT1000_REF_R / PT1000_GAIN;
+    const float tempC      = conversions::resistanceToTemperaturePT1000(resistance);
 
     // --- plausibility check ---
+    bool anyFault = false;
     const bool plausLow  = tempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C);
     const bool plausHigh = tempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C);
     if (plausLow || plausHigh) {
@@ -375,9 +363,6 @@ module::ServiceStatus service(uint32_t nowMs) {
             coolingRateAvg.addValue(dTempC / dtMinutes);
         }
     }
-
-    //Serial.printf("RTD raw: %u  Resistance: %.2f Ohm  Temp: %.2f C / %.2f F\n",
-    //              rtd, resistance, tempC, tempF);
     } // real hardware path
 
     // Update the tracking monitor if it is active (Operating state only).
@@ -410,33 +395,12 @@ void setLastReadings(uint32_t nowMs, float tempC,
 
 void checkFaults() {
     if (sensor_mock::isActive()) return;
-
-
-    const uint8_t fault = max31865.readFault();
-    //_Log.printf("Fault: 0x%02X, Last fault: 0x%02X\n", fault, sLastFaultCode);
-    // Only log when the fault code changes — suppresses repeated messages
-    // for the same persistent fault.  Resets when the fault clears so any
-    // recurrence is logged immediately.
-    if (fault == sLastFaultCode){
-        //_Log.println("Fault code is the same as the last one");
-        return;
+    // ADS122C04 has no dedicated fault register like the MAX31865.
+    // Faults are detected during service() via DRDY timeout and plausibility
+    // checks.  This function is retained for API compatibility.
+    if (sRtdFaultActive) {
+        _Log.println("ADS122C04: sensor fault active (DRDY timeout or out-of-range reading)");
     }
-    sLastFaultCode = fault;
-    if (fault == 0) {
-        //_Log.println("Fault just cleared");
-        return;
-    }   // fault just cleared — nothing to log
-
-    _Log.printf("Fault detected! Code: 0x%02X\n", fault);
-
-    if (fault & MAX31865_FAULT_HIGHTHRESH)  _Log.println("  - RTD High Threshold");
-    if (fault & MAX31865_FAULT_LOWTHRESH)   _Log.println("  - RTD Low Threshold");
-    if (fault & MAX31865_FAULT_REFINLOW)    _Log.println("  - REFIN- > 0.85 x Bias");
-    if (fault & MAX31865_FAULT_REFINHIGH)   _Log.println("  - REFIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_RTDINLOW)    _Log.println("  - RTDIN- < 0.85 x Bias - FORCE- open");
-    if (fault & MAX31865_FAULT_OVUV)        _Log.println("  - Under/Over voltage");
-
-    //max31865.clearFault();
 }
 
 float getLastTempC() {
@@ -576,7 +540,7 @@ void enableMock(float tempC) {
 
 void disableMock() {
     sLocalMockEnabled = false;
-    _Log.println("Local RTD mock disabled — will use real MAX31865 after next reinit");
+    _Log.println("Local RTD mock disabled — will use real ADS122C04 after next reinit");
 }
 
 bool isMockEnabled() {

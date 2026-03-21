@@ -62,6 +62,31 @@ static constexpr uint8_t PUMP_CHANNEL = 1;
 // actual duty diverges from what we commanded.
 static uint8_t expectedDuty_[2] = {0, 0};
 
+// ---------------------------------------------------------------------------
+// EMC2302 ALERT# pin fault detection
+//
+// The EMC2302's open-drain ALERT# output latches LOW when a stall, spin-up
+// failure, or drive failure is detected on either channel.  It remains LOW
+// until the firmware reads the corresponding status register, which clears
+// the latch and releases the pin (external pull-up returns it HIGH).
+//
+// GPIO COOLING_FAN_FAULT_PIN is connected to ALERT# via an external pull-up
+// resistor.  We sample the pin every service() tick:
+//   HIGH → no fault (or fault was just cleared)
+//   LOW  → EMC2302 has latched a fault
+//
+// When a LOW is detected we read all four status registers (fan status,
+// stall, spin, drive-fail), log the decoded fault bits, and clear the
+// latch.  The fault flag stays active for one full check cycle so that
+// telemetry and the state machine can observe it.
+// ---------------------------------------------------------------------------
+static bool     fanFaultActive_   = false;
+static uint32_t fanFaultSinceMs_  = 0;      // millis() of the first assertion
+static uint8_t  lastFanStatus_    = 0;
+static uint8_t  lastStallStatus_  = 0;
+static uint8_t  lastSpinStatus_   = 0;
+static uint8_t  lastDriveStatus_  = 0;
+
 namespace cooling {
 static LogStream _Log = Log.createChildLogger("cooling");
 
@@ -467,6 +492,11 @@ module::InitStatus init() {
         }
     }
 
+    // ── ALERT# fault input ────────────────────────────────────────────────
+    // External pull-up holds the line HIGH; EMC2302 pulls LOW on fault.
+    pinMode(COOLING_FAN_FAULT_PIN, INPUT);
+    fanFaultActive_ = false;
+
     // ── Coolant sensor setup ──────────────────────────────────────────────
 
     // Flow sensor: interrupt on the falling edge of each Hall-effect pulse.
@@ -517,6 +547,8 @@ module::ServiceStatus service() {
                 _Log.println(F("EMC2302 appeared — deferred init succeeded"));
 
                 // Complete the rest of init that was skipped on first attempt
+                pinMode(COOLING_FAN_FAULT_PIN, INPUT);
+                fanFaultActive_ = false;
                 rpmAvg_.clear();
                 pumpRpmAvg_.clear();
                 flowPulseCount_ = 0u;
@@ -677,17 +709,58 @@ module::ServiceStatus service() {
                  rawPumpDuty, pumpHwToNorm(rawPumpDuty));
     }
 
-    // ── Clear latched EMC2302 fault status ──────────────────────────────
-    // The ALERT# pin is open-drain, active-low.  It latches LOW whenever a
-    // stall / spin-fail / drive-fail is detected and stays there until the
-    // corresponding status register is *read*.  Reading clears the latch
-    // and releases ALERT# (goes high-Z → pulled HIGH externally).
-    // At low duty cycles the tach is often too slow, so the chip sees
-    // "stall" continuously — this read keeps the pin from being stuck low.
-    (void)controller_.getFanStatusRegister();
-    (void)controller_.getStallStatusRegister();
-    (void)controller_.getSpinStatusRegister();
-    (void)controller_.getDriveFailStatusRegister();
+    // ── EMC2302 ALERT# fault detection ──────────────────────────────────
+    // ALERT# is active-low, latched.  We only read status registers when
+    // the pin is actually asserted — this avoids unnecessary I2C traffic
+    // every tick and gives us a reliable "fault active right now" signal.
+    const bool alertAsserted = (digitalRead(COOLING_FAN_FAULT_PIN) == LOW);
+
+    if (alertAsserted) {
+        // Read all four status registers — this also clears the latch.
+        const uint8_t fanSt   = controller_.getFanStatusRegister();
+        const uint8_t stallSt = controller_.getStallStatusRegister();
+        const uint8_t spinSt  = controller_.getSpinStatusRegister();
+        const uint8_t driveSt = controller_.getDriveFailStatusRegister();
+
+        if (!fanFaultActive_) {
+            // Rising edge — first detection this episode
+            fanFaultActive_  = true;
+            fanFaultSinceMs_ = nowMs;
+        }
+
+        // Log only when the status pattern changes (avoids spam from
+        // sustained low-duty stall at low RPM).
+        if (fanSt != lastFanStatus_ || stallSt != lastStallStatus_ ||
+            spinSt != lastSpinStatus_ || driveSt != lastDriveStatus_) {
+            lastFanStatus_   = fanSt;
+            lastStallStatus_ = stallSt;
+            lastSpinStatus_  = spinSt;
+            lastDriveStatus_ = driveSt;
+
+            _Log.printf("ALERT# asserted — fan=0x%02X stall=0x%02X spin=0x%02X drive=0x%02X\n",
+                        fanSt, stallSt, spinSt, driveSt);
+
+            // Decode individual bits (2 channels → bits 0 and 1)
+            if (stallSt & 0x01) _Log.println("  ch0 (fan):  STALL detected");
+            if (stallSt & 0x02) _Log.println("  ch1 (pump): STALL detected");
+            if (spinSt  & 0x01) _Log.println("  ch0 (fan):  spin-up FAIL");
+            if (spinSt  & 0x02) _Log.println("  ch1 (pump): spin-up FAIL");
+            if (driveSt & 0x01) _Log.println("  ch0 (fan):  drive FAIL");
+            if (driveSt & 0x02) _Log.println("  ch1 (pump): drive FAIL");
+        }
+    } else {
+        // ALERT# released — fault cleared
+        if (fanFaultActive_) {
+            const uint32_t durationMs = nowMs - fanFaultSinceMs_;
+            _Log.printf("ALERT# cleared after %lu ms\n",
+                        static_cast<unsigned long>(durationMs));
+            fanFaultActive_  = false;
+            lastFanStatus_   = 0;
+            lastStallStatus_ = 0;
+            lastSpinStatus_  = 0;
+            lastDriveStatus_ = 0;
+        }
+    }
 
     const uint8_t dc = cachedDutyCycle_;
 
@@ -874,6 +947,13 @@ void disable() {
 }
 
 bool isEnabled() { return enabled_; }
+
+bool hasFanFault() { return fanFaultActive_; }
+
+uint32_t getFanFaultDurationMs() {
+    if (!fanFaultActive_) return 0;
+    return millis() - fanFaultSinceMs_;
+}
 
 // ---------------------------------------------------------------------------
 // Setpoint tracking

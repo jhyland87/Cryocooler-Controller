@@ -398,7 +398,8 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cooling.fan_speed",      "%u",   cooling::getFanSpeed())
             .field("cooling.fan_rpm",        "%u",   cooling::getFanRPM())
             .field("cooling.pump_speed",     "%u",   cooling::getPumpSpeed())
-            .field("cooling.pump_rpm",       "%u",   cooling::getPumpRPM());
+            .field("cooling.pump_rpm",       "%u",   cooling::getPumpRPM())
+            .field("cooling.fan_fault",      "%d",   cooling::hasFanFault());
     } else {
         frame
             .field("cooling.status",        "%s", "")
@@ -408,7 +409,8 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("cooling.fan_speed",     "%s", "")
             .field("cooling.fan_rpm",       "%s", "")
             .field("cooling.pump_speed",    "%s", "")
-            .field("cooling.pump_rpm",      "%s", "");
+            .field("cooling.pump_rpm",      "%s", "")
+            .field("cooling.fan_fault",     "%s", "");
     }
 
     // ── Compressor ────────────────────────────────────────────────────────
@@ -617,6 +619,7 @@ void emit(const state_machine::Output& out)
         .field("cooling.fan_rpm",                   "%u",   cooling::getFanRPM())
         .field("cooling.pump_speed",                "%u",   cooling::getPumpSpeed())
         .field("cooling.pump_rpm",                  "%u",   cooling::getPumpRPM())
+        .field("cooling.fan_fault",                 "%d",   cooling::hasFanFault())
         .field("score.cooling.fan_speed",           "%.2f", cooling::getFanSpeedScore())
         .field("score.cooling.coolant_temp",        "%.2f", cooling::getCoolantTempScore())
         .field("score.cooling.coolant_flow",        "%.2f", cooling::getCoolantFlowScore())

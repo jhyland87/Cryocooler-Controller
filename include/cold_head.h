@@ -2,7 +2,7 @@
  * @file cold_head.h
  * @brief Cold-head temperature sensor interface
  *
- * Manages the MAX31865 RTD sensor connected to the cold head.
+ * Manages the ADS122C04 24-bit ADC with PT1000 RTD connected to the cold head.
  */
 
 #ifndef COLD_HEAD_H
@@ -15,7 +15,7 @@
 namespace cold_head {
 
 /**
- * Initialize the MAX31865 RTD sensor.
+ * Initialize the ADS122C04 ADC for PT1000 RTD measurement.
  * Prints a diagnostic message to Serial.
  * @return MODULE_INIT_SUCCESS if begin() succeeds, MODULE_INIT_HARDWARE_ERROR otherwise.
  */
@@ -61,15 +61,14 @@ float getLastTempCBelowAmbient();
 
 
 /**
- * Check for MAX31865 fault conditions and report via Serial.
- * Clears the fault register after reading.
+ * Check for ADS122C04 fault conditions and report via Serial.
  */
 void checkFaults();
 
 /**
  * Return true if the most recent read() detected a sensor fault:
- * either the MAX31865 hardware fault register was non-zero, or the
- * computed temperature was outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
+ * either the ADS122C04 DRDY timed out, or the computed temperature
+ * was outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
  *
  * The flag self-clears as soon as a clean, in-range reading is obtained,
  * but the state machine latches into Fault state until clearFault() is called.
@@ -160,7 +159,7 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
 // ---------------------------------------------------------------------------
 // Module-local RTD mock
 //
-// Enables the cold_head module to operate without a physical MAX31865 probe,
+// Enables the cold_head module to operate without a physical ADS122C04/PT1000 probe,
 // independently of the global sensor_mock layer.  Only the temperature
 // reading is faked; all other hardware (amplifier, cooling fan, relay) runs
 // normally on real hardware.
@@ -176,7 +175,7 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
 /**
  * Enable the module-local RTD mock.
  *
- * While active, init() skips all MAX31865 hardware access and succeeds
+ * While active, init() skips all ADS122C04 hardware access and succeeds
  * immediately, and read() returns @p tempC instead of a real RTD reading.
  * The global sensor_mock layer takes precedence if it is also active.
  *
@@ -191,7 +190,7 @@ void enableMock(float tempC = 26.85f);
 /**
  * Disable the module-local RTD mock.
  * Takes full effect after the next reinit() — init() will attempt to
- * communicate with the real MAX31865 hardware.
+ * communicate with the real ADS122C04 hardware.
  */
 void disableMock();
 

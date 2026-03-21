@@ -13,8 +13,8 @@
  * Internal algorithm parameters live in config_advanced.h, which is
  * included at the bottom of this file — no need to include it separately.
  *
- * NOTE: RTD_WIRE_CONFIG references an enum value from the Adafruit MAX31865
- * header; that header must be included before using it.
+ * NOTE: ADS122C04 enum values (gain, IDAC, mode) are defined in the
+ * SparkFun ADS122C04 library header.
  */
 
 #ifndef CONFIG_H
@@ -100,21 +100,23 @@
 #define EMIT_TELEMETRY_WHEN_IDLE true
 
 // =============================================================================
-// RTD Sensor (MAX31865)
+// RTD Sensor (ADS122C04 + PT1000)
 // =============================================================================
 
 #define ANALOG_RESOLUTION static_cast<uint8_t>(12)
 
-// Reference resistor on the MAX31865 breakout.
-// Use 430.0 for PT100, 4300.0 for PT1000 (adjust to your measured value).
-#define RTD_RREF        static_cast<float>(435.3f)
+// Reference resistor value in ohms (external precision resistor between
+// REFP and REFN on the ADS122C04 board).  Adjust to your measured value.
+#define PT1000_REF_R    static_cast<float>(3854.0f)
 
-// Nominal 0 °C resistance of the RTD element.
-// Use 100.0 for PT100, 1000.0 for PT1000.
-#define RTD_RNOMINAL    static_cast<float>(100.0f)
+// ADC gain setting.  Gain 1 with PGA disabled for PT1000 (high signal).
+#define PT1000_GAIN     static_cast<float>(1.0f)
 
-// Wire configuration: MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE
-#define RTD_WIRE_CONFIG MAX31865_3WIRE
+// Nominal 0 °C resistance of the PT1000 RTD element.
+#define PT1000_R0       static_cast<float>(1000.0f)
+
+// 24-bit ADC full-scale value (2^23 for signed).
+#define ADS122C04_ADC_FULL_SCALE  static_cast<float>(8388608.0f)
 
 // =============================================================================
 // Amplifier (AD9833 waveform generator)

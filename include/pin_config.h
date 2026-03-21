@@ -16,9 +16,9 @@
 #define RGB_LED_PIN 38
 
 // =============================================================================
-// MAX31865 RTD Sensor
+// ADS122C04 RTD Sensor (I2C — no dedicated pins, uses shared SDA/SCL bus)
 // =============================================================================
-#define MAX31865_CS        1    // Chip Select for MAX31865 PT100
+// I2C address defined in config_advanced.h as ADS122C04_RTD_SENSOR_I2C_ADDRESS
 
 // =============================================================================
 // One-Wire Bus for DS18B20 temperature sensor
@@ -69,7 +69,7 @@
 
 
 // =============================================================================
-// SPI Bus (shared by MAX31865 and AD9833)
+// SPI Bus (used by AD9833)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
@@ -85,6 +85,8 @@
 // Requires a 10 kΩ pull-up to 3.3 V on the line; the internal INPUT_PULLUP
 // is used as a backup but an external resistor is strongly recommended.
 #define COOLING_FLOW_PIN         10
+
+#define COOLING_FAN_FAULT_PIN      14
 
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
