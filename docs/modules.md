@@ -193,8 +193,15 @@ Modules are organised into four arrays. **Order within each array encodes depend
 
 Initialised once at boot. Never re-initialised on `reinit`. These provide the communication path (console, dashboard, telemetry) that the operator uses to issue commands.
 
-```
-logger → imu → commands → ota → dashboard → [espnow] → telemetry → sysinfo
+```mermaid
+flowchart LR
+    logger --> imu --> commands --> ota --> dashboard --> espnow["espnow
+    (conditional)"] --> telemetry --> sysinfo
+
+    classDef mod fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    classDef cond fill:#e0e7ff,stroke:#6366f1,color:#312e81,stroke-dasharray: 5 5
+    class logger,imu,commands,ota,dashboard,telemetry,sysinfo mod
+    class espnow cond
 ```
 
 - OTA before dashboard (routes must be registered before the HTTP server starts)
@@ -204,8 +211,15 @@ logger → imu → commands → ota → dashboard → [espnow] → telemetry →
 
 Re-initialised on every FSM `reinit()` (entering the Initialize state). This allows hardware peripherals to be reconfigured after a logical system reset without a full MCU reboot.
 
-```
-[compressor] → cooling → amplifier → cold_head
+```mermaid
+flowchart LR
+    compressor["compressor
+    (conditional)"] --> cooling --> amplifier --> cold_head
+
+    classDef mod fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef cond fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-dasharray: 5 5
+    class cooling,amplifier,cold_head mod
+    class compressor cond
 ```
 
 - compressor first (de-energise relay as early as possible)
@@ -214,8 +228,12 @@ Re-initialised on every FSM `reinit()` (entering the Initialize state). This all
 
 Serviced every `loop()` iteration with health-transition logging:
 
-```
-sysinfo → imu → amplifier → cooling
+```mermaid
+flowchart LR
+    sysinfo --> imu --> amplifier --> cooling
+
+    classDef mod fill:#e0e7ff,stroke:#6366f1,color:#312e81
+    class sysinfo,imu,amplifier,cooling mod
 ```
 
 ### Boot banner
@@ -242,43 +260,80 @@ These modules don't fit the uniform init/service signature and remain hand-coded
 
 ## Init Flow (setup)
 
-```
-setup()
-  │
-  ├─ hardware::Module::init()        [FATAL — halts on failure]
-  ├─ indicator::Module::init()       [before WiFi]
-  │
-  ├─ initPersistentModules()         [logger, imu, commands, ota, dashboard, ...]
-  │   └─ module::initGroup(persistentModules, ..., telemetry::emitSafe, yield)
-  │
-  ├─ state_machine::Module::init()   [pure logic, always succeeds]
-  │
-  └─ state_machine::reinit()
-      └─ initControlModules()        [cooling, amplifier, cold_head, ...]
-          └─ module::initGroup(controlModules, ..., telemetry::emitSafe, yield)
+```mermaid
+flowchart TD
+    S([setup]) --> HW["hardware::Module::init()
+    FATAL — halts on failure"]
+    HW --> IND["indicator::Module::init()
+    before WiFi"]
+
+    IND --> PM[initPersistentModules]
+    PM --> PMG["module::initGroup(persistentModules)
+    logger → imu → commands → ota →
+    dashboard → espnow → telemetry → sysinfo"]
+
+    PMG --> SM["state_machine::Module::init()
+    pure logic, always succeeds"]
+
+    SM --> RI[state_machine::reinit]
+    RI --> CM[initControlModules]
+    CM --> CMG["module::initGroup(controlModules)
+    compressor → cooling →
+    amplifier → cold_head"]
+
+    classDef fatal fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+    classDef special fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef group fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    classDef control fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+    class HW fatal
+    class IND,SM special
+    class PM,PMG group
+    class CM,CMG control
 ```
 
 ## Service Flow (loop)
 
-```
-loop()
-  │
-  ├─ commands::Module::service()     [unconditional — console always reachable]
-  │
-  ├─ tickServiceModules[]            [sysinfo, imu, amplifier, cooling]
-  │   └─ module::serviceWithLog()    [logs only health transitions]
-  │
-  ├─ hardware::serviceI2c(nowMs)     [I2C error monitor + bus recovery]
-  ├─ indicator::update()             [at INDICATOR_UPDATE_INTERVAL_MS cadence]
-  │
-  └─ [LOOP_INTERVAL_MS gate]
-      ├─ sensor_mock::service()      [advance mock ramps]
-      ├─ cold_head::service()        [read RTD + fault check]
-      ├─ state_machine::update(...)  [returns actuator targets]
-      ├─ indicator::set{Fault,Ready}Mode()
-      ├─ compressor::Module::service()
-      ├─ telemetry::emit(out)
-      └─ dashboard::Module::service()
+```mermaid
+flowchart TD
+    L([loop]) --> CMD["commands::Module::service()
+    unconditional — console always reachable"]
+
+    CMD --> TICK["tickServiceModules[]
+    sysinfo → imu → amplifier → cooling
+    serviceWithLog — logs only health transitions"]
+
+    TICK --> I2C["hardware::serviceI2c(nowMs)
+    I2C error monitor + bus recovery"]
+    I2C --> LED["indicator::update()
+    at INDICATOR_UPDATE_INTERVAL_MS cadence"]
+
+    LED --> GATE{LOOP_INTERVAL_MS
+    gate}
+    GATE -->|not yet| RET([return])
+    GATE -->|elapsed| MOCK["sensor_mock::service()
+    advance mock ramps"]
+
+    MOCK --> CH["cold_head::service()
+    read RTD + fault check"]
+    CH --> FSM["state_machine::update(...)
+    returns actuator targets"]
+    FSM --> ACT["indicator::setFaultMode / setReadyMode
+    compressor::Module::service"]
+    ACT --> TEL["telemetry::emit(out)
+    dashboard::Module::service"]
+
+    classDef always fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    classDef tick fill:#e0e7ff,stroke:#6366f1,color:#312e81
+    classDef infra fill:#f1f5f9,stroke:#94a3b8,color:#334155
+    classDef gated fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef exit fill:#f1f5f9,stroke:#cbd5e1,color:#64748b
+
+    class CMD always
+    class TICK tick
+    class I2C,LED infra
+    class MOCK,CH,FSM,ACT,TEL gated
+    class RET exit
 ```
 
 ---
