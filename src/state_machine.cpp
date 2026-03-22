@@ -376,6 +376,7 @@ static void setStateEntry(State s) {
 
 static void onEnterOff(){
     setStateEntry(State::Off);
+    cold_head::setTargetTempC(NAN);
     // Relay is cut first; DAC is zeroed immediately — no ramp needed here
     // because the load is already disconnected.  Shutdown handles the
     // graceful ramp for the normal stop path (running → Shutdown → Idle).
@@ -392,6 +393,7 @@ static void onEnterInitialize() {
 }
 static void onEnterIdle() {
     setStateEntry(State::Idle);
+    cold_head::setTargetTempC(NAN);
     amplifier::clearVoutOverride();
     // Relay off, then immediately zero the DAC.  rampTo() is a
     // single-step call — it only decrements by one rampRate on each
@@ -405,6 +407,7 @@ static void onEnterIdle() {
 }
 static void onEnterCoarseCooldown() {
     setStateEntry(State::CoarseCooldown);
+    cold_head::setTargetTempC(SETPOINT_C);
     amplifier::setRelayState(true);
     amplifier::initCoarseCooldown();
 #ifdef ARDUINO
@@ -470,6 +473,7 @@ static void onEnterDelay() {
 static void onEnterFault() {
     setStateEntry(State::Fault);   // faultReason is preserved (set before trigger())
     deferredStop_ = false;         // reset — operator hasn't deferred stop yet
+    cold_head::setTargetTempC(NAN);
     amplifier::clearVoutOverride();
     // Relay off first, then immediately zero the DAC.  The load is now
     // disconnected, so there is no reason to leave the DAC at the pre-fault

@@ -116,9 +116,9 @@ static constexpr char TAG[] = "cold_head";
 // ---------------------------------------------------------------------------
 
 // Target temperature set by the state machine via setTargetTempC().
-// Defaults to the system setpoint; updated whenever the state machine
-// changes its cooling target.
-static float targetTempC_ = SETPOINT_C;
+// NAN while the system is idle/off/fault — only populated when the FSM
+// enters a cooling state.  The dashboard treats NAN as "no target".
+static float targetTempC_ = NAN;
 
 // Tracks how closely the measured cold-stage temperature follows targetTempC_.
 // Only active while the FSM is in the Operating state; nullopt otherwise.
