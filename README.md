@@ -9,7 +9,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Component | Part | Interface | Address / Pin | Purpose |
 |-----------|------|-----------|---------------|---------|
 | Microcontroller | ESP32-S3 DevKitC-1-N32R16V | — | — | Host MCU (32 MB flash, 16 MB PSRAM) |
-| Cold-stage sensor | MAX31865 + PT100 RTD | SPI | CS: GPIO 1 | Cold-stage temperature (3-wire) |
+| Cold-stage sensor | ADS122C04 + PT1000 RTD | I2C | 0x45 | Cold-stage temperature (4-wire, ratiometric) |
 | Waveform generator | AD9833 DDS | SPI | CS: GPIO 7 | 60 Hz sine wave for compressor |
 | DAC | AD5693R 16-bit | I2C | 0x4E | Amplifier power control |
 | Power monitor | INA237 | I2C | auto | Bus voltage + current |
@@ -24,11 +24,15 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **I2C bus:** SDA → GPIO 8, SCL → GPIO 9.
 
-**SPI bus** (shared by MAX31865, AD9833): CLK → GPIO 42, MISO → GPIO 41, MOSI → GPIO 40.
+**SPI bus** (AD9833 only): CLK → GPIO 42, MISO → GPIO 41, MOSI → GPIO 40.
+
+**Fan fault alert:** EMC2302 ALERT# → GPIO 14 (active-low, external pull-up).
 
 ---
 
 ## Architecture
+
+All subsystem modules follow a standardised lifecycle pattern built on a CRTP base class (`ModuleBase<T>`) with compile-time interface enforcement. Modules are registered in declarative arrays and initialised/serviced via generic helpers — adding a new module is a one-liner. See [`docs/modules.md`](docs/modules.md) for the full module authoring guide.
 
 ```mermaid
 flowchart TD
@@ -44,7 +48,7 @@ flowchart TD
 
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
         COOL[cooling<br/>EMC2302 fan + pump<br/>software LUT]
-        CH[cold_head<br/>MAX31865 RTD]
+        CH[cold_head<br/>ADS122C04 PT1000 RTD]
         AMP[amplifier<br/>AD9833 + AD5693R DAC + ACS37800]
         COMP[compressor<br/>Qwiic relay]
         IND[indicator<br/>WS2812 RGB LED]
@@ -86,7 +90,7 @@ flowchart TD
 
 ### `hardware`
 
-Initialises the shared I2C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction.
+Initialises the shared I2C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction, and an error monitor (`reportI2cError()` / `serviceI2c()`) that triggers automatic bus recovery when error counts exceed a threshold.
 
 ---
 
@@ -129,9 +133,9 @@ The core of the controller. Ingests sensor readings every tick and outputs a com
 
 ### `cold_head`
 
-Drives the MAX31865 breakout board over SPI to read the PT100 RTD and converts raw resistance to Kelvin/Celsius.
+Reads the PT1000 RTD via the ADS122C04 24-bit ADC over I2C (address 0x45). The ADC is configured for 4-wire ratiometric measurement with 250 µA IDAC excitation and a 3854 Ω external reference resistor. Raw ADC counts are converted to resistance, then to temperature via the Callendar-Van Dusen equation (above 0 °C) and AN709 polynomial (below 0 °C).
 
-Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
+Uses a non-blocking two-phase state machine: start single-shot conversion → poll DRDY → read 24-bit result. Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
 
 | Function | Returns |
 |----------|---------|
@@ -186,6 +190,10 @@ Controls the cooling fan and pump via a single EMC2302-2 dual-channel PWM contro
 
 **Deferred init:** The EMC2302 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
 
+**Fault detection:** The EMC2302's open-drain ALERT# pin (GPIO 14, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
+
+**I2C bus recovery:** When the EMC2302 loses power mid-operation, it can hold the I2C SDA line low and block all other sensors on the shared bus. The service function calls `hardware::recoverI2c()` immediately on detecting an I2C failure to free the bus for other devices.
+
 **Pump normalisation:** User-facing pump speeds are 0–100 % normalised, mapped to 0–`COOLING_PUMP_MAX_DUTY_PCT` (raw 0–255) at the hardware boundary. The pump stalls above ~16 % effective duty (~4400 RPM).
 
 **Tracking monitors:** Score-based monitors for fan duty, coolant temperature, and flow rate detect sustained deviations from expected values.
@@ -198,6 +206,8 @@ Controls the cooling fan and pump via a single EMC2302-2 dual-channel PWM contro
 | `getFanRPM()` | Fan tachometer RPM |
 | `getPumpSpeed()` | Pump speed (normalised 0–100 %) |
 | `getPumpRPM()` | Pump tachometer RPM |
+| `hasFanFault()` | True while ALERT# is asserted |
+| `getFanFaultDurationMs()` | Duration of current fault episode |
 
 ---
 
@@ -298,10 +308,12 @@ Header-only pure-math utilities with no hardware dependencies — safe for nativ
 
 | Function | Description |
 |----------|-------------|
-| `rtdRawToResistance(raw, rRef)` | MAX31865 raw → Ω |
-| `celsiusToKelvin(c)` | °C → K |
-| `tempKToDacValue(...)` | Temperature → 12-bit DAC mapping |
+| `resistanceToTemperaturePT1000(R)` | PT1000 Ω → °C (Callendar-Van Dusen / AN709) |
+| `tempCToDacValue(...)` | Temperature → 12-bit DAC mapping |
+| `tempCToFraction(...)` | Temperature → cooldown fraction [0.0, 1.0] |
 | `msToHHMMSS(ms, buf)` | ms → `HH:MM:SS` string |
+| `parseDurationMs(str, ...)` | Human duration string → ms (e.g. `1h30m`) |
+| `formatDurationMs(ms, buf, len)` | ms → compact human string (e.g. `1h 30m 00s`) |
 
 ---
 
@@ -479,13 +491,13 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 | `adafruit/Adafruit AD569x Library` | AD5693R DAC |
 | `sparkfun/SparkFun Qwiic Relay Arduino Library` | Relay control |
 | `nanopb/Nanopb` | Protobuf C encoder/decoder |
+| `sparkfun/SparkFun ADS122C04 ADC Arduino Library` | 24-bit ADC for PT1000 RTD |
 
 ### Local libraries (`lib/`)
 
 | Library | Purpose |
 |---------|---------|
 | `EMC230x` | EMC2301/02/03/05 dual PWM fan/pump controller |
-| `Adafruit_MAX31865` | PT100 RTD sensor (local fork) |
 | `ContinuousZMCT103C` | Non-blocking AC current RMS sampling |
 | `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
 

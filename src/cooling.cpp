@@ -70,7 +70,7 @@ static uint8_t expectedDuty_[2] = {0, 0};
 // until the firmware reads the corresponding status register, which clears
 // the latch and releases the pin (external pull-up returns it HIGH).
 //
-// GPIO COOLING_FAN_FAULT_PIN is connected to ALERT# via an external pull-up
+// GPIO COOLING_FAN_FAULT_INDICATOR_PIN is connected to ALERT# via an external pull-up
 // resistor.  We sample the pin every service() tick:
 //   HIGH → no fault (or fault was just cleared)
 //   LOW  → EMC2302 has latched a fault
@@ -494,7 +494,7 @@ module::InitStatus init() {
 
     // ── ALERT# fault input ────────────────────────────────────────────────
     // External pull-up holds the line HIGH; EMC2302 pulls LOW on fault.
-    pinMode(COOLING_FAN_FAULT_PIN, INPUT);
+    pinMode(COOLING_FAN_FAULT_INDICATOR_PIN, INPUT);
     fanFaultActive_ = false;
 
     // ── Coolant sensor setup ──────────────────────────────────────────────
@@ -550,7 +550,7 @@ module::ServiceStatus service() {
                 _Log.println(F("EMC2302 appeared — deferred init succeeded"));
 
                 // Complete the rest of init that was skipped on first attempt
-                pinMode(COOLING_FAN_FAULT_PIN, INPUT);
+                pinMode(COOLING_FAN_FAULT_INDICATOR_PIN, INPUT);
                 fanFaultActive_ = false;
                 rpmAvg_.clear();
                 pumpRpmAvg_.clear();
@@ -722,7 +722,7 @@ module::ServiceStatus service() {
     // ALERT# is active-low, latched.  We only read status registers when
     // the pin is actually asserted — this avoids unnecessary I2C traffic
     // every tick and gives us a reliable "fault active right now" signal.
-    const bool alertAsserted = (digitalRead(COOLING_FAN_FAULT_PIN) == LOW);
+    const bool alertAsserted = (digitalRead(COOLING_FAN_FAULT_INDICATOR_PIN) == LOW);
 
     if (alertAsserted) {
         // Read all four status registers — this also clears the latch.
