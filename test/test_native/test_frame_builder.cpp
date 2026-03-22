@@ -199,7 +199,7 @@ void test_fb_serial_empty_frame(void) {
     FrameBuilder fb;
     Print p;
     fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("/**/\r\n", p.str());
+    TEST_ASSERT_EQUAL_STRING("\r\n", p.str());
 }
 
 void test_fb_serial_single_field(void) {
@@ -207,25 +207,17 @@ void test_fb_serial_single_field(void) {
     Print p;
     fb.field("n", "%d", static_cast<int>(42));
     fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("/*42*/\r\n", p.str());
+    TEST_ASSERT_EQUAL_STRING("42\r\n", p.str());
 }
 
-void test_fb_serial_multiple_fields_pipe_separated(void) {
+void test_fb_serial_multiple_fields_tab_separated(void) {
     FrameBuilder fb;
     Print p;
     fb.field("a", "%d", static_cast<int>(1))
       .field("b", "%d", static_cast<int>(2))
       .field("c", "%d", static_cast<int>(3));
     fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("/*1|2|3*/\r\n", p.str());
-}
-
-void test_fb_serial_starts_with_frame_open(void) {
-    FrameBuilder fb;
-    Print p;
-    fb.field("x", "%d", static_cast<int>(99));
-    fb.sendSerial(p);
-    TEST_ASSERT_TRUE(p.contains("/*"));
+    TEST_ASSERT_EQUAL_STRING("1\t2\t3\r\n", p.str());
 }
 
 void test_fb_serial_ends_with_crlf(void) {
@@ -233,16 +225,16 @@ void test_fb_serial_ends_with_crlf(void) {
     Print p;
     fb.field("x", "%d", static_cast<int>(99));
     fb.sendSerial(p);
-    TEST_ASSERT_TRUE(p.contains("*/\r\n"));
+    TEST_ASSERT_TRUE(p.contains("\r\n"));
 }
 
-void test_fb_serial_no_leading_pipe(void) {
-    // First field must not be preceded by a pipe: "/*value*/" not "/*|value*/"
+void test_fb_serial_no_leading_tab(void) {
+    // First field must not be preceded by a tab
     FrameBuilder fb;
     Print p;
     fb.field("x", "%d", static_cast<int>(5));
     fb.sendSerial(p);
-    TEST_ASSERT_FALSE(p.contains("/*|"));
+    TEST_ASSERT_EQUAL('5', p.str()[0]);
 }
 
 void test_fb_serial_after_reset(void) {
@@ -253,7 +245,7 @@ void test_fb_serial_after_reset(void) {
     fb.reset();
     fb.field("new_", "%d", static_cast<int>(7));
     fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("/*7*/\r\n", p.str());
+    TEST_ASSERT_EQUAL_STRING("7\r\n", p.str());
 }
 
 // ---------------------------------------------------------------------------
@@ -407,7 +399,7 @@ void test_fb_serial_dotted_name_unaffected(void) {
     Print p;
     fb.field("foo.bar", "%d", static_cast<int>(7));
     fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("/*7*/\r\n", p.str());
+    TEST_ASSERT_EQUAL_STRING("7\r\n", p.str());
 }
 
 // ---------------------------------------------------------------------------
@@ -450,10 +442,9 @@ void run_frame_builder_tests() {
     // sendSerial
     RUN_TEST(test_fb_serial_empty_frame);
     RUN_TEST(test_fb_serial_single_field);
-    RUN_TEST(test_fb_serial_multiple_fields_pipe_separated);
-    RUN_TEST(test_fb_serial_starts_with_frame_open);
+    RUN_TEST(test_fb_serial_multiple_fields_tab_separated);
     RUN_TEST(test_fb_serial_ends_with_crlf);
-    RUN_TEST(test_fb_serial_no_leading_pipe);
+    RUN_TEST(test_fb_serial_no_leading_tab);
     RUN_TEST(test_fb_serial_after_reset);
 
     // fillJson — flat keys

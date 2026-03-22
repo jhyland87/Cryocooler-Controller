@@ -192,7 +192,6 @@ static void buildStartupFrame(FrameBuilder& frame)
                  static_cast<unsigned long>((stateSec % 3600u) / 60u),
                  static_cast<unsigned long>(stateSec % 60u));
 
-        const uint32_t nowMs = millis();
         frame
             .field("state.id",              "%d",  static_cast<int8_t>(st))
             .field("state.name",            "%s",  state_machine::stateName(st))
@@ -200,9 +199,9 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("status.on_duration_ms", "%lu", static_cast<unsigned long>(durationMs))
             .field("status.on_duration",    "%s",  hmsBuf)
             .field("status.time_in_state",  "%s",  tisHmsBuf)
-            .field("faults.count_10m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(600000u,  nowMs)))
-            .field("faults.count_30m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(1800000u, nowMs)))
-            .field("faults.count_60m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(3600000u, nowMs)));
+            .field("faults.count_10m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(600000u)))
+            .field("faults.count_30m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(1800000u)))
+            .field("faults.count_60m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(3600000u)));
     } else {
         frame
             .field("state.id",              "%s", "")

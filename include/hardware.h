@@ -79,7 +79,7 @@ namespace hardware {
      * Logs a summary every 10 s if errors occurred and triggers
      * recoverI2c() when the per-window count exceeds the threshold.
      */
-    void serviceI2c(uint32_t nowMs);
+    void serviceI2c();
 
     /** Lifetime I2C error count since boot. */
     uint32_t getI2cErrorTotal();

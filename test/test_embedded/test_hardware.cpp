@@ -85,38 +85,11 @@ void test_ad9833_initializes(void) {
 
 void test_ad9833_set_frequency(void) {
     ad9833.setMode(MD_AD9833::MODE_SINE);
-    ad9833.setFrequency(MD_AD9833::CHAN_0, AD9833_FREQ_HZ);
+    ad9833.setFrequency(MD_AD9833::CHAN_0, AMPLIFIER_FREQ_HZ);
     // No return value to check — success means no hang / crash.
     TEST_ASSERT_TRUE(true);
 }
 
-// ── MCP4921 DAC tests ───────────────────────────────────────────────────────
-
-#include "dac.h"
-
-void test_mcp4921_init(void) {
-    // Should complete without hanging — verifies CS pin and SPI are alive
-    dac::init();
-    TEST_ASSERT_TRUE(true);
-}
-
-void test_mcp4921_write_zero(void) {
-    dac::update(0);
-    delay(10);
-
-    uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
-    // With 8-bit resolution, reading should be near 0
-    TEST_ASSERT_LESS_THAN_UINT16(10, reading);
-}
-
-void test_mcp4921_write_midscale(void) {
-    // Write 2048 (half of 4095) and verify ADC reads a non-zero value
-    dac::update(2048);
-    delay(10);
-
-    uint16_t reading = static_cast<uint16_t>(analogRead(DAC_VOLTAGE_PIN));
-    TEST_ASSERT_GREATER_THAN_UINT16(0, reading);
-}
 
 // ── Entry point (PlatformIO Unity on embedded) ──────────────────────────────
 
@@ -137,11 +110,6 @@ void setup() {
     // AD9833
     RUN_TEST(test_ad9833_initializes);
     RUN_TEST(test_ad9833_set_frequency);
-
-    // MCP4921 DAC
-    RUN_TEST(test_mcp4921_init);
-    RUN_TEST(test_mcp4921_write_zero);
-    RUN_TEST(test_mcp4921_write_midscale);
 
     UNITY_END();
 }

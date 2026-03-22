@@ -16,6 +16,7 @@
 #include "pin_config.h"
 #include "config.h"
 #include "indicator.h"
+#include "tick.h"
 
 // rgbLedWrite() was introduced in Arduino Core 3.x.  Core 2.x provides the
 // identical function under the name neopixelWrite() (same signature, same
@@ -189,8 +190,9 @@ void setReadyMode(Mode mode)
     }
 }
 
-void update(uint32_t nowMs)
+void update()
 {
+    const uint32_t nowMs = tick::nowMs();
     const bool faultOn = evalMode(faultMode, faultLedOn, faultLastMs, nowMs);
     const bool readyOn = evalMode(readyMode, readyLedOn, readyLastMs, nowMs);
 

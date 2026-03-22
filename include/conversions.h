@@ -36,16 +36,18 @@ inline float resistanceToTemperaturePT1000(float R) {
         if (disc < 0.0f) return NAN;
         return (-A + sqrtf(disc)) / (2.0f * B);
     } else {
-        // Below 0 °C: polynomial approximation
+        // Below 0 °C: polynomial approximation (AN709, calibrated for PT100).
+        // PT1000 resistance is 10× PT100, so normalise before applying.
+        const float Rn = R / 10.0f;
         float ret = -242.02f;
-        ret += 2.2228f     * R;
-        float poly = R * R;
+        ret += 2.2228f     * Rn;
+        float poly = Rn * Rn;
         ret += 2.5859e-3f  * poly;
-        poly *= R;
+        poly *= Rn;
         ret -= 4.8260e-6f  * poly;
-        poly *= R;
+        poly *= Rn;
         ret -= 2.8183e-8f  * poly;
-        poly *= R;
+        poly *= Rn;
         ret += 1.5243e-10f * poly;
         return ret;
     }

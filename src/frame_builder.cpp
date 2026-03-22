@@ -41,7 +41,7 @@ void FrameBuilder::sendSerial(Print& out) const {
 
     //append("/*", 2u);
     for (uint8_t i = 0u; i < count_; ++i) {
-        if (i > 0u) { append("\t", 2u); }
+        if (i > 0u) { append("\t", 1u); }
         append(fields_[i].str, strlen(fields_[i].str));
     }
     append("\r\n", 2u);

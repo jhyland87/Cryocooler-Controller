@@ -49,6 +49,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <Arduino.h>
+#include "tick.h"
 
 namespace sensor_mock {
 
@@ -134,14 +135,11 @@ Overrides& get();
  * @param startVal   Value at t=0.
  * @param endVal     Target value; ramp stops when this is reached.
  * @param ratePerMin Speed in units per minute (must be > 0).
- * @param nowMs      Current millis() timestamp (ramp start time).
- *
  * The corresponding Overrides field is set to startVal immediately.
  * Calling this again for the same field replaces the previous ramp.
  */
 void startRamp(RampField field,
-               float startVal, float endVal, float ratePerMin,
-               uint32_t nowMs);
+               float startVal, float endVal, float ratePerMin);
 
 /**
  * Cancel the ramp for the given field.
@@ -168,11 +166,8 @@ const RampSpec& getRamp(RampField field);
  *
  * Has no effect when mock mode is inactive or when no ramp is active.
  *
- * @param nowMs  Current millis() timestamp.
  */
-void service(uint32_t nowMs);
-
-inline void service() { service(millis()); }
+void service();
 
 } // namespace sensor_mock
 

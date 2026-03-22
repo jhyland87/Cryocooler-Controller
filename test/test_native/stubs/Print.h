@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstddef>
 #include <cstdint>
+#include <cstdarg>
 
 class Print {
 public:
@@ -80,6 +81,23 @@ public:
     size_t println(const char* s = "") {
         const size_t n = print(s);
         return n + print("\n");
+    }
+
+    /**
+     * printf — variadic formatted print, mirrors Arduino's Print::printf.
+     * LogStream inherits this so _Log.printf(...) compiles in native tests.
+     */
+    int printf(const char* fmt, ...) {
+        char tmp[512];
+        va_list ap;
+        va_start(ap, fmt);
+        int n = vsnprintf(tmp, sizeof(tmp), fmt, ap);
+        va_end(ap);
+        if (n > 0) {
+            write(reinterpret_cast<const uint8_t*>(tmp),
+                  static_cast<size_t>(n < static_cast<int>(sizeof(tmp)) ? n : static_cast<int>(sizeof(tmp)) - 1));
+        }
+        return n;
     }
 
 private:

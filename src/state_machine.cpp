@@ -21,6 +21,7 @@
  * Output struct so that callers (main.cpp) handle I/O.
  */
 #include <Arduino.h>
+#include "tick.h"
 #include "state_machine.h"
 #include "state_machine_history.h"
 #include "config.h"
@@ -644,8 +645,8 @@ static void fsmTrigger(int event, const char* cause) {
 // Public API
 // ---------------------------------------------------------------------------
 
-module::InitStatus init(uint32_t nowMs) {
-    sNowMs                  = nowMs;
+module::InitStatus init() {
+    sNowMs                  = tick::nowMs();
     running                 = false;
     onStateMs               = 0;
     offStateMs              = 0;
@@ -675,15 +676,10 @@ Output update(float    tempC,
               float    coolingRate,
               float    amplifierVoltageV,
               bool     stalled,
-              uint32_t nowMs,
               bool     overstroke,
               float    systemVoltage)
 {
-    //Serial.printf("update() tempC=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d\n",
-             //tempC, coolingRate, rmsVoltage, stalled, overstroke);
-    //ESP_LOGD(TAG, "update() tempC=%.2f coolingRate=%.2f rmsV=%.2f stalled=%d overstroke=%d",
-             //tempC, coolingRate, rmsVoltage, stalled, overstroke);
-
+    const uint32_t nowMs = tick::nowMs();
     sNowMs = nowMs;
 
     // ------------------------------------------------------------------
@@ -928,10 +924,11 @@ uint32_t getOnStateDuration() {
     return millis() - onStateMs;
 }
 
-void start(uint32_t nowMs, float tempC) {
+void start(float tempC) {
     _Log.printf("start() tempC=%.2f\n", tempC);
     if (running) return;
 
+    const uint32_t nowMs = tick::nowMs();
     running          = true;
     sNowMs          = nowMs;
     onStateMs        = nowMs;
@@ -958,13 +955,14 @@ void start(uint32_t nowMs, float tempC) {
     }
 }
 
-void stop(uint32_t nowMs) {
+void stop() {
     // While in Fault, defer the stop so clearFault() skips auto-start.
     if (currentState == State::Fault) {
         deferredStop_ = true;
         return;
     }
     if (!running) return;
+    const uint32_t nowMs = tick::nowMs();
     running = false;
     sNowMs = nowMs;
     if (offStateMs == 0) offStateMs = nowMs;
@@ -973,10 +971,10 @@ void stop(uint32_t nowMs) {
     fsmTrigger(EVT_STOP, "stop");
 }
 
-void clearFault(uint32_t nowMs) {
+void clearFault() {
     if (currentState != State::Fault) return;
     ESP_LOGD(TAG, "clearFault()");
-    sNowMs = nowMs;
+    sNowMs = tick::nowMs();
     // onExitFault() fires synchronously inside trigger() → make_transition(),
     // resetting faultReason, backoffCount, and backoffDacOffset before Idle
     // is entered.  running remains false; the operator must call start() to resume.
@@ -989,21 +987,22 @@ bool takeDeferredStop() {
     return val;
 }
 
-void startDelay(uint32_t nowMs, uint32_t durationMs, State nextState) {
+void startDelay(uint32_t durationMs, State nextState) {
     if (currentState == State::Fault) return;
     delayMs = durationMs;
     switch (nextState) {
         case State::CoarseCooldown: delayNextEvent = EVT_DELAY_TO_COARSE; break;
         default:                    delayNextEvent = EVT_DELAY_TO_IDLE;   break;
     }
-    sNowMs = nowMs;
+    sNowMs = tick::nowMs();
     _Log.printf("startDelay() durationMs=%lu nextEvent=%d\n",
                   static_cast<unsigned long>(durationMs), delayNextEvent);
     fsmTrigger(EVT_ENTER_DELAY, "startDelay");
 }
 
-void off(uint32_t nowMs) {
+void off() {
     if (currentState == State::Off) return;
+    const uint32_t nowMs = tick::nowMs();
     sNowMs     = nowMs;
     running     = false;
     if (offStateMs == 0) offStateMs = nowMs;
@@ -1016,7 +1015,7 @@ void setOnInitializeCallback(void (*cb)()) {
     onInitializeCb = cb;
 }
 
-void reinit(uint32_t nowMs) {
+void reinit() {
     ESP_LOGD(TAG, "reinit()");
     // Reset module state variables without recreating the FSM.
     // The arduino-fsm library's destructor does not free the realloc-managed
@@ -1024,7 +1023,7 @@ void reinit(uint32_t nowMs) {
     // exists.  We keep the existing FSM (all transitions remain valid) and
     // simply reset our own state then trigger EVT_REINITIALIZE, which moves
     // the machine to Initialize where onEnterInitialize fires onInitializeCb.
-    sNowMs              = nowMs;
+    sNowMs              = tick::nowMs();
     running             = false;
     onStateMs           = 0;
     offStateMs          = 0;

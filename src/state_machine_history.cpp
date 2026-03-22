@@ -14,6 +14,7 @@
 
 #include "state_machine_history.h"
 #include "config.h"
+#include "tick.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -208,7 +209,8 @@ void formatFaultReasons(FaultReason r, char* buf, size_t len) {
     }
 }
 
-uint8_t countRecentFaults(uint32_t windowMs, uint32_t nowMs) {
+uint8_t countRecentFaults(uint32_t windowMs) {
+    const uint32_t nowMs = tick::nowMs();
     uint8_t count = 0;
     for (uint8_t i = 0; i < faultHistoryCount; ++i) {
         const FaultRecord& rec = faultRingAt(i);

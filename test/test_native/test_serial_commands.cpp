@@ -15,6 +15,7 @@
 #include "telemetry.h"
 #include "cooling.h"
 #include "config.h"
+#include "tick.h"
 
 extern "C" void stub_setMillis(uint32_t ms);
 
@@ -24,7 +25,7 @@ extern "C" void stub_setMillis(uint32_t ms);
 
 static void resetAll() {
     stub_setMillis(0);
-    state_machine::init(0);
+    tick::setNowMs(0); state_machine::init();
     serial_commands::init();
     telemetry::enable();  // always start with telemetry on
     cooling::disable();   // reset fan speed and enabled state
@@ -85,12 +86,13 @@ void test_sc_start_from_off_succeeds() {
 
 void test_sc_start_from_idle_succeeds() {
     resetAll();
-    state_machine::start(100);    // → CoarseCooldown
-    state_machine::stop(200);     // → Shutdown (not Idle directly)
+    tick::setNowMs(100); state_machine::start();    // → CoarseCooldown
+    tick::setNowMs(200); state_machine::stop();     // → Shutdown (not Idle directly)
     // Advance through the Shutdown duration so the state machine reaches Idle.
     const uint32_t tIdle = 200 + SHUTDOWN_DURATION_MS;
     stub_setMillis(tIdle);
-    state_machine::update(295.0f, 0.0f, 0.0f, false, tIdle);
+    tick::setNowMs(tIdle);
+    state_machine::update(295.0f, 0.0f, 0.0f, false);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
                       static_cast<int8_t>(state_machine::getState()));
     Print p;
@@ -103,7 +105,7 @@ void test_sc_start_from_idle_succeeds() {
 
 void test_sc_start_when_already_running_returns_error() {
     resetAll();
-    state_machine::start(100);  // already running
+    tick::setNowMs(100); state_machine::start();  // already running
     Print p;
     serial_commands::processLine("start", p);
     TEST_ASSERT_TRUE(p.contains("[ERR]"));
@@ -118,8 +120,9 @@ void test_sc_start_when_already_running_returns_error() {
 
 void test_sc_stop_when_running_succeeds() {
     resetAll();
-    state_machine::start(100);
+    tick::setNowMs(100); state_machine::start();
     stub_setMillis(200);
+    tick::setNowMs(200);
     Print p;
     serial_commands::processLine("stop", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
@@ -142,8 +145,9 @@ void test_sc_stop_when_not_running_returns_error() {
 
 void test_sc_off_from_running_succeeds() {
     resetAll();
-    state_machine::start(100);
+    tick::setNowMs(100); state_machine::start();
     stub_setMillis(200);
+    tick::setNowMs(200);
     Print p;
     serial_commands::processLine("off", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
@@ -153,10 +157,11 @@ void test_sc_off_from_running_succeeds() {
 
 void test_sc_off_from_idle_succeeds() {
     resetAll();
-    state_machine::start(100);
-    state_machine::stop(200);   // → Idle
+    tick::setNowMs(100); state_machine::start();
+    tick::setNowMs(200); state_machine::stop();   // → Shutdown
     Print p;
     stub_setMillis(300);
+    tick::setNowMs(300);
     serial_commands::processLine("off", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
@@ -193,7 +198,7 @@ void test_sc_status_contains_state_name() {
 
 void test_sc_status_shows_running_yes_when_running() {
     resetAll();
-    state_machine::start(100);
+    tick::setNowMs(100); state_machine::start();
     Print p;
     serial_commands::processLine("status", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
@@ -256,7 +261,7 @@ void test_sc_summary_contains_state_name() {
 
 void test_sc_summary_shows_running_status() {
     resetAll();
-    state_machine::start(100);
+    tick::setNowMs(100); state_machine::start();
     Print p;
     serial_commands::processLine("summary", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
@@ -310,7 +315,7 @@ void test_sc_telemetry_off_idempotent() {
 void test_sc_cooling_fan_sets_speed() {
     resetAll();
     Print p;
-    serial_commands::processLine("cooling fan 40", p);
+    serial_commands::processLine("cooling fan 40%", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_EQUAL_UINT8(40u, cooling::getFanSpeed());
 }
@@ -319,7 +324,7 @@ void test_sc_cooling_fan_zero_turns_off_fan() {
     resetAll();
     cooling::setFanSpeed(75);  // pre-set non-zero
     Print p;
-    serial_commands::processLine("cooling fan 0", p);
+    serial_commands::processLine("cooling fan 0%", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_EQUAL_UINT8(0u, cooling::getFanSpeed());
 }
@@ -327,7 +332,7 @@ void test_sc_cooling_fan_zero_turns_off_fan() {
 void test_sc_cooling_fan_100_percent() {
     resetAll();
     Print p;
-    serial_commands::processLine("cooling fan 100", p);
+    serial_commands::processLine("cooling fan 100%", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     TEST_ASSERT_EQUAL_UINT8(100u, cooling::getFanSpeed());
 }
@@ -342,7 +347,7 @@ void test_sc_cooling_fan_no_arg_returns_error() {
 void test_sc_cooling_fan_out_of_range_returns_error() {
     resetAll();
     Print p;
-    serial_commands::processLine("cooling fan 101", p);
+    serial_commands::processLine("cooling fan 101%", p);
     TEST_ASSERT_TRUE(p.contains("[ERR]"));
     // Fan speed must not have changed.
     TEST_ASSERT_EQUAL_UINT8(0u, cooling::getFanSpeed());
@@ -357,10 +362,10 @@ void test_sc_cooling_fan_non_numeric_returns_error() {
 }
 
 void test_sc_cooling_fan_does_not_match_cooling_on() {
-    // Sending "cooling fan 50" must not accidentally trigger "cooling on".
+    // Sending "cooling fan 50%" must not accidentally trigger "cooling on".
     resetAll();
     Print p;
-    serial_commands::processLine("cooling fan 50", p);
+    serial_commands::processLine("cooling fan 50%", p);
     TEST_ASSERT_TRUE(p.contains("[OK]"));
     // cooling::enable() sets the pump on; it should NOT have been called.
     TEST_ASSERT_FALSE(cooling::isCoolingPumpOn());

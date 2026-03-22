@@ -18,10 +18,8 @@
 #define COMPRESSOR_H
 
 #include <stdint.h>
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
 #include "module.h"
+#include "tick.h"
 
 namespace compressor {
 
@@ -40,30 +38,22 @@ module::InitStatus init();
  * @p durationMs milliseconds.  If a run is already active it is restarted
  * with the new duration.  The duration is clamped to COMPRESSOR_MAX_RUN_MS.
  *
- * @param nowMs      Current millis() value (injected for testability).
  * @param durationMs How long to run the compressor (milliseconds).
  */
-void startRun(uint32_t nowMs, uint32_t durationMs);
+void startRun(uint32_t durationMs);
 
 /**
  * Stop an active compressor run early and turn the relay OFF immediately.
  * Has no effect if the compressor is already off.
- *
- * @param nowMs  Current millis() value (injected for testability).
  */
-void stopRun(uint32_t nowMs);
+void stopRun();
 
 /**
  * Advance the compressor timer.  Must be called every loop tick.
  * Turns the relay OFF and resets run state when the scheduled duration
- * has elapsed.
- *
- * @param nowMs  Current millis() value (injected for testability).
+ * has elapsed.  Reads tick::nowMs() internally.
  */
-void service(uint32_t nowMs);
-
-/// Convenience overload — calls service(millis()).  Arduino loop() use only.
-inline void service() { service(millis()); }
+void service();
 
 // ---------------------------------------------------------------------------
 // Accessors
@@ -86,16 +76,14 @@ bool isTimedRunActive();
 /**
  * Milliseconds elapsed since the current timed run started.
  * Returns 0 if no timed run is active.
- * @param nowMs  Current millis() value.
  */
-uint32_t getElapsedMs(uint32_t nowMs);
+uint32_t getElapsedMs();
 
 /**
  * Milliseconds remaining in the current timed run.
  * Returns 0 if no timed run is active or the timer has already expired.
- * @param nowMs  Current millis() value.
  */
-uint32_t getRemainingMs(uint32_t nowMs);
+uint32_t getRemainingMs();
 
 // ---------------------------------------------------------------------------
 // Module interface
@@ -105,7 +93,7 @@ uint32_t getRemainingMs(uint32_t nowMs);
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return _initStatus = compressor::init(); }
     static module::ServiceStatus service() {
-        compressor::service(millis());
+        compressor::service();
         return _serviceStatus = module::MODULE_SERVICE_OK;
     }
 };

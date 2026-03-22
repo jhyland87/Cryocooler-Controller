@@ -27,10 +27,8 @@
 #define INDICATOR_H
 
 #include <stdint.h>
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
 #include "module.h"
+#include "tick.h"
 
 namespace indicator {
 
@@ -66,12 +64,9 @@ void setReadyMode(Mode mode);
 /**
  * Service the indicator state machine.
  * Must be called every loop iteration (non-blocking).
- *
- * @param nowMs  Current millis() value
+ * Reads tick::nowMs() internally.
  */
-void update(uint32_t nowMs);
-
-inline void update() { update(millis()); }
+void update();
 
 /**
  * Return true if the FAULT (red) LED is currently lit this tick.
@@ -88,18 +83,12 @@ bool isFaultOn();
 bool isReadyOn();
 
 // ── Module interface ──────────────────────────────────────────────────────────
-//
-// update() requires a nowMs argument for accurate flash timing, so
-// Module::service() samples millis() internally.
-//
-// Guarded by #ifdef ARDUINO because millis() is not available in native
-// (host) unit-test builds.
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return _initStatus = indicator::init(); }
-    /** Calls indicator::update(millis()) — must be called every loop tick. */
-    static module::ServiceStatus service() { indicator::update(millis()); return _serviceStatus = module::MODULE_SERVICE_OK; }
+    /** Calls indicator::update() — must be called every loop tick. */
+    static module::ServiceStatus service() { indicator::update(); return _serviceStatus = module::MODULE_SERVICE_OK; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

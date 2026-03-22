@@ -37,4 +37,8 @@ void setFanSpeed(uint8_t percentage, bool force) {
     sLastFanSpeed = percentage;
 }
 
+void setFanDutyCycle(uint8_t /*duty*/) {}
+void setPumpSpeed(uint8_t /*percentage*/) {}
+void setPumpDutyCycle(uint8_t /*duty*/) {}
+
 } // namespace cooling

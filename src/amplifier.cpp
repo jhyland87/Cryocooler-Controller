@@ -31,6 +31,7 @@
 #include "esp_log.h"
 #include "hardware.h"
 #include "tracking.h"
+#include "tick.h"
 #include "logger.h"
 
 // ---------------------------------------------------------------------------
@@ -478,19 +479,17 @@ module::ServiceStatus service() {
     lastApparentPowerW_ = static_cast<float>(acs_.readApparentPowerMilliwatts()) / 1000.0f;
     lastFrequency_  = imu::getFrequency();
 
-    const uint32_t nowMs = millis();
-
     // Frequency tracker: only advance when active and the IMU has a valid FFT
     // result. Skip (don't reset) on NAN — the timer simply doesn't accumulate
     // during data gaps, so no false warnings build up.
     if (freqTracker_ && isfinite(lastFrequency_)) {
-        freqTracker_->update(frequency_, lastFrequency_, nowMs);
+        freqTracker_->update(frequency_, lastFrequency_);
     }
 
     // Voltage tracker: unconditional when active — the tracker only exists
     // while the amplifier is enabled (created in enable(), destroyed in disable()).
     if (voltTracker_) {
-        voltTracker_->update(targetVoltageV_, lastRmsVoltage_, nowMs);
+        voltTracker_->update(targetVoltageV_, lastRmsVoltage_);
     }
 
     return module::MODULE_SERVICE_OK;

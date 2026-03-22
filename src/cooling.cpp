@@ -777,7 +777,7 @@ module::ServiceStatus service() {
     // In LUT mode the software LUT owns the duty cycle — no external setpoint exists.
     if (forceFanSpeed_) {
         fanTracker_.update(static_cast<float>(fanSpeed_),
-                           static_cast<float>(dc), nowMs);
+                           static_cast<float>(dc));
     } else {
         fanTracker_.reset();
     }
@@ -786,7 +786,7 @@ module::ServiceStatus service() {
     // A reading of exactly 0 °C indicates the hardware is not yet wired up.
     if (coolantTemperature_ > 0.0f) {
         coolantTempTracker_.update(COOLING_COOLANT_NOMINAL_TEMP_C,
-                                   coolantTemperature_, nowMs);
+                                   coolantTemperature_);
     } else {
         coolantTempTracker_.reset();
     }
@@ -797,7 +797,7 @@ module::ServiceStatus service() {
     if (coolingPumpOn_ && coolantFlowRate_ > 0.0f) {
         const float normPumpPct = static_cast<float>(pumpHwToNorm(cachedPumpDutyCycle_));
         const float expectedFlowLpm = COOLING_FLOW_NOMINAL_LPM * normPumpPct / 100.0f;
-        flowTracker_.update(expectedFlowLpm, coolantFlowRate_, nowMs);
+        flowTracker_.update(expectedFlowLpm, coolantFlowRate_);
     } else {
         flowTracker_.reset();
     }

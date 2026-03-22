@@ -50,6 +50,7 @@
 #include <math.h>
 #include <inttypes.h>
 #include "esp_log.h"
+#include "tick.h"
 
 template<typename T>
 class TrackingMonitor {
@@ -77,12 +78,13 @@ public:
     /**
      * Advance the monitor with new measurement data.
      * Call once per service() / read() tick.
+     * Reads tick::nowMs() internally.
      *
      * @param setpoint  Target value.
      * @param measured  Current measured value.
-     * @param nowMs     Current millis() timestamp.
      */
-    void update(T setpoint, T measured, uint32_t nowMs) {
+    void update(T setpoint, T measured) {
+        const uint32_t nowMs = tick::nowMs();
         const float error  = fabsf(static_cast<float>(measured)
                                   - static_cast<float>(setpoint));
         lastError_         = error;
@@ -136,8 +138,6 @@ public:
             }
         }
     }
-
-    void update(T setpoint, T measured) { update(setpoint, measured, millis()); }
 
     /**
      * Reset to IN_RANGE and clear the out-of-band timer.

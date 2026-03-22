@@ -17,6 +17,7 @@
 #include "pin_config.h"
 #include "config.h"
 #include "compressor.h"
+#include "tick.h"
 #include "esp_log.h"
 
 namespace compressor {
@@ -82,7 +83,8 @@ module::InitStatus init() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-void startRun(uint32_t nowMs, uint32_t durationMs) {
+void startRun(uint32_t durationMs) {
+    const uint32_t nowMs = tick::nowMs();
     // Clamp to the configured safety limit (0 = no limit).
     const uint32_t limit = static_cast<uint32_t>(COMPRESSOR_MAX_RUN_MS);
     if (limit > 0u && durationMs > limit) {
@@ -99,7 +101,7 @@ void startRun(uint32_t nowMs, uint32_t durationMs) {
     setRelay(true);
 }
 
-void stopRun(uint32_t /*nowMs*/) {
+void stopRun() {
     if (!sRelayOn && sRunStartMs == 0u) return;   // already stopped
     ESP_LOGI(TAG, "Stopping compressor run");
     setRelay(false);
@@ -107,11 +109,12 @@ void stopRun(uint32_t /*nowMs*/) {
     sRunDurationMs = 0u;
 }
 
-void service(uint32_t nowMs) {
+void service() {
     if (sRunStartMs == 0u || sRunDurationMs == 0u) return;
+    const uint32_t nowMs = tick::nowMs();
     if ((nowMs - sRunStartMs) >= sRunDurationMs) {
         ESP_LOGI(TAG, "Compressor run duration elapsed — stopping");
-        stopRun(nowMs);
+        stopRun();
     }
 }
 
@@ -127,14 +130,14 @@ bool isTimedRunActive() {
     return sRelayOn && sRunStartMs != 0u;
 }
 
-uint32_t getElapsedMs(uint32_t nowMs) {
+uint32_t getElapsedMs() {
     if (!isTimedRunActive()) return 0u;
-    return nowMs - sRunStartMs;
+    return tick::nowMs() - sRunStartMs;
 }
 
-uint32_t getRemainingMs(uint32_t nowMs) {
+uint32_t getRemainingMs() {
     if (!isTimedRunActive()) return 0u;
-    const uint32_t elapsed = nowMs - sRunStartMs;
+    const uint32_t elapsed = tick::nowMs() - sRunStartMs;
     return (elapsed >= sRunDurationMs) ? 0u : (sRunDurationMs - elapsed);
 }
 

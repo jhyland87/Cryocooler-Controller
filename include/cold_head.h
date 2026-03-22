@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "module.h"
 #include "tracking.h"
+#include "tick.h"
 
 namespace cold_head {
 
@@ -28,11 +29,8 @@ module::InitStatus initRTD();
  * Stores the result internally and prints to Serial.
  * Must be called periodically (every LOOP_INTERVAL_MS).
  *
- * @param nowMs  Current millis() value (injected for testability)
  */
-void read(uint32_t nowMs);
-
-inline void read() { read(millis()); }
+void read();
 /**
  * Inject mock sensor readings directly into the module's cached state without
  * touching any hardware.  Call every control tick instead of read() when the
@@ -41,12 +39,11 @@ inline void read() { read(millis()); }
  * After this call, getLastTempC(), getCoolingRateCPerMin(), and isStalled()
  * all return the injected values until the next real read() is called.
  *
- * @param nowMs              Current millis() (used to timestamp the sample)
  * @param tempC              Cold-stage temperature in Celsius
  * @param coolingRateCPerMin Cooling rate in C/min (negative = cooling)
  * @param stalled            True if the stage should appear stalled
  */
-void setLastReadings(uint32_t nowMs, float tempC,
+void setLastReadings(float tempC,
                      float coolingRateCPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);
 
 //float readAmbientTemperature();
@@ -197,25 +194,14 @@ void disableMock();
 /** Returns true while the module-local RTD mock is active. */
 bool isMockEnabled();
 
-module::ServiceStatus service(uint32_t nowMs);
-inline module::ServiceStatus service() { return service(millis()); }
+module::ServiceStatus service();
+
 // ── Module interface ──────────────────────────────────────────────────────────
-//
-// read() accepts a nowMs argument so cooling-rate history is correctly
-// timestamped and remains directly testable on native builds with injected
-// time values.
-//
-// Module::service() samples millis() internally, which is correct for the
-// Arduino loop() context.  Guarded by #ifdef ARDUINO because millis() is not
-// available in native (host) unit-test builds — those call read(nowMs) directly.
 
 #ifdef ARDUINO
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return _initStatus = cold_head::init(); }
     static module::ServiceStatus service() { return _serviceStatus = cold_head::service(); }
-
-    /** Calls temperature::read(millis()) — must be called every loop tick. */
-    //static module::ServiceStatus service() { return _serviceStatus = cold_head::service(); }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

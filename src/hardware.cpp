@@ -9,6 +9,7 @@
 #include <cstring>               // strstr()
 
 #include "hardware.h"
+#include "tick.h"
 #include "pin_config.h"
 #include "esp32-hal-i2c.h"      // i2cIsInit(), i2cBusHandle() (Core 3.x / IDF 5.x)
 #include "esp_log.h"
@@ -151,7 +152,8 @@ namespace hardware {
         ++sI2cErrorTotal;
     }
 
-    void serviceI2c(uint32_t nowMs) {
+    void serviceI2c() {
+        const uint32_t nowMs = tick::nowMs();
         if (nowMs - sI2cLastSummaryMs < I2C_SUMMARY_INTERVAL_MS) return;
         sI2cLastSummaryMs = nowMs;
         if (sI2cErrorCount == 0) return;

@@ -232,8 +232,9 @@ static void handleStop(const char* /*args*/, Print& out) {
 
 static void handleReboot(const char* /*args*/, Print& out) {
     out.println("[OK] Rebooting requested...");
-    //esp_restart();
+#ifdef ARDUINO
     ESP.restart();
+#endif
     out.println("[OK] System rebooted");
 }
 
@@ -351,6 +352,7 @@ static void handleCoolingOff(const char* /*args*/, Print& out) {
     out.println("[OK] Cooling disabled");
 }
 
+#ifdef ARDUINO
 static void handleVoutGet(const char* /*args*/, Print& out) {
     uint16_t val = amplifier::getLastRmsVoltage();
     char buf[48];
@@ -439,6 +441,7 @@ static void handleVoutSet(const char* args, Print& out) {
         out.println(buf);
     }
 }
+#endif // ARDUINO — handleVoutGet / handleVoutSet
 
 static void handleCoolingFan(const char* args, Print& out) {
     if (*args == '\0') {
@@ -984,18 +987,17 @@ static void handleCompressorStart(const char* args, Print& out) {
         return;
     }
 
-    compressor::startRun(millis(), durationMs);
+    compressor::startRun(durationMs);
 
     // Display the actual (possibly clamped) remaining time.
     char hmsBuf[24];
-    conversions::formatDurationMs(compressor::getRemainingMs(millis()), hmsBuf, sizeof(hmsBuf));
+    conversions::formatDurationMs(compressor::getRemainingMs(), hmsBuf, sizeof(hmsBuf));
     char buf[72];
     snprintf(buf, sizeof(buf), "[OK] Compressor started — run time: %s", hmsBuf);
     out.println(buf);
 }
 
 static void handleCompressorStatus(const char* /*args*/, Print& out) {
-    const uint32_t now = millis();
     if (!compressor::getStatus()) {
         out.println("[OK] Compressor: OFF (idle)");
         return;
@@ -1004,10 +1006,10 @@ static void handleCompressorStatus(const char* /*args*/, Print& out) {
     if (compressor::isTimedRunActive()) {
         char buf[48];
         char hmsBuf[24];
-        conversions::formatDurationMs(compressor::getElapsedMs(now), hmsBuf, sizeof(hmsBuf));
+        conversions::formatDurationMs(compressor::getElapsedMs(), hmsBuf, sizeof(hmsBuf));
         snprintf(buf, sizeof(buf), "  Elapsed  : %s", hmsBuf);
         out.println(buf);
-        conversions::formatDurationMs(compressor::getRemainingMs(now), hmsBuf, sizeof(hmsBuf));
+        conversions::formatDurationMs(compressor::getRemainingMs(), hmsBuf, sizeof(hmsBuf));
         snprintf(buf, sizeof(buf), "  Remaining: %s", hmsBuf);
         out.println(buf);
     } else {
@@ -1021,7 +1023,7 @@ static void handleCompressorStop(const char* /*args*/, Print& out) {
         out.println("[ERR] Compressor is not running");
         return;
     }
-    compressor::stopRun(millis());
+    compressor::stopRun();
     out.println("[OK] Compressor stopped");
 }
 

@@ -17,6 +17,7 @@
 #define AMPLIFIER_H
 
 #include <stdint.h>
+#include "config.h"
 #include "module.h"
 #include "tracking.h"
 

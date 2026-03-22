@@ -296,7 +296,7 @@ static void handleRamp(const char* args, Print& out) {
         return;
     }
 
-    sensor_mock::startRamp(field, startVal, endVal, ratePerMin, millis());
+    sensor_mock::startRamp(field, startVal, endVal, ratePerMin);
 
     {
         const char* fieldName = (field == sensor_mock::RampField::Temp)    ? "temp"

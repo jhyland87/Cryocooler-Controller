@@ -241,10 +241,9 @@ static void fillPacket(TelemetryPacket& pkt) {
     pkt.state_id               = static_cast<int8_t>(state_machine::getState());
     pkt.status_on_duration_ms  = state_machine::getOnStateDuration();
     pkt.status_time_in_state_ms = state_machine::getTimeInState();
-    const uint32_t nowMs       = millis();
-    pkt.faults_count_10m       = state_machine::countRecentFaults(600000u,  nowMs);
-    pkt.faults_count_30m       = state_machine::countRecentFaults(1800000u, nowMs);
-    pkt.faults_count_60m       = state_machine::countRecentFaults(3600000u, nowMs);
+    pkt.faults_count_10m       = state_machine::countRecentFaults(600000u);
+    pkt.faults_count_30m       = state_machine::countRecentFaults(1800000u);
+    pkt.faults_count_60m       = state_machine::countRecentFaults(3600000u);
 
     // Cold head
     pkt.cold_head_temp_c                  = cold_head::getLastTempC();

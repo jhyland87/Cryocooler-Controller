@@ -4,6 +4,7 @@
  */
 
 #include "sensor_mock.h"
+#include "tick.h"
 
 namespace sensor_mock {
 
@@ -24,9 +25,9 @@ Overrides& get() { return sOverrides; }
 // ── Ramp API ──────────────────────────────────────────────────────────────────
 
 void startRamp(RampField field,
-               float startVal, float endVal, float ratePerMin,
-               uint32_t nowMs)
+               float startVal, float endVal, float ratePerMin)
 {
+    const uint32_t nowMs = tick::nowMs();
     const auto idx = static_cast<uint8_t>(field);
     RampSpec& r = sRamps[idx];
     r.active     = true;
@@ -70,11 +71,11 @@ const RampSpec& getRamp(RampField field)
  * @param nowMs    Current millis().
  * @param current  [out] Updated value for this tick.
  */
-static bool applyRamp(RampSpec& r, uint32_t nowMs, float& current)
+static bool applyRamp(RampSpec& r, float& current)
 {
     if (!r.active) return false;
 
-    const float elapsedMin = static_cast<float>(nowMs - r.startMs) / 60000.0f;
+    const float elapsedMin = static_cast<float>(tick::nowMs() - r.startMs) / 60000.0f;
     const float direction  = (r.endVal >= r.startVal) ? 1.0f : -1.0f;
     const float projected  = r.startVal + direction * r.ratePerMin * elapsedMin;
 
@@ -91,7 +92,7 @@ static bool applyRamp(RampSpec& r, uint32_t nowMs, float& current)
     return true;  // ramp still running
 }
 
-void service(uint32_t nowMs)
+void service()
 {
     if (!sActive) return;
 
@@ -100,7 +101,7 @@ void service(uint32_t nowMs)
         RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Temp)];
         if (r.active) {
             const float direction  = (r.endVal >= r.startVal) ? 1.0f : -1.0f;
-            applyRamp(r, nowMs, sOverrides.tempC);
+            applyRamp(r, sOverrides.tempC);
             // Auto-derive coolingRate: positive = temperature dropping.
             // A downward ramp (direction == -1) means the stage is cooling;
             // by convention coolingRate > 0 when temperature is falling.
@@ -112,7 +113,7 @@ void service(uint32_t nowMs)
     {
         RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Rms)];
         if (r.active) {
-            applyRamp(r, nowMs, sOverrides.rmsVoltageV);
+            applyRamp(r, sOverrides.rmsVoltageV);
         }
     }
 
@@ -120,7 +121,7 @@ void service(uint32_t nowMs)
     {
         RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Voltage)];
         if (r.active) {
-            applyRamp(r, nowMs, sOverrides.voltage);
+            applyRamp(r, sOverrides.voltage);
         }
     }
 }

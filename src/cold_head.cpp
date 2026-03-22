@@ -29,6 +29,7 @@
 #include "sensor_mock.h"
 #include "hardware.h"
 #include "tracking.h"
+#include "tick.h"
 #include "logger.h"
 
 static LogStream _Log = Log.createChildLogger("cold_head");
@@ -217,11 +218,12 @@ module::InitStatus initRTD() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-module::ServiceStatus service(uint32_t nowMs) {
+module::ServiceStatus service() {
+    const uint32_t nowMs = tick::nowMs();
     // Global sensor_mock takes precedence over the local RTD mock.
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();
-        setLastReadings(nowMs, mo.tempC, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
+        setLastReadings(mo.tempC, mo.coolingRate, mo.stalled, mo.rmsVoltageV, mo.rmsCurrentA);
         // Check plausibility even for mock readings so tests can exercise the fault path.
         sRtdFaultActive = (sLastTempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C) ||
                           sLastTempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
@@ -233,7 +235,7 @@ module::ServiceStatus service(uint32_t nowMs) {
     // holding a fixed temperature — the state machine will not fault for stall
     // unless it is actively in a cooldown state and expects a drop.
     if (sLocalMockEnabled) {
-        setLastReadings(nowMs, sLocalMockTempC, 0.0f, false, 0.0f, 0.0f);
+        setLastReadings(sLocalMockTempC, 0.0f, false, 0.0f, 0.0f);
         sRtdFaultActive = false;
         return module::MODULE_SERVICE_OK;
     }
@@ -367,7 +369,7 @@ module::ServiceStatus service(uint32_t nowMs) {
 
     // Update the tracking monitor if it is active (Operating state only).
     if (tempTracker_) {
-        tempTracker_->update(targetTempC_, sLastTempC, nowMs);
+        tempTracker_->update(targetTempC_, sLastTempC);
     }
 
     // Inline fault check — previously called separately from main.cpp.
@@ -376,7 +378,7 @@ module::ServiceStatus service(uint32_t nowMs) {
     return module::MODULE_SERVICE_OK;
 }
 
-void setLastReadings(uint32_t nowMs, float tempC,
+void setLastReadings(float tempC,
                      float coolingRateCPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA) {
     sLastTempC         = tempC;
     sMockCoolingRate   = coolingRateCPerMin;
@@ -386,7 +388,7 @@ void setLastReadings(uint32_t nowMs, float tempC,
     sLastRmsCurrentA   = rmsCurrentA;
     // Push a timestamped sample so the ring buffer stays current;
     // this lets real stall / rate code pick up correctly if mock is disabled.
-    pushSample(nowMs, tempC, sLastAmbientTempC, rmsVoltageV, rmsCurrentA);
+    pushSample(tick::nowMs(), tempC, sLastAmbientTempC, rmsVoltageV, rmsCurrentA);
 }
 
 // float readAmbientTemperature() {

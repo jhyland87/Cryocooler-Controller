@@ -33,6 +33,7 @@
 #include "esp_log.h"
 #include "ota.h"
 #include "espnow.h"
+#include "tick.h"
 // =============================================================================
 // Logging
 // =============================================================================
@@ -241,6 +242,8 @@ void setup() {
 int serialAvailable = 0;
 
 void loop() {
+    tick::update();
+
     if ( Serial.available() != serialAvailable) {
         serialAvailable = Serial.available();
         ESP_LOGD(TAG, "Serial available: %d", static_cast<int>(serialAvailable));
@@ -288,11 +291,11 @@ void loop() {
         }
     }
 
-    const uint32_t nowMs = millis();
+    const uint32_t nowMs = tick::nowMs();
 
     // I2C health monitor — Wire ESP_LOGE messages are suppressed; we count
     // errors via module service return codes and log periodic summaries.
-    hardware::serviceI2c(nowMs);
+    hardware::serviceI2c();
 
     if ((nowMs - previousIndicatorUpdateMs) < INDICATOR_UPDATE_INTERVAL_MS) {
         indicator::update();
@@ -330,7 +333,7 @@ void loop() {
     const float sysVoltage  = sysinfo::getVoltage();
     //Serial.printf("sysVoltage: %f\n", sysVoltage);
     // ---- 2. Advance state machine ---------------------------------------
-    const auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage);
+    const auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, overstroke, sysVoltage);
     // Clear edge-triggered overstroke flag after the state machine has consumed
     // it.  In real mode the flag was set by readCurrent(); in mock mode it was
     // set by setLastReadings().  Either way, clear it so it fires only once.
