@@ -127,6 +127,11 @@ static void performCalibration() {
         accelSumZ += accel.acceleration.z;
         ++collected;
         delayMicroseconds(1200);  // ~833 Hz ODR → 1.2 ms per fresh sample
+
+        // Yield every 100 samples (~120 ms) to feed the FreeRTOS task watchdog.
+        // The total calibration window is ~1.2 s of busy-wait which, combined
+        // with the rest of setup(), can exceed the 5 s WDT timeout.
+        if ((collected % 100u) == 0u) { yield(); }
     }
 
     const float n = static_cast<float>(collected);

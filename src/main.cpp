@@ -34,39 +34,94 @@
 #include "ota.h"
 #include "espnow.h"
 // =============================================================================
-// Module-level objects
-// =============================================================================
-
-// =============================================================================
-// Init helper
+// Logging
 // =============================================================================
 
 static constexpr char TAG[] = "main";
 static LogStream _Log = Log.createChildLogger("main");
 
-/**
- * Call initFn() until it stops returning MODULE_INIT_IN_PROGRESS, then log
- * the outcome.  Returns the final InitStatus.
- *
- * Example:
- *   initModule("accelerometer", [] { return accelerometer::init(); });
- */
-template<typename Fn>
-static module::InitStatus initModule(const char* name, Fn&& initFn) {
-    _Log.printf("%s --> Initialising ... \n", name);
-
-    module::InitStatus status = initFn();
-    while (status == module::MODULE_INIT_IN_PROGRESS) {
-        status = initFn();
-    }
-
-    if (status == module::MODULE_INIT_SUCCESS) {
-        _Log.printf("%s --> Initialisation complete\n", name);
-    } else {
-        _Log.printf("%s --> FAILED (status %d)\n", name, static_cast<int>(status));
-    }
-    return status;
+// Printf-style function used by module::initGroup / serviceWithLog / reportStatus.
+__attribute__((format(printf, 1, 2)))
+static void logPrintf(const char* fmt, ...) {
+    char buf[192];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    Log.print(buf);
 }
+
+// =============================================================================
+// Module registry — init & service arrays
+//
+// Order within each array encodes dependency constraints:
+//   - OTA before dashboard (registerRoutes must exist before setupServer)
+//   - dashboard before espnow (WiFi must be up)
+//   - compressor first in control group (de-energise relay ASAP)
+//
+// Special-cased modules that don't appear here:
+//   - hardware    — fatal init, must succeed before anything else
+//   - indicator   — init before WiFi to avoid neopixelWrite deadlock
+//   - state_machine — non-standard update() signature
+//   - telemetry   — emit(out) takes state_machine output
+//   - cold_head   — in gated section, before state_machine
+//   - sensor_mock — no Module struct
+// =============================================================================
+
+/// Modules initialized once at boot (never re-initialized on reinit).
+static const module::ModuleEntry persistentModules[] = {
+    MODULE_ENTRY(logger,    false),
+    MODULE_ENTRY(imu,       false),
+    MODULE_ENTRY(commands,  false),
+    MODULE_ENTRY(ota,       false),
+    MODULE_ENTRY(dashboard, false),
+#if ENABLE_ESPNOW
+    MODULE_ENTRY(espnow,    false),
+#endif
+    MODULE_ENTRY(telemetry, false),
+    MODULE_ENTRY(sysinfo,   false),
+};
+static constexpr size_t NUM_PERSISTENT = sizeof(persistentModules) / sizeof(persistentModules[0]);
+
+/// Control hardware modules — re-initialized on every FSM reinit().
+static const module::ModuleEntry controlModules[] = {
+#if ENABLE_COMPRESSOR
+    MODULE_ENTRY(compressor, false),
+#endif
+    MODULE_ENTRY(cooling,    false),
+    MODULE_ENTRY(amplifier,  false),
+    MODULE_ENTRY(cold_head,  false),
+};
+static constexpr size_t NUM_CONTROL = sizeof(controlModules) / sizeof(controlModules[0]);
+
+/// Modules serviced every loop() tick with health-transition logging.
+static const module::ModuleEntry tickServiceModules[] = {
+    MODULE_ENTRY(sysinfo,   false),
+    MODULE_ENTRY(imu,       false),
+    MODULE_ENTRY(amplifier, false),
+    MODULE_ENTRY(cooling,   false),
+};
+static constexpr size_t NUM_TICK_SERVICE = sizeof(tickServiceModules) / sizeof(tickServiceModules[0]);
+
+/// Combined list for the one-time boot status banner.
+static const module::ModuleEntry allModulesForBanner[] = {
+    MODULE_ENTRY(hardware,      true),
+    MODULE_ENTRY(indicator,     false),
+    MODULE_ENTRY(logger,        false),
+    MODULE_ENTRY(imu,           false),
+    MODULE_ENTRY(commands,      false),
+    MODULE_ENTRY(ota,           false),
+    MODULE_ENTRY(dashboard,     false),
+    MODULE_ENTRY(sysinfo,       false),
+    MODULE_ENTRY(cooling,       false),
+    MODULE_ENTRY(amplifier,     false),
+    MODULE_ENTRY(cold_head,     false),
+    MODULE_ENTRY(state_machine, false),
+#if ENABLE_COMPRESSOR
+    MODULE_ENTRY(compressor,    false),
+#endif
+};
+static constexpr size_t NUM_ALL_BANNER = sizeof(allModulesForBanner) / sizeof(allModulesForBanner[0]);
 
 // =============================================================================
 // Timing state
@@ -86,61 +141,14 @@ static bool sSerialWelcomeMessageSent = false;
  * These modules are intentionally never re-initialised by reinit() because
  * they provide the communication path through which the operator issues
  * commands — including the reinit command itself.
+ *
+ * Array order encodes dependencies (OTA before dashboard, dashboard before
+ * espnow).  telemetry::emitSafe() is called after each step so the dashboard
+ * shows real-time progress.
  */
 static void initPersistentModules() {
-
-    initModule("log", [] { return logger::Module::init(); });
-
-    auto imuStatus = initModule("imu", [] { return imu::Module::init(); });
-    if (imuStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("IMU init --> initialization failed (status %d) — continuing without IMU.\n",
-                   static_cast<int>(imuStatus));
-    }
-
-    auto commandsStatus = initModule("commands", [] { return commands::Module::init(); });
-    if (commandsStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Commands init --> initialization failed (status %d). Continuing without commands.\n",
-                   static_cast<int>(commandsStatus));
-    }
-
-    // OTA must init before dashboard so registerRoutes() is ready when
-    // dashboard::setupServer() calls it during dashboard init.
-    auto otaStatus = initModule("ota", [] { return ota::Module::init(); });
-    if (otaStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("OTA init --> initialization failed (status %d) — OTA endpoint unavailable.\n",
-                   static_cast<int>(otaStatus));
-    }
-
-    auto dashboardStatus = initModule("dashboard", [] { return dashboard::Module::init(); });
-    if (dashboardStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Dashboard init --> initialization failed (status %d) — continuing without dashboard.\n",
-                   static_cast<int>(dashboardStatus));
-    }
-
-    // ESP-NOW must be initialised after dashboard (which brings up WiFi).
-    // The channel follows the STA association automatically; the peer must be
-    // on the same channel.  Set ENABLE_ESPNOW=true and fill in ESPNOW_PEER_MAC
-    // in config.h before enabling.
-#if ENABLE_ESPNOW
-    auto espnowStatus = initModule("espnow", [] { return espnow::Module::init(); });
-    if (espnowStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("ESP-NOW init --> initialization failed (status %d) — continuing without ESP-NOW.\n",
-                   static_cast<int>(espnowStatus));
-    }
-#endif
-
-    // telemetry has no hardware setup but we call Module::init() to record a
-    // valid InitStatus so the mod.telemetry.init field in the telemetry frame
-    // reflects the actual state rather than NOT_STARTED.
-    telemetry::Module::init();
-    telemetry::emitSafe();
-
-    auto sysinfoStatus = initModule("sysinfo", [] { return sysinfo::Module::init(); });
-    if (sysinfoStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Sysinfo init --> initialization failed (status %d). Continuing.\n",
-                   static_cast<int>(sysinfoStatus));
-    }
-    telemetry::emitSafe();
+    module::initGroup(persistentModules, NUM_PERSISTENT,
+                      telemetry::emitSafe, logPrintf, yield);
 }
 
 /**
@@ -157,45 +165,14 @@ static void initPersistentModules() {
  * those statuses and blocks entry into any cooling state until all required
  * modules report MODULE_INIT_SUCCESS.  telemetry::emitSafe() is called after
  * each step so the dashboard shows real-time progress.
+ *
+ * indicator is intentionally omitted — it is initialised once in setup()
+ * before WiFi starts to avoid a neopixelWrite() deadlock on ESP32-S3 with
+ * Arduino 2.x.  It does not need re-initialisation on reinit().
  */
 static void initControlModules() {
-    // @todo, if some required modules fail, do not permit a running state (eg: amplifier module).
-#if ENABLE_COMPRESSOR
-    // Each relay is an independent SparkFun Qwiic Single Relay on its own I2C
-    // address (compressor = 0x18, amplifier = 0x19).  Initialise compressor
-    // first so its relay is de-energised as early as possible.
-    auto compressorStatus = initModule("compressor", [] { return compressor::Module::init(); });
-    if (compressorStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Compressor init --> initialization failed (status %d).\n",
-                   static_cast<int>(compressorStatus));
-    }
-    telemetry::emitSafe();
-#endif
-
-    auto coolingStatus = initModule("cooling", [] { return cooling::Module::init(); });
-    if (coolingStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Cooling init --> initialization failed (status %d).\n",
-                   static_cast<int>(coolingStatus));
-    }
-    telemetry::emitSafe();
-
-    auto amplifierStatus = initModule("amplifier", [] { return amplifier::Module::init(); });
-    if (amplifierStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Amplifier init --> initialization failed (status %d).\n",
-                   static_cast<int>(amplifierStatus));
-    }
-    telemetry::emitSafe();
-
-    auto cold_headStatus = initModule("cold_head", [] { return cold_head::Module::init(); });
-    if (cold_headStatus != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Cold head init --> initialization failed (status %d).\n",
-                   static_cast<int>(cold_headStatus));
-    }
-    telemetry::emitSafe();
-
-    // indicator is intentionally omitted here — it is initialised once in
-    // setup() before WiFi starts to avoid a neopixelWrite() deadlock on
-    // ESP32-S3 with Arduino 2.x.  It does not need re-initialisation on reinit().
+    module::initGroup(controlModules, NUM_CONTROL,
+                      telemetry::emitSafe, logPrintf, yield);
 }
 // =============================================================================
 // Setup
@@ -215,10 +192,13 @@ void setup() {
     // hardware::init() owns the single GuardedWire and SPIClass instances;
     // modules access them via hardware::i2c() / hardware::spi() rather than
     // the global Wire / SPI singletons.
-    if (initModule("hardware", [] { return hardware::Module::init(); })
-            != module::MODULE_INIT_SUCCESS) {
-        _Log.printf("Hardware bus init failed. Halting.\n");
-        return;
+    // hardware is fatal — halt if it fails (marked fatal in its ModuleEntry).
+    {
+        static const module::ModuleEntry hwEntry = MODULE_ENTRY(hardware, true);
+        if (!module::initGroup(&hwEntry, 1, nullptr, logPrintf)) {
+            _Log.printf("Hardware bus init failed. Halting.\n");
+            return;
+        }
     }
 
     // Initialise the indicator LED before WiFi starts.  On ESP32-S3 with
@@ -227,7 +207,10 @@ void setup() {
     // can block the RMT "done" interrupt, hanging the main task indefinitely.
     // The indicator only needs GPIO + RMT (no I2C/SPI), so it is safe to run
     // here immediately after the hardware buses are ready.
-    initModule("indicator", [] { return indicator::Module::init(); });
+    {
+        static const module::ModuleEntry indEntry = MODULE_ENTRY(indicator, false);
+        module::initGroup(&indEntry, 1, nullptr, logPrintf);
+    }
 
     // Bring up the console and viewer so the operator can observe progress
     // and send commands even if control hardware fails to initialise.
@@ -279,39 +262,7 @@ void loop() {
         Log.println(">>> Serial console active. Type 'help' for commands. <<<");
 
         // Scan all modules for init failures and list them explicitly.
-        struct ModCheck { const char* name; module::InitStatus status; };
-        const ModCheck modules[] = {
-            { "hardware",      hardware::Module::getInitStatus()      },
-            { "indicator",     indicator::Module::getInitStatus()     },
-            { "logger",        logger::Module::getInitStatus()        },
-            { "imu",           imu::Module::getInitStatus()           },
-            { "commands",      commands::Module::getInitStatus()      },
-            { "ota",           ota::Module::getInitStatus()           },
-            { "dashboard",     dashboard::Module::getInitStatus()     },
-            { "sysinfo",       sysinfo::Module::getInitStatus()       },
-            { "cooling",       cooling::Module::getInitStatus()       },
-            { "amplifier",     amplifier::Module::getInitStatus()     },
-            { "cold_head",     cold_head::Module::getInitStatus()     },
-            { "state_machine", state_machine::Module::getInitStatus() },
-#if ENABLE_COMPRESSOR
-            { "compressor",    compressor::Module::getInitStatus()    },
-#endif
-        };
-        uint8_t failCount = 0;
-        for (const auto& m : modules) {
-            if (m.status != module::MODULE_INIT_SUCCESS) ++failCount;
-        }
-        if (failCount == 0) {
-            Log.println("    All modules initialized successfully.");
-        } else {
-            Log.printf( "    %u module(s) failed to initialize:\n", failCount);
-            for (const auto& m : modules) {
-                if (m.status != module::MODULE_INIT_SUCCESS) {
-                    Log.printf("      - %s: %s\n", m.name,
-                               module::initStatusName(m.status));
-                }
-            }
-        }
+        module::reportStatus(allModulesForBanner, NUM_ALL_BANNER, logPrintf);
         Log.println();
     }
 
@@ -325,51 +276,16 @@ void loop() {
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all
     // modules are still serviced regardless so the control loop keeps running.
-    // Silence SERVICE_SKIPPED — it is the normal outcome for time-gated modules.
+    // Only health-status transitions are logged (not every tick).
     //
     // Mock mode is handled inside each module: when sensor_mock::isActive(),
     // read() / service() pull values from sensor_mock::get() and skip hardware
     // access entirely.  No conditional logic is needed here.
-
-    // Service each module and log only on status transitions (not every tick).
     {
-        static module::ServiceStatus prevSysinfo   = module::MODULE_SERVICE_OK;
-        static module::ServiceStatus prevImu       = module::MODULE_SERVICE_OK;
-        static module::ServiceStatus prevAmplifier = module::MODULE_SERVICE_OK;
-        static module::ServiceStatus prevCooling   = module::MODULE_SERVICE_OK;
-
-        // Treat OK and SKIPPED as equivalent ("healthy") so time-gated
-        // modules like cooling don't spam on every tick.
-        const auto isHealthy = [](module::ServiceStatus s) {
-            return s == module::MODULE_SERVICE_OK
-                || s == module::MODULE_SERVICE_SKIPPED;
-        };
-        const auto logTransition = [&](const char* name,
-                                       module::ServiceStatus prev,
-                                       module::ServiceStatus cur) {
-            if (isHealthy(prev) != isHealthy(cur)) {
-                _Log.printf("loop --> %s service %s -> %s\n",
-                            name,
-                            module::serviceStatusName(prev),
-                            module::serviceStatusName(cur));
-            }
-        };
-
-        auto s = sysinfo::Module::service();
-        logTransition("sysinfo", prevSysinfo, s);
-        prevSysinfo = s;
-
-        s = imu::Module::service();
-        logTransition("imu", prevImu, s);
-        prevImu = s;
-
-        s = amplifier::Module::service();
-        logTransition("amplifier", prevAmplifier, s);
-        prevAmplifier = s;
-
-        s = cooling::Module::service();
-        logTransition("cooling", prevCooling, s);
-        prevCooling = s;
+        static module::ServiceStatus prevStatus[NUM_TICK_SERVICE] = {};
+        for (size_t i = 0; i < NUM_TICK_SERVICE; ++i) {
+            module::serviceWithLog(tickServiceModules[i], prevStatus[i], logPrintf);
+        }
     }
 
     const uint32_t nowMs = millis();
@@ -397,8 +313,7 @@ void loop() {
 
     // Each module handles mock mode internally: when sensor_mock::isActive(),
     // read()/service() pulls from sensor_mock::get() instead of hardware.
-    cold_head::service();
-    cold_head::checkFaults();
+    cold_head::service();  // includes fault checking internally
 
     // Read cached values.
     const float tempC       = cold_head::getLastTempC();

@@ -369,6 +369,10 @@ module::ServiceStatus service(uint32_t nowMs) {
     if (tempTracker_) {
         tempTracker_->update(targetTempC_, sLastTempC, nowMs);
     }
+
+    // Inline fault check — previously called separately from main.cpp.
+    checkFaults();
+
     return module::MODULE_SERVICE_OK;
 }
 

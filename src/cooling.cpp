@@ -541,8 +541,11 @@ module::ServiceStatus service() {
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         static uint32_t lastRetryMs = 0;
         const uint32_t now = millis();
-        if ((now - lastRetryMs) >= 250u) {
+        if ((now - lastRetryMs) >= 1000u) {
             lastRetryMs = now;
+            // Recover the bus before retrying — a previous failed transaction
+            // may have left SDA stuck low, blocking all other I2C devices.
+            hardware::recoverI2c();
             if (controllerInit() == module::MODULE_INIT_SUCCESS) {
                 _Log.println(F("EMC2302 appeared — deferred init succeeded"));
 
@@ -592,10 +595,16 @@ module::ServiceStatus service() {
     // tick.  Demote init status so the deferred-init retry path (above)
     // reconfigures the chip when 12 V returns — without this the EMC2302
     // powers up in its default 100 % duty-cycle state.
+    //
+    // Report the failure to the I2C health monitor so that bus recovery
+    // is triggered — a device losing power mid-transaction can hold SDA
+    // low, blocking every other sensor on the shared bus.
     if (!sensor_mock::isActive()) {
         TwoWire& i2c = hardware::i2c();
         i2c.beginTransmission(EMC2302_2_I2C_ADDRESS);
         if (i2c.endTransmission() != 0) {
+            hardware::reportI2cError();
+            hardware::recoverI2c();
             coolantTemperature_ = NAN;
             coolantFlowRate_    = NAN;
             Module::overrideInitStatus(module::MODULE_INIT_HARDWARE_ERROR);

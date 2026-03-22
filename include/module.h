@@ -66,6 +66,8 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 
@@ -313,3 +315,149 @@ constexpr bool is_module = has_init<T> && has_service<T>;
         #T " does not satisfy the Module interface: "                           \
            "must provide static module::InitStatus init() "                     \
            "and static module::ServiceStatus service()")
+
+// ─── Module registry ─────────────────────────────────────────────────────────
+//
+// Type-erased module descriptor — stores function pointers extracted from each
+// Module struct so that init / service / status queries can be driven from
+// arrays instead of hand-coded one-by-one.  No vtable, no heap allocation.
+
+namespace module {
+
+struct ModuleEntry {
+    const char*    name;
+    InitStatus     (*initFn)();
+    InitStatus     (*getInitStatus)();
+    ServiceStatus  (*serviceFn)();
+    ServiceStatus  (*getServiceStatus)();
+    bool           fatal;   ///< true = halt startup if init fails
+};
+
+/**
+ * Create a ModuleEntry from a Module struct inside namespace @p ns.
+ *
+ * @param ns       The namespace containing a Module struct (e.g. cooling, imu).
+ * @param isFatal  true if an init failure should halt the boot sequence.
+ *
+ * Example:
+ *   static const module::ModuleEntry modules[] = {
+ *       MODULE_ENTRY(cooling,   false),
+ *       MODULE_ENTRY(amplifier, false),
+ *   };
+ */
+#define MODULE_ENTRY(ns, isFatal) {      \
+    #ns,                                 \
+    ns::Module::init,                    \
+    ns::Module::getInitStatus,           \
+    ns::Module::service,                 \
+    ns::Module::getServiceStatus,        \
+    isFatal                              \
+}
+
+/**
+ * Initialise every module in an array.
+ *
+ * For each entry: logs "name --> Initialising ...", calls initFn(), logs the
+ * outcome, and optionally calls @p emitFn (e.g. telemetry::emitSafe) after
+ * each step so the dashboard shows real-time progress.
+ *
+ * @param entries  Array of ModuleEntry descriptors.
+ * @param count    Number of entries in the array.
+ * @param emitFn   Optional callback invoked after each init (nullptr to skip).
+ * @param logFn    Printf-style log function (e.g. _Log.printf).
+ * @return         false if any entry marked fatal failed; true otherwise.
+ */
+template<typename LogFn>
+inline bool initGroup(const ModuleEntry* entries, size_t count,
+                      void (*emitFn)(), LogFn&& logFn,
+                      void (*yieldFn)() = nullptr) {
+    for (size_t i = 0; i < count; ++i) {
+        const auto& m = entries[i];
+        logFn("%s --> Initialising ...\n", m.name);
+
+        // Yield to the FreeRTOS scheduler to feed the task watchdog.
+        // Without this, a long init sequence (WiFi, IMU calibration, etc.)
+        // can exceed the 5 s WDT timeout and trigger a software reset.
+        if (yieldFn) yieldFn();
+
+        InitStatus status = m.initFn();
+
+        if (status == MODULE_INIT_SUCCESS) {
+            logFn("%s --> Initialisation complete\n", m.name);
+        } else {
+            logFn("%s --> FAILED (status: %s)\n", m.name, initStatusName(status));
+            if (m.fatal) {
+                if (emitFn) emitFn();
+                return false;
+            }
+        }
+
+        if (yieldFn) yieldFn();
+        if (emitFn) emitFn();
+    }
+    return true;
+}
+
+/**
+ * Service a module and log only when its health status transitions.
+ *
+ * "Healthy" means OK or SKIPPED (time-gated modules return SKIPPED on most
+ * ticks).  Only the transition between healthy ↔ unhealthy is logged,
+ * preventing once-per-tick spam.
+ *
+ * @param entry       The module to service.
+ * @param prevStatus  Reference to a persistent ServiceStatus variable that
+ *                    tracks the previous tick's result for this module.
+ * @param logFn       Printf-style log function.
+ */
+template<typename LogFn>
+inline void serviceWithLog(const ModuleEntry& entry,
+                           ServiceStatus& prevStatus,
+                           LogFn&& logFn) {
+    const ServiceStatus cur = entry.serviceFn();
+
+    const auto isHealthy = [](ServiceStatus s) {
+        return s == MODULE_SERVICE_OK || s == MODULE_SERVICE_SKIPPED;
+    };
+
+    if (isHealthy(prevStatus) != isHealthy(cur)) {
+        logFn("loop --> %s service %s -> %s\n",
+              entry.name,
+              serviceStatusName(prevStatus),
+              serviceStatusName(cur));
+    }
+    prevStatus = cur;
+}
+
+/**
+ * Print the init status of every module in an array.
+ *
+ * @param entries  Array of ModuleEntry descriptors.
+ * @param count    Number of entries.
+ * @param logFn    Printf-style log function.
+ * @return         Number of modules that did NOT init successfully.
+ */
+template<typename LogFn>
+inline uint8_t reportStatus(const ModuleEntry* entries, size_t count,
+                            LogFn&& logFn) {
+    uint8_t failCount = 0;
+    for (size_t i = 0; i < count; ++i) {
+        if (entries[i].getInitStatus() != MODULE_INIT_SUCCESS) {
+            ++failCount;
+        }
+    }
+    if (failCount == 0) {
+        logFn("    All modules initialized successfully.\n");
+    } else {
+        logFn("    %u module(s) failed to initialize:\n", failCount);
+        for (size_t i = 0; i < count; ++i) {
+            const auto status = entries[i].getInitStatus();
+            if (status != MODULE_INIT_SUCCESS) {
+                logFn("      - %s: %s\n", entries[i].name, initStatusName(status));
+            }
+        }
+    }
+    return failCount;
+}
+
+} // namespace module
