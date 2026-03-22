@@ -8,10 +8,10 @@
  * fillJson().
  *
  * ── Serial Studio wire format ───────────────────────────────────────────────
- *   Frame:  /*<pipe-delimited values>*\/\r\n
+ *   Frame:  <tab-delimited values>\r\n
  *   To visualise in Serial Studio:
  *     - Connect at SERIAL_BAUD.
- *     - Enable "Frame detection" with start seq "\/*" and end seq "*\/".
+ *     - Configure tab-delimited CSV frame detection.
  *     - Load the Cryocooler.ssproj project file.
  *
  * ── Fields (pipe-delimited, in column order) ────────────────────────────────

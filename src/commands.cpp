@@ -526,7 +526,7 @@ static void handleCoolingPump(const char* args, Print& out) {
     }
 
     if (digits == 0) {
-        char buf[64];
+        char buf[96];
         snprintf(buf, sizeof(buf),
                  "[ERR] cooling pump: invalid argument '%s' (expected <duty> or <%%>)", args);
         out.println(buf);
@@ -539,7 +539,7 @@ static void handleCoolingPump(const char* args, Print& out) {
 
     // Reject trailing non-whitespace garbage.
     if (*p != '\0' && *p != ' ' && *p != '\t') {
-        char buf[64];
+        char buf[96];
         snprintf(buf, sizeof(buf),
                  "[ERR] cooling pump: invalid argument '%s' (expected <duty> or <%%>)", args);
         out.println(buf);
