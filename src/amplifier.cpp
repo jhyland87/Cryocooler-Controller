@@ -4,23 +4,20 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   AD5693R 16-bit I2C DAC                             (amplitude control)
+ *   MCP4921 12-bit SPI DAC                              (amplitude control)
  *
  * The former dac / waveform / rms modules have been consolidated here.
  *
- * AD5693R I2C protocol notes:
- *   Fast-mode (400 kHz) is used.  writeUpdateDAC() writes to the volatile
- *   output register only.  The AD5693R retains its volatile register value
- *   across software resets (esp_restart()), so dacCurrent_ is invalidated in
- *   initDac() to force a write to zero on every boot.
+ * MCP4921 SPI protocol notes:
+ *   16-bit frame: [0 BUF GA SHDN D7..D0 xxxx].  We use unbuffered, 1× gain,
+ *   active mode (0x3000 | data<<4).  SPI Mode 0, up to 20 MHz clock.
+ *   The DAC output is volatile — resets to 0 on power cycle.
  */
 
 #include <Arduino.h>
+#include <SPI.h>
 #include <ACS37800.h>
 #include <MD_AD9833.h>
-#include <Adafruit_AD569x.h>
-#include <SparkFun_Qwiic_Relay.h>
-
 #include "pin_config.h"
 #include "config.h"
 #include "amplifier.h"
@@ -41,19 +38,10 @@
 static constexpr char TAG[] = "amplifier";
 static LogStream _Log = Log.createChildLogger("amplifier");
 
-// SparkFun Qwiic Single Relay instance for this module.
-static Qwiic_Relay sRelay(AMPLIFIER_RELAY_ADDR);
 
-/// Set true by initRelay() only when the relay device acknowledged on the I2C
-/// bus.  When false, setRelay() is a no-op so the rest of the amplifier chain
-/// (DAC, waveform, power monitor) can operate normally even if the relay board
-/// is not yet fitted.
-static bool sRelayAvailable = false;
-
-/// Set true by initDac() only when the AD5693 device is found and begin()
-/// completes without error.  Guards dacWrite() so that hardStop() /
-/// setOutput() never reach ad5693_.writeUpdateDAC() on an uninitialised
-/// DAC object.
+/// Set true by initDac() once the MCP4921 CS pin is configured and a test
+/// write completes.  Guards dacWrite() so that hardStop() / setOutput()
+/// never fire SPI transactions before init.
 static bool sDacAvailable = false;
 
 /// True while the relay output is energised (cached).
@@ -64,9 +52,11 @@ static MD_AD9833 ad9833_(AD9833_CS);
 
 // RMS power monitor (ACS37800 over I2C)
 static ACS37800 acs_;
+static bool sAcsAvailable = false;
 
-// AD5693R 16-bit I2C DAC — amplitude control
-static Adafruit_AD569x ad5693_;
+// MCP4921 12-bit SPI DAC — amplitude control
+// SPI settings: Mode 0 (CPOL=0 CPHA=0), MSB first, 4 MHz (MCP4921 supports up to 20 MHz)
+static const SPISettings sMcp4901Spi(4000000, MSBFIRST, SPI_MODE0);
 uint16_t dacCurrent_ = 0u;
 
 // Manual vout override — set by the "set vout" command to prevent the FSM
@@ -113,16 +103,13 @@ static std::optional<TrackingMonitor<float>> voltTracker_;
 // ---------------------------------------------------------------------------
 
 /**
- * Drive the relay coil via the SparkFun Qwiic Single Relay.  No-ops when the
- * requested state matches the cached state to avoid unnecessary I2C traffic.
+ * Drive the relay via a GPIO pin (HIGH = closed, LOW = open).
  */
 static void setRelay(bool on) {
     if (on == sRelayOn) return;
     sRelayOn = on;
-    if (sRelayAvailable) {
-        if (on) { sRelay.turnRelayOn(); } else { sRelay.turnRelayOff(); }
-    }
-    ESP_LOGD(TAG, "Relay → %s%s", on ? "ON" : "OFF", sRelayAvailable ? "" : " (no hw)");
+    digitalWrite(AMPLIFIER_RELAY_PIN, on ? HIGH : LOW);
+    ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
 }
 
 // ---------------------------------------------------------------------------
@@ -130,19 +117,32 @@ static void setRelay(bool on) {
 // ---------------------------------------------------------------------------
 
 /**
- * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the AD5693 DAC register
- * over I2C.  The cached value is checked first so unchanged set-points
- * do not generate unnecessary I2C traffic.
+ * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the MCP4921 DAC via SPI.
+ * The cached value is checked first so unchanged set-points do not
+ * generate unnecessary SPI traffic.
+ *
+ * MCP4921 16-bit command frame:
+ *   Bit 15   : 0      (channel A — only channel on MCP4921)
+ *   Bit 14   : BUF=0  (unbuffered Vref input)
+ *   Bit 13   : GA=1   (1× output gain)
+ *   Bit 12   : SHDN=1 (active mode, output enabled)
+ *   Bits 11-0: D11..D0 (12-bit data)
  */
 static void dacWrite(uint16_t dacVal) {
-    if (!sDacAvailable) return;   // DAC not initialised — skip silently
+    if (!sDacAvailable) return;
     dacVal = constrain(dacVal, 0u, static_cast<uint16_t>(AMPLIFIER_RESOLUTION));
     if (dacCurrent_ == dacVal) return;
 
-    dacCurrent_ = dacVal;
-    ESP_LOGD(TAG, "DAC current: %u", dacCurrent_);
-    ad5693_.writeUpdateDAC(dacVal);
     ESP_LOGD(TAG, "Writing DAC value: %u", dacVal);
+
+    const uint16_t cmd = 0x3000u | (dacVal & 0x0FFFu);
+    SPI.beginTransaction(sMcp4901Spi);
+    digitalWrite(MCP4921_CS, LOW);
+    SPI.transfer16(cmd);
+    digitalWrite(MCP4921_CS, HIGH);
+    SPI.endTransaction();
+
+    dacCurrent_ = dacVal;
 }
 
 /**
@@ -170,49 +170,49 @@ namespace amplifier {
 
 module::InitStatus init() {
     // -- Qwiic Single Relay ---------------------------------------------------
-    _Log.println("Initializing Qwiic Single Relay (Amplifier)...");
+    _Log.println(F("Initializing amplifier relay (GPIO)..."));
     {
         const module::InitStatus status = initRelay();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "Qwiic Single Relay initialization failed: %d", static_cast<int>(status));
-            _Log.printf("Qwiic Single Relay initialization failed: %d\n", static_cast<int>(status));
+            ESP_LOGE(TAG, "Amplifier relay initialization failed: %d", static_cast<int>(status));
+            _Log.printf("Amplifier relay initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
-    _Log.println("Qwiic Single Relay initialized");
+    _Log.println(F("Amplifier relay initialized"));
 
-    // -- AD5693R DAC -----------------------------------------------------------
+    // -- MCP4901 DAC -----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
-    _Log.println("Initializing AD5693R (DAC - Amplitude Control)...");
+    _Log.println(F("Initializing MCP4921 (DAC - Amplitude Control)..."));
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "AD5693R initialization failed: %d", static_cast<int>(status));
-            _Log.printf("AD5693R initialization failed: %d\n", static_cast<int>(status));
+            ESP_LOGE(TAG, "MCP4921 initialization failed: %d", static_cast<int>(status));
+            _Log.printf("MCP4921 initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
-    _Log.println("AD5693R DAC initialized");
+    _Log.println(F("MCP4921 DAC initialized"));
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
     // out of the amplifier.
-    _Log.println("Initializing ACS37800 (VOUT - Power Monitor)...");
-    {
-        const module::InitStatus status = initAcs();
-        if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
-            _Log.printf("ACS37800 initialization failed: %d\n", static_cast<int>(status));
-            return status;
-        }
-    }
-    _Log.println("ACS37800 initialized");
+    // _Log.println(F("Initializing ACS37800 (VOUT - Power Monitor)..."));
+    // {
+    //     const module::InitStatus status = initAcs();
+    //     if (status != module::MODULE_INIT_SUCCESS) {
+    //         ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
+    //         _Log.printf("ACS37800 initialization failed: %d\n", static_cast<int>(status));
+    //         return status;
+    //     }
+    // }
+    // _Log.println(F("ACS37800 initialized"));
 
     // -- AD9833 waveform generator --------------------------------------------
     // This is the waveform generator that generates the sine wave that is
     // passed to the AD633 voltage multiplier.
-    _Log.println("Initializing AD9833 (DDS - Waveform Generator)...");
+    _Log.println(F("Initializing AD9833 (DDS - Waveform Generator)..."));
     {
         const module::InitStatus status = initWaveform();
         if (status != module::MODULE_INIT_SUCCESS) {
@@ -221,40 +221,36 @@ module::InitStatus init() {
             return status;
         }
     }
-    _Log.println("AD9833 initialized");
-    _Log.println("Initialization successful");
+    _Log.println(F("AD9833 initialized"));
+    _Log.println(F("Initialization successful"));
 
     return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initDac() {
-    // begin() internally calls reset() then setMode() with no delay between
-    // them.  The AD5693R reboots mid-reset so the immediate setMode() NAKs and
-    // begin() returns false even though the chip is fine.  We ignore that
-    // return value, add a 10 ms settling delay, and call setMode() ourselves.
-    ad5693_.begin(AD5693_DAC_I2C_ADDRESS, &hardware::i2c());
-    delay(10);   // allow the chip to finish rebooting after the soft-reset
-
-    if (!ad5693_.setMode(NORMAL_MODE, /*enable_ref=*/true, /*gain2x=*/false)) {
-        ESP_LOGW(TAG, "AD5693R not found or setMode failed at 0x%02X — DAC disabled", AD5693_DAC_I2C_ADDRESS);
-        _Log.printf("AD5693R not found at I2C address 0x%02X — DAC disabled\n", AD5693_DAC_I2C_ADDRESS);
-        sDacAvailable = false;
-        return module::MODULE_INIT_SUCCESS;
-    }
+    // MCP4921 is an SPI device — no address probing needed.  Just configure
+    // the CS pin and write zero to ensure the output starts at 0 V.
+    // The SPI bus is already initialised by hardware::initSPI().
+    pinMode(MCP4921_CS, OUTPUT);
+    digitalWrite(MCP4921_CS, HIGH);   // CS idle high
 
     sDacAvailable = true;
+    dacCurrent_ = UINT16_MAX;         // invalidate cache to force initial write
 
-    // Invalidate the cached DAC value before writing zero.  dacCurrent_ starts
-    // at 0 after every ESP32 boot, but the AD5693 retains its volatile register
-    // across soft-resets — so the 0==0 guard in dacWrite() would suppress the
-    // I2C write and leave the DAC at whatever it was before the reset.
-    dacCurrent_ = UINT16_MAX;   // force dacWrite() to issue the I2C write
+    // Drive output to 0 V — also serves as a basic connectivity check
+    // (SPI has no ACK mechanism, so we trust the write).
     setOutput(0.0f);
+
+    ESP_LOGI(TAG, "MCP4921 SPI DAC initialised (CS=GPIO%d, 12-bit, %u full-scale)",
+             MCP4921_CS, AMPLIFIER_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initWaveform() {
     ad9833_.begin();
+    // AD9833 library's begin() calls SPI.begin() with no args, which reassigns
+    // the SPI peripheral to default pins (GPIO 12/11/13).  Restore our pins.
+    hardware::initSPI();
     ad9833_.setMode(MD_AD9833::MODE_SINE);
     waveformMode_ = MD_AD9833::MODE_SINE;
     setFrequency(static_cast<float>(AMPLIFIER_FREQ_HZ));
@@ -272,35 +268,31 @@ module::InitStatus initAcs() {
     acs_.setBoardPololu(4);
     acs_.setSampleCount(0);
 
-    // if (acs_.getLastError()) {
-    //     Serial.printf("[amplifier] ACS37800 init error: %d\n",
-    //                   static_cast<int>(acs_.getLastError()));
-    //     return module::MODULE_INIT_HARDWARE_ERROR;
-    // }
+    // Do a real read probe — address-only probes are unreliable (ghost ACKs).
+    // A single failed read may generate Error 263, so recover the bus after.
+    acs_.readRMSVoltageAndCurrent();
+    bool valid = (acs_.rmsVoltageMillivolts != 0 || acs_.rmsCurrentMilliamps != 0)
+              && acs_.rmsVoltageMillivolts < 500000;  // sanity: <500V
+
+    if (!valid) {
+        ESP_LOGW(TAG, "ACS37800 not found at 0x%02X — power monitor disabled",
+                 acs_.getAddress());
+        _Log.println(F("ACS37800 not found — power monitor disabled"));
+        sAcsAvailable = false;
+        hardware::recoverI2c();
+        return module::MODULE_INIT_SUCCESS;
+    }
+
+    sAcsAvailable = true;
     return module::MODULE_INIT_SUCCESS;
 }
 
 module::InitStatus initRelay() {
-    ESP_LOGI(TAG, "Initialising amplifier relay (Qwiic Single Relay @ 0x%02X)",
-             static_cast<unsigned>(AMPLIFIER_RELAY_ADDR));
+    ESP_LOGI(TAG, "Initialising amplifier relay (GPIO %d)", AMPLIFIER_RELAY_PIN);
 
-    if (!sRelay.begin(hardware::i2c())) {
-        // Relay not found — log a warning but continue.  The rest of the
-        // amplifier chain (DAC, waveform generator, power monitor) must still
-        // initialise so the state machine can safely call setOutput() /
-        // hardStop() etc.  setRelay() will no-op silently until the hardware
-        // is fitted and initRelay() succeeds on a subsequent reinit().
-        ESP_LOGW(TAG, "Qwiic Single Relay not found at 0x%02X — relay disabled",
-                 static_cast<unsigned>(AMPLIFIER_RELAY_ADDR));
-        sRelayAvailable = false;
-        return module::MODULE_INIT_SUCCESS;
-    }
-
-    sRelayAvailable = true;
-
-    // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
-    sRelayOn = true;
-    setRelay(false);
+    pinMode(AMPLIFIER_RELAY_PIN, OUTPUT);
+    digitalWrite(AMPLIFIER_RELAY_PIN, LOW);
+    sRelayOn = false;
 
     ESP_LOGI(TAG, "Amplifier relay initialised — relay OFF");
     return module::MODULE_INIT_SUCCESS;
@@ -374,13 +366,13 @@ void disable() {
 
 void initCoarseCooldown() {
     ESP_LOGD(TAG, "Initializing coarse cooldown");
-    _Log.printf("Initializing coarse cooldown\n");
+    _Log.println(F("Initializing coarse cooldown"));
     rampTo(5.0f / static_cast<float>(AMPLIFIER_RESOLUTION), AMPLIFIER_RAMP_RATE_MEDIUM);
 }
 
 void initFineCooldown() {
     ESP_LOGD(TAG, "Initializing fine cooldown");
-    _Log.printf("Initializing fine cooldown\n");
+    _Log.println(F("Initializing fine cooldown"));
     rampTo(10.0f / static_cast<float>(AMPLIFIER_RESOLUTION), AMPLIFIER_RAMP_RATE_SLOW);
 }
 
@@ -450,21 +442,31 @@ float getVoutOverride() {
 // ---------------------------------------------------------------------------
 
 module::ServiceStatus service() {
-    // Guard: skip I2C reads if the ACS37800 did not initialise successfully.
-    // amplifier::initAcs() detects ACS37800 absence via Wire.endTransmission()
-    // return codes; if init failed, reading from it every tick would flood the
-    // log with ESP_ERR_INVALID_STATE errors.
-    //Serial.printf("Module::getInitStatus(): %d\n", Module::getInitStatus());
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
+    // Skip all ACS37800 I2C traffic when the chip is absent.  A failed read
+    // (Error 263) leaves the bus stuck and kills downstream devices like the DAC.
+    if (!sAcsAvailable) {
+        lastRmsVoltage_     = NAN;
+        lastRmsCurrent_     = NAN;
+        lastApparentPowerW_ = NAN;
+        lastFrequency_      = imu::getFrequency();
+        return module::MODULE_SERVICE_OK;
+    }
+
     // I2C check: when 12 V drops, the ACS37800 goes offline (NACK).
-    // Send NaN so the dashboard shows a gap for this tick.
+    // A failed read (Error 263) corrupts the I2C bus, so on the first failure
+    // we permanently disable the ACS37800 and recover the bus.
     {
         TwoWire& i2c = hardware::i2c();
         i2c.beginTransmission(acs_.getAddress());
         if (i2c.endTransmission() != 0) {
+            ESP_LOGW(TAG, "ACS37800 offline — permanently disabled to protect I2C bus");
+            _Log.println(F("ACS37800 offline — disabled"));
+            sAcsAvailable = false;
+            hardware::recoverI2c();
             lastRmsVoltage_     = NAN;
             lastRmsCurrent_     = NAN;
             lastApparentPowerW_ = NAN;
@@ -474,6 +476,22 @@ module::ServiceStatus service() {
     }
 
     acs_.readRMSVoltageAndCurrent();
+
+    // Safety net: if the read returned garbage (bus error, device gone),
+    // permanently disable the ACS37800 and recover the bus immediately.
+    if (acs_.rmsVoltageMillivolts >= 500000) {  // >500V is impossible
+        ESP_LOGW(TAG, "ACS37800 read returned garbage (%u mV) — permanently disabled",
+                 acs_.rmsVoltageMillivolts);
+        _Log.println(F("ACS37800 bad read — disabled"));
+        sAcsAvailable = false;
+        hardware::recoverI2c();
+        lastRmsVoltage_     = NAN;
+        lastRmsCurrent_     = NAN;
+        lastApparentPowerW_ = NAN;
+        lastFrequency_      = NAN;
+        return module::MODULE_SERVICE_ERROR;
+    }
+
     lastRmsVoltage_     = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_     = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
     lastApparentPowerW_ = static_cast<float>(acs_.readApparentPowerMilliwatts()) / 1000.0f;

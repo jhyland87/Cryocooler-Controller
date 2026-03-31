@@ -1,30 +1,33 @@
 /**
  * @file imu.cpp
- * @brief LSM6DSOX IMU implementation (via Adafruit LSM6DS library).
+ * @brief LSM6DSOX IMU implementation (via Adafruit LSM6DS library — FIFO mode).
  *
- * Reads 6-DOF IMU data, applies offset calibration and a first-order
- * low-pass filter, computes roll/pitch/yaw orientation, and exposes
- * motion/overstroke detection via hasOverstroke().
+ * Reads 6-DOF IMU data from the hardware FIFO, applies offset calibration
+ * and a first-order low-pass filter, computes roll/pitch/yaw orientation,
+ * and exposes motion/overstroke detection via hasOverstroke().
+ *
+ * FIFO mode:
+ *   The LSM6DSOX FIFO is configured in continuous mode at 833 Hz for both
+ *   accelerometer and gyroscope.  service() drains the FIFO each tick,
+ *   processing all available samples.
  *
  * Frequency detection:
- *   checkFrequency() collects FFT_N samples at FFT_FS_HZ using a
- *   micros()-paced busy-wait loop (no delay() calls), then runs an
- *   FFT with Hann windowing and quadratic peak interpolation.
- *   The LSM6DSOX ODR is 833 Hz (≈1.2 ms per sample), so each read in the
- *   2500 us-spaced loop returns genuinely fresh data.  The collection
- *   window is ~640 ms and is triggered once every FFT_INTERVAL_MS.
+ *   Z-axis accelerometer samples are accumulated from the FIFO into an FFT
+ *   buffer.  When FFT_N samples have been collected and FFT_INTERVAL_MS has
+ *   elapsed, an FFT with Hann windowing and quadratic peak interpolation is
+ *   run.  This is entirely non-blocking — no busy-wait collection loop.
  *
  * Calibration:
  *   performCalibration() is called once from init().  It reads
- *   ACCEL_CAL_SAMPLES samples with a brief delay between reads to
- *   allow the sensor to produce new data.  At 833 Hz ODR this takes ~1.2 s.
+ *   ACCEL_CAL_SAMPLES accelerometer and gyroscope samples from the FIFO,
+ *   computes mean offsets (gravity vector for accel, bias for gyro).
  *   Blocking at setup()-time is acceptable.
  */
 
 #include <Adafruit_LSM6DSOX.h>
 #include <arduinoFFT.h>
 #include <math.h>
-#include <Wire.h>
+#include <SPI.h>
 #include "imu.h"
 #include "config.h"
 #include "hardware.h"
@@ -42,20 +45,26 @@ static constexpr uint32_t MOTION_TIMEOUT_MS    = 2000u;  // clear motion flag af
 static constexpr uint16_t ACCEL_CAL_SAMPLES    = 1000u;  // number of valid samples for calibration
 static constexpr float    FILTER_ALPHA         = 0.1f;   // low-pass filter coefficient (0–1)
 
+// Raw-to-engineering-unit scale factors for the configured ranges.
+// 8 g accel: sensitivity = 0.244 mg/LSB → 0.000244 g/LSB
+// 500 dps gyro: sensitivity = 17.50 mdps/LSB
+static constexpr float ACCEL_SCALE_MPS2 = 0.000244f * 9.80665f;  // raw int16 → m/s²
+static constexpr float ACCEL_SCALE_G    = 0.000244f;              // raw int16 → g
+
 // ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
 
 static Adafruit_LSM6DSOX sensor;
 
-/// Set true by init() only when sensor.begin_I2C() confirms the LSM6DSOX is
+/// Set true by init() only when sensor.begin_SPI() confirms the LSM6DSOX is
 /// present and responding.  Guards service() and calculateFrequency() so
-/// they silently skip rather than flood the log with I2C errors when the
-/// hardware is absent.
+/// they silently skip when the hardware is absent.
 static bool sImuAvailable = false;
 
-// Calibration offsets (set by performCalibration)
+// Calibration offsets — accel in m/s² (gravity preserved), gyro in raw int16
 static float accelOffsetX_ = 0.0f, accelOffsetY_ = 0.0f, accelOffsetZ_ = 0.0f;
+static float gyroBiasX_    = 0.0f, gyroBiasY_    = 0.0f, gyroBiasZ_    = 0.0f;
 
 // Low-pass filter state
 static float filtAccelX_ = 0.0f, filtAccelY_ = 0.0f, filtAccelZ_ = 0.0f;
@@ -72,6 +81,10 @@ static float frequency_ = 0.0f;
 static bool     motionDetected_ = false;
 static uint32_t lastMotionMs_   = 0u;
 
+// Temperature is read from output registers (not FIFO) at a lower cadence.
+static uint32_t lastTempMs_ = 0u;
+static constexpr uint32_t TEMP_READ_INTERVAL_MS = 1000u;
+
 static LogStream _Log = Log.createChildLogger("imu");
 // ---------------------------------------------------------------------------
 // FFT frequency detection state
@@ -79,12 +92,8 @@ static LogStream _Log = Log.createChildLogger("imu");
 
 // Number of samples per FFT window.
 static constexpr uint16_t FFT_N            = 256u;
-// Sampling rate for the FFT collection loop (Hz).
-// Must be > 2 × max expected frequency.  LSM6DSOX ODR (833 Hz) >> 400 Hz,
-// so each read in the 2500 us-paced loop always returns fresh data.
-static constexpr float    FFT_FS_HZ        = 400.0f;
-// Inter-sample period in microseconds (1 000 000 / FFT_FS_HZ).
-static constexpr uint32_t FFT_SAMPLE_US    = static_cast<uint32_t>(1000000.0f / FFT_FS_HZ); // 2500 us
+// Effective sampling rate — matches the FIFO batch rate.
+static constexpr float    FFT_FS_HZ        = 833.0f;
 // Search band for the peak bin (Hz).
 static constexpr float    FFT_SEARCH_MIN   = 45.0f;
 static constexpr float    FFT_SEARCH_MAX   = 75.0f;
@@ -95,7 +104,6 @@ static constexpr float    FFT_MIN_SNR      = 5.0f;
 // IIR smoothing weight applied to accepted measurements (0 < alpha <= 1).
 static constexpr float    FFT_FREQ_ALPHA   = 0.15f;
 // Minimum interval between FFT runs (ms).
-// The ~640 ms collection window is included in this interval.
 static constexpr uint32_t FFT_INTERVAL_MS  = 1000u;
 
 static float fftVReal_[FFT_N];
@@ -106,38 +114,82 @@ static ArduinoFFT<float> fft_(fftVReal_, fftVImag_, FFT_N, FFT_FS_HZ);
 
 static float    fftFiltered_ = NAN;   // IIR-smoothed frequency estimate
 static uint32_t lastFftMs_   = 0u;    // millis() of last FFT run
+static uint16_t fftBufIdx_   = 0u;    // accumulation index into fftZBuf_
 
 // ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Read ACCEL_CAL_SAMPLES from the sensor with brief delays between reads
- * to allow the sensor to produce fresh data at its configured ODR.
+ * FIFO-based calibration.  Reads ACCEL_CAL_SAMPLES of accelerometer and
+ * gyroscope data from the FIFO, computes mean offsets for gravity removal
+ * and gyro bias.  The sensor must be stationary during this process.
  */
 static void performCalibration() {
+    _Log.println("Calibrating — keep sensor still...");
+
+    // Flush any stale FIFO data
+    sensor.resetFIFO();
+    delay(50);
+
     float    accelSumX = 0.0f, accelSumY = 0.0f, accelSumZ = 0.0f;
-    uint16_t collected = 0u;
+    float    gyroSumX  = 0.0f, gyroSumY  = 0.0f, gyroSumZ  = 0.0f;
+    uint16_t accelCollected = 0u, gyroCollected = 0u;
 
-    sensors_event_t accel, gyro, temp;
-    while (collected < ACCEL_CAL_SAMPLES) {
-        sensor.getEvent(&accel, &gyro, &temp);
-        accelSumX += accel.acceleration.x;
-        accelSumY += accel.acceleration.y;
-        accelSumZ += accel.acceleration.z;
-        ++collected;
-        delayMicroseconds(1200);  // ~833 Hz ODR → 1.2 ms per fresh sample
+    while (accelCollected < ACCEL_CAL_SAMPLES || gyroCollected < ACCEL_CAL_SAMPLES) {
+        uint16_t count = sensor.getFIFOCount();
+        if (count == 0) {
+            delay(5);
+            continue;
+        }
 
-        // Yield every 100 samples (~120 ms) to feed the FreeRTOS task watchdog.
-        // The total calibration window is ~1.2 s of busy-wait which, combined
-        // with the rest of setup(), can exceed the 5 s WDT timeout.
-        if ((collected % 100u) == 0u) { yield(); }
+        lsm6ds_fifo_tag_t tag;
+        int16_t rx, ry, rz;
+
+        while (sensor.readFIFOWord(tag, rx, ry, rz)) {
+            if (tag == LSM6DS_FIFO_TAG_ACCEL_NC && accelCollected < ACCEL_CAL_SAMPLES) {
+                accelSumX += static_cast<float>(rx) * ACCEL_SCALE_MPS2;
+                accelSumY += static_cast<float>(ry) * ACCEL_SCALE_MPS2;
+                accelSumZ += static_cast<float>(rz) * ACCEL_SCALE_MPS2;
+                ++accelCollected;
+            } else if (tag == LSM6DS_FIFO_TAG_GYRO_NC && gyroCollected < ACCEL_CAL_SAMPLES) {
+                gyroSumX += static_cast<float>(rx);
+                gyroSumY += static_cast<float>(ry);
+                gyroSumZ += static_cast<float>(rz);
+                ++gyroCollected;
+            }
+        }
+
+        // Yield every 100 accel samples to feed the FreeRTOS task watchdog.
+        if ((accelCollected % 100u) == 0u) { yield(); }
     }
 
-    const float n = static_cast<float>(collected);
-    accelOffsetX_ = accelSumX / n;
-    accelOffsetY_ = accelSumY / n;
-    accelOffsetZ_ = (accelSumZ / n) - 9.81f;  // remove gravity component
+    const float na = static_cast<float>(accelCollected);
+    accelOffsetX_ = accelSumX / na;
+    accelOffsetY_ = accelSumY / na;
+    accelOffsetZ_ = (accelSumZ / na) - 9.81f;  // preserve gravity component
+
+    const float ng = static_cast<float>(gyroCollected);
+    gyroBiasX_ = gyroSumX / ng;
+    gyroBiasY_ = gyroSumY / ng;
+    gyroBiasZ_ = gyroSumZ / ng;
+
+    // Seed filter state with expected stationary values so there is no ramp-up.
+    filtAccelX_ = 0.0f;
+    filtAccelY_ = 0.0f;
+    filtAccelZ_ = 9.81f;
+
+    _Log.println("Calibration done — accel offsets: " +
+                 String(accelOffsetX_, 3) + ", " +
+                 String(accelOffsetY_, 3) + ", " +
+                 String(accelOffsetZ_, 3));
+    _Log.println("  gyro bias (raw): " +
+                 String(gyroBiasX_, 1) + ", " +
+                 String(gyroBiasY_, 1) + ", " +
+                 String(gyroBiasZ_, 1));
+
+    // Flush FIFO so service() starts with fresh data.
+    sensor.resetFIFO();
 }
 
 static void calculateOrientation(float ax, float ay, float az,
@@ -161,9 +213,6 @@ static void calculateOrientation(float ax, float ay, float az,
     while (yawInteg_ < -180.0f) { yawInteg_ += 360.0f; }
     yaw = yawInteg_;
 }
-
-// Forward declaration — calculateFrequency() is defined after service() but called from it.
-float calculateFrequency();
 
 // ---------------------------------------------------------------------------
 // FFT helpers (adapted from imu-fft-hz-test.cpp)
@@ -256,140 +305,18 @@ static void checkMotion(float accelMag) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-module::InitStatus init() {
-    if (!sensor.begin_I2C(LSM6DSOX_IMU_IC2_ADDRESS, &hardware::i2c())) {
-        _Log.println("LSM6DSOX not found — check wiring and I2C address");
-        sImuAvailable = false;
-        return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
-    }
-    _Log.println("LSM6DSOX found — continuing");
-    sImuAvailable = true;
-
-    sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
-    sensor.setAccelDataRate(LSM6DS_RATE_833_HZ);
-    sensor.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS);
-    sensor.setGyroDataRate(LSM6DS_RATE_833_HZ);
-
-    performCalibration();
-    return module::InitStatus::MODULE_INIT_SUCCESS;
-}
-
-module::ServiceStatus service() {
-    if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
-
-    // I2C ping: when 12 V drops, the LSM6DSOX goes offline (NACK).
-    // Set all readings to NAN so the dashboard shows a gap for this tick.
-    {
-        TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(LSM6DSOX_IMU_IC2_ADDRESS);
-        if (i2c.endTransmission() != 0) {
-            filtAccelX_      = NAN;
-            filtAccelY_      = NAN;
-            filtAccelZ_      = NAN;
-            accelMag_        = NAN;
-            imuTemp_         = NAN;
-            imuTempPlausible_ = false;
-            roll_            = NAN;
-            pitch_           = NAN;
-            yaw_             = NAN;
-            frequency_       = NAN;
-            fftFiltered_     = NAN;
-            motionDetected_  = false;
-            return module::MODULE_SERVICE_ERROR;
-        }
-    }
-
-    sensors_event_t accelEvt, gyroEvt, tempEvt;
-    sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
-
-    // Apply calibration offsets (Adafruit unified sensor returns m/s²)
-    const float ax = accelEvt.acceleration.x - accelOffsetX_;
-    const float ay = accelEvt.acceleration.y - accelOffsetY_;
-    const float az = accelEvt.acceleration.z - accelOffsetZ_;
-
-    // First-order low-pass filter
-    filtAccelX_ = FILTER_ALPHA * ax + (1.0f - FILTER_ALPHA) * filtAccelX_;
-    filtAccelY_ = FILTER_ALPHA * ay + (1.0f - FILTER_ALPHA) * filtAccelY_;
-    filtAccelZ_ = FILTER_ALPHA * az + (1.0f - FILTER_ALPHA) * filtAccelZ_;
-
-    // Orientation from filtered data
-    calculateOrientation(filtAccelX_, filtAccelY_, filtAccelZ_,
-                         roll_, pitch_, yaw_);
-
-    // Magnitudes from unfiltered data for spike sensitivity
-    accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
-
-    // Temperature from the unified sensor event
-    {
-        const float tempReading = tempEvt.temperature;
-        if (tempReading >= MIN_PLAUSIBLE_AMBIENT_TEMP_C && tempReading <= MAX_PLAUSIBLE_AMBIENT_TEMP_C) {
-            imuTemp_          = tempReading;
-            imuTempPlausible_ = true;
-        } else {
-            imuTempPlausible_ = false;
-        }
-    }
-
-    checkMotion(accelMag_);
-
-    // Periodically run FFT frequency detection.
-    // checkFrequency() blocks for ~640 ms; the gate limits this to once every
-    // FFT_INTERVAL_MS so the main loop is only briefly paused every few seconds.
-    if ((millis() - lastFftMs_) >= FFT_INTERVAL_MS) {
-        lastFftMs_ = millis();
-        calculateFrequency();
-    }
-
-    return module::MODULE_SERVICE_OK;
-}
-
-float getFrequency() {
-    return frequency_;
-}
-
 /**
- * Collect FFT_N accelerometer-Z samples at FFT_FS_HZ, run an FFT, and
- * update frequency_ with the IIR-smoothed result.
- *
- * Timing: uses a micros()-paced busy-wait loop (~640 ms total).  No delay()
- * is used.  The LSM6DSOX ODR is 833 Hz so each read in the 2500 us loop
- * always returns a genuinely fresh sample.  This function should be called
- * infrequently (every FFT_INTERVAL_MS) to limit its impact on the main loop.
- *
- * @return The detected frequency in Hz, or NAN when the signal is absent or
- *         the SNR is below threshold.  The internal frequency_ state is only
- *         updated on valid detections.
+ * Run FFT on the accumulated fftZBuf_ samples and update the internal
+ * frequency estimate with an IIR-smoothed result.
  */
-float calculateFrequency() {
-    if (!sImuAvailable) return NAN;
-
-    // -- Collect FFT_N samples at FFT_FS_HZ using micros() timing ------------
-    uint32_t tNext = micros();
-    float    sumSq  = 0.0f;
-    float    zMin   =  999.0f;
-    float    zMax   = -999.0f;
-
-    sensors_event_t accelEvt, gyroEvt, tempEvt;
-
+static void runFft() {
+    // Compute min/max for amplitude check
+    float zMin =  999.0f, zMax = -999.0f;
     for (uint16_t i = 0u; i < FFT_N; ++i) {
-        // Busy-wait for the next sample slot — no delay().
-        while (static_cast<int32_t>(micros() - tNext) < 0) { /* spin */ }
-        tNext += FFT_SAMPLE_US;
-
-        sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
-        fftZBuf_[i] = accelEvt.acceleration.z / 9.80665f;   // convert m/s² → g
-
-        const float z = fftZBuf_[i];
-        sumSq += z * z;
-        if (z < zMin) zMin = z;
-        if (z > zMax) zMax = z;
+        if (fftZBuf_[i] < zMin) zMin = fftZBuf_[i];
+        if (fftZBuf_[i] > zMax) zMax = fftZBuf_[i];
     }
 
-    // -- Run FFT and evaluate result ------------------------------------------
     const float     zPeak  = (zMax - zMin) * 0.5f;
     const FftResult result = fftDetect(fftZBuf_);
     const bool      valid  = (zPeak > FFT_AMP_ON_G) && (result.snr > FFT_MIN_SNR);
@@ -406,8 +333,155 @@ float calculateFrequency() {
         fftFiltered_ = NAN;
         frequency_   = NAN;   // clear stale reading when vibration stops
     }
+}
 
-    if (!isfinite(fftFiltered_)) return NAN;
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+module::InitStatus init() {
+    // Restore SPI pins after AD9833 library's begin() may have reset them.
+    SPI.end();
+    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+
+    if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI)) {
+        _Log.println("LSM6DSOX not found on SPI — check wiring (CS=GPIO" + String(LSM6DSOX_CS) + ")");
+        sImuAvailable = false;
+        return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
+    }
+    _Log.println("LSM6DSOX found on SPI — continuing");
+    sImuAvailable = true;
+
+    sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
+    sensor.setAccelDataRate(LSM6DS_RATE_833_HZ);
+    sensor.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS);
+    sensor.setGyroDataRate(LSM6DS_RATE_833_HZ);
+
+    // Enable FIFO in continuous mode at the same rate as the ODR.
+    sensor.setFIFOAccelBatchRate(LSM6DS_FIFO_RATE_833_HZ);
+    sensor.setFIFOGyroBatchRate(LSM6DS_FIFO_RATE_833_HZ);
+    sensor.setFIFOMode(LSM6DS_FIFO_CONTINUOUS);
+
+    performCalibration();
+    return module::InitStatus::MODULE_INIT_SUCCESS;
+}
+
+static void clearReadings() {
+    filtAccelX_      = NAN;
+    filtAccelY_      = NAN;
+    filtAccelZ_      = NAN;
+    accelMag_        = NAN;
+    imuTemp_         = NAN;
+    imuTempPlausible_ = false;
+    roll_            = NAN;
+    pitch_           = NAN;
+    yaw_             = NAN;
+    frequency_       = NAN;
+    fftFiltered_     = NAN;
+    fftBufIdx_       = 0u;
+    motionDetected_  = false;
+}
+
+module::ServiceStatus service() {
+    if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
+
+    // Drain all available FIFO samples.
+    uint16_t count = sensor.getFIFOCount();
+    if (count == 0) { return module::MODULE_SERVICE_OK; }
+
+    lsm6ds_fifo_tag_t tag;
+    int16_t rx, ry, rz;
+    bool hadAccel = false;
+
+    while (sensor.readFIFOWord(tag, rx, ry, rz)) {
+        if (tag == LSM6DS_FIFO_TAG_ACCEL_NC) {
+            // Convert raw → m/s² and apply calibration offsets.
+            const float ax = (static_cast<float>(rx) * ACCEL_SCALE_MPS2) - accelOffsetX_;
+            const float ay = (static_cast<float>(ry) * ACCEL_SCALE_MPS2) - accelOffsetY_;
+            const float az = (static_cast<float>(rz) * ACCEL_SCALE_MPS2) - accelOffsetZ_;
+
+            // First-order low-pass filter
+            filtAccelX_ = FILTER_ALPHA * ax + (1.0f - FILTER_ALPHA) * filtAccelX_;
+            filtAccelY_ = FILTER_ALPHA * ay + (1.0f - FILTER_ALPHA) * filtAccelY_;
+            filtAccelZ_ = FILTER_ALPHA * az + (1.0f - FILTER_ALPHA) * filtAccelZ_;
+
+            // Magnitude from unfiltered data for spike sensitivity
+            accelMag_ = sqrtf(ax*ax + ay*ay + az*az);
+
+            // Accumulate Z-axis for FFT (raw → g; DC-removed inside fftDetect)
+            if (fftBufIdx_ < FFT_N) {
+                fftZBuf_[fftBufIdx_++] = static_cast<float>(rz) * ACCEL_SCALE_G;
+            }
+
+            hadAccel = true;
+        }
+        // Gyro samples are read (draining FIFO) but not processed further.
+        // gyroBias values are available for future gyro integration.
+    }
+
+    if (hadAccel) {
+        // Orientation from filtered data
+        calculateOrientation(filtAccelX_, filtAccelY_, filtAccelZ_,
+                             roll_, pitch_, yaw_);
+
+        checkMotion(accelMag_);
+    }
+
+    // Read temperature from output registers (independent of FIFO) at a
+    // lower cadence — temperature changes slowly and getEvent() is a full
+    // SPI read of accel+gyro+temp output registers.
+    {
+        const uint32_t now = millis();
+        if ((now - lastTempMs_) >= TEMP_READ_INTERVAL_MS) {
+            lastTempMs_ = now;
+            sensors_event_t accelEvt, gyroEvt, tempEvt;
+            sensor.getEvent(&accelEvt, &gyroEvt, &tempEvt);
+            const float tempReading = tempEvt.temperature;
+            if (tempReading >= MIN_PLAUSIBLE_AMBIENT_TEMP_C && tempReading <= MAX_PLAUSIBLE_AMBIENT_TEMP_C) {
+                imuTemp_          = tempReading;
+                imuTempPlausible_ = true;
+            } else {
+                imuTempPlausible_ = false;
+            }
+        }
+    }
+
+    // Run FFT when the accumulation buffer is full.
+    if (fftBufIdx_ >= FFT_N) {
+        if ((millis() - lastFftMs_) >= FFT_INTERVAL_MS) {
+            lastFftMs_ = millis();
+            runFft();
+        }
+        fftBufIdx_ = 0u;  // reset to accumulate fresh samples
+    }
+
+    return module::MODULE_SERVICE_OK;
+}
+
+float getFrequency() {
+    return frequency_;
+}
+
+/**
+ * Run FFT on the current accumulation buffer (if full) and return the
+ * frequency estimate.  Non-blocking — samples are accumulated by service()
+ * from the FIFO; this function just triggers the FFT computation.
+ *
+ * If the buffer is not yet full, returns the last valid frequency estimate.
+ *
+ * @return Detected frequency in Hz, or NAN when signal is absent / SNR is
+ *         below threshold.
+ */
+float calculateFrequency() {
+    if (!sImuAvailable) return NAN;
+
+    // If the accumulation buffer is full, run FFT now.
+    if (fftBufIdx_ >= FFT_N) {
+        runFft();
+        fftBufIdx_  = 0u;
+        lastFftMs_  = millis();
+    }
+
     return frequency_;
 }
 

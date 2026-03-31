@@ -22,10 +22,8 @@
 // =============================================================================
 // Relays
 // =============================================================================
-// Each relay is an independent SparkFun Qwiic Single Relay on its own I2C address.
-// Addresses are defined in pin_config.h:
-//   Compressor relay: COMPRESSOR_RELAY_ADDR (0x18)
-//   Amplifier relay:  AMPLIFIER_RELAY_ADDR  (0x19)
+// Compressor relay: SparkFun Qwiic Single Relay (I2C, COMPRESSOR_RELAY_ADDR in pin_config.h)
+// Amplifier relay:  GPIO-driven (AMPLIFIER_RELAY_PIN in pin_config.h)
 
 // =============================================================================
 // ADC / DAC internals
@@ -37,14 +35,9 @@
 // ADC readings below this raw count are treated as 0 (noise floor / off).
 #define ADC_MIN_VOLTAGE   static_cast<uint8_t>(15)
 
-// 16-bit DAC full scale (0–65535).  Fixed by the AD5693R hardware.
-#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(65535)
-
-
-// I2C address of the AD5693R DAC.
-// A0 = GND → 0x4C.
-// A0 = VDD → 0x4E.
-#define AD5693_DAC_I2C_ADDRESS  static_cast<uint8_t>(0x4E)
+// 12-bit DAC full scale (0–4095).  Fixed by the MCP4921 hardware.
+// Voltage resolution is ~0.029 V/step (120 V / 4095).
+#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
 
 // =============================================================================
 // Amplifier ramp rates (DAC counts per LOOP_INTERVAL_MS tick)
@@ -54,18 +47,19 @@
 // at 16-bit resolution.
 
 // Maximum DAC increment per main-loop tick (soft ramp-rate cap).
-// At LOOP_INTERVAL_MS = 200 ms a step of 80 → full-scale ramp in ~164 s.
-#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(80)
+// Scaled for 12-bit MCP4921 (4095 full scale).
+// At LOOP_INTERVAL_MS = 200 ms, 16 counts/tick → full-scale in ~51 s.
+#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(16)
 
 #define AMPLIFIER_RAMP_RATE_VERY_FAST         static_cast<uint16_t>(16)
-#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(80)
-#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(160)
-#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(320)
-#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(800)
+#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(16)
+#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(16)
+#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(32)
+#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(48)
 
 // DAC step size during the shutdown ramp (ramps down much faster than up).
-// At LOOP_INTERVAL_MS = 200 ms a step of 3200 → full-scale ramp in ~4 s.
-#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(3200)
+// At LOOP_INTERVAL_MS = 200 ms, 208 counts/tick → full-scale in ~4 s.
+#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(208)
 
 // The DAC output should only output 0-10vdc. This is the multiplier voltage
 // that gets passed to the AD633 voltage

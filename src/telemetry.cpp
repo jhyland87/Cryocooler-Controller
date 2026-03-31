@@ -24,7 +24,6 @@
 #include "sysinfo.h"
 #include "cooling.h"
 #include "hardware.h"
-#include "commands.h"
 #include "dashboard.h"
 #include "amplifier.h"
 #include "tracking.h"
@@ -463,8 +462,6 @@ static void buildStartupFrame(FrameBuilder& frame)
         .field("mod.indicator.service",         "%s", module::serviceStatusName(indicator::Module::getServiceStatus()))
         .field("mod.state_machine.init",        "%s", module::initStatusName(state_machine::Module::getInitStatus()))
         .field("mod.state_machine.service",     "%s", module::serviceStatusName(state_machine::Module::getServiceStatus()))
-        .field("mod.commands.init",             "%s", module::initStatusName(commands::Module::getInitStatus()))
-        .field("mod.commands.service",          "%s", module::serviceStatusName(commands::Module::getServiceStatus()))
         .field("mod.telemetry.init",            "%s", module::initStatusName(telemetry::Module::getInitStatus()))
         .field("mod.telemetry.service",         "%s", module::serviceStatusName(telemetry::Module::getServiceStatus()));
 }
@@ -662,8 +659,6 @@ void emit(const state_machine::Output& out)
         .field("mod.indicator.service",             "%s",   module::serviceStatusName(indicator::Module::getServiceStatus()))
         .field("mod.state_machine.init",            "%s",   module::initStatusName(state_machine::Module::getInitStatus()))
         .field("mod.state_machine.service",         "%s",   module::serviceStatusName(state_machine::Module::getServiceStatus()))
-        .field("mod.commands.init",                 "%s",   module::initStatusName(commands::Module::getInitStatus()))
-        .field("mod.commands.service",              "%s",   module::serviceStatusName(commands::Module::getServiceStatus()))
         .field("mod.telemetry.init",                "%s",   module::initStatusName(telemetry::Module::getInitStatus()))
         .field("mod.telemetry.service",             "%s",   module::serviceStatusName(telemetry::Module::getServiceStatus()));
 

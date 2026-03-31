@@ -24,7 +24,6 @@
 #include "module.h"
 #include "hardware.h"
 #include "dashboard.h"
-#include "commands.h"
 #include "telemetry.h"
 #include "logger.h"
 
@@ -275,7 +274,6 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     FILL_MOD(cold_head,     cold_head);
     FILL_MOD(indicator,     indicator);
     FILL_MOD(state_machine, state_machine);
-    FILL_MOD(commands,      commands);
     FILL_MOD(telemetry,     telemetry);
 
     #undef FILL_MOD

@@ -74,9 +74,6 @@ void fillJson(JsonArray arr, uint8_t maxEntries) {
     }
 }
 
-module::InitStatus    init()    { return module::MODULE_INIT_SUCCESS; }
-module::ServiceStatus service() { return module::MODULE_SERVICE_OK; }
-
 } // namespace logger
 
 // ── LogStream implementation ─────────────────────────────────────────────────

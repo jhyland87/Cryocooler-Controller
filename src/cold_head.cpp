@@ -168,14 +168,14 @@ module::InitStatus init() {
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
-    _Log.println("Initializing ADS122C04...");
+    _Log.println(F("Initializing ADS122C04..."));
     const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
         ESP_LOGE(TAG, "ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         _Log.printf("ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         return rtdStatus;
     }
-    _Log.println("ADS122C04 initialization successful!");
+    _Log.println(F("ADS122C04 initialization successful!"));
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -195,7 +195,7 @@ module::InitStatus initRTD() {
     }
 
     if (!ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire) && !sensor_mock::isActive()) {
-        _Log.println("Could not initialize ADS122C04! Check I2C wiring.");
+        _Log.println(F("Could not initialize ADS122C04! Check I2C wiring."));
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -219,6 +219,14 @@ module::InitStatus initRTD() {
 }
 
 module::ServiceStatus service() {
+    // If hardware init failed, don't touch I2C — a missing ADS122C04 causes
+    // blocking requestFrom() timeouts (~1 s each) that stall the main loop
+    // and can corrupt the shared I2C bus.
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS
+        && !sensor_mock::isActive() && !sLocalMockEnabled) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
     const uint32_t nowMs = tick::nowMs();
     // Global sensor_mock takes precedence over the local RTD mock.
     if (sensor_mock::isActive()) {

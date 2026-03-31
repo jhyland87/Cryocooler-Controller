@@ -44,8 +44,8 @@ namespace hardware {
 
 
     /**
-     * Returns a reference to the shared I2C bus (the global Wire instance).
-     * Valid after hardware::init() has been called.
+     * Returns a reference to the shared I2C bus (Wire — bus 0).
+     * Used by sensors, relays, power monitor, etc.
      */
     TwoWire& i2c();
 

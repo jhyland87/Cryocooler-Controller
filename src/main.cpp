@@ -71,9 +71,7 @@ static void logPrintf(const char* fmt, ...) {
 
 /// Modules initialized once at boot (never re-initialized on reinit).
 static const module::ModuleEntry persistentModules[] = {
-    MODULE_ENTRY(logger,    false),
     MODULE_ENTRY(imu,       false),
-    MODULE_ENTRY(commands,  false),
     MODULE_ENTRY(ota,       false),
     MODULE_ENTRY(dashboard, false),
 #if ENABLE_ESPNOW
@@ -108,9 +106,7 @@ static constexpr size_t NUM_TICK_SERVICE = sizeof(tickServiceModules) / sizeof(t
 static const module::ModuleEntry allModulesForBanner[] = {
     MODULE_ENTRY(hardware,      true),
     MODULE_ENTRY(indicator,     false),
-    MODULE_ENTRY(logger,        false),
     MODULE_ENTRY(imu,           false),
-    MODULE_ENTRY(commands,      false),
     MODULE_ENTRY(ota,           false),
     MODULE_ENTRY(dashboard,     false),
     MODULE_ENTRY(sysinfo,       false),
@@ -213,6 +209,11 @@ void setup() {
         module::initGroup(&indEntry, 1, nullptr, logPrintf);
     }
 
+    // Initialise the command line buffer before any modules — the serial
+    // console must be ready so the operator can observe progress and send
+    // commands even if control hardware fails to initialise.
+    commands::init();
+
     // Bring up the console and viewer so the operator can observe progress
     // and send commands even if control hardware fails to initialise.
     initPersistentModules();
@@ -272,9 +273,7 @@ void loop() {
     // Serial command processing runs unconditionally so the console is always
     // reachable even when control hardware failed to initialise.
     // (The TCP/Serial-Studio path calls processLine() directly.)
-    if (commands::Module::service() == module::MODULE_SERVICE_ERROR) {
-        _Log.println("loop --> commands service error");
-    }
+    commands::service();
 
     // ── Per-tick module service ───────────────────────────────────────────
     // Each call returns a ServiceStatus.  SERVICE_ERROR is logged; all

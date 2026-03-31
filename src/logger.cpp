@@ -91,18 +91,6 @@ void fillJson(JsonArray arr, uint8_t maxEntries) {
     }
 }
 
-// ── Module ────────────────────────────────────────────────────────────────────
-
-module::InitStatus init() {
-    // Pure in-memory — nothing to set up.
-    return module::MODULE_INIT_SUCCESS;
-}
-
-module::ServiceStatus service() {
-    // Nothing to poll or flush.
-    return module::MODULE_SERVICE_SKIPPED;
-}
-
 } // namespace logger
 
 // ── LogStream ─────────────────────────────────────────────────────────────────

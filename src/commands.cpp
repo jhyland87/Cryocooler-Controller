@@ -270,8 +270,6 @@ static void handleStatus(const char* /*args*/, Print& out) {
     const ModuleInfo modules[] = {
         { "hardware",    hardware::Module::getInitStatus(),    hardware::Module::getServiceStatus()    },
         { "indicator",   indicator::Module::getInitStatus(),   indicator::Module::getServiceStatus()   },
-        { "logger",      logger::Module::getInitStatus(),      logger::Module::getServiceStatus()      },
-        { "commands",    commands::Module::getInitStatus(),    commands::Module::getServiceStatus()    },
         { "ota",         ota::Module::getInitStatus(),         ota::Module::getServiceStatus()         },
         { "dashboard",   dashboard::Module::getInitStatus(),   dashboard::Module::getServiceStatus()   },
         { "telemetry",   telemetry::Module::getInitStatus(),   telemetry::Module::getServiceStatus()   },
@@ -443,12 +441,45 @@ static void handleVoutSet(const char* args, Print& out) {
 }
 #endif // ARDUINO — handleVoutGet / handleVoutSet
 
+// Raw SPI DAC write — bypasses all firmware DAC management.
+// Identical to the working test sketch: re-inits SPI, toggles CS manually.
+// Usage: "dac raw <0-4095>"
+static void handleDacRaw(const char* args, Print& out) {
+    if (*args == '\0') {
+        out.println("[ERR] Usage: dac raw <0-4095>");
+        return;
+    }
+    const uint16_t val = static_cast<uint16_t>(strtoul(args, nullptr, 10));
+    if (val > 4095) {
+        out.println(F("[ERR] Value must be 0-4095"));
+        return;
+    }
+
+    // Exactly replicate the test sketch setup
+    SPI.end();
+    pinMode(MCP4921_CS, OUTPUT);
+    digitalWrite(MCP4921_CS, HIGH);
+    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+
+    const uint16_t cmd = 0x3000 | (val & 0x0FFF);
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    digitalWrite(MCP4921_CS, LOW);
+    SPI.transfer16(cmd);
+    digitalWrite(MCP4921_CS, HIGH);
+    SPI.endTransaction();
+
+    char buf[64];
+    snprintf(buf, sizeof(buf), "[OK] Raw SPI write: cmd=0x%04X (val=%u, %.2fV)",
+             cmd, val, val * 3.3f / 4095.0f);
+    out.println(buf);
+}
+
 static void handleCoolingFan(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: cooling fan <0-255> | <0-100%>");
-        out.println("       Plain number  = raw duty cycle (0-255)");
-        out.println("       With '%'      = fan speed 0-100%%");
-        out.println("       'cooling on'  = restore LUT control");
+        out.println(F("[ERR] Usage: cooling fan <0-255> | <0-100%>"));
+        out.println(F("       Plain number  = raw duty cycle (0-255)"));
+        out.println(F("       With '%'      = fan speed 0-100%%"));
+        out.println(F("       'cooling on'  = restore LUT control"));
         return;
     }
 
@@ -485,7 +516,7 @@ static void handleCoolingFan(const char* args, Print& out) {
 
     if (isPercent) {
         if (val > 100u) {
-            out.println("[ERR] cooling fan: percentage must be 0-100");
+            out.println(F("[ERR] cooling fan: percentage must be 0-100"));
             return;
         }
         cooling::setFanSpeed(static_cast<uint8_t>(val), true);
@@ -495,7 +526,7 @@ static void handleCoolingFan(const char* args, Print& out) {
         out.println(buf);
     } else {
         if (val > 255u) {
-            out.println("[ERR] cooling fan: duty cycle must be 0-255");
+            out.println(F("[ERR] cooling fan: duty cycle must be 0-255"));
             return;
         }
         cooling::setFanDutyCycle(static_cast<uint8_t>(val));
@@ -508,10 +539,10 @@ static void handleCoolingFan(const char* args, Print& out) {
 
 static void handleCoolingPump(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: cooling pump <0-255> | <0-100%>");
-        out.println("       Plain number  = raw duty cycle (0-255)");
-        out.println("       With '%'      = pump speed 0-100%% (normalised)");
-        out.println("       'cooling on'  = restore LUT control");
+        out.println(F("[ERR] Usage: cooling pump <0-255> | <0-100%>"));
+        out.println(F("       Plain number  = raw duty cycle (0-255)"));
+        out.println(F("       With '%'      = pump speed 0-100%% (normalised)"));
+        out.println(F("       'cooling on'  = restore LUT control"));
         return;
     }
 
@@ -549,7 +580,7 @@ static void handleCoolingPump(const char* args, Print& out) {
     if (isPercent) {
         // ── Normalised pump speed override (0–100 %) ─────────────────────
         if (val > 100u) {
-            out.println("[ERR] cooling pump: percentage must be 0-100");
+            out.println(F("[ERR] cooling pump: percentage must be 0-100"));
             return;
         }
         cooling::setPumpSpeed(static_cast<uint8_t>(val));
@@ -560,7 +591,7 @@ static void handleCoolingPump(const char* args, Print& out) {
     } else {
         // ── Raw duty cycle (0–255) ───────────────────────────────────────
         if (val > 255u) {
-            out.println("[ERR] cooling pump: duty cycle must be 0-255");
+            out.println(F("[ERR] cooling pump: duty cycle must be 0-255"));
             return;
         }
         cooling::setPumpDutyCycle(static_cast<uint8_t>(val));
@@ -574,7 +605,7 @@ static void handleCoolingPump(const char* args, Print& out) {
 
 static void handleFaultClear(const char* /*args*/, Print& out) {
     if (state_machine::getState() != state_machine::State::Fault) {
-        out.println("[ERR] Not in fault state");
+        out.println(F("[ERR] Not in fault state"));
         return;
     }
 
@@ -623,7 +654,7 @@ static void handleFaultClear(const char* /*args*/, Print& out) {
 static void handleFaultHistory(const char* /*args*/, Print& out) {
     const uint8_t count = state_machine::getFaultHistoryCount();
     if (count == 0) {
-        out.println("[OK] Fault history: (empty)");
+        out.println(F("[OK] Fault history: (empty)"));
         out.println("");
         return;
     }
@@ -687,7 +718,7 @@ static void handleFaultHistory(const char* /*args*/, Print& out) {
 }
 
 static void handleBoard(const char* /*args*/, Print& out) {
-    out.println("[OK] Board info:");
+    out.println(F("[OK] Board info:"));
 #ifdef ARDUINO_VARIANT
     out.println("  ARDUINO_VARIANT:        " ARDUINO_VARIANT);
 #endif
@@ -704,16 +735,16 @@ static void handleBoard(const char* /*args*/, Print& out) {
     out.println("  CONFIG_ARDUINO_BOARD:   " CONFIG_ARDUINO_BOARD);
 #endif
 #ifdef ARDUINO_ARCH_ESP32
-    out.println("  ARDUINO_ARCH_ESP32");
+    out.println(F("  ARDUINO_ARCH_ESP32"));
 #endif
 #ifdef ESP32S3
-    out.println("  ESP32S3");
+    out.println(F("  ESP32S3"));
 #elif defined(ESP32)
-    out.println("  ESP32");
+    out.println(F("  ESP32"));
 #endif
 #if !defined(ARDUINO_VARIANT) && !defined(CONFIG_IDF_TARGET) && \
     !defined(ARDUINO_BOARD)   && !defined(ESP32)
-    out.println("  (native / host build — no board macros defined)");
+    out.println(F("  (native / host build — no board macros defined)"));
 #endif
 }
 
@@ -741,7 +772,7 @@ static void handleFsmState(const char* /*args*/, Print& out) {
 static void handleFsmHistory(const char* /*args*/, Print& out) {
     const uint8_t count = state_machine::getHistoryCount();
     if (count == 0) {
-        out.println("[OK] FSM history: (empty)");
+        out.println(F("[OK] FSM history: (empty)"));
         out.println("");
         return;
     }
@@ -786,7 +817,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
 
     char buf[96];
 
-    out.println("[OK] --- Cryocooler Summary ---");
+    out.println(F("[OK] --- Cryocooler Summary ---"));
 
     snprintf(buf, sizeof(buf), "  State           : %s (%d) | running: %s",
              state_machine::stateName(state_machine::getState()),
@@ -798,7 +829,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
     out.println(buf);
 
 #ifdef ARDUINO
-    out.println("  --- Cold Head ---");
+    out.println(F("  --- Cold Head ---"));
     snprintf(buf, sizeof(buf), "  Cold stage      : %.2f C",
              cold_head::getLastTempC());
     out.println(buf);
@@ -815,7 +846,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
              cold_head::getTemperatureToPercent());
     out.println(buf);
 
-    out.println("  --- Electrical ---");
+    out.println(F("  --- Electrical ---"));
     snprintf(buf, sizeof(buf), "  RMS current     : %.3f A",
              amplifier::getLastRmsCurrent());
     out.println(buf);
@@ -828,7 +859,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
     //          static_cast<unsigned>(dac::getCurrent()));
     // out.println(buf);
 
-    out.println("  --- Indicators ---");
+    out.println(F("  --- Indicators ---"));
     snprintf(buf, sizeof(buf), "  Fault LED       : %s",
              indicator::isFaultOn() ? "ON" : "off");
     out.println(buf);
@@ -848,7 +879,7 @@ static void handleSummary(const char* /*args*/, Print& out) {
  * version, OTA endpoint URL, and the last update outcome.
  */
 static void handleOtaStatus(const char* /*args*/, Print& out) {
-    out.println("[OK] OTA status:");
+    out.println(F("[OK] OTA status:"));
 
     // ── Running partition ──────────────────────────────────────────────────
     const esp_partition_t* running = esp_ota_get_running_partition();
@@ -876,7 +907,7 @@ static void handleOtaStatus(const char* /*args*/, Print& out) {
                  WiFi.localIP().toString().c_str());
         out.println(buf);
     } else {
-        out.println("  Upload endpoint    : (WiFi not connected)");
+        out.println(F("  Upload endpoint    : (WiFi not connected)"));
     }
 
     // ── Last update outcome ────────────────────────────────────────────────
@@ -915,14 +946,14 @@ static void handleUpdateImage(const char* /*args*/, Print& out) {
     // Warn if WiFi is down (user will not be able to reach /ota).
     const bool wifiUp = (WiFi.status() == WL_CONNECTED);
 
-    out.println("[CONFIRM] Firmware update requested.");
-    out.println("  WARNING: Uploading new firmware will REBOOT the device.");
-    out.println("           The cryocooler will stop immediately on reboot.");
+    out.println(F("[CONFIRM] Firmware update requested."));
+    out.println(F("  WARNING: Uploading new firmware will REBOOT the device."));
+    out.println(F("           The cryocooler will stop immediately on reboot."));
     if (!wifiUp) {
-        out.println("  WARNING: WiFi is not connected — the /ota endpoint will");
-        out.println("           be unreachable until WiFi reconnects.");
+        out.println(F("  WARNING: WiFi is not connected — the /ota endpoint will"));
+        out.println(F("           be unreachable until WiFi reconnects."));
     }
-    out.println("  Type 'yes' to confirm, or anything else to cancel.");
+    out.println(F("  Type 'yes' to confirm, or anything else to cancel."));
     out.println("");
 
     s_awaitingUpdateConfirm = true;
@@ -946,24 +977,24 @@ static void handleRelayStatus(const char* /*args*/, Print& out) {
 static void handleRelayAmplifier(const char* args, Print& out) {
     if (strncmp(args, "on",  2) == 0 && (args[2] == '\0' || args[2] == ' ' || args[2] == '\t')) {
         amplifier::setRelayState(true);
-        out.println("[OK] relay.amplifier = ON");
+        out.println(F("[OK] relay.amplifier = ON"));
     } else if (strncmp(args, "off", 3) == 0 && (args[3] == '\0' || args[3] == ' ' || args[3] == '\t')) {
         amplifier::setRelayState(false);
-        out.println("[OK] relay.amplifier = off");
+        out.println(F("[OK] relay.amplifier = off"));
     } else {
-        out.println("[ERR] Usage: relay amplifier <on|off>");
+        out.println(F("[ERR] Usage: relay amplifier <on|off>"));
     }
 }
 
 static void handleRelayCompressor(const char* args, Print& out) {
     if (strncmp(args, "on",  2) == 0 && (args[2] == '\0' || args[2] == ' ' || args[2] == '\t')) {
         compressor::setRelayState(true);
-        out.println("[OK] relay.compressor = ON");
+        out.println(F("[OK] relay.compressor = ON"));
     } else if (strncmp(args, "off", 3) == 0 && (args[3] == '\0' || args[3] == ' ' || args[3] == '\t')) {
         compressor::setRelayState(false);
-        out.println("[OK] relay.compressor = off");
+        out.println(F("[OK] relay.compressor = off"));
     } else {
-        out.println("[ERR] Usage: relay compressor <on|off>");
+        out.println(F("[ERR] Usage: relay compressor <on|off>"));
     }
 }
 
@@ -999,10 +1030,10 @@ static void handleCompressorStart(const char* args, Print& out) {
 
 static void handleCompressorStatus(const char* /*args*/, Print& out) {
     if (!compressor::getStatus()) {
-        out.println("[OK] Compressor: OFF (idle)");
+        out.println(F("[OK] Compressor: OFF (idle)"));
         return;
     }
-    out.println("[OK] Compressor: ON");
+    out.println(F("[OK] Compressor: ON"));
     if (compressor::isTimedRunActive()) {
         char buf[48];
         char hmsBuf[24];
@@ -1013,14 +1044,14 @@ static void handleCompressorStatus(const char* /*args*/, Print& out) {
         snprintf(buf, sizeof(buf), "  Remaining: %s", hmsBuf);
         out.println(buf);
     } else {
-        out.println("  (no timed run active)");
+        out.println(F("  (no timed run active)"));
     }
     out.println("");
 }
 
 static void handleCompressorStop(const char* /*args*/, Print& out) {
     if (!compressor::getStatus()) {
-        out.println("[ERR] Compressor is not running");
+        out.println(F("[ERR] Compressor is not running"));
         return;
     }
     compressor::stopRun();
@@ -1028,6 +1059,48 @@ static void handleCompressorStop(const char* /*args*/, Print& out) {
 }
 
 #endif  // ARDUINO (compressor handlers)
+
+// ─── Log level ────────────────────────────────────────────────────────────────
+
+#ifdef ARDUINO
+#include <esp_log.h>
+
+static constexpr uint8_t LOG_LEVEL_COUNT = ESP_LOG_VERBOSE + 1;
+
+static constexpr const char* logLevelNames[LOG_LEVEL_COUNT] = {
+    "Off", "Error", "Warn", "Info", "Debug", "Verbose"
+};
+
+/**
+ * Parse a log-level argument string into an esp_log_level_t.
+ * Accepts numeric ("0"–"5") or named (case-insensitive: off, error, warn, info, debug, verbose).
+ * Returns -1 on invalid input.
+ */
+static int parseLogLevel(const char* arg) {
+    if (arg[0] >= '0' && arg[0] < ('0' + LOG_LEVEL_COUNT) && arg[1] == '\0') {
+        return arg[0] - '0';
+    }
+    for (uint8_t i = 0; i < LOG_LEVEL_COUNT; ++i) {
+        if (strcasecmp(arg, logLevelNames[i]) == 0) return i;
+    }
+    return -1;
+}
+
+static void handleLogLevel(const char* args, Print& out) {
+    const int level = parseLogLevel(args);
+
+    if (level < 0) {
+        out.println(F("[ERR] Usage: log level <0-5|off|error|warn|info|debug|verbose>"));
+        return;
+    }
+
+    esp_log_level_set("*", static_cast<esp_log_level_t>(level));
+
+    char buf[48];
+    snprintf(buf, sizeof(buf), "[OK] Log level set to %s (%d)", logLevelNames[level], level);
+    out.println(buf);
+}
+#endif  // ARDUINO (log level)
 
 // ─── Command table ────────────────────────────────────────────────────────────
 // Multi-word commands ("telemetry off") must appear before any shorter prefix
@@ -1071,6 +1144,7 @@ static const Command commandMap[] = {
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
+    {"dac raw",             handleDacRaw,          "Raw SPI write to MCP4921 (0-4095) — bypasses firmware DAC management"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V, 0-100%, or 'auto' to resume FSM)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
@@ -1086,6 +1160,7 @@ static const Command commandMap[] = {
     // OTA — "ota status" must precede any future "ota ..." entries.
     {"ota status",          handleOtaStatus,       "Print OTA partition info, firmware version, and endpoint URL"},
     {"update image",        handleUpdateImage,     "Flash new firmware via HTTP upload (prompts for confirmation)"},
+    {"log level",           handleLogLevel,        "Set runtime log level: <0-5|off|error|warn|info|debug|verbose>"},
 #endif
 };
 
@@ -1120,7 +1195,7 @@ void processLine(const char* line, Print& out) {
         s_awaitingUpdateConfirm = false;  // consume the gate unconditionally
 
         if (strncmp(line, "yes", 3) == 0 && (line[3] == '\0' || line[3] == ' ')) {
-            out.println("[OK] Firmware update confirmed.");
+            out.println(F("[OK] Firmware update confirmed."));
             if (WiFi.status() == WL_CONNECTED) {
                 char buf[96];
                 snprintf(buf, sizeof(buf),
@@ -1132,11 +1207,11 @@ void processLine(const char* line, Print& out) {
                          WiFi.localIP().toString().c_str());
                 out.println(buf);
             } else {
-                out.println("     (WiFi not connected — connect first, then run 'ota status' for the URL)");
+                out.println(F("     (WiFi not connected — connect first, then run 'ota status' for the URL)"));
             }
             out.println("");
         } else {
-            out.println("[OK] Update cancelled.");
+            out.println(F("[OK] Update cancelled."));
             out.println("");
         }
         return;
@@ -1168,13 +1243,12 @@ void processLine(const char* line, Print& out) {
     out.println(msg);
 }
 
-module::InitStatus init() {
+void init() {
     lineLen    = 0;
     lineBuf[0] = '\0';
-    return module::MODULE_INIT_SUCCESS;
 }
 
-module::ServiceStatus service() {
+void service() {
 #ifdef ARDUINO
     while (Serial.available()) {
         const char c = static_cast<char>(Serial.read());
@@ -1204,7 +1278,6 @@ module::ServiceStatus service() {
         lineLen = 0;
     }
 #endif
-    return module::MODULE_SERVICE_OK;
 }
 
 } // namespace commands

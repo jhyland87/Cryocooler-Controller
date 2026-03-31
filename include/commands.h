@@ -38,6 +38,7 @@
  *   mock stroke <0|1>    - Set back-EMF overstroke flag
  *   ota status           - Print OTA partition info, firmware version, and upload URL
  *   update image         - Flash new firmware via browser upload (prompts for confirmation)
+ *   log level <0-5|off>  - Set runtime log level (0=off, 1=error … 5=verbose)
  *
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().
@@ -52,26 +53,20 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include "module.h"
-
 // Forward declaration — resolved by <Arduino.h> on target, Print.h stub on native.
 class Print;
 
 namespace commands {
 
-/**
- * Initialise the serial line buffer.  Call after Serial.begin().
- * @return MODULE_INIT_SUCCESS always.
- */
-module::InitStatus init();
+/** Initialise the serial line buffer.  Call after Serial.begin(). */
+void init();
 
 /**
  * Non-blocking serial service call.  Reads available bytes from Serial,
  * accumulates them into a line buffer, and calls processLine() on each
  * newline.  Call every loop() iteration.
- * @return SERVICE_OK always (non-blocking; no failure mode).
  */
-module::ServiceStatus service();
+void service();
 
 /**
  * Parse and dispatch one null-terminated command line.
@@ -82,17 +77,6 @@ module::ServiceStatus service();
  * @param out   Output stream for the response (Serial, AsyncClientPrint, stub…).
  */
 void processLine(const char* line, Print& out);
-
-// ── Module interface ──────────────────────────────────────────────────────────
-
-struct Module : ModuleBase<Module> {
-    /** Initialise the serial line buffer.  Call after Serial.begin(). */
-    static module::InitStatus    init()    { return _initStatus    = commands::init(); }
-    /** Read and dispatch available serial bytes (non-blocking). */
-    static module::ServiceStatus service() { return _serviceStatus = commands::service(); }
-};
-
-ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace commands
 

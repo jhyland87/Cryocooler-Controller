@@ -76,15 +76,26 @@ namespace hardware {
     }
 
     module::InitStatus initSPI() {
-        ESP_LOGI("hardware", "Initialising SPI bus (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        static bool sInitDone = false;
+
+        // Drive all SPI CS pins HIGH before bus init to prevent
+        // accidental device selection during power-up.
+        for (uint8_t cs : { MCP4921_CS, AD9833_CS, LSM6DSOX_CS }) {
+            pinMode(cs, OUTPUT);
+            digitalWrite(cs, HIGH);
+        }
+
         SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
-        ESP_LOGI("hardware", "SPI bus initialised (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+        if (!sInitDone) {
+            ESP_LOGI("hardware", "SPI bus initialised (CLK=%d MISO=%d MOSI=%d)", SPI_CLK, SPI_MISO, SPI_MOSI);
+            sInitDone = true;
+        }
         return module::InitStatus::MODULE_INIT_SUCCESS;
     }
 
     module::InitStatus initI2C() {
-        ESP_LOGI("hardware", "Initialising I2C bus (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
-        // Initialise the shared Wire bus once with the correct pins.
+        // --- Bus 0 (Wire) — shared sensor/relay bus ---
+        ESP_LOGI("hardware", "Initialising I2C bus 0 (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         Wire.begin(SDA_PIN, SCL_PIN);
 
         // Verify at the HAL level that the ESP-IDF I2C master driver actually
@@ -100,8 +111,15 @@ namespace hardware {
         ESP_LOGD("hardware", "I2C bus 0 initialised (SDA=%d SCL=%d, handle=%p)",
                 SDA_PIN, SCL_PIN, i2cBusHandle(0));
         #else
-        ESP_LOGI("hardware", "I2C bus initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
+        ESP_LOGI("hardware", "I2C bus 0 initialised (SDA=%d SCL=%d)", SDA_PIN, SCL_PIN);
         #endif
+
+        // Reduce the Wire timeout from the default (~1 s on ESP32-S3) to 50 ms.
+        // A missing or stuck device will NACK/timeout quickly instead of blocking
+        // the main loop for a full second per failed transaction.
+        Wire.setTimeOut(50);  // ms
+
+        // DAC is now on SPI (MCP4901) — no second I2C bus needed.
 
         // Install a custom log handler that silently counts Wire.cpp error
         // messages instead of printing them.  All other ESP log output is
@@ -140,8 +158,8 @@ namespace hardware {
         ESP_LOGI("hardware", "I2C bus recovered via Wire.end/Wire.begin");
     }
 
-    TwoWire&  i2c() { return Wire; }
-    SPIClass& spi() { return SPI;  }
+    TwoWire&  i2c()    { return Wire;  }
+    SPIClass& spi()    { return SPI;   }
 
     // -------------------------------------------------------------------------
     // I2C error monitor

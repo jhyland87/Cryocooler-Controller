@@ -26,12 +26,15 @@
 //#define ONE_WIRE_BUS      4
 
 
+// I2C Bus 0 — shared bus for sensors, relays, power monitor
 #define SDA_PIN            8
 #define SCL_PIN            9
 
+// MCP4921 SPI DAC — amplitude control (shares SPI bus with AD9833)
+#define MCP4921_CS         5
 
-// MCP4921_CS (GPIO 6) removed — DAC is now AD5693R on the shared I2C bus
-// (SDA = GPIO 8, SCL = GPIO 9).  GPIO 6 is available for other use.
+// LSM6DSOX IMU — SPI (shares SPI bus with AD9833 and MCP4921)
+#define LSM6DSOX_CS        1
 
 // =============================================================================
 // AD9833 Waveform Generator
@@ -39,13 +42,6 @@
 #define AD9833_CS          7    // Chip Select for AD9833
 
 
-#define SD_CS_PIN          48
-
-// Card Detect switch on the SD socket (active HIGH — HIGH = card present).
-// The switch drives this pin HIGH when a card is fully seated; the internal
-// pull-down holds it LOW when the slot is empty.  Adjust if your socket routes
-// CD to a different GPIO.
-#define SD_CD_PIN          47
 
 
 // =============================================================================
@@ -73,9 +69,9 @@
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
+#define SPI_MISO          40    // Master In Slave Out  (no SPI devices have SDO, but keep assigned)
+#define SPI_MOSI          41    // Master Out Slave In  (MCP4921 SDI + AD9833 SDATA)
 #define SPI_CLK           42    // SPI Clock
-#define SPI_MISO          41    // Master In Slave Out
-#define SPI_MOSI          40    // Master Out Slave In
 
 // =============================================================================
 // Alphacool ES High Flow + Temperature Sensor
@@ -84,7 +80,7 @@
 // Hall-effect flow pulse input (open-drain, active LOW).
 // Requires a 10 kΩ pull-up to 3.3 V on the line; the internal INPUT_PULLUP
 // is used as a backup but an external resistor is strongly recommended.
-#define COOLING_FLOW_PIN         10
+#define COOLING_FLOW_PIN         18
 
 #define COOLING_FAN_FAULT_INDICATOR_PIN      14
 
@@ -105,10 +101,9 @@
 #define COMPRESSOR_RELAY_ADDR        0x19
 
 // =============================================================================
-// SparkFun Qwiic Single Relay — amplifier
+// Amplifier Relay — GPIO-driven (active HIGH closes relay)
 // =============================================================================
-// Alternate I2C address (0x19) — set by closing the address-select jumper.
-#define AMPLIFIER_RELAY_ADDR         0x18
+#define AMPLIFIER_RELAY_PIN          6
 
 // =============================================================================
 

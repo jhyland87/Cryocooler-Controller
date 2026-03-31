@@ -693,7 +693,7 @@ Output update(float    tempC,
         // a running-state on_enter callback to avoid re-entrant FSM calls.
         if (dependencyFaultPending) {
             dependencyFaultPending = false;
-            faultMask |= static_cast<uint8_t>(FaultReason::ModuleNotReady);
+            //faultMask |= static_cast<uint8_t>(FaultReason::ModuleNotReady);
             _Log.println(F("Fault: required module not ready for cooling"));
         }
 

@@ -43,7 +43,6 @@
 #include <stddef.h>
 #include <Print.h>
 #include <ArduinoJson.h>
-#include "module.h"
 
 namespace logger {
 
@@ -111,18 +110,6 @@ int64_t getLastLogEpoch();
  * @param maxEntries Maximum entries to emit.  0 = include all (up to CAPACITY).
  */
 void fillJson(JsonArray arr, uint8_t maxEntries = 0);
-
-// ── Module interface ──────────────────────────────────────────────────────────
-
-module::InitStatus    init();
-module::ServiceStatus service();
-
-struct Module : ModuleBase<Module> {
-    static module::InitStatus    init()    { return _initStatus    = logger::init(); }
-    static module::ServiceStatus service() { return _serviceStatus = logger::service(); }
-};
-
-ASSERT_MODULE_INTERFACE(Module);
 
 } // namespace logger
 

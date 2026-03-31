@@ -74,8 +74,14 @@ namespace sysinfo {
 
 static Adafruit_INA237 ina237 = Adafruit_INA237();
 
+static constexpr uint8_t MAX_I2C_ERRORS = 3;
+static uint8_t sIna237Errors = 0;
+static bool    sIna237Disabled = false;
 
 module::InitStatus init() {
+    sIna237Errors   = 0;
+    sIna237Disabled = false;
+
     Serial.println(F("[sysinfo] Registering CPU idle hooks..."));
     esp_register_freertos_idle_hook_for_cpu(onIdleCore0, 0);
 
@@ -121,6 +127,12 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
+    // Permanently disabled after consecutive I2C failures to avoid blocking
+    // the main loop with ~1 s timeouts every tick.
+    if (sIna237Disabled) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
     // I2C ping: when 12 V drops, the INA237 goes offline (NACK).
     // Send NaN so the dashboard shows a gap for this tick.
     {
@@ -130,9 +142,17 @@ module::ServiceStatus service() {
             voltage = NAN;
             current = NAN;
             power   = NAN;
+            if (++sIna237Errors >= MAX_I2C_ERRORS) {
+                sIna237Disabled = true;
+                ESP_LOGW("sysinfo", "INA237 offline after %u errors — disabled until reinit", sIna237Errors);
+                Serial.printf("[sysinfo] INA237 disabled — %u consecutive I2C errors\n", sIna237Errors);
+                hardware::recoverI2c();
+            }
             return module::MODULE_SERVICE_ERROR;
         }
     }
+
+    sIna237Errors = 0;  // reset on successful ping
 
     float rawV = ina237.readBusVoltage();
 

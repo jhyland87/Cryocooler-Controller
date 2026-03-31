@@ -4,7 +4,7 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   AD5693R 16-bit I2C DAC                             (amplitude control)
+ *   MCP4901 8-bit SPI DAC                              (amplitude control)
  *
  * The legacy dac / waveform / rms modules have been consolidated here.
  *
@@ -40,13 +40,10 @@ module::InitStatus initWaveform();
 /** Initialise the ACS37800 RMS power monitor over I2C. */
 module::InitStatus initAcs();
 
-/** Initialise the AD5693R 16-bit I2C DAC and drive output to zero. */
+/** Initialise the MCP4901 8-bit SPI DAC and drive output to zero. */
 module::InitStatus initDac();
 
-/**
- * Initialise the SparkFun Qwiic Single Relay and de-energise it.
- * I2C address is configured in pin_config.h via AMPLIFIER_RELAY_ADDR.
- */
+/** Initialise the amplifier relay GPIO pin and de-energise it. */
 module::InitStatus initRelay();
 
 /** Read latest ACS37800 values; update lastRmsVoltage / lastRmsCurrent. */
@@ -63,8 +60,8 @@ bool checkDependencies();
 // ---------------------------------------------------------------------------
 
 /**
- * Energise or de-energise the amplifier relay via the Qwiic Single Relay.
- * @param on  true = relay ON (energised), false = relay OFF (de-energised).
+ * Energise or de-energise the amplifier relay via GPIO.
+ * @param on  true = relay ON (GPIO HIGH), false = relay OFF (GPIO LOW).
  */
 void setRelayState(bool on);
 
@@ -125,7 +122,7 @@ void rampTowardShutdown();
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
  * the cached-value guard.  Call from any hard power-off or emergency-stop
- * path to guarantee the AD5693 output is zeroed regardless of the current
+ * path to guarantee the MCP4901 output is zeroed regardless of the current
  * cached DAC value.
  */
 void hardStop();
@@ -142,7 +139,7 @@ void initFineCooldown();
  */
 void setOutput(float fraction);
 
-/** Return the current AD5693 DAC output value (0–65535). */
+/** Return the current MCP4901 DAC output value (0–255). */
 uint16_t getDacCurrent();
 
 /**
