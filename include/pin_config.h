@@ -15,17 +15,6 @@
 
 #define RGB_LED_PIN 38
 
-// =============================================================================
-// ADS122C04 RTD Sensor (I2C — no dedicated pins, uses shared SDA/SCL bus)
-// =============================================================================
-// I2C address defined in config_advanced.h as ADS122C04_RTD_SENSOR_I2C_ADDRESS
-
-// =============================================================================
-// One-Wire Bus for DS18B20 temperature sensor
-// =============================================================================
-//#define ONE_WIRE_BUS      4
-
-
 // I2C Bus 0 — shared bus for sensors, relays, power monitor
 #define SDA_PIN            8
 #define SCL_PIN            9
@@ -34,15 +23,14 @@
 #define MCP4921_CS         5
 
 // LSM6DSOX IMU — SPI (shares SPI bus with AD9833 and MCP4921)
-#define LSM6DSOX_CS        1
+#define LSM6DSOX_CS        1    // right header, physical pin 19
+#define LSM6DSOX_INT1_PIN  2    // right header, physical pin 18
+#define LSM6DSOX_INT2_PIN  39   // right header, physical pin 14
 
 // =============================================================================
 // AD9833 Waveform Generator
 // =============================================================================
 #define AD9833_CS          7    // Chip Select for AD9833
-
-
-
 
 // =============================================================================
 // Discrete Indicator Outputs
@@ -87,7 +75,7 @@
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
 // Use ADC1 channels only (GPIO 1–10 on ESP32-S3) to avoid ADC2 Wi-Fi conflicts.
-#define COOLING_TEMP_ADC_PIN     2
+#define COOLING_TEMP_ADC_PIN     4    // moved from GPIO2 (now LSM6DSOX INT1); GPIO4 = ADC1-3
 
 // =============================================================================
 // On-board WS2812 RGB Status LED

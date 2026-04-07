@@ -52,6 +52,34 @@ static constexpr float ACCEL_SCALE_MPS2 = 0.000244f * 9.80665f;  // raw int16 �
 static constexpr float ACCEL_SCALE_G    = 0.000244f;              // raw int16 → g
 
 // ---------------------------------------------------------------------------
+// LSM6DSOX tap (overstroke) detection registers & tuning
+// ---------------------------------------------------------------------------
+// Register addresses not already defined in the Adafruit header.
+static constexpr uint8_t REG_TAP_CFG0   = 0x56;  // Tap enable, LIR, INT_CLR_ON_READ
+static constexpr uint8_t REG_TAP_CFG1   = 0x57;  // Tap priority, threshold X
+// 0x58 = LSM6DS_TAP_CFG (library defines it as TAP_CFG2 in datasheet)
+static constexpr uint8_t REG_TAP_THS_6D = 0x59;  // Threshold Z, 6D config
+static constexpr uint8_t REG_INT_DUR2   = 0x5A;  // DUR / QUIET / SHOCK timing
+static constexpr uint8_t REG_TAP_SRC    = 0x1C;  // Tap source (axis, single/double)
+static constexpr uint8_t REG_MD2_CFG    = 0x5F;  // Functions routing on INT2
+
+// Tap threshold — each LSB = FS_XL / 32.  At 8 g: 1 step = 0.25 g.
+// Start at 2 g (8 × 0.25 g); tune based on observed overstroke amplitude.
+static constexpr uint8_t TAP_THS_STEPS  = 8u;
+
+// SHOCK: max tap duration [1:0], LSB = 8 / ODR.  At 833 Hz → 9.6 ms per step.
+// QUIET: dead-time after tap [1:0], LSB = 4 / ODR → 4.8 ms per step.
+static constexpr uint8_t TAP_SHOCK      = 0x02;  // 2 × 9.6 ms = 19.2 ms
+static constexpr uint8_t TAP_QUIET      = 0x01;  // 1 × 4.8 ms = 4.8 ms
+
+// How long to hold the overstroke flag after a tap event (ms).
+static constexpr uint32_t OVERSTROKE_HOLD_MS = 500u;
+
+// Wake-up threshold — each LSB = FS_XL / 64.  At 8 g: 1 step = 0.125 g.
+// Start at 3 g (24 × 0.125 g); intentionally higher than tap to compare rates.
+static constexpr uint8_t WAKEUP_THS_STEPS = 24u;
+
+// ---------------------------------------------------------------------------
 // Module state
 // ---------------------------------------------------------------------------
 
@@ -77,9 +105,19 @@ static float accelMag_ = 0.0f;
 static float imuTemp_         = 0.0f;
 static bool  imuTempPlausible_ = false;
 static float frequency_ = 0.0f;
-// Motion / overstroke detection
+// Software motion detection (accel-magnitude based)
 static bool     motionDetected_ = false;
 static uint32_t lastMotionMs_   = 0u;
+
+// Hardware tap (overstroke) detection — driven by INT1 ISR
+static volatile bool overstrokeISR_      = false;   // set in ISR, cleared in service()
+static bool          overstrokeDetected_ = false;
+static uint32_t      lastOverstrokeMs_   = 0u;
+static uint32_t      overstrokeCount_    = 0u;
+
+// Hardware wake-up (overstroke) detection — driven by INT2 ISR
+static volatile bool wakeupISR_      = false;
+static uint32_t      wakeupCount_    = 0u;
 
 // Temperature is read from output registers (not FIFO) at a lower cadence.
 static uint32_t lastTempMs_ = 0u;
@@ -115,6 +153,148 @@ static ArduinoFFT<float> fft_(fftVReal_, fftVImag_, FFT_N, FFT_FS_HZ);
 static float    fftFiltered_ = NAN;   // IIR-smoothed frequency estimate
 static uint32_t lastFftMs_   = 0u;    // millis() of last FFT run
 static uint16_t fftBufIdx_   = 0u;    // accumulation index into fftZBuf_
+
+// ---------------------------------------------------------------------------
+// Raw SPI register access (bypasses Adafruit library for tap config)
+// ---------------------------------------------------------------------------
+
+/**
+ * Read a single register from the LSM6DSOX over SPI.
+ * LSM6DSOX SPI protocol: bit 7 of first byte = 1 for read.
+ */
+static uint8_t lsmReadReg(uint8_t reg) {
+    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    digitalWrite(LSM6DSOX_CS, LOW);
+    SPI.transfer(reg | 0x80);             // R/W bit = 1 (read)
+    uint8_t val = SPI.transfer(0x00);
+    digitalWrite(LSM6DSOX_CS, HIGH);
+    SPI.endTransaction();
+    return val;
+}
+
+/**
+ * Write a single register on the LSM6DSOX over SPI.
+ * LSM6DSOX SPI protocol: bit 7 of first byte = 0 for write.
+ */
+static void lsmWriteReg(uint8_t reg, uint8_t val) {
+    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    digitalWrite(LSM6DSOX_CS, LOW);
+    SPI.transfer(reg & 0x7F);             // R/W bit = 0 (write)
+    SPI.transfer(val);
+    digitalWrite(LSM6DSOX_CS, HIGH);
+    SPI.endTransaction();
+}
+
+// ---------------------------------------------------------------------------
+// INT1 ISR — hardware tap (overstroke) detection
+// ---------------------------------------------------------------------------
+
+static void IRAM_ATTR overstrokeISR() {
+    overstrokeISR_ = true;
+}
+
+/**
+ * Configure the LSM6DSOX single-tap interrupt on INT1 for overstroke
+ * detection.  Tap detection uses the sensor's internal bandpass filter,
+ * which naturally rejects the steady 60 Hz motor oscillation and fires
+ * only on sharp acceleration spikes (piston striking the cylinder wall).
+ *
+ * Call after sensor ranges and ODR are configured but before FIFO starts
+ * delivering data.
+ */
+static void configureTapDetection() {
+    // TAP_CFG0 (0x56)
+    //   bit 6: INT_CLR_ON_READ = 1  (clear latched INT on source-register read)
+    //   bit 3: TAP_X_EN        = 1
+    //   bit 2: TAP_Y_EN        = 1
+    //   bit 1: TAP_Z_EN        = 1
+    //   bit 0: LIR             = 1  (latched interrupt — stays high until read)
+    lsmWriteReg(REG_TAP_CFG0, 0x4F);
+
+    // TAP_CFG1 (0x57): tap priority = default (ZYX), threshold X
+    lsmWriteReg(REG_TAP_CFG1, TAP_THS_STEPS & 0x1F);
+
+    // TAP_CFG2 / LSM6DS_TAP_CFG (0x58)
+    //   bit 7: INTERRUPTS_ENABLE = 1  (global interrupt gate — MUST be set)
+    //   bits [4:0]: TAP_THS_Y
+    lsmWriteReg(LSM6DS_TAP_CFG, 0x80 | (TAP_THS_STEPS & 0x1F));
+
+    // TAP_THS_6D (0x59): threshold Z (bits [4:0]), D4D and 6D bits left at 0
+    lsmWriteReg(REG_TAP_THS_6D, TAP_THS_STEPS & 0x1F);
+
+    // INT_DUR2 (0x5A): [DUR(3:0) | QUIET(1:0) | SHOCK(1:0)]
+    //   DUR = 0 (single-tap only, no double-tap window)
+    lsmWriteReg(REG_INT_DUR2, (TAP_QUIET << 2) | TAP_SHOCK);
+
+    // WAKE_UP_THS (0x5B): bit 7 = SINGLE_DOUBLE_TAP → 0 for single-tap only.
+    //   Preserve lower bits (wake-up threshold) in case they were set.
+    uint8_t wkths = lsmReadReg(LSM6DS_WAKEUP_THS);
+    lsmWriteReg(LSM6DS_WAKEUP_THS, wkths & 0x7F);
+
+    // MD1_CFG (0x5E): route SINGLE_TAP to INT1 (bit 6).
+    //   Preserve other routing bits.
+    uint8_t md1 = lsmReadReg(LSM6DS_MD1_CFG);
+    lsmWriteReg(LSM6DS_MD1_CFG, md1 | 0x40);
+
+    // Attach ESP32 GPIO interrupt on the rising edge of INT1.
+    pinMode(LSM6DSOX_INT1_PIN, INPUT_PULLDOWN);
+    attachInterrupt(digitalPinToInterrupt(LSM6DSOX_INT1_PIN), overstrokeISR, RISING);
+
+    // Drain any pending tap status so the latch starts clean.
+    (void)lsmReadReg(REG_TAP_SRC);
+
+    _Log.println("Tap (overstroke) interrupt configured on INT1 → GPIO" +
+                 String(LSM6DSOX_INT1_PIN) + "  threshold=" +
+                 String(TAP_THS_STEPS * 0.25f, 2) + " g");
+}
+
+// ---------------------------------------------------------------------------
+// INT2 ISR — hardware wake-up (overstroke) detection
+// ---------------------------------------------------------------------------
+
+static void IRAM_ATTR wakeupISR() {
+    wakeupISR_ = true;
+}
+
+/**
+ * Configure the LSM6DSOX wake-up interrupt on INT2 for overstroke
+ * comparison testing.  Wake-up uses the slope (derivative) filter with
+ * a configurable threshold — a simpler detector than tap, useful for
+ * comparing false-positive rates at a higher threshold.
+ */
+static void configureWakeupDetection() {
+    // WAKE_UP_THS (0x5B):
+    //   bit 7: SINGLE_DOUBLE_TAP — already 0 from configureTapDetection()
+    //   bit 6: USR_OFF_ON_WU = 0
+    //   bits [5:0]: WK_THS
+    //   Read-modify-write to preserve bit 7 (tap config).
+    uint8_t wkths = lsmReadReg(LSM6DS_WAKEUP_THS);
+    lsmWriteReg(LSM6DS_WAKEUP_THS, (wkths & 0xC0) | (WAKEUP_THS_STEPS & 0x3F));
+
+    // WAKE_UP_DUR (0x5C):
+    //   bits [6:5]: WAKE_DUR = 0 (single sample above threshold triggers)
+    //   bit  4:     WAKE_THS_W = 0 (normal weight)
+    //   Leave other bits at 0.
+    lsmWriteReg(LSM6DS_WAKEUP_DUR, 0x00);
+
+    // TAP_CFG0 (0x56): SLOPE_FDS (bit 4) = 0 → slope filter active for
+    //   wake-up.  Already set by configureTapDetection(); just verify.
+
+    // MD2_CFG (0x5F): route WAKE_UP to INT2 (bit 5).
+    uint8_t md2 = lsmReadReg(REG_MD2_CFG);
+    lsmWriteReg(REG_MD2_CFG, md2 | 0x20);
+
+    // Attach ESP32 GPIO interrupt on the rising edge of INT2.
+    pinMode(LSM6DSOX_INT2_PIN, INPUT_PULLDOWN);
+    attachInterrupt(digitalPinToInterrupt(LSM6DSOX_INT2_PIN), wakeupISR, RISING);
+
+    // Drain any pending wake-up status.
+    (void)lsmReadReg(LSM6DS_WAKEUP_SRC);
+
+    _Log.println("Wake-up (overstroke) interrupt configured on INT2 → GPIO" +
+                 String(LSM6DSOX_INT2_PIN) + "  threshold=" +
+                 String(WAKEUP_THS_STEPS * 0.125f, 2) + " g");
+}
 
 // ---------------------------------------------------------------------------
 // Private helpers
@@ -296,12 +476,18 @@ static FftResult fftDetect(const float* data) {
 static void checkMotion(float accelMag) {
     const float    accelDeviation = fabsf(accelMag - 9.81f);
     const uint32_t now            = millis();
+    const bool     wasMoved       = motionDetected_;
 
     if (accelDeviation > ACCEL_THRESHOLD_MPS2) {
         motionDetected_ = true;
         lastMotionMs_   = now;
     } else if (motionDetected_ && (now - lastMotionMs_) > MOTION_TIMEOUT_MS) {
         motionDetected_ = false;
+    }
+
+    if (motionDetected_ != wasMoved) {
+        _Log.printf("MOTION %s  accelMag=%.3f m/s²  deviation=%.3f\n",
+                    motionDetected_ ? "START" : "END", accelMag, accelDeviation);
     }
 }
 
@@ -363,6 +549,8 @@ module::InitStatus init() {
     sensor.setFIFOMode(LSM6DS_FIFO_CONTINUOUS);
 
     performCalibration();
+    configureTapDetection();
+    configureWakeupDetection();
     return module::InitStatus::MODULE_INIT_SUCCESS;
 }
 
@@ -378,8 +566,11 @@ static void clearReadings() {
     yaw_             = NAN;
     frequency_       = NAN;
     fftFiltered_     = NAN;
-    fftBufIdx_       = 0u;
-    motionDetected_  = false;
+    fftBufIdx_          = 0u;
+    motionDetected_     = false;
+    overstrokeDetected_ = false;
+    overstrokeISR_      = false;
+    wakeupISR_          = false;
 }
 
 module::ServiceStatus service() {
@@ -446,6 +637,56 @@ module::ServiceStatus service() {
         }
     }
 
+    // ------------------------------------------------------------------
+    // Hardware tap (overstroke) interrupt check
+    // ------------------------------------------------------------------
+    if (overstrokeISR_) {
+        overstrokeISR_ = false;
+
+        // Read TAP_SRC to identify the event and clear the latched interrupt.
+        const uint8_t tapSrc = lsmReadReg(REG_TAP_SRC);
+
+        if (tapSrc & 0x20) {  // bit 5 = SINGLE_TAP
+            overstrokeDetected_ = true;
+            lastOverstrokeMs_   = millis();
+            ++overstrokeCount_;
+
+            const char axisX = (tapSrc & 0x04) ? 'X' : '-';
+            const char axisY = (tapSrc & 0x02) ? 'Y' : '-';
+            const char axisZ = (tapSrc & 0x01) ? 'Z' : '-';
+            _Log.printf("OVERSTROKE(TAP)  #%u  TAP_SRC=0x%02X  axes=%c%c%c  [%.2fg threshold]\n",
+                        overstrokeCount_, tapSrc, axisX, axisY, axisZ,
+                        TAP_THS_STEPS * 0.25f);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Hardware wake-up (overstroke) interrupt check — INT2
+    // ------------------------------------------------------------------
+    if (wakeupISR_) {
+        wakeupISR_ = false;
+
+        // Read WAKE_UP_SRC to identify the event and clear the latched interrupt.
+        const uint8_t wuSrc = lsmReadReg(LSM6DS_WAKEUP_SRC);
+
+        if (wuSrc & 0x08) {  // bit 3 = WU_IA (wake-up event detected)
+            ++wakeupCount_;
+
+            const char axisX = (wuSrc & 0x04) ? 'X' : '-';
+            const char axisY = (wuSrc & 0x02) ? 'Y' : '-';
+            const char axisZ = (wuSrc & 0x01) ? 'Z' : '-';
+            _Log.printf("OVERSTROKE(WAKE) #%u  WU_SRC=0x%02X  axes=%c%c%c  [%.2fg threshold]\n",
+                        wakeupCount_, wuSrc, axisX, axisY, axisZ,
+                        WAKEUP_THS_STEPS * 0.125f);
+        }
+    }
+
+    // Auto-clear overstroke flag after the hold period so the state machine
+    // sees it as a momentary edge even if clearOverstroke() isn't called.
+    if (overstrokeDetected_ && (millis() - lastOverstrokeMs_) > OVERSTROKE_HOLD_MS) {
+        overstrokeDetected_ = false;
+    }
+
     // Run FFT when the accumulation buffer is full.
     if (fftBufIdx_ >= FFT_N) {
         if ((millis() - lastFftMs_) >= FFT_INTERVAL_MS) {
@@ -485,11 +726,13 @@ float calculateFrequency() {
     return frequency_;
 }
 
-bool  isInitialized()    { return Module::isInitialized(); }
-bool  isAvailable()      { return sImuAvailable; }
-bool  isMotionDetected() { return motionDetected_;  }
-bool  hasOverstroke()    { return motionDetected_;  }
-void  clearOverstroke()  { motionDetected_ = false; }
+bool     isInitialized()      { return Module::isInitialized(); }
+bool     isAvailable()        { return sImuAvailable; }
+bool     isMotionDetected()   { return motionDetected_;  }
+bool     hasOverstroke()      { return overstrokeDetected_;  }
+void     clearOverstroke()    { overstrokeDetected_ = false; }
+uint32_t getOverstrokeCount() { return overstrokeCount_; }
+uint32_t getWakeupCount()     { return wakeupCount_; }
 float getRoll()          { return roll_;            }
 float getPitch()         { return pitch_;           }
 float getYaw()           { return yaw_;             }

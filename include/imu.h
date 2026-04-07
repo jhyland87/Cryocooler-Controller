@@ -39,12 +39,20 @@ bool isAvailable();
 bool isMotionDetected();
 
 /**
- * True when an overstroke (excessive motion) condition is active.
- * Backed by the same motionDetected state as isMotionDetected().
+ * True when a hardware tap (overstroke) event has been detected by the
+ * LSM6DSOX single-tap interrupt on INT1.  The flag is edge-triggered and
+ * held for OVERSTROKE_HOLD_MS; the state machine clears it via
+ * clearOverstroke() after consuming the event.
  */
 bool hasOverstroke();
 
 void clearOverstroke();
+
+/** Cumulative count of hardware tap (overstroke) events since boot (INT1). */
+uint32_t getOverstrokeCount();
+
+/** Cumulative count of hardware wake-up (overstroke) events since boot (INT2). */
+uint32_t getWakeupCount();
 
 
 // ---------------------------------------------------------------------------
