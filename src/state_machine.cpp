@@ -388,7 +388,7 @@ static void onEnterInitialize() {
     setStateEntry(State::Initialize);
     if (onInitializeCb) {
         // onInitializeCb() calls initControlModules() → cooling::init(),
-        // which configures the EMC2302 and enables software-LUT fan/pump control.
+        // which configures the EMC2303 and enables software-LUT fan/pump control.
         onInitializeCb();
     }
 }

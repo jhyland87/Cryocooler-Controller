@@ -14,7 +14,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | DAC | AD5693R 16-bit | I2C | 0x4E | Amplifier power control |
 | Power monitor | INA237 | I2C | auto | Bus voltage + current |
 | IMU | LSM6DSOX 6-DOF | I2C | 0x6A | Vibration / overstroke detection |
-| Fan / pump controller | EMC2302-2 dual PWM | I2C | 0x2F | Cooling fan (ch 0) + pump (ch 1) |
+| Fan / pump controller | EMC2303 three-channel PWM | I2C | 0x2F | Cooling fan (ch 0) + pump (ch 1) |
 | Current sensor | ACS37800 | I2C | auto | Amplifier AC current monitoring |
 | Compressor relay | SparkFun Qwiic Single Relay | I2C | 0x19 | Compressor on/off |
 | Amplifier relay | SparkFun Qwiic Single Relay | I2C | 0x18 | Amplifier on/off |
@@ -26,7 +26,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **SPI bus** (AD9833 only): CLK → GPIO 42, MISO → GPIO 41, MOSI → GPIO 40.
 
-**Fan fault alert:** EMC2302 ALERT# → GPIO 14 (active-low, external pull-up).
+**Fan fault alert:** EMC2303 ALERT# → GPIO 14 (active-low, external pull-up).
 
 ---
 
@@ -47,7 +47,7 @@ flowchart TD
     end
 
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
-        COOL[cooling<br/>EMC2302 fan + pump<br/>software LUT]
+        COOL[cooling<br/>EMC2303 fan + pump<br/>software LUT]
         CH[cold_head<br/>ADS122C04 PT1000 RTD]
         AMP[amplifier<br/>AD9833 + AD5693R DAC + ACS37800]
         COMP[compressor<br/>Qwiic relay]
@@ -184,15 +184,15 @@ Reads bus voltage and current via the INA237 power monitor over I2C. Applies EMA
 
 ### `cooling`
 
-Controls the cooling fan and pump via a single EMC2302-2 dual-channel PWM controller over I2C (address 0x2F). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
+Controls the cooling fan and pump via a single EMC2303 three-channel PWM controller over I2C (address 0x2F). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
 
 **Software LUT:** Replaces the previous EMC2101 hardware LUT. Each channel has an independently-configured temperature-to-duty lookup table with hysteresis, evaluated once per second from coolant temperature. Entries are sorted ascending by temperature; the evaluator only writes to the chip when the active row changes.
 
-**Deferred init:** The EMC2302 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
+**Deferred init:** The EMC2303 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
 
-**Fault detection:** The EMC2302's open-drain ALERT# pin (GPIO 14, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
+**Fault detection:** The EMC2303's open-drain ALERT# pin (GPIO 14, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
 
-**I2C bus recovery:** When the EMC2302 loses power mid-operation, it can hold the I2C SDA line low and block all other sensors on the shared bus. The service function calls `hardware::recoverI2c()` immediately on detecting an I2C failure to free the bus for other devices.
+**I2C bus recovery:** When the EMC2303 loses power mid-operation, it can hold the I2C SDA line low and block all other sensors on the shared bus. The service function calls `hardware::recoverI2c()` immediately on detecting an I2C failure to free the bus for other devices.
 
 **Pump normalisation:** User-facing pump speeds are 0–100 % normalised, mapped to 0–`COOLING_PUMP_MAX_DUTY_PCT` (raw 0–255) at the hardware boundary. The pump stalls above ~16 % effective duty (~4400 RPM).
 

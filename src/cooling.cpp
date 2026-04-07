@@ -1,9 +1,9 @@
 /**
  * @file cooling.cpp
- * @brief Cooling system — fan & pump control via EMC2302, coolant sensors.
+ * @brief Cooling system — fan & pump control via EMC2303, coolant sensors.
  *
- * A single EMC2302-2 dual PWM fan controller drives both the fan (channel 0)
- * and the pump (channel 1).  The EMC230x family has no built-in temperature
+ * A single EMC2303 three-channel PWM fan controller drives the fan (channel 0)
+ * and the pump (channel 1).  Channel 2 is unused.  The EMC230x family has no built-in temperature
  * sensor or hardware LUT, so temperature→duty-cycle mapping is performed
  * in software using the NTC coolant temperature reading.
  *
@@ -23,7 +23,7 @@
  * window) to suppress noise before the tracking monitors see them.
  *
  * Software responsibilities:
- *   - Initialise the EMC2302 and configure both channels on init().
+ *   - Initialise the EMC2303 and configure both channels on init().
  *   - Evaluate the fan and pump software LUTs every COOLING_CHECK_CYCLE_MS
  *     using the averaged coolant temperature.
  *   - Track the pump enable state.
@@ -49,9 +49,9 @@
 #include "logger.h"
 
 // ---------------------------------------------------------------------------
-// EMC2302 — single dual-channel fan controller
+// EMC2303 — single dual-channel fan controller
 // ---------------------------------------------------------------------------
-static EMC230x controller_(2);   // 2 fans expected (EMC2302)
+static EMC230x controller_(3);   // 3 channels (EMC2303); fan=ch0, pump=ch1, ch2 unused
 
 // Channel assignments
 static constexpr uint8_t FAN_CHANNEL  = 0;
@@ -63,9 +63,9 @@ static constexpr uint8_t PUMP_CHANNEL = 1;
 static uint8_t expectedDuty_[2] = {0, 0};
 
 // ---------------------------------------------------------------------------
-// EMC2302 ALERT# pin fault detection
+// EMC2303 ALERT# pin fault detection
 //
-// The EMC2302's open-drain ALERT# output latches LOW when a stall, spin-up
+// The EMC2303's open-drain ALERT# output latches LOW when a stall, spin-up
 // failure, or drive failure is detected on either channel.  It remains LOW
 // until the firmware reads the corresponding status register, which clears
 // the latch and releases the pin (external pull-up returns it HIGH).
@@ -73,7 +73,7 @@ static uint8_t expectedDuty_[2] = {0, 0};
 // GPIO COOLING_FAN_FAULT_INDICATOR_PIN is connected to ALERT# via an external pull-up
 // resistor.  We sample the pin every service() tick:
 //   HIGH → no fault (or fault was just cleared)
-//   LOW  → EMC2302 has latched a fault
+//   LOW  → EMC2303 has latched a fault
 //
 // When a LOW is detected we read all four status registers (fan status,
 // stall, spin, drive-fail), log the decoded fault bits, and clear the
@@ -119,7 +119,7 @@ struct SoftLUT {
 // Fan software LUT
 //
 // Eight entries mapping coolant temperature (°C) → fan PWM duty (0–255).
-// The EMC2302 uses 0–255 raw duty, not percentage — these map directly.
+// The EMC2303 uses 0–255 raw duty, not percentage — these map directly.
 // ---------------------------------------------------------------------------
 static SoftLUT fanLut_ = {
     .numEntries  = 5,
@@ -139,7 +139,7 @@ static SoftLUT fanLut_ = {
 // Pump speed normalisation helpers
 //
 // All user-facing pump speeds are expressed in a normalised 0–100 % range.
-// The actual EMC2302 hardware duty is 0–COOLING_PUMP_MAX_DUTY_PCT (0–255 scale).
+// The actual EMC2303 hardware duty is 0–COOLING_PUMP_MAX_DUTY_PCT (0–255 scale).
 // These two helpers convert at the boundary between application code and HW.
 // ---------------------------------------------------------------------------
 static uint8_t pumpNormToHw(uint8_t normPct) {
@@ -158,7 +158,7 @@ static uint8_t pumpHwToNorm(uint8_t hwPct) {
 // Pump software LUT (forced-temperature mode replacement)
 //
 // NOTE: This pump stalls above ~4400 RPM.
-// The EMC2302 uses 0–255 raw duty (unlike the EMC2101's 0–63 hw steps).
+// The EMC2303 uses 0–255 raw duty (unlike the EMC2101's 0–63 hw steps).
 // COOLING_PUMP_MAX_DUTY_PCT = 51 raw ≈ 20 % of 255, giving headroom
 // above the old EMC2101 equivalent (~41 raw).
 //
@@ -234,7 +234,7 @@ static RunningAverage tempAvg_(COOLING_SENSOR_AVG_SAMPLES);  // coolant NTC temp
 // are needed to match the same ~10 s smoothing window as the 100 ms sensors.
 static RunningAverage pumpRpmAvg_(
     COOLING_SENSOR_AVG_SAMPLES / (COOLING_CHECK_CYCLE_MS / COOLING_SENSOR_SAMPLE_MS)
-);  // pump EMC2302 TACH smoothing
+);  // pump EMC2303 TACH smoothing
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -246,14 +246,14 @@ static volatile float   coolantFlowRate_    = 0.0f;
 static volatile uint8_t fanSpeed_           = 0;      // only meaningful in manual-override mode
 static volatile bool    forceFanSpeed_      = false;
 
-// Cached EMC2302 readings — updated once per COOLING_CHECK_CYCLE_MS in
+// Cached EMC2303 readings — updated once per COOLING_CHECK_CYCLE_MS in
 // service().  Accessors return these values instead of reading the IC live,
 // which eliminates concurrent I2C transactions between the service loop and
 // the telemetry emit path (the root cause of Wire repeated-start errors).
 static uint8_t  cachedDutyCycle_      = 0u;
 static uint16_t cachedFanRpm_         = 0u;
 
-// Cached pump EMC2302 readings — same pattern as the fan channel.
+// Cached pump EMC2303 readings — same pattern as the fan channel.
 static uint8_t  cachedPumpDutyCycle_  = 0u;
 static uint16_t cachedPumpRpm_        = 0u;
 
@@ -305,7 +305,7 @@ static TrackingMonitor<float> flowTracker_(TrackingMonitor<float>::Config{
 // temperature the reading must drop below (threshold − hysteresis) before
 // stepping down — the same behaviour as the EMC2101's hardware LUT.
 //
-// Returns the duty cycle to apply (0–255).  Only writes to the EMC2302 if
+// Returns the duty cycle to apply (0–255).  Only writes to the EMC2303 if
 // the active row actually changed.
 // ---------------------------------------------------------------------------
 static uint8_t evaluateLUT(SoftLUT &lut, float tempC, uint8_t channel) {
@@ -390,9 +390,9 @@ static float rpmToLph(float rpm) {
         else                                                 hi = mid;
     }
 
-    const float t = (rpm - static_cast<float>(pumpFlowTable[lo].rpm)) /
-                    static_cast<float>(pumpFlowTable[hi].rpm - pumpFlowTable[lo].rpm);
-    return pumpFlowTable[lo].lph + t * (pumpFlowTable[hi].lph - pumpFlowTable[lo].lph);
+    const float interpFraction = (rpm - static_cast<float>(pumpFlowTable[lo].rpm)) /
+                                 static_cast<float>(pumpFlowTable[hi].rpm - pumpFlowTable[lo].rpm);
+    return pumpFlowTable[lo].lph + interpFraction * (pumpFlowTable[hi].lph - pumpFlowTable[lo].lph);
 }
 
 // ---------------------------------------------------------------------------
@@ -431,13 +431,13 @@ static float readCoolantTemp() {
 }
 
 // ---------------------------------------------------------------------------
-// controllerInit — configure the EMC2302
+// controllerInit — configure the EMC2303
 //
 // Both fan (channel 0) and pump (channel 1) are configured for direct-drive
 // PWM mode.  The software LUT evaluator sets duty cycles in service().
 // ---------------------------------------------------------------------------
 static module::InitStatus controllerInit() {
-    if (!controller_.begin(EMC2302_2_I2C_ADDRESS, &hardware::i2c())) {
+    if (!controller_.begin(EMC2303_I2C_ADDRESS, &hardware::i2c())) {
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
 
@@ -469,7 +469,7 @@ static module::InitStatus controllerInit() {
     expectedDuty_[PUMP_CHANNEL] = pumpLut_.entries[0].duty;
     controller_.setDutyCycle(expectedDuty_[PUMP_CHANNEL], PUMP_CHANNEL);
 
-    _Log.printf("EMC2302 configured — fan duty=%u  pump duty=%u\n",
+    _Log.printf("EMC2303 configured — fan duty=%u  pump duty=%u\n",
                 expectedDuty_[FAN_CHANNEL], expectedDuty_[PUMP_CHANNEL]);
 
     return module::MODULE_INIT_SUCCESS;
@@ -481,19 +481,19 @@ static module::InitStatus controllerInit() {
 module::InitStatus init() {
     _Log.printf("Initializing cooling system\n");
 
-    // ── EMC2302 ───────────────────────────────────────────────────────────
+    // ── EMC2303 ───────────────────────────────────────────────────────────
     {
-        const module::InitStatus st = controllerInit();
-        if (st != module::MODULE_INIT_SUCCESS) {
+        const module::InitStatus controllerStatus = controllerInit();
+        if (controllerStatus != module::MODULE_INIT_SUCCESS) {
             // A failed I2C transaction can leave the ESP32's I2C driver
             // in a stuck state; recover so downstream modules init cleanly.
             hardware::recoverI2c();
-            return st;
+            return controllerStatus;
         }
     }
 
     // ── ALERT# fault input ────────────────────────────────────────────────
-    // External pull-up holds the line HIGH; EMC2302 pulls LOW on fault.
+    // External pull-up holds the line HIGH; EMC2303 pulls LOW on fault.
     pinMode(COOLING_FAN_FAULT_INDICATOR_PIN, INPUT);
     fanFaultActive_ = false;
 
@@ -525,7 +525,7 @@ module::InitStatus init() {
 
     _Log.printf("init: flow sensor GPIO%d, temp ADC GPIO%d\n",
              COOLING_FLOW_PIN, COOLING_TEMP_ADC_PIN);
-    _Log.println(F("Cooling system initialized (EMC2302)"));
+    _Log.println(F("Cooling system initialized (EMC2303)"));
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -534,7 +534,7 @@ module::InitStatus init() {
 // ---------------------------------------------------------------------------
 module::ServiceStatus service() {
     // ── Deferred init recovery ───────────────────────────────────────────
-    // The EMC2302 is powered from a 3.3 V regulator stepped down from the
+    // The EMC2303 is powered from a 3.3 V regulator stepped down from the
     // 12 V rail.  If 12 V is absent at boot, init() fails and service()
     // would permanently bail out.  Retry controllerInit() once per second
     // until the chip appears, then promote the module to INIT_SUCCESS.
@@ -547,7 +547,7 @@ module::ServiceStatus service() {
             // may have left SDA stuck low, blocking all other I2C devices.
             hardware::recoverI2c();
             if (controllerInit() == module::MODULE_INIT_SUCCESS) {
-                _Log.println(F("EMC2302 appeared — deferred init succeeded"));
+                _Log.println(F("EMC2303 appeared — deferred init succeeded"));
 
                 // Complete the rest of init that was skipped on first attempt
                 pinMode(COOLING_FAN_FAULT_INDICATOR_PIN, INPUT);
@@ -590,10 +590,10 @@ module::ServiceStatus service() {
     bool didWork = false;
 
     // ── I2C liveness check ──────────────────────────────────────────────
-    // If the 12 V rail drops after boot, the EMC2302 loses power and I2C
+    // If the 12 V rail drops after boot, the EMC2303 loses power and I2C
     // reads return NACK.  Send NaN so the dashboard shows a gap for this
     // tick.  Demote init status so the deferred-init retry path (above)
-    // reconfigures the chip when 12 V returns — without this the EMC2302
+    // reconfigures the chip when 12 V returns — without this the EMC2303
     // powers up in its default 100 % duty-cycle state.
     //
     // Report the failure to the I2C health monitor so that bus recovery
@@ -601,7 +601,7 @@ module::ServiceStatus service() {
     // low, blocking every other sensor on the shared bus.
     if (!sensor_mock::isActive()) {
         TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(EMC2302_2_I2C_ADDRESS);
+        i2c.beginTransmission(EMC2303_I2C_ADDRESS);
         if (i2c.endTransmission() != 0) {
             hardware::reportI2cError();
             hardware::recoverI2c();
@@ -673,7 +673,7 @@ module::ServiceStatus service() {
         evaluateLUT(pumpLut_, lutTemp, PUMP_CHANNEL);
     }
 
-    // ── EMC2302 reads (cached) ──────────────────────────────────────────
+    // ── EMC2303 reads (cached) ──────────────────────────────────────────
     // Snapshot all values here.  Accessors return these cached copies so
     // that the telemetry emit path never touches the I2C bus outside
     // this function.
@@ -681,7 +681,7 @@ module::ServiceStatus service() {
     cachedFanRpm_    = controller_.getFanRPM(FAN_CHANNEL);
 
     // ── Self-healing guard ──────────────────────────────────────────────
-    // After a 12 V power cycle the EMC2302 POR can leave the chip in its
+    // After a 12 V power cycle the EMC2303 POR can leave the chip in its
     // default 100 % duty / RPM-control state.  If the cached duty diverges
     // from what we last programmed, reconfigure the channel immediately.
     for (uint8_t ch = 0; ch < 2; ++ch) {
@@ -718,7 +718,7 @@ module::ServiceStatus service() {
                  rawPumpDuty, pumpHwToNorm(rawPumpDuty));
     }
 
-    // ── EMC2302 ALERT# fault detection ──────────────────────────────────
+    // ── EMC2303 ALERT# fault detection ──────────────────────────────────
     // ALERT# is active-low, latched.  We only read status registers when
     // the pin is actually asserted — this avoids unnecessary I2C traffic
     // every tick and gives us a reliable "fault active right now" signal.
@@ -726,10 +726,10 @@ module::ServiceStatus service() {
 
     if (alertAsserted) {
         // Read all four status registers — this also clears the latch.
-        const uint8_t fanSt   = controller_.getFanStatusRegister();
-        const uint8_t stallSt = controller_.getStallStatusRegister();
-        const uint8_t spinSt  = controller_.getSpinStatusRegister();
-        const uint8_t driveSt = controller_.getDriveFailStatusRegister();
+        const uint8_t fanStatusReg       = controller_.getFanStatusRegister();
+        const uint8_t stallStatusReg     = controller_.getStallStatusRegister();
+        const uint8_t spinStatusReg      = controller_.getSpinStatusRegister();
+        const uint8_t driveFailStatusReg = controller_.getDriveFailStatusRegister();
 
         if (!fanFaultActive_) {
             // Rising edge — first detection this episode
@@ -739,23 +739,23 @@ module::ServiceStatus service() {
 
         // Log only when the status pattern changes (avoids spam from
         // sustained low-duty stall at low RPM).
-        if (fanSt != lastFanStatus_ || stallSt != lastStallStatus_ ||
-            spinSt != lastSpinStatus_ || driveSt != lastDriveStatus_) {
-            lastFanStatus_   = fanSt;
-            lastStallStatus_ = stallSt;
-            lastSpinStatus_  = spinSt;
-            lastDriveStatus_ = driveSt;
+        if (fanStatusReg != lastFanStatus_ || stallStatusReg != lastStallStatus_ ||
+            spinStatusReg != lastSpinStatus_ || driveFailStatusReg != lastDriveStatus_) {
+            lastFanStatus_   = fanStatusReg;
+            lastStallStatus_ = stallStatusReg;
+            lastSpinStatus_  = spinStatusReg;
+            lastDriveStatus_ = driveFailStatusReg;
 
             _Log.printf("ALERT# asserted — fan=0x%02X stall=0x%02X spin=0x%02X drive=0x%02X\n",
-                        fanSt, stallSt, spinSt, driveSt);
+                        fanStatusReg, stallStatusReg, spinStatusReg, driveFailStatusReg);
 
             // Decode individual bits (2 channels → bits 0 and 1)
-            if (stallSt & 0x01) _Log.println("  ch0 (fan):  STALL detected");
-            if (stallSt & 0x02) _Log.println("  ch1 (pump): STALL detected");
-            if (spinSt  & 0x01) _Log.println("  ch0 (fan):  spin-up FAIL");
-            if (spinSt  & 0x02) _Log.println("  ch1 (pump): spin-up FAIL");
-            if (driveSt & 0x01) _Log.println("  ch0 (fan):  drive FAIL");
-            if (driveSt & 0x02) _Log.println("  ch1 (pump): drive FAIL");
+            if (stallStatusReg & 0x01) _Log.println("  ch0 (fan):  STALL detected");
+            if (stallStatusReg & 0x02) _Log.println("  ch1 (pump): STALL detected");
+            if (spinStatusReg  & 0x01) _Log.println("  ch0 (fan):  spin-up FAIL");
+            if (spinStatusReg  & 0x02) _Log.println("  ch1 (pump): spin-up FAIL");
+            if (driveFailStatusReg & 0x01) _Log.println("  ch0 (fan):  drive FAIL");
+            if (driveFailStatusReg & 0x02) _Log.println("  ch1 (pump): drive FAIL");
         }
     } else {
         // ALERT# released — fault cleared
@@ -771,13 +771,13 @@ module::ServiceStatus service() {
         }
     }
 
-    const uint8_t dc = cachedDutyCycle_;
+    const uint8_t fanDutyCycle = cachedDutyCycle_;
 
     // Fan speed tracker: only meaningful in forced/manual mode.
     // In LUT mode the software LUT owns the duty cycle — no external setpoint exists.
     if (forceFanSpeed_) {
         fanTracker_.update(static_cast<float>(fanSpeed_),
-                           static_cast<float>(dc));
+                           static_cast<float>(fanDutyCycle));
     } else {
         fanTracker_.reset();
     }
@@ -844,7 +844,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
         return;
     }
 
-    // Convert 0–100 % → 0–255 raw duty for the EMC2302.
+    // Convert 0–100 % → 0–255 raw duty for the EMC2303.
     const uint8_t duty = static_cast<uint8_t>((static_cast<uint16_t>(percentage) * 255u) / 100u);
 
     _Log.printf("setFanSpeed(%u%% -> duty %u/255): LUT disabled\n", percentage, duty);
@@ -862,7 +862,7 @@ void setFanSpeed(uint8_t percentage, bool force) {
 // setPumpSpeed — manual override for diagnostic testing
 //
 // Accepts a normalised pump speed (0–100 %).  Converts to the hardware
-// duty range (0–COOLING_PUMP_MAX_DUTY_PCT) before writing to the EMC2302.
+// duty range (0–COOLING_PUMP_MAX_DUTY_PCT) before writing to the EMC2303.
 // Disables the pump LUT; call enable() to restore LUT control.
 // ---------------------------------------------------------------------------
 void setPumpSpeed(uint8_t percentage) {
@@ -878,7 +878,7 @@ void setPumpSpeed(uint8_t percentage) {
 // ---------------------------------------------------------------------------
 // setFanDutyCycle — raw duty override (0–255)
 //
-// Bypasses percentage conversion; writes the value directly to the EMC2302.
+// Bypasses percentage conversion; writes the value directly to the EMC2303.
 // Disables the fan LUT; call enable() to restore LUT control.
 // ---------------------------------------------------------------------------
 void setFanDutyCycle(uint8_t duty) {
@@ -897,7 +897,7 @@ void setFanDutyCycle(uint8_t duty) {
 // setPumpDutyCycle — raw duty override (0–255)
 //
 // Bypasses normalised-percentage conversion; writes the value directly to the
-// EMC2302.  Disables the pump LUT; call enable() to restore LUT control.
+// EMC2303.  Disables the pump LUT; call enable() to restore LUT control.
 // ---------------------------------------------------------------------------
 void setPumpDutyCycle(uint8_t duty) {
     _Log.printf("setPumpDutyCycle(%u): LUT disabled\n", duty);

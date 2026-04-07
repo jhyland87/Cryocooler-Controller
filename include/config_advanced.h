@@ -152,13 +152,13 @@
 
 
 // =============================================================================
-// EMC2302 I2C Address & Configuration
+// EMC2303 I2C Address & Configuration
 // =============================================================================
 //
-// A single EMC2302-2 dual PWM fan controller drives both the fan (channel 0)
-// and the pump (channel 1).  No I2C mux or address translator is needed.
+// A single EMC2303 three-channel PWM fan controller drives the fan (channel 0)
+// and the pump (channel 1).  Channel 2 is unused.
 
-#define EMC2302_2_I2C_ADDRESS  static_cast<uint8_t>(0x2F)
+#define EMC2303_I2C_ADDRESS  static_cast<uint8_t>(0x2F)
 
 // =============================================================================
 // Pump — duty-cycle normalisation & software LUT configuration
@@ -167,7 +167,7 @@
 // Maximum hardware PWM duty (0–255 raw) sent to the pump channel.
 // The old EMC2101 used a 0–100 % scale mapped to 0–63 hardware steps.
 // setDutyCycle(16) on EMC2101 → 16*63/100 = hw 10 → 10/63 ≈ 16 % duty.
-// On the EMC2302 (0–255 raw), equivalent = ~41.  Bumped to 51 (~20 %)
+// On the EMC2303 (0–255 raw), equivalent = ~41.  Bumped to 51 (~20 %)
 // to give extra headroom — adjust down if pump stalls.
 // All user-facing pump speeds are expressed in a normalised 0–100 % range
 // that maps linearly to 0–COOLING_PUMP_MAX_DUTY_PCT at the hardware level.

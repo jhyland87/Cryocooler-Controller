@@ -362,7 +362,7 @@ flowchart TD
 
 ## Deferred (Hot-Plug) Initialisation
 
-Some hardware (e.g. the EMC2302 fan controller) may not be powered at boot. The pattern for handling this:
+Some hardware (e.g. the EMC2303 fan controller) may not be powered at boot. The pattern for handling this:
 
 1. `init()` returns `MODULE_INIT_HARDWARE_ERROR` when the device is absent.
 2. `service()` checks `Module::getInitStatus() != SUCCESS` and periodically retries.
