@@ -306,7 +306,7 @@ static void configureWakeupDetection() {
  * and gyro bias.  The sensor must be stationary during this process.
  */
 static void performCalibration() {
-    _Log.println("Calibrating — keep sensor still...");
+    _Log.println(F("Calibrating — keep sensor still..."));
 
     // Flush any stale FIFO data
     sensor.resetFIFO();
@@ -535,7 +535,7 @@ module::InitStatus init() {
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }
-    _Log.println("LSM6DSOX found on SPI — continuing");
+    _Log.println(F("LSM6DSOX found on SPI — continuing"));
     sImuAvailable = true;
 
     sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);

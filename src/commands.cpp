@@ -87,12 +87,12 @@ static void handleHelp(const char* args, Print& out);
 
 static void handleStart(const char* /*args*/, Print& out) {
     if (state_machine::isRunning()) {
-        out.println("[ERR] Already running");
+        out.println(F("[ERR] Already running"));
         return;
     }
     if (state_machine::getState() != state_machine::State::Idle &&
         state_machine::getState() != state_machine::State::Off) {
-        out.println("[ERR] Cannot start: not in Idle or Off state");
+        out.println(F("[ERR] Cannot start: not in Idle or Off state"));
         return;
     }
 
@@ -106,7 +106,7 @@ static void handleStart(const char* /*args*/, Print& out) {
 #else
     state_machine::start();
 #endif
-    out.println("[OK] Process started");
+    out.println(F("[OK] Process started"));
 }
 
 #ifdef ARDUINO
@@ -201,7 +201,7 @@ static void handleReinit(const char* args, Print& out) {
     }
 
     if (reinitCount == 0) {
-        out.println("[ERR] No valid module names found. Available:");
+        out.println(F("[ERR] No valid module names found. Available:"));
         for (const auto& m : selectableModules) {
             char buf[32];
             snprintf(buf, sizeof(buf), "  %s", m.name);
@@ -219,32 +219,32 @@ static void handleStop(const char* /*args*/, Print& out) {
     if (state_machine::getState() == state_machine::State::Fault) {
         // Defer the stop — will suppress auto-start on next fault clear.
         state_machine::stop();
-        out.println("[OK] Stop deferred — will take effect on fault clear");
+        out.println(F("[OK] Stop deferred — will take effect on fault clear"));
         return;
     }
     if (!state_machine::isRunning()) {
-        out.println("[ERR] Not currently running");
+        out.println(F("[ERR] Not currently running"));
         return;
     }
     state_machine::stop();
-    out.println("[OK] Process stopped");
+    out.println(F("[OK] Process stopped"));
 }
 
 static void handleReboot(const char* /*args*/, Print& out) {
-    out.println("[OK] Rebooting requested...");
+    out.println(F("[OK] Rebooting requested..."));
 #ifdef ARDUINO
     ESP.restart();
 #endif
-    out.println("[OK] System rebooted");
+    out.println(F("[OK] System rebooted"));
 }
 
 static void handleOff(const char* /*args*/, Print& out) {
     if (state_machine::getState() == state_machine::State::Off) {
-        out.println("[ERR] System is already off");
+        out.println(F("[ERR] System is already off"));
         return;
     }
     state_machine::off();
-    out.println("[OK] System turned off");
+    out.println(F("[OK] System turned off"));
 }
 
 static void handleStatus(const char* /*args*/, Print& out) {
@@ -259,7 +259,7 @@ static void handleStatus(const char* /*args*/, Print& out) {
     // ── Module status table ──────────────────────────────────────────────────
     // Show init and service status for every registered module so the
     // operator can quickly see which subsystems are healthy.
-    out.println("  Module status:");
+    out.println(F("  Module status:"));
 
     struct ModuleInfo {
         const char*          name;
@@ -306,7 +306,7 @@ static void handleTelemetryOff(const char* /*args*/, Print& out) {
     // Use `dashboard on` to re-enable the TCP stream independently if needed.
     dashboard::disable();
 #endif
-    out.println("[OK] Telemetry disabled");
+    out.println(F("[OK] Telemetry disabled"));
 }
 
 static void handleTelemetryOn(const char* /*args*/, Print& out) {
@@ -314,40 +314,40 @@ static void handleTelemetryOn(const char* /*args*/, Print& out) {
 #ifdef ARDUINO
     dashboard::enable();
 #endif
-    out.println("[OK] Telemetry enabled");
+    out.println(F("[OK] Telemetry enabled"));
 }
 
 static void handleTelemetryDeltaOff(const char* /*args*/, Print& out) {
     telemetry::disableDelta();
-    out.println("[OK] Telemetry delta mode disabled (full frame each emit)");
+    out.println(F("[OK] Telemetry delta mode disabled (full frame each emit)"));
 }
 
 static void handleTelemetryDeltaOn(const char* /*args*/, Print& out) {
     telemetry::enableDelta();
-    out.println("[OK] Telemetry delta mode enabled (only changed values emitted)");
+    out.println(F("[OK] Telemetry delta mode enabled (only changed values emitted)"));
 }
 
 #ifdef ARDUINO
 static void handleDashboardOff(const char* /*args*/, Print& out) {
     dashboard::disable();
-    out.println("[OK] Dashboard disabled");
+    out.println(F("[OK] Dashboard disabled"));
 }
 
 static void handleDashboardOn(const char* /*args*/, Print& out) {
     dashboard::enable();
-    out.println("[OK] Dashboard enabled");
+    out.println(F("[OK] Dashboard enabled"));
 }
 #endif
 
 
 static void handleCoolingOn(const char* /*args*/, Print& out) {
     cooling::enable();
-    out.println("[OK] Cooling enabled");
+    out.println(F("[OK] Cooling enabled"));
 }
 
 static void handleCoolingOff(const char* /*args*/, Print& out) {
     cooling::disable();
-    out.println("[OK] Cooling disabled");
+    out.println(F("[OK] Cooling disabled"));
 }
 
 #ifdef ARDUINO
@@ -360,7 +360,7 @@ static void handleVoutGet(const char* /*args*/, Print& out) {
 
 static void handleVoutSet(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: set vout <0-120V> | <0-100%> | auto");
+        out.println(F("[ERR] Usage: set vout <0-120V> | <0-100%> | auto"));
         return;
     }
 
@@ -368,7 +368,7 @@ static void handleVoutSet(const char* args, Print& out) {
     if (strncmp(args, "auto", 4) == 0 &&
         (args[4] == '\0' || args[4] == ' ' || args[4] == '\t')) {
         amplifier::clearVoutOverride();
-        out.println("[OK] Vout override cleared — resumed FSM control");
+        out.println(F("[OK] Vout override cleared — resumed FSM control"));
         return;
     }
 
@@ -446,7 +446,7 @@ static void handleVoutSet(const char* args, Print& out) {
 // Usage: "dac raw <0-4095>"
 static void handleDacRaw(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: dac raw <0-4095>");
+        out.println(F("[ERR] Usage: dac raw <0-4095>"));
         return;
     }
     const uint16_t val = static_cast<uint16_t>(strtoul(args, nullptr, 10));
@@ -1005,7 +1005,7 @@ static void handleRelayCompressor(const char* args, Print& out) {
 
 static void handleCompressorStart(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println("[ERR] Usage: compressor start <duration>  e.g.  1h30m0s  |  30m  |  45s");
+        out.println(F("[ERR] Usage: compressor start <duration>  e.g.  1h30m0s  |  30m  |  45s"));
         return;
     }
     char errBuf[48];
@@ -1055,7 +1055,7 @@ static void handleCompressorStop(const char* /*args*/, Print& out) {
         return;
     }
     compressor::stopRun();
-    out.println("[OK] Compressor stopped");
+    out.println(F("[OK] Compressor stopped"));
 }
 
 #endif  // ARDUINO (compressor handlers)

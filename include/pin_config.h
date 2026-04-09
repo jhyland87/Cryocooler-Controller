@@ -70,7 +70,7 @@
 // is used as a backup but an external resistor is strongly recommended.
 #define COOLING_FLOW_PIN         18
 
-#define COOLING_FAN_FAULT_INDICATOR_PIN      14
+#define COOLING_FAN_FAULT_INDICATOR_PIN      21
 
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND

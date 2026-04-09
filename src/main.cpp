@@ -49,7 +49,7 @@ static void logPrintf(const char* fmt, ...) {
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    Log.print(buf);
+    _Log.print(buf);
 }
 
 // =============================================================================
@@ -181,9 +181,9 @@ void setup() {
     delay(1000);
     //while (!Serial.available()) delay(100);
 
-    _Log.printf("Starting up\n");
-    Log.println("Cryocooler Controller -- starting up");
-    Log.println("=====================================");
+    _Log.println(F("Starting up"));
+    _Log.println(F("Cryocooler Controller -- starting up"));
+    _Log.println(F("====================================="));
 
     // Initialise shared buses before any module that needs them.
     // hardware::init() owns the single GuardedWire and SPIClass instances;
@@ -193,7 +193,7 @@ void setup() {
     {
         static const module::ModuleEntry hwEntry = MODULE_ENTRY(hardware, true);
         if (!module::initGroup(&hwEntry, 1, nullptr, logPrintf)) {
-            _Log.printf("Hardware bus init failed. Halting.\n");
+            _Log.println(F("Hardware bus init failed. Halting."));
             return;
         }
     }
@@ -232,8 +232,8 @@ void setup() {
     // be caught here; initDac() handles those by force-writing 0 on every boot.
     esp_register_shutdown_handler([]() { amplifier::hardStop(); });
 
-    Log.printf("[setup] Setup complete. System is initializing.\n");
-    Log.println("Type 'help' for available commands.");
+    _Log.println(F("[setup] Setup complete. System is initializing."));
+    _Log.println(F("Type 'help' for available commands."));
 }
 
 // =============================================================================
@@ -262,8 +262,8 @@ void loop() {
         // Drain any characters that arrived in the USB RX buffer during setup
         // so they don't accidentally dispatch stale commands.
         //while (Serial.available()) { Serial.print("Serial:"); Serial.println(Serial.read()); }
-        Log.println();
-        Log.println(">>> Serial console active. Type 'help' for commands. <<<");
+        _Log.println();
+        _Log.println(F(">>> Serial console active. Type 'help' for commands. <<<"));
 
         // Scan all modules for init failures and list them explicitly.
         module::reportStatus(allModulesForBanner, NUM_ALL_BANNER, logPrintf);

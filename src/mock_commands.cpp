@@ -64,18 +64,18 @@ static const char* skipWs(const char* s) {
 
 static void handleEnable(const char* /*args*/, Print& out) {
     sensor_mock::enable();
-    out.println("[OK] Mock mode enabled — hardware reads bypassed");
+    out.println(F("[OK] Mock mode enabled — hardware reads bypassed"));
 }
 
 static void handleDisable(const char* /*args*/, Print& out) {
     sensor_mock::disable();
-    out.println("[OK] Mock mode disabled — using real hardware");
+    out.println(F("[OK] Mock mode disabled — using real hardware"));
 }
 
 static void handleTemp(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock temp <C>  (e.g. mock temp -188.15)");
+        out.println(F("[ERR] Usage: mock temp <C>  (e.g. mock temp -188.15)"));
         return;
     }
     // Cancel any active temp ramp so the static value is not overwritten next tick.
@@ -89,7 +89,7 @@ static void handleTemp(const char* args, Print& out) {
 static void handleRate(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock rate <C/min>  (e.g. mock rate -1.5)");
+        out.println(F("[ERR] Usage: mock rate <C/min>  (e.g. mock rate -1.5)"));
         return;
     }
     sensor_mock::get().coolingRate = v;
@@ -101,7 +101,7 @@ static void handleRate(const char* args, Print& out) {
 static void handleRms(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock rms <V>  (e.g. mock rms 1.2)");
+        out.println(F("[ERR] Usage: mock rms <V>  (e.g. mock rms 1.2)"));
         return;
     }
     sensor_mock::stopRamp(sensor_mock::RampField::Rms);
@@ -114,7 +114,7 @@ static void handleRms(const char* args, Print& out) {
 static void handleCurrent(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock current <A>  (e.g. mock current 2.5)");
+        out.println(F("[ERR] Usage: mock current <A>  (e.g. mock current 2.5)"));
         return;
     }
     sensor_mock::get().current = v;
@@ -126,7 +126,7 @@ static void handleCurrent(const char* args, Print& out) {
 static void handleVoltage(const char* args, Print& out) {
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock voltage <V>  (e.g. mock voltage 12.0)");
+        out.println(F("[ERR] Usage: mock voltage <V>  (e.g. mock voltage 12.0)"));
         return;
     }
     sensor_mock::stopRamp(sensor_mock::RampField::Voltage);
@@ -139,7 +139,7 @@ static void handleVoltage(const char* args, Print& out) {
 static void handleStall(const char* args, Print& out) {
     bool v;
     if (!parseBool(args, &v)) {
-        out.println("[ERR] Usage: mock stall <0|1>");
+        out.println(F("[ERR] Usage: mock stall <0|1>"));
         return;
     }
     sensor_mock::get().stalled = v;
@@ -151,7 +151,7 @@ static void handleStall(const char* args, Print& out) {
 static void handleStroke(const char* args, Print& out) {
     bool v;
     if (!parseBool(args, &v)) {
-        out.println("[ERR] Usage: mock stroke <0|1>");
+        out.println(F("[ERR] Usage: mock stroke <0|1>"));
         return;
     }
     sensor_mock::get().overstroke = v;
@@ -177,7 +177,7 @@ static void handleColdhead(const char* args, Print& out) {
                      cold_head::getLastTempC());
             out.println(buf);
         } else {
-            out.println("[OK] Cold head RTD mock: inactive (real ADS122C04)");
+            out.println(F("[OK] Cold head RTD mock: inactive (real ADS122C04)"));
         }
         return;
     }
@@ -185,14 +185,14 @@ static void handleColdhead(const char* args, Print& out) {
     if (strncmp(args, "off", 3) == 0 &&
         (args[3] == '\0' || args[3] == ' ' || args[3] == '\t')) {
         cold_head::disableMock();
-        out.println("[OK] Cold head RTD mock disabled (takes full effect after reinit)");
+        out.println(F("[OK] Cold head RTD mock disabled (takes full effect after reinit)"));
         return;
     }
 
     float v;
     if (!parseFloat(args, &v)) {
-        out.println("[ERR] Usage: mock coldhead <K>  (e.g. mock coldhead 300)");
-        out.println("      or:    mock coldhead off");
+        out.println(F("[ERR] Usage: mock coldhead <K>  (e.g. mock coldhead 300)"));
+        out.println(F("      or:    mock coldhead off"));
         return;
     }
     cold_head::enableMock(v);
@@ -229,7 +229,7 @@ static void handleRamp(const char* args, Print& out) {
                 out.println(buf);
             }
         }
-        if (!anyActive) out.println("  No active ramps.");
+        if (!anyActive) out.println(F("  No active ramps."));
         return;
     }
 
@@ -238,18 +238,18 @@ static void handleRamp(const char* args, Print& out) {
         const char* field = skipWs(args + 4);
         if (field == nullptr || *field == '\0') {
             sensor_mock::stopAllRamps();
-            out.println("[OK] All ramps stopped");
+            out.println(F("[OK] All ramps stopped"));
         } else if (strncmp(field, "temp",    4) == 0) {
             sensor_mock::stopRamp(sensor_mock::RampField::Temp);
-            out.println("[OK] Temp ramp stopped");
+            out.println(F("[OK] Temp ramp stopped"));
         } else if (strncmp(field, "rms",     3) == 0) {
             sensor_mock::stopRamp(sensor_mock::RampField::Rms);
-            out.println("[OK] RMS ramp stopped");
+            out.println(F("[OK] RMS ramp stopped"));
         } else if (strncmp(field, "voltage", 7) == 0) {
             sensor_mock::stopRamp(sensor_mock::RampField::Voltage);
-            out.println("[OK] Voltage ramp stopped");
+            out.println(F("[OK] Voltage ramp stopped"));
         } else {
-            out.println("[ERR] Unknown field. Use: temp | rms | voltage");
+            out.println(F("[ERR] Unknown field. Use: temp | rms | voltage"));
         }
         return;
     }
@@ -268,8 +268,8 @@ static void handleRamp(const char* args, Print& out) {
         field = sensor_mock::RampField::Voltage;
         rest  = skipWs(args + 8);
     } else {
-        out.println("[ERR] Usage: mock ramp <temp|rms|voltage> <start> <end> <rate/min>");
-        out.println("      or:    mock ramp stop [temp|rms|voltage]");
+        out.println(F("[ERR] Usage: mock ramp <temp|rms|voltage> <start> <end> <rate/min>"));
+        out.println(F("      or:    mock ramp stop [temp|rms|voltage]"));
         return;
     }
 
@@ -292,7 +292,7 @@ static void handleRamp(const char* args, Print& out) {
     if (endPtr == rest) goto bad_args;
 
     if (ratePerMin <= 0.0f) {
-        out.println("[ERR] Rate must be > 0 (direction is derived from start/end values)");
+        out.println(F("[ERR] Rate must be > 0 (direction is derived from start/end values)"));
         return;
     }
 
@@ -312,9 +312,9 @@ static void handleRamp(const char* args, Print& out) {
     return;
 
 bad_args:
-    out.println("[ERR] Usage: mock ramp <temp|rms|voltage> <start> <end> <rate/min>");
-    out.println("  e.g.  mock ramp temp 300 77 3.5");
-    out.println("  e.g.  mock ramp voltage 24 10 1.0");
+    out.println(F("[ERR] Usage: mock ramp <temp|rms|voltage> <start> <end> <rate/min>"));
+    out.println(F("  e.g.  mock ramp temp 300 77 3.5"));
+    out.println(F("  e.g.  mock ramp voltage 24 10 1.0"));
 }
 
 /**
@@ -353,13 +353,13 @@ static void handleRelay(const char* args, Print& out) {
         isAmplifier = false;
         rest = skipWs(args + 10);
     } else {
-        out.println("[ERR] Usage: mock relay <amplifier|compressor> <on|off>");
+        out.println(F("[ERR] Usage: mock relay <amplifier|compressor> <on|off>"));
         return;
     }
 
     // ── parse on / off ────────────────────────────────────────────────────────
     if (rest == nullptr || *rest == '\0') {
-        out.println("[ERR] Usage: mock relay <amplifier|compressor> <on|off>");
+        out.println(F("[ERR] Usage: mock relay <amplifier|compressor> <on|off>"));
         return;
     }
 
@@ -369,7 +369,7 @@ static void handleRelay(const char* args, Print& out) {
     } else if (strncmp(rest, "off", 3) == 0 && (rest[3] == '\0' || rest[3] == ' ' || rest[3] == '\t')) {
         state = false;
     } else {
-        out.println("[ERR] Usage: mock relay <amplifier|compressor> <on|off>");
+        out.println(F("[ERR] Usage: mock relay <amplifier|compressor> <on|off>"));
         return;
     }
 
@@ -392,8 +392,8 @@ static void handleStatus(const char* /*args*/, Print& out) {
     char buf[80];
 
     out.println(sensor_mock::isActive()
-                    ? "[OK] Mock mode: ACTIVE"
-                    : "[OK] Mock mode: inactive (real hardware)");
+                    ? F("[OK] Mock mode: ACTIVE")
+                    : F("[OK] Mock mode: inactive (real hardware)"));
 
     snprintf(buf, sizeof(buf), "  temp     : %.3f C", mo.tempC);
     out.println(buf);

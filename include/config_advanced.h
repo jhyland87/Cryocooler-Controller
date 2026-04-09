@@ -158,7 +158,7 @@
 // A single EMC2303 three-channel PWM fan controller drives the fan (channel 0)
 // and the pump (channel 1).  Channel 2 is unused.
 
-#define EMC2303_I2C_ADDRESS  static_cast<uint8_t>(0x2F)
+#define EMC2303_I2C_ADDRESS  static_cast<uint8_t>(0x4D)
 
 // =============================================================================
 // Pump — duty-cycle normalisation & software LUT configuration

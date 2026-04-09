@@ -105,7 +105,7 @@ namespace hardware {
         #if ESP_ARDUINO_VERSION_MAJOR >= 3
         if (!i2cIsInit(0)) {
             ESP_LOGE("hardware", "Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
-            _Log.println("Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start");
+            _Log.println(F("Wire.begin() returned but i2cIsInit(0) is false — I2C driver failed to start"));
             return module::InitStatus::MODULE_INIT_HARDWARE_ERROR;
         }
         ESP_LOGD("hardware", "I2C bus 0 initialised (SDA=%d SCL=%d, handle=%p)",

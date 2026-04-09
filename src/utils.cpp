@@ -32,7 +32,7 @@ void i2cScan(Print& out) {
 #endif
 
     // ── Main bus scan ───────────────────────────────────────────────────────
-    out.println("Scanning main I2C bus (0x08-0x77)...");
+    out.println(F("Scanning main I2C bus (0x08-0x77)..."));
 
     uint8_t found = 0;
     for (uint8_t addr = 0x08u; addr <= 0x77u; ++addr) {
@@ -44,7 +44,7 @@ void i2cScan(Print& out) {
     }
 
     if (found == 0) {
-        out.println("  No devices found.");
+        out.println(F("  No devices found."));
     } else {
         out.printf("  %u device(s) found.\n", static_cast<unsigned>(found));
     }
@@ -92,7 +92,7 @@ void i2cScan(Print& out) {
     wire.write(static_cast<uint8_t>(0x00));
     wire.endTransmission();
 
-    out.println("Mux scan complete.");
+    out.println(F("Mux scan complete."));
 #endif
 }
 

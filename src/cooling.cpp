@@ -445,22 +445,45 @@ static module::InitStatus controllerInit() {
     // configuration registers — ensures register writes are not ignored.
     delay(5);
 
-    // ── Configure both channels for direct-drive PWM ────────────────────
+    // ── Global configuration (register 0x20) ────────────────────────────
+    // Bit 0: USE_EXT_CLK = 0 → use internal oscillator (no external clock)
+    // Bit 2: CLK_OVR     = 1 → override CLK pin to use internal clock
+    //                          even if the CLK pin is floating or unconnected
+    // Result: 0x04
+    controller_.writeRegister(EMC230X_REG_CONFIGURATION, 0x04);
+
+    // ── Configure all three channels for direct-drive PWM ───────────────
     // For each channel: disable RPM closed-loop, clear minimum drive,
     // disable spin-up (prevents full-speed blasts on tach stall), set
     // tach parameters, and apply the initial LUT duty.
-    for (uint8_t ch = 0; ch < 2; ch++) {
+    // Channel 2 is unused but configured to prevent stall alerts.
+    for (uint8_t ch = 0; ch < 3; ch++) {
         controller_.enableRPMControl(false, ch);
         controller_.setMinimumDrive(0, ch);
         // NOKICK=1, drive=0 %, time=0 — spin-up completely disabled
         controller_.writeRegister(0x36 + ch * 0x10, 0x20);
+        // Set Valid TACH Count to maximum (0xFF) — raises the stall
+        // threshold so slow fans at low duty aren't flagged.
+        controller_.writeRegister(0x39 + ch * 0x10, 0xFF);
         controller_.setFanPoles(2, ch);
         controller_.setPWMBaseFrequency(EMC230X_PWM_BASEFREQ_26KHZ, ch);
         controller_.setPWMDivisor(1, ch);
     }
 
-    controller_.setTachRange(EMC230X_RANGE_500RPM,  FAN_CHANNEL);
-    controller_.setTachRange(EMC230X_RANGE_1000RPM, PUMP_CHANNEL);
+    // Disable all fan interrupts — in direct-drive mode we don't need the
+    // chip to assert ALERT# for stall / spin-up / drive-fail conditions.
+    // Written AFTER per-channel config to ensure no method re-enables bits.
+    controller_.writeRegister(EMC230X_REG_FAN_INTERRUPT_EN, 0x00);
+
+    // Clear any latched status from POR / channel config by reading all
+    // status registers.  This releases ALERT# (open-drain returns HIGH).
+    (void)controller_.getFanStatusRegister();
+    (void)controller_.getStallStatusRegister();
+    (void)controller_.getSpinStatusRegister();
+    (void)controller_.getDriveFailStatusRegister();
+
+    controller_.setTachRange(EMC230X_RANGE_500RPM, FAN_CHANNEL);
+    controller_.setTachRange(EMC230X_RANGE_500RPM, PUMP_CHANNEL);
 
     // Apply initial duty from the lowest LUT entry for each channel.
     expectedDuty_[FAN_CHANNEL] = fanLut_.entries[0].duty;
@@ -479,7 +502,7 @@ static module::InitStatus controllerInit() {
 // init
 // ---------------------------------------------------------------------------
 module::InitStatus init() {
-    _Log.printf("Initializing cooling system\n");
+    _Log.println(F("Initializing cooling system"));
 
     // ── EMC2303 ───────────────────────────────────────────────────────────
     {
@@ -589,33 +612,10 @@ module::ServiceStatus service() {
     const uint32_t nowMs = millis();
     bool didWork = false;
 
-    // ── I2C liveness check ──────────────────────────────────────────────
-    // If the 12 V rail drops after boot, the EMC2303 loses power and I2C
-    // reads return NACK.  Send NaN so the dashboard shows a gap for this
-    // tick.  Demote init status so the deferred-init retry path (above)
-    // reconfigures the chip when 12 V returns — without this the EMC2303
-    // powers up in its default 100 % duty-cycle state.
-    //
-    // Report the failure to the I2C health monitor so that bus recovery
-    // is triggered — a device losing power mid-transaction can hold SDA
-    // low, blocking every other sensor on the shared bus.
-    if (!sensor_mock::isActive()) {
-        TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(EMC2303_I2C_ADDRESS);
-        if (i2c.endTransmission() != 0) {
-            hardware::reportI2cError();
-            hardware::recoverI2c();
-            coolantTemperature_ = NAN;
-            coolantFlowRate_    = NAN;
-            Module::overrideInitStatus(module::MODULE_INIT_HARDWARE_ERROR);
-            return module::MODULE_SERVICE_OK;
-        }
-    }
-
-    // ── 100 ms sensor sampling ──────────────────────────────────────────
-    // Skipped in mock mode — coolantTemperature_ / coolantFlowRate_ remain
-    // at whatever the mock layer last wrote (0 by default, keeping the
-    // tracking monitors in their reset state).
+    // ── 100 ms flow-sensor sampling ─────────────────────────────────────
+    // The Hall-effect flow sensor is purely GPIO / ISR-based — it must be
+    // sampled independently of the EMC2303 I2C health check below so that
+    // transient I2C NACKs don't zero-out the flow reading.
     if (!sensor_mock::isActive() &&
         (nowMs - lastSampleMs_) >= COOLING_SENSOR_SAMPLE_MS) {
 
@@ -648,6 +648,36 @@ module::ServiceStatus service() {
         coolantFlowRate_ = rpmToLph(rpmAvg_.getAverage()) / 60.0f;
 
         didWork = true;
+    }
+
+    // ── I2C liveness check ──────────────────────────────────────────────
+    // If the 12 V rail drops after boot, the EMC2303 loses power and I2C
+    // reads return NACK.  Demote init status so the deferred-init retry
+    // path (above) reconfigures the chip when 12 V returns.
+    //
+    // Require CONSECUTIVE failures before demoting — a single transient
+    // NACK (common on a shared bus) should not trigger a full re-init,
+    // which resets duty cycles and causes stall alerts.
+    static constexpr uint8_t I2C_FAIL_THRESHOLD = 3;
+    static uint8_t consecutiveI2cFailures = 0;
+
+    if (!sensor_mock::isActive()) {
+        TwoWire& i2c = hardware::i2c();
+        i2c.beginTransmission(EMC2303_I2C_ADDRESS);
+        if (i2c.endTransmission() != 0) {
+            ++consecutiveI2cFailures;
+            if (consecutiveI2cFailures >= I2C_FAIL_THRESHOLD) {
+                _Log.printf("I2C: %u consecutive failures — demoting to HARDWARE_ERROR\n",
+                            consecutiveI2cFailures);
+                hardware::reportI2cError();
+                hardware::recoverI2c();
+                coolantTemperature_ = NAN;
+                consecutiveI2cFailures = 0;
+                Module::overrideInitStatus(module::MODULE_INIT_HARDWARE_ERROR);
+            }
+            return module::MODULE_SERVICE_OK;
+        }
+        consecutiveI2cFailures = 0;  // reset on success
     }
 
     // ── 1000 ms tracker update ──────────────────────────────────────────
@@ -731,31 +761,39 @@ module::ServiceStatus service() {
         const uint8_t spinStatusReg      = controller_.getSpinStatusRegister();
         const uint8_t driveFailStatusReg = controller_.getDriveFailStatusRegister();
 
-        if (!fanFaultActive_) {
-            // Rising edge — first detection this episode
-            fanFaultActive_  = true;
-            fanFaultSinceMs_ = nowMs;
-        }
+        // 0xFF on ANY register likely means the I2C read failed (bus
+        // returned all-ones for that byte).  Discard the entire set —
+        // partial garbage is not actionable.
+        const bool bogusRead = (fanStatusReg == 0xFF || stallStatusReg == 0xFF ||
+                                spinStatusReg == 0xFF || driveFailStatusReg == 0xFF);
 
-        // Log only when the status pattern changes (avoids spam from
-        // sustained low-duty stall at low RPM).
-        if (fanStatusReg != lastFanStatus_ || stallStatusReg != lastStallStatus_ ||
-            spinStatusReg != lastSpinStatus_ || driveFailStatusReg != lastDriveStatus_) {
-            lastFanStatus_   = fanStatusReg;
-            lastStallStatus_ = stallStatusReg;
-            lastSpinStatus_  = spinStatusReg;
-            lastDriveStatus_ = driveFailStatusReg;
+        if (!bogusRead) {
+            if (!fanFaultActive_) {
+                // Rising edge — first detection this episode
+                fanFaultActive_  = true;
+                fanFaultSinceMs_ = nowMs;
+            }
 
-            _Log.printf("ALERT# asserted — fan=0x%02X stall=0x%02X spin=0x%02X drive=0x%02X\n",
-                        fanStatusReg, stallStatusReg, spinStatusReg, driveFailStatusReg);
+            // Log only when the status pattern changes (avoids spam from
+            // sustained low-duty stall at low RPM).
+            if (fanStatusReg != lastFanStatus_ || stallStatusReg != lastStallStatus_ ||
+                spinStatusReg != lastSpinStatus_ || driveFailStatusReg != lastDriveStatus_) {
+                lastFanStatus_   = fanStatusReg;
+                lastStallStatus_ = stallStatusReg;
+                lastSpinStatus_  = spinStatusReg;
+                lastDriveStatus_ = driveFailStatusReg;
 
-            // Decode individual bits (2 channels → bits 0 and 1)
-            if (stallStatusReg & 0x01) _Log.println("  ch0 (fan):  STALL detected");
-            if (stallStatusReg & 0x02) _Log.println("  ch1 (pump): STALL detected");
-            if (spinStatusReg  & 0x01) _Log.println("  ch0 (fan):  spin-up FAIL");
-            if (spinStatusReg  & 0x02) _Log.println("  ch1 (pump): spin-up FAIL");
-            if (driveFailStatusReg & 0x01) _Log.println("  ch0 (fan):  drive FAIL");
-            if (driveFailStatusReg & 0x02) _Log.println("  ch1 (pump): drive FAIL");
+                _Log.printf("ALERT# asserted — fan=0x%02X stall=0x%02X spin=0x%02X drive=0x%02X\n",
+                            fanStatusReg, stallStatusReg, spinStatusReg, driveFailStatusReg);
+
+                // Decode individual bits (3 channels → bits 0, 1, 2)
+                if (stallStatusReg & 0x01) _Log.println(F("  ch0 (fan):  STALL detected"));
+                if (stallStatusReg & 0x02) _Log.println(F("  ch1 (pump): STALL detected"));
+                if (spinStatusReg  & 0x01) _Log.println(F("  ch0 (fan):  spin-up FAIL"));
+                if (spinStatusReg  & 0x02) _Log.println(F("  ch1 (pump): spin-up FAIL"));
+                if (driveFailStatusReg & 0x01) _Log.println(F("  ch0 (fan):  drive FAIL"));
+                if (driveFailStatusReg & 0x02) _Log.println(F("  ch1 (pump): drive FAIL"));
+            }
         }
     } else {
         // ALERT# released — fault cleared

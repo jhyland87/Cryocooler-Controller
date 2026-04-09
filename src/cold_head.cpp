@@ -413,7 +413,7 @@ void checkFaults() {
     // Faults are detected during service() via DRDY timeout and plausibility
     // checks.  This function is retained for API compatibility.
     if (sRtdFaultActive) {
-        _Log.println("ADS122C04: sensor fault active (DRDY timeout or out-of-range reading)");
+        _Log.println(F("ADS122C04: sensor fault active (DRDY timeout or out-of-range reading)"));
     }
 }
 
@@ -554,7 +554,7 @@ void enableMock(float tempC) {
 
 void disableMock() {
     sLocalMockEnabled = false;
-    _Log.println("Local RTD mock disabled — will use real ADS122C04 after next reinit");
+    _Log.println(F("Local RTD mock disabled — will use real ADS122C04 after next reinit"));
 }
 
 bool isMockEnabled() {

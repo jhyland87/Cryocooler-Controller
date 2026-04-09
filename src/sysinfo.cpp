@@ -134,21 +134,26 @@ module::ServiceStatus service() {
     }
 
     // I2C ping: when 12 V drops, the INA237 goes offline (NACK).
-    // Send NaN so the dashboard shows a gap for this tick.
+    // Require consecutive failures before reporting an error — a single
+    // transient NACK (common on a shared bus) should not flip the service
+    // status and spam the log.
     {
         TwoWire& i2c = hardware::i2c();
         i2c.beginTransmission(INA237_I2CADDR_DEFAULT);
         if (i2c.endTransmission() != 0) {
-            voltage = NAN;
-            current = NAN;
-            power   = NAN;
-            if (++sIna237Errors >= MAX_I2C_ERRORS) {
+            ++sIna237Errors;
+            if (sIna237Errors >= MAX_I2C_ERRORS) {
                 sIna237Disabled = true;
-                ESP_LOGW("sysinfo", "INA237 offline after %u errors — disabled until reinit", sIna237Errors);
-                Serial.printf("[sysinfo] INA237 disabled — %u consecutive I2C errors\n", sIna237Errors);
+                ESP_LOGW("sysinfo", "INA237 offline after %u consecutive errors — disabled until reinit",
+                         sIna237Errors);
                 hardware::recoverI2c();
+                voltage = NAN;
+                current = NAN;
+                power   = NAN;
+                return module::MODULE_SERVICE_ERROR;
             }
-            return module::MODULE_SERVICE_ERROR;
+            // Transient failure — keep last-known-good values, don't report error
+            return module::MODULE_SERVICE_OK;
         }
     }
 
