@@ -1041,6 +1041,12 @@ void reinit() {
     fsmTrigger(EVT_REINITIALIZE, "reinit");
 }
 
+void triggerFault(FaultReason reason) {
+    if (getState() == State::Fault) return;
+    faultReason = reason;
+    fsmTrigger(EVT_FAULT, "external_fault");
+}
+
 FaultReason getFaultReason() {
     return faultReason;
 }

@@ -161,6 +161,12 @@
 #define EMC2303_I2C_ADDRESS  static_cast<uint8_t>(0x4D)
 
 // =============================================================================
+// SparkFun Qwiic Single Relay — compressor
+// =============================================================================
+// Default I2C address (0x18).  Jumper to 0x19 if address conflicts arise.
+#define COMPRESSOR_RELAY_ADDR        static_cast<uint8_t>(0x19)
+
+// =============================================================================
 // Pump — duty-cycle normalisation & software LUT configuration
 // =============================================================================
 

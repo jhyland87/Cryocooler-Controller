@@ -9,6 +9,7 @@
 #define COLD_HEAD_H
 
 #include <stdint.h>
+#include "config.h"
 #include "module.h"
 #include "tracking.h"
 #include "tick.h"
@@ -202,6 +203,7 @@ module::ServiceStatus service();
 struct Module : ModuleBase<Module> {
     static module::InitStatus init() { return _initStatus = cold_head::init(); }
     static module::ServiceStatus service() { return _serviceStatus = cold_head::service(); }
+    static constexpr float minSystemVoltage() { return MIN_MODULE_VOLTAGE_VDC; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

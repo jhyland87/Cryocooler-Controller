@@ -18,6 +18,7 @@
 #define COMPRESSOR_H
 
 #include <stdint.h>
+#include "config.h"
 #include "module.h"
 #include "tick.h"
 
@@ -96,6 +97,7 @@ struct Module : ModuleBase<Module> {
         compressor::service();
         return _serviceStatus = module::MODULE_SERVICE_OK;
     }
+    static constexpr float minSystemVoltage() { return MIN_MODULE_VOLTAGE_VDC; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

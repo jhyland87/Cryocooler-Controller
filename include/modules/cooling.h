@@ -7,6 +7,7 @@
 #define COOLING_H
 
 #include <stdint.h>
+#include "config.h"
 #include "module.h"
 #include "tracking.h"
 
@@ -116,6 +117,7 @@ struct Module : ModuleBase<Module> {
     static void enable()                   { cooling::enable(); }
     static void disable()                  { cooling::disable(); }
     static bool isEnabled()                { return cooling::isEnabled(); }
+    static constexpr float minSystemVoltage() { return MIN_MODULE_VOLTAGE_VDC; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

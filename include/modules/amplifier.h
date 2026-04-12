@@ -257,6 +257,7 @@ bool checkOutput(float tolerance = 0.15f);
 struct Module : ModuleBase<Module> {
     static module::InitStatus    init()    { return _initStatus    = amplifier::init(); }
     static module::ServiceStatus service() { return _serviceStatus = amplifier::service(); }
+    static constexpr float minSystemVoltage() { return MIN_MODULE_VOLTAGE_VDC; }
 };
 
 ASSERT_MODULE_INTERFACE(Module);

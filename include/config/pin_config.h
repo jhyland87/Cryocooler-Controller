@@ -50,7 +50,8 @@
 // the RMT peripheral and interferes with the real status LED on GPIO 38.
 #define READY_IND_PIN      15
 
-
+// Power kill switch (active LOW).
+#define PWR_KILL_PIN      10
 
 // =============================================================================
 // SPI Bus (used by AD9833)
@@ -61,6 +62,8 @@
 #define SPI_MOSI          41    // Master Out Slave In  (MCP4921 SDI + AD9833 SDATA)
 #define SPI_CLK           42    // SPI Clock
 
+
+#define ACS37800_CS       43
 // =============================================================================
 // Alphacool ES High Flow + Temperature Sensor
 // =============================================================================
@@ -82,11 +85,6 @@
 // =============================================================================
 #define STATUS_LED_PIN     RGB_LED_PIN   // Common for on-board RGB on ESP32-S3 DevKit
 
-// =============================================================================
-// SparkFun Qwiic Single Relay — compressor
-// =============================================================================
-// Default I2C address (0x18).  Jumper to 0x19 if address conflicts arise.
-#define COMPRESSOR_RELAY_ADDR        0x19
 
 // =============================================================================
 // Amplifier Relay — GPIO-driven (active HIGH closes relay)

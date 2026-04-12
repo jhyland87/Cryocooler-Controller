@@ -1102,6 +1102,15 @@ static void handleLogLevel(const char* args, Print& out) {
 }
 #endif  // ARDUINO (log level)
 
+static void handleShutdown(const char* /*args*/, Print& out) {
+    pinMode(PWR_KILL_PIN, OUTPUT);
+    out.println(F("[OK] Shutdown requested... This will require a manual power on to restart"));
+    digitalWrite(PWR_KILL_PIN, LOW);
+    delay(100);
+    digitalWrite(PWR_KILL_PIN, HIGH);
+    out.println(F("[OK] System shutdown"));
+}
+
 // ─── Command table ────────────────────────────────────────────────────────────
 // Multi-word commands ("telemetry off") must appear before any shorter prefix
 // command ("telemetry on") so the match loop finds the most specific one first.
@@ -1161,6 +1170,7 @@ static const Command commandMap[] = {
     {"ota status",          handleOtaStatus,       "Print OTA partition info, firmware version, and endpoint URL"},
     {"update image",        handleUpdateImage,     "Flash new firmware via HTTP upload (prompts for confirmation)"},
     {"log level",           handleLogLevel,        "Set runtime log level: <0-5|off|error|warn|info|debug|verbose>"},
+    {"shutdown",            handleShutdown,        "Shutdown the system"},
 #endif
 };
 

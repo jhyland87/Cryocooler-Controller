@@ -331,6 +331,16 @@ void loop() {
     //Serial.printf("overstroke: %d\n", overstroke);
     const float sysVoltage  = sysinfo::getVoltage();
     //Serial.printf("sysVoltage: %f\n", sysVoltage);
+
+    // ── Module undervoltage protection ───────────────────────────────────
+    // Check every control module's minSystemVoltage() against the current
+    // bus reading.  Modules whose threshold is breached are disabled and
+    // demoted to UNDERVOLTAGE; they require a reinit to come back.
+    // If any module was shut down, transition the FSM to Fault.
+    if (module::checkVoltage(controlModules, NUM_CONTROL, sysVoltage, logPrintf)) {
+        state_machine::triggerFault(state_machine::FaultReason::LowSystemVoltage);
+    }
+
     // ---- 2. Advance state machine ---------------------------------------
     const auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, overstroke, sysVoltage);
     // Clear edge-triggered overstroke flag after the state machine has consumed

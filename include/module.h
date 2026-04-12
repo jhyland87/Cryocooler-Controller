@@ -95,14 +95,15 @@
     X(DEPENDENCY_ERROR, "dependency error", "a required dependency (bus, other module) is unavailable") \
     X(CONFIG_ERROR,     "config error",     "invalid or missing configuration")                        \
     X(TIMEOUT,          "timeout",          "init() exceeded its allowed time budget")                 \
+    X(UNDERVOLTAGE,     "undervoltage",     "system voltage below module minimum — reinit required")   \
     X(UNKNOWN_ERROR,    "unknown error",    "catch-all for unexpected failures")
 
 /** ServiceStatus values.  Shared by the enum definition and serviceStatusName(). */
 #define MODULE_SERVICE_STATUS(X) \
-    X(NOT_STARTED, "not started", "service() has not been called yet")                      \
-    X(OK,      "ok",      "ran and produced valid output this tick")                      \
-    X(SKIPPED, "skipped", "skipped this tick (time-gated, disabled, no new data, etc.)") \
-    X(ERROR,   "error",   "a recoverable error occurred; output may be stale")
+    X(NOT_STARTED,  "not started",  "service() has not been called yet")                      \
+    X(OK,           "ok",           "ran and produced valid output this tick")                      \
+    X(SKIPPED,      "skipped",      "skipped this tick (time-gated, disabled, no new data, etc.)") \
+    X(ERROR,        "error",        "a recoverable error occurred; output may be stale")
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -194,6 +195,16 @@ struct ModuleBase {
      * Default: always enabled.
      */
     static bool isEnabled() { return true; }
+
+    /**
+     * Minimum system voltage (V) required for this module to operate.
+     * When the measured bus voltage drops below this threshold the module is
+     * disabled and demoted to MODULE_INIT_UNDERVOLTAGE.  It will NOT
+     * re-enable automatically when voltage recovers — a reinit is required.
+     *
+     * Default: 0.0f (no voltage requirement / not monitored).
+     */
+    static constexpr float minSystemVoltage() { return 0.0f; }
 
     /**
      * Return the InitStatus produced by the most recent init() call.
@@ -330,7 +341,10 @@ struct ModuleEntry {
     InitStatus     (*getInitStatus)();
     ServiceStatus  (*serviceFn)();
     ServiceStatus  (*getServiceStatus)();
-    bool           fatal;   ///< true = halt startup if init fails
+    bool           fatal;              ///< true = halt startup if init fails
+    float          minSystemVoltage;   ///< 0.0f = no voltage requirement
+    void           (*disableFn)();     ///< safe to call even if module has no disable()
+    void           (*overrideInitStatusFn)(InitStatus);
 };
 
 /**
@@ -351,7 +365,10 @@ struct ModuleEntry {
     ns::Module::getInitStatus,           \
     ns::Module::service,                 \
     ns::Module::getServiceStatus,        \
-    isFatal                              \
+    isFatal,                             \
+    ns::Module::minSystemVoltage(),      \
+    ns::Module::disable,                 \
+    ns::Module::overrideInitStatus       \
 }
 
 /**
@@ -427,6 +444,47 @@ inline void serviceWithLog(const ModuleEntry& entry,
               serviceStatusName(cur));
     }
     prevStatus = cur;
+}
+
+/**
+ * Check system voltage against each module's minimum requirement.
+ *
+ * For every module in the array whose minSystemVoltage > 0 and whose
+ * current init status is SUCCESS: if @p voltage is valid (> 0) and below
+ * the module's minimum, the module is disabled and demoted to
+ * MODULE_INIT_UNDERVOLTAGE.  Recovery requires a reinit — the module
+ * will NOT re-enable automatically when voltage recovers.
+ *
+ * @param entries  Array of ModuleEntry descriptors.
+ * @param count    Number of entries in the array.
+ * @param voltage  Current system bus voltage (V).  0 / NaN = not monitored.
+ * @param logFn    Printf-style log function.
+ * @return         true if any module was shut down this call.
+ */
+template<typename LogFn>
+inline bool checkVoltage(const ModuleEntry* entries, size_t count,
+                         float voltage, LogFn&& logFn) {
+    // Skip check when voltage is unavailable (0, negative, or NaN).
+    if (!(voltage > 0.0f)) return false;
+
+    bool anyShutDown = false;
+    for (size_t i = 0; i < count; ++i) {
+        const auto& m = entries[i];
+
+        // Only act on modules with a voltage requirement that are currently running.
+        if (m.minSystemVoltage <= 0.0f)                      continue;
+        if (m.getInitStatus() != MODULE_INIT_SUCCESS)        continue;
+
+        if (voltage < m.minSystemVoltage) {
+            logFn("[voltage] %s: %.2fV below minimum %.1fV — disabling (reinit required)\n",
+                  m.name, static_cast<double>(voltage),
+                  static_cast<double>(m.minSystemVoltage));
+            m.disableFn();
+            m.overrideInitStatusFn(MODULE_INIT_UNDERVOLTAGE);
+            anyShutDown = true;
+        }
+    }
+    return anyShutDown;
 }
 
 /**

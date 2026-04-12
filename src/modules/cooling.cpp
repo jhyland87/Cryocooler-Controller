@@ -561,6 +561,12 @@ module::ServiceStatus service() {
     // 12 V rail.  If 12 V is absent at boot, init() fails and service()
     // would permanently bail out.  Retry controllerInit() once per second
     // until the chip appears, then promote the module to INIT_SUCCESS.
+    //
+    // UNDERVOLTAGE is an intentional shutdown — do not attempt recovery.
+    // The operator must reinit once system voltage is restored.
+    if (Module::getInitStatus() == module::MODULE_INIT_UNDERVOLTAGE) {
+        return module::MODULE_SERVICE_NOT_STARTED;
+    }
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         static uint32_t lastRetryMs = 0;
         const uint32_t now = millis();

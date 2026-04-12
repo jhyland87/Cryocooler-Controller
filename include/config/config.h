@@ -155,6 +155,16 @@
 // Set to 0.0f to disable (treated as "not monitored").
 #define MIN_SYSTEM_VOLTAGE_VDC  static_cast<float>(11.5f)
 
+// Minimum voltage (V) for 12 V-dependent control hardware modules
+// (cooling, amplifier, cold_head, compressor).  When the bus voltage
+// drops below this threshold, each module is individually disabled and
+// demoted to UNDERVOLTAGE.  Recovery requires a reinit — modules do NOT
+// re-enable automatically when voltage returns.
+//
+// This fires before the FSM-level MIN_SYSTEM_VOLTAGE_VDC fault (11.5 V)
+// to give the modules a chance to shut down outputs gracefully.
+#define MIN_MODULE_VOLTAGE_VDC  static_cast<float>(11.0f)
+
 // =============================================================================
 // ACS712 AC Current Sensor — calibration
 // =============================================================================

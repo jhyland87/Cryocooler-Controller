@@ -310,6 +310,17 @@ void setOnInitializeCallback(void (*cb)());
  */
 void reinit();
 
+/**
+ * Force a transition to the Fault state with the given reason bitmask.
+ *
+ * Used by external subsystems (e.g. module voltage monitoring) to trigger
+ * a fault from outside the normal update() path.  Has no effect if the
+ * machine is already in State::Fault.
+ *
+ * @param reason  One or more FaultReason bits OR'd together.
+ */
+void triggerFault(FaultReason reason);
+
 /** Return the current fault reason (FaultReason::None if not in Fault). */
 FaultReason getFaultReason();
 
