@@ -40,7 +40,7 @@
 
 // FAULT indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
-#define FAULT_IND_PIN      13
+#define FAULT_IND_PIN      14
 
 // READY indicator (active HIGH).
 // TODO: assign to actual wired GPIO before deployment.
@@ -63,7 +63,12 @@
 #define SPI_CLK           42    // SPI Clock
 
 
-#define ACS37800_CS       43
+// ACS37800 Power Monitor — dedicated SPI3 bus (SPI3_HOST)
+// Separate bus required: ACS37800 keeps MISO driven when CS is HIGH.
+#define ACS37800_CS        43
+#define ACS37800_SPI_CLK   11
+#define ACS37800_SPI_MOSI  12
+#define ACS37800_SPI_MISO  13
 // =============================================================================
 // Alphacool ES High Flow + Temperature Sensor
 // =============================================================================

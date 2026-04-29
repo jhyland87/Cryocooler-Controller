@@ -50,8 +50,8 @@ static bool sRelayOn = false;
 // Waveform generator (AD9833 over SPI)
 static MD_AD9833 ad9833_(AD9833_CS);
 
-// RMS power monitor (ACS37800 over I2C)
-static ACS37800 acs_;
+// RMS power monitor (ACS37800 over SPI — dedicated SPI3 bus)
+static ACS37800 acs_(&hardware::acsSpi(), ACS37800_CS);
 static bool sAcsAvailable = false;
 
 // MCP4921 12-bit SPI DAC — amplitude control
@@ -197,17 +197,17 @@ module::InitStatus init() {
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
-    // out of the amplifier.
-    // _Log.println(F("Initializing ACS37800 (VOUT - Power Monitor)..."));
-    // {
-    //     const module::InitStatus status = initAcs();
-    //     if (status != module::MODULE_INIT_SUCCESS) {
-    //         ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
-    //         _Log.printf("ACS37800 initialization failed: %d\n", static_cast<int>(status));
-    //         return status;
-    //     }
-    // }
-    // _Log.println(F("ACS37800 initialized"));
+    // out of the amplifier.  Uses a dedicated SPI3 bus (see hardware.cpp).
+    _Log.println(F("Initializing ACS37800 (VOUT - Power Monitor, SPI)..."));
+    {
+        const module::InitStatus status = initAcs();
+        if (status != module::MODULE_INIT_SUCCESS) {
+            ESP_LOGE(TAG, "ACS37800 initialization failed: %d", static_cast<int>(status));
+            _Log.printf("ACS37800 initialization failed: %d\n", static_cast<int>(status));
+            return status;
+        }
+    }
+    _Log.println(F("ACS37800 initialized"));
 
     // -- AD9833 waveform generator --------------------------------------------
     // This is the waveform generator that generates the sine wave that is
@@ -264,26 +264,30 @@ module::InitStatus initAcs() {
     // to produce valid readings.  With EN held LOW the chip outputs full-scale
     // values on all channels (~130 VAC / max current), which looks like a real
     // over-voltage reading and will immediately trigger an RmsOvervoltage fault.
-    acs_.setBus(&hardware::i2c());
+
+    // Probe: read a known register to verify SPI communication works.
+    // Reading the RMS register with no load returns all zeros, which is
+    // indistinguishable from "no device present".  Instead, read a register
+    // that has a known non-zero default.  Register 0x1F (shadow config)
+    // has factory defaults that are never all-zero or all-ones on a real chip.
+    uint32_t probe = acs_.readReg(0x1F);
+    bool connected = (probe != 0x00000000 && probe != 0xFFFFFFFF);
+
+    ESP_LOGI(TAG, "ACS37800 SPI probe: reg 0x1F = 0x%08X (%s)",
+             probe, connected ? "connected" : "not found");
+
+    if (!connected) {
+        ESP_LOGW(TAG, "ACS37800 not detected on SPI — power monitor disabled");
+        _Log.println(F("ACS37800 not found on SPI — power monitor disabled"));
+        sAcsAvailable = false;
+        return module::MODULE_INIT_SUCCESS;  // non-fatal
+    }
+
     acs_.setBoardPololu(4);
     acs_.setSampleCount(0);
 
-    // Do a real read probe — address-only probes are unreliable (ghost ACKs).
-    // A single failed read may generate Error 263, so recover the bus after.
-    acs_.readRMSVoltageAndCurrent();
-    bool valid = (acs_.rmsVoltageMillivolts != 0 || acs_.rmsCurrentMilliamps != 0)
-              && acs_.rmsVoltageMillivolts < 500000;  // sanity: <500V
-
-    if (!valid) {
-        ESP_LOGW(TAG, "ACS37800 not found at 0x%02X — power monitor disabled",
-                 acs_.getAddress());
-        _Log.println(F("ACS37800 not found — power monitor disabled"));
-        sAcsAvailable = false;
-        hardware::recoverI2c();
-        return module::MODULE_INIT_SUCCESS;
-    }
-
     sAcsAvailable = true;
+    ESP_LOGI(TAG, "ACS37800 SPI power monitor initialised (CS=GPIO%d)", ACS37800_CS);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -446,8 +450,28 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    // Skip all ACS37800 I2C traffic when the chip is absent.  A failed read
-    // (Error 263) leaves the bus stuck and kills downstream devices like the DAC.
+    // -- DEBUG: dump raw ACS37800 register contents periodically -------------
+    // Runs regardless of sAcsAvailable so we can see what SPI reads return
+    // even when the init probe failed.  Remove once SPI is confirmed working.
+    {
+        static uint32_t debugCounter = 0;
+        if (++debugCounter % 10 == 0) {  // log roughly every 2 s at 200 ms tick
+            uint32_t reg1F = acs_.readReg(0x1F);  // shadow config (probed at init)
+            uint32_t reg20 = acs_.readReg(0x20);  // RMS V/I codes
+            uint32_t reg2A = acs_.readReg(0x2A);  // instantaneous V/I codes
+            ESP_LOGI(TAG,
+                     "ACS raw: 0x1F=0x%08X 0x20=0x%08X (vrms=%u irms=%u) 0x2A=0x%08X (v=%d i=%d) [avail=%d]",
+                     reg1F, reg20,
+                     (unsigned)(uint16_t)reg20,
+                     (unsigned)(uint16_t)(reg20 >> 16),
+                     reg2A,
+                     (int)(int16_t)reg2A,
+                     (int)(int16_t)(reg2A >> 16),
+                     sAcsAvailable ? 1 : 0);
+        }
+    }
+
+    // Skip all ACS37800 SPI traffic when the chip is absent or offline.
     if (!sAcsAvailable) {
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
@@ -456,35 +480,15 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_OK;
     }
 
-    // I2C check: when 12 V drops, the ACS37800 goes offline (NACK).
-    // A failed read (Error 263) corrupts the I2C bus, so on the first failure
-    // we permanently disable the ACS37800 and recover the bus.
-    {
-        TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(acs_.getAddress());
-        if (i2c.endTransmission() != 0) {
-            ESP_LOGW(TAG, "ACS37800 offline — permanently disabled to protect I2C bus");
-            _Log.println(F("ACS37800 offline — disabled"));
-            sAcsAvailable = false;
-            hardware::recoverI2c();
-            lastRmsVoltage_     = NAN;
-            lastRmsCurrent_     = NAN;
-            lastApparentPowerW_ = NAN;
-            lastFrequency_      = NAN;
-            return module::MODULE_SERVICE_ERROR;
-        }
-    }
-
     acs_.readRMSVoltageAndCurrent();
 
-    // Safety net: if the read returned garbage (bus error, device gone),
-    // permanently disable the ACS37800 and recover the bus immediately.
+    // Safety net: if the read returned garbage (device gone or SPI error),
+    // permanently disable the ACS37800.
     if (acs_.rmsVoltageMillivolts >= 500000) {  // >500V is impossible
-        ESP_LOGW(TAG, "ACS37800 read returned garbage (%u mV) — permanently disabled",
+        ESP_LOGW(TAG, "ACS37800 read returned garbage (%d mV) — permanently disabled",
                  acs_.rmsVoltageMillivolts);
         _Log.println(F("ACS37800 bad read — disabled"));
         sAcsAvailable = false;
-        hardware::recoverI2c();
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
         lastApparentPowerW_ = NAN;

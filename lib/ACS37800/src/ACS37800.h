@@ -1,76 +1,64 @@
 // Copyright (C) Pololu Corporation.  See LICENSE.txt for details.
+// Modified: Added SPI transport support alongside original I2C.
 
 /// \file ACS37800.h
 ///
-/// This is the main header file for the ACS37800 power monitoring library
-/// for Arduino.
+/// ACS37800 power monitoring library for Arduino — I2C and SPI.
 ///
-/// For more information about the library, see the main repository at:
+/// Original I2C-only library by Pololu:
 /// https://github.com/pololu/acs37800-arduino
+///
+/// SPI transport added for ACS37800 SPI-variant ICs.  The register map
+/// is identical between I2C and SPI; only the physical transport differs.
 
 #pragma once
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <SPI.h>
 
 class ACS37800
 {
 public:
-  /// Creates a new ACS37800 object.
-  ///
-  /// The `address` parameter specifies the 7-bit I2C address to use, and it
-  /// must match the address that the ACS37800 is configured to use.
+  enum class Transport : uint8_t { I2C, SPI };
+
+  /// Creates a new ACS37800 object configured for I2C.
   ACS37800(uint8_t address = 0x60, TwoWire * bus = &Wire)
-    : bus(bus), address(address) {}
+    : transport_(Transport::I2C), bus_(bus), address_(address),
+      spiBus_(nullptr), csPin_(0) {}
 
-  /// Configures this object to use the specified I2C bus.
-  /// The default bus is Wire, which is typically the first or only I2C bus on
-  /// an Arduino.  To use Wire1 instead, you can write:
-  /// ```{.cpp}
-  /// acs.setBus(&Wire1);
-  /// ```
-  /// \param bus A pointer to a TwoWire object representing the I2C bus to use.
-  void setBus(TwoWire * bus)
-  {
-    this->bus = bus;
-  }
+  /// Creates a new ACS37800 object configured for SPI.
+  ///
+  /// The SPI bus must be initialised (begin() called) before any reads/writes.
+  /// The CS pin is managed by this class (driven LOW during transactions).
+  ACS37800(SPIClass * spiBus, uint8_t csPin)
+    : transport_(Transport::SPI), bus_(nullptr), address_(0),
+      spiBus_(spiBus), csPin_(csPin) {}
 
-  /// Returns a pointer to the I2C bus that this object is configured to
-  /// use.
-  TwoWire * getBus()
-  {
-    return this->bus;
-  }
+  /// Returns the transport mode this object is configured for.
+  Transport getTransport() { return transport_; }
 
-  /// Configures this object to use the specified 7-bit I2C address.
-  /// This must match the address that the ACS37800 is configured to use,
-  /// which is a function of its EEPROM settings and its DIO_0 and DIO_1
-  /// connections.
-  void setAddress(uint8_t address)
-  {
-    this->address = address;
-  }
+  /// Configures this object to use the specified I2C bus.  I2C mode only.
+  void setBus(TwoWire * bus) { bus_ = bus; }
 
-  /// Returns the 7-bit I2C address that this object is configured to use.
-  uint8_t getAddress()
-  {
-    return address;
-  }
+  /// Returns a pointer to the I2C bus.  I2C mode only.
+  TwoWire * getBus() { return bus_; }
 
-  /// Returns 0 if the last communication with the device was successful, or
-  /// a non-zero error code if there was an error.
-  uint8_t getLastError()
-  {
-    return lastError;
-  }
+  /// Configures this object to use the specified 7-bit I2C address.  I2C only.
+  void setAddress(uint8_t address) { address_ = address; }
+
+  /// Returns the 7-bit I2C address.  I2C mode only.
+  uint8_t getAddress() { return address_; }
+
+  /// Returns 0 if the last communication was successful, or a non-zero error
+  /// code if there was an error.
+  uint8_t getLastError() { return lastError; }
 
   /// Configures this object to use the right calculation parameters for a
   /// Pololu ACS37800 isolated power monitor carrier board.
   ///
   /// The `rsense_kohm` argument should be the Rsense value of your board, in
-  /// units of kilohms, which depends on the jumper settings of your board.
-  /// See the "Voltage measurement ranges" section of your board's product page
-  /// to determine the Rsense value.  Valid values are 1, 2, and 4.
+  /// units of kilohms.  Valid values are 1, 2, and 4.
   void setBoardPololu(uint8_t rsense_kohm)
   {
     icodesMult = 17873;
@@ -99,24 +87,7 @@ public:
     }
   }
 
-  /// Configures this object to use the right calculation paramters for a
-  /// generic board.
-  ///
-  /// If you're using a Pololu board, use setBoardPololu() instead of this
-  /// function to save a significant amount of program space.
-  ///
-  /// The isense_range parameter should be the current sensing range of the
-  /// ACS37800 IC in units of amps, which depends on the specific part number
-  /// of the chip and is specified in the datasheet.  Typical values are
-  /// 15, 30, and 90.
-  ///
-  /// The riso parameter is the resistance between the ACS37800's VINN pin and
-  /// the negative voltage sensing terminal of the board, plus the resistance
-  /// between the ACS37800's VINP pin and the positive voltage sensing terminal
-  /// of the board, in ohms.
-  ///
-  /// The rsense parameter is the resistance between the ACS37800's voltage
-  /// sensing pins, VINN and VINP, in ohms.
+  /// Configures calculation parameters for a generic board.
   void setBoardParameters(uint8_t isense_range, uint32_t riso, uint32_t rsense)
   {
     calculateApproximation(riso + rsense, 110 * rsense,
@@ -128,23 +99,14 @@ public:
       pinstantMult, pinstantShift);
   }
 
-  /// This function writes a special code to the ACS37800 to unlock it, which is
-  /// a prerequisite for most other register writes.  Most users should not need
-  /// to call this function directly, because it is called by the functions
-  /// that need it.
+  /// Writes the ACCESS_CODE to unlock register writes.
   void enableWriteAccess()
   {
-    writeReg(0x2F, 0x4F70656E);  // write ACCESS_CODE
+    writeReg(0x2F, 0x4F70656E);
   }
 
-  /// Configures the sensor to use the specified number of samples for RMS and
-  /// power calculations.  Samples are taken at 32 kHz.
-  /// The count should be a number between 0 and 1023.
-  /// 1, 2, and 3 are treated the same as 4 by the ACS37800.
-  /// 0 means to take samples from one voltage zero crossing to the next,
-  /// instead of taking a fixed number of samples.
-  /// This function only reads and writes from the shadow registers, not EEPROM,
-  /// so the settings it applies will not be stored permanently.
+  /// Configures the number of samples for RMS / power calculations (32 kHz).
+  /// 0 = line-synchronised (zero-crossing to zero-crossing).
   void setSampleCount(uint16_t count)
   {
     enableWriteAccess();
@@ -155,16 +117,13 @@ public:
 
     if (count > 1023) { count = 1023; }
 
-    // Clear N and BYPASS_N_EN, then set them if necessary.
     reg &= 0xFE003FFF;
     if (count) { reg |= ((uint32_t)1 << 24) | ((uint32_t)count << 14); }
 
     writeReg(0x1F, reg);
   }
 
-  /// Reads the root mean square (RMS) voltage and current measurements from
-  /// the sensor, converts them to mV and mA respectively, and stores them in
-  /// the rmsVoltageMillivolts and rmsCurrentMilliamps members.
+  /// Reads RMS voltage and current into rmsVoltageMillivolts / rmsCurrentMilliamps.
   void readRMSVoltageAndCurrent()
   {
     uint32_t reg = readReg(0x20);
@@ -174,9 +133,7 @@ public:
     rmsCurrentMilliamps = (int32_t)irms * icodesMult >> icodesShift >> 1;
   }
 
-  /// Reads the active and reactive power from the sensor, converts both to
-  /// units of mW, and stores them in the activePowerMilliwatts and
-  /// reactivePowerMilliwatts members.
+  /// Reads active and reactive power in mW.
   void readActiveAndReactivePower()
   {
     uint32_t reg = readReg(0x21);
@@ -186,20 +143,16 @@ public:
     reactivePowerMilliwatts = (int32_t)pimag * pinstantMult >> pinstantShift >> 1;
   }
 
-  /// Reads the apparent power from the sensor and returns it in mW.
+  /// Reads apparent power and returns it in mW.
   int32_t readApparentPowerMilliwatts()
   {
-    // Note: maybe this function should also store the power factor and
-    // other things in register 0x22.
     uint32_t reg = readReg(0x22);
     uint16_t papparent = (uint16_t)reg;
     apparentPowerMilliwatts = (int32_t)papparent * pinstantMult >> pinstantShift >> 1;
     return apparentPowerMilliwatts;
   }
 
-  /// Reads the instantaneous voltage and current measurements from the sensor
-  /// (VCODES and ICODES), converts them to mV and mA respectively, and stores
-  /// them in the instVoltageMillivolts and instCurrentMilliamps members.
+  /// Reads instantaneous voltage and current (VCODES / ICODES).
   void readInstVoltageAndCurrent()
   {
     uint32_t reg = readReg(0x2A);
@@ -209,8 +162,7 @@ public:
     instCurrentMilliamps = (int32_t)icodes * icodesMult >> icodesShift;
   }
 
-  /// Reads the instananeous power measurement (PINSTANT) from the sensor
-  /// and returns its value converted to milliwatts (mW).
+  /// Reads instantaneous power (PINSTANT) in mW.
   int32_t readInstPowerMilliwatts()
   {
     int16_t pinstant = (int16_t)readReg(0x2C);
@@ -218,81 +170,46 @@ public:
     return instPowerMilliwatts;
   }
 
-  /// Reads the root mean square (RMS) voltage measurement from the sensor
-  /// and returns its value converted to millivolts (mV).
-  ///
-  /// If you need the current and the voltage, it is more efficient to use
-  /// readRMSVoltageAndCurrent() instead.
   int32_t readRMSVoltageMillivolts()
   {
     readRMSVoltageAndCurrent();
     return rmsVoltageMillivolts;
   }
 
-  /// Reads the root mean square (RMS) current measurement from the sensor
-  /// and returns its value converted to millivolts (mV).
-  ///
-  /// If you need the current and the voltage, it is more efficient to use
-  /// readRMSVoltageAndCurrent() instead.
   int32_t readRMSCurrentMilliamps()
   {
     readRMSVoltageAndCurrent();
     return rmsCurrentMilliamps;
   }
 
-  /// Reads the active power from the sensor and returns its value converted to
-  /// milliwatts.
-  ///
-  /// If you need the active and reactive power, it is better to use
-  /// readActiveAndReactivePower().
   int32_t readActivePowerMilliwatts()
   {
     readActiveAndReactivePower();
     return activePowerMilliwatts;
   }
 
-  /// Reads the reactive (imaginary) power from the sensor and returns its
-  /// value converted to milliwatts.
-  ///
-  /// If you need the active and reactive power, it is better to use
-  /// readActiveAndReactivePower().
   int32_t readReactivePowerMilliwatts()
   {
     readActiveAndReactivePower();
     return reactivePowerMilliwatts;
   }
 
-  /// Reads the instantaneous voltage measurement from the sensor,
-  /// and returns its value converted to millivolts (mV).
-  ///
-  /// If you need the current and the voltage, it is more efficient to use
-  /// readInstVoltageAndCurrent() instead.
   int32_t readInstVoltageMillivolts()
   {
     readInstVoltageAndCurrent();
     return instVoltageMillivolts;
   }
 
-  /// Reads the instantaneous current measurement from the sensor
-  /// and returns its value converted to milliamps (mA).
-  ///
-  /// If you need the current and the voltage, it is more efficient to use
-  /// readInstVoltageAndCurrent() instead.
   int32_t readInstCurrentMilliamps()
   {
     readInstVoltageAndCurrent();
     return instCurrentMilliamps;
   }
 
-  /// Sets the 7-bit I2C device address of the sensor by writing it to EEPROM.
-  ///
-  /// The new address does not take effect until the sensor is power cycled.
-  ///
-  /// After this function successfully returns, the ACS37800 will take about
-  /// 25 ms to write to EEPROM, and further communication during that time
-  /// will not succeed (register reads return 0).
+  /// Sets the 7-bit I2C device address in EEPROM.  I2C mode only.
   void writeEepromI2CAddress(uint8_t address)
   {
+    if (transport_ != Transport::I2C) { return; }
     enableWriteAccess();
     if (getLastError()) { return; }
     uint32_t reg = readReg(0x0F);
@@ -301,38 +218,21 @@ public:
     writeReg(0x0F, reg);
   }
 
-  /// Reads a sensor register and returns its value.
+  /// Reads a 32-bit sensor register.
   uint32_t readReg(uint8_t reg)
   {
-    bus->beginTransmission(address);
-    bus->write(reg);
-    lastError = bus->endTransmission();
-    if (getLastError()) { return 0; }
-
-    uint8_t byteCount = bus->requestFrom(address, (uint8_t)4);
-    if (byteCount != 4)
-    {
-      lastError = 50;
-      return 0;
-    }
-
-    uint32_t value = bus->read();
-    value |= (uint32_t)bus->read() << 8;
-    value |= (uint32_t)bus->read() << 16;
-    value |= (uint32_t)bus->read() << 24;
-    return value;
+    if (transport_ == Transport::SPI)
+      return readRegSPI(reg);
+    return readRegI2C(reg);
   }
 
-  /// Writes to a sensor register.
+  /// Writes a 32-bit sensor register.
   void writeReg(uint8_t reg, uint32_t value)
   {
-    bus->beginTransmission(address);
-    bus->write(reg);
-    bus->write(value & 0xFF);
-    bus->write(value >> 8 & 0xFF);
-    bus->write(value >> 16 & 0xFF);
-    bus->write(value >> 24 & 0xFF);
-    lastError = bus->endTransmission();
+    if (transport_ == Transport::SPI)
+      writeRegSPI(reg, value);
+    else
+      writeRegI2C(reg, value);
   }
 
   uint16_t vcodesMult = 1, icodesMult = 1, pinstantMult = 1;
@@ -350,8 +250,104 @@ public:
 
 private:
 
-  // Calculates an approximation for (x * numerator / denominator), where
-  // x is an int16_t or uint16_t, of the form ((int32_t)x * mult >> shift).
+  // -- I2C transport ----------------------------------------------------------
+
+  uint32_t readRegI2C(uint8_t reg)
+  {
+    bus_->beginTransmission(address_);
+    bus_->write(reg);
+    lastError = bus_->endTransmission();
+    if (getLastError()) { return 0; }
+
+    uint8_t byteCount = bus_->requestFrom(address_, (uint8_t)4);
+    if (byteCount != 4)
+    {
+      lastError = 50;
+      return 0;
+    }
+
+    uint32_t value = bus_->read();
+    value |= (uint32_t)bus_->read() << 8;
+    value |= (uint32_t)bus_->read() << 16;
+    value |= (uint32_t)bus_->read() << 24;
+    return value;
+  }
+
+  void writeRegI2C(uint8_t reg, uint32_t value)
+  {
+    bus_->beginTransmission(address_);
+    bus_->write(reg);
+    bus_->write(value & 0xFF);
+    bus_->write(value >> 8 & 0xFF);
+    bus_->write(value >> 16 & 0xFF);
+    bus_->write(value >> 24 & 0xFF);
+    lastError = bus_->endTransmission();
+  }
+
+  // -- SPI transport ----------------------------------------------------------
+  //
+  // ACS37800 SPI protocol (from datasheet):
+  //   Command byte: bits 7:1 = 7-bit register address, bit 0 = R/W (1=read, 0=write)
+  //   Data: 32 bits, little-endian byte order (LSB first), same as I2C
+  //   Clock: 10 MHz max, SPI Mode 3 (CPOL=1 CPHA=1), MSB first
+  //   (Clock idles HIGH; data sampled on rising edge / output on falling edge.)
+  //
+  //   IMPORTANT — reads are pipelined:
+  //     Transaction 1: send read command for register R.
+  //                     MISO returns data from the PREVIOUS read (stale/undefined).
+  //     Transaction 2: send another read (same or different register).
+  //                     MISO returns data for register R from transaction 1.
+  //
+  //   To get a single register value we issue TWO back-to-back read
+  //   transactions and return the data from the second one.
+
+  static constexpr uint32_t kSpiClockHz = 1000000;  // 1 MHz (very conservative)
+
+  uint32_t readRegSPI(uint8_t reg)
+  {
+    SPISettings settings(kSpiClockHz, MSBFIRST, SPI_MODE3);
+    const uint8_t cmd = (reg << 1) | 0x01;                 // addr<<1 | R/W=1 (read)
+
+    spiBus_->beginTransaction(settings);
+    digitalWrite(csPin_, LOW);
+
+    // Cycle 1 — primes pipeline; MISO returns previous read's data (discarded).
+    spiBus_->transfer(cmd);
+    spiBus_->transfer(0x00);
+    spiBus_->transfer(0x00);
+    spiBus_->transfer(0x00);
+    spiBus_->transfer(0x00);
+
+    // Cycle 2 — MISO now returns data for the register addressed in cycle 1.
+    spiBus_->transfer(cmd);
+    uint32_t value  = spiBus_->transfer(0x00);             // byte 0 (LSB)
+    value |= (uint32_t)spiBus_->transfer(0x00) << 8;      // byte 1
+    value |= (uint32_t)spiBus_->transfer(0x00) << 16;     // byte 2
+    value |= (uint32_t)spiBus_->transfer(0x00) << 24;     // byte 3 (MSB)
+
+    digitalWrite(csPin_, HIGH);
+    spiBus_->endTransaction();
+    lastError = 0;
+    return value;
+  }
+
+  void writeRegSPI(uint8_t reg, uint32_t value)
+  {
+    SPISettings settings(kSpiClockHz, MSBFIRST, SPI_MODE3);
+    spiBus_->beginTransaction(settings);
+    digitalWrite(csPin_, LOW);
+    spiBus_->transfer((reg << 1) & 0xFE);                  // addr<<1 | R/W=0 (write)
+    spiBus_->transfer(value & 0xFF);                       // byte 0 (LSB)
+    spiBus_->transfer((value >> 8) & 0xFF);                // byte 1
+    spiBus_->transfer((value >> 16) & 0xFF);               // byte 2
+    spiBus_->transfer((value >> 24) & 0xFF);               // byte 3 (MSB)
+    digitalWrite(csPin_, HIGH);
+    spiBus_->endTransaction();
+    lastError = 0;
+  }
+
+  // -- Calibration helper -----------------------------------------------------
+
   static void calculateApproximation(
     uint64_t numerator, uint64_t denominator,
     uint16_t & outputMult, uint8_t & outputShift)
@@ -375,8 +371,17 @@ private:
     outputShift = shift;
   }
 
-  TwoWire * bus;
-  uint8_t address;
+  // -- Members ----------------------------------------------------------------
+
+  Transport transport_;
+
+  // I2C
+  TwoWire * bus_;
+  uint8_t address_;
+
+  // SPI
+  SPIClass * spiBus_;
+  uint8_t csPin_;
 
   uint8_t lastError = 0;
 };

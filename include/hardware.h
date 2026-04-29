@@ -32,6 +32,7 @@
 namespace hardware {
 
     module::InitStatus initSPI();
+    module::InitStatus initAcsSPI();
     module::InitStatus initI2C();
     /**
      * Initialise all shared hardware buses (I2C and SPI).
@@ -54,6 +55,13 @@ namespace hardware {
      * Valid after hardware::init() has been called.
      */
     SPIClass& spi();
+
+    /**
+     * Returns a reference to the ACS37800 dedicated SPI bus (SPI3_HOST).
+     * Separate from the main SPI bus because the ACS37800 keeps MISO driven
+     * when CS is high, which would corrupt the shared bus.
+     */
+    SPIClass& acsSpi();
 
     /**
      * Reset the I2C bus to a clean idle state.
