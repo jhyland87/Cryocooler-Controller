@@ -99,13 +99,26 @@ export interface ChartSeries {
   dashed?: boolean;
 }
 
+/** A horizontal time range to highlight on a TelemetryLineChart. */
+export interface ChartOverlay {
+  /** Period start, epoch ms. */
+  start:  number;
+  /** Period end, epoch ms. `null` = ongoing (clipped to current xMax). */
+  end:    number | null;
+  /** Short label rendered at the top of the band. */
+  label:  string;
+  /** Optional band tint. Defaults to a neutral gray. */
+  color?: string;
+}
+
 export interface TelemetryLineChartProps {
-  title:  string;
-  series: ChartSeries[];
+  title:     string;
+  series:    ChartSeries[];
   yAxis?: {
     min?: number;
     max?: number;
   };
+  overlays?: ChartOverlay[];
 }
 
 // ─── VibrationWave ───────────────────────────────────────────────────────────
@@ -118,15 +131,17 @@ export interface VibrationWaveProps {
 // ─── Chart wrappers ──────────────────────────────────────────────────────────
 
 export interface TemperatureChartProps {
-  actualC:  DataPoint[];
-  ambientC: DataPoint[];
-  targetC:  DataPoint[];
+  actualC:   DataPoint[];
+  ambientC:  DataPoint[];
+  targetC:   DataPoint[];
+  overlays?: ChartOverlay[];
 }
 
 export interface CoolingChartProps {
   fanSpeed:    DataPoint[];
   coolantTemp: DataPoint[];
   flowRate:    DataPoint[];
+  overlays?:   ChartOverlay[];
 }
 
 export interface PowerChartProps {
@@ -135,6 +150,7 @@ export interface PowerChartProps {
   coldHeadWatts: DataPoint[];
   systemVolts:   DataPoint[];
   systemAmps:    DataPoint[];
+  overlays?:     ChartOverlay[];
 }
 
 // ─── Sparkline panels ────────────────────────────────────────────────────────

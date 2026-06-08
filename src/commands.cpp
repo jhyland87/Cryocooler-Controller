@@ -14,12 +14,14 @@
 #else
 #  include <cstdio>
 #  include <cstring>
+#  include <cctype>
 #  include "Arduino.h"  // native stub — provides millis() and Print
 #endif
 
 #include "commands.h"
 #include "conversions.h"
 #include "state_machine.h"
+#include "state_machine_history.h"
 #include "telemetry.h"
 #include "cold_head.h"
 //#include "rms.h"
@@ -603,6 +605,32 @@ static void handleCoolingPump(const char* args, Print& out) {
     }
 }
 
+static void handleFaultPush(const char* args, Print& out) {
+    while (*args == ' ' || *args == '\t') ++args;
+    if (*args == '\0') {
+        out.println(F("[ERR] Usage: fault push <reason>  (numeric mask or name, e.g. RmsOvervoltage)"));
+        return;
+    }
+    if (state_machine::getState() == state_machine::State::Fault) {
+        out.println(F("[ERR] Already in fault state — 'fault clear' first"));
+        return;
+    }
+    state_machine::FaultReason reason;
+    if (isdigit(static_cast<unsigned char>(*args))) {
+        reason = static_cast<state_machine::FaultReason>(strtoul(args, nullptr, 10));
+    } else {
+        reason = state_machine::parseFaultReason(args);
+        if (reason == state_machine::FaultReason::None) {
+            out.printf("[ERR] Unknown fault reason: %s\n", args);
+            return;
+        }
+    }
+    state_machine::triggerFault(reason);
+    char reasonTxtBuf[96];
+    state_machine::formatFaultReasons(reason, reasonTxtBuf, sizeof(reasonTxtBuf));
+    out.printf("[OK] Fault pushed: %s\n", reasonTxtBuf);
+}
+
 static void handleFaultClear(const char* /*args*/, Print& out) {
     if (state_machine::getState() != state_machine::State::Fault) {
         out.println(F("[ERR] Not in fault state"));
@@ -1127,6 +1155,7 @@ static const Command commandMap[] = {
     {"fsm state",     handleFsmState,     "Print current FSM state with time-in-state and status"},
     // "fault history" must precede "fault clear" so the longer prefix wins.
     {"fault history", handleFaultHistory, "Print fault log with reason and clear method (newest first)"},
+    {"fault push",    handleFaultPush,    "Push a fault record"},
     {"fault clear",   handleFaultClear,   "Clear an active fault and return to Idle"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},

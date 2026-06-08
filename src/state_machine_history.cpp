@@ -19,6 +19,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>  // strncasecmp
 
 namespace state_machine {
 
@@ -181,6 +182,22 @@ FaultRecord getFaultRecord(uint8_t i) {
     return faultRingAt(i);
 }
 
+// Bit → name mapping shared by formatFaultReasons() and parseFaultReason().
+// Iterated in fixed priority order so formatted output is deterministic.
+namespace {
+struct FaultReasonName { FaultReason bit; const char* name; };
+constexpr FaultReasonName kFaultReasonNames[] = {
+    { FaultReason::RmsOvervoltage,   "RmsOvervoltage"   },
+    { FaultReason::TemperatureStall, "TemperatureStall" },
+    { FaultReason::TooManyBackoffs,  "TooManyBackoffs"  },
+    { FaultReason::LowSystemVoltage, "LowSystemVoltage" },
+    { FaultReason::StateOscillation, "StateOscillation" },
+    { FaultReason::SensorFault,      "SensorFault"      },
+    { FaultReason::RmsOvercurrent,   "RmsOvercurrent"   },
+    { FaultReason::ModuleNotReady,   "ModuleNotReady"   },
+};
+}  // namespace
+
 void formatFaultReasons(FaultReason r, char* buf, size_t len) {
     if (len == 0) return;
     const uint8_t mask = static_cast<uint8_t>(r);
@@ -190,23 +207,29 @@ void formatFaultReasons(FaultReason r, char* buf, size_t len) {
     }
     buf[0] = '\0';
     bool first = true;
-    // Iterate bits in a fixed priority order so the output is deterministic.
-    static const struct { FaultReason bit; const char* name; } kBits[] = {
-        { FaultReason::RmsOvervoltage,   "RmsOvervoltage"   },
-        { FaultReason::TemperatureStall, "TemperatureStall" },
-        { FaultReason::TooManyBackoffs,  "TooManyBackoffs"  },
-        { FaultReason::LowSystemVoltage, "LowSystemVoltage" },
-        { FaultReason::StateOscillation, "StateOscillation" },
-        { FaultReason::SensorFault,      "SensorFault"      },
-        { FaultReason::RmsOvercurrent,   "RmsOvercurrent"   },
-        { FaultReason::ModuleNotReady,   "ModuleNotReady"   },
-    };
-    for (const auto& b : kBits) {
+    for (const auto& b : kFaultReasonNames) {
         if ((mask & static_cast<uint8_t>(b.bit)) == 0u) continue;
         if (!first) strncat(buf, "|", len - strlen(buf) - 1u);
         strncat(buf, b.name, len - strlen(buf) - 1u);
         first = false;
     }
+}
+
+FaultReason parseFaultReason(const char* name) {
+    if (name == nullptr) return FaultReason::None;
+    while (*name == ' ' || *name == '\t') ++name;
+    if (*name == '\0') return FaultReason::None;
+    for (const auto& b : kFaultReasonNames) {
+        const size_t n = strlen(b.name);
+        if (strncasecmp(name, b.name, n) == 0) {
+            const char term = name[n];
+            if (term == '\0' || term == ' ' || term == '\t' ||
+                term == '\r' || term == '\n') {
+                return b.bit;
+            }
+        }
+    }
+    return FaultReason::None;
 }
 
 uint8_t countRecentFaults(uint32_t windowMs) {

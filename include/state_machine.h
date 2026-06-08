@@ -146,6 +146,13 @@ inline const char* faultReasonName(FaultReason r) {
  */
 void formatFaultReasons(FaultReason r, char* buf, size_t len);
 
+/**
+ * Parse a single fault reason bit name (case-insensitive). Returns
+ * FaultReason::None on unknown / empty input. Composite expressions like
+ * "A|B" are not supported — only one name per call.
+ */
+FaultReason parseFaultReason(const char* name);
+
 /** Aggregate output produced by update() each loop. */
 struct Output {
     State            state;

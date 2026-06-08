@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
 import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -22,7 +22,7 @@ import { SystemSparklines } from './components/SystemSparklines';
 import { ConsoleLog } from './components/ConsoleLog';
 import { CollapsiblePanel } from './components/CollapsiblePanel';
 import type { TelemetryData } from './types/telemetry';
-import type { TileConfig } from './types/components';
+import type { ChartOverlay, TileConfig } from './types/components';
 import { getField } from './types/telemetry';
 
 // ─── History buffer keys ──────────────────────────────────────────────────────
@@ -71,7 +71,17 @@ export function App() {
   const [tick, setTick] = useState(0);
   const loading = frameCount === 0;
 
+  // Browser-time of device boot, derived from uptime_ms on the first frame.
+  // Used to convert fault `entered_ms` / `cleared_ms` (millis-since-boot) into
+  // chart-axis timestamps regardless of NTP sync state. Set once and held
+  // stable so faultOverlays keeps a stable identity across telemetry ticks.
+  const [bootEpochMs, setBootEpochMs] = useState<number | null>(null);
+
   const handleFrame = useCallback((d: TelemetryData, ts: number) => {
+    if (typeof d.system?.uptime_ms === 'number') {
+      const candidate = ts - d.system.uptime_ms;
+      setBootEpochMs((prev) => prev ?? candidate);
+    }
     push(d, ts);
     setTick((n) => n + 1);
   }, [push]);
@@ -83,6 +93,28 @@ export function App() {
   useEffect(() => {
     onFaultHistory(pushUpdate);
   }, [onFaultHistory, pushUpdate]);
+
+  const faultOverlays: ChartOverlay[] = useMemo(
+    () => {
+      const toMs = (epochSec: number, bootRelMs: number): number | null => {
+        if (epochSec > 0)                  return epochSec * 1000;
+        if (bootEpochMs && bootRelMs > 0)  return bootEpochMs + bootRelMs;
+        return null;
+      };
+      return faults.flatMap<ChartOverlay>((f) => {
+        const start = toMs(f.entered_epoch, f.entered_ms);
+        if (start === null) return [];
+        const end = f.active ? null : toMs(f.cleared_epoch, f.cleared_ms);
+        return [{
+          start,
+          end,
+          label: f.reason || 'Fault',
+          color: f.active ? 'rgba(239,83,80,0.10)' : undefined,
+        }];
+      });
+    },
+    [faults, bootEpochMs],
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -176,6 +208,7 @@ export function App() {
                   actualC={getHistory('cold_head.temp_c')}
                   ambientC={getHistory('cold_head.ambient_temp_c')}
                   targetC={getHistory('cold_head.target_temp_c')}
+                  overlays={faultOverlays}
                 />
               </CollapsiblePanel>
             </Grid>
@@ -188,6 +221,7 @@ export function App() {
                   coldHeadWatts={getHistory('amplifier.power_w')}
                   systemVolts={getHistory('system.voltage_v')}
                   systemAmps={getHistory('system.current_a')}
+                  overlays={faultOverlays}
                 />
               </CollapsiblePanel>
             </Grid>
@@ -198,6 +232,7 @@ export function App() {
                   fanSpeed={getHistory('cooling.fan_speed')}
                   coolantTemp={getHistory('cooling.temp_c')}
                   flowRate={getHistory('cooling.flow_rate_lpm')}
+                  overlays={faultOverlays}
                 />
               </CollapsiblePanel>
             </Grid>

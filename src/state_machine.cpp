@@ -486,6 +486,7 @@ static void onEnterFault() {
     if (offStateMs == 0) offStateMs = sNowMs;
 
     // Push a new fault record into the history ring buffer.
+    _Log.printf("Pushing fault record: %d, %lu\n", static_cast<int>(faultReason), sNowMs);
     histPushFaultRecord(faultReason, sNowMs);
 }
 

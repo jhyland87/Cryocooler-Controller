@@ -1,7 +1,7 @@
 import type { PowerChartProps } from '../types/components';
 import { TelemetryLineChart } from './TelemetryLineChart';
 
-export function PowerChart({ coldHeadVolts, coldHeadAmps, coldHeadWatts, systemVolts, systemAmps }: PowerChartProps) {
+export function PowerChart({ coldHeadVolts, coldHeadAmps, coldHeadWatts, systemVolts, systemAmps, overlays }: PowerChartProps) {
   const series = [
     { label: 'Cold Head V', data: coldHeadVolts, color: '#ce93d8' },
     { label: 'Cold Head A', data: coldHeadAmps,  color: '#f48fb1' },
@@ -15,6 +15,7 @@ export function PowerChart({ coldHeadVolts, coldHeadAmps, coldHeadWatts, systemV
       title=""
       series={series}
       yAxis={{  }}
+      overlays={overlays}
     />
   );
 }
