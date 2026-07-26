@@ -71,6 +71,11 @@ WARN_NO_PARAMDOC       = YES
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 HTML_OUTPUT            = html
+# Force the light theme for all viewers. Default is AUTO_LIGHT, which follows the
+# browser/OS into dark mode; LIGHT keeps a consistent white background always.
+# SAT=0 desaturates the default blue accents to a neutral white/gray palette.
+HTML_COLORSTYLE        = LIGHT
+HTML_COLORSTYLE_SAT    = 0
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
 SOURCE_BROWSER         = YES
