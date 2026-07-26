@@ -24,11 +24,18 @@ warning — so a Graphviz-less machine keeps working, only with plainer output.
 doxygen Doxyfile
 ```
 
-Output is written to `docs/doxygen/html/` (gitignored). Open the result:
+Output is written to `docs/doxygen/html/` (gitignored). Preview it over a local
+HTTP server — **not** `file://`, because the Mermaid diagrams load via an
+ES-module import that browsers block on `file://` (they render fine over
+http/https, including on the deployed Pages site):
 
 ```bash
-open docs/doxygen/html/index.html
+python3 -m http.server 8099 --directory docs/doxygen/html
+# then open http://localhost:8099/
 ```
+
+Opening `docs/doxygen/html/index.html` directly still works, but Mermaid
+diagrams will show as raw text.
 
 ## Published docs (GitHub Pages)
 
