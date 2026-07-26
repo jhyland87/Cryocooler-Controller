@@ -1,5 +1,5 @@
 /**
- * @file ss_dashboard_config.h
+ * @file ss_dashbaord_config_overrides.h
  * @brief Configuration structs for Serial Studio dashboard generation.
  *
  * Users define their dashboard layout using these plain C++ structs.

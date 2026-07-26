@@ -105,7 +105,7 @@ int64_t getLastLogEpoch();
 
 /**
  * Append up to @p maxEntries of the most-recent log lines to @p arr.
- * Each element: {"ms": <uint32>, "epoch": <int64>, "text": "<string>"}
+ * Each element: `{"ms": <uint32>, "epoch": <int64>, "text": "<string>"}`
  * @param arr        Target ArduinoJson JsonArray (appended to, not cleared).
  * @param maxEntries Maximum entries to emit.  0 = include all (up to CAPACITY).
  */

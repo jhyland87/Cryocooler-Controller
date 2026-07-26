@@ -64,11 +64,10 @@ const RampSpec& getRamp(RampField field)
 // ── service() ─────────────────────────────────────────────────────────────────
 
 /**
- * Apply one active ramp at index @p idx, writing to @p current.
+ * Apply one active ramp, writing the interpolated value to @p current.
  * Returns true if the ramp is still running, false if it completed.
  *
  * @param r        The ramp spec (modified in place when completed).
- * @param nowMs    Current millis().
  * @param current  [out] Updated value for this tick.
  */
 static bool applyRamp(RampSpec& r, float& current)

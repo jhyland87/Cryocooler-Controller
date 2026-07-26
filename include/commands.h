@@ -29,11 +29,11 @@
  *   mock                 - Print current mock sensor values and active state
  *   mock enable          - Activate sensor mock mode (bypass real hardware)
  *   mock disable         - Deactivate sensor mock mode (return to hardware)
- *   mock temp <K>        - Set cold-stage temperature (Kelvin)
- *   mock rate <K/min>    - Set cooling rate (negative = cooling down)
- *   mock rms <V>         - Set back-EMF RMS voltage
- *   mock current <A>     - Set INA237 current
- *   mock voltage <V>     - Set INA237 bus voltage
+ *   mock temp \<K\>        - Set cold-stage temperature (Kelvin)
+ *   mock rate \<K/min\>    - Set cooling rate (negative = cooling down)
+ *   mock rms \<V\>         - Set back-EMF RMS voltage
+ *   mock current \<A\>     - Set INA237 current
+ *   mock voltage \<V\>     - Set INA237 bus voltage
  *   mock stall <0|1>     - Set temperature-stall flag
  *   mock stroke <0|1>    - Set back-EMF overstroke flag
  *   ota status           - Print OTA partition info, firmware version, and upload URL

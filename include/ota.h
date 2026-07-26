@@ -19,7 +19,7 @@
  * capable (e.g. if you forgot to set board_build.partitions in platformio.ini).
  *
  * ── Update flow ───────────────────────────────────────────────────────────────
- *   1. User POSTs a .bin firmware file to http://<hostname>/ota
+ *   1. User POSTs a .bin firmware file to `http://<hostname>/ota`
  *   2. The upload callback streams the file through the Arduino Update library
  *      which internally calls esp_ota_write() into the inactive OTA slot.
  *   3. On completion, Update.end(true) calls esp_ota_set_boot_partition() to

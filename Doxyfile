@@ -1,0 +1,102 @@
+# Doxyfile — ESP32 Cryocooler Controller firmware
+#
+# Minimal config: any option not set here uses the Doxygen default.
+# Generate docs with:  doxygen Doxyfile   (output in docs/doxygen/html)
+# See the `generate-docs` skill / docs section in AGENTS.md for prerequisites.
+
+#---------------------------------------------------------------------------
+# Project
+#---------------------------------------------------------------------------
+PROJECT_NAME           = "ESP32 Cryocooler Controller"
+PROJECT_BRIEF          = "ESP32-S3 firmware: cryocooler state machine, telemetry, and Preact dashboard"
+OUTPUT_DIRECTORY       = docs/doxygen
+CREATE_SUBDIRS         = NO
+
+#---------------------------------------------------------------------------
+# Input — hand-written firmware only
+#---------------------------------------------------------------------------
+INPUT                  = README.md docs src include
+RECURSIVE              = YES
+FILE_PATTERNS          = *.c *.cpp *.h *.hpp *.md
+USE_MDFILE_AS_MAINPAGE = README.md
+
+# Exclude machine-generated code (regenerated at build time, never hand-edited),
+# the secrets header (gitignored, holds plaintext credentials), and everything
+# outside the firmware source tree.
+EXCLUDE                = include/web_content.h \
+                         include/config/arduino_secrets.h
+EXCLUDE_PATTERNS       = */generated/* \
+                         *.pb.c \
+                         *.pb.h \
+                         */.pio/* \
+                         */lib/* \
+                         */dashboard/* \
+                         */node_modules/*
+
+#---------------------------------------------------------------------------
+# Build / extraction
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIV_VIRTUAL   = YES
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+OPTIMIZE_OUTPUT_FOR_C  = NO
+MARKDOWN_SUPPORT       = YES
+# GitHub-style heading anchors so intra-doc [text](#anchor) links in the
+# Markdown docs (README, docs/*.md) resolve the same way GitHub renders them.
+MARKDOWN_ID_STYLE      = GITHUB
+SORT_MEMBER_DOCS       = NO
+TAB_SIZE               = 4
+
+# Document both branches of the Arduino / native-test conditionals consistently.
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = ARDUINO \
+                         ENABLE_ESPNOW=1 \
+                         ENABLE_COMPRESSOR=1
+
+#---------------------------------------------------------------------------
+# Warnings — surface remaining documentation gaps
+#---------------------------------------------------------------------------
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+
+#---------------------------------------------------------------------------
+# Output — HTML only
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HTML_OUTPUT            = html
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+SOURCE_BROWSER         = YES
+HTML_DYNAMIC_SECTIONS  = YES
+SEARCHENGINE           = YES
+
+#---------------------------------------------------------------------------
+# Diagrams (Graphviz)
+#
+# HAVE_DOT needs Graphviz on PATH (`brew install graphviz`; CI installs it).
+# If `dot` is missing, Doxygen still builds the docs and just skips the graphs
+# with a warning — so local builds without Graphviz keep working.
+#---------------------------------------------------------------------------
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_GRAPH_MAX_NODES    = 100
+
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = YES
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES

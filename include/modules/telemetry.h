@@ -8,7 +8,7 @@
  * fillJson().
  *
  * ── Serial Studio wire format ───────────────────────────────────────────────
- *   Frame:  <tab-delimited values>\r\n
+ *   Frame:  `<tab-delimited values>\r\n`
  *   To visualise in Serial Studio:
  *     - Connect at SERIAL_BAUD.
  *     - Configure tab-delimited CSV frame detection.
@@ -82,6 +82,7 @@ const FrameBuilder& getLastFrame();
  * Equivalent to getLastFrame().fillJson(doc).
  * Any existing content in @p doc is cleared first.
  *
+ * @param doc          Target JSON document (cleared, then populated).
  * @param includeLogs  When true (default) the in-RAM log ring buffer is
  *                     appended under the "logs" key.  Pass false for
  *                     bandwidth-sensitive paths (e.g. the 1 Hz WebSocket
@@ -102,6 +103,7 @@ void fillJson(JsonDocument& doc, bool includeLogs = true);
  * is always fully populated.  Module init/service status fields are always
  * present and always reflect the real current status.
  *
+ * @param doc          Target JSON document (cleared, then populated).
  * @param includeLogs  When true (default) the in-RAM log ring buffer is
  *                     appended under the "logs" key.  Pass false for
  *                     bandwidth-sensitive paths (e.g. the 1 Hz WebSocket

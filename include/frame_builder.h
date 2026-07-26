@@ -5,7 +5,7 @@
  * FrameBuilder accumulates named fields via a fluent field() API and renders
  * them in two formats:
  *
- *   sendSerial(Print&)     — Serial Studio wire format: v1\tv2\t...\r\n
+ *   sendSerial(Print&)     — Serial Studio wire format: `v1\tv2\t...\r\n`
  *   fillJson(JsonDocument&)— JSON object: {"name": typed_value, ...}
  *
  * Field types are detected automatically at compile time from the value
@@ -125,7 +125,7 @@ public:
     /**
      * Transmit the frame in Serial Studio wire format.
      *
-     * Output: v1\tv2\t...\tvN\r\n
+     * Output: `v1\tv2\t...\tvN\r\n`
      * Values are the pre-formatted strings produced by the format argument to
      * each field() call — no additional rounding or conversion is applied.
      */
@@ -135,7 +135,7 @@ public:
      * Transmit only the fields whose formatted value has changed since @p prev.
      *
      * Output format (when output is triggered):
-     *   name=value  name=value  ...\r\n
+     *   `name=value  name=value  ...\r\n`
      * If nothing is emitted, no bytes are written (not even a line ending).
      *
      * Fields are compared by position index using their pre-formatted strings.
@@ -153,6 +153,8 @@ public:
      * every tick and would otherwise produce noise when nothing meaningful has
      * changed.
      *
+     * @param out            Output sink (Serial, TCP client, etc.).
+     * @param prev           Previous frame to diff against for change detection.
      * @param passiveFields  Array of field-name C-strings to treat as passive.
      *                       Pass nullptr (default) to disable passive filtering.
      * @param passiveCount   Number of entries in @p passiveFields (default 0).

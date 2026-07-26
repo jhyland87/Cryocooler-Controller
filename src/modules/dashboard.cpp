@@ -24,13 +24,13 @@
  * and never drops the tail of the frame.
  *
  * Serial Studio frame format (TCP port 8080, for Serial Studio):
- *   / *{...JSON...}* /\r\n
+ *   `/ *{...JSON...}* /\r\n`
  *
  * WebSocket (HTTP port 80, path /ws, for the web dashboard SPA):
  *   Protobuf binary telemetry frame pushed at 1 Hz.  The schema is defined
  *   in proto/telemetry.proto (shared with the JS decoder).  Encoded using
  *   Nanopb on the ESP32, decoded by protobufjs in the browser.
- *   Connect at:  ws://<hostname>/ws
+ *   Connect at:  `ws://<hostname>/ws`
  */
 
 #include <Arduino.h>

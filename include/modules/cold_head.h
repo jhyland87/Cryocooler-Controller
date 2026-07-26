@@ -43,6 +43,8 @@ void read();
  * @param tempC              Cold-stage temperature in Celsius
  * @param coolingRateCPerMin Cooling rate in C/min (negative = cooling)
  * @param stalled            True if the stage should appear stalled
+ * @param rmsVoltageV        Back-EMF RMS voltage in volts
+ * @param rmsCurrentA        Back-EMF RMS current in amps
  */
 void setLastReadings(float tempC,
                      float coolingRateCPerMin, bool stalled, float rmsVoltageV, float rmsCurrentA);

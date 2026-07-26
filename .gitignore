@@ -10,4 +10,10 @@
 compile_commands.json
 .vscode/settings.json
 **/node_modules/**
-.claude
+
+# Claude Code: track shared skills, but keep local/worktree state out of git.
+.claude/settings.local.json
+.claude/worktrees/
+
+# Generated Doxygen HTML output
+docs/doxygen/

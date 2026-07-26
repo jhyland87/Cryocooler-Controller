@@ -52,14 +52,18 @@ namespace state_machine {
  * Usage patterns
  * ──────────────
  * Generate the enum body:
+ * @code
  *   #define X(name, value, sname, status) name = value,
  *   STATE_MACHINE_STATES(X)
  *   #undef X
+ * @endcode
  *
  * Generate a name-lookup switch:
+ * @code
  *   #define X(name, value, sname, status) case State::name: return sname;
  *   STATE_MACHINE_STATES(X)
  *   #undef X
+ * @endcode
  */
 #define STATE_MACHINE_STATES(X)                                                                                              \
     X(Off,            -1,  "Off",            "System is off")                                                            \

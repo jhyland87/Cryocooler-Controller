@@ -7,6 +7,7 @@
  * be changed at runtime via serial commands (see mock_commands.cpp), so you
  * can drive the state machine through any scenario without physical sensors:
  *
+ * @verbatim
  *   mock enable                          -- enter mock mode (safe defaults)
  *   mock disable                         -- return to real hardware
  *   mock status                          -- print current override values
@@ -17,17 +18,20 @@
  *   mock voltage <V>                     -- INA237 bus voltage
  *   mock stall  <0|1>                    -- temperature-stall flag
  *   mock stroke <0|1>                    -- back-EMF overstroke flag
+ * @endverbatim
  *
  * Dynamic / time-varying behaviour
  * ---------------------------------
  * Use ramps to simulate a continuously changing sensor value without sending
  * manual commands every loop tick:
  *
+ * @verbatim
  *   mock ramp temp    <startC>  <endC>  <C/min>   -- e.g. mock ramp temp 26.85 -195.15 3.5
  *   mock ramp rms     <startV>  <endV>  <V/min>   -- e.g. mock ramp rms 0 1.5 0.05
  *   mock ramp voltage <startV>  <endV>  <V/min>   -- e.g. mock ramp voltage 24 10 1.0
  *   mock ramp stop                                 -- cancel all active ramps
  *   mock ramp stop temp                            -- cancel temp ramp only
+ * @endverbatim
  *
  * While a temp ramp is active, sensor_mock::service() also auto-derives the
  * coolingRate field so the FSM sees a consistent dT/dt.
@@ -36,7 +40,7 @@
  * reads) to advance active ramps.
  *
  * Notes:
- *  - Only compiled for the embedded target (guarded by #ifdef ARDUINO).
+ *  - Only compiled for the embedded target (guarded by `#ifdef ARDUINO`).
  *  - The Overrides struct is value-initialised to safe, benign defaults
  *    (room temperature, no faults) so enabling mock mode without setting
  *    any values is always safe.

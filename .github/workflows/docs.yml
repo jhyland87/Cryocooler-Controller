@@ -1,0 +1,57 @@
+name: Docs
+
+# Build the Doxygen API docs and publish them to GitHub Pages on every merge
+# to main. Runs Doxygen only — no firmware/dashboard build is needed, since the
+# Doxyfile documents src/ + include/ and excludes all generated code.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege token; Pages deploy needs pages:write + id-token:write.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two Pages deploys at once; let a newer run supersede an in-flight one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen + Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen graphviz
+
+      - name: Generate docs
+        run: doxygen Doxyfile
+
+      # The Pages artifact flow serves files as-is, but .nojekyll is cheap
+      # insurance against any underscore-prefixed asset being dropped.
+      - name: Disable Jekyll processing
+        run: touch docs/doxygen/html/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/doxygen/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

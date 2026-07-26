@@ -161,7 +161,7 @@ static void handleStroke(const char* args, Print& out) {
 }
 
 /**
- * Handle: mock coldhead [<K> | off]
+ * Handle: `mock coldhead [<K> | off]`
  *
  * Examples:
  *   mock coldhead        -- print cold-head mock status
@@ -204,7 +204,7 @@ static void handleColdhead(const char* args, Print& out) {
 }
 
 /**
- * Handle: mock ramp [stop [<field>] | <field> <start> <end> <rate>]
+ * Handle: `mock ramp [stop [<field>] | <field> <start> <end> <rate>]`
  *
  * Examples:
  *   mock ramp temp 300 77 3.5        -- cool from 300 K to 77 K at 3.5 K/min

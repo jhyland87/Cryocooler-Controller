@@ -18,8 +18,8 @@
  * ── Peer channel requirement ─────────────────────────────────────────────────
  * The peer ESP32 must operate on the same WiFi channel as this device's AP.
  * If the peer is not connected to the same AP, configure it explicitly with:
- *   esp_wifi_set_channel(<channel>, WIFI_SECOND_CHAN_NONE)
- * where <channel> is the value reported by WiFi.channel() on this device.
+ *   `esp_wifi_set_channel(<channel>, WIFI_SECOND_CHAN_NONE)`
+ * where `<channel>` is the value reported by WiFi.channel() on this device.
  *
  * ── Enable / configure ───────────────────────────────────────────────────────
  *   ENABLE_ESPNOW            true / false  (default false — set peer MAC first)

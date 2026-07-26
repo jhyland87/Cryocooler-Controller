@@ -57,7 +57,7 @@
  *
  *   Modules whose loop call requires arguments (e.g. indicator::update(nowMs),
  *   temperature::read(nowMs)) wrap them in service() by calling millis()
- *   internally.  Guard such Module structs with #ifdef ARDUINO so they compile
+ *   internally.  Guard such Module structs with `#ifdef ARDUINO` so they compile
  *   cleanly in native (host) unit-test builds where millis() is unavailable.
  *
  *   Pure actuator modules (relay, dac) have no periodic work; their Module
@@ -382,6 +382,8 @@ struct ModuleEntry {
  * @param count    Number of entries in the array.
  * @param emitFn   Optional callback invoked after each init (nullptr to skip).
  * @param logFn    Printf-style log function (e.g. _Log.printf).
+ * @param yieldFn  Optional callback invoked before each init to feed the task
+ *                 watchdog during long init sequences (nullptr to skip).
  * @return         false if any entry marked fatal failed; true otherwise.
  */
 template<typename LogFn>

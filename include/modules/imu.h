@@ -1,3 +1,12 @@
+/**
+ * @file imu.h
+ * @brief IMU interface — LSM6DSOX 6-DOF accelerometer/gyro.
+ *
+ * Owns vibration and orientation sensing: reads the LSM6DSOX over I2C, runs the
+ * filter/orientation pipeline, and exposes overstroke/motion state used by the
+ * state machine and telemetry. All getters are safe to call when hardware is
+ * absent (they return 0 / false), so the firmware still runs on a bare board.
+ */
 #ifndef IMU_H
 #define IMU_H
 
