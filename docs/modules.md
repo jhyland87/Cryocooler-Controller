@@ -23,7 +23,7 @@ Modules are registered in **declarative arrays** of `ModuleEntry` descriptors. G
 
 Every module goes through two phases:
 
-### 1. Initialisation (`init`)
+### 1. Initialisation (init)
 
 Called once during `setup()`. Returns an `InitStatus`:
 
@@ -38,7 +38,7 @@ Called once during `setup()`. Returns an `InitStatus`:
 | `MODULE_INIT_TIMEOUT` | Exceeded allowed time budget |
 | `MODULE_INIT_UNKNOWN_ERROR` | Catch-all |
 
-### 2. Service (`service`)
+### 2. Service (service)
 
 Called every `loop()` tick. Returns a `ServiceStatus`:
 
@@ -111,7 +111,7 @@ float getValue() { return 42.0f; }
 } // namespace mymodule
 ```
 
-### Step 3: Register in `main.cpp`
+### Step 3: Register in main.cpp
 
 Add the module to the appropriate array:
 
@@ -147,7 +147,7 @@ That's it. The module will be automatically initialised, serviced, and included 
 
 ## Module Registry
 
-### `ModuleEntry` struct
+### ModuleEntry struct
 
 A type-erased descriptor with function pointers — no vtable, no heap allocation:
 
@@ -162,7 +162,7 @@ struct ModuleEntry {
 };
 ```
 
-### `MODULE_ENTRY` macro
+### MODULE_ENTRY macro
 
 Creates a `ModuleEntry` from any namespace containing a conforming `Module` struct:
 
@@ -185,7 +185,7 @@ All three are templates that accept any printf-style log function:
 
 ---
 
-## Module Groups in `main.cpp`
+## Module Groups in main.cpp
 
 Modules are organised into four arrays. **Order within each array encodes dependency constraints.**
 
@@ -379,7 +379,7 @@ See `src/cooling.cpp` for a complete example.
 
 `module_traits::is_module<T>` returns `true` at compile time if `T` has both `init()` and `service()` with the correct return types. Used internally by `ASSERT_MODULE_INTERFACE`.
 
-### `ASSERT_MODULE_INTERFACE(Module)`
+### ASSERT_MODULE_INTERFACE(Module)
 
 Place this immediately after your `Module` struct definition. It produces a descriptive static_assert failure if the interface is not satisfied:
 

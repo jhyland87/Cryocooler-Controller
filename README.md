@@ -88,13 +88,13 @@ flowchart TD
 
 ## Module Reference
 
-### `hardware`
+### hardware
 
 Initialises the shared I2C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction, and an error monitor (`reportI2cError()` / `serviceI2c()`) that triggers automatic bus recovery when error counts exceed a threshold.
 
 ---
 
-### `state_machine`
+### state_machine
 
 The core of the controller. Ingests sensor readings every tick and outputs a complete set of actuator targets. Contains no hardware calls — pure logic, fully unit-testable on the host PC.
 
@@ -131,7 +131,7 @@ The core of the controller. Ingests sensor readings every tick and outputs a com
 
 ---
 
-### `cold_head`
+### cold_head
 
 Reads the PT1000 RTD via the ADS122C04 24-bit ADC over I2C (address 0x45). The ADC is configured for 4-wire ratiometric measurement with 250 µA IDAC excitation and a 3854 Ω external reference resistor. Raw ADC counts are converted to resistance, then to temperature via the Callendar-Van Dusen equation (above 0 °C) and AN709 polynomial (below 0 °C).
 
@@ -146,7 +146,7 @@ Uses a non-blocking two-phase state machine: start single-shot conversion → po
 
 ---
 
-### `amplifier`
+### amplifier
 
 Drives the AD9833 DDS (60 Hz sine wave), AD5693R 16-bit DAC (compressor power), and ACS37800 current sensor. Provides two ramp modes:
 
@@ -157,7 +157,7 @@ Drives the AD9833 DDS (60 Hz sine wave), AD5693R 16-bit DAC (compressor power), 
 
 ---
 
-### `imu`
+### imu
 
 Drives the LSM6DSOX 6-DOF IMU over I2C (accelerometer only). On `init()` the accelerometer is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
@@ -176,13 +176,13 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ---
 
-### `sysinfo`
+### sysinfo
 
 Reads bus voltage and current via the INA237 power monitor over I2C. Applies EMA smoothing and exposes `getVoltage()`.
 
 ---
 
-### `cooling`
+### cooling
 
 Controls the cooling fan and pump via a single EMC2303 three-channel PWM controller over I2C (address 0x2F). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
 
@@ -211,13 +211,13 @@ Controls the cooling fan and pump via a single EMC2303 three-channel PWM control
 
 ---
 
-### `compressor`
+### compressor
 
 Manages the compressor relay (SparkFun Qwiic Single Relay at 0x19) with timed-run support. `compressor start <duration>` energises the relay for a specified duration (e.g. `1h30m`, `45s`), clamped to `COMPRESSOR_MAX_RUN_MS`. Can be disabled at compile time with `ENABLE_COMPRESSOR false`.
 
 ---
 
-### `indicator`
+### indicator
 
 Drives the on-board WS2812 RGB LED (GPIO 38) according to the state machine's requested `Mode`. All flash timing is non-blocking — `update(nowMs)` is called every loop iteration.
 
@@ -232,7 +232,7 @@ Drives the on-board WS2812 RGB LED (GPIO 38) according to the state machine's re
 
 ---
 
-### `dashboard`
+### dashboard
 
 Connects to WiFi and serves a Preact single-page application with real-time telemetry:
 
@@ -244,13 +244,13 @@ The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware fla
 
 ---
 
-### `ota`
+### ota
 
 HTTP OTA firmware update endpoint. `GET /ota` serves an upload form; `POST /ota` flashes new firmware. Enabled with `ENABLE_OTA true` in `config.h`.
 
 ---
 
-### `commands`
+### commands
 
 Non-blocking USB serial command handler. `service()` accumulates characters and dispatches completed lines. The same `processLine()` function is used by the TCP server and by unit tests with a stub `Print`.
 
@@ -290,19 +290,19 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 
 ---
 
-### `telemetry`
+### telemetry
 
 Snapshots all module values each tick into a `FrameBuilder`. The WebSocket path encodes frames as Protobuf binary via Nanopb; the HTTP `/api/telemetry` endpoint returns JSON. The schema source of truth is `proto/telemetry.proto`.
 
 ---
 
-### `frame_builder`
+### frame_builder
 
 Format-agnostic telemetry frame with a fluent field API. Renders to Serial Studio wire format or `JsonDocument` from the same snapshot.
 
 ---
 
-### `conversions`
+### conversions
 
 Header-only pure-math utilities with no hardware dependencies — safe for native unit tests.
 
@@ -317,7 +317,7 @@ Header-only pure-math utilities with no hardware dependencies — safe for nativ
 
 ---
 
-### `sensor_mock`
+### sensor_mock
 
 Injects synthetic sensor values into all modules for hardware-free FSM testing. When `sensor_mock::isActive()`, `read()`/`service()` in each module pull from `sensor_mock::get()` instead of hardware. Activated via the `mock` serial command.
 
@@ -448,19 +448,19 @@ These originate from all non-Fault states and are omitted from the diagrams abov
 
 The firmware build runs three pre-build scripts in order before PlatformIO compiles:
 
-### 1. Protobuf compilation (`scripts/compile_proto.py`)
+### 1. Protobuf compilation (scripts/compile_proto.py)
 
 Compiles `proto/telemetry.proto` into Nanopb C stubs (`src/generated/telemetry.pb.c`, `include/generated/telemetry.pb.h`). Auto-installs the `google.protobuf` Python package if missing.
 
 Skip with `SKIP_PROTO_BUILD=1 pio run`.
 
-### 2. Dashboard build (`scripts/build_dashboard.py`)
+### 2. Dashboard build (scripts/build_dashboard.py)
 
 Runs `npm ci` in `dashboard/`, generates protobufjs stubs (`npm run proto:build`), then builds the Vite SPA (`npm run build`) into `data/`.
 
 Skip with `SKIP_DASHBOARD_BUILD=1 pio run`.
 
-### 3. Web embedding (`scripts/embed_web.py`)
+### 3. Web embedding (scripts/embed_web.py)
 
 Embeds `data/*.html/css/js` as `PROGMEM const char[]` arrays in `include/web_content.h`. The SPA is served directly from flash — no filesystem needed.
 
@@ -475,7 +475,7 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 
 ## Dependencies
 
-### PlatformIO libraries (`platformio.ini`)
+### PlatformIO libraries (platformio.ini)
 
 | Library | Purpose |
 |---------|---------|
@@ -493,7 +493,7 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 | `nanopb/Nanopb` | Protobuf C encoder/decoder |
 | `sparkfun/SparkFun ADS122C04 ADC Arduino Library` | 24-bit ADC for PT1000 RTD |
 
-### Local libraries (`lib/`)
+### Local libraries (lib/)
 
 | Library | Purpose |
 |---------|---------|
@@ -501,7 +501,7 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 | `ContinuousZMCT103C` | Non-blocking AC current RMS sampling |
 | `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
 
-### Dashboard (`dashboard/package.json`)
+### Dashboard (dashboard/package.json)
 
 | Package | Purpose |
 |---------|---------|

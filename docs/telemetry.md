@@ -20,13 +20,13 @@ We'll add a hypothetical field `cooling.pump_pressure_bar` (a float read from
 
 ---
 
-## Step 1 — `src/telemetry.cpp`: `emit()` and `buildStartupFrame()`
+## Step 1 — src/telemetry.cpp: emit() and buildStartupFrame()
 
 `emit()` is called once per control tick (1 Hz) and populates `lastFrame_`.
 `buildStartupFrame()` is the startup slow-path that is used before the first
 `emit()` completes.  Both must be kept in sync.
 
-### 1a — `emit()`
+### 1a — emit()
 
 Find the `cooling.*` block and add your field:
 
@@ -43,7 +43,7 @@ lastFrame_
 The format string controls both the Serial Studio output and how the value is
 stored internally (float/int/string determines the JSON type).
 
-### 1b — `buildStartupFrame()`
+### 1b — buildStartupFrame()
 
 The same field must appear in `buildStartupFrame()` so the HTTP dashboard gets
 a valid structure even during startup.  If the module might not be ready yet,
@@ -79,7 +79,7 @@ static const char* const kPassiveFields[] = {
 };
 ```
 
-### 1d — Check `FrameBuilder::MAX_FIELDS`
+### 1d — Check FrameBuilder::MAX_FIELDS
 
 If the build produces a compile-time assertion failure about field count, bump
 the limit in `include/frame_builder.h`:
@@ -93,7 +93,7 @@ Count fields by searching for `.field(` calls across both `emit()` and
 
 ---
 
-## Step 2 — `proto/telemetry.proto`: Schema definition
+## Step 2 — proto/telemetry.proto: Schema definition
 
 The `.proto` file is the single source of truth for the WebSocket binary
 format.  Every field must live inside a **message** that maps to a dot-notation
@@ -170,7 +170,7 @@ The next `pio run` will regenerate all four files automatically via
 
 ---
 
-## Step 4 — `src/telemetry_pb.cpp`: Nanopb encoder
+## Step 4 — src/telemetry_pb.cpp: Nanopb encoder
 
 This file populates the Nanopb struct that is encoded and sent over WebSocket.
 It reads from the same module getters as `telemetry.cpp` but fills struct
@@ -194,7 +194,7 @@ snake_case (e.g. `pump_pressure_bar` → `frame_.cooling.pump_pressure_bar`).
 
 ---
 
-## Step 5 — `dashboard/src/types/telemetry.ts`: TypeScript interface
+## Step 5 — dashboard/src/types/telemetry.ts: TypeScript interface
 
 Add the new field to the appropriate nested interface so TypeScript knows about
 it:
@@ -225,7 +225,7 @@ vacuum?: {
 
 ---
 
-## Step 6 — `dashboard/src/utils/decodeTelemetry.ts`: Protobuf → TypeScript mapping
+## Step 6 — dashboard/src/utils/decodeTelemetry.ts: Protobuf → TypeScript mapping
 
 Map the protobufjs-generated camelCase property to the snake_case TypeScript
 field.  protobufjs converts `pump_pressure_bar` → `pumpPressureBar`
@@ -259,7 +259,7 @@ if (f.vacuum) {
 
 ---
 
-## Step 7 — `include/dashboard_config.h`: Serial Studio layout
+## Step 7 — include/dashboard_config.h: Serial Studio layout
 
 Add a `DatasetCfg` entry in the appropriate group array so the field appears
 in the Serial Studio desktop dashboard:
@@ -294,7 +294,7 @@ For a new group, add a new `DatasetCfg` array and a new `GroupCfg` entry in
 
 These are only needed if you want the field visible in the Preact dashboard.
 
-### 8a — History buffer (`App.tsx`)
+### 8a — History buffer (App.tsx)
 
 To record a rolling 100-sample history for use in a chart, add the key to
 `HISTORY_KEYS`:
@@ -307,7 +307,7 @@ const HISTORY_KEYS = [
 ] as const;
 ```
 
-### 8b — Quick-read tile (`App.tsx`)
+### 8b — Quick-read tile (App.tsx)
 
 To show the value as a large numeric tile in the top row:
 
