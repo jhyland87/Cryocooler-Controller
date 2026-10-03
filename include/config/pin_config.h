@@ -65,7 +65,8 @@
 
 // ACS37800 Power Monitor — dedicated SPI3 bus (SPI3_HOST)
 // Separate bus required: ACS37800 keeps MISO driven when CS is HIGH.
-#define ACS37800_CS        43
+// CS is GPIO17, not GPIO43: GPIO43 is U0TXD and toggles with ROM boot messages at reset.
+#define ACS37800_CS        17
 #define ACS37800_SPI_CLK   11
 #define ACS37800_SPI_MOSI  12
 #define ACS37800_SPI_MISO  13
