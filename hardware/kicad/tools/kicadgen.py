@@ -369,6 +369,7 @@ class Sheet:
         self.path = ''
         self.finalized = False
         self.handwired = False
+        self.screen_uid = new_uuid()   # a sheet file's own uuid differs from its sheet block's uuid
 
     @staticmethod
     def snap(value):
@@ -496,7 +497,7 @@ class Sheet:
             if (round(point[0], 3), round(point[1], 3)) not in known:
                 self.junctions.append(point)
         out = ['(kicad_sch', f'\t(version {VERSION})', '\t(generator "eeschema")', '\t(generator_version "10.0")',
-               f'\t(uuid {q(self.uid if self.path == "/" + root_uuid else self.uid)})', f'\t(paper {q(self.paper)})',
+               f'\t(uuid {q(self.uid if self.path == "/" + root_uuid else self.screen_uid)})', f'\t(paper {q(self.paper)})',
                f'\t(title_block (title {q(self.title)}) (rev "A") (company "Cryocooler Controller"))',
                '\t(lib_symbols']
         for lib_id in sorted(self.used_libs):
@@ -529,7 +530,8 @@ class Sheet:
             out.append(self.render_part(part, root_uuid))
         for item in self.sheet_symbols:
             out.append(item)
-        out.append('\t(sheet_instances (path "/" (page "1")))')
+        if self.path == '/' + root_uuid:
+            out.append('\t(sheet_instances (path "/" (page "1")))')
         if self.path == '/' + root_uuid:
             out.append('\t(embedded_fonts no)')
         out.append(')')
