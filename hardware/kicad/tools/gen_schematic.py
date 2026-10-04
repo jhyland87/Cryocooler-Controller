@@ -1153,18 +1153,21 @@ def build_indicators(sh):
 # ═════════════════════════════════════════════════════════════════════════
 # Project assembly
 # ═════════════════════════════════════════════════════════════════════════
+# root sheet uuid KiCad has recorded for this project (instance paths must start with it)
+ROOT_UUID = '8aa5b67b-a486-4448-878d-4d9f2d51f462'
+
 SHEETS = [
     ('Power Input', 'power_input', build_power_input, 'A3'),
-    ('Power Button', 'power_button', build_power_button, 'A3'),
-    ('Rails 5V 3V3', 'rails_logic', build_rails_logic, 'A3'),
-    ('Rails +-15V', 'rails_15v', build_rails_15v, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
-    ('Amp Control', 'amp_control', build_amp_control, 'A3'),
-    ('Amp Current', 'amp_current', build_amp_current, 'A3'),
-    ('System Current', 'system_current', build_system_current, 'A3'),
     ('Cooling', 'cooling', build_cooling, 'A3'),
+    ('Power Button', 'power_button', build_power_button, 'A3'),
+    ('Amp Control', 'amp_control', build_amp_control, 'A3'),
     ('Cold Head', 'cold_head', build_cold_head, 'A3'),
+    ('Rails 5V 3V3', 'rails_logic', build_rails_logic, 'A3'),
+    ('Amp Current', 'amp_current', build_amp_current, 'A3'),
     ('IMU', 'imu', build_imu, 'A3'),
+    ('Rails +-15V', 'rails_15v', build_rails_15v, 'A3'),
+    ('System Current', 'system_current', build_system_current, 'A3'),
     ('Indicators', 'indicators', build_indicators, 'A3'),
 ]
 
@@ -1183,7 +1186,7 @@ def sheet_symbol(root_uuid, child, index, x, y):
 
 def main():
     kicadgen.reset_uuids()
-    root_uuid = kicadgen.stable_uuid('root')
+    root_uuid = ROOT_UUID
     root = Sheet('Cryocooler Controller', 'cryocooler.kicad_sch', 'A3')
     root.uid = root_uuid
     root.path = '/' + root_uuid
