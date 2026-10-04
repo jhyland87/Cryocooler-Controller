@@ -55,6 +55,8 @@ def embed_symbol(lib_id):
     symbol = get_symbol(lib_id)
     short = sval(symbol[1])
     node = [symbol[0], ('s', lib_id)] + symbol[2:]
+    if not find_all(node, 'embedded_fonts'):
+        node.append(['embedded_fonts', 'no'])
     return '\t\t' + dump(node, 2)
 
 
@@ -174,6 +176,27 @@ class Part:
         return (min(xs), min(ys), max(xs), max(ys))
 
 
+# Global-label direction seen from the ESP32 (root) sheet: 'out' = root drives the net, 'in' = root reads it.
+LABEL_DIRECTION = {
+    'SPI_MOSI': 'out', 'SPI_SCK': 'out', 'IMU_CS': 'out', 'MCP4921_CS': 'out', 'AD9833_FSYNC': 'out',
+    'AMP_REM_EN': 'out', 'PWR_KILL': 'out', 'ACS_SCK': 'out', 'ACS_MOSI': 'out', 'ACS_CS': 'out',
+    'LED_FAULT': 'out', 'LED_READY': 'out', 'STATUS_RGB': 'out',
+    'SPI_MISO': 'in', 'ACS_MISO': 'in', 'IMU_INT1': 'in', 'IMU_INT2': 'in', 'FLOW_TACH': 'in',
+    'FAN_ALERT': 'in', 'PWR_INT': 'in', 'NTC_ADC': 'in',
+}
+
+
+def label_shape(net, is_root, filename):
+    """KiCad global-label shape for a net on a given sheet (bidirectional when the direction is not fixed)."""
+    if net == 'SIG_SINE':
+        return {'signal_gen.kicad_sch': 'output', 'amp_control.kicad_sch': 'input'}.get(filename, 'bidirectional')
+    direction = LABEL_DIRECTION.get(net)
+    if direction is None:
+        return 'bidirectional'
+    drives = (direction == 'out') == is_root
+    return 'output' if drives else 'input'
+
+
 def merge_overlapping_wires(wires):
     """Union collinear wires that share more than a point, so no wire ends in the middle of another."""
     horizontal, vertical, merged = {}, {}, []
@@ -234,8 +257,8 @@ def split_wires_at(wires, points):
     return result
 
 
-def meeting_points(wires, pins):
-    """Points where three or more wire ends and pins meet (a dot is needed there)."""
+def connection_counts(wires, pins):
+    """Number of wire ends and pins meeting at each point (a wire passing straight through counts as two)."""
     counts = {}
     for start, end in wires:
         for point in (start, end):
@@ -243,8 +266,75 @@ def meeting_points(wires, pins):
             counts[key] = counts.get(key, 0) + 1
     for point in pins:
         key = (round(point[0], 2), round(point[1], 2))
-        if key in counts:
-            counts[key] += 1
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def distinct_pins(parts):
+    """Pin points of all parts; stacked pins of one part count once."""
+    return list({(id(p), round(p.pin_point(n)[0], 2), round(p.pin_point(n)[1], 2)): p.pin_point(n)
+                 for p in parts if not p.ref.startswith('#') for n in p.pin_table}.values())
+
+
+def point_inside_wire(point, wire):
+    """True when the point lies strictly inside an axis-aligned wire."""
+    (x1, y1), (x2, y2) = wire
+    if abs(y1 - y2) < 1e-6 and abs(point[1] - y1) < 1e-6:
+        return min(x1, x2) + 1e-6 < point[0] < max(x1, x2) - 1e-6
+    if abs(x1 - x2) < 1e-6 and abs(point[0] - x1) < 1e-6:
+        return min(y1, y2) + 1e-6 < point[1] < max(y1, y2) - 1e-6
+    return False
+
+
+def merge_touching_wires(wires, keep):
+    """Join collinear wires that only touch end to end when nothing else connects at the joint."""
+    keep_points = {(round(x, 2), round(y, 2)) for x, y in keep}
+    ends = {}
+    for start, end in wires:
+        for point in (start, end):
+            key = (round(point[0], 2), round(point[1], 2))
+            ends[key] = ends.get(key, 0) + 1
+    result = list(wires)
+    changed = True
+    while changed:
+        changed = False
+        for index, ((x1, y1), (x2, y2)) in enumerate(result):
+            for other_index in range(index + 1, len(result)):
+                (u1, v1), (u2, v2) = result[other_index]
+                for joint_a, far_a, joint_b, far_b in (((x2, y2), (x1, y1), (u1, v1), (u2, v2)),
+                                                       ((x1, y1), (x2, y2), (u1, v1), (u2, v2)),
+                                                       ((x2, y2), (x1, y1), (u2, v2), (u1, v1)),
+                                                       ((x1, y1), (x2, y2), (u2, v2), (u1, v1))):
+                    key = (round(joint_a[0], 2), round(joint_a[1], 2))
+                    if key != (round(joint_b[0], 2), round(joint_b[1], 2)):
+                        continue
+                    collinear = (abs(far_a[0] - joint_a[0]) < 1e-6 and abs(far_b[0] - joint_a[0]) < 1e-6) or \
+                                (abs(far_a[1] - joint_a[1]) < 1e-6 and abs(far_b[1] - joint_a[1]) < 1e-6)
+                    opposite = (far_a[0] - joint_a[0]) * (far_b[0] - joint_a[0]) <= 0 and \
+                               (far_a[1] - joint_a[1]) * (far_b[1] - joint_a[1]) <= 0
+                    crossed = any(point_inside_wire(joint_a, wire) for wire in result)
+                    if collinear and opposite and key not in keep_points and ends.get(key, 0) == 2 and not crossed:
+                        result[index] = (far_a, far_b)
+                        del result[other_index]
+                        changed = True
+                        break
+                if changed:
+                    break
+            if changed:
+                break
+    return result
+
+
+def meeting_points(wires, pins):
+    """Points that need a junction dot: wire ends plus real part pins (not power symbols) totalling three."""
+    counts = {}
+    for start, end in wires:
+        for point in (start, end):
+            key = (round(point[0], 2), round(point[1], 2))
+            counts[key] = counts.get(key, 0) + 1
+    for point in pins:
+        key = (round(point[0], 2), round(point[1], 2))
+        counts[key] = counts.get(key, 0) + 1
     return [point for point, count in counts.items() if count >= 3]
 
 
@@ -319,24 +409,28 @@ class Sheet:
         layout.finalize(self)
 
     # ── serialization ────────────────────────────────────────────────────
-    def _effects(self, size=1.27, justify=None, hide=False):
+    def _effects(self, size=1.27, justify=None):
         out = f'(effects (font (size {size} {size}))'
         if justify and justify != 'center':
             out += f' (justify {justify})'
-        if hide:
-            out += ' (hide yes)'
         return out + ')'
 
     def _property(self, key, value, x, y, rot=0, hide=False, justify=None):
-        return (f'\t\t(property {q(key)} {q(value)} (at {fmt(x)} {fmt(y)} {rot}) '
+        # format 20260306 keeps (hide yes) directly in the property, not inside (effects)
+        hidden = ' (hide yes)' if hide else ''
+        return (f'\t\t(property {q(key)} {q(value)} (at {fmt(x)} {fmt(y)} {rot}){hidden} '
                 f'(show_name no) (do_not_autoplace no) '
-                f'{self._effects(justify=justify, hide=hide)})')
+                f'{self._effects(justify=justify)})')
 
     def render_part(self, part, root_uuid):
         symbol = get_symbol(part.lib_id)
+        # KiCad stores a 180-degree rotation plus mirror-y as no rotation plus mirror-x
+        flipped = part.mirror and int(part.rot) % 360 == 180
         lines = ['\t(symbol', f'\t\t(lib_id {q(part.lib_id)})',
-                 f'\t\t(at {fmt(part.x)} {fmt(part.y)} {part.rot})']
-        if part.mirror:
+                 f'\t\t(at {fmt(part.x)} {fmt(part.y)} {0 if flipped else part.rot})']
+        if flipped:
+            lines.append('\t\t(mirror x)')
+        elif part.mirror:
             lines.append('\t\t(mirror y)')
         lines += [f'\t\t(unit {part.unit})', '\t\t(body_style 1)', '\t\t(exclude_from_sim no)',
                   '\t\t(in_bom yes)' if not getattr(part, 'is_power', False) and not part.ref.startswith('#') else '\t\t(in_bom no)',
@@ -365,11 +459,25 @@ class Sheet:
             if key in ('Datasheet', 'Description'):
                 continue
             lines.append(self._property(key, value, part.x, part.y, 0, hide=True))
-        for number in part.pin_table:
+        # KiCad lists every pin of the symbol on each unit of a multi-unit part
+        all_numbers = list(dict.fromkeys(pin[0] for pin in pins(symbol)))
+        for number in all_numbers or part.pin_table:
             lines.append(f'\t\t(pin {q(number)} (uuid {q(new_uuid())}))')
         lines.append(f'\t\t(instances (project {q(PROJECT)} (path {q(self.path)} (reference {q(part.ref)}) (unit {part.unit}))))')
         lines.append('\t)')
         return '\n'.join(lines)
+
+    def four_way_junctions(self):
+        """Points where four or more connections meet; call after finalize()."""
+        wires = merge_overlapping_wires(self.wires)
+        # stacked pins of one part (e.g. several GND pins at one point) look like a single connection
+        pins = list({(id(p), round(p.pin_point(n)[0], 2), round(p.pin_point(n)[1], 2)): p.pin_point(n)
+                     for p in self.parts for n in p.pin_table}.values())
+        if self.handwired:
+            nodes = pins + [(p.x, p.y) for p in self.parts if p.ref.startswith('#')]
+            wires = split_wires_at(wires, nodes)
+        counts = connection_counts(wires, pins)
+        return [(x / 1.27, y / 1.27, c) for (x, y), c in counts.items() if c >= 4]
 
     def render(self, root_uuid):
         self.finalize()
@@ -379,23 +487,25 @@ class Sheet:
             nodes = [p.pin_point(n) for p in self.parts for n in p.pin_table]
             nodes += [(p.x, p.y) for p in self.parts if p.ref.startswith('#')]
             self.wires = split_wires_at(self.wires, nodes)
+            keep = list(nodes) + [(x, y) for _, _, (x, y), _ in self.labels]
+            self.wires = merge_touching_wires(self.wires, keep)
         known = {(round(x, 3), round(y, 3)) for x, y in self.junctions}
         if self.handwired:
-            self.junctions.extend(meeting_points(self.wires, [p.pin_point(n) for p in self.parts
-                                                              for n in p.pin_table if not p.ref.startswith('#')]))
+            self.junctions.extend(meeting_points(self.wires, distinct_pins(self.parts)))
         for point in t_junctions(self.wires):
             if (round(point[0], 3), round(point[1], 3)) not in known:
                 self.junctions.append(point)
         out = ['(kicad_sch', f'\t(version {VERSION})', '\t(generator "eeschema")', '\t(generator_version "10.0")',
                f'\t(uuid {q(self.uid if self.path == "/" + root_uuid else self.uid)})', f'\t(paper {q(self.paper)})',
-               f'\t(title_block (title {q(self.title)}) (company "Cryocooler Controller") (rev "A"))',
+               f'\t(title_block (title {q(self.title)}) (rev "A") (company "Cryocooler Controller"))',
                '\t(lib_symbols']
-        for lib_id in self.used_libs:
+        for lib_id in sorted(self.used_libs):
             out.append(embed_symbol(lib_id))
         out.append('\t)')
         for (x1, y1), (x2, y2) in self.wires:
             out.append(f'\t(wire (pts (xy {fmt(x1)} {fmt(y1)}) (xy {fmt(x2)} {fmt(y2)})) '
                        f'(stroke (width 0) (type default)) (uuid {q(new_uuid())}))')
+        self.junctions = list({(round(x, 3), round(y, 3)): (x, y) for x, y in self.junctions}.values())
         for (x, y) in self.junctions:
             out.append(f'\t(junction (at {fmt(x)} {fmt(y)}) (diameter 0) (color 0 0 0 0) (uuid {q(new_uuid())}))')
         for (x, y) in self.no_connects:
@@ -407,10 +517,11 @@ class Sheet:
                 out.append(f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
                            f'(effects (font (size 1.27 1.27)) (justify {justify} bottom)) (uuid {q(new_uuid())}))')
             else:
-                out.append(f'\t(global_label {q(net)} (shape bidirectional) (at {fmt(x)} {fmt(y)} {rotation}) '
+                out.append(f'\t(global_label {q(net)} (shape {label_shape(net, self.path == '/' + root_uuid, self.filename)}) (at {fmt(x)} {fmt(y)} {rotation}) '
                            f'(fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify {justify})) '
                            f'(uuid {q(new_uuid())}) (property "Intersheetrefs" "${{INTERSHEET_REFS}}" '
-                           f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (effects (font (size 1.27 1.27)) (justify {justify}))))')
+                           f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) (do_not_autoplace no) '
+                           f'(effects (font (size 1.27 1.27)) (justify {justify}))))')
         for text, x, y, size in self.text_items:
             out.append(f'\t(text {q(text)} (exclude_from_sim no) (at {fmt(x)} {fmt(y)} 0) '
                        f'(effects (font (size {size} {size})) (justify left top)) (uuid {q(new_uuid())}))')
@@ -419,7 +530,8 @@ class Sheet:
         for item in self.sheet_symbols:
             out.append(item)
         out.append('\t(sheet_instances (path "/" (page "1")))')
-        out.append('\t(embedded_fonts no)')
+        if self.path == '/' + root_uuid:
+            out.append('\t(embedded_fonts no)')
         out.append(')')
         return '\n'.join(out) + '\n'
 

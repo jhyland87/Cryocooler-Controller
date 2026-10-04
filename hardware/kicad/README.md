@@ -48,6 +48,8 @@ shared rails with decoupling caps hanging off them, switching loops are kept com
 lines rather than net labels (labels are used only for global signals such as the GPIO nets, and for a few
 local nets that would otherwise need long detours, for example the ISO7741 isolated-side SPI lines).
 
+Bypass/decoupling capacitors for each IC are drawn together in a labelled block at the side of the sheet (supply rail, caps, ground bus) and connect to the IC through the shared power nets; regulator input/output and compensation capacitors stay in the circuit.
+
 **No-overlap text rule.** Reference, value, net-label and note text may not overlap other text or a symbol body
 (plus 1 mm for pin numbers). `tools/textlayout.py` places each field in the first free spot, hides a field only
 if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. Pin names and

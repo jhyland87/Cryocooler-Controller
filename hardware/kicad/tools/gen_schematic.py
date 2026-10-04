@@ -153,12 +153,8 @@ def build_mcu(sh):
     # supplies
     vdd = pin_cell(esp, '2')
     wire(sh, vdd, (vdd[0], 72))
-    wire(sh, (144, 72), (158, 72))
     rail_symbol(sh, '+3V3', (vdd[0], 72))
-    vcap(sh, '10uF', 144, 72)
-    drop_ground(sh, (144, 78), 0)
-    vcap(sh, '100nF', 158, 72)
-    drop_ground(sh, (158, 78), 0)
+    place_blocks(sh, [('ESP32-S3 DECOUPLING CAPACITORS', '+3V3', ('10uF', '100nF'))], 190, 38)
     gnd = spur(sh, esp, '1', 2)
     ground(sh, gnd)
     # EN: RC power-on reset plus RESET switch, drawn above the module
@@ -265,10 +261,9 @@ def build_power_button(sh):
     u = place_ic(sh, 'cryocooler:LTC2954CTS8-2', 'LTC2954CTS8-2', 60, 60, 'Package_TO_SOT_SMD:SOT-23-8')
     # supply with bypass above the controller
     vin_pin = pin_cell(u, '1')
-    wire(sh, vin_pin, (48, vin_pin[1]), (48, 46), (38, 46))
-    rail_symbol(sh, 'VIN', (38, 46))
-    vcap(sh, '100nF', 44, 46, fp=C0805)
-    drop_ground(sh, (44, 52), 0)
+    wire(sh, vin_pin, (48, vin_pin[1]), (48, 46), (44, 46))
+    rail_symbol(sh, 'VIN', (44, 46))
+    place_blocks(sh, [('LTC2954 DECOUPLING CAPACITORS', 'VIN', ('100nF',))], 170, 40)
     drop_ground(sh, pin_cell(u, 'GND') if False else pin_cell(u, '4'), 2)
     # push button, panel connector, ONT left open
     pb = pin_cell(u, '2')
@@ -347,8 +342,8 @@ def build_power_button(sh):
     wire(sh, pin_cell(q_a, '1'), node, pin_cell(q_c, '1'))
     vres(sh, '10k', 44, 122)
     rail_symbol(sh, '+3V3', (44, 122))
-    vres(sh, '100k', 44, 128)
-    drop_ground(sh, (44, 134), 0)
+    vres(sh, '100k', 48, 128)
+    drop_ground(sh, (48, 134), 0)
     # PWR_ON_N: Q_c drain, Q_b gate and a 100k pull-up to VIN
     wire(sh, pin_cell(q_c, '3'), (28, 100), (106, 100), (106, 128), pin_cell(q_b, '1'))
     vres(sh, '100k', 60, 94)
@@ -358,6 +353,8 @@ def build_power_button(sh):
 def wire(sh, *points):
     """Hand-drawn polyline; points are (column, row) cells on the 1.27 mm grid."""
     for first, second in zip(points, points[1:]):
+        if first == second:
+            continue
         sh.wires.append(((first[0] * 1.27, first[1] * 1.27), (second[0] * 1.27, second[1] * 1.27)))
 
 
@@ -435,6 +432,32 @@ def net_label(sh, net, cell, angle=0, is_global=False):
     sh.labels.append((kind, net, (cell[0] * 1.27, cell[1] * 1.27), angle))
 
 
+def decoupling_block(sh, title, column, row, supply, values, ground='GND'):
+    """Standalone bank of decoupling caps: supply rail on top, ground bus below, one cap per value.
+
+    Returns the width in cells (rail plus title, whichever is wider)."""
+    caps = [column + 6 + 12 * index for index in range(len(values))]
+    sh.note(title, column * 1.27, (row - 8) * 1.27, 1.8)
+    wire(sh, (column, row), (caps[-1], row))
+    wire(sh, (column, row + 6), (caps[-1], row + 6))
+    rail_symbol(sh, supply, (column, row))
+    rail_symbol(sh, ground, (column, row + 6))
+    for x, value in zip(caps, values):
+        vcap(sh, value, x, row, fp=C0805 if value in ('1uF', '10uF') else None)
+    return max(caps[-1] - column, round(len(title) * 1.4)) + 6
+
+
+def place_blocks(sh, blocks, column, row, max_column=240, row_pitch=22):
+    """Lay out decoupling blocks left to right from (column, row), wrapping to a new row at max_column."""
+    x = column
+    for title, supply, values, *ground in blocks:
+        width = max(12 * len(values) + 6, round(len(title) * 1.4)) + 6
+        if x + width > max_column:
+            x, row = column, row + row_pitch
+        decoupling_block(sh, title, x, row, supply, values, ground[0] if ground else 'GND')
+        x += width
+
+
 def build_rails_logic(sh):
     """Hand-laid sheet: input rail, buck switching loop, output rail, then the 3.3 V linear stage."""
     sh.handwired = True
@@ -459,7 +482,7 @@ def build_rails_logic(sh):
     inductor = aux(sh, 'Device:L', 'L', 'SRN6045TA-4R7M', {}, pose=at(108, 73, 90), fp='Inductor_SMD:L_Bourns_SRN6045TA')
     # output rail with FB feedback and two 22 uF caps
     wire(sh, (111, 73), (121, 73), (127, 73), (142, 73), (154, 73))
-    wire(sh, (95, 81), (121, 81), (121, 73))
+    wire(sh, (95, 81), (119, 81), (119, 73))
     rail_symbol(sh, '+5V', (121, 73))
     for column in (127, 142):
         cap(sh, '22uF/10V', '', '', pose=at(column, 76), fp=C1206)
@@ -497,13 +520,10 @@ def build_rails_15v(sh):
     px, py = 110, 100
     # +5V input: bus left of the IC, rail above it with three decoupling caps
     wire(sh, (96, 70), (96, 102))
-    wire(sh, (96, 70), (132, 70))
     rail_symbol(sh, '+5V', (96, 70))
     for pin in ('9', '17', '19', '18', '11'):
         spur(sh, u, pin, 2)
-    for column, value in ((104, '10uF'), (118, '10uF'), (132, '100nF')):
-        vcap(sh, value, column, 70)
-        drop_ground(sh, (column, 76), 0)
+    place_blocks(sh, [('ADP5071 DECOUPLING CAPACITORS', '+5V', ('10uF', '10uF', '100nF'))], 190, 150)
     # COMP1 network (left, above the bus crossing): 5.6k then 47nF to ground
     wire(sh, pin_cell(u, '8'), (93, 84))
     hres(sh, '5.6k', 90, 84)
@@ -596,8 +616,7 @@ def build_rails_15v(sh):
     vres(sh, '113k', vout[0] + 14, vout[1])
     vres(sh, '10k', vout[0] + 14, vout[1] + 6)
     drop_ground(sh, (vout[0] + 14, vout[1] + 12), 0)
-    vcap(sh, '100pF', vout[0] + 20, vout[1])
-    wire(sh, (vout[0] + 20, vout[1] + 6), (vout[0] + 14, vout[1] + 6))
+    vcap(sh, '100pF', vout[0] + 8, vout[1])
     wire(sh, adj, (adj[0] + 3, adj[1]), (adj[0] + 3, vout[1] + 6), (vout[0] + 14, vout[1] + 6))
     vcap(sh, '4.7uF/25V', vout[0] + 26, vout[1], fp=C1206)
     drop_ground(sh, (vout[0] + 26, vout[1] + 6), 0)
@@ -618,11 +637,9 @@ def build_signal_gen(sh):
     osc = place_ic(sh, 'Oscillator:SG-8002CA', 'SG-8002CA-PH 25MHz', 22, 64,
                    'Oscillator:Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm')
     wire(sh, pin_cell(osc, '4'), (22, 56))
-    wire(sh, (8, 56), (22, 56))
+    wire(sh, (14, 56), (22, 56))
     rail_symbol(sh, '+5V', (22, 56))
     wire(sh, pin_cell(osc, '1'), (14, 64), (14, 56))
-    vcap(sh, '100nF', 8, 56)
-    drop_ground(sh, (8, 62), 0)
     drop_ground(sh, pin_cell(osc, '2'), 2)
     # AD9833
     dds = place_ic(sh, 'Interface:AD9833xRM', 'AD9833BRMZ', 60, 60, 'Package_SO:MSOP-10_3x3mm_P0.5mm')
@@ -634,11 +651,8 @@ def build_signal_gen(sh):
     wire(sh, (58, 72), (62, 72))
     drop_ground(sh, (60, 72), 2)
     vdd = pin_cell(dds, '2')
-    wire(sh, vdd, (vdd[0], 48), (97, 48))
+    wire(sh, vdd, (vdd[0], 48), (75, 48))
     rail_symbol(sh, '+5V', (vdd[0], 48))
-    for column, value in ((85, '100nF'), (97, '10uF')):
-        vcap(sh, value, column, 48)
-        drop_ground(sh, (column, 54), 0)
     comp = pin_cell(dds, '1')
     wire(sh, comp, (75, comp[1]), (75, 54))
     vcap(sh, '10nF', 75, 48)
@@ -674,13 +688,8 @@ def build_signal_gen(sh):
     top, bottom = pin_cell(opa_p, '8'), pin_cell(opa_p, '4')
     wire(sh, top, (top[0], top[1] - 6))
     rail_symbol(sh, '+15V', (top[0], top[1] - 6))
-    wire(sh, (top[0], top[1] - 4), (top[0] + 6, top[1] - 4))
-    vcap(sh, '100nF', top[0] + 6, top[1] - 4)
-    drop_ground(sh, (top[0] + 6, top[1] + 2), 0)
-    wire(sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 8, bottom[1] + 4))
+    wire(sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4))
     rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 4))
-    vcap(sh, '100nF', bottom[0] + 8, bottom[1] + 4)
-    drop_ground(sh, (bottom[0] + 8, bottom[1] + 10), 0)
     # AD633 multiplier
     mult = place_ic(sh, 'cryocooler:AD633JRZ-R7', 'AD633JRZ-R7', 200, 66, 'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm')
     wire(sh, pin_cell(mult, '8'), (188, 62), (188, 68))
@@ -690,14 +699,9 @@ def build_signal_gen(sh):
     plus = pin_cell(mult, '6')
     wire(sh, plus, (plus[0], 48))
     rail_symbol(sh, '+15V', (plus[0], 48))
-    wire(sh, (plus[0], 50), (plus[0] + 6, 50))
-    vcap(sh, '100nF', plus[0] + 6, 50)
-    drop_ground(sh, (plus[0] + 6, 56), 0)
     minus = pin_cell(mult, '3')
-    wire(sh, minus, (minus[0], 80), (minus[0] + 10, 80))
+    wire(sh, minus, (minus[0], 80), (minus[0] + 4, 80))
     rail_symbol(sh, '-15V', (minus[0] + 4, 80))
-    vcap(sh, '100nF', minus[0] + 10, 80)
-    drop_ground(sh, (minus[0] + 10, 86), 0)
     wire(sh, pin_cell(mult, '5'), (214, 60))
     hres(sh, '100', 217, 60)
     wire(sh, (220, 60), (224, 60))
@@ -714,11 +718,7 @@ def build_signal_gen(sh):
     ground(sh, (50, 108))
     vdd = pin_cell(dac, '1')
     wire(sh, vdd, (vdd[0], 94), (76, 94))
-    wire(sh, (36, 94), (vdd[0], 94))
-    rail_symbol(sh, '+3V3', (36, 94))
-    for column, value in ((44, '100nF'), (52, '10uF')):
-        vcap(sh, value, column, 94)
-        drop_ground(sh, (column, 100), 0)
+    rail_symbol(sh, '+3V3', (vdd[0], 94))
     vres(sh, '6.8k', 76, 94)
     vref_pin = pin_cell(dac, '6')
     wire(sh, vref_pin, (vref_pin[0], 100), (92, 100))
@@ -744,14 +744,20 @@ def build_signal_gen(sh):
     top, bottom = pin_cell(opa188, '7'), pin_cell(opa188, '4')
     wire(sh, top, (top[0], 98))
     rail_symbol(sh, '+15V', (top[0], 98))
-    wire(sh, (top[0], 100), (top[0] + 6, 100))
-    vcap(sh, '100nF', top[0] + 6, 100)
-    drop_ground(sh, (top[0] + 6, 106), 0)
-    wire(sh, bottom, (bottom[0], 120), (bottom[0] + 10, 120))
+    wire(sh, bottom, (bottom[0], 120), (bottom[0] + 4, 120))
     rail_symbol(sh, '-15V', (bottom[0] + 4, 120))
-    vcap(sh, '100nF', bottom[0] + 10, 120)
-    drop_ground(sh, (bottom[0] + 10, 126), 0)
     wire(sh, (146, 110), (170, 110), (170, 64), pin_cell(mult, '1'))
+    place_blocks(sh, [
+        ('SG-8002CA DECOUPLING CAPACITORS', '+5V', ('100nF',)),
+        ('AD9833 DECOUPLING CAPACITORS', '+5V', ('100nF', '10uF')),
+        ('OPA1656 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
+        ('OPA1656 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
+        ('AD633 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
+        ('AD633 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
+        ('MCP4921 DECOUPLING CAPACITORS', '+3V3', ('100nF', '10uF')),
+        ('OPA188 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
+        ('OPA188 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
+    ], 20, 160, max_column=300)
 
 
 def build_amp_control(sh):
@@ -810,9 +816,6 @@ def build_amp_current(sh):
     vcc1 = pin_cell(iso, '1')
     wire(sh, vcc1, (vcc1[0], 44))
     rail_symbol(sh, '+3V3', (vcc1[0], 44))
-    wire(sh, (vcc1[0], 46), (vcc1[0] - 6, 46))
-    vcap(sh, '100nF', vcc1[0] - 6, 46)
-    drop_ground(sh, (vcc1[0] - 6, 52), 0)
     gnd1 = spur(sh, iso, '2', 2)
     ground(sh, gnd1)
     for pin, net in (('14', 'ISO_MOSI'), ('13', 'ISO_SCK'), ('12', 'ISO_CS'), ('11', 'ISO_MISO')):
@@ -823,9 +826,6 @@ def build_amp_current(sh):
     vcc2 = pin_cell(iso, '16')
     wire(sh, vcc2, (vcc2[0], 44))
     rail_symbol(sh, 'ISO_3V3', (vcc2[0], 44))
-    wire(sh, (vcc2[0], 46), (vcc2[0] + 6, 46))
-    vcap(sh, '100nF', vcc2[0] + 6, 46)
-    rail_symbol(sh, 'ISO_GND', (vcc2[0] + 6, 52))
     rail_symbol(sh, 'ISO_GND', spur(sh, iso, '9', 2))
     # pull-ups for the three idle-state lines, drawn as a small block
     for index, net in enumerate(('ACS_CS', 'ACS_SCK', 'ACS_MOSI')):
@@ -857,8 +857,8 @@ def build_amp_current(sh):
     vsel, gnd2 = pin_cell(dc, '7'), pin_cell(dc, '2')
     wire(sh, vsel, (vsel[0] + 2, vsel[1]), (vsel[0] + 2, gnd2[1]), gnd2)
     rail_symbol(sh, 'ISO_GND', (vsel[0] + 2, gnd2[1]))
-    wire(sh, (vsel[0] + 2, gnd2[1]), (vsel[0] + 6, gnd2[1]))
-    rail_flag(sh, (vsel[0] + 6, gnd2[1]))
+    wire(sh, (vsel[0] + 2, vsel[1]), (vsel[0] + 4, vsel[1]))
+    rail_flag(sh, (vsel[0] + 4, vsel[1]))
     # ACS37800
     acs = place_ic(sh, 'cryocooler:ACS37800KMACTR-030B3-SPI', 'ACS37800KMACTR-030B3-SPI', 110, 60,
                    'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm', rot=180)
@@ -868,12 +868,8 @@ def build_amp_current(sh):
     wire(sh, gnd, (gnd[0], gnd[1] - 2), (gnd[0] - 4, gnd[1] - 2))
     rail_symbol(sh, 'ISO_GND', (gnd[0] - 4, gnd[1] - 2))
     vcc = pin_cell(acs, '13')
-    wire(sh, vcc, (vcc[0], vcc[1] + 4), (116, vcc[1] + 4))
-    rail_symbol(sh, 'ISO_3V3', (116, vcc[1] + 4))
-    wire(sh, (96, vcc[1] + 4), (vcc[0], vcc[1] + 4))
-    for column, value in ((96, '1uF'), (106, '100nF')):
-        vcap(sh, value, column, vcc[1] + 4)
-        rail_symbol(sh, 'ISO_GND', (column, vcc[1] + 10))
+    wire(sh, vcc, (vcc[0], vcc[1] + 4), (vcc[0] + 4, vcc[1] + 4))
+    rail_symbol(sh, 'ISO_3V3', (vcc[0] + 4, vcc[1] + 4))
     vinn = spur(sh, acs, '15', 2)
     rail_symbol(sh, 'ISO_GND', vinn)
     vinp = pin_cell(acs, '16')
@@ -892,6 +888,11 @@ def build_amp_current(sh):
     for connector in (j_out, j_load):
         spur(sh, connector, '2', 2)
         rail_symbol(sh, 'ISO_GND', (pin_cell(connector, '2')[0] - 2, pin_cell(connector, '2')[1]))
+    place_blocks(sh, [
+        ('ISO7741 VCC1 DECOUPLING CAPACITORS', '+3V3', ('100nF',)),
+        ('ISO7741 VCC2 DECOUPLING CAPACITORS', 'ISO_3V3', ('100nF',), 'ISO_GND'),
+        ('ACS37800 DECOUPLING CAPACITORS', 'ISO_3V3', ('1uF', '100nF'), 'ISO_GND'),
+    ], 110, 150, max_column=300)
 
 
 def build_system_current(sh):
@@ -903,7 +904,7 @@ def build_system_current(sh):
     hres(sh, '15m', 30, 62, fp=R2512)
     wire(sh, (33, 62), pin_cell(ina, '10'))
     rail_symbol(sh, 'VSW', (40, 62))
-    wire(sh, (27, 62), (27, 54), pin_cell(ina, '8'))
+    wire(sh, (25, 62), (25, 54), pin_cell(ina, '8'))
     wire(sh, (27, 62), (27, 66), (46, 66), (46, 64), pin_cell(ina, '9'))
     wire(sh, (27, 62), (14, 62))
     rail_symbol(sh, '+12V', (14, 62))
@@ -921,9 +922,7 @@ def build_system_current(sh):
     vs = pin_cell(ina, '6')
     wire(sh, vs, (vs[0], 44))
     rail_symbol(sh, '+3V3', (vs[0], 44))
-    wire(sh, (vs[0], 46), (vs[0] + 6, 46))
-    vcap(sh, '100nF', vs[0] + 6, 46)
-    drop_ground(sh, (vs[0] + 6, 52), 0)
+    place_blocks(sh, [('INA237 DECOUPLING CAPACITORS', '+3V3', ('100nF',))], 120, 100)
     drop_ground(sh, pin_cell(ina, '7'), 2)
 
 
@@ -945,11 +944,7 @@ def build_cooling(sh):
     vdd = pin_cell(emc, '3')
     wire(sh, vdd, (vdd[0], 50))
     rail_symbol(sh, '+3V3', (vdd[0], 50))
-    wire(sh, (46, 52), (vdd[0], 52))
-    vcap(sh, '1uF', 54, 52, fp=C0805)
-    drop_ground(sh, (54, 58), 0)
-    vcap(sh, '100nF', 46, 52)
-    drop_ground(sh, (46, 58), 0)
+    place_blocks(sh, [('EMC2303 DECOUPLING CAPACITORS', '+3V3', ('1uF', '100nF'))], 190, 45)
     drop_ground(sh, pin_cell(emc, '13'), 2)
     # left side: I2C, address strap, clock strap, alert with LED
     for pin, net in (('1', 'SDA'), ('2', 'SCL')):
@@ -1039,12 +1034,9 @@ def build_cold_head(sh):
     avdd, dvdd = pin_cell(adc, '12'), pin_cell(adc, '13')
     wire(sh, avdd, (avdd[0], 42))
     wire(sh, dvdd, (dvdd[0], 42))
-    wire(sh, (52, 42), (68, 42))
+    wire(sh, (avdd[0], 42), (dvdd[0], 42))
     rail_symbol(sh, '+3V3', (60, 42))
-    vcap(sh, '100nF', 52, 42)
-    drop_ground(sh, (52, 48), 0)
-    vcap(sh, '1uF', 68, 42, fp=C0805)
-    drop_ground(sh, (68, 48), 0)
+    place_blocks(sh, [('ADS122C04 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF'))], 190, 100)
     avss, dgnd = spur(sh, adc, '5', 2), spur(sh, adc, '4', 2)
     wire(sh, avss, dgnd)
     drop_ground(sh, (60, 72), 2)
@@ -1107,11 +1099,8 @@ def build_imu(sh):
         net_label(sh, net, spur(sh, imu, pin, 3), 0, is_global=True)
     vdd, vddio = pin_cell(imu, '8'), pin_cell(imu, '5')
     wire(sh, vdd, (vdd[0], 38), (vddio[0], 38), vddio)
-    wire(sh, (70, 38), (98, 38))
     rail_symbol(sh, '+3V3', (80, 38))
-    for column, value in ((70, '100nF'), (84, '10uF'), (98, '100nF')):
-        vcap(sh, value, column, 38)
-        drop_ground(sh, (column, 44), 0)
+    place_blocks(sh, [('LSM6DSOX DECOUPLING CAPACITORS', '+3V3', ('100nF', '10uF', '100nF'))], 130, 45)
     drop_ground(sh, pin_cell(imu, '6'), 2)
 
 
@@ -1141,9 +1130,6 @@ def build_indicators(sh):
     ground(sh, (oe[0] + 4, oe[1] - 2))
     wire(sh, vcc, (vcc[0], vcc[1] - 4))
     rail_symbol(sh, '+5V', (vcc[0], vcc[1] - 4))
-    wire(sh, (vcc[0], vcc[1] - 2), (vcc[0] - 6, vcc[1] - 2))
-    vcap(sh, '100nF', vcc[0] - 6, vcc[1] - 2)
-    drop_ground(sh, (vcc[0] - 6, vcc[1] + 4), 0)
     drop_ground(sh, pin_cell(buf, '3'), 2)
     a_pin = pin_cell(buf, '2')
     net_label(sh, 'STATUS_RGB', (a_pin[0] - 14, a_pin[1]), 180, is_global=True)
@@ -1157,9 +1143,8 @@ def build_indicators(sh):
     vdd = pin_cell(rgb, '1')
     wire(sh, vdd, (vdd[0], vdd[1] - 6))
     rail_symbol(sh, '+5V', (vdd[0], vdd[1] - 6))
-    wire(sh, (vdd[0], vdd[1] - 4), (vdd[0] + 6, vdd[1] - 4))
-    vcap(sh, '100nF', vdd[0] + 6, vdd[1] - 4)
-    drop_ground(sh, (vdd[0] + 6, vdd[1] + 2), 0)
+    place_blocks(sh, [('74AHCT1G125 DECOUPLING CAPACITORS', '+5V', ('100nF',)),
+                      ('WS2812B DECOUPLING CAPACITORS', '+5V', ('100nF',))], 150, 70, max_column=300)
     drop_ground(sh, pin_cell(rgb, '3'), 2)
     sh.nc(rgb, '2')
 
@@ -1211,8 +1196,12 @@ def main():
         root.sheet_symbols.append(sheet_symbol(root_uuid, child, index, 20 + column * 70, 190 + row * 25))
     import textlayout
     overlaps = 0
+    junctions = 0
     for sheet in [root] + children:
         sheet.finalize()
+        for column, row, count in sheet.four_way_junctions():
+            print(f'  [{sheet.title}] {count}-way junction at column {column:.0f}, row {row:.0f}')
+            junctions += 1
         for problem in textlayout.check_text(sheet):
             overlaps += 1
             print(f'  [{sheet.title}] {problem}')
@@ -1222,7 +1211,8 @@ def main():
     for child in children:
         (ROOT_DIR / 'sheets' / child.filename).write_text(child.render(root_uuid))
     print('wrote', 1 + len(children), 'sheets')
-    if overlaps:
+    print(f'4-way junction check: {junctions} found')
+    if overlaps or junctions:
         sys.exit(1)
 
 
