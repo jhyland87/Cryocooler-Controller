@@ -4,7 +4,7 @@ import uuid
 from collections import Counter
 from pathlib import Path
 
-from sexpr import find_all, pins, resolve, stock_symbol, sval, load_library, dump
+from sexpr import find_all, pins, resolve, stock_symbol, sval, load_library, dump, parse
 
 PROJECT = 'cryocooler'
 VERSION = '20260306'
@@ -15,8 +15,68 @@ _pwr_counter = [0]
 _custom = {}
 
 
+_uuid_counter = [0]
+
+
+def reset_uuids():
+    """Restart the deterministic uuid sequence so regenerating gives identical files."""
+    _uuid_counter[0] = 0
+
+
 def new_uuid():
-    return str(uuid.uuid4())
+    _uuid_counter[0] += 1
+    return stable_uuid(f'item/{_uuid_counter[0]}')
+
+
+def stable_uuid(name):
+    """Name-based uuid so ids do not change between runs."""
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f'cryocooler-schematic/{name}'))
+
+
+def kicad_format(text):
+    """Re-serialize s-expression text the way KiCad writes it: any list with sub-lists is split over lines."""
+    def render_node(node, depth):
+        if isinstance(node, tuple):
+            return '"' + node[1] + '"'
+        if isinstance(node, str):
+            return node
+        if not any(isinstance(child, list) for child in node):
+            return '(' + ' '.join(render_node(child, depth) for child in node) + ')'
+        head = []
+        for child in node:
+            if isinstance(child, list):
+                break
+            head.append(render_node(child, depth))
+        out = '(' + ' '.join(head)
+        children = node[len(head):]
+        if node and node[0] == 'pts':
+            # KiCad keeps all points of a pts list on one line
+            out += '\n' + '\t' * (depth + 1) + ' '.join(render_node(child, depth + 1) for child in children)
+        else:
+            for child in children:
+                out += '\n' + '\t' * (depth + 1) + render_node(child, depth + 1)
+        return out + '\n' + '\t' * depth + ')'
+    tree = parse(text)
+    if tree and tree[0] == 'kicad_sch':
+        tree = sort_schematic_items(tree)
+    return render_node(tree, 0) + '\n'
+
+
+ITEM_ORDER = ['text', 'junction', 'no_connect', 'wire', 'label', 'global_label', 'symbol', 'sheet',
+              'sheet_instances', 'embedded_fonts']
+
+
+def sort_schematic_items(tree):
+    """Order schematic items like KiCad: by item type, then by uuid."""
+    def uuid_of(item):
+        for child in item:
+            if isinstance(child, list) and child and child[0] == 'uuid':
+                return sval(child[1])
+        return ''
+    head = [item for item in tree if not (isinstance(item, list) and item and item[0] in ITEM_ORDER)]
+    items = [item for item in tree if isinstance(item, list) and item and item[0] in ITEM_ORDER]
+    items.sort(key=lambda item: (ITEM_ORDER.index(item[0]), uuid_of(item)))
+    return head + items
 
 
 def q(text):
@@ -535,7 +595,7 @@ class Sheet:
         if self.path == '/' + root_uuid:
             out.append('\t(embedded_fonts no)')
         out.append(')')
-        return '\n'.join(out) + '\n'
+        return kicad_format('\n'.join(out) + '\n')
 
 
 # ── nets ─────────────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@
 Run: python3 hardware/kicad/tools/gen_schematic.py
 GPIO assignments follow include/config/pin_config.h.
 """
+import json
 import sys
 from pathlib import Path
 
@@ -1181,7 +1182,8 @@ def sheet_symbol(root_uuid, child, index, x, y):
 
 
 def main():
-    root_uuid = new_uuid()
+    kicadgen.reset_uuids()
+    root_uuid = kicadgen.stable_uuid('root')
     root = Sheet('Cryocooler Controller', 'cryocooler.kicad_sch', 'A3')
     root.uid = root_uuid
     root.path = '/' + root_uuid
@@ -1189,6 +1191,7 @@ def main():
     children = []
     for index, (title, name, builder, paper) in enumerate(SHEETS):
         child = Sheet(title, name + '.kicad_sch', paper)
+        child.uid = kicadgen.stable_uuid('sheet/' + name)
         child.path = f'/{root_uuid}/{child.uid}'
         builder(child)
         children.append(child)
@@ -1210,6 +1213,11 @@ def main():
     (ROOT_DIR / 'cryocooler.kicad_sch').write_text(root.render(root_uuid))
     for child in children:
         (ROOT_DIR / 'sheets' / child.filename).write_text(child.render(root_uuid))
+    # the project file lists every sheet's uuid; keep it in step with the generated files
+    project_file = ROOT_DIR / 'cryocooler.kicad_pro'
+    project = json.loads(project_file.read_text())
+    project['sheets'] = [[root_uuid, 'cryocooler']] + [[child.uid, child.title] for child in children]
+    project_file.write_text(json.dumps(project, indent=2) + '\n')
     print('wrote', 1 + len(children), 'sheets')
     print(f'4-way junction check: {junctions} found')
     if overlaps or junctions:
