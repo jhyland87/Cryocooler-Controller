@@ -1,0 +1,37 @@
+* Sine chain, ideal behavioural parts (no vendor models). Mirrors signal_gen sheet values.
+.param vdac=2.5
+* AD9833 stand-in: 60 Hz, 0.3 V pk about ~0.35 V mid-level
+Vdds dds 0 SIN(0.35 0.3 60)
+C10 dds np 1u
+R7 np 0 100k
+* OPA1656 stand-in: rail-limited high-gain VCVS with 1 MHz GBW pole
+Bop1 o1i 0 V=max(min(1e6*(V(np)-V(inv1)),14),-14)
+Rp1 o1i o1 1k
+Cp1 o1 0 0.16u
+R8 o1 inv1 33k
+R9 inv1 0 3.3k
+R10 o1 x1 100
+* AD633: W = (X1-X2)(Y1-Y2)/10, X2=Y2=Z=0
+Bmul wint 0 V=max(min(V(x1)*V(y1)/10,13),-13)
+Rw wint w 1
+R11 w c11a 100
+C11 c11a sig 10u
+R12 sig 0 100k
+* MCP4921 stand-in + OPA188 stand-in (gain 4)
+Vdac dacout 0 DC {vdac}
+Bop2 o2i 0 V=max(min(1e6*(V(dacout)-V(inv2)),14),-14)
+Rp2 o2i y1 1k
+Cp2 y1 0 0.16u
+R14 y1 inv2 30k
+R15 inv2 0 10k
+.control
+foreach v 0 0.625 1.25 1.875 2.5
+  alter Vdac dc = $v
+  tran 20u 100m 0 20u
+  meas tran xpk MAX v(x1) from=50m to=100m
+  meas tran ypk MAX v(y1) from=50m to=100m
+  meas tran sigpk MAX v(sig) from=50m to=100m
+  meas tran sigmin MIN v(sig) from=50m to=100m
+end
+.endc
+.end

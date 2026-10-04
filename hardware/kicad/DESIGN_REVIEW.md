@@ -33,6 +33,7 @@ These were wrong in my first version (several were also wrong in the original dr
 | MCP4921 | Only 100 nF on VDD; Vref bias marginal | 0.1 µF + 10 µF on VDD; LM4040 needs ≥ 60-65 µA | + 10 µF; 8.2 k → 6.8 k |
 | WS2812B | 3.3 V data into a 5 V part | VIH = 0.7 × VDD = 3.5 V | 74AHCT1G125 level shifter |
 | AD633 | Output offset up to ±50 mV reached the amplifier | AD633 spec: output offset ±5 to ±50 mV | 10 µF DC-blocking cap + 100 kΩ |
+| OPA1656 (sine gain stage) | R8 33 k gave 3.3 V pk (6.6 Vpp) full scale, under-using the amplifier's input range | ZE500.1 RCA input 0.2-6 V (unverified, from retailer listings); user wants Vctl 10 V = 10 Vpp (5 V pk, 3.5 Vrms) | R8 33 k → 51 k (gain 16.45, ~4.9 V pk with the AD9833's assumed 0.3 V pk; calibrate in firmware) |
 
 ## Verified as correct (no change needed)
 

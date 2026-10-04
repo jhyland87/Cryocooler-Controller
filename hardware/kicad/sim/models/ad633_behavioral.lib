@@ -1,0 +1,10 @@
+* AD633 behavioural model (hand-written, not an Analog Devices model).
+* W = (X1-X2)*(Y1-Y2)/10 + Z, output limited to the supply rails minus ~2 V.
+* Pin order matches the cryocooler:AD633JRZ-R7 symbol pins 1..8:
+*   Y1 Y2 -VS Z W +VS X1 X2
+.subckt AD633 y1 y2 vsn z w vsp x1 x2
+Bmul wraw 0 V=max(min((V(x1,x2)*V(y1,y2))/10+V(z),V(vsp)-2),V(vsn)+2)
+Rout wraw w 10
+* 1 MHz bandwidth pole (datasheet small-signal BW)
+Cbw w 0 16n
+.ends AD633

@@ -633,7 +633,7 @@ def build_signal_gen(sh):
     """Hand-laid: clock + AD9833 + sine buffer + AD633 across the top, DAC amplitude control below."""
     sh.handwired = True
     sh.note('AD9833 60 Hz sine -> OPA1656 gain stage -> AD633 multiplier; MCP4921 + OPA188 give a 0-10 V amplitude control.', 20, 15)
-    sh.note('Vctl 0-10 V (2.5 V ref x4) x sine +/-3.3 V pk / 10 = 0..3.3 V pk to amplifier input', 20, 21)
+    sh.note('Vctl 0-10 V (2.5 V ref x4) x sine +/-4.9 V pk / 10 = 0..4.9 V pk (9.9 Vpp, 3.5 Vrms) to amplifier input; ZE500.1 RCA input range 0.2-6 V.', 20, 21)
     # clock oscillator: OE tied to Vcc, bypass cap, output straight into MCLK
     osc = place_ic(sh, 'Oscillator:SG-8002CA', 'SG-8002CA-PH 25MHz', 22, 64,
                    'Oscillator:Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm')
@@ -668,11 +668,11 @@ def build_signal_gen(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground(sh, (86, 68), 0)
-    # OPA1656 unit A: non-inverting gain of 11
+    # OPA1656 unit A: non-inverting gain of 16.45 (1 + 51k/3.3k): 0.3 V pk AD9833 -> 4.9 V pk
     opa_a = opamp_unit(sh, next_ref('U'), 1, 110, 60)
     opa_ref = opa_a.ref
     wire(sh, pin_cell(opa_a, '2'), (100, 62), (100, 70))
-    hres(sh, '33k', 110, 70)
+    hres(sh, '51k', 110, 70)
     wire(sh, (107, 70), (100, 70))
     vres(sh, '3.3k', 100, 70)
     drop_ground(sh, (100, 76), 0)
