@@ -1,5 +1,6 @@
 """Tiny KiCad 10 schematic writer: parts, wire stubs, labels, power symbols, hierarchical sheets."""
 import math
+import re
 import uuid
 from collections import Counter
 from pathlib import Path
@@ -51,7 +52,16 @@ def kicad_format(text):
         children = node[len(head):]
         if node and node[0] == 'pts':
             # KiCad keeps all points of a pts list on one line
-            out += '\n' + '\t' * (depth + 1) + ' '.join(render_node(child, depth + 1) for child in children)
+            lines, line = [], ''
+            for child in children:
+                line = (line + ' ' if line else '') + render_node(child, depth + 1)
+                if len(line) >= 99:
+                    lines.append(line)
+                    line = ''
+            if line:
+                lines.append(line)
+            for line in lines:
+                out += '\n' + '\t' * (depth + 1) + line
         else:
             for child in children:
                 out += '\n' + '\t' * (depth + 1) + render_node(child, depth + 1)
@@ -110,11 +120,27 @@ def symbol_prop(symbol, key):
     return ''
 
 
+def pin_sort_key(pin):
+    number = sval(find_all(pin, 'number')[0][1])
+    return [int(chunk) if chunk.isdigit() else chunk for chunk in re.split(r'(\d+)', number)]
+
+
+def sort_unit_pins(item):
+    """KiCad saves each unit's pins in pin-number order."""
+    if not (isinstance(item, list) and item and item[0] == 'symbol'):
+        return item
+    pin_items = [child for child in item if isinstance(child, list) and child and child[0] == 'pin']
+    if not pin_items:
+        return item
+    ordered = iter(sorted(pin_items, key=lambda pin: [(0, c) if isinstance(c, int) else (1, c) for c in pin_sort_key(pin)]))
+    return [next(ordered) if (isinstance(child, list) and child and child[0] == 'pin') else child for child in item]
+
+
 def embed_symbol(lib_id):
     """Returns serialized text of the symbol renamed to lib_id for a sheet's lib_symbols block."""
     symbol = get_symbol(lib_id)
     short = sval(symbol[1])
-    node = [symbol[0], ('s', lib_id)] + symbol[2:]
+    node = [symbol[0], ('s', lib_id)] + [sort_unit_pins(item) for item in symbol[2:]]
     if not find_all(node, 'embedded_fonts'):
         node.append(['embedded_fonts', 'no'])
     return '\t\t' + dump(node, 2)
