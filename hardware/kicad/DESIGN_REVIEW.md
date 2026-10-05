@@ -93,3 +93,13 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * **MIE1W0505 footprint:** your vendor model (SnapEDA); I checked pad names, not the land pattern.
 * **SPI modes** (AD9833 mode 2, ACS37800 mode 3, others mode 0/3): set by the firmware libraries.
 * **PCB-level items** (creepage between ISO_GND and the logic side, ground returns, copper pours).
+
+## PCB layout open items (first pass, 2026-10-05)
+
+1. **Screw-terminal rating:** J11/J12 are Phoenix MKDS 1.5 (about 8-12 A) while the ACS37800 path is a 30 A part; the
+   pre-routed copper is a single 2 mm F.Cu trace per side (about 4-5 A at 1 oz). Confirm the real cryocooler current and widen / double-side the copper or use heavier terminals.
+2. **12 V copper:** VIN / +12 V / VSW are 0.8 mm traces; fine for the fan and pump loads, check against the actual draw.
+3. **Via-in-pad:** U11 pin 4 and U2 pin 2 (GND) use 0.45 / 0.2 mm via-in-pad; order filled/capped vias or move the neighbours.
+4. **Isolation:** the ISO_GND island has 1.5 mm keep-out bands, which is a pour/copper gap, not a certified creepage figure; the isolator packages set the real barrier.
+5. **USB:** D+/D- are 0.2 mm tracks; impedance (90 ohm) is not verified against the fab stackup.
+6. **Not checked:** the MIE1W0505 land pattern (vendor model), antenna clearance beyond the module's keep-out, thermal rise of the AP63205 / ADP5071 copper, silkscreen cleanup (21 overlap warnings).
