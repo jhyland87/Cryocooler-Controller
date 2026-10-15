@@ -6,7 +6,7 @@ that both need updating:
 
 | Path | Transport | Encoder | Decoder |
 |---|---|---|---|
-| **Serial Studio / HTTP JSON** | Serial (CSV) + TCP + HTTP GET | `FrameBuilder` in `telemetry.cpp` | Serial Studio project / browser `JSON.parse()` |
+| **HTTP JSON** | HTTP GET (`/api/telemetry`); optional USB Serial dump | `FrameBuilder` in `telemetry.cpp` | browser `JSON.parse()` |
 | **WebSocket binary** | WebSocket | Nanopb in `telemetry_pb.cpp` | protobufjs in `decodeTelemetry.ts` |
 
 Both paths share the same dot-notation key convention (`group.field_name`).
@@ -40,7 +40,7 @@ lastFrame_
 ```
 
 `FrameBuilder::field(name, fmt, value)` accepts any numeric or string type.
-The format string controls both the Serial Studio output and how the value is
+The format string controls both the serial dump output and how the value is
 stored internally (float/int/string determines the JSON type).
 
 ### 1b — buildStartupFrame()
@@ -68,7 +68,7 @@ if (coolingReady) {
 
 ### 1c — (Optional) Delta-mode passive list
 
-If the field changes every tick and should **not** trigger a Serial Studio line
+If the field changes every tick and should **not** trigger a serial dump line
 on its own (e.g. a slowly-drifting value), add it to `kPassiveFields[]` near
 the top of `telemetry.cpp`:
 
@@ -259,42 +259,11 @@ if (f.vacuum) {
 
 ---
 
-## Step 7 — include/dashboard_config.h: Serial Studio layout
-
-Add a `DatasetCfg` entry in the appropriate group array so the field appears
-in the Serial Studio desktop dashboard:
-
-```cpp
-// include/dashboard_config.h  — inside coolingDatasets[]
-{
-    .title          = "Pump Pressure",
-    .units          = "bar",
-    .telemetryKey   = "cooling.pump_pressure_bar",
-    .widget         = ss::WidgetType::Gauge,
-    .widgetMin      = 0,
-    .widgetMax      = 10,
-    .alarmLow       = 0,
-    .alarmHigh      = 8,
-    .alarmEnabled   = true,
-    .graph          = true,
-    .log            = true,
-    .overviewDisplay = true,
-},
-```
-
-The `telemetryKey` must exactly match the dot-notation key used in
-`FrameBuilder::field()` in `telemetry.cpp`.
-
-For a new group, add a new `DatasetCfg` array and a new `GroupCfg` entry in
-`dataGroups[]`.
-
----
-
-## Step 8 — Web dashboard (optional)
+## Step 7 — Web dashboard (optional)
 
 These are only needed if you want the field visible in the Preact dashboard.
 
-### 8a — History buffer (App.tsx)
+### 7a — History buffer (App.tsx)
 
 To record a rolling 100-sample history for use in a chart, add the key to
 `HISTORY_KEYS`:
@@ -307,7 +276,7 @@ const HISTORY_KEYS = [
 ] as const;
 ```
 
-### 8b — Quick-read tile (App.tsx)
+### 7b — Quick-read tile (App.tsx)
 
 To show the value as a large numeric tile in the top row:
 
@@ -319,7 +288,7 @@ const TILES: TileConfig[] = [
 ];
 ```
 
-### 8c — Chart component
+### 7c — Chart component
 
 Pass the history buffer slice to whichever chart component is appropriate, or
 create a new one.  Use `getHistory('cooling.pump_pressure_bar')` to retrieve
@@ -341,10 +310,9 @@ the data.
 | 4  | `src/telemetry_pb.cpp` | Populate the new `frame_.<message>.<field>` from the getter |
 | 5  | `dashboard/src/types/telemetry.ts` | Add `field?: type` to the appropriate nested interface |
 | 6  | `dashboard/src/utils/decodeTelemetry.ts` | Map `f.<message>.<camelCaseField>` to `out.<group>.<snake_case_field>` |
-| 7  | `include/dashboard_config.h` | Add `DatasetCfg` entry (and `GroupCfg` if new group) |
-| 8a | `dashboard/src/App.tsx` — `HISTORY_KEYS` | Add key for chart history (optional) |
-| 8b | `dashboard/src/App.tsx` — `TILES` | Add tile entry for quick-read display (optional) |
-| 8c | Dashboard component | Wire `getHistory('group.key')` into a chart (optional) |
+| 7a | `dashboard/src/App.tsx` — `HISTORY_KEYS` | Add key for chart history (optional) |
+| 7b | `dashboard/src/App.tsx` — `TILES` | Add tile entry for quick-read display (optional) |
+| 7c | Dashboard component | Wire `getHistory('group.key')` into a chart (optional) |
 
 ---
 

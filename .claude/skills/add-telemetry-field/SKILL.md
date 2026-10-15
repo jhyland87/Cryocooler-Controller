@@ -1,6 +1,6 @@
 ---
 name: add-telemetry-field
-description: Add a telemetry field end-to-end across the firmware and dashboard — proto schema, both encoders, and the TypeScript decoder/UI. Use when exposing a new sensor value or computed metric to Serial Studio, the HTTP JSON API, or the Preact dashboard.
+description: Add a telemetry field end-to-end across the firmware and dashboard — proto schema, both encoders, and the TypeScript decoder/UI. Use when exposing a new sensor value or computed metric to the HTTP JSON API or the Preact dashboard.
 ---
 
 # Add a telemetry field
@@ -10,7 +10,7 @@ the `group.field_name` (snake_case) key convention:
 
 | Path | Encoder | Decoder |
 |------|---------|---------|
-| Serial Studio / HTTP JSON | `FrameBuilder` in `src/modules/telemetry.cpp` | Serial Studio project / `JSON.parse()` |
+| HTTP JSON | `FrameBuilder` in `src/modules/telemetry.cpp` | `JSON.parse()` |
 | WebSocket binary (Protobuf) | Nanopb in `src/modules/telemetry_pb.cpp` | `dashboard/src/utils/decodeTelemetry.ts` |
 
 The authoritative, worked walkthrough is
@@ -20,7 +20,7 @@ The authoritative, worked walkthrough is
 
 1. **`src/modules/telemetry.cpp`** — add `.field("group.key", "fmt", getter())`
    in **both** `emit()` and `buildStartupFrame()` (empty-string sentinel in the
-   `else` branch). Add to `kPassiveFields[]` if the value is noisy/continuous.
+   `else` branch). Add to `kPassiveFields[]` if the value is noisy/continuous (affects the optional serial delta dump only).
    Bump `MAX_FIELDS` in `include/frame_builder.h` if the count assertion fires.
 
 2. **`proto/telemetry.proto`** — add the field to the right message using the
@@ -44,11 +44,7 @@ The authoritative, worked walkthrough is
    property (`pump_pressure_bar` → `pumpPressureBar`) to the snake_case output
    field. Use the `toLong()` helper for `int64`/`uint64`.
 
-7. **`include/config/dashboard_config.h`** — add a `DatasetCfg` entry (and a
-   `GroupCfg` for a new group) so it appears in Serial Studio. `telemetryKey`
-   must exactly match the key from step 1.
-
-8. **(Optional) Preact dashboard** — `App.tsx` `HISTORY_KEYS` (chart history) and
+7. **(Optional) Preact dashboard** — `App.tsx` `HISTORY_KEYS` (chart history) and
    `TILES` (quick-read tile), then wire into a chart component.
 
 ## Verify

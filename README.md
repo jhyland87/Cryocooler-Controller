@@ -245,7 +245,6 @@ Connects to WiFi and serves a Preact single-page application with real-time tele
 
 - **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`) and a JSON telemetry endpoint at `GET /api/telemetry`
 - **WebSocket** (`ws://<hostname>/ws` on port 80): streams Protobuf-encoded telemetry frames at 1 Hz
-- **Serial Studio TCP** (port 8080): streams JSON frames and accepts the command interface
 - **mDNS**: `cryocooler.local`
 
 The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials live in `include/config/arduino_secrets.h`.
@@ -291,8 +290,9 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `compressor status` | Show compressor state and remaining time |
 | `compressor stop` | Stop the compressor immediately |
 | `telemetry on/off` | Enable / disable telemetry output |
-| `telemetry delta on/off` | Delta-only or full frames |
-| `dashboard on/off` | Enable / disable dashboard TCP broadcasts |
+| `telemetry serial on/off` | Enable / disable the tab-delimited telemetry dump on USB Serial (off by default) |
+| `telemetry delta on/off` | Delta-only or full frames for the serial dump |
+| `dashboard on/off` | Enable / disable dashboard WebSocket broadcasts |
 | `mock ...` | Sensor mock: `enable`, `disable`, `status`, `temp`, etc. |
 | `log level <L>` | Set runtime log level (0–5 or off/error/warn/info/debug/verbose) |
 | `shutdown` | Shut the system down |
@@ -310,7 +310,7 @@ Snapshots all module values each tick into a `FrameBuilder`. The WebSocket path 
 
 ### frame_builder
 
-Format-agnostic telemetry frame with a fluent field API. Renders to Serial Studio wire format or `JsonDocument` from the same snapshot.
+Format-agnostic telemetry frame with a fluent field API. Renders to a tab-delimited serial line or `JsonDocument` from the same snapshot.
 
 ---
 
@@ -508,7 +508,6 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 |---------|---------|
 | `ACS37800` | Pololu-based ACS37800 driver with an SPI transport |
 | `EMC230x` | EMC2301/02/03/05 PWM fan/pump controller |
-| `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
 
 ### Dashboard (dashboard/package.json)
 

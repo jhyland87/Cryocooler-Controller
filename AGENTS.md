@@ -59,7 +59,7 @@ contract lives in [`include/module.h`](include/module.h). Start there and in
 Both are driven from the same module getters and share the `group.field_name`
 key convention:
 
-1. **Serial Studio / HTTP JSON** — `FrameBuilder` in `src/modules/telemetry.cpp`.
+1. **HTTP JSON** — `FrameBuilder` in `src/modules/telemetry.cpp`.
 2. **WebSocket binary (Protobuf)** — Nanopb encoder in
    `src/modules/telemetry_pb.cpp`, decoded by
    `dashboard/src/utils/decodeTelemetry.ts`.
