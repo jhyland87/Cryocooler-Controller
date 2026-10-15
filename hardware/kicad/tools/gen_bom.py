@@ -239,16 +239,18 @@ PARTS = {
         'Texas Instruments', 'OPA1656ID', 'IC OPAMP AUDIO 2CIRC 8SOIC',
         'design', ''),
     ('OPA188ID', 'SOIC-8_3.9x4.9mm_P1.27mm'): (
-        'Texas Instruments', 'OPA188ID', 'IC OPAMP ZERO-DRIFT 1CIRC 8SOIC',
-        'design', ''),
+        'Texas Instruments', 'OPA188AID', 'IC OPAMP ZERO-DRIFT 1CIRC 8SOIC',
+        'design', 'the schematic value is OPA188ID; the orderable SOIC part is '
+        'OPA188AID (tube) or OPA188AIDR (reel). Digi-Key offers OPA180ID as a '
+        'substitute: it is a different part, do not take it'),
     ('SC18IS604PW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
         'NXP', 'SC18IS604PWJ', 'IC SPI TO I2C BRIDGE 16TSSOP', 'suggested',
         'PWJ is the reel'),
     ('SG-8002CA-PH 25MHz', 'Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm'): (
-        'Epson', 'SG-8002CA 25.0000M-PHBB', 'OSC 25.000MHZ CMOS 5V SMD 7x5',
+        'Epson', 'SG-8002CA 25.0000M-PHCLX', 'OSC 25.000MHZ CMOS 5V SMD 7x5',
         'suggested',
-        'PH = 5 V CMOS with output enable; Digi-Key lists it as not for new '
-        'designs (DK 2.0 SG-8002CA25.0000M-PHBB-ND)'),
+        'PH = 5 V CMOS with output enable; the PHBB variant is discontinued, '
+        'PHCLX is +/-100 ppm which is plenty for the AD9833 clock'),
     ('USBLC6-2SC6', 'SOT-23-6'): (
         'STMicroelectronics', 'USBLC6-2SC6', 'TVS DIODE 5.25V 17V SOT23-6',
         'design', ''),
@@ -260,6 +262,49 @@ LED_PARTS = {
     'yellow': ('Lite-On', 'LTST-C190KSKT', 'LED YELLOW CLEAR 0603 SMD'),
     'white': ('Lite-On', 'LTW-C193TS5', 'LED WHITE CLEAR 0603 SMD'),
 }
+
+
+# Digi-Key order of 2026-10-15: original MPN -> (substitute MPN, maker).
+# Applied after classify() so the BOM matches what was actually bought.
+SUBSTITUTES = {
+    'CL21A106KAYNNNE': ('CL21A106KACLRNC', 'Samsung Electro-Mechanics'),
+    'CL10B104KB8NNNC': ('C0603C104K5RACTU', 'Kemet'),
+    'CL21B105KBFNNNE': ('08055C105KAT2A', 'Kyocera AVX'),
+    'CL21A475KAQNNNE': ('C2012X5R1E475K085AC', 'TDK'),
+    'EEE-FK1E101P': ('EEE-FK1E101AP', 'Panasonic'),
+    'CL32A226KAJNNNE': ('C1210C226K3PACTU', 'Kemet'),
+    'CL31A106KAHNNNE': ('C3216X5R1E106K085AC', 'TDK'),
+    'CL32B106KBJNNNE': ('CL32B106KBJNNNF', 'Samsung Electro-Mechanics'),
+    'CL31C101JBCNNNC': ('C1206C101J5GACTU', 'Kemet'),
+    'B2B-XH-A(LF)(SN)': ('B2B-XH-A', 'JST'),
+    'B4B-XH-A(LF)(SN)': ('B4B-XH-A', 'JST'),
+    'SRN8040TA-3R3M': ('SRN8040TA-3R3Y', 'Bourns'),
+    'BSS84-7-F': ('BSS84', 'onsemi'),
+    'RC0603FR-0710KL': ('AR0603FR-0710KL', 'Yageo'),
+    'RC0603FR-075K1L': ('CR0603-FX-5101ELF', 'Bourns'),
+    'RC0603FR-07100KL': ('AR0603FR-07100KL', 'Yageo'),
+    'RC0603FR-0751KL': ('CR0603-FX-5102ELF', 'Bourns'),
+    'RC0603FR-07100RL': ('AR0603FR-07100RL', 'Yageo'),
+    'RC0603FR-072M67L': ('CRCW06032M67FKEA', 'Vishay Dale'),
+    'TL3342F160QG': ('TL3342F160QG/TR', 'E-Switch'),
+    'LTC2954CTS8-2#TRMPBF': ('LTC2954CTS8-2#TRPBF', 'Analog Devices'),
+    'SN74LVC1G125DBVR': ('74LVC1G125DBVTG4', 'Texas Instruments'),
+}
+
+# Lines Digi-Key could not supply: Mouser order (Mouser part number is known
+# only where a listing was seen).
+MOUSER_LINES = {
+    'L1': '',
+    'PS1': '',
+    'U1': '356-SP32S3WM2N32R16V',
+    'U3': '732-SG-82CA25M-PHCLX',
+    'U9': '595-OPA188AIDR',
+    'U15': '621-AP63205WU-7',
+    'U19': '',
+    'U23': '595-INA239AIDGSR',
+}
+MOUSER_MPN = {'OPA188AID': 'OPA188AIDR'}
+MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'
 
 
 def load_netlist():
@@ -354,6 +399,10 @@ def main():
     for (value, footprint), refs in groups.items():
         refs.sort(key=sort_key)
         maker, mpn, description, basis, note = classify(value, footprint)
+        if mpn in SUBSTITUTES:
+            note = '; '.join(filter(None, [note, f'substitute for {mpn}']))
+            mpn, maker = SUBSTITUTES[mpn]
+            basis = 'ordered'
         rows.append(
             {
                 'sort': sort_key(refs[0]),
@@ -378,6 +427,20 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
+    mouser = [row for row in rows if set(row['Customer Reference'].split())
+              & set(MOUSER_LINES)]
+    with MOUSER_OUTPUT.open('w', newline='') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(['Mouser Part Number', 'Manufacturer Part Number',
+                         'Manufacturer', 'Quantity', 'Description',
+                         'Customer Reference', 'Notes'])
+        for row in mouser:
+            ref = row['Customer Reference'].split()[0]
+            mpn = row['Manufacturer Part Number']
+            writer.writerow([MOUSER_LINES[ref], MOUSER_MPN.get(mpn, mpn),
+                             row['Manufacturer'], row['Quantity'],
+                             row['Description'], row['Customer Reference'],
+                             row['Notes']])
     total = sum(row['Quantity'] for row in rows)
     counts = collections.Counter(row['MPN basis'] for row in rows)
     print(f'{len(rows)} lines, {total} parts, bases {dict(counts)} -> {OUTPUT}')

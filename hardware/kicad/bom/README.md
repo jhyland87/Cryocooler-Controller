@@ -22,7 +22,8 @@ description and notes.
 |---|---|
 | design | the schematic value is the orderable part (ICs, FETs, diodes, inductors, the isolated DC/DC) |
 | suggested | picked for the value, package and rating (resistors, capacitors, connectors, LEDs, switch, some ICs' reel suffix). Compare Digi-Key's description with the `Description` column before ordering; I could not check stock or every number against Digi-Key |
-| none | no part found at Digi-Key (currently none) |
+| ordered | the substitute actually bought from Digi-Key on 2026-10-15 (see `SUBSTITUTES` in `tools/gen_bom.py`) |
+| none | no part found (currently none) |
 
 ## Not in the list
 
@@ -44,3 +45,17 @@ description and notes.
 * Capacitor voltage ratings: 25 V parts on the 12 V and +/-15 V rails, 50 V on the +/-16.5 V rails, and
   consider 35 V for C6 on the input rail.
 * U10: check the EMC2303 suffix gives the 0x4D address with the 33 k ADDR_SEL resistor.
+
+## Mouser (the lines Digi-Key could not supply)
+
+`cryocooler_bom_mouser.csv` lists the 8 lines with no Digi-Key stock: L1, PS1, U1, U3, U9, U15, U19, U23.
+Import it in Mouser's BOM tool (MPN and quantity columns) to see live stock. Mouser blocks automated
+lookups, so stock was **not** verified; the Mouser part numbers come from search snapshots and some were
+months old.
+
+* U9: the real part is **OPA188AID** (reel OPA188AIDR); the schematic value "OPA188ID" is not an orderable
+  number, and Digi-Key's substitute OPA180ID is a different op-amp.
+* U3: the PHBB oscillator is discontinued; PHCLX is the same part at +/-100 ppm.
+* PS1: Digi-Key named MIE1W0505BGLVH-3R-P as a direct substitute for -3R-Z if Mouser is out.
+* U23: if the INA239 is unobtainable, the INA229 (20-bit) has the same package but a different register
+  map and needs firmware changes.
