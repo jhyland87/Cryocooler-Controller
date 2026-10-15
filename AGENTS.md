@@ -17,7 +17,7 @@ dashboard over WiFi.
   the firmware at build time.
 - **Units:** Celsius throughout the firmware (not Kelvin), despite the K figures
   above being how the process is described.
-- **I2C bus** runs at 100 kHz, which constrains sensor read throughput.
+- **I2C** exists only behind an SC18IS604 SPI-to-I2C bridge (about 100 kHz) for the EMC2303; every transaction costs roughly a millisecond.
 
 See [`README.md`](README.md) for the hardware table and wiring, and the `docs/`
 guides below for subsystem detail.

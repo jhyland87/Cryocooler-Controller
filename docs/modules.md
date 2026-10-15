@@ -91,9 +91,7 @@ namespace mymodule {
 
 module::InitStatus init() {
     // Hardware setup, calibration, etc.
-    TwoWire& i2c = hardware::i2c();
-    i2c.beginTransmission(0x42);
-    if (i2c.endTransmission() != 0) {
+    if (!hardware::i2c().probe(0x42)) {
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
     _Log.println("Sensor detected");
@@ -367,7 +365,7 @@ Some hardware (e.g. the EMC2303 fan controller) may not be powered at boot. The 
 1. `init()` returns `MODULE_INIT_HARDWARE_ERROR` when the device is absent.
 2. `service()` checks `Module::getInitStatus() != SUCCESS` and periodically retries.
 3. On success, call `Module::overrideInitStatus(MODULE_INIT_SUCCESS)` to promote the module.
-4. On I2C failure, call `hardware::reportI2cError()` and `hardware::recoverI2c()` to free the shared bus.
+4. On I2C failure, call `hardware::reportI2cError()` and `hardware::recoverI2c()` to reset the I2C bridge.
 
 See `src/cooling.cpp` for a complete example.
 
@@ -397,6 +395,6 @@ error: static assertion failed: Module does not satisfy the Module interface:
 - **One `.cpp` + one `.h` per module.** The header declares the public API; the implementation file is self-contained.
 - **Static state.** Module state is file-scope `static` variables in the `.cpp` file. No globals, no singletons.
 - **Child loggers.** Each module creates `static LogStream _Log = Log.createChildLogger("name");` for prefixed log output.
-- **Bus access via `hardware::`** — never use the global `Wire` or `SPI` directly.
+- **Bus access via `hardware::`** — never use the global `SPI` directly (there is no `Wire`: I2C is behind the SC18IS604 bridge).
 - **Mock support.** When `sensor_mock::isActive()`, skip hardware reads and pull values from `sensor_mock::get()` instead.
 - **Non-blocking.** `service()` must return promptly. Use state machines or time-gating for multi-step operations.

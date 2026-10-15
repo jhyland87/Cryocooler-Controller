@@ -3,7 +3,7 @@
 Every IC and active discrete in the schematic was checked against its manufacturer datasheet
 (pinout, supply range, required external parts, unused-pin rules, absolute maximums). The
 connection-level findings are encoded as regression tests in
-[`tools/datasheet_rules.py`](tools/datasheet_rules.py) (117 rules, run against the exported
+[`tools/datasheet_rules.py`](tools/datasheet_rules.py) (162 rules, run against the exported
 netlist). ERC alone cannot catch a wrong circuit, so run both after any change:
 
 ```bash
@@ -44,8 +44,8 @@ These were wrong in my first version (several were also wrong in the original dr
 | AD633JR (SOIC) | AD633 Rev A (pin drawing) | 1 Y1, 2 Y2, 3 −VS, 4 Z, 5 W, 6 +VS, 7 X1, 8 X2; ±15 V; RL ≥ 2 kΩ |
 | AD9833 | AD9833 Rev E | COMP 10 nF → VDD, CAP/2.5V 100 nF, 0.1 + 10 µF on VDD, VINH 2.8 V at 5 V VDD |
 | OPA1656 / OPA188 | TI datasheets | Pinouts, supply (VS ≤ 40 V), NC pins may float |
-| INA237 | TI datasheet | Pinout, 0x40 with A0 = A1 = GND, IN+/IN− polarity, ±163.84 mV range |
-| ADS122C04 | TI SBAS751B | Pinout, 0x45 (A0 = A1 = DVDD), ratiometric 4-wire RTD circuit, VREF ≥ 0.75 V (0.975 V), AIN2 may float |
+| INA239 (replaced the I2C INA237 on 2026-10-14) | TI SLYS027A | VSSOP-10 pinout (1 CS, 2 MOSI, 3 ALERT open-drain, 4 MISO, 5 SCLK, 6 VS, 7 GND, 8 VBUS, 9 IN−, 10 IN+); SPI mode 1, up to 10 MHz; **MISO is tri-stated while CS is high, so it shares the main SPI bus**; VS 2.7-5.5 V (3.3 V logic, push-pull MISO at VS); IN+/IN− polarity unchanged from the INA237 design; VBUS shares the filtered IN− node instead of the demo board's unfiltered tap (its 1 MΩ input draws about 12 µA, a 0.6 mV drop across the 49.9 Ω resistor, and pins 8/9 are adjacent so it routes without a via); ±163.84 mV range (about 10.9 A at 15 mΩ); input filter R ≤ 100 Ω with 0.1-1 µF (49.9 Ω ×2 + 470 nF, about 0.1 % gain error against the 92 kΩ input impedance, trim through SHUNT_CAL); MANUFACTURER_ID 0x5449 |
+| ADS1220 (replaced the I2C ADS122C04 on 2026-10-14) | TI SBAS501D | TSSOP-16 pinout (1 SCLK, 2 CS, 3 CLK, 4 DGND, 5 AVSS, 6 AIN3/REFN1, 7 AIN2, 8 REFN0, 9 REFP0, 10 AIN1, 11 AIN0/REFP1, 12 AVDD, 13 DVDD, 14 DRDY, 15 DOUT/DRDY, 16 DIN); pins 4-14 sit where the ADS122C04 had the same functions, so the RTD wiring is unchanged; SPI mode 1 only; **DOUT/DRDY is Hi-Z while CS is high**; CLK tied to DGND (internal oscillator); unused DRDY may be left open or pulled up; AIN2 may float; AIN3/REFN1 low-side switch stays open (PSW = 0); ratiometric 4-wire RTD circuit, VREF ≥ 0.75 V (0.975 V); 20 SPS single-shot conversion = 204850 tCLK = 50 ms |
 | ISO7741 | TI SLLSEP4K | Pinout and channel directions, 0.1 µF decoupling, default output high |
 | ACS37800 | Allegro datasheet | Pinout, 3.3 V variant, 0.1 µF, 4 × 1 MΩ + RSENSE divider (Fig. 1), SPI VIH 2.8 V |
 | LD1117S33 | ST Rev 26 | Pinout (tab = VOUT), ≥ 10 µF output cap, 5 V input within the 15 V limit |
@@ -87,12 +87,53 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 2. Order the AP63205 as **AP63205WU-7** (fixed 5 V, 1.1 MHz); the 5 V buck switches with ±6% spread spectrum,
    so keep the SW node and input loop small on the PCB.
 
+## INA239 swap (2026-10-14)
+
+* CS is on **GPIO3** (module pin 15). It is a JTAG-source strapping pin, but an idle-high CS with a 10 kΩ pull-up reads 1 at reset, which is the default USB-JTAG selection. IO47/48 are 1.8 V on the N32R16V and IO0/45/46 are boot straps, so IO3 was the only safe free pin.
+* ALERT drives only the red LED (10 kΩ pull-up + 1 kΩ + LED, same pattern as the EMC2303 ALERT#); it is not wired to an MCU pin.
+* Footprint is unchanged (`TSSOP-10_3x3mm_P0.5mm`); the datasheet's DGS VSSOP-10 is also a 3 x 3 mm, 0.5 mm pitch part, but the land pattern was not compared against the package drawing.
+* The INA239 shares the 3V3 rail with the rest of the board, which is derived from the 12 V input; with 12 V absent the chip is unpowered while the ESP32 may still drive SCLK/MOSI/CS (USB-powered), which exceeds its VS + 0.3 V input rating. Firmware reports the chip offline after 3 failed ID reads.
+* ERC: the LSM6DSOX SDO pin type was changed to tri-state, matching the INA239 SDO, because both now share MISO. **The LSM6DSOX SDO behaviour with CS high is not confirmed from its datasheet text**; confirm it is high-impedance before relying on the shared bus (bench check: scope MISO with the IMU idle).
+
+## ADS1220 swap and debug aids (2026-10-14)
+
+* ADS1220 CS is on **GPIO44 (U0RXD)**: the console is native USB CDC, UART0 is otherwise unused, and the pin is not a strapping pin. A 10 kΩ pull-up holds CS high. U0TXD (GPIO43) is exposed only as a test point (`UART0_TX`) for the ROM boot log.
+* Register values used by the firmware (checked against the register map): REG0 = 0x61 (AIN1/AIN0, gain 1, PGA bypassed), REG1 = 0x00 (20 SPS, normal mode, single-shot), REG2 = 0x54 (REFP0/REFN0, 50/60 Hz rejection, IDAC 250 µA), REG3 = 0x80 (IDAC1 on AIN3). The 50/60 Hz rejection is new compared with the ADS122C04 configuration.
+* DRDY is not wired to the MCU; it has a 10 kΩ pull-up and a test point. The firmware waits 60 ms after START/SYNC instead.
+* New `debug` sheet: one test point per useful net (power rails, three GND loops, ISO_GND loop, SPI bus, every chip select, I2C, interrupts, PWR_KILL/PWR_INT, EN, BOOT, TXD0, SIG_SINE, NTC_ADC, FLOW_TACH, STATUS_RGB) plus LEDs on +5V, +15V, −15V and ISO 3V3 (4.7 kΩ on the ±15 V rails, 1 kΩ on the others). **The ISO 3V3 LED returns to ISO_GND, not GND**, so the isolation barrier is not bridged. Test points on isolated nets sit inside the ISO_GND island.
+* Test points are 1.5 mm SMD pads; ground points are 2.5 mm loops for scope-ground clips.
+
+## Compressor relay driver and sheet cleanups (2026-10-14)
+
+* The compressor relay was never on the board (the old firmware talked to an off-board SparkFun Qwiic relay at I2C 0x19). It is now a GPIO-driven high-side switch on the new `compressor_relay` sheet, the same BSS138 + BSS84 stage and red/green LED as the amplifier REM switch, with a 1N4148W flyback diode across the output. GPIO16 drives it; the LTC2954 INT# line is no longer wired to the MCU (it keeps its pull-up and a test point).
+* **Current limit:** the BSS84 stage is rated for about 130 mA, so the output is for a relay coil or SSR input, not a compressor. The output connector is a 2-pin JST XH.
+* `amp_control` and `compressor_relay` share one generator function (`rem_switch`), so they stay identical.
+* The isolated SPI lines now run as straight wires from the ISO7741 outputs to the ACS37800 (its MOSI/SCLK/CS/MISO symbol pins were reordered to match); the `ISO_*` net labels are gone. Datasheet rules check that each ISO7741 output reaches the matching ACS37800 pin.
+* USB VBUS (connector, 4.7 uF cap and the USBLC6 clamp) is one wire with a single label that names the net, instead of two labels.
+
+## SC18IS604 I2C bridge (2026-10-14)
+
+Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, bridges the other way (I2C host to SPI devices); the SPI-to-I2C part is the **SC18IS604** (NXP rev. 1.0, 22 Sept 2021, TSSOP16; replaces the discontinued SC18IS600/601).
+
+* Pinout checked from the datasheet: 1 SDA, 2 SCL, 3 INT#, 4 RESET#, 5 GPIO4 (input only), 6 GPIO3, 7 GPIO2, 8 CS#, 9 GPIO0, 10 MOSI, 11 SCLK, 12 VDD, 13 VSS, 14 MISO, 15 VREFP (connect to VDD), 16 GPIO1. VDD 1.71-3.6 V, SPI mode 3 up to 1.2 MHz, at least 8 us between SPI bytes, I2C up to 375 kHz.
+* INT# is open-drain and must not be held low at power-on or reset, so it only gets a 10 kΩ pull-up and a test point; firmware polls I2CStat (0xF0 = done, 0xF3 = busy). RESET# has a 10 kΩ pull-up and GPIO9.
+* **MISO:** the datasheet does not say MISO is high-impedance while CS is high, and the ACS37800 already showed a part that corrupts a shared bus. A 74LVC1G125 (OE# = CS) gates MISO onto SPI_MISO, so the bridge cannot drive the bus unselected. Remove it only after confirming the behaviour on the bench.
+* Unused GPIO0-4 are left open (they are input-only after reset with weak pull-ups; the datasheet gives no unused-pin rule).
+* I2C pull-ups (4.7 kΩ to 3.3 V) moved from the root sheet to the bridge sheet; the EMC2303 sheet still connects through the global SDA/SCL nets.
+* The datasheet is inconsistent about the I2CTO / I2CStat register addresses (Table 4 says 0x03 / 0x04, Table 8's title says 0x04); the firmware only uses I2CClock (0x02) and I2CStat (0x04, matching Table 4 and the SC18IS600 family). **Verify on hardware.**
+* The EMC2303 now costs about a millisecond per register access (SPI command, I2C transfer, status poll, buffer read) instead of a few hundred microseconds on a direct I2C bus.
+* The bridge cannot free an EMC2303 that holds SDA low; only cycling the EMC2303's power does.
+
 ## Not verifiable from a datasheet I could read
 
 * **LM4040 accuracy grade:** choose the A or B grade for the DAC reference.
 * **MIE1W0505 footprint:** your vendor model (SnapEDA); I checked pad names, not the land pattern.
 * **SPI modes** (AD9833 mode 2, ACS37800 mode 3, others mode 0/3): set by the firmware libraries.
 * **PCB-level items** (creepage between ISO_GND and the logic side, ground returns, copper pours).
+
+## PCB layout open items (updated 2026-10-14)
+
+0. **New this round:** 0.35 mm via-in-pad on 0.5 mm pitch ground pads (U19, U23, U4), 0.075 mm annular ring; the INA239 VBUS joins IN− (adjacent pads); the compressor relay output connector and the bridge sit in the open middle of the board rather than on an edge; the PCB shares a 4-layer stack with 40 test points.
 
 ## PCB layout open items (first pass, 2026-10-05)
 

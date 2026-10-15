@@ -9,24 +9,31 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Component | Part | Interface | Address / Pin | Purpose |
 |-----------|------|-----------|---------------|---------|
 | Microcontroller | ESP32-S3 DevKitC-1-N32R16V | — | — | Host MCU (32 MB flash, 16 MB PSRAM) |
-| Cold-stage sensor | ADS122C04 + PT1000 RTD | I2C | 0x45 | Cold-stage temperature (4-wire, ratiometric) |
-| Waveform generator | AD9833 DDS | SPI | CS: GPIO 7 | 60 Hz sine wave for compressor |
-| DAC | AD5693R 16-bit | I2C | 0x4E | Amplifier power control |
-| Power monitor | INA237 | I2C | auto | Bus voltage + current |
-| IMU | LSM6DSOX 6-DOF | I2C | 0x6A | Vibration / overstroke detection |
-| Fan / pump controller | EMC2303 three-channel PWM | I2C | 0x2F | Cooling fan (ch 0) + pump (ch 1) |
-| Current sensor | ACS37800 | I2C | auto | Amplifier AC current monitoring |
-| Compressor relay | SparkFun Qwiic Single Relay | I2C | 0x19 | Compressor on/off |
-| Amplifier relay | SparkFun Qwiic Single Relay | I2C | 0x18 | Amplifier on/off |
-| Coolant flow sensor | Alphacool ES (Hall-effect) | GPIO 10 | — | Coolant flow pulses |
-| Coolant temperature | NTC thermistor | ADC GPIO 2 | — | Coolant temp via voltage divider |
-| Status LED | WS2812 RGB | GPIO 38 | — | Fault / Ready indication |
+| Cold-stage sensor | ADS1220 + PT1000 RTD | SPI mode 1 (main bus) | CS: GPIO 44 | Cold-stage temperature (4-wire, ratiometric) |
+| Waveform generator | AD9833 DDS | SPI (main bus) | FSYNC (CS): GPIO 7 | 60 Hz sine wave for compressor |
+| DAC | MCP4921 12-bit | SPI (main bus) | CS: GPIO 5 | Amplifier amplitude control |
+| Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: GPIO 3 | 12 V rail voltage, current and power |
+| IMU | LSM6DSOX 6-DOF | SPI (main bus) | CS: GPIO 1, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
+| I2C bridge | NXP SC18IS604 | SPI mode 3 (main bus) | CS: GPIO 8, RESET: GPIO 9 | Gives the SPI-only ESP32 access to the EMC2303; INT# polled, not wired |
+| Fan / pump controller | EMC2303 three-channel PWM | I2C (behind the bridge) | 0x4D, ALERT#: GPIO 21 | Cooling fan (ch 0) + pump (ch 1) |
+| Current sensor | ACS37800 behind an ISO7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
+| Compressor relay | BSS138 → BSS84 high-side +12 V switch (130 mA max) | GPIO | GPIO 16 | Compressor relay on/off |
+| Amplifier relay | BSS138 → BSS84 high-side switch | GPIO | GPIO 6 | Amplifier REM line on/off |
+| Coolant flow sensor | Alphacool ES (Hall-effect) | GPIO | GPIO 18 | Coolant flow pulses |
+| Coolant temperature | NTC thermistor | ADC | GPIO 4 | Coolant temp via voltage divider |
+| Status LED | WS2812 RGB | GPIO | GPIO 38 | Fault / Ready indication |
+| FAULT / READY LEDs | Discrete LEDs | GPIO | GPIO 14 / GPIO 15 | Fault / Ready indication |
+| Power kill | LTC2954 KILL input | GPIO | GPIO 10 | Cuts system power |
 
-**I2C bus:** SDA → GPIO 8, SCL → GPIO 9.
+**I2C bus:** the ESP32 has no I2C pins in use. The only I2C device, the EMC2303, sits behind the SC18IS604 bridge (about 100 kHz, 4.7 kΩ pull-ups on the bridge side). The bridge is an SPI mode 3 slave on the main bus with CS on GPIO 8 and RESET on GPIO 9; a 74LVC1G125 gates its MISO because its datasheet does not state that MISO is high-impedance while CS is high.
 
-**SPI bus** (AD9833 only): CLK → GPIO 42, MISO → GPIO 41, MOSI → GPIO 40.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, LSM6DSOX, INA239, ADS1220 and the SC18IS604, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
 
-**Fan fault alert:** EMC2303 ALERT# → GPIO 14 (active-low, external pull-up).
+**ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
+
+**Fan fault alert:** EMC2303 ALERT# → GPIO 21 (active-low, external pull-up).
+
+**INA239 ALERT:** drives its red LED only; it is not wired to the MCU, and the firmware does not read it.
 
 ---
 
@@ -37,20 +44,20 @@ All subsystem modules follow a standardised lifecycle pattern built on a CRTP ba
 ```mermaid
 flowchart TD
     subgraph Persistent ["Persistent Modules (init once at startup)"]
-        HW[hardware<br/>Shared I2C + SPI buses]
+        HW[hardware<br/>SPI buses + SC18IS604 I2C bridge]
         IMU[imu<br/>LSM6DSOX accelerometer]
         CMD[commands<br/>Serial console]
         DASH[dashboard<br/>WiFi + Preact SPA + WebSocket]
         TEL[telemetry<br/>Protobuf frame builder]
-        SYS[sysinfo<br/>INA237 power monitor]
+        SYS[sysinfo<br/>INA239 power monitor]
         OTA[ota<br/>HTTP firmware updates]
     end
 
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
         COOL[cooling<br/>EMC2303 fan + pump<br/>software LUT]
-        CH[cold_head<br/>ADS122C04 PT1000 RTD]
-        AMP[amplifier<br/>AD9833 + AD5693R DAC + ACS37800]
-        COMP[compressor<br/>Qwiic relay]
+        CH[cold_head<br/>ADS1220 PT1000 RTD]
+        AMP[amplifier<br/>AD9833 + MCP4921 DAC + ACS37800]
+        COMP[compressor<br/>relay GPIO]
         IND[indicator<br/>WS2812 RGB LED]
     end
 
@@ -90,7 +97,7 @@ flowchart TD
 
 ### hardware
 
-Initialises the shared I2C bus (`Wire.begin(SDA, SCL)`) and SPI bus (`SPI.begin(...)`) once at startup. All other modules access buses via `hardware::i2c()` and `hardware::spi()` rather than the global singletons. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction, and an error monitor (`reportI2cError()` / `serviceI2c()`) that triggers automatic bus recovery when error counts exceed a threshold.
+Initialises the main SPI bus (`SPI.begin(...)`) and the ACS37800's dedicated SPI bus and the SC18IS604 I2C bridge (`src/i2c_bridge.cpp`) once at startup, driving every SPI chip select high first. Modules access the buses via `hardware::i2c()` (an `EMC230xBus`), `hardware::spi()` and `hardware::acsSpi()`. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction, and an error monitor (`reportI2cError()` / `serviceI2c()`) that triggers automatic bus recovery when error counts exceed a threshold.
 
 ---
 
@@ -133,9 +140,9 @@ The core of the controller. Ingests sensor readings every tick and outputs a com
 
 ### cold_head
 
-Reads the PT1000 RTD via the ADS122C04 24-bit ADC over I2C (address 0x45). The ADC is configured for 4-wire ratiometric measurement with 250 µA IDAC excitation and a 3854 Ω external reference resistor. Raw ADC counts are converted to resistance, then to temperature via the Callendar-Van Dusen equation (above 0 °C) and AN709 polynomial (below 0 °C).
+Reads the PT1000 RTD via the ADS1220 24-bit ADC over SPI (mode 1, chip select GPIO 44). The ADC is configured for 4-wire ratiometric measurement (gain 1, PGA bypassed, 20 SPS with simultaneous 50/60 Hz rejection) with 250 µA IDAC excitation and a 3854 Ω external reference resistor. Raw ADC counts are converted to resistance, then to temperature via the Callendar-Van Dusen equation (above 0 °C) and AN709 polynomial (below 0 °C).
 
-Uses a non-blocking two-phase state machine: start single-shot conversion → poll DRDY → read 24-bit result. Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
+Uses a non-blocking two-phase state machine: start single-shot conversion → wait out the 50 ms conversion time (DRDY is not wired) → read the 24-bit result. Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
 
 | Function | Returns |
 |----------|---------|
@@ -148,7 +155,7 @@ Uses a non-blocking two-phase state machine: start single-shot conversion → po
 
 ### amplifier
 
-Drives the AD9833 DDS (60 Hz sine wave), AD5693R 16-bit DAC (compressor power), and ACS37800 current sensor. Provides two ramp modes:
+Drives the AD9833 DDS (60 Hz sine wave), the MCP4921 12-bit SPI DAC (amplifier amplitude), the amplifier relay (GPIO 6) and the ACS37800 current sensor. Provides two ramp modes:
 
 - `rampToVoltage(target)` — smooth ramp at ±`DAC_MAX_STEP_PER_INTERVAL` per tick
 - `rampTowardShutdown(target)` — fast ramp at ±`DAC_SHUTDOWN_STEP_PER_INTERVAL` per tick
@@ -159,11 +166,11 @@ Drives the AD9833 DDS (60 Hz sine wave), AD5693R 16-bit DAC (compressor power), 
 
 ### imu
 
-Drives the LSM6DSOX 6-DOF IMU over I2C (accelerometer only). On `init()` the accelerometer is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
+Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. On `init()` the sensor is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
 Each `service()` call applies calibration offsets, runs a first-order low-pass filter, and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2`; it clears after `MOTION_TIMEOUT_MS` of stillness.
 
-A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequency in the 45–75 Hz band using 256 samples at 400 Hz, with Hann windowing and quadratic peak interpolation.
+A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequency in the 45–75 Hz band using 256 samples at 833 Hz, with Hann windowing and quadratic peak interpolation.
 
 | Function | Returns |
 |----------|---------|
@@ -178,21 +185,21 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ### sysinfo
 
-Reads bus voltage and current via the INA237 power monitor over I2C. Applies EMA smoothing and exposes `getVoltage()`.
+Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module disables itself until `reinit`. It also tracks CPU load, heap and PSRAM.
 
 ---
 
 ### cooling
 
-Controls the cooling fan and pump via a single EMC2303 three-channel PWM controller over I2C (address 0x2F). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
+Controls the cooling fan and pump via a single EMC2303 three-channel PWM controller over I2C through the SC18IS604 bridge (address 0x4D, set by the ADDR_SEL pull-up). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
 
 **Software LUT:** Replaces the previous EMC2101 hardware LUT. Each channel has an independently-configured temperature-to-duty lookup table with hysteresis, evaluated once per second from coolant temperature. Entries are sorted ascending by temperature; the evaluator only writes to the chip when the active row changes.
 
 **Deferred init:** The EMC2303 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
 
-**Fault detection:** The EMC2303's open-drain ALERT# pin (GPIO 14, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
+**Fault detection:** The EMC2303's open-drain ALERT# pin (GPIO 21, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
 
-**I2C bus recovery:** When the EMC2303 loses power mid-operation, it can hold the I2C SDA line low and block all other sensors on the shared bus. The service function calls `hardware::recoverI2c()` immediately on detecting an I2C failure to free the bus for other devices.
+**I2C bus recovery:** When the EMC2303 loses power mid-operation, its I2C transactions fail. The service function calls `hardware::recoverI2c()` on detecting a failure, which pulses the SC18IS604 RESET pin and reconfigures the bridge. A bridge reset cannot release an EMC2303 that is holding SDA low; that clears when the chip is power-cycled.
 
 **Pump normalisation:** User-facing pump speeds are 0–100 % normalised, mapped to 0–`COOLING_PUMP_MAX_DUTY_PCT` (raw 0–255) at the hardware boundary. The pump stalls above ~16 % effective duty (~4400 RPM).
 
@@ -213,7 +220,7 @@ Controls the cooling fan and pump via a single EMC2303 three-channel PWM control
 
 ### compressor
 
-Manages the compressor relay (SparkFun Qwiic Single Relay at 0x19) with timed-run support. `compressor start <duration>` energises the relay for a specified duration (e.g. `1h30m`, `45s`), clamped to `COMPRESSOR_MAX_RUN_MS`. Can be disabled at compile time with `ENABLE_COMPRESSOR false`.
+Manages the compressor relay (GPIO 16 → high-side +12 V switch) with timed-run support. `compressor start <duration>` energises the relay for a specified duration (e.g. `1h30m`, `45s`), clamped to `COMPRESSOR_MAX_RUN_MS`. Can be disabled at compile time with `ENABLE_COMPRESSOR false`.
 
 ---
 
@@ -237,10 +244,11 @@ Drives the on-board WS2812 RGB LED (GPIO 38) according to the state machine's re
 Connects to WiFi and serves a Preact single-page application with real-time telemetry:
 
 - **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`) and a JSON telemetry endpoint at `GET /api/telemetry`
-- **WebSocket** (port 8080): streams Protobuf-encoded telemetry frames at 1 Hz
+- **WebSocket** (`ws://<hostname>/ws` on port 80): streams Protobuf-encoded telemetry frames at 1 Hz
+- **Serial Studio TCP** (port 8080): streams JSON frames and accepts the command interface
 - **mDNS**: `cryocooler.local`
 
-The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials live in `include/arduino_secrets.h`.
+The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials live in `include/config/arduino_secrets.h`.
 
 ---
 
@@ -265,6 +273,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `fsm state` | Print current FSM state with time-in-state |
 | `fsm history` | Print recent FSM state transitions |
 | `fault clear` | Clear an active fault and return to Idle |
+| `fault push` | Push a fault record |
 | `fault history` | Print fault log with reason and clear method |
 | `board` | Print compile-time board/platform info |
 | `i2c scan` | Scan I2C bus and print responding addresses |
@@ -273,6 +282,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
 | `cooling pump <N>` | Set pump: raw duty (0–255) or percent (0–100%) |
 | `set vout <V>` | Set DAC output voltage (0–120 V, 0–100 %, or `auto`) |
+| `dac raw <N>` | Raw SPI write to the MCP4921 (0–4095), bypassing firmware DAC management |
 | `get vout` | Get current DAC output voltage |
 | `relay` | Show current state of both relays |
 | `relay amplifier on/off` | Control amplifier relay |
@@ -284,6 +294,8 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `telemetry delta on/off` | Delta-only or full frames |
 | `dashboard on/off` | Enable / disable dashboard TCP broadcasts |
 | `mock ...` | Sensor mock: `enable`, `disable`, `status`, `temp`, etc. |
+| `log level <L>` | Set runtime log level (0–5 or off/error/warn/info/debug/verbose) |
+| `shutdown` | Shut the system down |
 | `ota status` | Print OTA partition and firmware version info |
 | `update image` | Flash new firmware via HTTP upload |
 | `help` | List all commands |
@@ -484,21 +496,18 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 | `mathieucarbou/ESPAsyncWebServer` | Async HTTP + WebSocket server |
 | `robtillaart/RunningAverage` | Running average utility |
 | `jonblack/arduino-fsm` | Finite state machine |
-| `adafruit/Adafruit INA237 and INA238 Library` | I2C power monitor |
-| `pololu/ACS37800` | AC current sensor |
+| `robtillaart/INA239` | SPI power monitor |
 | `kosme/arduinoFFT` | FFT for vibration frequency detection |
-| `adafruit/Adafruit LSM6DS` | 6-DOF IMU driver |
-| `adafruit/Adafruit AD569x Library` | AD5693R DAC |
-| `sparkfun/SparkFun Qwiic Relay Arduino Library` | Relay control |
+| `Adafruit_LSM6DS` (jhyland87 fork, via Git URL) | 6-DOF IMU driver |
 | `nanopb/Nanopb` | Protobuf C encoder/decoder |
-| `sparkfun/SparkFun ADS122C04 ADC Arduino Library` | 24-bit ADC for PT1000 RTD |
+| `wollewald/ADS1220_WE` | 24-bit SPI ADC for the PT1000 RTD |
 
 ### Local libraries (lib/)
 
 | Library | Purpose |
 |---------|---------|
-| `EMC230x` | EMC2301/02/03/05 dual PWM fan/pump controller |
-| `ContinuousZMCT103C` | Non-blocking AC current RMS sampling |
+| `ACS37800` | Pololu-based ACS37800 driver with an SPI transport |
+| `EMC230x` | EMC2301/02/03/05 PWM fan/pump controller |
 | `Device-Defined-Dashboard` | Serial Studio dashboard JSON generator |
 
 ### Dashboard (dashboard/package.json)
@@ -524,7 +533,7 @@ board    = esp32-s3-devkitc-1-n32r16v
 
 ### WiFi credentials
 
-Create `include/arduino_secrets.h` (excluded from version control):
+Create `include/config/arduino_secrets.h` (excluded from version control):
 
 ```cpp
 #define WIFI_SSID "your-network-name"
