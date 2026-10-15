@@ -1,9 +1,9 @@
 /**
  * @file dashboard.h
- * @brief Serial Studio async TCP dashboard interface.
+ * @brief WiFi, HTTP/OTA server and WebSocket telemetry broadcast interface.
  *
- * A dedicated FreeRTOS task (Core 0) manages WiFi, the async TCP server,
- * JSON serialisation, and chunked delivery to connected clients at 1 Hz.
+ * A dedicated FreeRTOS task (Core 0) manages WiFi, the HTTP/WebSocket server,
+ * and Protobuf telemetry delivery to connected SPA clients at 1 Hz.
  * The Arduino loop task (Core 1) is never blocked.
  */
 
@@ -15,7 +15,7 @@
 namespace dashboard {
 
 /**
- * Initialise WiFi, build the dashboard JSON, start the TCP server, and
+ * Initialise WiFi, start the HTTP/WebSocket server, and
  * launch the background FreeRTOS task that handles all broadcasting.
  * Call once from setup().
  * @return MODULE_INIT_SUCCESS on success, MODULE_INIT_HARDWARE_ERROR if WiFi fails.

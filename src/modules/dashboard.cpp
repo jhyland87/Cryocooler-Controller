@@ -1,30 +1,13 @@
 /**
  * @file dashboard.cpp
- * @brief Serial Studio async TCP dashboard — integration layer.
+ * @brief WiFi, HTTP/OTA server and WebSocket telemetry broadcast for the SPA.
  *
  * Architecture
  * ────────────
- * A dedicated FreeRTOS task (Core 0, taskPriority) owns all TCP I/O.
- * The Arduino loop task (Core 1) only calls service(), which is a no-op;
- * the dashboard task manages its own 1 Hz schedule via vTaskDelayUntil().
- *
- * Why a separate task?
- * ────────────────────
- * AsyncTCP's add()/send() route through tcpip_api_call(), which is a
- * blocking cross-task IPC call: the calling task suspends until the lwIP
- * TCPIP task has processed the request.  For a ~10 KB frame this can mean
- * many round-trips (one per chunk that fits in tcp_sndbuf, typically 5–6 KB).
- * Doing this on Core 1 (Arduino loop) would stall every other subsystem.
- *
- * Chunked send
- * ────────────
- * tcp_sndbuf() is usually ≤ 5744 bytes by default.  sendChunked() loops
- * with vTaskDelay(5 ms) between chunks so the TCPIP task can drain the
- * window before we push more.  This keeps the dashboard task responsive
- * and never drops the tail of the frame.
- *
- * Serial Studio frame format (TCP port 8080, for Serial Studio):
- *   `/ *{...JSON...}* /\r\n`
+ * A dedicated FreeRTOS task (Core 0, taskPriority) owns the periodic
+ * WebSocket broadcast.  The Arduino loop task (Core 1) only calls service(),
+ * which is a no-op; the dashboard task manages its own 1 Hz schedule via
+ * vTaskDelayUntil() so network I/O never stalls other subsystems.
  *
  * WebSocket (HTTP port 80, path /ws, for the web dashboard SPA):
  *   Protobuf binary telemetry frame pushed at 1 Hz.  The schema is defined
@@ -36,7 +19,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <time.h>
-#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include "web_content.h"
 #include <ArduinoJson.h>
@@ -44,12 +26,9 @@
 #include <freertos/task.h>
 #include <ESPmDNS.h>
 #include "dashboard.h"
-#include "dashboard_config.h"
 #include "config.h"
 #include "telemetry.h"
 #include "telemetry_pb.h"
-#include "ss_dashboard.h"
-#include "commands.h"
 #include "ota.h"
 #include "logger.h"
 #include "state_machine.h"
@@ -66,62 +45,9 @@ static LogStream _Log = Log.createChildLogger("dashboard");
 
 namespace dashboard {
 
-// ─── AsyncClientPrint ─────────────────────────────────────────────────────────
-
-/**
- * Print adapter that buffers output and flushes it to an AsyncClient.
- * Allows commands::processLine() to send its text responses back over TCP.
- *
- * Bytes are accumulated in an internal buffer and flushed via add()+send()
- * whenever the buffer fills or the object is destroyed (end of scope).
- * This keeps the number of tcpip_api_call() round-trips minimal.
- *
- * NOTE: Must only be used from the AsyncTCP service task (Core 0), which is
- * the same context as the onClientData callback.
- */
-class AsyncClientPrint : public Print {
-public:
-    explicit AsyncClientPrint(AsyncClient* c) : client_(c), bufLen_(0) {}
-
-    ~AsyncClientPrint() { flush(); }
-
-    size_t write(uint8_t b) override {
-        buf_[bufLen_++] = static_cast<char>(b);
-        if (bufLen_ >= bufSize) flush();
-        return 1;
-    }
-
-    size_t write(const uint8_t* src, size_t size) override {
-        for (size_t i = 0; i < size; ++i) write(src[i]);
-        return size;
-    }
-
-private:
-    void flush() {
-        if (bufLen_ == 0 || !client_ || !client_->connected()) {
-            bufLen_ = 0;
-            return;
-        }
-        client_->add(buf_, bufLen_);
-        client_->send();
-        bufLen_ = 0;
-    }
-
-    static constexpr size_t bufSize = 128;
-    AsyncClient* client_;
-    char         buf_[bufSize];
-    size_t       bufLen_;
-};
-
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 static constexpr uint32_t   broadcastIntervalMs = 1000;
-// Transmit buffer for Serial Studio TCP frames.  Must be larger than the
-// compact serialised dashboard JSON (use estimateSize() to measure).
-// Budget: ~50 datasets × ~350 B each ≈ 17.5 KB; add group wrappers → ~24 KB.
-// 32 KB gives comfortable headroom for future config growth.
-static constexpr size_t     txBufSize           = 32768;
-static constexpr uint8_t    maxClients          = 4;
 
 #if DASHBOARD_WEBSOCKET_ENABLED
 // Protobuf binary buffer for WebSocket frames.  The Protobuf-encoded
@@ -138,9 +64,6 @@ static constexpr size_t     pbBufSize           = 2048;
 static constexpr uint32_t   taskStackBytes      = 12288; // bytes
 static constexpr UBaseType_t taskPriority       = 1;     // low; yields freely
 
-// Inter-chunk pause — gives lwIP time to ACK and refill the send window.
-static constexpr uint32_t   chunkPauseMs        = 5;
-
 #if DASHBOARD_WEBSOCKET_ENABLED
 // Cleanup WebSocket clients every N broadcast ticks (~5 s).
 static constexpr uint8_t    wsCleanupEveryN     = 5;
@@ -149,121 +72,13 @@ static constexpr uint8_t    wsCleanupEveryN     = 5;
 // ─── Module state ─────────────────────────────────────────────────────────────
 
 static volatile bool    enabled_ = true;
-static ss::Dashboard    ssDashboard(dashboard_config::dashboardCfg);
-static AsyncServer      tcpServer(WS_PORT);
 static AsyncWebServer   httpServer(HTTP_API_PORT);
 #if DASHBOARD_WEBSOCKET_ENABLED
 static AsyncWebSocket   wsServer_("/ws");   // WebSocket endpoint for SPA
 #endif
-static char             txBuf[txBufSize];
 #if DASHBOARD_WEBSOCKET_ENABLED
 static uint8_t          pbBuf[pbBufSize];
 #endif
-
-// Client slot array.  Slots are nulled inside disconnect/error callbacks
-// (which run in the TCPIP task) before AsyncTCP releases the object.
-static AsyncClient* clients_[maxClients] = {};
-
-// ─── Client list helpers ──────────────────────────────────────────────────────
-
-static void removeClient(AsyncClient* c) {
-    for (auto& slot : clients_) {
-        if (slot == c) { slot = nullptr; return; }
-    }
-}
-
-// ─── AsyncTCP event callbacks ─────────────────────────────────────────────────
-
-static void onClientDisconnect(void* /*arg*/, AsyncClient* c) {
-    _Log.printf("Client %s disconnected\n",
-                  c->remoteIP().toString().c_str());
-    removeClient(c);
-}
-
-static void onClientError(void* /*arg*/, AsyncClient* c, int8_t err) {
-    _Log.printf("Client %s error %d\n",
-                  c->remoteIP().toString().c_str(), err);
-    removeClient(c);
-}
-
-static void onClientData(void* /*arg*/, AsyncClient* c, void* data, size_t len) {
-    // Copy into a null-terminated buffer; data from AsyncTCP is NOT null-terminated.
-    static constexpr size_t maxCmd = 80;
-    char buf[maxCmd + 1];
-    const size_t copyLen = (len < maxCmd) ? len : maxCmd;
-    memcpy(buf, data, copyLen);
-    buf[copyLen] = '\0';
-
-    // Strip trailing CR / LF (Serial Studio sends "stop\n").
-    size_t end = copyLen;
-    while (end > 0 && (buf[end - 1] == '\r' || buf[end - 1] == '\n')) { --end; }
-    buf[end] = '\0';
-
-    if (end == 0) return;
-
-    _Log.printf("Client %s cmd: %s\n",
-                  c->remoteIP().toString().c_str(), buf);
-
-    // Dispatch — response is sent back over the same TCP connection.
-    // NOTE: processLine() runs here in the AsyncTCP service task (Core 0).
-    // It modifies state that the Arduino loop (Core 1) also reads.  For this
-    // application the race window is negligible; add a mutex if stricter
-    // guarantees are needed.
-    AsyncClientPrint printer(c);
-    commands::processLine(buf, printer);
-}
-
-static void onNewClient(void* /*arg*/, AsyncClient* c) {
-    for (auto& slot : clients_) {
-        if (!slot) {
-            slot = c;
-            c->onDisconnect(&onClientDisconnect, nullptr);
-            c->onError(&onClientError, nullptr);
-            c->onData(&onClientData, nullptr);
-            _Log.printf("Client %s connected\n",
-                          c->remoteIP().toString().c_str());
-            return;
-        }
-    }
-    _Log.println(F("Max clients reached, rejecting connection"));
-    c->close();
-}
-
-// ─── Chunked TCP send ─────────────────────────────────────────────────────────
-
-/**
- * Send @p len bytes from @p data to @p c, blocking the calling FreeRTOS task
- * (not the main loop) until all bytes are queued or the client disconnects.
- *
- * add() + send() are used in a loop so that frames larger than tcp_sndbuf()
- * (~5744 B default) are delivered in full rather than silently truncated.
- */
-static void sendChunked(AsyncClient* c, const char* data, size_t len) {
-    size_t offset = 0;
-    while (offset < len) {
-        if (!c || !c->connected()) return;
-
-        if (!c->canSend()) {
-            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
-            continue;
-        }
-
-        const size_t written = c->add(data + offset, len - offset);
-        if (written == 0) {
-            // add() returned 0 — buffer might be momentarily full.
-            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
-            continue;
-        }
-
-        c->send();          // flush queued bytes to the wire
-        offset += written;
-
-        if (offset < len) {
-            // Yield so the TCPIP task can drain the TCP window before next chunk.
-            vTaskDelay(pdMS_TO_TICKS(chunkPauseMs));
-        }
-    }
-}
 
 // ─── WebSocket event handler ──────────────────────────────────────────────────
 
@@ -271,10 +86,10 @@ static void sendChunked(AsyncClient* c, const char* data, size_t len) {
 /**
  * Minimal WebSocket event handler.
  *
- * The ESP32 SPA dashboard connects here (ws://hostname/ws) and receives flat
- * JSON telemetry pushes at 1 Hz.  Incoming data from the browser is accepted
- * but ignored — all control goes through the TCP command interface on port
- * WS_PORT (Serial Studio) or via the HTTP /api/* endpoints.
+ * The ESP32 SPA dashboard connects here (ws://hostname/ws) and receives
+ * Protobuf telemetry pushes at 1 Hz.  Incoming data from the browser is
+ * accepted but ignored — control goes through the USB serial command
+ * interface or the HTTP /api/* endpoints.
  */
 static void onWsEvent(AsyncWebSocket* /*srv*/, AsyncWebSocketClient* client,
                       AwsEventType type, void* /*arg*/, uint8_t* /*data*/, size_t /*len*/) {
@@ -349,21 +164,9 @@ static void dashboardTask(void* /*arg*/) {
         }
 #endif
 
-        // Determine whether any consumers are connected before doing work.
-        bool anyTcpClient = false;
-        for (auto* c : clients_) {
-            if (c && c->connected()) { anyTcpClient = true; break; }
-        }
-#if DASHBOARD_WEBSOCKET_ENABLED
-        const bool anyWsClient = (wsServer_.count() > 0);
-        if (!anyTcpClient && !anyWsClient) continue;
-#else
-        if (!anyTcpClient) continue;
-#endif
-
 #if DASHBOARD_WEBSOCKET_ENABLED
         // ── WebSocket: broadcast Protobuf binary to all SPA clients ───────
-        if (anyWsClient) {
+        if (wsServer_.count() > 0) {
             const size_t pbLen = telemetry::encodeProtobuf(pbBuf, pbBufSize);
             if (pbLen > 0) {
                 wsServer_.binaryAll(pbBuf, pbLen);
@@ -383,23 +186,6 @@ static void dashboardTask(void* /*arg*/) {
             }
         }
 #endif // DASHBOARD_WEBSOCKET_ENABLED
-
-        // ── TCP: broadcast Serial Studio frame to Serial Studio clients ───
-        if (anyTcpClient) {
-            // Build JSON only when TCP clients are connected (Serial Studio).
-            JsonDocument telDoc;
-            telemetry::fillJsonSafe(telDoc, /*includeLogs=*/false);
-            ssDashboard.update(telDoc);
-            const size_t len = ssDashboard.serialize(txBuf, txBufSize);
-            if (len == 0) {
-                _Log.println(F("serialize() returned 0 — frame dropped"));
-            } else {
-                for (auto* c : clients_) {
-                    if (!c || !c->connected()) continue;
-                    sendChunked(c, txBuf, len);
-                }
-            }
-        }
     }
 }
 
@@ -420,10 +206,6 @@ module::ServiceStatus service() { return module::MODULE_SERVICE_SKIPPED; }
 module::InitStatus init() {
     if (!setupWifi()) {
         return module::MODULE_INIT_CONFIG_ERROR;
-    }
-
-    if (!ssDashboard.begin()) {
-        return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
     if (!setupServer()) {
@@ -473,7 +255,7 @@ bool setupWifi() {
     }
 
     MDNS.addService("http", "tcp", HTTP_API_PORT);
-    MDNS.addService("ws", "tcp", WS_PORT);
+    MDNS.addService("ws", "tcp", HTTP_API_PORT);
 
     // Kick off SNTP sync in the background.  time(nullptr) returns 0 until
     // the first sync completes (typically a few seconds after WiFi connects),
@@ -486,14 +268,9 @@ bool setupWifi() {
     return true;
 }
 
-// ─── TCP server setup ─────────────────────────────────────────────────────────
+// ─── HTTP server setup ────────────────────────────────────────────────────────
 
 bool setupServer() {
-    tcpServer.onClient(&onNewClient, nullptr);
-    tcpServer.begin();
-    _Log.printf("TCP server listening on port %u\n",
-                  static_cast<unsigned>(WS_PORT));
-
     // Static files embedded at compile time by scripts/embed_web.py.
     // No LittleFS partition needed — files are served directly from flash.
     httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {

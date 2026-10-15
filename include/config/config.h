@@ -59,7 +59,6 @@
 // =============================================================================
 
 #define HTTP_API_PORT static_cast<uint16_t>(80)
-#define WS_PORT       static_cast<uint16_t>(8080)
 
 // =============================================================================
 // ESP-NOW — peer-to-peer telemetry bridge

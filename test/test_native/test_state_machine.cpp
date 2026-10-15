@@ -30,9 +30,6 @@ void run_serial_command_tests();
 // FrameBuilder tests (defined in test_frame_builder.cpp)
 void run_frame_builder_tests();
 
-// Dashboard tests (defined in test_ss_dashboard.cpp)
-void run_dashboard_tests();
-
 // Sensor mock ramp tests (defined in test_sensor_mock_ramp.cpp)
 void run_sensor_mock_ramp_tests();
 
@@ -1668,9 +1665,6 @@ int main(int argc, char **argv) {
 
     // Sensor mock ramp subsystem
     run_sensor_mock_ramp_tests();
-
-    // SS Dashboard library
-    run_dashboard_tests();
 
     // log ring buffer and LogStream
     run_log_tests();
