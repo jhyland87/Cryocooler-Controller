@@ -31,5 +31,5 @@ $K pcb export drill --format excellon --excellon-separate-th --excellon-units mm
 * Back silkscreen carries the cryocooler logo and title; check the viewer shows it
   mirrored correctly from the back.
 
-The drill report lists every hole size: 0.2 mm (24), 0.3 mm (330 vias), 0.35 mm (10),
+The drill report lists every hole size: 0.2 mm (24), 0.3 mm (332 vias), 0.35 mm (10),
 component holes 0.6 to 1.3 mm, and 3.2 mm mounting holes.

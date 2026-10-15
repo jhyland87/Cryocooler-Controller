@@ -442,7 +442,7 @@ def build_power_input(sh):
         '5A backup',
         {},
         pose=at(46, 60, 90),
-        fp='Fuse:Fuse_1812_4532Metric',
+        fp='Fuse:Fuse_Littelfuse-NANO2-451_453',
     )
     wire(sh, raw, pin_cell(fuse, '1'))
     rail_flag(sh, (raw[0] + 5, raw[1]))

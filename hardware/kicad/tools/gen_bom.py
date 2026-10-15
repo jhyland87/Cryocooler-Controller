@@ -121,12 +121,11 @@ PARTS = {
         'protocol. Adafruit says hand-solder only, not for reflow, so '
         'check JLCPCB/LCSC for a WS2812B-compatible part if you assemble '
         'there'),
-    ('5A backup', 'Fuse_1812_4532Metric'): (
-        '', '', 'FUSE 5A 1812 SMD (32 VDC or more)', 'none',
-        'no 5 A fast-acting fuse in 1812 found at Digi-Key (1812 is PTC '
-        'only, 2.6 A hold or less); 5 A 32 V fuses exist in 1206 (Littelfuse '
-        '440 series) and 0603 (441 series), which need a footprint change. '
-        'Backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
+    ('5A backup', 'Fuse_Littelfuse-NANO2-451_453'): (
+        'Littelfuse', '0453005.MR', 'FUSE BRD MNT 5A 125VAC/VDC 2SMD',
+        'suggested',
+        'NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup '
+        'only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
     ('SRN6045TA-4R7M', 'L_Bourns_SRN6045TA'): (
         'Bourns', 'SRN6045TA-4R7M', 'FIXED IND 4.7UH 4.5A 26MOHM SMD',
         'design', ''),

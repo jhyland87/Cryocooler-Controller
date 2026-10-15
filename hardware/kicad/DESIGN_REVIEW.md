@@ -73,7 +73,7 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * **Use the main 12 V rail** with PS_ON held low (breakout board). The standby rail is limited to 3.5 A, which is tight
   for the fans and pump. The LTC2954 button still works, because it switches the board's own supply.
 * **Fault current:** the supply can deliver about 160 A, so the 5 A SMD fuse (F1) is a backup only; confirm its
-  DC breaking capacity in the chosen part's datasheet. Add an **inline high-breaking-capacity fuse (7.5-10 A, for example an
+  DC breaking capacity in the chosen part's datasheet (F1 is now the Littelfuse 0453005.MR, 125 V AC/DC, 50 A breaking capacity). Add an **inline high-breaking-capacity fuse (7.5-10 A, for example an
   automotive blade fuse) at the PSU end** of the cable.
 * **Standby LED current** (about 25 mA, 0.3 W) is not a concern on a mains-powered supply.
 * The 12.2 V level is inside every regulator's limits (AP63205 3.8-32 V, LTC2954 2.7-26.4 V, IRF4905 55 V).
