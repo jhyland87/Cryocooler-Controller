@@ -75,13 +75,22 @@ CAPS = {
         'CL32B106KBJNNNE', 'CAP CER 10UF 50V X7R 1210',
         '+/-16.5 V rails (50 V needed: DC bias derating)'),
     ('100pF', 'C_1206_3216Metric'): (
-        '', 'CAP CER 100PF 50V C0G/NP0 1206', '-15 V rail, C0G dielectric'),
+        'CL31C101JBCNNNC', 'CAP CER 100PF 50V C0G/NP0 1206',
+        '-15 V rail, C0G dielectric; Digi-Key marks this Samsung part '
+        'obsolete, so pick a current 100 pF 50 V C0G 1206 (for example '
+        'Kemet C1206C101J5GACTU)'),
     ('47nF', 'C_1206_3216Metric'): (
-        '', 'CAP CER 0.047UF 50V X7R 1206',
-        'ADP5071 compensation, X7R or C0G'),
+        'C1206C473K5RACTU', 'CAP CER 0.047UF 50V X7R 1206',
+        'ADP5071 compensation (C59)'),
     ('68nF', 'C_1206_3216Metric'): (
-        '', 'CAP CER 0.068UF 50V X7R 1206',
-        'ADP5071 compensation, X7R or C0G'),
+        'CC1206KRX7R9BB683', 'CAP CER 0.068UF 50V X7R 1206',
+        'ADP5071 compensation (C61)'),
+}
+# makers for the caps that are not Samsung
+CAP_MAKERS = {
+    'C1206C473K5RACTU': 'Kemet',
+    'C1206C101J5GACTU': 'Kemet',
+    'CC1206KRX7R9BB683': 'Yageo',
 }
 
 # ── everything else, keyed by (value, footprint) ────────────────────────────
@@ -106,13 +115,18 @@ PARTS = {
         'Littelfuse', 'SMBJ16A',
         'TVS DIODE 16VWM 26VC DO214AA', 'design', 'unidirectional'),
     ('WS2812B', 'LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm'): (
-        'Worldsemi', '',
-        'LED RGB WS2812B 5050 addressable', 'none',
-        'search "WS2812B"; check it is the 5 V PLCC4 5.0x5.0 mm part'),
+        'Adafruit', '1655',
+        'LED RGB NEOPIXEL 5050 (WS2812/SK6812, 10 pack)', 'suggested',
+        'Digi-Key has no WorldSemi WS2812B; this is the same pinout and '
+        'protocol. Adafruit says hand-solder only, not for reflow, so '
+        'check JLCPCB/LCSC for a WS2812B-compatible part if you assemble '
+        'there'),
     ('5A backup', 'Fuse_1812_4532Metric'): (
         '', '', 'FUSE 5A 1812 SMD (32 VDC or more)', 'none',
-        'backup only: the supply can deliver far more; add a fuse at the '
-        'PSU end (see DESIGN_REVIEW.md)'),
+        'no 5 A fast-acting fuse in 1812 found at Digi-Key (1812 is PTC '
+        'only, 2.6 A hold or less); 5 A 32 V fuses exist in 1206 (Littelfuse '
+        '440 series) and 0603 (441 series), which need a footprint change. '
+        'Backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
     ('SRN6045TA-4R7M', 'L_Bourns_SRN6045TA'): (
         'Bourns', 'SRN6045TA-4R7M', 'FIXED IND 4.7UH 4.5A 26MOHM SMD',
         'design', ''),
@@ -135,8 +149,10 @@ PARTS = {
         'Infineon', 'IRF4905STRLPBF', 'MOSFET P-CH 55V 74A D2PAK', 'design',
         ''),
     ('15m', 'R_2512_6332Metric'): (
-        '', '', 'RES 0.015 OHM 1% 2W 2512 (3W is better)', 'none',
-        'INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; low TCR'),
+        'Vishay Dale', 'WSL2512R0150FEA18', 'RES 0.015 OHM 1% 2W 2512',
+        'suggested',
+        'INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the "18" '
+        'suffix is the 2 W part (WSL2512R0150FEA is 1 W)'),
     ('USB_C', 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal'): (
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
@@ -230,9 +246,10 @@ PARTS = {
         'NXP', 'SC18IS604PWJ', 'IC SPI TO I2C BRIDGE 16TSSOP', 'suggested',
         'PWJ is the reel'),
     ('SG-8002CA-PH 25MHz', 'Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm'): (
-        'Epson', '', 'OSC 25.000MHZ CMOS 5V SMD 7x5', 'none',
-        'SG-8002CA, PH = 5 V CMOS with output enable; pick the 25.000000 MHz PH '
-        'variant'),
+        'Epson', 'SG-8002CA 25.0000M-PHBB', 'OSC 25.000MHZ CMOS 5V SMD 7x5',
+        'suggested',
+        'PH = 5 V CMOS with output enable; Digi-Key lists it as not for new '
+        'designs (DK 2.0 SG-8002CA25.0000M-PHBB-ND)'),
     ('USBLC6-2SC6', 'SOT-23-6'): (
         'STMicroelectronics', 'USBLC6-2SC6', 'TVS DIODE 5.25V 17V SOT23-6',
         'design', ''),
@@ -242,7 +259,7 @@ LED_PARTS = {
     'green': ('Lite-On', 'LTST-C190KGKT', 'LED GREEN CLEAR 0603 SMD'),
     'red': ('Lite-On', 'LTST-C190KRKT', 'LED RED CLEAR 0603 SMD'),
     'yellow': ('Lite-On', 'LTST-C190KSKT', 'LED YELLOW CLEAR 0603 SMD'),
-    'white': ('', '', 'LED WHITE CLEAR 0603 SMD'),
+    'white': ('Lite-On', 'LTW-C193TS5', 'LED WHITE CLEAR 0603 SMD'),
 }
 
 
@@ -299,7 +316,7 @@ def classify(value, footprint):
         )
     if footprint.startswith('C_') and (value, footprint) in CAPS:
         mpn, description, note = CAPS[(value, footprint)]
-        return (SAMSUNG if mpn else '', mpn, description,
+        return (CAP_MAKERS.get(mpn, SAMSUNG) if mpn else '', mpn, description,
                 'suggested' if mpn else 'none', note)
     if footprint.startswith('LED_0603'):
         color = re.search(r'\((\w+)\)', value)

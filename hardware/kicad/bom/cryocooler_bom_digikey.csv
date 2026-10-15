@@ -11,11 +11,11 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C40 C41,22uF/10V,C_1206_3216Metric,suggested,5 V buck output
 1,T491B226K016AT,Kemet,CAP TANT 22UF 10% 16V 3528-21 (B case),C43,22uF,CP_EIA-3528-21_Kemet-B,suggested,3.3 V rail; pin 1 is the + side
 1,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C47,22uF,C_1206_3216Metric,suggested,isolated 3.3 V output (needs 10 V or more)
-1,,,CAP CER 0.047UF 50V X7R 1206,C59,47nF,C_1206_3216Metric,none,"ADP5071 compensation, X7R or C0G"
-1,,,CAP CER 0.068UF 50V X7R 1206,C61,68nF,C_1206_3216Metric,none,"ADP5071 compensation, X7R or C0G"
+1,C1206C473K5RACTU,Kemet,CAP CER 0.047UF 50V X7R 1206,C59,47nF,C_1206_3216Metric,suggested,ADP5071 compensation (C59)
+1,CC1206KRX7R9BB683,Yageo,CAP CER 0.068UF 50V X7R 1206,C61,68nF,C_1206_3216Metric,suggested,ADP5071 compensation (C61)
 2,CL32B106KBJNNNE,Samsung Electro-Mechanics,CAP CER 10UF 50V X7R 1210,C62 C63,10uF/50V,C_1210_3225Metric,suggested,+/-16.5 V rails (50 V needed: DC bias derating)
 4,CL31A475KAHNNNE,Samsung Electro-Mechanics,CAP CER 4.7UF 25V X5R 1206,C65 C66 C67 C69,4.7uF/25V,C_1206_3216Metric,suggested,+/-15 V LDO outputs
-1,,,CAP CER 100PF 50V C0G/NP0 1206,C68,100pF,C_1206_3216Metric,none,"-15 V rail, C0G dielectric"
+1,CL31C101JBCNNNC,Samsung Electro-Mechanics,CAP CER 100PF 50V C0G/NP0 1206,C68,100pF,C_1206_3216Metric,suggested,"-15 V rail, C0G dielectric; Digi-Key marks this Samsung part obsolete, so pick a current 100 pF 50 V C0G 1206 (for example Kemet C1206C101J5GACTU)"
 1,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C72,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
 1,LTST-C190KRKT,Lite-On,LED RED CLEAR 0603 SMD,D2,FAN FAULT,LED_0603_1608Metric,suggested,colour assumed red
@@ -25,13 +25,13 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D8,PWR (green),LED_0603_1608Metric,suggested,
 1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D9,READY (green),LED_0603_1608Metric,suggested,
 1,LTST-C190KRKT,Lite-On,LED RED CLEAR 0603 SMD,D10,FAULT (red),LED_0603_1608Metric,suggested,
-1,,Worldsemi,LED RGB WS2812B 5050 addressable,D11,WS2812B,LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm,none,"search ""WS2812B""; check it is the 5 V PLCC4 5.0x5.0 mm part"
+1,1655,Adafruit,"LED RGB NEOPIXEL 5050 (WS2812/SK6812, 10 pack)",D11,WS2812B,LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm,suggested,"Digi-Key has no WorldSemi WS2812B; this is the same pinout and protocol. Adafruit says hand-solder only, not for reflow, so check JLCPCB/LCSC for a WS2812B-compatible part if you assemble there"
 1,1N4148W-7-F,Diodes Incorporated,DIODE GEN PURP 75V 150MA SOD123,D13,1N4148W,D_SOD-123,design,
 1,LTST-C190KSKT,Lite-On,LED YELLOW CLEAR 0603 SMD,D14,5V (yellow),LED_0603_1608Metric,suggested,
-1,,,LED WHITE CLEAR 0603 SMD,D15,+15V (white),LED_0603_1608Metric,none,
-1,,,LED WHITE CLEAR 0603 SMD,D16,-15V (white),LED_0603_1608Metric,none,
+1,LTW-C193TS5,Lite-On,LED WHITE CLEAR 0603 SMD,D15,+15V (white),LED_0603_1608Metric,suggested,
+1,LTW-C193TS5,Lite-On,LED WHITE CLEAR 0603 SMD,D16,-15V (white),LED_0603_1608Metric,suggested,
 1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D17,ISO 3V3 (green),LED_0603_1608Metric,suggested,
-1,,,FUSE 5A 1812 SMD (32 VDC or more),F1,5A backup,Fuse_1812_4532Metric,none,backup only: the supply can deliver far more; add a fuse at the PSU end (see DESIGN_REVIEW.md)
+1,,,FUSE 5A 1812 SMD (32 VDC or more),F1,5A backup,Fuse_1812_4532Metric,none,"no 5 A fast-acting fuse in 1812 found at Digi-Key (1812 is PTC only, 2.6 A hold or less); 5 A 32 V fuses exist in 1206 (Littelfuse 440 series) and 0603 (441 series), which need a footprint change. Backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
 5,1729128,Phoenix Contact,"TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08",J2 J8 J9 J11 J12,,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",suggested,"screw terminals: 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out"
 2,0022232041,Molex,CONN HEADER KK 254 VERT 4POS,J3 J4,,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,suggested,fan and pump (4-pin PWM)
@@ -71,13 +71,13 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0603FR-07118KL,Yageo,RES 118K OHM 1% 1/10W 0603,R60,118k,R_0603_1608Metric,suggested,
 1,RC0603FR-07115KL,Yageo,RES 115K OHM 1% 1/10W 0603,R61,115k,R_0603_1608Metric,suggested,
 1,RC0603FR-07113KL,Yageo,RES 113K OHM 1% 1/10W 0603,R63,113k,R_0603_1608Metric,suggested,
-1,,,RES 0.015 OHM 1% 2W 2512 (3W is better),R65,15m,R_2512_6332Metric,none,"INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; low TCR"
+1,WSL2512R0150FEA18,Vishay Dale,RES 0.015 OHM 1% 2W 2512,R65,15m,R_2512_6332Metric,suggested,"INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the ""18"" suffix is the 2 W part (WSL2512R0150FEA is 1 W)"
 2,RC0603FR-0749R9L,Yageo,RES 49.9 OHM 1% 1/10W 0603,R66 R67,49.9,R_0603_1608Metric,suggested,
 3,RC0603FR-07470RL,Yageo,RES 470 OHM 1% 1/10W 0603,R71 R72 R73,470,R_0603_1608Metric,suggested,
 3,TL3342F160QG,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,suggested,footprint is the TL3342 family (3.5 x 6 mm)
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,
 1,USBLC6-2SC6,STMicroelectronics,TVS DIODE 5.25V 17V SOT23-6,U2,USBLC6-2SC6,SOT-23-6,design,
-1,,Epson,OSC 25.000MHZ CMOS 5V SMD 7x5,U3,SG-8002CA-PH 25MHz,Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm,none,"SG-8002CA, PH = 5 V CMOS with output enable; pick the 25.000000 MHz PH variant"
+1,SG-8002CA 25.0000M-PHBB,Epson,OSC 25.000MHZ CMOS 5V SMD 7x5,U3,SG-8002CA-PH 25MHz,Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm,suggested,PH = 5 V CMOS with output enable; Digi-Key lists it as not for new designs (DK 2.0 SG-8002CA25.0000M-PHBB-ND)
 1,AD9833BRMZ,Analog Devices,IC DDS WAVEFORM GEN 10MSOP,U4,AD9833BRMZ,MSOP-10_3x3mm_P0.5mm,design,
 1,OPA1656ID,Texas Instruments,IC OPAMP AUDIO 2CIRC 8SOIC,U5,OPA1656ID,SOIC-8_3.9x4.9mm_P1.27mm,design,
 1,AD633JRZ-R7,Analog Devices,IC ANALOG MULTIPLIER 8SOIC,U6,AD633JRZ-R7,SOIC-8_3.9x4.9mm_P1.27mm,design,

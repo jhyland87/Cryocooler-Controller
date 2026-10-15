@@ -22,7 +22,7 @@ description and notes.
 |---|---|
 | design | the schematic value is the orderable part (ICs, FETs, diodes, inductors, the isolated DC/DC) |
 | suggested | picked for the value, package and rating (resistors, capacitors, connectors, LEDs, switch, some ICs' reel suffix). Compare Digi-Key's description with the `Description` column before ordering; I could not check stock or every number against Digi-Key |
-| none | no part chosen: fuse, 15 mOhm shunt, WS2812B, white LEDs, bicolor LEDs, oscillator, a few compensation capacitors |
+| none | no part found at Digi-Key: the 5 A 1812 fuse (F1) and the 2-pin red/green bicolor 1206 LEDs (D3, D4, D12) |
 
 ## Not in the list
 
@@ -33,7 +33,11 @@ description and notes.
 
 ## Notes that affect what you order
 
-* R65, the 15 mOhm shunt, dissipates about 1.5 W at 10 A: use 2 W or more.
+* R65, the 15 mOhm shunt, dissipates about 1.5 W at 10 A: use 2 W or more (WSL2512R0150FEA18 is 2 W).
+* U3 (SG-8002CA) is listed as not for new designs at Digi-Key; it is the part the schematic uses.
+* D11 uses Adafruit 1655 because Digi-Key has no WorldSemi WS2812B; Adafruit says it is hand-solder only.
+* C68 (100 pF C0G): Digi-Key marks the Samsung CL31C101JBCNNNC obsolete; use Kemet C1206C101J5GACTU or similar.
+* F1 and D3/D4/D12 have no part yet: 5 A fast-acting fuses exist in 1206/0603, and a 2-pin 1206 bicolor LED was not found.
 * R44 (3.9 k, the ADS1220 reference resistor) should be 0.1 % and low drift; measure it and set
   `PT1000_REF_R` in `include/config/config.h` (it is 3854 now).
 * Capacitor voltage ratings: 25 V parts on the 12 V and +/-15 V rails, 50 V on the +/-16.5 V rails, and
