@@ -1,20 +1,21 @@
 /**
  * @file cold_head.cpp
- * @brief ADS122C04 RTD cold_head sensor implementation
+ * @brief ADS1220 RTD cold_head sensor implementation
  *
  * Maintains a ring buffer of (timestamp, tempC) samples for cooling-rate
  * calculation and cold_head-stall detection.
  *
  * Hardware:
- *   - ADS122C04 at I2C address 0x45 (A0 and A1 HIGH)
+ *   - ADS1220 on the shared SPI bus (mode 1), chip select ADS1220_CS
  *   - PT1000 RTD in 4-wire configuration
  *   - R_ref = 3854 ohm 0.1% reference resistor
  *   - IDAC1 routed to AIN3, sense on AIN1(+)/AIN0(-)
- *   - External REFP/REFN (ratiometric measurement)
+ *   - External REFP0/REFN0 (ratiometric measurement)
+ *   - DRDY is not wired to the MCU: conversions are timed instead
  */
 
 #include <Arduino.h>
-#include <SparkFun_ADS122C04_ADC_Arduino_Library.h>
+#include <ADS1220_WE.h>
 #include <RunningAverage.h>
 #include <optional>
 
@@ -46,7 +47,11 @@ struct TempSample {
     float    rmsCurrentA;
 };
 
-static SFE_ADS122C04 ads122c04;
+// Shares the main SPI bus (already started by hardware::init); no DRDY pin.
+static ADS1220_WE ads1220(&hardware::spi(), ADS1220_CS, -1, false, true);
+
+// Single-shot conversion at 20 SPS takes 204850 / 4.096 MHz = 50 ms.
+static constexpr uint32_t ADS1220_CONVERSION_MS = 60;
 
 // Ring buffer - fixed size determined by TEMP_HISTORY_SIZE
 static TempSample  sHistory[TEMP_HISTORY_SIZE];
@@ -64,13 +69,13 @@ static bool  sMockInjected    = false;
 static float sMockCoolingRate = 0.0f;
 static bool  sMockStalled     = false;
 
-// Module-local RTD mock — bypasses MAX31865 hardware without enabling the
+// Module-local RTD mock — bypasses ADS1220 hardware without enabling the
 // global sensor_mock layer.  Allows the rest of the system to run on real
 // hardware while the temperature probe is absent or not yet wired up.
 static bool  sLocalMockEnabled = false;
 static float sLocalMockTempC   = 26.85f;
 
-// Set to true when the most recent read() detected an ADS122C04 communication
+// Set to true when the most recent read() detected an ADS1220 communication
 // failure or a temperature reading outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C,
 // MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
@@ -79,7 +84,7 @@ static bool sRtdFaultActive = false;
 // Each distinct fault type gets its own slot so that two simultaneously
 // oscillating faults don't reset each other's timers and cause spam.
 // Keys:
-//   1      → ADS122C04 communication / DRDY timeout fault
+//   1      → ADS1220 communication fault (all-zero / all-one frame)
 //   256    → plausibility fault, reading too low
 //   257    → plausibility fault, reading too high
 //   0      → unused slot
@@ -162,20 +167,39 @@ static const TempSample& sampleAt(uint8_t i) {
 // Public API
 // ---------------------------------------------------------------------------
 
+// Configures the ADS1220 for PT1000 4-wire ratiometric measurement:
+//   - MUX AIN1(+) / AIN0(-), gain 1 with the PGA bypassed (PT1000 gives
+//     ~10x the PT100 signal, so gain 8 would overrange)
+//   - external reference on REFP0/REFN0, IDAC1 (250 uA) routed to AIN3
+//   - 20 SPS single-shot with simultaneous 50/60 Hz rejection
+//   - non-blocking: conversions are started and read on a timer
+static void configureAdc() {
+    ads1220.setCompareChannels(ADS1220_MUX_1_0);
+    ads1220.setGain(ADS1220_GAIN_1);
+    ads1220.bypassPGA(true);
+    ads1220.setDataRate(ADS1220_DR_LVL_0);
+    ads1220.setConversionMode(ADS1220_SINGLE_SHOT);
+    ads1220.setVRefSource(ADS1220_VREF_REFP0_REFN0);
+    ads1220.setFIRFilter(ADS1220_50HZ_60HZ);
+    ads1220.setIdacCurrent(ADS1220_IDAC_250_MU_A);
+    ads1220.setIdac1Routing(ADS1220_IDAC_AIN3_REFN1);
+    ads1220.setNonBlockingMode(true);
+}
+
 namespace cold_head {
 
 module::InitStatus init() {
     // ACS37800 voltage/current readings are owned by the amplifier module.
     // cold_head::read() pulls from amplifier::getLastRmsVoltage/CurrentA().
 
-    _Log.println(F("Initializing ADS122C04..."));
+    _Log.println(F("Initializing ADS1220..."));
     const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
-        ESP_LOGE(TAG, "ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
-        _Log.printf("ADS122C04 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        ESP_LOGE(TAG, "ADS1220 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        _Log.printf("ADS1220 initialization failed! Status: %s", module::initStatusName(rtdStatus));
         return rtdStatus;
     }
-    _Log.println(F("ADS122C04 initialization successful!"));
+    _Log.println(F("ADS1220 initialization successful!"));
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -189,39 +213,24 @@ module::InitStatus initACS() {
 module::InitStatus initRTD() {
     // Local mock: skip all hardware access entirely.
     if (sLocalMockEnabled) {
-        _Log.printf("Local RTD mock active (%.2f C) — skipping ADS122C04 hardware init",
+        _Log.printf("Local RTD mock active (%.2f C) — skipping ADS1220 hardware init",
                  sLocalMockTempC);
         return module::MODULE_INIT_SUCCESS;
     }
 
-    if (!ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire) && !sensor_mock::isActive()) {
-        _Log.println(F("Could not initialize ADS122C04! Check I2C wiring."));
+    if (!ads1220.init() && !sensor_mock::isActive()) {
+        _Log.println(F("Could not initialize ADS1220! Check SPI wiring."));
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
+    configureAdc();
 
-    // Configure for PT1000 4-wire RTD measurement:
-    //   - MUX: AIN1(+) / AIN0(-)
-    //   - Vref: external REFP/REFN (ratiometric)
-    //   - IDAC1 routed to AIN3
-    //   - Single-shot mode
-    ads122c04.configureADCmode(ADS122C04_4WIRE_MODE);
-
-    // PT1000 produces ~10x more signal than PT100 — gain 8 overranges.
-    // Drop to gain 1 and disable PGA (required when gain < 4).
-    ads122c04.setGain(ADS122C04_GAIN_1);
-    ads122c04.enablePGA(ADS122C04_PGA_DISABLED);
-
-    // Drop IDAC to 250uA to keep signal within range with gain 1.
-    ads122c04.setIDACcurrent(ADS122C04_IDAC_CURRENT_250_UA);
-
-    ESP_LOGI(TAG, "ADS122C04 configured for PT1000 4-wire measurement");
+    ESP_LOGI(TAG, "ADS1220 configured for PT1000 4-wire measurement");
     return module::MODULE_INIT_SUCCESS;
 }
 
 module::ServiceStatus service() {
-    // If hardware init failed, don't touch I2C — a missing ADS122C04 causes
-    // blocking requestFrom() timeouts (~1 s each) that stall the main loop
-    // and can corrupt the shared I2C bus.
+    // If hardware init failed, don't touch the SPI bus — a missing ADS1220
+    // would only return all-zero or all-one frames every tick.
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS
         && !sensor_mock::isActive() && !sLocalMockEnabled) {
         return module::MODULE_SERVICE_SKIPPED;
@@ -257,64 +266,48 @@ module::ServiceStatus service() {
     // stays current even when the RTD read returns early (timeout / offline).
     sLastAmbientTempC = imu::getTemperature();
 
-    // ── Non-blocking ADS122C04 RTD measurement ──────────────────────────
+    // ── Non-blocking ADS1220 RTD measurement ────────────────────────────
     // Uses a two-phase state machine:
-    //   Phase 0: Kick off a single-shot conversion via ads122c04.start()
-    //   Phase 1: Poll DRDY; when ready, read the 24-bit result
-    // Returns early each cycle that DRDY is not yet asserted, keeping the
-    // main loop non-blocking.
+    //   Phase 0: Kick off a single-shot conversion via ads1220.start()
+    //   Phase 1: After ADS1220_CONVERSION_MS (DRDY is not wired), read the
+    //            24-bit result
+    // Returns early each cycle that the conversion is still running, keeping
+    // the main loop non-blocking.
 
     static uint32_t sRtdStartMs  = 0;
     static bool     sConvStarted = false;
 
     if (!sConvStarted) {
-        // If a fault was active, re-initialise the ADC to restore its
-        // configuration (the chip may have been power-cycled).
-        if (sRtdFaultActive) {
-            ads122c04.begin(ADS122C04_RTD_SENSOR_I2C_ADDRESS, Wire);
-            ads122c04.configureADCmode(ADS122C04_4WIRE_MODE);
-            ads122c04.setGain(ADS122C04_GAIN_1);
-            ads122c04.enablePGA(ADS122C04_PGA_DISABLED);
-            ads122c04.setIDACcurrent(ADS122C04_IDAC_CURRENT_250_UA);
+        // SPI has no ACK, so a dropped configuration (the chip may have been
+        // power-cycled) shows up as the PGA bypass bit reading back clear.
+        if (sRtdFaultActive || !ads1220.isPGABypassed()) {
+            configureAdc();
         }
-        ads122c04.start();
+        ads1220.start();
         sConvStarted = true;
         sRtdStartMs  = nowMs;
         return module::MODULE_SERVICE_OK;  // conversion starting — nothing to read yet
     }
 
-    // Poll DRDY; return early if still converting.
-    if (!ads122c04.checkDataReady()) {
-        // Timeout: if >2 s the chip is likely dead.
-        if ((nowMs - sRtdStartMs) > 2000u) {
-            sRtdFaultActive = true;
-            sConvStarted    = false;  // allow retry next cycle
-        }
-        return module::MODULE_SERVICE_ERROR;
+    // Return early while the conversion is still running.
+    if ((nowMs - sRtdStartMs) < ADS1220_CONVERSION_MS) {
+        return module::MODULE_SERVICE_OK;
     }
 
-    // Measurement complete — read 24-bit result.
+    // Measurement complete — read the 24-bit result (already sign-extended).
     sConvStarted = false;  // ready for next cycle
 
-    const uint32_t raw = ads122c04.readADC();
+    const int32_t signed_raw = ads1220.getRawData();
 
-    // Sign-extend from 24-bit two's complement to 32-bit.
-    int32_t signed_raw;
-    if (raw & 0x00800000) {
-        signed_raw = static_cast<int32_t>(raw | 0xFF000000);
-    } else {
-        signed_raw = static_cast<int32_t>(raw);
-    }
-
-    // raw == 0 likely means disconnected / not communicating.
-    if (raw == 0) {
+    // All-zero or all-one frames mean no device is driving MISO.
+    if (signed_raw == 0 || signed_raw == -1) {
         sRtdFaultActive = true;
         return module::MODULE_SERVICE_ERROR;
     }
 
     // Convert ADC counts to PT1000 resistance (ratiometric).
     // R_pt1000 = (ADC / 2^23) * R_ref / gain
-    const float resistance = (static_cast<float>(signed_raw) / ADS122C04_ADC_FULL_SCALE)
+    const float resistance = (static_cast<float>(signed_raw) / ADS1220_ADC_FULL_SCALE)
                              * PT1000_REF_R / PT1000_GAIN;
     const float tempC      = conversions::resistanceToTemperaturePT1000(resistance);
 
@@ -409,11 +402,11 @@ void setLastReadings(float tempC,
 
 void checkFaults() {
     if (sensor_mock::isActive()) return;
-    // ADS122C04 has no dedicated fault register like the MAX31865.
-    // Faults are detected during service() via DRDY timeout and plausibility
+    // ADS1220 has no dedicated fault register like the MAX31865.
+    // Faults are detected during service() via empty SPI frames and plausibility
     // checks.  This function is retained for API compatibility.
     if (sRtdFaultActive) {
-        _Log.println(F("ADS122C04: sensor fault active (DRDY timeout or out-of-range reading)"));
+        _Log.println(F("ADS1220: sensor fault active (empty SPI frame or out-of-range reading)"));
     }
 }
 
@@ -542,7 +535,7 @@ void enableMock(float tempC) {
     sLocalMockTempC   = tempC;
     _Log.printf("Local RTD mock enabled at %.2f C", tempC);
 #ifdef ARDUINO
-    // If the module hasn't initialised successfully yet (e.g. MAX31865 absent),
+    // If the module hasn't initialised successfully yet (e.g. ADS1220 absent),
     // run init() now — it will short-circuit through initRTD()'s mock branch and
     // set _initStatus = SUCCESS.  This means the caller never needs a separate
     // reinit command just to enable the cold-head mock.
@@ -554,7 +547,7 @@ void enableMock(float tempC) {
 
 void disableMock() {
     sLocalMockEnabled = false;
-    _Log.println(F("Local RTD mock disabled — will use real ADS122C04 after next reinit"));
+    _Log.println(F("Local RTD mock disabled — will use real ADS1220 after next reinit"));
 }
 
 bool isMockEnabled() {

@@ -668,9 +668,7 @@ module::ServiceStatus service() {
     static uint8_t consecutiveI2cFailures = 0;
 
     if (!sensor_mock::isActive()) {
-        TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(EMC2303_I2C_ADDRESS);
-        if (i2c.endTransmission() != 0) {
+        if (!hardware::i2c().probe(EMC2303_I2C_ADDRESS)) {
             ++consecutiveI2cFailures;
             if (consecutiveI2cFailures >= I2C_FAIL_THRESHOLD) {
                 _Log.printf("I2C: %u consecutive failures — demoting to HARDWARE_ERROR\n",

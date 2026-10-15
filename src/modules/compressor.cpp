@@ -2,8 +2,8 @@
  * @file compressor.cpp
  * @brief Air compressor relay control implementation.
  *
- * The relay is driven through a SparkFun Qwiic Single Relay at
- * COMPRESSOR_RELAY_ADDR (0x19) on the shared I2C bus.
+ * The relay is driven from COMPRESSOR_RELAY_PIN (GPIO16) through a BSS138 /
+ * BSS84 high-side switch: HIGH puts +12 V on the compressor relay terminal.
  *
  * Only timed runs are supported.  startRun() enables the relay and records a
  * deadline; service() polls that deadline each tick and disables the relay
@@ -11,9 +11,7 @@
  */
 
 #include <Arduino.h>
-#include <SparkFun_Qwiic_Relay.h>
 
-#include "hardware.h"
 #include "pin_config.h"
 #include "config.h"
 #include "compressor.h"
@@ -23,14 +21,6 @@
 namespace compressor {
 
 static constexpr char TAG[] = "compressor";
-
-// SparkFun Qwiic Single Relay instance for this module.
-static Qwiic_Relay sRelay(COMPRESSOR_RELAY_ADDR);
-
-/// Set true by init() only when the relay device acknowledged on the I2C bus.
-/// When false, setRelay() is a no-op so the module can be enabled in config
-/// without crashing if the hardware is not yet fitted.
-static bool sRelayAvailable = false;
 
 // ---------------------------------------------------------------------------
 // Module state
@@ -52,10 +42,8 @@ static uint32_t sRunDurationMs = 0;
 static void setRelay(bool on) {
     if (on == sRelayOn) return;
     sRelayOn = on;
-    if (sRelayAvailable) {
-        if (on) { sRelay.turnRelayOn(); } else { sRelay.turnRelayOff(); }
-    }
-    ESP_LOGD(TAG, "Relay → %s%s", on ? "ON" : "OFF", sRelayAvailable ? "" : " (no hw)");
+    digitalWrite(COMPRESSOR_RELAY_PIN, on ? HIGH : LOW);
+    ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
 }
 
 // ---------------------------------------------------------------------------
@@ -63,19 +51,12 @@ static void setRelay(bool on) {
 // ---------------------------------------------------------------------------
 
 module::InitStatus init() {
-    ESP_LOGI(TAG, "Initialising compressor relay (Qwiic Single Relay @ 0x%02X)",
-             static_cast<unsigned>(COMPRESSOR_RELAY_ADDR));
+    ESP_LOGI(TAG, "Initialising compressor relay (GPIO %d)", COMPRESSOR_RELAY_PIN);
 
-    if (!sRelay.begin(hardware::i2c())) {
-        ESP_LOGW(TAG, "Qwiic Single Relay not found at 0x%02X — relay disabled",
-                 static_cast<unsigned>(COMPRESSOR_RELAY_ADDR));
-        sRelayAvailable = false;
-    } else {
-        sRelayAvailable = true;
-        // Force the guard inside setRelay() to fire so sRelayOn tracks reality.
-        sRelayOn = true;
-        setRelay(false);
-    }
+    pinMode(COMPRESSOR_RELAY_PIN, OUTPUT);
+    // Force the guard inside setRelay() to fire so the pin is driven low.
+    sRelayOn = true;
+    setRelay(false);
     sRunStartMs    = 0;
     sRunDurationMs = 0;
 

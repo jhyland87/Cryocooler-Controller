@@ -169,7 +169,7 @@ static void dacRampInternal(uint16_t target, uint16_t maxStep) {
 namespace amplifier {
 
 module::InitStatus init() {
-    // -- Qwiic Single Relay ---------------------------------------------------
+    // -- Amplifier relay (GPIO) -----------------------------------------------
     _Log.println(F("Initializing amplifier relay (GPIO)..."));
     {
         const module::InitStatus status = initRelay();
@@ -181,7 +181,7 @@ module::InitStatus init() {
     }
     _Log.println(F("Amplifier relay initialized"));
 
-    // -- MCP4901 DAC -----------------------------------------------------------
+    // -- MCP4921 DAC -----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
     // multiplier to multiply the sine wave output.
     _Log.println(F("Initializing MCP4921 (DAC - Amplitude Control)..."));

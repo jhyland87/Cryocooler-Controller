@@ -11,7 +11,7 @@
  */
 
 #include <Arduino.h>
-#include <Adafruit_INA237.h>
+#include <INA239.h>
 #include <esp_timer.h>
 #include <esp_heap_caps.h>
 #include <esp_system.h>
@@ -23,7 +23,7 @@
 #include "imu.h"
 #include "sensor_mock.h"
 
-// ── INA237 readings ─────────────────────────────────────────────────────────
+// ── INA239 readings ─────────────────────────────────────────────────────────
 static float voltage = 0.0f;
 static float current = 0.0f;
 static float power   = 0.0f;
@@ -72,15 +72,27 @@ static void updateCpuUsage() {
 
 namespace sysinfo {
 
-static Adafruit_INA237 ina237 = Adafruit_INA237();
+static constexpr uint16_t INA239_MANUFACTURER_ID = 0x5449;  // "TI"
+static constexpr uint16_t INA239_DIE_ID         = 0x239;
+static constexpr float    SHUNT_OHMS            = 0.015f;   // 15 mΩ
+static constexpr float    SHUNT_MAX_AMPS        = 10.0f;    // ±163.84 mV range
 
-static constexpr uint8_t MAX_I2C_ERRORS = 3;
-static uint8_t sIna237Errors = 0;
-static bool    sIna237Disabled = false;
+// Shares the main SPI bus; the library applies SPI mode 1 per transaction.
+static INA239 ina239(INA239_CS, &hardware::spi());
+
+static constexpr uint8_t MAX_SPI_ERRORS = 3;
+static uint8_t sIna239Errors = 0;
+static bool    sIna239Disabled = false;
+
+// SPI has no ACK, so presence is judged by reading the fixed ID registers.
+static bool ina239Present() {
+    return ina239.getManufacturer() == INA239_MANUFACTURER_ID
+        && ina239.getDieID() == INA239_DIE_ID;
+}
 
 module::InitStatus init() {
-    sIna237Errors   = 0;
-    sIna237Disabled = false;
+    sIna239Errors   = 0;
+    sIna239Disabled = false;
 
     Serial.println(F("[sysinfo] Registering CPU idle hooks..."));
     esp_register_freertos_idle_hook_for_cpu(onIdleCore0, 0);
@@ -92,21 +104,20 @@ module::InitStatus init() {
     }
     lastCpuSampleUs = esp_timer_get_time();
 
-    Serial.println(F("[sysinfo] Looking for INA237 chip..."));
-
-    TwoWire& i2c = hardware::i2c();
+    Serial.println(F("[sysinfo] Looking for INA239 chip..."));
 
     for (uint8_t attempt = 0; attempt < 2; ++attempt) {
-        if (ina237.begin(INA237_I2CADDR_DEFAULT, &i2c)) {
-            ina237.setShunt(0.015f, 10.0f);  // 15 mΩ shunt, 10 A max
-            Serial.println(F("[sysinfo] INA237 chip found and initialized"));
+        ina239.begin();
+        if (ina239Present()) {
+            ina239.setMaxCurrentShunt(SHUNT_MAX_AMPS, SHUNT_OHMS);
+            Serial.println(F("[sysinfo] INA239 chip found and initialized"));
             analogReadResolution(ADC_RESOLUTION);
             return module::MODULE_INIT_SUCCESS;
         }
         delay(100);
     }
 
-    Serial.println(F("[sysinfo] INA237 chip not found after 2 attempts"));
+    Serial.println(F("[sysinfo] INA239 chip not found after 2 attempts"));
     analogReadResolution(ADC_RESOLUTION);
     return module::MODULE_INIT_HARDWARE_ERROR;
 }
@@ -121,49 +132,41 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_OK;
     }
 
-    // INA237 reads are only valid when the chip was found during init.
-    // Attempting reads on a missing device generates I2C errors every tick.
+    // INA239 reads are only valid when the chip was found during init.
+    // Reading a missing device returns all-zero or all-one frames every tick.
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    // Permanently disabled after consecutive I2C failures to avoid blocking
-    // the main loop with ~1 s timeouts every tick.
-    if (sIna237Disabled) {
+    // Disabled after consecutive ID-read failures until reinit.
+    if (sIna239Disabled) {
         return module::MODULE_SERVICE_SKIPPED;
     }
 
-    // I2C ping: when 12 V drops, the INA237 goes offline (NACK).
-    // Require consecutive failures before reporting an error — a single
-    // transient NACK (common on a shared bus) should not flip the service
-    // status and spam the log.
-    {
-        TwoWire& i2c = hardware::i2c();
-        i2c.beginTransmission(INA237_I2CADDR_DEFAULT);
-        if (i2c.endTransmission() != 0) {
-            ++sIna237Errors;
-            if (sIna237Errors >= MAX_I2C_ERRORS) {
-                sIna237Disabled = true;
-                ESP_LOGW("sysinfo", "INA237 offline after %u consecutive errors — disabled until reinit",
-                         sIna237Errors);
-                hardware::recoverI2c();
-                voltage = NAN;
-                current = NAN;
-                power   = NAN;
-                return module::MODULE_SERVICE_ERROR;
-            }
-            // Transient failure — keep last-known-good values, don't report error
-            return module::MODULE_SERVICE_OK;
+    // ID check: when 12 V drops, the INA239 loses its supply and MISO floats.
+    // Require consecutive failures before reporting an error — one corrupted
+    // frame should not flip the service status and spam the log.
+    if (!ina239Present()) {
+        ++sIna239Errors;
+        if (sIna239Errors >= MAX_SPI_ERRORS) {
+            sIna239Disabled = true;
+            ESP_LOGW("sysinfo", "INA239 offline after %u consecutive errors — disabled until reinit",
+                     sIna239Errors);
+            voltage = NAN;
+            current = NAN;
+            power   = NAN;
+            return module::MODULE_SERVICE_ERROR;
         }
+        // Transient failure — keep last-known-good values, don't report error
+        return module::MODULE_SERVICE_OK;
     }
 
-    sIna237Errors = 0;  // reset on successful ping
+    sIna239Errors = 0;  // reset on successful ID read
 
-    float rawV = ina237.readBusVoltage();
+    float rawV = ina239.getBusVoltage();
 
-    // Sanity check: INA237 returns garbage when the bus has no power
-    // (floating pins read ~200 V, ~260 kW).  Send NaN so the dashboard
-    // shows a gap in the chart for this tick.
+    // Sanity check: reject readings far outside the 12 V rail.  Send NaN so
+    // the dashboard shows a gap in the chart for this tick.
     if (rawV > 60.0f || rawV < -1.0f) {
         voltage = NAN;
         current = NAN;
@@ -172,12 +175,12 @@ module::ServiceStatus service() {
     }
 
     voltage = rawV;
-    current = ina237.readCurrent() / 1000.0f;  // mA → A
-    power   = ina237.readPower()   / 1000.0f;  // mW → W
+    current = ina239.getCurrent();  // A
+    power   = ina239.getPower();    // W
     return module::MODULE_SERVICE_OK;
 }
 
-// ── INA237 getters ──────────────────────────────────────────────────────────
+// ── INA239 getters ──────────────────────────────────────────────────────────
 
 float getVoltage() {
     return voltage;

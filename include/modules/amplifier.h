@@ -4,7 +4,7 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4901 8-bit SPI DAC                              (amplitude control)
+ *   MCP4921 12-bit SPI DAC                              (amplitude control)
  *
  * The legacy dac / waveform / rms modules have been consolidated here.
  *
@@ -40,7 +40,7 @@ module::InitStatus initWaveform();
 /** Initialise the ACS37800 RMS power monitor over I2C. */
 module::InitStatus initAcs();
 
-/** Initialise the MCP4901 8-bit SPI DAC and drive output to zero. */
+/** Initialise the MCP4921 12-bit SPI DAC and drive output to zero. */
 module::InitStatus initDac();
 
 /** Initialise the amplifier relay GPIO pin and de-energise it. */
@@ -122,7 +122,7 @@ void rampTowardShutdown();
 /**
  * Immediately write 0 to the DAC hardware, bypassing the rate limiter and
  * the cached-value guard.  Call from any hard power-off or emergency-stop
- * path to guarantee the MCP4901 output is zeroed regardless of the current
+ * path to guarantee the MCP4921 output is zeroed regardless of the current
  * cached DAC value.
  */
 void hardStop();
@@ -139,7 +139,7 @@ void initFineCooldown();
  */
 void setOutput(float fraction);
 
-/** Return the current MCP4901 DAC output value (0–255). */
+/** Return the current MCP4921 DAC output value (0–AMPLIFIER_RESOLUTION, 4095). */
 uint16_t getDacCurrent();
 
 /**

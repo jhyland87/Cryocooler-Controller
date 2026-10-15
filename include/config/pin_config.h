@@ -15,12 +15,24 @@
 
 #define RGB_LED_PIN 38
 
-// I2C Bus 0 — shared bus for sensors, relays, power monitor
-#define SDA_PIN            8
-#define SCL_PIN            9
+// SC18IS604 SPI-to-I2C bridge (EMC2303 fan controller) — SPI mode 3 on the shared
+// SPI bus. A 74LVC1G125 gates its MISO (OE# = CS). INT# is not wired to the MCU.
+// GPIO8/9 were the I2C pins before the bridge was added.
+#define BRIDGE_CS_PIN      8
+#define BRIDGE_RESET_PIN   9
 
 // MCP4921 SPI DAC — amplitude control (shares SPI bus with AD9833)
 #define MCP4921_CS         5
+
+// INA239 power monitor — SPI mode 1 on the shared SPI bus (MISO is Hi-Z when CS is high).
+// GPIO3 is a strapping pin (JTAG source); the 10 kΩ CS pull-up keeps it high at reset,
+// which selects the default USB-JTAG.
+#define INA239_CS          3
+
+// ADS1220 RTD ADC — SPI mode 1 on the shared SPI bus (DOUT is Hi-Z when CS is high).
+// GPIO44 is U0RXD; the console is native USB CDC, so UART0 is unused.
+// DRDY is not wired to the MCU.
+#define ADS1220_CS         44
 
 // LSM6DSOX IMU — SPI (shares SPI bus with AD9833 and MCP4921)
 #define LSM6DSOX_CS        1    // right header, physical pin 19
@@ -50,16 +62,21 @@
 // the RMT peripheral and interferes with the real status LED on GPIO 38.
 #define READY_IND_PIN      15
 
+// Compressor relay driver (active HIGH): BSS138 + BSS84 high-side switch puts
+// +12 V on the compressor relay terminal (130 mA max).  GPIO16 used to carry
+// the optional LTC2954 INT# line, which is no longer wired to the MCU.
+#define COMPRESSOR_RELAY_PIN 16
+
 // Power kill switch (active LOW).
 #define PWR_KILL_PIN      10
 
 // =============================================================================
-// SPI Bus (used by AD9833)
+// SPI Bus (AD9833, MCP4921, LSM6DSOX, INA239, ADS1220, SC18IS604)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
-#define SPI_MISO          40    // Master In Slave Out  (no SPI devices have SDO, but keep assigned)
-#define SPI_MOSI          41    // Master Out Slave In  (MCP4921 SDI + AD9833 SDATA)
+#define SPI_MISO          40    // Master In Slave Out  (read by the LSM6DSOX, INA239 and ADS1220)
+#define SPI_MOSI          41    // Master Out Slave In  (MCP4921 SDI + AD9833 SDATA + LSM6DSOX SDI + INA239 MOSI)
 #define SPI_CLK           42    // SPI Clock
 
 

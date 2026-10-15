@@ -2,8 +2,8 @@
  * @file compressor.h
  * @brief Air compressor relay control.
  *
- * The compressor is driven through a SparkFun Qwiic Single Relay at I2C
- * address COMPRESSOR_RELAY_ADDR (pin_config.h).  It may only be started via
+ * The compressor relay is driven from COMPRESSOR_RELAY_PIN (pin_config.h)
+ * through a high-side +12 V switch.  It may only be started via
  * a timed run — there is no indefinite-on mode — and the run duration is
  * hard-capped by COMPRESSOR_MAX_RUN_MS (config.h).
  *
@@ -25,10 +25,9 @@
 namespace compressor {
 
 /**
- * Initialise the SparkFun Qwiic Single Relay and de-energise it.
+ * Configure the relay GPIO and de-energise the relay.
  * Must be called once before any other function in this namespace.
- * @return MODULE_INIT_SUCCESS on success, MODULE_INIT_HARDWARE_ERROR if the
- *         relay does not acknowledge on the I2C bus.
+ * @return MODULE_INIT_SUCCESS (a GPIO has no failure path).
  */
 module::InitStatus init();
 

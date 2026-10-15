@@ -22,7 +22,7 @@
 // =============================================================================
 // Relays
 // =============================================================================
-// Compressor relay: SparkFun Qwiic Single Relay (I2C, COMPRESSOR_RELAY_ADDR in pin_config.h)
+// Compressor relay: GPIO-driven high-side switch (COMPRESSOR_RELAY_PIN in pin_config.h)
 // Amplifier relay:  GPIO-driven (AMPLIFIER_RELAY_PIN in pin_config.h)
 
 // =============================================================================
@@ -159,12 +159,6 @@
 // and the pump (channel 1).  Channel 2 is unused.
 
 #define EMC2303_I2C_ADDRESS  static_cast<uint8_t>(0x4D)
-
-// =============================================================================
-// SparkFun Qwiic Single Relay — compressor
-// =============================================================================
-// Default I2C address (0x18).  Jumper to 0x19 if address conflicts arise.
-#define COMPRESSOR_RELAY_ADDR        static_cast<uint8_t>(0x19)
 
 // =============================================================================
 // Pump — duty-cycle normalisation & software LUT configuration
@@ -344,8 +338,6 @@
 // IMU
 // =============================================================================
 #define LSM6DSOX_IMU_IC2_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if SA0 is tied high.
-
-#define ADS122C04_RTD_SENSOR_I2C_ADDRESS static_cast<uint8_t>(0x45)
 
 // =============================================================================
 // Misc stuff

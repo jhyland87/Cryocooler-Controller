@@ -14,8 +14,8 @@
  *   mock temp   <C>                      -- cold-stage temperature (Celsius)
  *   mock rate   <C/min>                  -- cooling rate
  *   mock rms    <V>                      -- RMS voltage (compressor drive)
- *   mock current <A>                     -- INA237 current
- *   mock voltage <V>                     -- INA237 bus voltage
+ *   mock current <A>                     -- INA239 current
+ *   mock voltage <V>                     -- INA239 bus voltage
  *   mock stall  <0|1>                    -- temperature-stall flag
  *   mock stroke <0|1>                    -- back-EMF overstroke flag
  * @endverbatim
@@ -59,15 +59,15 @@ namespace sensor_mock {
 
 /** All injectable sensor values in one flat struct. */
 struct Overrides {
-    // ── Cold head (PT1000 / ADS122C04) ───────────────────────────────────────
+    // ── Cold head (PT1000 / ADS1220) ───────────────────────────────────────
     float tempC       = 26.85f;   ///< Cold-stage temperature, Celsius
     float coolingRate = 0.0f;     ///< Cooling rate, C/min (positive = cooling down)
 
     // ── Electrical ──────────────────────────────────────────────────────────
     float rmsVoltageV = 0.0f;     ///< Back-EMF RMS voltage (compressor drive)
     float rmsCurrentA = 0.0f;     ///< Back-EMF RMS current, Amperes
-    float current    = 0.0f;     ///< INA237 current, Amperes
-    float voltage    = 0.0f;     ///< INA237 bus voltage, Volts
+    float current    = 0.0f;     ///< INA239 current, Amperes
+    float voltage    = 0.0f;     ///< INA239 bus voltage, Volts
 
     // ── Flags ────────────────────────────────────────────────────────────────
     bool  stalled     = false;    ///< Temperature-stall detection output

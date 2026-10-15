@@ -2,31 +2,25 @@
  * @file hardware.h
  * @brief Shared hardware bus registry.
  *
- * Wraps the global Wire and SPI singletons so modules can access buses via
- * hardware::i2c() / hardware::spi() without coupling to the globals directly.
+ * Wraps the global SPI singleton and the SC18IS604 SPI-to-I2C bridge so
+ * modules can access buses via hardware::spi() / hardware::i2c() without
+ * coupling to the globals directly.
  *
- * Rationale:
- *   ESP-IDF 5.x creates a new I2C driver handle for every TwoWire instance.
- *   Instantiating a second TwoWire(0) alongside the framework-owned global
- *   Wire causes two handles to fight over port 0, resulting in
- *   ESP_ERR_INVALID_STATE on every transaction.  The correct approach is to
- *   use the global Wire exclusively and ensure no library re-calls begin().
- *
- *   The Adafruit LSM6DS library manages I2C via Adafruit_BusIO, which
- *   accepts an external TwoWire reference and does not call Wire.begin().
+ * The ESP32 has no I2C pins in use: the only I2C device (the EMC2303 fan
+ * controller) sits behind the bridge, reached through an EMC230xBus.
  *
  * Usage:
  *   // In main.cpp setup(), before any module init:
  *   hardware::init();
  *
- *   // In any module that needs I2C:
- *   sensor.begin(hardware::i2c());
+ *   // In a module that needs the I2C bus:
+ *   controller.begin(addr, &hardware::i2c());
  */
 
 #pragma once
 
-#include <Wire.h>
 #include <SPI.h>
+#include <EMC230x.h>
 #include "module.h"
 
 namespace hardware {
@@ -45,10 +39,10 @@ namespace hardware {
 
 
     /**
-     * Returns a reference to the shared I2C bus (Wire — bus 0).
-     * Used by sensors, relays, power monitor, etc.
+     * Returns the I2C bus behind the SC18IS604 bridge.
+     * Used by the EMC2303 fan controller.
      */
-    TwoWire& i2c();
+    EMC230xBus& i2c();
 
     /**
      * Returns a reference to the shared SPI bus (the global SPI instance).
@@ -64,20 +58,16 @@ namespace hardware {
     SPIClass& acsSpi();
 
     /**
-     * Reset the I2C bus to a clean idle state.
-     *
-     * On Core 3.x (IDF 5.x) uses i2c_master_bus_reset(); falls back to
-     * Wire.end()/Wire.begin() if that fails or on Core 2.x.  All sensor
-     * objects that hold a TwoWire* remain valid because they reference the
-     * global Wire object, which Wire.begin() updates in place.
+     * Reset the SC18IS604 bridge (and with it the I2C controller) to a clean
+     * idle state: pulses its RESET pin and reconfigures the I2C clock.
      */
     void recoverI2c();
 
     // ── I2C error monitor ────────────────────────────────────────────────────
     //
-    // The noisy Wire.cpp ESP_LOGE messages are suppressed at boot.  Instead,
-    // callers report errors via reportI2cError(); serviceI2c() logs a periodic
-    // summary and triggers bus recovery when a threshold is exceeded.
+    // The bridge driver reports failed transactions via reportI2cError();
+    // serviceI2c() logs a periodic summary and resets the bridge when a
+    // threshold is exceeded.
 
     /** Record a single I2C transaction error. */
     void reportI2cError();

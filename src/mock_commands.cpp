@@ -177,7 +177,7 @@ static void handleColdhead(const char* args, Print& out) {
                      cold_head::getLastTempC());
             out.println(buf);
         } else {
-            out.println(F("[OK] Cold head RTD mock: inactive (real ADS122C04)"));
+            out.println(F("[OK] Cold head RTD mock: inactive (real ADS1220)"));
         }
         return;
     }
@@ -424,7 +424,7 @@ static void handleStatus(const char* /*args*/, Print& out) {
                  "  coldhead : MOCKED  %.3f C",
                  cold_head::getLastTempC());
     } else {
-        snprintf(buf, sizeof(buf), "  coldhead : real ADS122C04");
+        snprintf(buf, sizeof(buf), "  coldhead : real ADS1220");
     }
     out.println(buf);
 

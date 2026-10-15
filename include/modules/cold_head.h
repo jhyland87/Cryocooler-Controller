@@ -2,7 +2,7 @@
  * @file cold_head.h
  * @brief Cold-head temperature sensor interface
  *
- * Manages the ADS122C04 24-bit ADC with PT1000 RTD connected to the cold head.
+ * Manages the ADS1220 24-bit ADC with PT1000 RTD connected to the cold head.
  */
 
 #ifndef COLD_HEAD_H
@@ -17,7 +17,7 @@
 namespace cold_head {
 
 /**
- * Initialize the ADS122C04 ADC for PT1000 RTD measurement.
+ * Initialize the ADS1220 ADC for PT1000 RTD measurement.
  * Prints a diagnostic message to Serial.
  * @return MODULE_INIT_SUCCESS if begin() succeeds, MODULE_INIT_HARDWARE_ERROR otherwise.
  */
@@ -61,13 +61,13 @@ float getLastTempCBelowAmbient();
 
 
 /**
- * Check for ADS122C04 fault conditions and report via Serial.
+ * Check for ADS1220 fault conditions and report via Serial.
  */
 void checkFaults();
 
 /**
  * Return true if the most recent read() detected a sensor fault:
- * either the ADS122C04 DRDY timed out, or the computed temperature
+ * either the ADS1220 returned an empty SPI frame, or the computed temperature
  * was outside [MIN_PLAUSIBLE_COLDHEAD_TEMP_C, MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
  *
  * The flag self-clears as soon as a clean, in-range reading is obtained,
@@ -159,14 +159,14 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
 // ---------------------------------------------------------------------------
 // Module-local RTD mock
 //
-// Enables the cold_head module to operate without a physical ADS122C04/PT1000 probe,
+// Enables the cold_head module to operate without a physical ADS1220/PT1000 probe,
 // independently of the global sensor_mock layer.  Only the temperature
 // reading is faked; all other hardware (amplifier, cooling fan, relay) runs
 // normally on real hardware.
 //
 // Typical use (probe not yet installed):
 //   mock coldhead 26.85  — enable at 26.85°C (room temperature)
-//   reinit               — cold_head init bypasses MAX31865 hardware
+//   reinit               — cold_head init bypasses ADS1220 hardware
 //   start                — rest of system runs normally
 //   mock coldhead -188.15 — adjust temperature at any time, even while running
 //   mock coldhead off    — disable; next reinit uses real probe
@@ -175,7 +175,7 @@ TrackingMonitor<float>::State getTemperatureTrackingState();
 /**
  * Enable the module-local RTD mock.
  *
- * While active, init() skips all ADS122C04 hardware access and succeeds
+ * While active, init() skips all ADS1220 hardware access and succeeds
  * immediately, and read() returns @p tempC instead of a real RTD reading.
  * The global sensor_mock layer takes precedence if it is also active.
  *
@@ -190,7 +190,7 @@ void enableMock(float tempC = 26.85f);
 /**
  * Disable the module-local RTD mock.
  * Takes full effect after the next reinit() — init() will attempt to
- * communicate with the real ADS122C04 hardware.
+ * communicate with the real ADS1220 hardware.
  */
 void disableMock();
 

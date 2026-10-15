@@ -13,8 +13,8 @@
  * Internal algorithm parameters live in config_advanced.h, which is
  * included at the bottom of this file — no need to include it separately.
  *
- * NOTE: ADS122C04 enum values (gain, IDAC, mode) are defined in the
- * SparkFun ADS122C04 library header.
+ * NOTE: ADS1220 enum values (gain, IDAC, mode) are defined in the
+ * ADS1220_WE library header.
  */
 
 #ifndef CONFIG_H
@@ -31,7 +31,7 @@
 
 // Enable the compressor relay subsystem.
 // Set false to skip initialisation and service entirely (e.g. when the
-// Qwiic relay hardware is not fitted or you want to bench-test without it).
+// relay driver is not fitted or you want to bench-test without it).
 #define ENABLE_COMPRESSOR false
 
 // Hard upper limit on how long a timed compressor run may last.
@@ -100,13 +100,13 @@
 #define EMIT_TELEMETRY_WHEN_IDLE true
 
 // =============================================================================
-// RTD Sensor (ADS122C04 + PT1000)
+// RTD Sensor (ADS1220 + PT1000)
 // =============================================================================
 
 #define ANALOG_RESOLUTION static_cast<uint8_t>(12)
 
 // Reference resistor value in ohms (external precision resistor between
-// REFP and REFN on the ADS122C04 board).  Adjust to your measured value.
+// REFP0 and REFN0 on the ADS1220).  Adjust to your measured value.
 #define PT1000_REF_R    static_cast<float>(3854.0f)
 
 // ADC gain setting.  Gain 1 with PGA disabled for PT1000 (high signal).
@@ -116,7 +116,7 @@
 #define PT1000_R0       static_cast<float>(1000.0f)
 
 // 24-bit ADC full-scale value (2^23 for signed).
-#define ADS122C04_ADC_FULL_SCALE  static_cast<float>(8388608.0f)
+#define ADS1220_ADC_FULL_SCALE  static_cast<float>(8388608.0f)
 
 // =============================================================================
 // Amplifier (AD9833 waveform generator)
