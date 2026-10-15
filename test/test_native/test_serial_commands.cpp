@@ -309,6 +309,30 @@ void test_sc_telemetry_off_idempotent() {
 }
 
 // ---------------------------------------------------------------------------
+// telemetry serial on / off
+// ---------------------------------------------------------------------------
+
+void test_sc_telemetry_serial_on_enables() {
+    resetAll();
+    telemetry::disableSerial();
+    Print p;
+    serial_commands::processLine("telemetry serial on", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_TRUE(telemetry::isSerialEnabled());
+    // Must not be swallowed by the shorter "telemetry on" command.
+    TEST_ASSERT_TRUE(telemetry::isEnabled());
+}
+
+void test_sc_telemetry_serial_off_disables() {
+    resetAll();
+    telemetry::enableSerial();
+    Print p;
+    serial_commands::processLine("telemetry serial off", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_FALSE(telemetry::isSerialEnabled());
+}
+
+// ---------------------------------------------------------------------------
 // cooling fan <N>
 // ---------------------------------------------------------------------------
 
@@ -420,6 +444,8 @@ void run_serial_command_tests() {
     RUN_TEST(test_sc_telemetry_off_disables);
     RUN_TEST(test_sc_telemetry_on_enables);
     RUN_TEST(test_sc_telemetry_off_idempotent);
+    RUN_TEST(test_sc_telemetry_serial_on_enables);
+    RUN_TEST(test_sc_telemetry_serial_off_disables);
 
     // cooling fan <N>
     RUN_TEST(test_sc_cooling_fan_sets_speed);

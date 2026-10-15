@@ -3,8 +3,8 @@
  * @brief ESP32-S3 cryocooler controller -- application entry point
  *
  * Orchestrates all subsystem modules through the state machine and emits
- * one Serial Studio telemetry frame each loop tick.  See telemetry.h for
- * the full Serial Studio frame format and column definitions.
+ * one telemetry frame each loop tick.  See telemetry.h for the frame
+ * format and column definitions.
  *
  * Required Libraries (platformio.ini lib_deps):
  *   - ADS1220_WE (wollewald) ADS1220 library
@@ -272,7 +272,6 @@ void loop() {
 
     // Serial command processing runs unconditionally so the console is always
     // reachable even when control hardware failed to initialise.
-    // (The TCP/Serial-Studio path calls processLine() directly.)
     commands::service();
 
     // ── Per-tick module service ───────────────────────────────────────────

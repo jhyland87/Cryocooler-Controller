@@ -1,18 +1,14 @@
 /**
  * @file telemetry.h
- * @brief Serial Studio CSV telemetry emitter and frame store.
+ * @brief Telemetry frame builder, optional serial dump, and frame store.
  *
- * emit() snapshots all module state into a FrameBuilder, transmits it to
- * Serial in Serial Studio wire format, and retains the frame so that other
- * modules can read the same data in other formats via getLastFrame() /
- * fillJson().
+ * emit() snapshots all module state into a FrameBuilder and retains the frame
+ * so other modules can read the same data in other formats via getLastFrame() /
+ * fillJson() (e.g. the HTTP /api/telemetry JSON endpoint).  The frame can also
+ * be dumped to Serial; that output is disabled by default (see enableSerial()).
  *
- * ── Serial Studio wire format ───────────────────────────────────────────────
+ * ── Serial dump format (when enabled) ───────────────────────────────────────
  *   Frame:  `<tab-delimited values>\r\n`
- *   To visualise in Serial Studio:
- *     - Connect at SERIAL_BAUD.
- *     - Configure tab-delimited CSV frame detection.
- *     - Load the Cryocooler.ssproj project file.
  *
  * ── Fields (pipe-delimited, in column order) ────────────────────────────────
  *   #   Key name                Type    Description
@@ -61,8 +57,9 @@
 
 namespace telemetry {
 /**
- * Emit one telemetry frame to Serial in Serial Studio wire format and store
- * it as the last frame (accessible via getLastFrame() / fillJson()).
+ * Build one telemetry frame, store it as the last frame
+ * (accessible via getLastFrame() / fillJson()), and dump it to Serial when
+ * the serial dump is enabled (see enableSerial()).
  *
  * @param out  State-machine output for this tick.
  */
@@ -112,11 +109,12 @@ void fillJson(JsonDocument& doc, bool includeLogs = true);
 void fillJsonSafe(JsonDocument& doc, bool includeLogs = true);
 
 /**
- * Emit one startup-progress telemetry frame to Serial and update lastFrame_.
+ * Build one startup-progress telemetry frame, update lastFrame_, and dump it
+ * to Serial when the serial dump is enabled.
  *
  * Intended to be called from setupModules() immediately after each
- * initModule() completes so that Serial Studio / the serial monitor shows
- * each module coming online in real time, and the dashboard fast-path
+ * initModule() completes so that each module coming online is visible in
+ * real time (serial dump, when enabled), and the dashboard fast-path
  * (fillJsonSafe) serves fresh data on its next 1 Hz tick.
  *
  * Uses the same module-ready checks as fillJsonSafe(): initialized modules
@@ -135,8 +133,20 @@ void enable();
 bool isEnabled();
 
 /**
+ * Enable the tab-delimited frame dump on Serial.  Off by default; the frame is
+ * still built and served over HTTP/WebSocket regardless.
+ */
+void enableSerial();
+
+/** Disable the Serial frame dump (default). */
+void disableSerial();
+
+/** Return true while the Serial frame dump is active. */
+bool isSerialEnabled();
+
+/**
  * Enable delta mode: emit() writes only the fields whose value has changed
- * since the previous frame to Serial.  fillJson() / getLastFrame() are
+ * since the previous frame to Serial (when the serial dump is enabled).  fillJson() / getLastFrame() are
  * unaffected — they always return the complete current frame.
  */
 void enableDelta();

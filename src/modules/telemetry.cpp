@@ -1,11 +1,11 @@
 /**
  * @file telemetry.cpp
- * @brief Serial Studio CSV telemetry implementation.
+ * @brief Telemetry frame builder and optional serial dump implementation.
  *
- * emit() captures a snapshot of all module state into a FrameBuilder, sends
- * it to Serial in Serial Studio wire format, and stores it as lastFrame_ so
- * that other modules (e.g. http_api) can serve the same data in other formats
- * (JSON, etc.) without re-reading hardware registers.
+ * emit() captures a snapshot of all module state into a FrameBuilder, stores
+ * it as lastFrame_ so that other modules (e.g. the HTTP API) can serve the
+ * same data as JSON without re-reading hardware registers, and optionally
+ * dumps it to Serial (disabled by default).
  */
 
 #include <Arduino.h>
@@ -38,6 +38,7 @@ namespace telemetry {
 
 static bool         enabled      = true;
 static bool         deltaEnabled = true;
+static bool         serialEnabled = false;  // Serial frame dump; off by default
 static FrameBuilder lastFrame_;   // always holds the most recently emitted frame
 static FrameBuilder prevFrame_;   // copy of the frame before the last emit (for delta)
 static FrameBuilder safeFrame_;   // scratch frame used by fillJsonSafe() during startup
@@ -92,6 +93,10 @@ bool isEnabled()      { return enabled;        }
 void enableDelta()    { deltaEnabled = true;   }
 void disableDelta()   { deltaEnabled = false;  }
 bool isDeltaEnabled() { return deltaEnabled;   }
+
+void enableSerial()    { serialEnabled = true;  }
+void disableSerial()   { serialEnabled = false; }
+bool isSerialEnabled() { return serialEnabled;  }
 
 // ---------------------------------------------------------------------------
 // Frame access
@@ -500,9 +505,9 @@ void fillJsonSafe(JsonDocument& doc, bool includeLogs)
 // emitSafe — startup telemetry pulse, one call per initModule() completion
 //
 // Builds a full startup-safe frame into lastFrame_ (so the dashboard fast-path
-// picks it up on its next tick) and emits it to Serial in the same wire format
-// as emit().  This lets Serial Studio / the serial monitor show each module
-// coming online as it happens, rather than waiting for setup to complete.
+// picks it up on its next tick) and emits it to Serial in the same format
+// as emit() (when the serial dump is enabled).  This lets the serial monitor
+// show each module coming online as it happens, rather than waiting for setup.
 //
 // prevFrame_ is updated so the first real emit() delta only reports the fields
 // that actually changed during the final setup step.
@@ -514,7 +519,9 @@ void emitSafe()
     if (!enabled) return;
 
     buildStartupFrame(lastFrame_);
-    lastFrame_.sendSerial(Serial);
+    if (serialEnabled) {
+        lastFrame_.sendSerial(Serial);
+    }
     prevFrame_ = lastFrame_;
 #endif
 }
@@ -664,10 +671,12 @@ void emit(const state_machine::Output& out)
 
     // Serial output: full frame or delta (changed fields only).
     // fillJson() / getLastFrame() always use lastFrame_ — never delta-filtered.
-    if (deltaEnabled) {
-        lastFrame_.sendSerialDelta(Serial, prevFrame_, kPassiveFields, kPassiveFieldCount);
-    } else {
-        lastFrame_.sendSerial(Serial);
+    if (serialEnabled) {
+        if (deltaEnabled) {
+            lastFrame_.sendSerialDelta(Serial, prevFrame_, kPassiveFields, kPassiveFieldCount);
+        } else {
+            lastFrame_.sendSerial(Serial);
+        }
     }
 
     // Snapshot for the next delta comparison.

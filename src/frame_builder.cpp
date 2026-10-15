@@ -14,7 +14,7 @@
 #include "frame_builder.h"
 
 // ---------------------------------------------------------------------------
-// Serial Studio wire format:  /*v1|v2|...|vN*/\r\n
+// Serial line format:  v1\tv2\t...\tvN\r\n
 //
 // The entire frame is assembled into a single stack buffer before calling
 // out.write() once.  This is important on ESP32: the Arduino HWCDC Serial

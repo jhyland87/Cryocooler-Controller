@@ -1,12 +1,11 @@
 /**
  * @file commands.cpp
- * @brief Generic command dispatcher — sources: Serial, TCP (Serial Studio), etc.
+ * @brief Generic command dispatcher — source: Serial.
  *
  * processLine() is transport-agnostic: it accepts any Print& as the response
- * sink, so the same command table works for serial input and TCP input.
+ * sink, so the command table can be driven by serial input or unit tests.
  *
  * service() handles the Serial-specific accumulation (non-blocking).
- * The TCP path calls processLine() directly from the AsyncTCP data callback.
  */
 
 #ifdef ARDUINO
@@ -304,8 +303,8 @@ static void handleStatus(const char* /*args*/, Print& out) {
 static void handleTelemetryOff(const char* /*args*/, Print& out) {
     telemetry::disable();
 #ifdef ARDUINO
-    // Also silence the TCP dashboard stream — both transports carry telemetry.
-    // Use `dashboard on` to re-enable the TCP stream independently if needed.
+    // Also silence the WebSocket broadcast.  Use `dashboard on` to re-enable
+    // it independently if needed.
     dashboard::disable();
 #endif
     out.println(F("[OK] Telemetry disabled"));
@@ -327,6 +326,16 @@ static void handleTelemetryDeltaOff(const char* /*args*/, Print& out) {
 static void handleTelemetryDeltaOn(const char* /*args*/, Print& out) {
     telemetry::enableDelta();
     out.println(F("[OK] Telemetry delta mode enabled (only changed values emitted)"));
+}
+
+static void handleTelemetrySerialOff(const char* /*args*/, Print& out) {
+    telemetry::disableSerial();
+    out.println(F("[OK] Telemetry serial dump disabled"));
+}
+
+static void handleTelemetrySerialOn(const char* /*args*/, Print& out) {
+    telemetry::enableSerial();
+    out.println(F("[OK] Telemetry serial dump enabled"));
 }
 
 #ifdef ARDUINO
@@ -1165,8 +1174,10 @@ static const Command commandMap[] = {
 #ifdef ARDUINO
     {"reinit",        handleReinit,       "Re-initialize modules: 'reinit' (all) or 'reinit <name> [name...]'"},
 #endif
-    // "telemetry delta ..." must precede "telemetry on/off" so the longer
+    // "telemetry serial/delta ..." must precede "telemetry on/off" so the longer
     // prefix is matched first by the linear scan in processLine().
+    {"telemetry serial off", handleTelemetrySerialOff, "Disable Serial frame dump (default)"},
+    {"telemetry serial on",  handleTelemetrySerialOn,  "Enable Serial frame dump"},
     {"telemetry delta off", handleTelemetryDeltaOff, "Emit full frame each tick (default)"},
     {"telemetry delta on",  handleTelemetryDeltaOn,  "Emit only changed values each tick"},
     {"telemetry off",       handleTelemetryOff,      "Disable telemetry output"},
@@ -1177,8 +1188,8 @@ static const Command commandMap[] = {
     {"cooling on",          handleCoolingOn,           "Enable cooling system"},
     {"cooling off",         handleCoolingOff,          "Disable cooling system"},
 #ifdef ARDUINO
-    {"dashboard off",       handleDashboardOff, "Disable dashboard TCP broadcasts"},
-    {"dashboard on",        handleDashboardOn,  "Enable dashboard TCP broadcasts"},
+    {"dashboard off",       handleDashboardOff, "Disable dashboard WebSocket broadcasts"},
+    {"dashboard on",        handleDashboardOn,  "Enable dashboard WebSocket broadcasts"},
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},

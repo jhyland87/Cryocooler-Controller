@@ -13,6 +13,7 @@ namespace telemetry {
 
 static bool sEnabled = false;
 static bool sDeltaEnabled = false;
+static bool sSerialEnabled = false;
 
 void emit(const state_machine::Output&) {}
 
@@ -32,5 +33,9 @@ bool isEnabled()        { return sEnabled; }
 void enableDelta()      { sDeltaEnabled = true; }
 void disableDelta()     { sDeltaEnabled = false; }
 bool isDeltaEnabled()   { return sDeltaEnabled; }
+
+void enableSerial()     { sSerialEnabled = true; }
+void disableSerial()    { sSerialEnabled = false; }
+bool isSerialEnabled()  { return sSerialEnabled; }
 
 } // namespace telemetry

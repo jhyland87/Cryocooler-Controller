@@ -5,7 +5,7 @@
  * FrameBuilder accumulates named fields via a fluent field() API and renders
  * them in two formats:
  *
- *   sendSerial(Print&)     — Serial Studio wire format: `v1\tv2\t...\r\n`
+ *   sendSerial(Print&)     — tab-delimited serial line: `v1\tv2\t...\r\n`
  *   fillJson(JsonDocument&)— JSON object: {"name": typed_value, ...}
  *
  * Field types are detected automatically at compile time from the value
@@ -123,7 +123,7 @@ public:
     // ---------------------------------------------------------------------------
 
     /**
-     * Transmit the frame in Serial Studio wire format.
+     * Transmit the frame as one tab-delimited line.
      *
      * Output: `v1\tv2\t...\tvN\r\n`
      * Values are the pre-formatted strings produced by the format argument to

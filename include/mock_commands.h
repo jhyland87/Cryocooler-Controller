@@ -25,7 +25,7 @@ namespace mock_commands {
  * Dispatch a "mock" subcommand.
  *
  * @param args  Everything after the word "mock" (leading whitespace stripped).
- * @param out   Response sink (Serial, TCP client, etc.).
+ * @param out   Response sink (Serial, test stub, etc.).
  *
  * Subcommands:
  *   (empty) / status                   Print current override values and active state

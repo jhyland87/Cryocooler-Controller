@@ -209,7 +209,7 @@ inline uint32_t parseDurationMs(const char* str, char* errOut, size_t errLen) {
  * Format a millisecond count as a compact human-readable duration string.
  *
  * Produces "Xh Ym Zs" when hours > 0, or "Ym Zs" for shorter durations,
- * keeping output tidy for display in serial/TCP command responses.
+ * keeping output tidy for display in serial command responses.
  *
  * @param ms   Duration in milliseconds.
  * @param buf  Output buffer.

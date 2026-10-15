@@ -4,8 +4,6 @@
  *
  * Commands can arrive from:
  *   - Serial (USB CDC): via service(), which accumulates bytes non-blocking.
- *   - TCP client (Serial Studio): call processLine() directly from the data
- *     callback with an AsyncClientPrint as the output stream.
  *
  * Available commands:
  *   start                - Begin the cooldown process (from Off or Idle)
@@ -21,8 +19,10 @@
  *   help                 - List available commands
  *   telemetry off        - Disable telemetry
  *   telemetry on         - Enable telemetry
- *   dashboard off        - Disable dashboard TCP broadcasts
- *   dashboard on         - Enable dashboard TCP broadcasts
+ *   telemetry serial off - Disable the Serial frame dump (default)
+ *   telemetry serial on  - Enable the Serial frame dump
+ *   dashboard off        - Disable dashboard WebSocket broadcasts
+ *   dashboard on         - Enable dashboard WebSocket broadcasts
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)
  *   cooling on           - Enable cooling system
  *   cooling off          - Disable cooling system
@@ -70,11 +70,10 @@ void service();
 
 /**
  * Parse and dispatch one null-terminated command line.
- * Exposed for unit testing and multi-transport use: inject any Print to
- * capture the response.
+ * Exposed for unit testing: inject any Print to capture the response.
  *
  * @param line  Null-terminated string (will not be modified).
- * @param out   Output stream for the response (Serial, AsyncClientPrint, stub…).
+ * @param out   Output stream for the response (Serial, stub…).
  */
 void processLine(const char* line, Print& out);
 
