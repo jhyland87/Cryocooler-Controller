@@ -11,6 +11,7 @@ serves, keep-outs and mounting holes.
 """
 
 import collections
+import json
 import subprocess
 import sys
 import tempfile
@@ -111,16 +112,40 @@ PLACEMENT = {
     'U14': (112.0, 75.0, 0),
     # panel indicators and IMU
     'U19': (120.0, 52.0, 0),
-    'D7': (84.0, 5.0, 0),
-    'D8': (89.0, 5.0, 0),
-    'D9': (76.0, 6.0, 0),
+    'D9': (84.0, 5.0, 0),
+    'D10': (89.0, 5.0, 0),
+    'D11': (76.0, 6.0, 0),
+    'D7': (54.5, 87.5, 90),
+    'D8': (54.5, 91.5, 90),
     'U24': (70.0, 14.0, 0),
     'D2': (104.0, 87.0, 0),
+    # SC18IS604 I2C bridge and its MISO gate, close to the EMC2303 (U10)
+    'U25': (100.0, 70.0, 0),
+    'U26': (108.0, 70.0, 0),
+    # compressor relay driver (open area in the middle of the board)
+    'J13': (96.0, 55.0, 0),
+    'Q7': (88.0, 51.0, 0),
+    'Q8': (88.0, 58.0, 0),
+    'D12': (103.0, 49.0, 0),
+    'D13': (103.0, 62.0, 0),
 }
 
 # ISO_GND island (left of the barrier); keep-out bands keep GND copper away
 # from it.
 ISO_REGION = Rect(0.0, 36.5, 39.25, 70.0)
+ISO_NETS = {'ISO_GND', 'ISO_3V3'}
+
+# GND pads that get a locked via-in-pad before routing (fine-pitch LGA)
+FINE_PITCH_GROUND_PADS = {
+    'U19': {'2', '3', '6', '7'},
+    'U23': {'7'},
+    'U4': {'4', '9'},
+}
+
+# Anchors for ground test points (ground nets have no natural neighbour pad):
+# the k-th TP on GND sits beside the k-th entry; ISO_GND beside the isolator.
+GND_TP_ANCHORS = [('U1', '1'), ('U15', '4'), ('U6', '2')]
+ISO_GND_TP_ANCHOR = ('U17', '9')
 ISO_BAND = 1.5
 ANTENNA_KEEPOUT = Rect(124.0, 0.0, BOARD_WIDTH, 43.5)
 FREEROUTING_JAR = Path(sys.argv[2]) if len(sys.argv) > 2 else None
@@ -128,20 +153,6 @@ MAX_PASSES = '12'
 JAVA = (
     '/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/java'
 )
-
-# Passives that belong to the isolated (ISO_GND) side of the barrier.
-ISO_SIDE_REFS = {
-    'R51',
-    'R52',
-    'R53',
-    'R54',
-    'R55',
-    'C47',
-    'C48',
-    'C50',
-    'C51',
-    'C52',
-}
 
 # Local rect overrides (the ESP32 courtyard includes a large antenna keep-out).
 HOLES = [(4.0, 35.7), (62.0, 30.0), (126.0, 58.0), (126.0, 95.0)]
@@ -256,7 +267,59 @@ class PcbBuilder:
         )
 
     def is_passive(self, ref):
-        return ref[0] in 'RC' and ref not in PLACEMENT
+        """R, C, test points and the Debug sheet's LEDs are placed beside the
+        pad they serve.
+        """
+        if ref in PLACEMENT:
+            return False
+        return (
+            ref[0] in 'RC'
+            or ref.startswith('TP')
+            or (ref[0] == 'D' and self.parts[ref]['sheet'] == 'Debug')
+        )
+
+    def iso_side_passives(self):
+        """Passives of the Amp Current sheet that sit on the isolated side:
+        those touching ISO_GND / ISO_3V3, plus passives chained to them
+        through signal nets (the ACS37800 divider).
+        """
+        if getattr(self, '_iso_refs', None) is not None:
+            return self._iso_refs
+        candidates = [
+            ref
+            for ref in self.parts
+            if ref[0] in 'RC' and self.parts[ref]['sheet'] == 'Amp Current'
+        ]
+
+        def nets_of(ref):
+            return {self.pad_net[ref].get(pad) for pad in self.pad_local[ref]}
+
+        iso = {ref for ref in candidates if nets_of(ref) & ISO_NETS}
+        changed = True
+        while changed:
+            changed = False
+            signal_nets = set()
+            for ref in iso:
+                signal_nets |= nets_of(ref) - POWER_NETS - {None}
+            for ref in candidates:
+                if ref not in iso and nets_of(ref) & signal_nets:
+                    iso.add(ref)
+                    changed = True
+        self._iso_refs = iso
+        return iso
+
+    def is_iso_side(self, ref):
+        """True for parts on the isolated (ISO_GND) side of the barrier."""
+        if ref in self.iso_side_passives():
+            return True
+        if ref[0] in 'RC' and self.parts[ref]['sheet'] == 'Amp Current':
+            return False
+        if not (ref.startswith('TP') or self.parts[ref]['sheet'] == 'Debug'):
+            return False
+        return any(
+            self.pad_net[ref].get(pad) in ISO_NETS
+            for pad in self.pad_local[ref]
+        )
 
     def place_anchors(self):
         for ref, (center_x, center_y, angle) in PLACEMENT.items():
@@ -352,6 +415,8 @@ class PcbBuilder:
         to.
         """
         net = self.pad_net[ref].get(pad)
+        if ref.startswith('TP') and net in GROUND_NETS:
+            return [self.ground_tp_anchor(ref, net)]
         if net is None or net in GROUND_NETS:
             return []
         sheet = self.parts[ref]['sheet']
@@ -373,6 +438,20 @@ class PcbBuilder:
             ]
         return found
 
+    def ground_tp_anchor(self, ref, net):
+        if net == 'ISO_GND':
+            return ISO_GND_TP_ANCHOR
+        ground_tps = sorted(
+            (
+                r
+                for r in self.parts
+                if r.startswith('TP')
+                and self.pad_net[r].get('1') == 'GND'
+            ),
+            key=lambda r: int(r[2:]),
+        )
+        return GND_TP_ANCHORS[ground_tps.index(ref) % len(GND_TP_ANCHORS)]
+
     def place_passives(self):
         crowd = collections.Counter()
         pending = [ref for ref in self.parts if self.is_passive(ref)]
@@ -381,7 +460,12 @@ class PcbBuilder:
         while pending:
             progressed = False
             # signal-net passives first, then pure decoupling
-            pending.sort(key=lambda r: (self.is_decoupling(r), int(r[1:])))
+            pending.sort(
+                key=lambda r: (
+                    self.is_decoupling(r),
+                    int(r.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ')),
+                )
+            )
             for ref in list(pending):
                 choice = self.pick_target(ref, crowd)
                 if choice is None:
@@ -429,7 +513,7 @@ class PcbBuilder:
     def place_near(self, ref, primary_pad, target, offsets):
         target_x, target_y = self.pad_position(*target)
         other_pad = next(
-            pad for pad in self.pad_local[ref] if pad != primary_pad
+            (pad for pad in self.pad_local[ref] if pad != primary_pad), None
         )
         other_net = self.pad_net[ref].get(other_pad)
         other_points = []
@@ -454,9 +538,8 @@ class PcbBuilder:
                     continue
                 inside_iso = rect.inside(ISO_REGION.inflated(-0.3))
                 touches_iso = rect.inflated(ISO_BAND).overlaps(ISO_REGION)
-                if (ref in ISO_SIDE_REFS) != inside_iso or (
-                    ref not in ISO_SIDE_REFS and touches_iso
-                ):
+                iso_side = self.is_iso_side(ref)
+                if iso_side != inside_iso or (not iso_side and touches_iso):
                     continue
                 self.centers[ref] = (center_x, center_y, angle)
                 primary = self.pad_position(ref, primary_pad)
@@ -483,7 +566,8 @@ class PcbBuilder:
         settings = self.board.GetDesignSettings()
         settings.m_MinClearance = to_internal(0.15)
         settings.m_TrackMinWidth = to_internal(0.15)
-        settings.m_ViasMinSize = to_internal(0.45)
+        settings.m_ViasMinSize = to_internal(0.35)
+        settings.m_ViasMinAnnulus = to_internal(0.075)
         settings.m_MinThroughDrill = to_internal(0.2)
         settings.m_CopperEdgeClearance = to_internal(0.3)
         settings.m_HoleClearance = to_internal(0.15)
@@ -880,15 +964,64 @@ class PcbBuilder:
                         added += self.add_escape_via(
                             pad, zone.GetNetname(), via_diameter, clearance
                         )
+        added += self.escape_uncovered_ground_pads(
+            via_diameter, clearance
+        )
+        return added
+
+    def escape_uncovered_ground_pads(self, via_diameter, clearance):
+        """Escape via for GND/ISO_GND SMD pads that no pour fragment reaches
+        (boxed in by tracks), which the fragment scan above never sees.
+        """
+        added = 0
+        zones = {
+            zone.GetNetname(): zone
+            for zone in self.board.Zones()
+            if not zone.GetIsRuleArea()
+            and zone.GetNetname() in GROUND_NETS
+            and zone.GetLayer() == pcbnew.F_Cu
+        }
+        for footprint in self.board.GetFootprints():
+            for pad in footprint.Pads():
+                net = pad.GetNetname()
+                zone = zones.get(net)
+                if (
+                    zone is None
+                    or pad.HasHole()
+                    or not pad.IsOnLayer(pcbnew.F_Cu)
+                ):
+                    continue
+                filled = zone.GetFilledPolysList(pcbnew.F_Cu)
+                if any(
+                    filled.Contains(pad.GetPosition(), index)
+                    for index in range(filled.OutlineCount())
+                ):
+                    continue
+                if any(
+                    via.GetNetname() == net
+                    and via.GetPosition() == pad.GetPosition()
+                    for via in self.board.GetTracks()
+                    if via.Type() == pcbnew.PCB_VIA_T
+                ):
+                    continue
+                added += self.add_escape_via(
+                    pad, net, via_diameter, clearance
+                )
         return added
 
     def add_escape_via(self, pad, net, via_diameter, clearance):
         center = pad.GetPosition()
         center_x, center_y = center.x / 1e6, center.y / 1e6
+        # drop only the pad itself and tracks that touch it; a diagonal
+        # track's bounding box can cover the pad without being connected
         obstacles = [
             o
             for o in self.obstacle_list()
-            if not (o[0] <= center_x <= o[2] and o[1] <= center_y <= o[3])
+            if not (
+                o[0] <= center_x <= o[2]
+                and o[1] <= center_y <= o[3]
+                and (o[4] is None or self.point_blocked(center_x, center_y, 0.05, o))
+            )
         ]
         for distance in (0.9, 1.1, 1.4, 1.8, 2.4, 3.0, 4.0):
             for direction_x, direction_y in (
@@ -920,12 +1053,15 @@ class PcbBuilder:
                     for o in obstacles
                 ):
                     continue
+                # sample the whole stub every ~0.2 mm, starting just off the pad
+                stub_length = distance
+                count = max(3, int(stub_length / 0.2))
                 samples = [
                     (
-                        center_x + (via_x - center_x) * step / 10,
-                        center_y + (via_y - center_y) * step / 10,
+                        center_x + (via_x - center_x) * step / count,
+                        center_y + (via_y - center_y) * step / count,
                     )
-                    for step in range(3, 10)
+                    for step in range(1, count)
                 ]
                 if any(
                     self.point_blocked(sample_x, sample_y, 0.1 + clearance, o)
@@ -954,7 +1090,7 @@ class PcbBuilder:
         # see VIA_IN_PAD_REFS)
         via = pcbnew.PCB_VIA(self.board)
         via.SetPosition(center)
-        via.SetWidth(to_internal(0.45))
+        via.SetWidth(to_internal(0.35))
         via.SetDrill(to_internal(0.2))
         via.SetViaType(pcbnew.VIATYPE_THROUGH)
         via.SetNet(self.net_item(net))
@@ -1038,10 +1174,43 @@ class PcbBuilder:
             if not pcbnew.ImportSpecctraSES(self.board, str(ses)):
                 raise RuntimeError('SES import failed')
 
+    def pre_place_fine_pitch_ground_vias(self):
+        """Locked 0.35 mm via-in-pad on the LSM6DSOX (U19) ground pads before
+        autorouting. The LGA pads are 0.5 mm apart, so a router-placed via
+        or an inner-layer track under them cannot be kept clear; 0.35 mm
+        keeps 0.15 mm to the neighbouring pads (order filled/capped vias).
+        """
+        for ref, pads in FINE_PITCH_GROUND_PADS.items():
+            footprint = self.footprints.get(ref)
+            if footprint is None:
+                continue
+            for pad in footprint.Pads():
+                if pad.GetNumber() not in pads:
+                    continue
+                net = self.pad_net[ref].get(pad.GetNumber())
+                via = pcbnew.PCB_VIA(self.board)
+                via.SetPosition(
+                    pcbnew.VECTOR2I(
+                        to_internal(
+                            self.pad_position(ref, pad.GetNumber())[0]
+                        ),
+                        to_internal(
+                            self.pad_position(ref, pad.GetNumber())[1]
+                        ),
+                    )
+                )
+                via.SetWidth(to_internal(0.35))
+                via.SetDrill(to_internal(0.2))
+                via.SetViaType(pcbnew.VIATYPE_THROUGH)
+                via.SetNet(self.net_item(self.full_net(net)))
+                via.SetLocked(True)
+                self.board.Add(via)
+
     def build(self):
         self.load_footprints()
         self.place_anchors()
         self.pre_route_current_path()
+        self.pre_place_fine_pitch_ground_vias()
         unplaced = self.place_passives()
         for footprint in self.footprints.values():
             self.board.Add(footprint)
@@ -1050,6 +1219,20 @@ class PcbBuilder:
         self.add_mounting_holes()
         self.add_planes()
         return unplaced
+
+
+def patch_project_rules():
+    """Writes the fine-pitch via limits into cryocooler.kicad_pro (pcbnew does
+    not persist the annular-width minimum): 0.35 mm vias, 0.2 mm drills and a
+    0.075 mm ring for the 0.5 mm pitch LGA/MSOP ground pads.
+    """
+    path = KICAD_DIR / 'cryocooler.kicad_pro'
+    project = json.loads(path.read_text())
+    rules = project['board']['design_settings']['rules']
+    rules['min_via_annular_width'] = 0.075
+    rules['min_via_diameter'] = 0.35
+    rules['min_through_hole_diameter'] = 0.2
+    path.write_text(json.dumps(project, indent=2) + '\n')
 
 
 def main():
@@ -1063,7 +1246,7 @@ def main():
         builder.board = pcbnew.LoadBoard(
             str(KICAD_DIR / 'cryocooler.kicad_pcb')
         )
-        builder.board.GetDesignSettings().m_ViasMinSize = to_internal(0.45)
+        builder.board.GetDesignSettings().m_ViasMinSize = to_internal(0.35)
         for zone in builder.board.Zones():
             if not zone.GetIsRuleArea() and zone.GetNetname() in GROUND_NETS:
                 zone.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
@@ -1078,6 +1261,7 @@ def main():
         pcbnew.SaveBoard(
             str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board
         )
+        patch_project_rules()
         return 0
     unplaced = builder.build()
     overlaps = [
@@ -1106,6 +1290,7 @@ def main():
     print('escape vias:', builder.escape_ground_pads())
     builder.fill_zones()
     pcbnew.SaveBoard(str(out_path), builder.board)
+    patch_project_rules()
     print(f'wrote {out_path}; {len(builder.footprints)} footprints')
     return 1 if unplaced or overlaps else 0
 
