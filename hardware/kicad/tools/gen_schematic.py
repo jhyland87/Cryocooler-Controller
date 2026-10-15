@@ -247,15 +247,16 @@ def build_mcu(sh):
         '5': 'MCP4921_CS',
         '6': 'AMP_REM_EN',
         '7': 'AD9833_FSYNC',
-        '12': 'SDA',
-        '17': 'SCL',
+        '12': 'BRIDGE_CS',
+        '17': 'BRIDGE_RESET',
         '18': 'PWR_KILL',
         '19': 'ACS_SCK',
         '20': 'ACS_MOSI',
         '21': 'ACS_MISO',
         '22': 'LED_FAULT',
         '8': 'LED_READY',
-        '9': 'PWR_INT',
+        '9': 'COMP_RELAY_EN',
+        '15': 'INA239_CS',
     }
     right = {
         '10': 'ACS_CS',
@@ -266,12 +267,14 @@ def build_mcu(sh):
         '33': 'SPI_MISO',
         '34': 'SPI_MOSI',
         '35': 'SPI_SCK',
+        '36': 'ADS1220_CS',
+        '37': 'UART0_TX',
     }
     for pin, net in left.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
     for pin, net in right.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 0, is_global=True)
-    for pin in ('15', '16', '24', '25', '26', '28', '29', '30', '36', '37'):
+    for pin in ('16', '24', '25', '26', '28', '29', '30'):
         sh.nc(esp, pin)
     # supplies
     vdd = pin_cell(esp, '2')
@@ -288,6 +291,8 @@ def build_mcu(sh):
     # EN: RC power-on reset plus RESET switch, drawn above the module
     en = pin_cell(esp, '3')
     wire(sh, en, (136, en[1]), (136, 70), (108, 70))
+    wire(sh, (136, 70), (136, 67))
+    net_label(sh, 'ESP_EN', (136, 67), 0, is_global=True)
     vres(sh, '10k', 124, 64)
     rail_symbol(sh, '+3V3', (124, 64))
     vcap(sh, '1uF', 116, 70)
@@ -307,6 +312,8 @@ def build_mcu(sh):
     # BOOT (GPIO0)
     boot = pin_cell(esp, '27')
     wire(sh, boot, (108, boot[1]))
+    wire(sh, (112, boot[1]), (112, boot[1] - 3))
+    net_label(sh, 'ESP_BOOT', (112, boot[1] - 3), 180, is_global=True)
     vres(sh, '10k', 126, boot[1] - 6)
     rail_symbol(sh, '+3V3', (126, boot[1] - 6))
     vcap(sh, '100nF', 116, boot[1])
@@ -323,12 +330,6 @@ def build_mcu(sh):
     )
     wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
-    # I2C pull-ups (3.3 V, 100 kHz bus)
-    for row, net in ((134, 'SDA'), (140, 'SCL')):
-        rail_symbol(sh, '+3V3', (40, row))
-        hres(sh, '4.7k', 43, row)
-        wire(sh, (46, row), (48, row))
-        net_label(sh, net, (48, row), 0, is_global=True)
     # USB-C: data only, VBUS does not power the board
     esd = sh.add(
         'cryocooler:USBLC6-2SC6',
@@ -376,12 +377,11 @@ def build_mcu(sh):
         (gnd_esd[0] + 4, gnd_esd[1] + 4),
     )
     ground(sh, (gnd_esd[0] + 4, gnd_esd[1] + 4))
+    # VBUS: connector, 4.7 uF cap and the ESD clamp share one wire
     vbus_esd = pin_cell(esd, '5')
-    wire(sh, vbus_esd, (vbus_esd[0], vbus_esd[1] - 3))
-    net_label(sh, 'USB_VBUS', (vbus_esd[0], vbus_esd[1] - 3), 0)
     vbus = pin_cell(usb, 'A4')
-    wire(sh, vbus, (226, vbus[1]), (226, 84), (205, 84))
-    net_label(sh, 'USB_VBUS', (205, 84), 180)
+    wire(sh, vbus_esd, (vbus_esd[0], 84), (226, 84), (226, vbus[1]), vbus)
+    net_label(sh, 'USB_VBUS', (205, 84), 180)  # names the net for the PCB rules
     vcap(sh, '4.7uF', 210, 84, fp=C0805)
     drop_ground(sh, (210, 90), 0)
     rail_flag(sh, (218, 84))
@@ -571,7 +571,7 @@ def build_power_button(sh):
     hres(sh, '10k', 84, 76)
     rail_symbol(sh, '+3V3', (87, 76))
     wire(sh, (76, 76), (76, 80))
-    net_label(sh, 'PWR_INT', (76, 80), 0, is_global=True)
+    test_point(sh, 'LTC2954_INT', (76, 80), rot=180)
     # high-side P-FET switch
     q1 = sh.add(
         'Transistor_FET:IRF4905',
@@ -761,6 +761,26 @@ def hres(sh, value, column, row, fp=R0603):
 
 def hcap(sh, value, column, row, fp=None):
     return cap(sh, value, '', '', pose=at(column, row, 90), fp=fp)
+
+
+TP_PAD = 'TestPoint:TestPoint_Pad_D1.5mm'
+TP_LOOP = 'TestPoint:TestPoint_Loop_D2.50mm_Drill1.0mm'
+
+
+def test_point(sh, label, cell, fp=TP_PAD, rot=0):
+    """Test point whose connection sits on the given cell; rot 0 hangs the
+    pad above the wire end, rot 180 below it.
+    """
+    return sh.add(
+        'Connector:TestPoint',
+        next_ref('TP'),
+        label,
+        cell[0] * 1.27,
+        cell[1] * 1.27,
+        rot=rot,
+        auto=False,
+        footprint=fp,
+    )
 
 
 def ground(sh, cell):
@@ -1347,24 +1367,14 @@ def build_signal_gen(sh):
     )
 
 
-def build_amp_control(sh):
-    """Hand-laid, left to right: GPIO -> N-FET level shifter -> P-FET high-side
-    switch -> REM terminal and LED.
+def rem_switch(
+    sh, enable_net, bus_net, terminal, flyback=False, footprint=None
+):
+    """GPIO -> N-FET level shifter -> P-FET high-side +12 V switch -> output
+    terminal with a red/green state LED; drawn left to right from row 60.
+    flyback adds a diode across the output for inductive loads.
     """
-    sh.handwired = True
-    sh.note(
-        'GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side '
-        'switch). LED: green = on, red = off.',
-        20,
-        15,
-    )
-    sh.note(
-        'Amplifier: AUDIOZERONE ZE500.1 (external): REM terminal + RCA/line '
-        'input. Its power leads do not pass through this board.',
-        20,
-        21,
-    )
-    net_label(sh, 'AMP_REM_EN', (24, 60), 180, is_global=True)
+    net_label(sh, enable_net, (24, 60), 180, is_global=True)
     wire(sh, (24, 60), (28, 60))
     hres(sh, '1k', 31, 60)
     wire(sh, (34, 60), (46, 60))
@@ -1392,7 +1402,7 @@ def build_amp_control(sh):
     rail_symbol(sh, '+12V', (top[0], top[1] - 4))
     # AMP_REM bus: drain, pull-down, LED branch and the REM terminal
     wire(sh, bottom, (bottom[0], 58), (136, 58))
-    net_label(sh, 'AMP_REM', (104, 58), 0)
+    net_label(sh, bus_net, (104, 58), 0)
     vres(sh, '1k', 90, 58)
     drop_ground(sh, (90, 64), 0)
     vres(sh, '2.2k', 96, 40)
@@ -1418,14 +1428,49 @@ def build_amp_control(sh):
     j_rem = conn(
         sh,
         'Connector:Screw_Terminal_01x02',
-        'AMP REM / GND',
+        terminal,
         140 * 1.27,
         58 * 1.27,
         {},
-        TERM2,
+        footprint or TERM2,
     )
     spur(sh, j_rem, '2', 2)
     ground(sh, (pin_cell(j_rem, '2')[0] - 2, pin_cell(j_rem, '2')[1]))
+    if flyback:
+        diode_part = sh.add(
+            'Device:D',
+            next_ref('D'),
+            '1N4148W',
+            120 * 1.27,
+            61 * 1.27,
+            rot=270,
+            auto=False,
+            footprint='Diode_SMD:D_SOD-123',
+        )
+        # cathode lands on the output bus wire, anode goes to ground
+        ground(sh, pin_cell(diode_part, '2'))
+        return j_rem, diode_part
+    return j_rem, None
+
+
+def build_amp_control(sh):
+    """Hand-laid, left to right: GPIO -> N-FET level shifter -> P-FET high-side
+    switch -> REM terminal and LED.
+    """
+    sh.handwired = True
+    sh.note(
+        'GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side '
+        'switch). LED: green = on, red = off.',
+        20,
+        15,
+    )
+    sh.note(
+        'Amplifier: AUDIOZERONE ZE500.1 (external): REM terminal + RCA/line '
+        'input. Its power leads do not pass through this board.',
+        20,
+        21,
+    )
+    rem_switch(sh, 'AMP_REM_EN', 'AMP_REM', 'AMP REM / GND')
     j_sig = conn(
         sh,
         'Connector:Screw_Terminal_01x02',
@@ -1440,6 +1485,29 @@ def build_amp_control(sh):
     net_label(sh, 'SIG_SINE', (sig[0] - 6, sig[1]), 180, is_global=True)
     spur(sh, j_sig, '2', 2)
     ground(sh, (pin_cell(j_sig, '2')[0] - 2, pin_cell(j_sig, '2')[1]))
+
+
+def build_compressor_relay(sh):
+    """Hand-laid like amp_control: GPIO16 high -> +12 V on the compressor
+    relay terminal (P-FET high-side switch, flyback diode for a relay coil).
+    """
+    sh.handwired = True
+    sh.note(
+        'COMP_RELAY_EN (GPIO16) high -> +12 V on the compressor relay '
+        'terminal (BSS84 high-side switch, 130 mA max: drive an external '
+        'relay or SSR coil). Flyback diode across the output. LED: green = '
+        'on, red = off.',
+        20,
+        15,
+    )
+    rem_switch(
+        sh,
+        'COMP_RELAY_EN',
+        'COMP_RELAY',
+        'COMPRESSOR RELAY / GND',
+        True,
+        XH2,
+    )
 
 
 def build_amp_current(sh):
@@ -1465,7 +1533,7 @@ def build_amp_current(sh):
         'cryocooler:ISO7741DW',
         'ISO7741DW',
         60,
-        60,
+        62,
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
     )
     for pin, net in (
@@ -1483,13 +1551,6 @@ def build_amp_current(sh):
     rail_symbol(sh, '+3V3', (vcc1[0], 44))
     gnd1 = spur(sh, iso, '2', 2)
     ground(sh, gnd1)
-    for pin, net in (
-        ('14', 'ISO_MOSI'),
-        ('13', 'ISO_SCK'),
-        ('12', 'ISO_CS'),
-        ('11', 'ISO_MISO'),
-    ):
-        net_label(sh, net, spur(sh, iso, pin, 3), 0)
     en2 = pin_cell(iso, '10')
     wire(sh, en2, (en2[0] + 2, en2[1]), (en2[0] + 2, en2[1] - 4))
     rail_symbol(sh, 'ISO_3V3', (en2[0] + 2, en2[1] - 4))
@@ -1553,13 +1614,15 @@ def build_amp_current(sh):
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
         mirror=True,
     )
-    for pin, net in (
-        ('9', 'ISO_CS'),
-        ('10', 'ISO_MOSI'),
-        ('11', 'ISO_SCK'),
-        ('12', 'ISO_MISO'),
+    # isolated SPI: the ACS37800 pins are ordered like the ISO7741 outputs
+    # (MOSI, SCK, CS, MISO) so each signal is a straight wire across
+    for iso_pin, acs_pin in (
+        ('14', '10'),
+        ('13', '11'),
+        ('12', '9'),
+        ('11', '12'),
     ):
-        net_label(sh, net, spur(sh, acs, pin, 3), 180)
+        wire(sh, pin_cell(iso, iso_pin), pin_cell(acs, acs_pin))
     gnd = pin_cell(acs, '14')
     wire(sh, gnd, (gnd[0], gnd[1] + 2), (gnd[0] - 4, gnd[1] + 2))
     rail_symbol(sh, 'ISO_GND', (gnd[0] - 4, gnd[1] + 2))
@@ -1629,47 +1692,363 @@ def build_amp_current(sh):
 
 def build_system_current(sh):
     """Hand-laid: 15 mOhm shunt between VSW and +12V with kelvin sense lines
-    into the INA237.
+    through the 49.9 ohm / 470 nF input filter into the INA239 (SPI).
     """
     sh.handwired = True
     sh.note(
-        'INA237 monitors the switched 12 V rail: 15 mOhm shunt, I2C 0x40, '
-        '+/-163.84 mV range (~10.9 A).',
+        'INA239 monitors the switched 12 V rail: 15 mOhm shunt, SPI mode 1 '
+        'on the main bus (CS GPIO3), +/-163.84 mV range (~10.9 A). ALERT '
+        'only drives its LED.',
         20,
         15,
     )
     ina = place_ic(
         sh,
-        'cryocooler:INA237',
-        'INA237AIDGSR',
-        60,
-        60,
+        'cryocooler:INA239AIDGSR',
+        'INA239AIDGSR',
+        110,
+        62,
         'Package_SO:TSSOP-10_3x3mm_P0.5mm',
     )
-    # shunt: VSW side straight into Vin+, +12V side to Vin- and Vbus
-    hres(sh, '15m', 30, 62, fp=R2512)
-    wire(sh, (33, 62), pin_cell(ina, '10'))
-    rail_symbol(sh, 'VSW', (40, 62))
-    wire(sh, (25, 62), (25, 54), pin_cell(ina, '8'))
-    wire(sh, (27, 62), (27, 66), (46, 66), (46, 64), pin_cell(ina, '9'))
-    wire(sh, (27, 62), (14, 62))
-    rail_symbol(sh, '+12V', (14, 62))
-    rail_flag(sh, (20, 62))
-    vcap(sh, '100nF', 18, 62, fp=C0805)
-    drop_ground(sh, (18, 68), 0)
-    cap_pol(sh, '100uF/25V', '', '', pose=at(22, 65), fp=CP_ELEC)
-    drop_ground(sh, (22, 68), 0)
-    # I2C, address straps, supply
-    for pin, net in (('4', 'SDA'), ('5', 'SCL')):
-        net_label(sh, net, spur(sh, ina, pin, 8), 0, is_global=True)
-    sh.nc(ina, '3')
-    vs = pin_cell(ina, '6')
-    wire(sh, vs, (vs[0], 44))
-    rail_symbol(sh, '+3V3', (vs[0], 44))
-    place_blocks(
-        sh, [('INA237 DECOUPLING CAPACITORS', '+3V3', ('100nF',))], 120, 100
+    vbus, in_minus, in_plus = (pin_cell(ina, pin) for pin in ('8', '9', '10'))
+    tip_x, row = vbus
+    # shunt: VSW (IN+ side) on the left, +12V (IN- and VBUS side) on the right
+    shunt_row = row - 22
+    shunt_x = tip_x - 40
+    left, right = shunt_x - 3, shunt_x + 3
+    hres(sh, '15m', shunt_x, shunt_row, fp=R2512)
+    wire(sh, (left, shunt_row), (left - 6, shunt_row))
+    rail_symbol(sh, 'VSW', (left - 6, shunt_row))
+    # +12V rail to the right with its bulk and bypass caps
+    wire(
+        sh,
+        (right, shunt_row),
+        (right + 8, shunt_row),
+        (right + 16, shunt_row),
+        (right + 22, shunt_row),
     )
-    gnd_bus(sh, [pin_cell(ina, '2'), pin_cell(ina, '7'), pin_cell(ina, '1')])
+    rail_symbol(sh, '+12V', (right + 22, shunt_row))
+    rail_flag(sh, (right + 4, shunt_row))
+    vcap(sh, '100nF', right + 8, shunt_row, fp=C0805)
+    drop_ground(sh, (right + 8, shunt_row + 6), 0)
+    cap_pol(
+        sh, '100uF/25V', '', '', pose=at(right + 16, shunt_row + 3), fp=CP_ELEC
+    )
+    drop_ground(sh, (right + 16, shunt_row + 6), 0)
+    # kelvin taps: IN- and IN+ through the filter; VBUS shares the filtered
+    # IN- node (its 1 Mohm input draws ~12 uA, a 0.6 mV drop in 49.9 ohm)
+    filter_x = right + 7
+    cap_x = filter_x + 8
+    jog_x = cap_x + (tip_x - cap_x) // 2
+    wire(sh, (right, shunt_row), (right, row + 2))
+    wire(sh, vbus, (tip_x - 3, row), (tip_x - 3, row + 2))
+    wire(sh, (right, row + 2), (filter_x - 3, row + 2))
+    hres(sh, '49.9', filter_x, row + 2)
+    wire(sh, (filter_x + 3, row + 2), (cap_x, row + 2), in_minus)
+    wire(sh, (left, shunt_row), (left, row + 8), (filter_x - 3, row + 8))
+    hres(sh, '49.9', filter_x, row + 8)
+    wire(
+        sh,
+        (filter_x + 3, row + 8),
+        (cap_x, row + 8),
+        (jog_x, row + 8),
+        (jog_x, in_plus[1]),
+        in_plus,
+    )
+    vcap(sh, '470nF', cap_x, row + 2, fp=C0805)
+    # SPI: chip select with pull-up, bus labels, ALERT with LED
+    for pin, net in (
+        ('1', 'INA239_CS'),
+        ('5', 'SPI_SCK'),
+        ('2', 'SPI_MOSI'),
+        ('4', 'SPI_MISO'),
+    ):
+        net_label(sh, net, spur(sh, ina, pin, 12), 0, is_global=True)
+    cs = pin_cell(ina, '1')
+    vres(sh, '10k', cs[0] + 6, cs[1] - 6)
+    rail_symbol(sh, '+3V3', (cs[0] + 6, cs[1] - 6))
+    alert = spur(sh, ina, '3', 4)
+    pull = (alert[0], alert[1] + 6)
+    wire(sh, alert, pull, (pull[0], pull[1] + 6))
+    hres(sh, '10k', pull[0] + 3, pull[1])
+    rail_symbol(sh, '+3V3', (pull[0] + 6, pull[1]))
+    alert = (pull[0], pull[1] + 6)
+    wire(sh, alert, (alert[0] + 1, alert[1]))
+    d_alert = sh.add(
+        'Device:LED',
+        next_ref('D'),
+        'ALERT (red)',
+        (alert[0] + 4) * 1.27,
+        alert[1] * 1.27,
+        rot=0,
+        auto=False,
+        footprint=LED0603,
+    )
+    k_cell, a_cell = pin_cell(d_alert, '1'), pin_cell(d_alert, '2')
+    wire(sh, (alert[0] + 1, alert[1]), k_cell)
+    wire(sh, a_cell, (a_cell[0] + 1, a_cell[1]))
+    hres(sh, '1k', a_cell[0] + 4, a_cell[1])
+    rail_symbol(sh, '+3V3', (a_cell[0] + 7, a_cell[1]))
+    # supply and ground
+    vs = pin_cell(ina, '6')
+    wire(sh, vs, (vs[0], vs[1] - 4))
+    rail_symbol(sh, '+3V3', (vs[0], vs[1] - 4))
+    drop_ground(sh, pin_cell(ina, '7'), 2)
+    place_blocks(
+        sh,
+        [('INA239 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF'))],
+        120,
+        100,
+    )
+    # power LED on +3V3
+    sh.note('3V3 POWER LED', 40 * 1.27, 92 * 1.27, 1.8)
+    wire(sh, (40, 100), (44, 100))
+    rail_symbol(sh, '+3V3', (40, 100))
+    hres(sh, '470', 47, 100)
+    wire(sh, (50, 100), (52, 100))
+    d_power = sh.add(
+        'Device:LED',
+        next_ref('D'),
+        'PWR (green)',
+        55 * 1.27,
+        100 * 1.27,
+        rot=180,
+        auto=False,
+        footprint=LED0603,
+    )
+    drop_ground(sh, pin_cell(d_power, '1'), 2)
+
+
+DEBUG_RAILS = (
+    'VIN',
+    '+12V',
+    'VSW',
+    '+5V',
+    '+3V3',
+    '+15V',
+    '-15V',
+    '+16V5',
+    '-16V5',
+    'ISO_3V3',
+)
+DEBUG_GROUNDS = ('GND', 'GND', 'GND', 'ISO_GND')
+DEBUG_SIGNALS = (
+    ('SPI buses and chip selects', (
+        'SPI_SCK',
+        'SPI_MOSI',
+        'SPI_MISO',
+        'MCP4921_CS',
+        'AD9833_FSYNC',
+        'IMU_CS',
+        'INA239_CS',
+        'ADS1220_CS',
+        'BRIDGE_CS',
+        'ACS_CS',
+        'ACS_MISO',
+    )),
+    ('I2C, interrupts and control', (
+        'BRIDGE_RESET',
+        'SDA',
+        'SCL',
+        'IMU_INT1',
+        'IMU_INT2',
+        'FAN_ALERT',
+        'PWR_KILL',
+        'COMP_RELAY_EN',
+        'AMP_REM_EN',
+        'UART0_TX',
+        'ESP_EN',
+        'ESP_BOOT',
+    )),
+    ('Analog and sensors', (
+        'SIG_SINE',
+        'NTC_ADC',
+        'FLOW_TACH',
+        'STATUS_RGB',
+    )),
+)
+# (rail, resistor, LED description[, return net]): LEDs on rails that have no
+# indicator yet; the isolated rail returns to ISO_GND, never to GND
+DEBUG_RAIL_LEDS = (
+    ('+5V', '1k', '5V (yellow)'),
+    ('+15V', '4.7k', '+15V (white)'),
+    ('-15V', '4.7k', '-15V (white)'),
+    ('ISO_3V3', '1k', 'ISO 3V3 (green)', 'ISO_GND'),
+)
+
+
+def debug_unit(sh, kind, net, column, row):
+    """One test point on a net: a power symbol or global label on top of a
+    short wire, the pad below it (ground units hang the symbol below).
+    """
+    if kind == 'ground':
+        test_point(sh, net, (column, row), TP_LOOP)
+        wire(sh, (column, row), (column, row + 3))
+        rail_symbol(sh, net, (column, row + 3))
+        return
+    if kind == 'rail':
+        rail_symbol(sh, net, (column, row))
+    else:
+        net_label(sh, net, (column, row), 180, is_global=True)
+    wire(sh, (column, row), (column, row + 3))
+    test_point(sh, net, (column, row + 3), rot=180)
+
+
+def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
+    """Rail -> resistor -> LED -> ground, drawn left to right; a negative
+    rail runs ground -> LED -> resistor -> rail instead.
+    """
+    negative = net.startswith('-')
+    first_x, second_x, end_x = column + 6, column + 15, column + 21
+    rail_symbol(sh, ground if negative else net, (column, row))
+    rail_symbol(sh, net if negative else ground, (end_x, row))
+    wire(sh, (column, row), (column + 3, row))
+    wire(sh, (column + 9, row), (column + 12, row))
+    wire(sh, (column + 18, row), (end_x, row))
+    led_x, res_x = (first_x, second_x) if negative else (second_x, first_x)
+    hres(sh, ohms, res_x, row)
+    return sh.add(
+        'Device:LED',
+        next_ref('D'),
+        label,
+        led_x * 1.27,
+        row * 1.27,
+        rot=180,
+        auto=False,
+        footprint=LED0603,
+    )
+
+
+def build_debug(sh):
+    """Hand-laid: one test point per useful net (rails, grounds, buses,
+    chip selects, control lines) and a power LED on each rail that has no
+    indicator yet. Placement on the board follows the net's own pads.
+    """
+    sh.handwired = True
+    sh.note(
+        'Debug aids: test points (pad per net, loops for ground) and rail '
+        'LEDs. Each test point sits on a global label or power symbol; the '
+        'PCB generator places it beside a pad on the same net.',
+        20,
+        15,
+    )
+    column, row = 24, 36
+    sh.note('POWER RAILS', 20 * 1.27, (row - 8) * 1.27, 1.8)
+    for net in DEBUG_RAILS:
+        debug_unit(sh, 'rail', net, column, row)
+        column += 22
+    column = 24
+    row += 22
+    sh.note('GROUND (scope loops)', 20 * 1.27, (row - 8) * 1.27, 1.8)
+    for net in DEBUG_GROUNDS:
+        debug_unit(sh, 'ground', net, column, row)
+        column += 22
+    for title, nets in DEBUG_SIGNALS:
+        column = 36
+        row += 24
+        sh.note(title.upper(), 20 * 1.27, (row - 8) * 1.27, 1.8)
+        for net in nets:
+            debug_unit(sh, 'signal', net, column, row)
+            column += 28
+    column = 24
+    row += 30
+    sh.note('RAIL LEDS', 20 * 1.27, (row - 8) * 1.27, 1.8)
+    for net, ohms, label, *ground in DEBUG_RAIL_LEDS:
+        debug_rail_led(sh, net, ohms, label, column, row, *ground)
+        column += 50
+
+
+def build_i2c_bridge(sh):
+    """Hand-laid: SC18IS604 SPI-to-I2C bridge for the EMC2303 (SDA/SCL), with
+    a tri-state buffer that keeps its MISO off the shared SPI bus while CS is
+    high.
+    """
+    sh.handwired = True
+    sh.note(
+        'SC18IS604: SPI mode 3 slave on the main bus (CS GPIO8, RESET GPIO9), '
+        'I2C controller at ~100 kHz for the EMC2303 (0x4D). INT# is polled '
+        'through the I2CStat register and only has a pull-up and a test '
+        'point.',
+        20,
+        15,
+    )
+    sh.note(
+        'The datasheet does not say MISO is high-impedance with CS high, so '
+        'a 74LVC1G125 (OE# = CS) gates it onto SPI_MISO.',
+        20,
+        21,
+    )
+    bridge = place_ic(
+        sh,
+        'cryocooler:SC18IS604PW',
+        'SC18IS604PW',
+        80,
+        70,
+        'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+    )
+    # supplies: VDD and VREFP (must connect to VDD) on top, VSS below
+    vdd, vref = pin_cell(bridge, '12'), pin_cell(bridge, '15')
+    wire(sh, vdd, (vdd[0], 46))
+    wire(sh, vref, (vref[0], 46))
+    wire(sh, (vdd[0], 46), (vref[0], 46))
+    rail_symbol(sh, '+3V3', ((vdd[0] + vref[0]) // 2, 46))
+    drop_ground(sh, pin_cell(bridge, '13'), 2)
+    place_blocks(
+        sh,
+        [
+            ('SC18IS604 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF')),
+            ('74LVC1G125 DECOUPLING CAPACITORS', '+3V3', ('100nF',)),
+        ],
+        150,
+        100,
+    )
+    # left side: SPI inputs, reset and interrupt (pull-ups drawn as a block)
+    for pin, net in (
+        ('8', 'BRIDGE_CS'),
+        ('11', 'SPI_SCK'),
+        ('10', 'SPI_MOSI'),
+        ('4', 'BRIDGE_RESET'),
+    ):
+        net_label(sh, net, spur(sh, bridge, pin, 12), 180, is_global=True)
+    int_end = spur(sh, bridge, '3', 8)
+    net_label(sh, 'BRIDGE_INT', int_end, 180)
+    wire(sh, int_end, (int_end[0], int_end[1] + 4))
+    test_point(sh, 'BRIDGE_INT', (int_end[0], int_end[1] + 4), rot=180)
+    sh.note('PULL-UPS', 20 * 1.27, 92 * 1.27, 1.8)
+    for index, (net, ohms, is_global) in enumerate(
+        (
+            ('BRIDGE_CS', '10k', True),
+            ('BRIDGE_RESET', '10k', True),
+            ('BRIDGE_INT', '10k', False),
+            ('SDA', '4.7k', True),
+            ('SCL', '4.7k', True),
+        )
+    ):
+        row = 100 + index * 6
+        rail_symbol(sh, '+3V3', (28, row))
+        hres(sh, ohms, 31, row)
+        wire(sh, (34, row), (36, row))
+        net_label(sh, net, (36, row), 0, is_global=is_global)
+    # right side: MISO through the buffer, then SDA/SCL
+    buf = place_ic(
+        sh,
+        'cryocooler:74LVC1G125',
+        '74LVC1G125',
+        132,
+        62,
+        'Package_TO_SOT_SMD:SOT-23-5',
+    )
+    wire(sh, pin_cell(bridge, '14'), pin_cell(buf, '2'))
+    net_label(sh, 'BRIDGE_CS', spur(sh, buf, '1', 4), 180, is_global=True)
+    net_label(sh, 'SPI_MISO', spur(sh, buf, '4', 4), 0, is_global=True)
+    vcc = pin_cell(buf, '5')
+    wire(sh, vcc, (vcc[0], vcc[1] - 4))
+    rail_symbol(sh, '+3V3', (vcc[0], vcc[1] - 4))
+    drop_ground(sh, pin_cell(buf, '3'), 2)
+    for pin, net in (('1', 'SDA'), ('2', 'SCL')):
+        net_label(sh, net, spur(sh, bridge, pin, 6), 0, is_global=True)
+    for pin in ('9', '16', '7', '6', '5'):
+        sh.nc(bridge, pin)
 
 
 def pullup(sh, value, cell):
@@ -1857,21 +2236,22 @@ def build_cooling(sh):
 
 
 def build_cold_head(sh):
-    """Hand-laid: ADS122C04 centre; RTD inputs fan out to the connector with
+    """Hand-laid: ADS1220 centre; RTD inputs fan out to the connector with
     nested jogs so nothing crosses.
     """
     sh.handwired = True
     sh.note(
         'PT1000 4-wire ratiometric: IDAC1 (AIN3) excites, AIN1/AIN0 sense, '
-        'Rref (3.9k) on REFP/REFN. I2C 0x45 (A0=A1=DVDD).',
+        'Rref (3.9k) on REFP0/REFN0. SPI mode 1 on the main bus (CS GPIO44), '
+        'internal oscillator (CLK tied low). DRDY is not wired to the MCU.',
         20,
         15,
     )
     adc = place_ic(
         sh,
-        'cryocooler:ADS122C04IPWR',
-        'ADS122C04IPWR',
-        60,
+        'cryocooler:ADS1220IPW',
+        'ADS1220IPW',
+        54,
         60,
         'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
     )
@@ -1880,28 +2260,39 @@ def build_cold_head(sh):
     wire(sh, avdd, (avdd[0], 42))
     wire(sh, dvdd, (dvdd[0], 42))
     wire(sh, (avdd[0], 42), (dvdd[0], 42))
-    rail_symbol(sh, '+3V3', (60, 42))
+    rail_symbol(sh, '+3V3', ((avdd[0] + dvdd[0]) // 2, 42))
     place_blocks(
         sh,
-        [('ADS122C04 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF'))],
+        [('ADS1220 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF'))],
         190,
         100,
     )
-    gnd_bus(sh, [pin_cell(adc, '8'), pin_cell(adc, '5'), pin_cell(adc, '4')])
-    # left side: address straps, reset and data-ready pull-ups, I2C labels
-    a0, a1 = pin_cell(adc, '1'), pin_cell(adc, '2')
-    wire(sh, a0, (46, a0[1]), (46, a1[1]), a1)
-    rail_symbol(sh, '+3V3', (46, a0[1]))
-    reset = pin_cell(adc, '3')
-    wire(sh, reset, (34, reset[1]))
-    vres(sh, '10k', 34, reset[1] - 6)
-    rail_symbol(sh, '+3V3', (34, reset[1] - 6))
-    for pin, net in (('15', 'SDA'), ('16', 'SCL')):
-        net_label(sh, net, spur(sh, adc, pin, 3), 180, is_global=True)
-    drdy = pin_cell(adc, '14')
-    wire(sh, drdy, (28, drdy[1]))
-    vres(sh, '10k', 28, drdy[1] - 6)
-    rail_symbol(sh, '+3V3', (28, drdy[1] - 6))
+    gnd_bus(
+        sh,
+        [
+            pin_cell(adc, '8'),
+            pin_cell(adc, '5'),
+            pin_cell(adc, '4'),
+            pin_cell(adc, '3'),
+        ],
+    )
+    # left side: SPI bus labels, chip select with pull-up, DRDY pull-up
+    for pin, net in (
+        ('2', 'ADS1220_CS'),
+        ('1', 'SPI_SCK'),
+        ('16', 'SPI_MOSI'),
+        ('15', 'SPI_MISO'),
+    ):
+        net_label(sh, net, spur(sh, adc, pin, 12), 180, is_global=True)
+    cs = pin_cell(adc, '2')
+    vres(sh, '10k', cs[0] - 6, cs[1] - 6)
+    rail_symbol(sh, '+3V3', (cs[0] - 6, cs[1] - 6))
+    drdy_end = spur(sh, adc, '14', 4)
+    drdy = (drdy_end[0], drdy_end[1] + 4)
+    wire(sh, drdy_end, drdy, (drdy[0], drdy[1] + 4))
+    hres(sh, '10k', drdy[0] - 3, drdy[1])
+    rail_symbol(sh, '+3V3', (drdy[0] - 6, drdy[1]))
+    test_point(sh, 'ADS1220_DRDY', (drdy[0], drdy[1] + 4), rot=180)
     # right side inputs
     sh.nc(adc, '7')
     j_rtd = conn(
@@ -2111,6 +2502,14 @@ SHEETS = [
     ('Rails +-15V', 'rails_15v', build_rails_15v, 'A3'),
     ('System Current', 'system_current', build_system_current, 'A3'),
     ('Indicators', 'indicators', build_indicators, 'A3'),
+    (
+        'Compressor Relay',
+        'compressor_relay',
+        build_compressor_relay,
+        'A3',
+    ),
+    ('I2C Bridge', 'i2c_bridge', build_i2c_bridge, 'A3'),
+    ('Debug', 'debug', build_debug, 'A3'),
 ]
 
 

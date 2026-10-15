@@ -369,6 +369,11 @@ LABEL_DIRECTION = {
     'SPI_MOSI': 'out',
     'SPI_SCK': 'out',
     'IMU_CS': 'out',
+    'INA239_CS': 'out',
+    'BRIDGE_CS': 'out',
+    'BRIDGE_RESET': 'out',
+    'ADS1220_CS': 'out',
+    'UART0_TX': 'in',
     'MCP4921_CS': 'out',
     'AD9833_FSYNC': 'out',
     'AMP_REM_EN': 'out',
@@ -385,7 +390,7 @@ LABEL_DIRECTION = {
     'IMU_INT2': 'in',
     'FLOW_TACH': 'in',
     'FAN_ALERT': 'in',
-    'PWR_INT': 'in',
+    'COMP_RELAY_EN': 'out',
     'NTC_ADC': 'in',
 }
 
@@ -1008,7 +1013,9 @@ GLOBAL_NETS = {
     'FAN_ALERT',
     'NTC_ADC',
     'STATUS_RGB',
-    'PWR_INT',
+    'COMP_RELAY_EN',
+    'BRIDGE_CS',
+    'BRIDGE_RESET',
     'SIG_SINE',
     'AMP_REM',
 }

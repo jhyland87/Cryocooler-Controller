@@ -12,14 +12,16 @@ from pathlib import Path
 from sexpr import find_all, parse, sval
 
 EXPECTED = {
-    'SDA': 8,
-    'SCL': 9,
+    'BRIDGE_CS': 8,
+    'BRIDGE_RESET': 9,
     'SPI_SCK': 42,
     'SPI_MOSI': 41,
     'SPI_MISO': 40,
     'AD9833_FSYNC': 7,
     'MCP4921_CS': 5,
     'IMU_CS': 1,
+    'INA239_CS': 3,
+    'ADS1220_CS': 44,
     'IMU_INT1': 2,
     'IMU_INT2': 39,
     'ACS_CS': 17,
@@ -27,6 +29,7 @@ EXPECTED = {
     'ACS_MOSI': 12,
     'ACS_MISO': 13,
     'AMP_REM_EN': 6,
+    'COMP_RELAY_EN': 16,
     'PWR_KILL': 10,
     'LED_FAULT': 14,
     'LED_READY': 15,
@@ -35,6 +38,8 @@ EXPECTED = {
     'NTC_ADC': 4,
     'STATUS_RGB': 38,
 }
+# module pins that carry a UART name instead of IOn
+UART_PIN_NAMES = {43: 'TXD0', 44: 'RXD0'}
 PIN_CONFIG = (
     Path(__file__).resolve().parents[3] / 'include' / 'config' / 'pin_config.h'
 )
@@ -79,7 +84,7 @@ def main(path):
             if ref == esp:
                 net_pins[name.split('/')[-1]] = function.rsplit('_', 1)[0]
     for net, gpio in EXPECTED.items():
-        want = f'IO{gpio}'
+        want = UART_PIN_NAMES.get(gpio, f'IO{gpio}')
         got = net_pins.get(net)
         status = 'ok' if got == want else 'MISMATCH'
         print(f'{net:14s} GPIO{gpio:<3d} -> module pin {got}  [{status}]')
