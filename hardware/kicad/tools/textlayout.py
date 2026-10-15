@@ -1,19 +1,22 @@
 """Text placement with a hard no-overlap rule.
 
-After parts are placed and wires/labels routed, every visible text item (reference, value, power-symbol
-name, label, note) must not overlap another text item or a symbol body. Fields are placed in the first
-position that satisfies the rule; a field is hidden only when no position exists. `check_text` re-verifies.
+After parts are placed and wires/labels routed, every visible text item
+(reference, value, power-symbol name, label, note) must not overlap another
+text item or a symbol body. Fields are placed in the first position that
+satisfies the rule; a field is hidden only when no position exists.
+`check_text` re-verifies.
 """
-from kicadgen import get_symbol, symbol_prop
+
+from kicadgen import get_symbol
 from sexpr import find_all, pins as symbol_pins, sval
 
-CHAR_MM = 1.0      # width per character at 1.27 mm text
-LINE_H = 1.6       # height of one text line
-LINE_GAP = 0.5     # space between stacked fields (must exceed MARGIN)
+CHAR_MM = 1.2  # width per character at 1.27 mm text (rendered ~1.2 mm)
+LINE_H = 1.6  # height of one text line
+LINE_GAP = 0.5  # space between stacked fields (must exceed MARGIN)
 MARGIN = 0.3
 STEP = 1.27
-PIN_TEXT = 1.0     # clearance around a symbol body for pin numbers
-GAP = 0.9 + PIN_TEXT + 0.3   # distance from a body to its own fields
+PIN_TEXT = 1.0  # clearance around a symbol body for pin numbers
+GAP = 0.9 + PIN_TEXT + 0.3  # distance from a body to its own fields
 
 
 def text_width(text, size=1.27):
@@ -29,7 +32,12 @@ def field_box(x, y, width, justify):
 
 
 def hits(a, b, margin=MARGIN):
-    return not (a[2] + margin <= b[0] or a[0] - margin >= b[2] or a[3] + margin <= b[1] or a[1] - margin >= b[3])
+    return not (
+        a[2] + margin <= b[0]
+        or a[0] - margin >= b[2]
+        or a[3] + margin <= b[1]
+        or a[1] - margin >= b[3]
+    )
 
 
 def label_box(kind, net, x, y, angle):
@@ -45,11 +53,17 @@ def label_box(kind, net, x, y, angle):
 
 
 def power_geometry(part):
-    """Graphic box and value-text box of an upright power symbol at its pin point."""
+    """Graphic box and value-text box of an upright power symbol at its pin
+    point.
+    """
     symbol = get_symbol(part.lib_id)
     down = symbol_pins(symbol)[0][4] == 270
     x, y = part.x, part.y
-    graphic = (x - 1.5, y, x + 1.5, y + 2.2) if down else (x - 1.5, y - 2.2, x + 1.5, y)
+    graphic = (
+        (x - 1.5, y, x + 1.5, y + 2.2)
+        if down
+        else (x - 1.5, y - 2.2, x + 1.5, y)
+    )
     value_at = None
     for prop in find_all(symbol, 'property'):
         if sval(prop[1]) == 'Value':
@@ -63,23 +77,48 @@ class TextLayout:
     def __init__(self, sheet):
         self.sheet = sheet
         self.width, self.height = sheet.PAPER[sheet.paper]
-        self.symbols = []        # (part, box) hard obstacles
+        self.symbols = []  # (part, box) hard obstacles
         self.power_graphics = []
-        self.fixed_text = []     # labels and notes
-        self.placed = []         # boxes of placed visible text
-        self.wires = [(min(a[0], b[0]), min(a[1], b[1]), max(a[0], b[0]), max(a[1], b[1])) for a, b in sheet.wires]
+        self.fixed_text = []  # labels and notes
+        self.placed = []  # boxes of placed visible text
+        self.wires = [
+            (
+                min(a[0], b[0]),
+                min(a[1], b[1]),
+                max(a[0], b[0]),
+                max(a[1], b[1]),
+            )
+            for a, b in sheet.wires
+        ]
         for part in sheet.parts:
             if part.ref.startswith('#'):
-                graphic, _ = power_geometry(part) if part.lib_id != 'power:PWR_FLAG' else (self.flag_box(part), None)
+                graphic, _ = (
+                    power_geometry(part)
+                    if part.lib_id != 'power:PWR_FLAG'
+                    else (self.flag_box(part), None)
+                )
                 self.power_graphics.append(graphic)
             else:
                 x0, y0, x1, y1 = part.bbox()
-                # pin numbers sit just outside the body box, so keep fields clear of them too
-                self.symbols.append((part, (x0 - PIN_TEXT, y0 - PIN_TEXT, x1 + PIN_TEXT, y1 + PIN_TEXT)))
+                # pin numbers sit just outside the body box, so keep fields
+                # clear of them too
+                self.symbols.append(
+                    (
+                        part,
+                        (
+                            x0 - PIN_TEXT,
+                            y0 - PIN_TEXT,
+                            x1 + PIN_TEXT,
+                            y1 + PIN_TEXT,
+                        ),
+                    )
+                )
         for kind, net, (x, y), angle in sheet.labels:
             self.fixed_text.append(label_box(kind, net, x, y, angle))
         for text, x, y, size in sheet.text_items:
-            self.fixed_text.append((x, y, x + text_width(text, size) * 1.0, y + size * 1.5))
+            self.fixed_text.append(
+                (x, y, x + text_width(text, size) * 1.0, y + size * 1.5)
+            )
 
     @staticmethod
     def flag_box(part):
@@ -88,8 +127,13 @@ class TextLayout:
     # ── hard / soft rules ────────────────────────────────────────────────
     def inside_page(self, box):
         title = (self.width - 112, self.height - 36, self.width, self.height)
-        return (box[0] >= 6 and box[1] >= 6 and box[2] <= self.width - 6 and box[3] <= self.height - 6
-                and not hits(box, title, 0))
+        return (
+            box[0] >= 6
+            and box[1] >= 6
+            and box[2] <= self.width - 6
+            and box[3] <= self.height - 6
+            and not hits(box, title, 0)
+        )
 
     def hard_free(self, box, extra=()):
         if not self.inside_page(box):
@@ -113,12 +157,13 @@ class TextLayout:
 
     # ── field candidates ─────────────────────────────────────────────────
     def candidates(self, part, widths):
-        """Yield (cost, {field: (x, y, justify)}) for blocks of the requested fields, best first."""
+        """Yield (cost, {field: (x, y, justify)}) for blocks of the requested
+        fields, best first.
+        """
         x0, y0, x1, y1 = part.bbox()
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         names = list(widths)
         height = LINE_H * len(names) + LINE_GAP * (len(names) - 1)
-        block_w = max(widths.values())
         ic = (not part.auto) and len(part.pin_table) > 3
         horizontal = len(part.pin_table) <= 2 and int(part.rot) % 180 == 90
         if ic:
@@ -135,7 +180,9 @@ class TextLayout:
                     anchor_x = x1 + GAP if side == 'right' else x0 - GAP
                     justify = 'left' if side == 'right' else 'right'
                 else:
-                    top = (y0 - GAP - height) if side == 'above' else (y1 + GAP)
+                    top = (
+                        (y0 - GAP - height) if side == 'above' else (y1 + GAP)
+                    )
                     if ic:
                         anchor_x, justify = x0 + shift, 'left'
                     else:
@@ -147,15 +194,24 @@ class TextLayout:
                 yield rank * 4 + abs(shift_steps) * 0.35, placement
 
     def place_part(self, part):
-        fields = {'Reference': text_width(part.ref), 'Value': text_width(part.value)}
+        fields = {
+            'Reference': text_width(part.ref),
+            'Value': text_width(part.value),
+        }
         for names in (('Reference', 'Value'), ('Reference',), ('Value',)):
             widths = {name: fields[name] for name in names}
             best = None
             for cost, placement in self.candidates(part, widths):
-                boxes = [field_box(x, y, widths[name], justify) for name, (x, y, justify) in placement.items()]
-                if not all(self.hard_free(box, boxes[:index]) for index, box in enumerate(boxes)):
+                boxes = [
+                    field_box(x, y, widths[name], justify)
+                    for name, (x, y, justify) in placement.items()
+                ]
+                if not all(
+                    self.hard_free(box, boxes[:index])
+                    for index, box in enumerate(boxes)
+                ):
                     continue
-                total = cost + 3 * sum(self.wire_hits(box) for box in boxes)
+                total = cost + 14 * sum(self.wire_hits(box) for box in boxes)
                 if best is None or total < best[0]:
                     best = (total, placement, boxes)
                 if total < 4:
@@ -166,34 +222,99 @@ class TextLayout:
                 for name in ('Reference', 'Value'):
                     if name in placement:
                         x, y, justify = placement[name]
-                        part.fields[name] = {'x': x, 'y': y, 'justify': justify, 'hide': False}
+                        part.fields[name] = {
+                            'x': x,
+                            'y': y,
+                            'justify': justify,
+                            'hide': False,
+                        }
                     else:
-                        part.fields[name] = {'x': part.x, 'y': part.y, 'justify': None, 'hide': True}
+                        part.fields[name] = {
+                            'x': part.x,
+                            'y': part.y,
+                            'justify': None,
+                            'hide': True,
+                        }
                 self.placed.extend(boxes)
                 return
-        part.fields = {name: {'x': part.x, 'y': part.y, 'justify': None, 'hide': True} for name in ('Reference', 'Value')}
-        print(f'  [{self.sheet.title}] text hidden for {part.ref} (no free position)')
+        part.fields = {
+            name: {'x': part.x, 'y': part.y, 'justify': None, 'hide': True}
+            for name in ('Reference', 'Value')
+        }
+        print(
+            f'  [{self.sheet.title}] text hidden for {part.ref} (no free '
+            f'position)'
+        )
 
     def place_power_text(self):
         for part in self.sheet.parts:
             if not part.ref.startswith('#'):
                 continue
-            part.fields = {'Reference': {'hide': True}, 'Value': {'hide': True}}
+            part.fields = {
+                'Reference': {'hide': True},
+                'Value': {'hide': True},
+            }
             if part.lib_id == 'power:PWR_FLAG' or part.value == 'GND':
                 continue
-            _, (vx, vy) = power_geometry(part)
-            box = field_box(vx, vy, text_width(part.value), 'center')
-            if self.hard_free(box):
-                part.fields['Value'] = {'x': vx, 'y': vy, 'justify': None, 'hide': False}
+            graphic, (vx, vy) = power_geometry(part)
+            width = text_width(part.value)
+            middle = (graphic[1] + graphic[3]) / 2
+            candidates = [(vx, vy, 'center')]
+            for reach in (2.4, 4.0, 6.5):
+                for drop in (
+                    0,
+                    -STEP,
+                    STEP,
+                    -2 * STEP,
+                    2 * STEP,
+                    -3 * STEP,
+                    3 * STEP,
+                ):
+                    candidates.append((part.x + reach, middle + drop, 'left'))
+                    candidates.append((part.x - reach, middle + drop, 'right'))
+            for reach in (2.0, 3.5, 5.0):
+                candidates.append((part.x, graphic[1] - reach, 'center'))
+                candidates.append((part.x, graphic[3] + reach, 'center'))
+            for x, y, justify in candidates:
+                box = field_box(x, y, width, justify)
+                if not self.hard_free(box):
+                    continue
+                part.fields['Value'] = {
+                    'x': x,
+                    'y': y,
+                    'justify': None if justify == 'center' else justify,
+                    'hide': False,
+                }
                 self.placed.append(box)
+                break
 
     def run(self):
         parts = [p for p in self.sheet.parts if not p.ref.startswith('#')]
-        parts.sort(key=lambda p: (p.auto, -(p.bbox()[2] - p.bbox()[0]) * (p.bbox()[3] - p.bbox()[1])))
-        # power-symbol names are laid out last, so reserve their boxes while placing fields
+        parts.sort(
+            key=lambda p: (
+                p.auto,
+                -(p.bbox()[2] - p.bbox()[0]) * (p.bbox()[3] - p.bbox()[1]),
+            )
+        )
+        # power-symbol names are laid out last, so reserve their boxes while
+        # placing fields
         for part in parts:
             self.place_part(part)
         self.place_power_text()
+
+
+def unlabeled_power(sheet):
+    """Power symbols (other than GND and flags) whose name is not shown."""
+    missing = []
+    for part in sheet.parts:
+        if not part.ref.startswith('#'):
+            continue
+        if part.lib_id == 'power:PWR_FLAG' or part.value == 'GND':
+            continue
+        fields = getattr(part, 'fields', {})
+        if fields.get('Value', {}).get('hide', True):
+            missing.append(f'{part.value} at ({part.x:.1f}, {part.y:.1f})')
+    return missing
 
 
 def place_text(sheet):
@@ -201,9 +322,11 @@ def place_text(sheet):
 
 
 def check_text(sheet):
-    """Return a list of overlap descriptions for visible text vs text and text vs symbol bodies."""
+    """Return a list of overlap descriptions for visible text vs text and text
+    vs symbol bodies.
+    """
     layout = TextLayout(sheet)
-    items = []   # (description, box)
+    items = []  # (description, box)
     for part in sheet.parts:
         fields = getattr(part, 'fields', {})
         for name in ('Reference', 'Value'):
@@ -211,14 +334,26 @@ def check_text(sheet):
             if not info or info.get('hide'):
                 continue
             text = part.ref if name == 'Reference' else part.value
-            items.append((f'{part.ref}.{name}', field_box(info['x'], info['y'], text_width(text), info['justify'])))
+            items.append(
+                (
+                    f'{part.ref}.{name}',
+                    field_box(
+                        info['x'], info['y'], text_width(text), info['justify']
+                    ),
+                )
+            )
     for kind, net, (x, y), angle in sheet.labels:
         items.append((f'label {net}', label_box(kind, net, x, y, angle)))
     for text, x, y, size in sheet.text_items:
-        items.append((f'note "{text[:20]}"', (x, y, x + text_width(text, size), y + size * 1.5)))
+        items.append(
+            (
+                f'note "{text[:20]}"',
+                (x, y, x + text_width(text, size), y + size * 1.5),
+            )
+        )
     problems = []
     for index, (name, box) in enumerate(items):
-        for other_name, other in items[index + 1:]:
+        for other_name, other in items[index + 1 :]:
             if hits(box, other, 0.05):
                 problems.append(f'text {name} overlaps text {other_name}')
         for part, symbol in layout.symbols:

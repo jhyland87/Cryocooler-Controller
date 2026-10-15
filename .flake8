@@ -1,0 +1,15 @@
+[flake8]
+# Matches the black style used for the Python tooling (black -l 79 -S).
+max-line-length = 79
+# E203: black puts spaces around complex slice colons (pycodestyle disagrees).
+# W503: black breaks lines before binary operators.
+extend-ignore = E203, W503
+exclude =
+    .git,
+    .pio,
+    .claude,
+    .venv,
+    __pycache__,
+    node_modules,
+    dashboard,
+    docs

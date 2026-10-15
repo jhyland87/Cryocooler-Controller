@@ -1,8 +1,11 @@
-"""Auto-placement of passives next to the pins they connect to, plus orthogonal wire routing.
+"""Auto-placement of passives next to the pins they connect to, plus orthogonal
+wire routing.
 
-Power nets get a stub + power symbol at every pin; other nets are drawn as real wires between
-their pins (A* on the 1.27 mm grid) and fall back to net labels when a route is too long or blocked.
+Power nets get a stub + power symbol at every pin; other nets are drawn as real
+wires between their pins (A* on the 1.27 mm grid) and fall back to net labels
+when a route is too long or blocked.
 """
+
 import heapq
 import math
 
@@ -39,13 +42,30 @@ def overlaps(a, b):
 
 
 def pin_zone(part, number, x=None, y=None, rot=None):
-    """Box covering a power pin's stub and symbol (so other parts keep clear of it)."""
+    """Box covering a power pin's stub and symbol (so other parts keep clear of
+    it).
+    """
     px, py = part.pin_point(number, x, y, rot)
     angle = part.pin_out_angle(number, rot)
     dx, dy = STEP[int(angle) % 360]
     end = (px + dx * STUB_CELLS * CELL, py + dy * STUB_CELLS * CELL)
-    return [expand((min(px, end[0]), min(py, end[1]), max(px, end[0]), max(py, end[1])), 1.0),
-            (end[0] - 2.5 * CELL, end[1] - 5 * CELL, end[0] + 2.5 * CELL, end[1] + 5 * CELL)]
+    return [
+        expand(
+            (
+                min(px, end[0]),
+                min(py, end[1]),
+                max(px, end[0]),
+                max(py, end[1]),
+            ),
+            1.0,
+        ),
+        (
+            end[0] - 2.5 * CELL,
+            end[1] - 5 * CELL,
+            end[0] + 2.5 * CELL,
+            end[1] + 5 * CELL,
+        ),
+    ]
 
 
 class Layout:
@@ -64,7 +84,9 @@ class Layout:
         self.placed = set()
         self.keepouts = {}
         self.pin_zones = []
-        self.net_by_pin = {(id(part), number): net for part, number, net, _ in sheet.conns}
+        self.net_by_pin = {
+            (id(part), number): net for part, number, net, _ in sheet.conns
+        }
 
     # ── placement ────────────────────────────────────────────────────────
     def keepout(self, part, x=None, y=None, rot=None):
@@ -77,18 +99,30 @@ class Layout:
             width = 1.1 * max(len(part.ref), len(str(part.value))) + 2
             use_rot = part.rot if rot is None else rot
             if len(part.pin_table) <= 2 and int(use_rot) % 180 == 90:
-                boxes.append((px - width / 2 - 1, py - 6.5, px + width / 2 + 1, py + 6.5))
+                boxes.append(
+                    (
+                        px - width / 2 - 1,
+                        py - 6.5,
+                        px + width / 2 + 1,
+                        py + 6.5,
+                    )
+                )
             else:
                 boxes.append((px + 1.5, py - 4.2, px + 2.54 + width, py + 4.2))
         for number in part.pin_table:
             if (id(part), number) in self.power_pins:
                 boxes.extend(pin_zone(part, number, x, y, rot))
-            elif not part.auto and self.net_by_pin.get((id(part), number)) in self.glob:
+            elif (
+                not part.auto
+                and self.net_by_pin.get((id(part), number)) in self.glob
+            ):
                 boxes.append(self.label_zone(part, number, x, y, rot))
         return boxes
 
     def corridor_zones(self, part):
-        """Exit corridors (stub + 5 cells) in front of a fixed part's local-net signal pins."""
+        """Exit corridors (stub + 5 cells) in front of a fixed part's local-net
+        signal pins.
+        """
         zones = []
         for number in part.pin_table:
             net = self.net_by_pin.get((id(part), number))
@@ -97,24 +131,45 @@ class Layout:
             px, py = part.pin_point(number)
             dx, dy = STEP[int(part.pin_out_angle(number)) % 360]
             far = (px + dx * 7 * CELL, py + dy * 7 * CELL)
-            box = expand((min(px, far[0]), min(py, far[1]), max(px, far[0]), max(py, far[1])), 0.9)
+            box = expand(
+                (
+                    min(px, far[0]),
+                    min(py, far[1]),
+                    max(px, far[0]),
+                    max(py, far[1]),
+                ),
+                0.9,
+            )
             zones.append((box, id(part), number))
         return zones
 
     def label_zone(self, part, number, x=None, y=None, rot=None):
-        """Box covering a fixed pin's stub and the global-label text beyond it."""
+        """Box covering a fixed pin's stub and the label text beyond it."""
         px, py = part.pin_point(number, x, y, rot)
         angle = part.pin_out_angle(number, rot)
         dx, dy = STEP[int(angle) % 360]
         net = self.net_by_pin[(id(part), number)]
         length = 2 * CELL + 1.15 * len(net) + 3
         far = (px + dx * length, py + dy * length)
-        return expand((min(px, far[0]), min(py, far[1]), max(px, far[0]), max(py, far[1])), 0.8)
+        return expand(
+            (
+                min(px, far[0]),
+                min(py, far[1]),
+                max(px, far[0]),
+                max(py, far[1]),
+            ),
+            0.8,
+        )
 
     def free(self, boxes, ignore=None, anchor_pin=None):
         title = (self.width - 112, self.height - 36, self.width, self.height)
         for box in boxes:
-            if box[0] < 8 or box[1] < 22 or box[2] > self.width - 8 or box[3] > self.height - 8:
+            if (
+                box[0] < 8
+                or box[1] < 22
+                or box[2] > self.width - 8
+                or box[3] > self.height - 8
+            ):
                 return False
             if overlaps(box, title):
                 return False
@@ -141,7 +196,9 @@ class Layout:
     def placed_pins(self, net, fixed_only=False):
         out = []
         for member, number in self.nets[net]:
-            if id(member) in self.placed and (not fixed_only or not member.auto):
+            if id(member) in self.placed and (
+                not fixed_only or not member.auto
+            ):
                 out.append((member, number))
         return out
 
@@ -155,6 +212,7 @@ class Layout:
         remaining = [part for part in sheet.parts if part.auto]
         scratch_x, scratch_y = 20, 40
         while remaining:
+
             def strength(part):
                 if part.near is not None:
                     return 50 if id(part.near[0]) in self.placed else -1
@@ -165,12 +223,16 @@ class Layout:
                     elif self.placed_pins(net):
                         score += 1
                 return score
+
             part = max(remaining, key=strength)
             remaining.remove(part)
             if not self.place_one(part):
                 x, y = self.scratch_spot(part, scratch_x, scratch_y)
                 part.x, part.y = sheet.snap(x), sheet.snap(y)
-                print(f'  [{sheet.title}] {part.ref} placed in scratch area (no anchor)')
+                print(
+                    f'  [{sheet.title}] {part.ref} placed in scratch area (no '
+                    f'anchor)'
+                )
             self.placed.add(id(part))
             self.keepouts[id(part)] = self.keepout(part)
 
@@ -183,7 +245,6 @@ class Layout:
         return x0, y0
 
     def place_one(self, part):
-        sheet = self.sheet
         hint = (part.x, part.y)
         nets = self.connected_nets(part)
         anchors = []
@@ -202,9 +263,19 @@ class Layout:
         if not anchors:
             candidates = []
             for net, number in nets:
-                for member, member_pin in self.placed_pins(net, fixed_only=True):
+                for member, member_pin in self.placed_pins(
+                    net, fixed_only=True
+                ):
                     px, py = member.pin_point(member_pin)
-                    candidates.append((abs(px - hint[0]) + abs(py - hint[1]), net, number, member, member_pin))
+                    candidates.append(
+                        (
+                            abs(px - hint[0]) + abs(py - hint[1]),
+                            net,
+                            number,
+                            member,
+                            member_pin,
+                        )
+                    )
             candidates.sort(key=lambda item: item[0])
             anchors = [(n, num, m, mp) for _, n, num, m, mp in candidates[:8]]
         best = self.search(part, anchors, hint)
@@ -231,20 +302,36 @@ class Layout:
             px, py = -dy, dx
             for rot in (0, 90, 180, 270):
                 facing = int(part.pin_out_angle(number, rot)) % 360
-                penalty = 0 if (facing == (angle + 180) % 360 or len(part.pin_table) > 2) else 8
+                penalty = (
+                    0
+                    if (
+                        facing == (angle + 180) % 360
+                        or len(part.pin_table) > 2
+                    )
+                    else 8
+                )
                 if not self.symbols_ok(part, rot, number):
                     continue
                 offset = part.pin_point(number, 0, 0, rot)
                 for k in (5, 6, 8, 10, 13, 16, 20, 26, 34, 44):
                     for lateral in (0, 3, -3, 6, -6, 9, -9, 13, -13, 18, -18):
-                        target = (anchor[0] + dx * k * CELL + px * lateral * CELL,
-                                  anchor[1] + dy * k * CELL + py * lateral * CELL)
+                        target = (
+                            anchor[0] + dx * k * CELL + px * lateral * CELL,
+                            anchor[1] + dy * k * CELL + py * lateral * CELL,
+                        )
                         x = sheet.snap(target[0] - offset[0])
                         y = sheet.snap(target[1] - offset[1])
                         boxes = self.keepout(part, x, y, rot)
-                        if not self.free(boxes, anchor_pin=(id(member), member_pin)):
+                        if not self.free(
+                            boxes, anchor_pin=(id(member), member_pin)
+                        ):
                             continue
-                        cost = self.cost(part, x, y, rot, hint) + k * 0.5 + abs(lateral) * 0.3 + penalty
+                        cost = (
+                            self.cost(part, x, y, rot, hint)
+                            + k * 0.5
+                            + abs(lateral) * 0.3
+                            + penalty
+                        )
                         if best is None or cost < best[0]:
                             best = (cost, x, y, rot)
                 if best is not None:
@@ -252,12 +339,17 @@ class Layout:
         return best
 
     def symbols_ok(self, part, rot, anchor_pin):
-        """Grounds hang down and supplies point up, so reject poses that would aim a symbol into the part."""
+        """Grounds hang down and supplies point up, so reject poses that would
+        aim a symbol into the part.
+        """
         for net, number in self.connected_nets(part):
             if net not in POWER_SYMBOLS or number == anchor_pin:
                 continue
             angle = int(part.pin_out_angle(number, rot)) % 360
-            down = symbol_pins(get_symbol(f'power:{POWER_SYMBOLS[net]}'))[0][4] == 270
+            down = (
+                symbol_pins(get_symbol(f'power:{POWER_SYMBOLS[net]}'))[0][4]
+                == 270
+            )
             if (down and angle == 90) or (not down and angle == 270):
                 return False
         return True
@@ -273,7 +365,10 @@ class Layout:
             if not others:
                 continue
             has_signal = True
-            total += min(abs(px - m.pin_point(mp)[0]) + abs(py - m.pin_point(mp)[1]) for m, mp in others)
+            total += min(
+                abs(px - m.pin_point(mp)[0]) + abs(py - m.pin_point(mp)[1])
+                for m, mp in others
+            )
         if not has_signal:
             total += (abs(x - hint[0]) + abs(y - hint[1])) * 0.2
         return total
@@ -285,15 +380,24 @@ class Layout:
         self.owner = {}
         self.edges = {}
         import textlayout
+
         self.tl = textlayout
-        self.part_boxes = [p.bbox() for p in sheet.parts if not p.ref.startswith('#')]
+        self.part_boxes = [
+            p.bbox() for p in sheet.parts if not p.ref.startswith('#')
+        ]
         self.power_boxes = []
         self.label_boxes = []
-        self.note_boxes = [(x, y, x + textlayout.text_width(t, size), y + size * 1.5)
-                           for t, x, y, size in sheet.text_items]
-        # wires must end at every pin / power-symbol point rather than run through it
-        self.nodes = {(to_cell(p.pin_point(n)[0]), to_cell(p.pin_point(n)[1]))
-                      for p in sheet.parts for n in p.pin_table}
+        self.note_boxes = [
+            (x, y, x + textlayout.text_width(t, size), y + size * 1.5)
+            for t, x, y, size in sheet.text_items
+        ]
+        # wires must end at every pin / power-symbol point rather than run
+        # through it
+        self.nodes = {
+            (to_cell(p.pin_point(n)[0]), to_cell(p.pin_point(n)[1]))
+            for p in sheet.parts
+            for n in p.pin_table
+        }
         for part in sheet.parts:
             x0, y0, x1, y1 = part.bbox()
             for cx in range(to_cell(x0) - 1, to_cell(x1) + 2):
@@ -308,8 +412,12 @@ class Layout:
             if net not in POWER_SYMBOLS:
                 continue
             anchor = part.near
-            if (part.auto and anchor and not anchor[0].auto
-                    and self.net_by_pin.get((id(anchor[0]), anchor[1])) == net):
+            if (
+                part.auto
+                and anchor
+                and not anchor[0].auto
+                and self.net_by_pin.get((id(anchor[0]), anchor[1])) == net
+            ):
                 attached.append((part, number, net))
                 continue
             self.power_stub(part, number, net, seen_power)
@@ -321,18 +429,29 @@ class Layout:
             if net in POWER_SYMBOLS:
                 continue
             for part, number in members:
-                if not (on_grid(part.pin_point(number)[0]) and on_grid(part.pin_point(number)[1])):
+                if not (
+                    on_grid(part.pin_point(number)[0])
+                    and on_grid(part.pin_point(number)[1])
+                ):
                     continue
                 cells, angle = self.stub_cells(part, number)
                 dx, dy = STEP[angle]
                 corridor = list(cells)
                 for i in range(1, 5):
-                    corridor.append((cells[-1][0] + dx * i, cells[-1][1] + dy * i))
+                    corridor.append(
+                        (cells[-1][0] + dx * i, cells[-1][1] + dy * i)
+                    )
                 for index, cell in enumerate(corridor):
-                    if index > 2 and (cell in self.blocked or cell in self.owner):
+                    if index > 2 and (
+                        cell in self.blocked or cell in self.owner
+                    ):
                         break
                     self.owner.setdefault(cell, net)
-        signal = [(net, members) for net, members in self.nets.items() if net not in POWER_SYMBOLS]
+        signal = [
+            (net, members)
+            for net, members in self.nets.items()
+            if net not in POWER_SYMBOLS
+        ]
         signal.sort(key=lambda item: self.span(item[1]))
         for net, members in signal:
             self.route_net(net, members)
@@ -350,7 +469,9 @@ class Layout:
         angle = int(part.pin_out_angle(number)) % 360
         dx, dy = STEP[angle]
         base = (to_cell(px), to_cell(py))
-        return [(base[0] + dx * i, base[1] + dy * i) for i in range(STUB_CELLS + 1)], angle
+        return [
+            (base[0] + dx * i, base[1] + dy * i) for i in range(STUB_CELLS + 1)
+        ], angle
 
     def add_edges(self, net, cells):
         store = self.edges.setdefault(net, set())
@@ -371,21 +492,30 @@ class Layout:
         self.power_trees[key] = (tag, cells)
         self.power_tags.append(tag)
         end = cells[-1]
-        down = symbol_pins(get_symbol(f'power:{POWER_SYMBOLS[net]}'))[0][4] == 270
+        down = (
+            symbol_pins(get_symbol(f'power:{POWER_SYMBOLS[net]}'))[0][4] == 270
+        )
         self.owner[(end[0], end[1] + (1 if down else -1))] = tag + ':symbol'
         symbol_name = POWER_SYMBOLS[net]
         lib_id = f'power:{symbol_name}'
         kicadgen._pwr_counter[0] += 1
         ref = f'#PWR{kicadgen._pwr_counter[0]:03d}'
         self.nodes.add(end)
-        power = self.sheet.add(lib_id, ref, net, to_mm(end[0]), to_mm(end[1]), rot=0)
+        power = self.sheet.add(
+            lib_id, ref, net, to_mm(end[0]), to_mm(end[1]), rot=0
+        )
         graphic_x, graphic_y = to_mm(end[0]), to_mm(end[1])
-        self.power_boxes.append((graphic_x - 1.5, graphic_y, graphic_x + 1.5, graphic_y + 2.2) if down
-                                else (graphic_x - 1.5, graphic_y - 2.2, graphic_x + 1.5, graphic_y))
+        self.power_boxes.append(
+            (graphic_x - 1.5, graphic_y, graphic_x + 1.5, graphic_y + 2.2)
+            if down
+            else (graphic_x - 1.5, graphic_y - 2.2, graphic_x + 1.5, graphic_y)
+        )
         power.is_power = True
 
     def attach_power(self, part, number, net, seen):
-        """Wire a decoupling cap/pull-up straight into the power stub of the IC pin it serves."""
+        """Wire a decoupling cap/pull-up straight into the power stub of the IC
+        pin it serves.
+        """
         near_part, near_pin = part.near
         px, py = near_part.pin_point(near_pin)
         entry = self.power_trees.get((round(px, 2), round(py, 2), net))
@@ -407,7 +537,6 @@ class Layout:
         return owner is None and cell not in self.blocked
 
     def route_net(self, net, members):
-        sheet = self.sheet
         unique = []
         seen_points = set()
         for part, number in members:
@@ -421,7 +550,11 @@ class Layout:
             for part, number in unique:
                 self.label_pin(part, number, net, is_global)
             return
-        routable = [(p, n) for p, n in unique if on_grid(p.pin_point(n)[0]) and on_grid(p.pin_point(n)[1])]
+        routable = [
+            (p, n)
+            for p, n in unique
+            if on_grid(p.pin_point(n)[0]) and on_grid(p.pin_point(n)[1])
+        ]
         for part, number in unique:
             if (part, number) not in routable:
                 self.label_pin(part, number, net, is_global)
@@ -436,7 +569,9 @@ class Layout:
             cells, angle = self.stub_cells(*seed)
             if any(self.owner.get(c) not in (None, net) for c in cells):
                 clusters.append(([seed], seed))
-                self.label_pin(seed[0], seed[1], net, is_global, 'seed blocked')
+                self.label_pin(
+                    seed[0], seed[1], net, is_global, 'seed blocked'
+                )
                 continue
             self.add_edges(net, cells)
             tree = set(cells)
@@ -444,7 +579,9 @@ class Layout:
             progress = True
             while progress and pending:
                 progress = False
-                ordered = sorted(pending, key=lambda pn: self.tree_distance(pn, tree))
+                ordered = sorted(
+                    pending, key=lambda pn: self.tree_distance(pn, tree)
+                )
                 for pn in ordered:
                     if self.tree_distance(pn, tree) * CELL > LONG_NET_MM:
                         break
@@ -452,7 +589,10 @@ class Layout:
                     if any(self.owner.get(c) not in (None, net) for c in stub):
                         continue
                     path = self.astar(stub[-1], tree, net)
-                    if path is None or len(path) > 1.5 * self.tree_distance(pn, tree) + 8:
+                    if (
+                        path is None
+                        or len(path) > 1.5 * self.tree_distance(pn, tree) + 8
+                    ):
                         continue
                     self.add_edges(net, stub)
                     self.add_edges(net, path)
@@ -463,7 +603,8 @@ class Layout:
                     progress = True
                     break
             clusters.append((members, seed))
-        # pins that could not join a cluster stay as single-pin clusters with a label
+        # pins that could not join a cluster stay as single-pin clusters with a
+        # label
         multi = len(clusters) > 1
         for members, seed in clusters:
             if len(members) == 1 and multi:
@@ -474,14 +615,18 @@ class Layout:
         self.flush_edges(net)
 
     def best_label_pin(self, members, net):
-        """Pick the cluster pin whose label text has the most room (fixed parts preferred)."""
+        """Pick the cluster pin whose label text has the most room (fixed parts
+        preferred).
+        """
         best = None
         for index, (part, number) in enumerate(members):
             cells, angle = self.stub_cells(part, number)
             fit = self.label_fit(cells[-1], angle, net, net, 'label')
             if fit is None:
                 continue
-            score = fit['length'] * 2 + (0 if not part.auto else 3) + index * 0.01
+            score = (
+                fit['length'] * 2 + (0 if not part.auto else 3) + index * 0.01
+            )
             if best is None or score < best[0]:
                 best = (score, part, number)
         if best is None:
@@ -498,11 +643,20 @@ class Layout:
         length = 1.05 * len(net) + 3.5
         count = int(math.ceil(length / CELL))
         dx, dy = STEP[int(angle) % 360]
-        return [(end[0] + dx * i, end[1] + dy * i) for i in range(1, count + 1)]
+        return [
+            (end[0] + dx * i, end[1] + dy * i) for i in range(1, count + 1)
+        ]
 
     def label_box_free(self, kind, net, site, angle):
-        box = self.tl.label_box(kind, net, to_mm(site[0]), to_mm(site[1]), angle)
-        if not (6 <= box[0] and 6 <= box[1] and box[2] <= self.width - 6 and box[3] <= self.height - 6):
+        box = self.tl.label_box(
+            kind, net, to_mm(site[0]), to_mm(site[1]), angle
+        )
+        if not (
+            6 <= box[0]
+            and 6 <= box[1]
+            and box[2] <= self.width - 6
+            and box[3] <= self.height - 6
+        ):
             return False
         title = (self.width - 112, self.height - 36, self.width, self.height)
         if self.tl.hits(box, title, 0):
@@ -516,14 +670,20 @@ class Layout:
         return True
 
     def label_fit(self, stub_end, angle, net, tag, kind='label'):
-        """Shortest wire path (straight, optionally bent 90 degrees) ending in a free label spot, or None."""
+        """Shortest wire path (straight, optionally bent 90 degrees) ending in
+        a free label spot, or None.
+        """
         base = int(angle) % 360
         candidates = []
         for extra in (0, 2, 4, 6, 9, 12, 16):
             candidates.append((extra, None, 0))
             for turn in (90, 270):
                 for length in (2, 4, 6, 9, 12, 16, 20):
-                    candidates.append((extra + length + 1, turn, length) if False else (extra + length + 1, turn, (extra, length)))
+                    candidates.append(
+                        (extra + length + 1, turn, length)
+                        if False
+                        else (extra + length + 1, turn, (extra, length))
+                    )
         candidates.sort(key=lambda item: item[0])
         for cost, turn, detail in candidates:
             if turn is None:
@@ -532,28 +692,48 @@ class Layout:
                 extra, length = detail
                 label_angle = (base + turn) % 360
             dx, dy = STEP[base]
-            path = [(stub_end[0] + dx * i, stub_end[1] + dy * i) for i in range(1, extra + 1)]
+            path = [
+                (stub_end[0] + dx * i, stub_end[1] + dy * i)
+                for i in range(1, extra + 1)
+            ]
             corner = path[-1] if path else stub_end
             if turn is not None:
                 tx, ty = STEP[label_angle]
-                path += [(corner[0] + tx * i, corner[1] + ty * i) for i in range(1, length + 1)]
+                path += [
+                    (corner[0] + tx * i, corner[1] + ty * i)
+                    for i in range(1, length + 1)
+                ]
             site = path[-1] if path else stub_end
-            text = self.label_text_cells(site, label_angle, net)
-            if (all(self.passable(c, tag) or self.passable(c, net) or self.margin_cell(c, tag, net) for c in path)
-                    and self.label_box_free(kind, net, site, label_angle)):
-                return {'path': path, 'site': site, 'angle': label_angle, 'length': len(path)}
+            if all(
+                self.passable(c, tag)
+                or self.passable(c, net)
+                or self.margin_cell(c, tag, net)
+                for c in path
+            ) and self.label_box_free(kind, net, site, label_angle):
+                return {
+                    'path': path,
+                    'site': site,
+                    'angle': label_angle,
+                    'length': len(path),
+                }
         return self.label_search(stub_end, net, tag, kind)
 
     def margin_cell(self, cell, tag, net):
-        """True for an unowned cell that is only inside a part's keep-out margin, not its body or a pin."""
+        """True for an unowned cell that is only inside a part's keep-out
+        margin, not its body or a pin.
+        """
         if cell in self.nodes or self.owner.get(cell) not in (None, tag, net):
             return False
         x, y = to_mm(cell[0]), to_mm(cell[1])
-        return not any(b[0] - 0.4 <= x <= b[2] + 0.4 and b[1] - 0.4 <= y <= b[3] + 0.4
-                       for b in self.part_boxes)
+        return not any(
+            b[0] - 0.4 <= x <= b[2] + 0.4 and b[1] - 0.4 <= y <= b[3] + 0.4
+            for b in self.part_boxes
+        )
 
     def label_search(self, stub_end, net, tag, kind):
-        """Breadth-first escape from a boxed-in stub to the nearest free label spot, or None."""
+        """Breadth-first escape from a boxed-in stub to the nearest free label
+        spot, or None.
+        """
         seen = {stub_end: None}
         queue = [stub_end]
         for cell in queue:
@@ -573,18 +753,28 @@ class Layout:
                             path.append(walk)
                             walk = seen[walk]
                         path.reverse()
-                        return {'path': path, 'site': cell, 'angle': label_angle, 'length': len(path)}
+                        return {
+                            'path': path,
+                            'site': cell,
+                            'angle': label_angle,
+                            'length': len(path),
+                        }
             for dx, dy in STEP.values():
                 nxt = (cell[0] + dx, cell[1] + dy)
-                if nxt in seen or not (self.passable(nxt, tag) or self.passable(nxt, net)
-                                       or self.margin_cell(nxt, tag, net)):
+                if nxt in seen or not (
+                    self.passable(nxt, tag)
+                    or self.passable(nxt, net)
+                    or self.margin_cell(nxt, tag, net)
+                ):
                     continue
                 seen[nxt] = cell
                 queue.append(nxt)
         return None
 
     def place_label(self, net, kind, stub, angle, tag):
-        """Place a label at the end of a (possibly bent) stub whose text area is free."""
+        """Place a label at the end of a (possibly bent) stub whose text area
+        is free.
+        """
         end = stub[-1]
         fit = self.label_fit(end, angle, net, tag, kind)
         if fit is None:
@@ -595,12 +785,20 @@ class Layout:
             self.add_edges(tag, [end] + fit['path'])
         for cell in self.label_text_cells(site, label_angle, net):
             self.owner.setdefault(cell, tag)
-        self.label_boxes.append(self.tl.label_box(kind, net, to_mm(site[0]), to_mm(site[1]), label_angle))
-        self.sheet.labels.append((kind, net, (to_mm(site[0]), to_mm(site[1])), label_angle))
+        self.label_boxes.append(
+            self.tl.label_box(
+                kind, net, to_mm(site[0]), to_mm(site[1]), label_angle
+            )
+        )
+        self.sheet.labels.append(
+            (kind, net, (to_mm(site[0]), to_mm(site[1])), label_angle)
+        )
         return site
 
     def label_pin(self, part, number, net, is_global, reason=''):
-        """Net-label fallback: a short stub plus a label with a reserved text area."""
+        """Net-label fallback: a short stub plus a label with a reserved text
+        area.
+        """
         cells, angle = self.stub_cells(part, number)
         tag = f'label:{net}:{id(part)}:{number}'
         if any(self.owner.get(c) not in (None, net) for c in cells[1:]):
@@ -609,9 +807,14 @@ class Layout:
             for cell in cells:
                 self.owner.setdefault(cell, tag)
         if reason:
-            print(f'  [{self.sheet.title}] label fallback {net} at {part.ref}.{number}: {reason}')
+            print(
+                f'  [{self.sheet.title}] label fallback {net} at '
+                f'{part.ref}.{number}: {reason}'
+            )
         self.add_edges(tag, cells)
-        self.place_label(net, 'global_label' if is_global else 'label', cells, angle, tag)
+        self.place_label(
+            net, 'global_label' if is_global else 'label', cells, angle, tag
+        )
         self.flush_edges(tag)
 
     def global_label(self, part, number, net, local=False):
@@ -652,13 +855,18 @@ class Layout:
                     continue
                 if not self.passable(nxt, net):
                     continue
-                step = 1 + (3 if heading is not None and direction != heading else 0)
+                step = 1 + (
+                    3 if heading is not None and direction != heading else 0
+                )
                 new_cost = cost + step
                 state = (nxt, direction)
                 if new_cost < best.get(state, 1e9):
                     best[state] = new_cost
                     parent[state] = (cell, heading)
-                    heapq.heappush(queue, (new_cost + heuristic(nxt), new_cost, nxt, direction))
+                    heapq.heappush(
+                        queue,
+                        (new_cost + heuristic(nxt), new_cost, nxt, direction),
+                    )
         return None
 
     def flush_edges(self, net):
@@ -679,16 +887,33 @@ class Layout:
             else:
                 vertical.setdefault(first[0], []).append(first[1])
         for row, starts in horizontal.items():
-            for run in runs(sorted(starts), lambda cell, row=row: (cell, row) in self.nodes):
-                self.sheet.wires.append(((to_mm(run[0]), to_mm(row)), (to_mm(run[1] + 1), to_mm(row))))
+            for run in runs(
+                sorted(starts), lambda cell, row=row: (cell, row) in self.nodes
+            ):
+                self.sheet.wires.append(
+                    (
+                        (to_mm(run[0]), to_mm(row)),
+                        (to_mm(run[1] + 1), to_mm(row)),
+                    )
+                )
         for column, starts in vertical.items():
-            for run in runs(sorted(starts), lambda cell, column=column: (column, cell) in self.nodes):
-                self.sheet.wires.append(((to_mm(column), to_mm(run[0])), (to_mm(column), to_mm(run[1] + 1))))
+            for run in runs(
+                sorted(starts),
+                lambda cell, column=column: (column, cell) in self.nodes,
+            ):
+                self.sheet.wires.append(
+                    (
+                        (to_mm(column), to_mm(run[0])),
+                        (to_mm(column), to_mm(run[1] + 1)),
+                    )
+                )
         self.edges[net] = set()
 
 
 def runs(values, is_break=lambda cell: False):
-    """Merge consecutive integer starts into (first, last) runs, splitting at break cells."""
+    """Merge consecutive integer starts into (first, last) runs, splitting at
+    break cells.
+    """
     result = []
     for value in values:
         if result and value == result[-1][1] + 1 and not is_break(value):
@@ -700,10 +925,13 @@ def runs(values, is_break=lambda cell: False):
 
 def finalize(sheet):
     if sheet.handwired:
-        sheet.no_connects.extend(part.pin_point(number) for part, number in sheet.ncs)
+        sheet.no_connects.extend(
+            part.pin_point(number) for part, number in sheet.ncs
+        )
     else:
         layout = Layout(sheet)
         layout.place_auto()
         layout.route()
     import textlayout
+
     textlayout.place_text(sheet)

@@ -16,18 +16,18 @@ Skip conditions:
 
 Import("env")  # noqa: F821  — PlatformIO injects this
 
-import os
-import sys
-import glob
-import subprocess
+import os  # noqa: E402
+import sys  # noqa: E402
+import glob  # noqa: E402
+import subprocess  # noqa: E402
 
 PROJECT_DIR = env["PROJECT_DIR"]  # noqa: F821
-PROTO_DIR   = os.path.join(PROJECT_DIR, "proto")
-PROTO_FILE  = os.path.join(PROTO_DIR, "telemetry.proto")
+PROTO_DIR = os.path.join(PROJECT_DIR, "proto")
+PROTO_FILE = os.path.join(PROTO_DIR, "telemetry.proto")
 OPTIONS_FILE = os.path.join(PROTO_DIR, "telemetry.options")
-OUT_C       = os.path.join(PROJECT_DIR, "src", "generated", "telemetry.pb.c")
-OUT_H       = os.path.join(PROJECT_DIR, "include", "generated", "telemetry.pb.h")
-SKIP_VAR    = "SKIP_PROTO_BUILD"
+OUT_C = os.path.join(PROJECT_DIR, "src", "generated", "telemetry.pb.c")
+OUT_H = os.path.join(PROJECT_DIR, "include", "generated", "telemetry.pb.h")
+SKIP_VAR = "SKIP_PROTO_BUILD"
 
 
 def _find_nanopb_generator() -> str | None:
@@ -38,8 +38,12 @@ def _find_nanopb_generator() -> str | None:
         return None
     # Search all environments
     for pattern in [
-        os.path.join(libdeps, "*", "Nanopb", "generator", "nanopb_generator.py"),
-        os.path.join(libdeps, "*", "nanopb", "generator", "nanopb_generator.py"),
+        os.path.join(
+            libdeps, "*", "Nanopb", "generator", "nanopb_generator.py"
+        ),
+        os.path.join(
+            libdeps, "*", "nanopb", "generator", "nanopb_generator.py"
+        ),
     ]:
         matches = glob.glob(pattern)
         if matches:
@@ -68,18 +72,25 @@ def _ensure_protobuf() -> None:
     """
     try:
         import google.protobuf  # noqa: F401
+
         return  # already installed
     except ImportError:
         pass
 
-    print("[compile_proto] Installing google.protobuf (required by nanopb_generator)…")
+    print(
+        "[compile_proto] Installing google.protobuf (required by "
+        "nanopb_generator)…"
+    )
     result = subprocess.run(
         [sys.executable, "-m", "pip", "install", "--quiet", "protobuf"],
         check=False,
     )
     if result.returncode != 0:
-        print("[compile_proto] ERROR: failed to install 'protobuf' via pip. "
-              "Run: pip install protobuf", file=sys.stderr)
+        print(
+            "[compile_proto] ERROR: failed to install 'protobuf' via pip. "
+            "Run: pip install protobuf",
+            file=sys.stderr,
+        )
         env.Exit(1)  # noqa: F821
 
 
@@ -89,8 +100,10 @@ def compile_proto() -> None:
         return
 
     if not os.path.exists(PROTO_FILE):
-        print(f"[compile_proto] WARNING: {PROTO_FILE} not found — skipping",
-              file=sys.stderr)
+        print(
+            f"[compile_proto] WARNING: {PROTO_FILE} not found — skipping",
+            file=sys.stderr,
+        )
         return
 
     if not _needs_rebuild():
@@ -101,9 +114,11 @@ def compile_proto() -> None:
 
     generator = _find_nanopb_generator()
     if generator is None:
-        print("[compile_proto] ERROR: nanopb_generator.py not found. "
-              "Run 'pio pkg install' first to download the Nanopb library.",
-              file=sys.stderr)
+        print(
+            "[compile_proto] ERROR: nanopb_generator.py not found. "
+            "Run 'pio pkg install' first to download the Nanopb library.",
+            file=sys.stderr,
+        )
         env.Exit(1)  # noqa: F821
 
     # Ensure output directories exist.
@@ -123,21 +138,28 @@ def compile_proto() -> None:
     os.makedirs(tmp_dir, exist_ok=True)
 
     cmd = [
-        sys.executable, generator,
-        "-I", PROTO_DIR,
-        "-D", tmp_dir,
+        sys.executable,
+        generator,
+        "-I",
+        PROTO_DIR,
+        "-D",
+        tmp_dir,
         PROTO_FILE,
     ]
 
     print(f"[compile_proto] $ {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=PROJECT_DIR)
     if result.returncode != 0:
-        print(f"[compile_proto] ERROR: nanopb_generator exited with code {result.returncode}",
-              file=sys.stderr)
+        print(
+            f"[compile_proto] ERROR: nanopb_generator exited with code "
+            f"{result.returncode}",
+            file=sys.stderr,
+        )
         env.Exit(1)  # noqa: F821
 
     # Move generated files to their final locations.
     import shutil
+
     tmp_c = os.path.join(tmp_dir, "telemetry.pb.c")
     tmp_h = os.path.join(tmp_dir, "telemetry.pb.h")
 

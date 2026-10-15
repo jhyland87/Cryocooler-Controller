@@ -14,23 +14,23 @@ Rebuild firmware after editing any file in data/ to pick up the changes.
 
 Import("env")  # noqa: F821  (PlatformIO injects this)
 
-import gzip
-import os
+import gzip  # noqa: E402
+import os  # noqa: E402
 
-PROJECT_DIR  = env["PROJECT_DIR"]           # noqa: F821
-DATA_DIR     = os.path.join(PROJECT_DIR, "data")
-OUT_PATH     = os.path.join(PROJECT_DIR, "include", "web_content.h")
+PROJECT_DIR = env["PROJECT_DIR"]  # noqa: F821
+DATA_DIR = os.path.join(PROJECT_DIR, "data")
+OUT_PATH = os.path.join(PROJECT_DIR, "include", "web_content.h")
 
 # (symbol_name, filename, use_gzip)
 # When use_gzip is True the file is gzip-compressed and emitted as a byte
 # array (uint8_t[]).  The firmware must serve it with Content-Encoding: gzip.
 WEB_FILES = [
     ("index_html", "index.html", False),
-    ("style_css",  "style.css",  False),
-    ("app_js",     "app.js",     True),
-    ("ota_html",   "ota.html",   False),
-    ("ota_css",    "ota.css",    False),
-    ("ota_js",     "ota.js",     False),
+    ("style_css", "style.css", False),
+    ("app_js", "app.js", True),
+    ("ota_html", "ota.html", False),
+    ("ota_css", "ota.css", False),
+    ("ota_js", "ota.js", False),
 ]
 
 # Raw-string delimiter — must not appear inside any of the source files.
@@ -57,19 +57,23 @@ def _emit_gzip(h, sym, filename, src):
         raw = f.read()
     compressed = gzip.compress(raw, compresslevel=9)
     raw_size = len(raw)
-    gz_size  = len(compressed)
-    ratio    = (1 - gz_size / raw_size) * 100 if raw_size > 0 else 0
+    gz_size = len(compressed)
+    ratio = (1 - gz_size / raw_size) * 100 if raw_size > 0 else 0
 
-    h.write(f"// {filename}  ({gz_size:,} bytes gzip, {raw_size:,} raw, {ratio:.0f}% smaller)\n")
+    h.write(
+        f"// {filename}  ({gz_size:,} bytes gzip, {raw_size:,} raw, "
+        f"{ratio:.0f}% smaller)\n"
+    )
     h.write(f"static const uint8_t {sym}_gz[] PROGMEM = {{\n")
 
     for i in range(0, gz_size, BYTES_PER_LINE):
-        chunk = compressed[i : i + BYTES_PER_LINE]
-        line  = ", ".join(f"0x{b:02x}" for b in chunk)
+        end = i + BYTES_PER_LINE
+        chunk = compressed[i:end]
+        line = ", ".join(f"0x{b:02x}" for b in chunk)
         comma = "," if i + BYTES_PER_LINE < gz_size else ""
         h.write(f"    {line}{comma}\n")
 
-    h.write(f"}};\n")
+    h.write("};\n")
     h.write(f"static const size_t {sym}_gz_len = sizeof({sym}_gz);\n\n")
     return gz_size
 
@@ -86,13 +90,18 @@ with open(OUT_PATH, "w", encoding="utf-8") as h:
     for sym, filename, use_gzip in WEB_FILES:
         src = os.path.join(DATA_DIR, filename)
         if not os.path.exists(src):
-            # Emit an empty placeholder so the symbol is always defined.
-            # This keeps dashboard.cpp route handlers compiling correctly even
-            # when the Vite build omits a file (e.g. style.css is not emitted
-            # when using CSS-in-JS / Emotion, as with the Preact/MUI dashboard).
-            print(f"[embed_web] INFO: {src} not found — emitting empty placeholder for '{sym}'")
+            # Emit an empty placeholder so the symbol is always defined. This
+            # keeps dashboard.cpp route handlers compiling correctly even when
+            # the Vite build omits a file (e.g. style.css is not emitted when
+            # using CSS-in-JS / Emotion, as with the Preact/MUI dashboard).
+            print(
+                f"[embed_web] INFO: {src} not found — emitting empty "
+                f"placeholder for '{sym}'"
+            )
             if use_gzip:
-                h.write(f"// {filename}  (not found — empty gzip placeholder)\n")
+                h.write(
+                    f"// {filename}  (not found — empty gzip placeholder)\n"
+                )
                 h.write(f"static const uint8_t {sym}_gz[] PROGMEM = {{}};\n")
                 h.write(f"static const size_t {sym}_gz_len = 0;\n\n")
             else:

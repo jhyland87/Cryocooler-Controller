@@ -1,5 +1,4 @@
 """
-build_dashboard.py — PlatformIO pre-build script.
 
 Builds the Preact/TypeScript SPA dashboard located in dashboard/ and writes
 the compiled output (index.html, app.js, style.css) into data/ so that
@@ -7,7 +6,8 @@ embed_web.py can subsequently embed them into web_content.h.
 
 Build steps:
   1.  cd dashboard/
-  2.  npm ci   (or npm install if node_modules is absent / package-lock is stale)
+  2.  npm ci   (or npm install if node_modules is absent / package-lock
+      is stale)
   3.  npm run build   (vite build → outputs to data/)
 
 Requirements:
@@ -21,13 +21,13 @@ Skip conditions:
 
 Import("env")  # noqa: F821  — PlatformIO injects this
 
-import os
-import subprocess
-import sys
+import os  # noqa: E402
+import subprocess  # noqa: E402
+import sys  # noqa: E402
 
-PROJECT_DIR    = env["PROJECT_DIR"]              # noqa: F821
-DASHBOARD_DIR  = os.path.join(PROJECT_DIR, "dashboard")
-SKIP_VAR       = "SKIP_DASHBOARD_BUILD"
+PROJECT_DIR = env["PROJECT_DIR"]  # noqa: F821
+DASHBOARD_DIR = os.path.join(PROJECT_DIR, "dashboard")
+SKIP_VAR = "SKIP_DASHBOARD_BUILD"
 
 
 def _run(cmd: list[str], cwd: str) -> None:
@@ -35,9 +35,12 @@ def _run(cmd: list[str], cwd: str) -> None:
     print(f"[build_dashboard] $ {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=cwd)
     if result.returncode != 0:
-        print(f"[build_dashboard] ERROR: command exited with code {result.returncode}",
-              file=sys.stderr)
-        env.Exit(1)
+        print(
+            f"[build_dashboard] ERROR: command exited with code "
+            f"{result.returncode}",
+            file=sys.stderr,
+        )
+        env.Exit(1)  # noqa: F821
 
 
 def _npm_executable() -> str:
@@ -46,14 +49,19 @@ def _npm_executable() -> str:
 
 
 def build_dashboard() -> None:
-    # Allow developers to skip the dashboard build for faster firmware iteration.
-    if os.environ.get(SKIP_DASHBOARD_BUILD := SKIP_VAR):
-        print(f"[build_dashboard] {SKIP_VAR} is set — skipping dashboard build")
+    # Allow developers to skip the dashboard build for faster firmware
+    # iteration.
+    if os.environ.get(SKIP_VAR):
+        print(
+            f"[build_dashboard] {SKIP_VAR} is set — skipping dashboard build"
+        )
         return
 
     if not os.path.isdir(DASHBOARD_DIR):
-        print(f"[build_dashboard] WARNING: {DASHBOARD_DIR} not found — skipping",
-              file=sys.stderr)
+        print(
+            f"[build_dashboard] WARNING: {DASHBOARD_DIR} not found — skipping",
+            file=sys.stderr,
+        )
         return
 
     npm = _npm_executable()
