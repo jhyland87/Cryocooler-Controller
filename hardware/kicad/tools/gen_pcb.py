@@ -155,6 +155,37 @@ JAVA = (
 )
 
 # Local rect overrides (the ESP32 courtyard includes a large antenna keep-out).
+# ─── silkscreen ───
+# Labels beside the buttons and indicator LEDs (ref -> text), placed on the
+# first free side of the part.
+SILK_LABELS = {
+    'SW1': 'RESET',
+    'SW2': 'BOOT',
+    'SW3': 'POWER',
+    'J7': 'PANEL BTN',
+    'D2': 'FAN FAULT',
+    'D3': 'POWER',
+    'D4': 'AMP REM',
+    'D7': 'ALERT',
+    'D8': '3V3',
+    'D9': 'READY',
+    'D10': 'FAULT',
+    'D11': 'STATUS',
+    'D12': 'COMP RLY',
+    'D14': '5V',
+    'D15': '+15V',
+    'D16': '-15V',
+    'D17': 'ISO 3V3',
+}
+SILK_TEXT_SIZE = 0.8
+SILK_TEXT_THICKNESS = 0.12
+LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
+LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
+LOGO_CENTER = (50.0, 52.0)
+LOGO_WIDTH = 80.0
+TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
+ALPHA_TEXT = 'ALPHA'
+
 HOLES = [(4.0, 35.7), (62.0, 30.0), (126.0, 58.0), (126.0, 95.0)]
 LOCAL_RECT_OVERRIDES = {
     'RF_Module:ESP32-S3-WROOM-2': Rect(-9.2, -12.9, 9.2, 13.2)
@@ -1206,6 +1237,205 @@ class PcbBuilder:
                 via.SetLocked(True)
                 self.board.Add(via)
 
+
+    # ─── silkscreen ───
+
+    def silk_free(self, rect):
+        """True if a text box fits inside the board, clear of every placed
+        footprint, hole and keep-out.
+        """
+        if not rect.inside(self.occupancy.board_rect):
+            return False
+        if any(rect.overlaps(keepout) for keepout in self.occupancy.keepouts):
+            return False
+        if any(
+            rect.overlaps(text.inflated(0.1)) for text in self.footprint_texts()
+        ):
+            return False
+        return not any(
+            rect.overlaps(other.inflated(0.15))
+            for other in self.occupancy.rects.values()
+        )
+
+    def footprint_texts(self):
+        """Boxes of the visible reference / value texts, so labels keep clear
+        of them (cached after the first call).
+        """
+        if getattr(self, '_text_boxes', None) is None:
+            boxes = []
+            for footprint in self.board.GetFootprints():
+                for item in (footprint.Reference(), footprint.Value()):
+                    if not item.IsVisible():
+                        continue
+                    box = item.GetBoundingBox()
+                    boxes.append(
+                        Rect(
+                            box.GetLeft() / 1e6,
+                            box.GetTop() / 1e6,
+                            box.GetRight() / 1e6,
+                            box.GetBottom() / 1e6,
+                        )
+                    )
+            self._text_boxes = boxes
+        return self._text_boxes
+
+    def add_text(
+        self,
+        text,
+        x,
+        y,
+        size,
+        layer=None,
+        mirrored=False,
+        thickness=None,
+        justify='center',
+    ):
+        item = pcbnew.PCB_TEXT(self.board)
+        item.SetText(text)
+        item.SetLayer(layer if layer is not None else pcbnew.F_SilkS)
+        item.SetPosition(pcbnew.VECTOR2I(to_internal(x), to_internal(y)))
+        item.SetTextSize(pcbnew.VECTOR2I(to_internal(size), to_internal(size)))
+        item.SetTextThickness(
+            to_internal(thickness if thickness else max(0.12, size * 0.15))
+        )
+        item.SetHorizJustify(
+            {
+                'center': pcbnew.GR_TEXT_H_ALIGN_CENTER,
+                'left': pcbnew.GR_TEXT_H_ALIGN_LEFT,
+            }[justify]
+        )
+        item.SetMirrored(mirrored)
+        self.board.Add(item)
+        return item
+
+    def text_rect(self, text, center_x, center_y, size):
+        half_width = len(text) * size * 0.45 + 0.2
+        half_height = size * 0.6
+        return Rect(
+            center_x - half_width,
+            center_y - half_height,
+            center_x + half_width,
+            center_y + half_height,
+        )
+
+    def add_part_labels(self):
+        """Little labels next to the buttons and LEDs, on the first free
+        side of each part.
+        """
+        for ref, text in SILK_LABELS.items():
+            if ref not in self.centers:
+                continue
+            center_x, center_y, angle = self.centers[ref]
+            part = placed_rect(self.local_rects[ref], center_x, center_y, angle)
+            width = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
+            half_w, half_h = width.max_x, width.max_y
+            placed = False
+            for gap in (0.4, 1.0, 1.8, 2.8, 4.0, 5.5, 7.0):
+                for center in (
+                    (part.max_x + gap + half_w, center_y),
+                    (part.min_x - gap - half_w, center_y),
+                    (center_x, part.min_y - gap - half_h),
+                    (center_x, part.max_y + gap + half_h),
+                    (part.max_x + gap + half_w, part.min_y - gap - half_h),
+                    (part.min_x - gap - half_w, part.min_y - gap - half_h),
+                    (part.max_x + gap + half_w, part.max_y + gap + half_h),
+                    (part.min_x - gap - half_w, part.max_y + gap + half_h),
+                ):
+                    rect = self.text_rect(text, *center, SILK_TEXT_SIZE)
+                    if self.silk_free(rect):
+                        self.add_text(
+                            text, *center, SILK_TEXT_SIZE, thickness=SILK_TEXT_THICKNESS
+                        )
+                        self.occupancy.add(f'silk_{ref}', rect)
+                        placed = True
+                        break
+                if placed:
+                    break
+            if not placed:
+                print('silk label not placed:', ref, text)
+
+    def add_logo(self):
+        """Black-and-white trace of the cryocooler on the back silkscreen
+        (mirrored so it reads correctly from the back) with the unit name
+        below it.
+        """
+        geometry = json.loads(LOGO_FILE.read_text())
+        features = geometry['features'] if 'features' in geometry else [geometry]
+        source_w, source_h = LOGO_SOURCE_SIZE
+        scale = LOGO_WIDTH / source_w
+        center_x, center_y = LOGO_CENTER
+
+        def to_board(point):
+            # potrace's GeoJSON is y-up; the board is y-down. The back layer is
+            # mirrored, so x runs the other way.
+            x = center_x - (point[0] - source_w / 2) * scale
+            y = center_y - (point[1] - source_h / 2) * scale
+            return pcbnew.VECTOR2I(to_internal(x), to_internal(y))
+
+        for feature in features:
+            shape_geometry = feature['geometry']
+            polygons = (
+                shape_geometry['coordinates']
+                if shape_geometry['type'] == 'MultiPolygon'
+                else [shape_geometry['coordinates']]
+            )
+            for rings in polygons:
+                polygon = pcbnew.SHAPE_POLY_SET()
+                outline = polygon.NewOutline()
+                for point in rings[0][:-1]:
+                    polygon.Append(to_board(point), outline)
+                for ring in rings[1:]:
+                    hole = polygon.NewHole(outline)
+                    for point in ring[:-1]:
+                        polygon.Append(to_board(point), outline, hole)
+                shape = pcbnew.PCB_SHAPE(self.board)
+                shape.SetShape(pcbnew.SHAPE_T_POLY)
+                shape.SetLayer(pcbnew.B_SilkS)
+                shape.SetFilled(True)
+                shape.SetWidth(0)
+                shape.SetPolyShape(polygon)
+                self.board.Add(shape)
+        logo_height = LOGO_WIDTH * source_h / source_w
+        title_y = center_y + logo_height / 2 + 4.0
+        self.add_text(
+            TITLE_TEXT, center_x, title_y, 2.0, pcbnew.B_SilkS, mirrored=True,
+            thickness=0.3,
+        )
+        self.add_text(
+            ALPHA_TEXT + ' DEV UNIT', center_x, title_y + 4.0, 2.0,
+            pcbnew.B_SilkS, mirrored=True, thickness=0.3,
+        )
+
+    def add_alpha_mark(self):
+        """Large ALPHA on the front silkscreen, in the free spot nearest the
+        board centre.
+        """
+        size = 3.0
+        half_w, half_h = len(ALPHA_TEXT) * size * 0.5 + 0.5, size * 0.7
+        best = None
+        for step_y in range(2, int(BOARD_HEIGHT) - 2):
+            for step_x in range(2, int(BOARD_WIDTH) - 2):
+                rect = Rect(
+                    step_x - half_w, step_y - half_h,
+                    step_x + half_w, step_y + half_h,
+                )
+                if not self.silk_free(rect):
+                    continue
+                distance = (step_x - 65.0) ** 2 + (step_y - 50.0) ** 2
+                if best is None or distance < best[0]:
+                    best = (distance, step_x, step_y, rect)
+        if best is None:
+            print('ALPHA mark: no free spot on the front')
+            return
+        _, mark_x, mark_y, rect = best
+        self.add_text(ALPHA_TEXT, mark_x, mark_y, size, thickness=0.45)
+        self.occupancy.add('silk_alpha', rect)
+
+    def add_silkscreen(self):
+        self.add_part_labels()
+        self.add_alpha_mark()
+        self.add_logo()
+
     def build(self):
         self.load_footprints()
         self.place_anchors()
@@ -1218,6 +1448,7 @@ class PcbBuilder:
         self.add_net_classes()
         self.add_mounting_holes()
         self.add_planes()
+        self.add_silkscreen()
         return unplaced
 
 
