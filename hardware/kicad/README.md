@@ -72,6 +72,8 @@ python3 hardware/kicad/tools/make_lib.py        # lib/cryocooler.kicad_sym
 python3 hardware/kicad/tools/gen_schematic.py   # root + sheets/
 ```
 
+`tools/gen_bom.py` writes the Digi-Key BOM to `bom/` (see `bom/README.md`).
+
 `tools/verify_netlist.py` checks the GPIO map against `pin_config.h`, missing footprints and
 single-pin nets on a `kicad-cli sch export netlist` output; `tools/compare_netlists.py` compares the
 connectivity of two netlists (useful after changing layout, which must not change connections; two-pin
