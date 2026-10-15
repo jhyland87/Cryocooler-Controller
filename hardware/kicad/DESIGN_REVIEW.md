@@ -92,7 +92,7 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * CS is on **GPIO3** (module pin 15). It is a JTAG-source strapping pin, but an idle-high CS with a 10 kΩ pull-up reads 1 at reset, which is the default USB-JTAG selection. IO47/48 are 1.8 V on the N32R16V and IO0/45/46 are boot straps, so IO3 was the only safe free pin.
 * ALERT drives only the red LED (10 kΩ pull-up + 1 kΩ + LED, same pattern as the EMC2303 ALERT#); it is not wired to an MCU pin.
 * Footprint is unchanged (`TSSOP-10_3x3mm_P0.5mm`); the datasheet's DGS VSSOP-10 is also a 3 x 3 mm, 0.5 mm pitch part, but the land pattern was not compared against the package drawing.
-* The INA239 shares the 3V3 rail with the rest of the board, which is derived from the 12 V input; with 12 V absent the chip is unpowered while the ESP32 may still drive SCLK/MOSI/CS (USB-powered), which exceeds its VS + 0.3 V input rating. Firmware reports the chip offline after 3 failed ID reads.
+* The INA239 runs from the same 3V3 rail as the ESP32 (derived from the 12 V input; USB VBUS powers nothing on this board), so the chip and the MCU lose power together and the SPI lines cannot drive an unpowered INA239 for more than the brief rail fall time. Firmware reports the chip offline after 3 failed ID reads.
 * ERC: the LSM6DSOX SDO pin type was changed to tri-state, matching the INA239 SDO, because both now share MISO. **The LSM6DSOX SDO behaviour with CS high is not confirmed from its datasheet text**; confirm it is high-impedance before relying on the shared bus (bench check: scope MISO with the IMU idle).
 
 ## ADS1220 swap and debug aids (2026-10-14)
