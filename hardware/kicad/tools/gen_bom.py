@@ -326,9 +326,10 @@ def classify(value, footprint):
         return (maker, mpn, description, 'suggested' if mpn else 'none', note)
     if footprint == 'LED_1206_3216Metric':
         return (
-            '', '', 'LED RED/GREEN BICOLOR 1206 SMD (common anode or two-pin '
-            'anti-parallel, 2 pin)', 'none',
-            'two-pin anti-parallel bicolor (Device:LED_Dual_Bidirectional)')
+            'SunLED', 'XZMDKVG55W-4',
+            'LED RED/GREEN BICOLOR 1206 SMD, 2 pin anti-parallel', 'suggested',
+            'AlGaInP red and green, 30 mA max each; XZMDKVG55W-7 is the same '
+            'with a domed lens. Avoid XZMDKDGK55W-4 (green is InGaN, 25 mA max)')
     if footprint == 'SW_SPST_TL3342':
         return (
             'E-Switch', 'TL3342F160QG', 'SWITCH TACTILE SPST-NO 0.05A 12V SMD',
