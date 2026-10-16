@@ -1,6 +1,6 @@
 """3D envelope models for footprints whose KiCad library model file is missing.
 
-KiCad ships footprints for a few of our parts (SG-8002CA oscillator, SRN8040TA
+KiCad ships footprints for a few of our parts (SG-8002CA oscillator, SRP7050TA
 inductors, NANO2 fuse) without the STEP file they point at, and the MIE1W0505
 footprint is our own, so they render as bare pads. These are plain box models
 (VRML) sized from the part datasheets; they show where the part sits and how
@@ -26,7 +26,7 @@ TAN = (0.82, 0.72, 0.50)
 SILVER = (0.80, 0.80, 0.82)
 
 # footprint name -> (model name, [(size x, y, z mm, centre x, y mm, colour)])
-# heights: SG-8002CA 1.4 mm (distributor data), SRN8040TA 4.0 mm max (Bourns),
+# heights: SG-8002CA 1.4 mm (distributor data), SRP7050TA 5.0 mm max (Bourns, 4.8 +/- 0.2),
 # NANO2 453 2.69 mm (Littelfuse); MIE1W0505 LGA-12 is 5 x 4 mm, height assumed
 # 1.8 mm (not read from its datasheet).
 ENVELOPES = {
@@ -34,9 +34,9 @@ ENVELOPES = {
         'SG8002CA_envelope',
         [(7.0, 5.0, 1.4, 0.0, 0.0, BLACK)],
     ),
-    'L_Bourns_SRN8040TA': (
-        'SRN8040TA_envelope',
-        [(8.0, 8.0, 4.0, 0.0, 0.0, GRAY)],
+    'L_Bourns_SRP7050TA': (
+        'SRP7050TA_envelope',
+        [(7.3, 6.6, 5.0, 0.0, 0.0, GRAY)],
     ),
     'Fuse_Littelfuse-NANO2-451_453': (
         'NANO2_453_envelope',

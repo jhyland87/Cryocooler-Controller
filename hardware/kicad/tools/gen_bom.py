@@ -129,12 +129,12 @@ PARTS = {
     ('SRN6045TA-4R7M', 'L_Bourns_SRN6045TA'): (
         'Bourns', 'SRN6045TA-4R7M', 'FIXED IND 4.7UH 4.5A 26MOHM SMD',
         'design', ''),
-    ('SRN8040TA-3R3M', 'L_Bourns_SRN8040TA'): (
-        'Bourns', 'SRN8040TA-3R3M', 'FIXED IND 3.3UH SMD', 'design',
-        'ADP5071 boost inductor'),
-    ('SRN8040TA-6R8M', 'L_Bourns_SRN8040TA'): (
-        'Bourns', 'SRN8040TA-6R8M', 'FIXED IND 6.8UH SMD', 'design',
-        'ADP5071 inverting inductor'),
+    ('SRP7050TA-3R3M', 'L_Bourns_SRP7050TA'): (
+        'Bourns', 'SRP7050TA-3R3M', 'FIXED IND 3.3UH 12A 20.9MOHM SMD',
+        'design', 'ADP5071 boost inductor, fully shielded'),
+    ('SRP7050TA-6R8M', 'L_Bourns_SRP7050TA'): (
+        'Bourns', 'SRP7050TA-6R8M', 'FIXED IND 6.8UH 8.5A 51.5MOHM SMD',
+        'design', 'ADP5071 inverting inductor, fully shielded'),
     ('MIE1W0505BGLVH-3R-Z', 'CONV_MIE1W0505BGLVH-3R-Z'): (
         'Monolithic Power Systems', 'MIE1W0505BGLVH-3R-Z',
         'ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12', 'design', ''),
@@ -283,7 +283,6 @@ SUBSTITUTES = {
     'CL31C101JBCNNNC': ('C1206C101J5GACTU', 'Kemet'),
     'B2B-XH-A(LF)(SN)': ('B2B-XH-A', 'JST'),
     'B4B-XH-A(LF)(SN)': ('B4B-XH-A', 'JST'),
-    'SRN8040TA-3R3M': ('SRN8040TA-3R3Y', 'Bourns'),
     'BSS84-7-F': ('BSS84', 'onsemi'),
     'RC0603FR-0710KL': ('AR0603FR-0710KL', 'Yageo'),
     'RC0603FR-075K1L': ('CR0603-FX-5101ELF', 'Bourns'),

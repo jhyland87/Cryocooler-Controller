@@ -41,7 +41,7 @@ TERM2 = (
     'TerminalBlock_Phoenix:'
     'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
 )
-INDUCTOR = 'Inductor_SMD:L_Bourns_SRN8040TA'
+INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 
 PITCH = 12.7
 
@@ -1017,7 +1017,7 @@ def build_rails_15v(sh):
         sh,
         'Device:L',
         'L',
-        'SRN8040TA-3R3M',
+        'SRP7050TA-3R3M',
         {},
         pose=at(128, 88, 90),
         fp=INDUCTOR,
@@ -1048,7 +1048,7 @@ def build_rails_15v(sh):
         sh,
         'Device:L',
         'L',
-        'SRN8040TA-6R8M',
+        'SRP7050TA-6R8M',
         {},
         pose=at(131, 111),
         fp=INDUCTOR,
