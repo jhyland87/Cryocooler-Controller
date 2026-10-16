@@ -168,6 +168,9 @@ PARTS = {
     ('', 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical'): (
         'JST', 'B4B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 4POS 2.5MM',
         'suggested', ''),
+    ('', 'JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical'): (
+        'JST', 'B10B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 10POS 2.5MM',
+        'suggested', 'J14: cable to the off-board Adafruit LSM6DSOX module'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
@@ -226,9 +229,6 @@ PARTS = {
         'Texas Instruments', 'LM4040D50IDBZR',
         'IC VREF SHUNT 5V 1% SOT23-3', 'suggested',
         'only biases the LTC2954 KILL input; 1 % is plenty'),
-    ('LSM6DSOXTR', 'LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y'): (
-        'STMicroelectronics', 'LSM6DSOXTR', 'IMU 6-AXIS SPI/I2C 14LGA', 'design',
-        ''),
     ('LTC2954CTS8-2', 'SOT-23-8'): (
         'Analog Devices', 'LTC2954CTS8-2#TRMPBF',
         'IC PUSHBUTTON ON/OFF CONTROLLER TSOT8', 'suggested',
@@ -300,7 +300,6 @@ MOUSER_LINES = {
     'U3': '732-SG-82CA25M-PHCLX',
     'U9': '595-OPA188AIDR',
     'U15': '621-AP63205WU-7',
-    'U19': '',
     'U23': '595-INA239AIDGSR',
 }
 MOUSER_MPN = {'OPA188AID': 'OPA188AIDR'}

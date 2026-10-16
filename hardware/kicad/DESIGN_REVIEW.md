@@ -133,7 +133,7 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 
 ## PCB layout open items (updated 2026-10-14)
 
-0. **New this round:** 0.35 mm via-in-pad on 0.5 mm pitch ground pads (U19, U23, U4), 0.075 mm annular ring; the INA239 VBUS joins IN− (adjacent pads); the compressor relay output connector and the bridge sit in the open middle of the board rather than on an edge; the PCB shares a 4-layer stack with 40 test points.
+0. **New this round:** 0.35 mm via-in-pad on 0.5 mm pitch ground pads (U23, U4), 0.075 mm annular ring; the INA239 VBUS joins IN− (adjacent pads); the compressor relay output connector and the bridge sit in the open middle of the board rather than on an edge; the PCB shares a 4-layer stack with 40 test points.
 
 ## PCB layout open items (first pass, 2026-10-05)
 

@@ -1,0 +1,26 @@
+#VRML V2.0 utf8
+# NANO2_453_envelope: box envelope, units are mm
+Transform {
+  translation 0.0 0.0 1.345
+  children Shape {
+    appearance Appearance { material Material {
+      diffuseColor 0.82 0.72 0.5 } }
+    geometry Box { size 4.3 2.69 2.69 }
+  }
+}
+Transform {
+  translation -2.6 0.0 1.345
+  children Shape {
+    appearance Appearance { material Material {
+      diffuseColor 0.8 0.8 0.82 } }
+    geometry Box { size 0.9 2.69 2.69 }
+  }
+}
+Transform {
+  translation 2.6 0.0 1.345
+  children Shape {
+    appearance Appearance { material Material {
+      diffuseColor 0.8 0.8 0.82 } }
+    geometry Box { size 0.9 2.69 2.69 }
+  }
+}

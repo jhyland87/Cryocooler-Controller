@@ -262,8 +262,8 @@ module::ServiceStatus service() {
     // Voltage/current are owned by the amplifier module; pull the latest reading.
     sLastRmsVoltageV = amplifier::getLastRmsVoltage();
     sLastRmsCurrentA = amplifier::getLastRmsCurrent();
-    // Ambient temp is owned by the IMU module; pull every tick so the value
-    // stays current even when the RTD read returns early (timeout / offline).
+    // "Ambient" is the IMU die temperature, i.e. the cooler body the IMU is
+    // mounted on; pull every tick so it stays current when the RTD read returns early.
     sLastAmbientTempC = imu::getTemperature();
 
     // ── Non-blocking ADS1220 RTD measurement ────────────────────────────

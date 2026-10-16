@@ -194,6 +194,7 @@ float getPower() {
     return power;
 }
 
+// "Ambient" is the IMU die temperature, i.e. the cooler body it is mounted on.
 float getAmbientTemperature() {
     return imu::getTemperature();
 }

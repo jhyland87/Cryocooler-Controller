@@ -72,7 +72,7 @@ BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C recepta
 
 ## Bench checks (cannot be settled on paper)
 
-* LSM6DSOX SDO is Hi-Z with CS high: scope MISO with the IMU idle, or read the IMU, INA239,
+* LSM6DSOX SDO is Hi-Z with CS high (the Adafruit module also adds a 10 k pull-down on DO): scope MISO with the IMU idle, or read the IMU, INA239,
   ADS1220 and SC18IS604 IDs in turn and confirm each answers alone.
 * SC18IS604 version string ("SC18IS604 1.0.0") and I2CStat polling; its datasheet disagrees with
   itself about the I2CTO and I2CStat register addresses.

@@ -13,7 +13,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Waveform generator | AD9833 DDS | SPI (main bus) | FSYNC (CS): GPIO 7 | 60 Hz sine wave for compressor |
 | DAC | MCP4921 12-bit | SPI (main bus) | CS: GPIO 5 | Amplifier amplitude control |
 | Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: GPIO 3 | 12 V rail voltage, current and power |
-| IMU | LSM6DSOX 6-DOF | SPI (main bus) | CS: GPIO 1, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
+| IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: GPIO 1, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
 | I2C bridge | NXP SC18IS604 | SPI mode 3 (main bus) | CS: GPIO 8, RESET: GPIO 9 | Gives the SPI-only ESP32 access to the EMC2303; INT# polled, not wired |
 | Fan / pump controller | EMC2303 three-channel PWM | I2C (behind the bridge) | 0x4D, ALERT#: GPIO 21 | Cooling fan (ch 0) + pump (ch 1) |
 | Current sensor | ACS37800 behind an ISO7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
@@ -27,7 +27,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **I2C bus:** the ESP32 has no I2C pins in use. The only I2C device, the EMC2303, sits behind the SC18IS604 bridge (about 100 kHz, 4.7 kΩ pull-ups on the bridge side). The bridge is an SPI mode 3 slave on the main bus with CS on GPIO 8 and RESET on GPIO 9; a 74LVC1G125 gates its MISO because its datasheet does not state that MISO is high-impedance while CS is high.
 
-**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, LSM6DSOX, INA239, ADS1220 and the SC18IS604, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, the LSM6DSOX (on a cable, header J14), INA239, ADS1220 and the SC18IS604, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
 
 **ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
 
@@ -166,7 +166,7 @@ Drives the AD9833 DDS (60 Hz sine wave), the MCP4921 12-bit SPI DAC (amplifier a
 
 ### imu
 
-Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. On `init()` the sensor is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
+Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. The sensor is the Adafruit breakout (product 4438) mounted on the cryocooler and cabled to header J14 (pinout in `hardware/kicad/README.md`), so it sees the cooler body's vibration; the SPI clock is `LSM6DSOX_SPI_FREQUENCY_HZ`. A missing cable is non-fatal: the module reports unavailable. On `init()` the sensor is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
 Each `service()` call applies calibration offsets, runs a first-order low-pass filter, and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2`; it clears after `MOTION_TIMEOUT_MS` of stillness.
 
@@ -179,7 +179,7 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 | `getRoll()` / `getPitch()` | Orientation angles in degrees |
 | `getAccelMag()` | Calibrated acceleration magnitude (m/s²) |
 | `getFrequencyHz()` | Detected compressor frequency (Hz), or NAN |
-| `getTemperature()` | IMU die temperature (°C) |
+| `getTemperature()` | IMU die temperature (°C); mounted on the cooler, this is the cooler-body temperature and also feeds the "ambient" value |
 
 ---
 

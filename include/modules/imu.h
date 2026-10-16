@@ -2,7 +2,9 @@
  * @file imu.h
  * @brief IMU interface — LSM6DSOX 6-DOF accelerometer/gyro.
  *
- * Owns vibration and orientation sensing: reads the LSM6DSOX over SPI, runs the
+ * The sensor is the Adafruit LSM6DSOX breakout mounted on the cryocooler and
+ * cabled to the board (header J14), so it reports the cooler body's vibration
+ * and temperature. Owns vibration and orientation sensing: reads it over SPI, runs the
  * filter/orientation pipeline, and exposes overstroke/motion state used by the
  * state machine and telemetry. All getters are safe to call when hardware is
  * absent (they return 0 / false), so the firmware still runs on a bare board.
@@ -41,7 +43,7 @@ module::ServiceStatus service();
 /** True if init() succeeded and the sensor is running. */
 bool isInitialized();
 
-/** True if the LSM6DSOX was found and acknowledged on the I2C bus during init(). */
+/** True if the LSM6DSOX was found and found on the SPI bus during init(). */
 bool isAvailable();
 
 /** True while checkMotion() detects significant acceleration or rotation. */

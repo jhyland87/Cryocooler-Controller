@@ -337,7 +337,10 @@
 // ====
 // IMU
 // =============================================================================
-#define LSM6DSOX_IMU_IC2_ADDRESS static_cast<uint8_t>(0x6A) // 0x6B is alternative, if SA0 is tied high.
+// SPI clock for the off-board Adafruit LSM6DSOX module. Its SCK/MOSI level
+// shifters (BSS138, 10 k pull-ups) slow the edges; drop to 500000 if the
+// cable shows errors.
+#define LSM6DSOX_SPI_FREQUENCY_HZ static_cast<uint32_t>(1000000)
 
 // =============================================================================
 // Misc stuff

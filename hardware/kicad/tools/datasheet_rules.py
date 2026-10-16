@@ -78,14 +78,21 @@ RULES = [
     ('res', 'ADP5071AREZ', '7', '137k', 'GND'),
     ('resjoin', 'ADP5071AREZ', '13', '118k', 'ADP5071AREZ', '14'),
     ('res', 'ADP5071AREZ', '13', '2.55M', '-16V5'),
-    # LSM6DSOX: SDx / SCx tied to GND (or VDDIO); OCS_Aux unconnected; CS idle
-    # high
-    ('net', 'LSM6DSOXTR', '2', 'GND'),
-    ('net', 'LSM6DSOXTR', '3', 'GND'),
-    ('nc', 'LSM6DSOXTR', '10'),
-    ('net', 'LSM6DSOXTR', '8', '+3V3'),
-    ('net', 'LSM6DSOXTR', '5', '+3V3'),
-    ('res', 'LSM6DSOXTR', '12', '10k', '+3V3'),
+    # J14: off-board Adafruit LSM6DSOX module (Vin = 3.3 V so the module's
+    # logic stays 3.3 V; 3Vo unused). Pins 2/4/7 are cable grounds; each signal
+    # has a 100 R series resistor next to the connector. CS keeps a 10 k
+    # pull-up on the board side so it idles high with the cable unplugged.
+    ('net', 'IMU LSM6DSOX module', '1', '+3V3'),
+    ('net', 'IMU LSM6DSOX module', '2', 'GND'),
+    ('net', 'IMU LSM6DSOX module', '4', 'GND'),
+    ('net', 'IMU LSM6DSOX module', '7', 'GND'),
+    ('between', '100', ('NET', 'SPI_SCK'), ('IMU LSM6DSOX module', '3')),
+    ('between', '100', ('NET', 'SPI_MOSI'), ('IMU LSM6DSOX module', '5')),
+    ('between', '100', ('NET', 'SPI_MISO'), ('IMU LSM6DSOX module', '6')),
+    ('between', '100', ('NET', 'IMU_CS'), ('IMU LSM6DSOX module', '8')),
+    ('between', '100', ('NET', 'IMU_INT1'), ('IMU LSM6DSOX module', '9')),
+    ('between', '100', ('NET', 'IMU_INT2'), ('IMU LSM6DSOX module', '10')),
+    ('res', 'ESP32-S3-WROOM-2-N32R16V', '39', '10k', '+3V3'),
     # ISO7741 input idle levels while the ESP32 GPIOs float (CS, SCLK, MOSI
     # pulled to 3V3)
     ('res', 'ISO7741DW', '5', '10k', '+3V3'),

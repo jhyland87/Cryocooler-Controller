@@ -34,10 +34,11 @@
 // DRDY is not wired to the MCU.
 #define ADS1220_CS         44
 
-// LSM6DSOX IMU — SPI (shares SPI bus with AD9833 and MCP4921)
-#define LSM6DSOX_CS        1    // right header, physical pin 19
-#define LSM6DSOX_INT1_PIN  2    // right header, physical pin 18
-#define LSM6DSOX_INT2_PIN  39   // right header, physical pin 14
+// LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
+// cabled to header J14; SPI on the shared bus (AD9833, MCP4921, ...).
+#define LSM6DSOX_CS        1    // J14 pin 8
+#define LSM6DSOX_INT1_PIN  2    // J14 pin 9
+#define LSM6DSOX_INT2_PIN  39   // J14 pin 10
 
 // =============================================================================
 // AD9833 Waveform Generator
@@ -101,7 +102,7 @@
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
 // Use ADC1 channels only (GPIO 1–10 on ESP32-S3) to avoid ADC2 Wi-Fi conflicts.
-#define COOLING_TEMP_ADC_PIN     4    // moved from GPIO2 (now LSM6DSOX INT1); GPIO4 = ADC1-3
+#define COOLING_TEMP_ADC_PIN     4    // GPIO4 = ADC1-3
 
 // =============================================================================
 // On-board WS2812 RGB Status LED

@@ -36,6 +36,7 @@ SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 KK3 = 'Connector_Molex:Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'
 KK4 = 'Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'
 XH2 = 'Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'
+XH10 = 'Connector_JST:JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical'
 TERM2 = (
     'TerminalBlock_Phoenix:'
     'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
@@ -687,8 +688,10 @@ def wire(sh, *points):
         )
 
 
-def rail_symbol(sh, net, cell):
-    """Hand-placed power symbol whose pin sits on the given cell."""
+def rail_symbol(sh, net, cell, rot=0):
+    """Hand-placed power symbol whose pin sits on the given cell; rot turns
+    the symbol (GND points down at 0, +3V3 points up).
+    """
     kicadgen._pwr_counter[0] += 1
     part = sh.add(
         f'power:{POWER_SYMBOLS[net]}',
@@ -696,7 +699,7 @@ def rail_symbol(sh, net, cell):
         net,
         cell[0] * 1.27,
         cell[1] * 1.27,
-        rot=0,
+        rot=rot,
         auto=False,
     )
     part.is_power = True
@@ -2349,54 +2352,73 @@ def build_cold_head(sh):
 
 
 def build_imu(sh):
-    """Hand-laid: SPI labels on the left, interrupts on the right, supplies
-    above.
+    """Hand-laid: J14 (cable to the off-board Adafruit LSM6DSOX module) on the
+    right, +3V3 / ground pins tied off beside it, each signal fanned out to a
+    100 R series resistor and a global label on the left.
     """
     sh.handwired = True
     sh.note(
-        'LSM6DSOX in 4-wire SPI mode on the main bus (CS GPIO1, INT1 GPIO2 '
+        'LSM6DSOX is the off-board Adafruit module (product 4438) on the '
+        'cooler, cabled to J14 over the main SPI bus (CS GPIO1, INT1 GPIO2 '
         'single-tap, INT2 GPIO39 wake-up).',
         20,
         15,
     )
-    imu = place_ic(
-        sh,
-        'cryocooler:LSM6DSOXTR',
-        'LSM6DSOXTR',
-        80,
-        60,
-        'Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y',
+    sh.note(
+        'Module Vin = +3V3 keeps its logic at 3.3 V (3Vo unused). 100 R '
+        'series resistors damp the cable stub; the 10 k keeps CS high with '
+        'the cable unplugged.',
+        20,
+        21,
     )
-    for pin, net in (
-        ('12', 'IMU_CS'),
-        ('13', 'SPI_SCK'),
-        ('14', 'SPI_MOSI'),
-        ('1', 'SPI_MISO'),
-    ):
-        net_label(sh, net, spur(sh, imu, pin, 12), 180, is_global=True)
-    cs = pin_cell(imu, '12')
-    vres(sh, '10k', cs[0] - 6, cs[1] - 6)
-    rail_symbol(sh, '+3V3', (cs[0] - 6, cs[1] - 6))
-    sh.nc(imu, '10')
-    sh.nc(imu, '11')
-    for pin, net in (('4', 'IMU_INT1'), ('9', 'IMU_INT2')):
-        net_label(sh, net, spur(sh, imu, pin, 3), 0, is_global=True)
-    vdd, vddio = pin_cell(imu, '8'), pin_cell(imu, '5')
-    wire(sh, vdd, (vdd[0], 38), (vddio[0], 38), vddio)
-    rail_symbol(sh, '+3V3', (80, 38))
-    place_blocks(
-        sh,
-        [
-            (
-                'LSM6DSOX DECOUPLING CAPACITORS',
-                '+3V3',
-                ('100nF', '10uF', '100nF'),
-            )
-        ],
-        130,
-        45,
+    # the on-board sensor (U19) and its three capacitors (C53-C55) are gone;
+    # their numbers stay retired so every later part keeps its reference
+    kicadgen.retire_refs('U', 1)
+    kicadgen.retire_refs('C', 3)
+    with kicadgen.pinned_refs('J', 13):
+        header = conn(
+            sh,
+            'Connector_Generic:Conn_01x10',
+            'IMU LSM6DSOX module',
+            200 * 1.27,
+            60 * 1.27,
+            {},
+            XH10,
+        )
+    tips = {number: pin_cell(header, number) for number in map(str, range(1, 11))}
+    column = tips['1'][0]
+    # +3V3 and the three cable grounds: two cells out, symbol turned sideways
+    # so it clears the neighbouring signal rows
+    wire(sh, tips['1'], (column - 2, tips['1'][1]))
+    rail_symbol(sh, '+3V3', (column - 2, tips['1'][1]), 90)
+    for number in ('2', '4', '7'):
+        wire(sh, tips[number], (column - 2, tips[number][1]))
+        rail_symbol(sh, 'GND', (column - 2, tips[number][1]), 270)
+    signals = (
+        ('3', 'SPI_SCK'),
+        ('5', 'SPI_MOSI'),
+        ('6', 'SPI_MISO'),
+        ('8', 'IMU_CS'),
+        ('9', 'IMU_INT1'),
+        ('10', 'IMU_INT2'),
     )
-    gnd_bus(sh, [pin_cell(imu, '2'), pin_cell(imu, '3'), pin_cell(imu, '6')])
+    # staircase fan-out, top signal turning furthest left, so no wires cross
+    for index, (number, net) in enumerate(signals):
+        pin_row = tips[number][1]
+        bend = column - 8 - 3 * (len(signals) - 1 - index)
+        row = 74 + 9 * index
+        resistor_x = bend - 8
+        wire(sh, tips[number], (bend, pin_row), (bend, row), (resistor_x + 3, row))
+        # R90-R95 follow the last numbered resistor so no other part moves
+        with kicadgen.pinned_refs('R', 89 + index):
+            hres(sh, '100', resistor_x, row)
+        far = resistor_x - 3 - 14
+        wire(sh, (resistor_x - 3, row), (far, row))
+        net_label(sh, net, (far, row), 180, is_global=True)
+        if net == 'IMU_CS':
+            pull_x = resistor_x - 3 - 7
+            vres(sh, '10k', pull_x, row - 6)
+            rail_symbol(sh, '+3V3', (pull_x, row - 6))
 
 
 def led_chain(sh, net, value, row):

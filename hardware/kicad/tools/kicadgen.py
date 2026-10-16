@@ -5,6 +5,7 @@ hierarchical sheets.
 import re
 import uuid
 from collections import Counter
+from contextlib import contextmanager
 from pathlib import Path
 
 from sexpr import (
@@ -149,6 +150,27 @@ def fmt(value):
 def next_ref(prefix):
     _ref_counters[prefix] += 1
     return f'{prefix}{_ref_counters[prefix]}'
+
+
+def retire_refs(prefix, count):
+    """Skips `count` reference numbers so later parts keep their numbers
+    after a part is removed (the gaps stay in the netlist).
+    """
+    _ref_counters[prefix] += count
+
+
+@contextmanager
+def pinned_refs(prefix, last_used):
+    """Numbers parts created inside the block from `last_used` + 1, then
+    restores the counter, so a new part gets a free number without shifting
+    the parts built after it.
+    """
+    saved = _ref_counters[prefix]
+    _ref_counters[prefix] = last_used
+    try:
+        yield
+    finally:
+        _ref_counters[prefix] = saved
 
 
 def get_symbol(lib_id):

@@ -163,7 +163,7 @@ static uint16_t fftBufIdx_   = 0u;    // accumulation index into fftZBuf_
  * LSM6DSOX SPI protocol: bit 7 of first byte = 1 for read.
  */
 static uint8_t lsmReadReg(uint8_t reg) {
-    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(LSM6DSOX_SPI_FREQUENCY_HZ, MSBFIRST, SPI_MODE0));
     digitalWrite(LSM6DSOX_CS, LOW);
     SPI.transfer(reg | 0x80);             // R/W bit = 1 (read)
     uint8_t val = SPI.transfer(0x00);
@@ -177,7 +177,7 @@ static uint8_t lsmReadReg(uint8_t reg) {
  * LSM6DSOX SPI protocol: bit 7 of first byte = 0 for write.
  */
 static void lsmWriteReg(uint8_t reg, uint8_t val) {
-    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(LSM6DSOX_SPI_FREQUENCY_HZ, MSBFIRST, SPI_MODE0));
     digitalWrite(LSM6DSOX_CS, LOW);
     SPI.transfer(reg & 0x7F);             // R/W bit = 0 (write)
     SPI.transfer(val);
@@ -530,8 +530,8 @@ module::InitStatus init() {
     SPI.end();
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
-    if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI)) {
-        _Log.println("LSM6DSOX not found on SPI — check wiring (CS=GPIO" + String(LSM6DSOX_CS) + ")");
+    if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
+        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS=GPIO" + String(LSM6DSOX_CS) + ")");
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }
