@@ -32,13 +32,13 @@ RULES = [
     ('res', 'EMC2303-x-KP', '6', '4.7k', '+3V3'),
     ('res', 'EMC2303-x-KP', '8', '4.7k', '+3V3'),
     ('res', 'EMC2303-x-KP', '10', '10k', '+3V3'),
-    ('net', 'EMC2303-x-KP', '3', '+3V3'),
+    ('net', 'EMC2303-x-KP', '3', '+3V3_COOL'),
     ('net', 'EMC2303-x-KP', '13', 'GND'),
     # MIE1W0505: VSEL to GND2 selects 3.3 V; EN must be driven high
     ('net', 'MIE1W0505BGLVH-3R-Z', '7', 'ISO_GND'),
     ('net', 'MIE1W0505BGLVH-3R-Z', '5_6', 'ISO_3V3'),
-    ('net', 'MIE1W0505BGLVH-3R-Z', '9_10', '+5V'),
-    ('res', 'MIE1W0505BGLVH-3R-Z', '8', '100k', '+5V'),
+    ('net', 'MIE1W0505BGLVH-3R-Z', '9_10', '+5V_ISO'),
+    ('res', 'MIE1W0505BGLVH-3R-Z', '8', '100k', '+5V_ISO'),
     ('net', 'MIE1W0505BGLVH-3R-Z', '1', 'GND'),
     ('net', 'MIE1W0505BGLVH-3R-Z', '11_12', 'GND'),
     ('net', 'MIE1W0505BGLVH-3R-Z', '2', 'ISO_GND'),
@@ -66,11 +66,11 @@ RULES = [
     ('res', 'ADP7142AUJZ', '4', '115k', '+15V'),
     ('res', 'ADP7142AUJZ', '4', '10k', 'GND'),
     # ADP5071 (datasheet Fig. 47)
-    ('net', 'ADP5071AREZ', '17', '+5V'),
-    ('net', 'ADP5071AREZ', '18', '+5V'),
-    ('net', 'ADP5071AREZ', '19', '+5V'),
-    ('net', 'ADP5071AREZ', '9', '+5V'),
-    ('net', 'ADP5071AREZ', '11', '+5V'),
+    ('net', 'ADP5071AREZ', '17', '+5V_PS15'),
+    ('net', 'ADP5071AREZ', '18', '+5V_PS15'),
+    ('net', 'ADP5071AREZ', '19', '+5V_PS15'),
+    ('net', 'ADP5071AREZ', '9', '+5V_PS15'),
+    ('net', 'ADP5071AREZ', '11', '+5V_PS15'),
     ('net', 'ADP5071AREZ', '4', 'GND'),
     ('net', 'ADP5071AREZ', '1', 'GND'),
     ('net', 'ADP5071AREZ', '15', 'GND'),
@@ -78,20 +78,28 @@ RULES = [
     ('res', 'ADP5071AREZ', '7', '137k', 'GND'),
     ('resjoin', 'ADP5071AREZ', '13', '118k', 'ADP5071AREZ', '14'),
     ('res', 'ADP5071AREZ', '13', '2.55M', '-16V5'),
-    # J14: off-board Adafruit LSM6DSOX module (Vin = 3.3 V so the module's
-    # logic stays 3.3 V; 3Vo unused). Pins 2/4/7 are cable grounds; each signal
-    # has a 100 R series resistor next to the connector. CS keeps a 10 k
-    # pull-up on the board side so it idles high with the cable unplugged.
+    # J14: off-board Adafruit LSM6DSOX module. Pins 1-8 follow the module's
+    # pads (Vin, GND, SCL, SDA, DO, CS, INT1, INT2); its 3Vo pad is not
+    # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
+    # 100 R series resistor next to the connector; CS keeps a 10 k pull-up on
+    # the board side so it idles high with the cable unplugged.
     ('net', 'IMU LSM6DSOX module', '1', '+3V3'),
     ('net', 'IMU LSM6DSOX module', '2', 'GND'),
-    ('net', 'IMU LSM6DSOX module', '4', 'GND'),
-    ('net', 'IMU LSM6DSOX module', '7', 'GND'),
     ('between', '100', ('NET', 'SPI_SCK'), ('IMU LSM6DSOX module', '3')),
-    ('between', '100', ('NET', 'SPI_MOSI'), ('IMU LSM6DSOX module', '5')),
-    ('between', '100', ('NET', 'SPI_MISO'), ('IMU LSM6DSOX module', '6')),
-    ('between', '100', ('NET', 'IMU_CS'), ('IMU LSM6DSOX module', '8')),
-    ('between', '100', ('NET', 'IMU_INT1'), ('IMU LSM6DSOX module', '9')),
-    ('between', '100', ('NET', 'IMU_INT2'), ('IMU LSM6DSOX module', '10')),
+    ('between', '100', ('NET', 'SPI_MOSI'), ('IMU LSM6DSOX module', '4')),
+    ('between', '100', ('NET', 'SPI_MISO'), ('IMU LSM6DSOX module', '5')),
+    ('between', '100', ('NET', 'IMU_CS'), ('IMU LSM6DSOX module', '6')),
+    ('between', '100', ('NET', 'IMU_INT1'), ('IMU LSM6DSOX module', '7')),
+    ('between', '100', ('NET', 'IMU_INT2'), ('IMU LSM6DSOX module', '8')),
+    # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
+    ('net', 'EN SG3', '1', '+3V3'),
+    ('net', 'EN SG3', '2', '+3V3_SG'),
+    ('net', 'EN PS15', '1', '+5V'),
+    ('net', 'EN PS15', '2', '+5V_PS15'),
+    ('net', 'EN ISO5', '1', '+5V'),
+    ('net', 'EN ISO5', '2', '+5V_ISO'),
+    ('net', 'EN COOL', '1', '+3V3'),
+    ('net', 'EN COOL', '2', '+3V3_COOL'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '39', '10k', '+3V3'),
     # ISO7741 input idle levels while the ESP32 GPIOs float (CS, SCLK, MOSI
     # pulled to 3V3)
@@ -124,10 +132,10 @@ RULES = [
     ('net', 'OPA188ID', '4', '-15V'),
     ('net', 'OPA1656ID', '8', '+15V'),
     ('net', 'OPA1656ID', '4', '-15V'),
-    ('net', 'MCP4921-E/SN', '1', '+3V3'),
+    ('net', 'MCP4921-E/SN', '1', '+3V3_SG'),
     ('net', 'MCP4921-E/SN', '5', 'GND'),
     ('net', 'MCP4921-E/SN', '7', 'GND'),
-    ('res', 'MCP4921-E/SN', '6', '6.8k', '+3V3'),
+    ('res', 'MCP4921-E/SN', '6', '6.8k', '+3V3_SG'),
     # INA239 (SPI, SLYS027A): VS 3.3 V, VBUS on the +12V side, 49.9 ohm /
     # 470 nF input filter on IN+/IN-, ALERT open-drain pulled up, CS idles high
     ('net', 'INA239AIDGSR', '6', '+3V3'),
@@ -145,8 +153,8 @@ RULES = [
     ('res', 'INA239AIDGSR', '3', '10k', '+3V3'),
     # ADS1220 (SPI, SBAS501D TSSOP-16): AVDD/DVDD 3.3 V, AVSS/DGND/REFN0 on
     # GND, internal oscillator (CLK to GND), AIN2 unused, CS and DRDY pulled up
-    ('net', 'ADS1220IPW', '12', '+3V3'),
-    ('net', 'ADS1220IPW', '13', '+3V3'),
+    ('net', 'ADS1220IPW', '12', '+3V3_COOL'),
+    ('net', 'ADS1220IPW', '13', '+3V3_COOL'),
     ('net', 'ADS1220IPW', '4', 'GND'),
     ('net', 'ADS1220IPW', '5', 'GND'),
     ('net', 'ADS1220IPW', '8', 'GND'),
@@ -161,8 +169,8 @@ RULES = [
     # SC18IS604 (SPI to I2C bridge, NXP rev 1.0 TSSOP16): VDD and VREFP on
     # 3.3 V, VSS on GND, CS/RESET/INT# pulled up, I2C pull-ups, MISO gated by
     # a 74LVC1G125 whose OE# follows CS
-    ('net', 'SC18IS604PW', '12', '+3V3'),
-    ('net', 'SC18IS604PW', '15', '+3V3'),
+    ('net', 'SC18IS604PW', '12', '+3V3_COOL'),
+    ('net', 'SC18IS604PW', '15', '+3V3_COOL'),
     ('net', 'SC18IS604PW', '13', 'GND'),
     ('net', 'SC18IS604PW', '8', 'BRIDGE_CS'),
     ('net', 'SC18IS604PW', '11', 'SPI_SCK'),
@@ -180,7 +188,7 @@ RULES = [
     ('join', 'SC18IS604PW', '14', '74LVC1G125', '2'),
     ('net', '74LVC1G125', '1', 'BRIDGE_CS'),
     ('net', '74LVC1G125', '4', 'SPI_MISO'),
-    ('net', '74LVC1G125', '5', '+3V3'),
+    ('net', '74LVC1G125', '5', '+3V3_COOL'),
     ('net', '74LVC1G125', '3', 'GND'),
     ('nc', 'SC18IS604PW', '9'),
     ('nc', 'SC18IS604PW', '16'),
@@ -256,7 +264,14 @@ def run(path):
             check(False, f'{value}: part not found')
             continue
         ref = refs[0]
-        if kind == 'net':
+        if kind == 'net' and isinstance(rule[3], tuple):
+            # every part of this value must sit on one of the listed nets
+            gots = [pin_net.get((r, rule[2])) for r in refs]
+            check(
+                all(got in rule[3] for got in gots),
+                f'{value}.{rule[2]} on one of {rule[3]} (got {gots})',
+            )
+        elif kind == 'net':
             got = pin_net.get((ref, rule[2]))
             check(
                 got == rule[3], f'{value}.{rule[2]} on {rule[3]} (got {got})'

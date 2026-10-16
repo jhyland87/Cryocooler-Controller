@@ -162,14 +162,19 @@ PARTS = {
         'Molex', '0022232041', 'CONN HEADER KK 254 VERT 4POS', 'suggested', 'fan and pump (4-pin PWM)'),
     ('', 'Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'): (
         'Molex', '0022232031', 'CONN HEADER KK 254 VERT 3POS', 'suggested', ''),
+    ('', 'PinHeader_1x02_P1.27mm_Vertical'): (
+        '', '', 'CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER',
+        'none',
+        'supply disable jumpers JP1-JP4; choose a 1.27 mm 2-pin header and '
+        'shunt; the branches are logic supplies of a few hundred mA'),
     ('', 'JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'): (
         'JST', 'B2B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 2POS 2.5MM',
         'suggested', 'NTC, panel button, compressor relay'),
     ('', 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical'): (
         'JST', 'B4B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 4POS 2.5MM',
         'suggested', ''),
-    ('', 'JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical'): (
-        'JST', 'B10B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 10POS 2.5MM',
+    ('', 'JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical'): (
+        'JST', 'B8B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 8POS 2.5MM',
         'suggested', 'J14: cable to the off-board Adafruit LSM6DSOX module'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
@@ -387,7 +392,11 @@ def main():
     parts = [p for p in load_netlist() if not p[0].startswith('TP')]
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
-        if footprint.startswith(('TerminalBlock', 'Molex_KK', 'JST_XH')):
+        if footprint.startswith('LED_0603') and int(ref[1:]) >= 18:
+            value = 'SUPPLY ON (green)'  # the switched-rail indicators
+        if footprint.startswith(
+            ('TerminalBlock', 'Molex_KK', 'JST_XH', 'PinHeader')
+        ):
             value = ''  # connectors group by footprint, not by label
         if footprint.startswith('SW_SPST'):
             value = 'TACTILE'

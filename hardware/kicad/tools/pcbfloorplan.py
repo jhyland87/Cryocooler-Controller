@@ -30,7 +30,7 @@ MODULE_OF_SHEET = {
     'Signal Generator': 'SIGNAL GENERATOR',
     'Amp Control': 'AMP CONTROL',
     'Amp Current': 'AMP CURRENT (ISOLATED)',
-    'Rails +-15V': 'RAILS +-15V',
+    'Rails +-15V': 'RAILS ±15V',
     'Compressor Relay': 'COMPRESSOR RELAY',
     'IMU': 'IMU CABLE',
     'I2C Bridge': 'COOLING & TEMP',
@@ -44,25 +44,25 @@ MODULE_OF_SHEET = {
 
 # module -> rectangles (overlap them by > 2 * LINE_INSET to build L shapes)
 MODULE_REGIONS = {
-    'AMP CONTROL': [Rect(-3, -3, 13, 35.5), Rect(11.5, 17.5, 27.2, 35.5)],
-    'SIGNAL GENERATOR': [Rect(15, -3, 68, 15.5), Rect(29, 13, 68, 27.5)],
+    'AMP CONTROL': [Rect(-3, -3, 15.1, 35.5), Rect(13.5, 17.5, 27.2, 35.5)],
+    'SIGNAL GENERATOR': [Rect(17, -3, 68, 15.5), Rect(29, 13, 68, 27.5)],
     'INDICATORS': [Rect(70, -3, 84, 28)],
     'MCU & USB': [Rect(85.8, -3, 133, 39.4)],
     'AMP CURRENT (ISOLATED)': [Rect(-3, 37.5, 51.5, 68.5)],
-    'RAILS +-15V': [Rect(53.5, 30, 84, 72.7)],
-    'COMPRESSOR RELAY': [Rect(86.6, 41.3, 106.4, 59)],
-    'IMU CABLE': [Rect(108.4, 41.2, 125, 74.2)],
+    'RAILS ±15V': [Rect(53.5, 30, 84, 72.7)],
+    'COMPRESSOR RELAY': [Rect(85.8, 41.3, 104.4, 61.3)],
+    'IMU CABLE': [Rect(108.4, 41.2, 125, 70.2), Rect(106.2, 41.2, 110, 61.3)],
     'POWER INPUT & RAILS': [
         Rect(-3, 72.25, 51.5, 113),
         Rect(45, 76.5, 66, 97.5),
-        Rect(62, 74.6, 87, 94),
+        Rect(60, 74.6, 84.5, 91),
         Rect(35, 94.5, 77.5, 113),
     ],
     'COOLING & TEMP': [
-        Rect(108.6, 76, 133, 113),
-        Rect(104, 76, 110.6, 113),
-        Rect(88.8, 61, 106.4, 113),
-        Rect(79.5, 95.8, 125, 113),
+        Rect(108.6, 72.0, 133, 113),
+        Rect(104, 72.0, 110.6, 113),
+        Rect(86.3, 63.2, 106.4, 113),
+        Rect(79.5, 92.8, 125, 113),
     ],
 }
 

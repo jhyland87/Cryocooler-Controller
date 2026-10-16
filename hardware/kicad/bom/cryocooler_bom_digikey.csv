@@ -31,6 +31,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,LTW-C193TS5,Lite-On,LED WHITE CLEAR 0603 SMD,D15,+15V (white),LED_0603_1608Metric,suggested,
 1,LTW-C193TS5,Lite-On,LED WHITE CLEAR 0603 SMD,D16,-15V (white),LED_0603_1608Metric,suggested,
 1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D17,ISO 3V3 (green),LED_0603_1608Metric,suggested,
+4,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D18 D19 D20 D21,SUPPLY ON (green),LED_0603_1608Metric,suggested,
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
 5,1729128,Phoenix Contact,"TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08",J2 J8 J9 J11 J12,,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",suggested,"screw terminals: 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out"
@@ -38,7 +39,8 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,0022232031,Molex,CONN HEADER KK 254 VERT 3POS,J5,,Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical,suggested,
 3,B2B-XH-A,JST,CONN HEADER XH VERT 2POS 2.5MM,J6 J7 J13,,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,ordered,"NTC, panel button, compressor relay; substitute for B2B-XH-A(LF)(SN)"
 1,B4B-XH-A,JST,CONN HEADER XH VERT 4POS 2.5MM,J10,,JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,ordered,substitute for B4B-XH-A(LF)(SN)
-1,B10B-XH-A(LF)(SN),JST,CONN HEADER XH VERT 10POS 2.5MM,J14,,JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical,suggested,J14: cable to the off-board Adafruit LSM6DSOX module
+1,B8B-XH-A(LF)(SN),JST,CONN HEADER XH VERT 8POS 2.5MM,J14,,JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,suggested,J14: cable to the off-board Adafruit LSM6DSOX module
+4,,,CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER,JP1 JP2 JP3 JP4,,PinHeader_1x02_P1.27mm_Vertical,none,supply disable jumpers JP1-JP4; choose a 1.27 mm 2-pin header and shunt; the branches are logic supplies of a few hundred mA
 1,SRN6045TA-4R7M,Bourns,FIXED IND 4.7UH 4.5A 26MOHM SMD,L1,SRN6045TA-4R7M,L_Bourns_SRN6045TA,design,
 1,SRN8040TA-3R3Y,Bourns,FIXED IND 3.3UH SMD,L2,SRN8040TA-3R3M,L_Bourns_SRN8040TA,ordered,ADP5071 boost inductor; substitute for SRN8040TA-3R3M
 1,SRN8040TA-6R8M,Bourns,FIXED IND 6.8UH SMD,L3,SRN8040TA-6R8M,L_Bourns_SRN8040TA,design,ADP5071 inverting inductor
@@ -56,7 +58,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0603FR-0730KL,Yageo,RES 30K OHM 1% 1/10W 0603,R12,30k,R_0603_1608Metric,suggested,
 1,RC0603FR-0733KL,Yageo,RES 33K OHM 1% 1/10W 0603,R14,33k,R_0603_1608Metric,suggested,
 7,RC0603FR-074K7L,Yageo,RES 4.7K OHM 1% 1/10W 0603,R15 R19 R21 R84 R85 R87 R88,4.7k,R_0603_1608Metric,suggested,
-11,RC0603FR-071KL,Yageo,RES 1K OHM 1% 1/10W 0603,R17 R22 R35 R38 R42 R43 R70 R76 R79 R86 R89,1k,R_0603_1608Metric,suggested,
+15,RC0603FR-071KL,Yageo,RES 1K OHM 1% 1/10W 0603,R17 R22 R35 R38 R42 R43 R70 R76 R79 R86 R89 R96 R97 R98 R99,1k,R_0603_1608Metric,suggested,
 1,RC0603FR-07220KL,Yageo,RES 220K OHM 1% 1/10W 0603,R25,220k,R_0603_1608Metric,suggested,
 1,RC0603FR-0782KL,Yageo,RES 82K OHM 1% 1/10W 0603,R27,82k,R_0603_1608Metric,suggested,
 3,RC0603FR-07330RL,Yageo,RES 330 OHM 1% 1/10W 0603,R30 R31 R75,330,R_0603_1608Metric,suggested,

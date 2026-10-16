@@ -36,7 +36,7 @@ SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 KK3 = 'Connector_Molex:Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'
 KK4 = 'Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'
 XH2 = 'Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'
-XH10 = 'Connector_JST:JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical'
+XH8 = 'Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical'
 TERM2 = (
     'TerminalBlock_Phoenix:'
     'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
@@ -972,12 +972,12 @@ def build_rails_15v(sh):
     u = place_ic(sh, 'cryocooler:ADP5071AREZ', 'ADP5071AREZ', 110, 100, None)
     # +5V input: bus left of the IC, rail above it with three decoupling caps
     wire(sh, (96, 70), (96, 102))
-    rail_symbol(sh, '+5V', (96, 70))
+    rail_symbol(sh, '+5V_PS15', (96, 70))
     for pin in ('9', '17', '19', '18', '11'):
         spur(sh, u, pin, 2)
     place_blocks(
         sh,
-        [('ADP5071 DECOUPLING CAPACITORS', '+5V', ('10uF', '10uF', '100nF'))],
+        [('ADP5071 DECOUPLING CAPACITORS', '+5V_PS15', ('10uF', '10uF', '100nF'))],
         190,
         150,
     )
@@ -1304,7 +1304,7 @@ def build_signal_gen(sh):
         net_label(sh, net, spur(sh, dac, pin, 5), 180, is_global=True)
     vdd = pin_cell(dac, '1')
     wire(sh, vdd, (vdd[0], 94), (76, 94))
-    rail_symbol(sh, '+3V3', (vdd[0], 94))
+    rail_symbol(sh, '+3V3_SG', (vdd[0], 94))
     vres(sh, '6.8k', 76, 94)
     vref_pin = pin_cell(dac, '6')
     wire(sh, vref_pin, (vref_pin[0], 100), (92, 100))
@@ -1360,7 +1360,7 @@ def build_signal_gen(sh):
             ('OPA1656 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
             ('AD633 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('AD633 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
-            ('MCP4921 DECOUPLING CAPACITORS', '+3V3', ('100nF', '10uF')),
+            ('MCP4921 DECOUPLING CAPACITORS', '+3V3_SG', ('100nF', '10uF')),
             ('OPA188 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('OPA188 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
         ],
@@ -1371,7 +1371,7 @@ def build_signal_gen(sh):
 
 
 def rem_switch(
-    sh, enable_net, bus_net, terminal, flyback=False, footprint=None
+    sh, enable_net, bus_net, terminal, flyback=False, footprint=None, rail='+12V'
 ):
     """GPIO -> N-FET level shifter -> P-FET high-side +12 V switch -> output
     terminal with a red/green state LED; drawn left to right from row 60.
@@ -1388,7 +1388,7 @@ def rem_switch(
     ground(sh, pin_cell(q_n, '2')[0:1] + (pin_cell(q_n, '2')[1] + 2,))
     wire(sh, pin_cell(q_n, '3'), (52, 50), (76, 50))
     vres(sh, '100k', 62, 44)
-    rail_symbol(sh, '+12V', (62, 44))
+    rail_symbol(sh, rail, (62, 44))
     q_p = sh.add(
         'Transistor_FET:BSS84',
         next_ref('Q'),
@@ -1402,7 +1402,7 @@ def rem_switch(
     )
     top, bottom = pin_cell(q_p, '2'), pin_cell(q_p, '3')
     wire(sh, top, (top[0], top[1] - 4))
-    rail_symbol(sh, '+12V', (top[0], top[1] - 4))
+    rail_symbol(sh, rail, (top[0], top[1] - 4))
     # AMP_REM bus: drain, pull-down, LED branch and the REM terminal
     wire(sh, bottom, (bottom[0], 58), (136, 58))
     net_label(sh, bus_net, (104, 58), 0)
@@ -1473,7 +1473,9 @@ def build_amp_control(sh):
         20,
         21,
     )
-    rem_switch(sh, 'AMP_REM_EN', 'AMP_REM', 'AMP REM / GND')
+    rem_switch(
+        sh, 'AMP_REM_EN', 'AMP_REM', 'AMP REM / GND', rail='+12V'
+    )
     j_sig = conn(
         sh,
         'Connector:Screw_Terminal_01x02',
@@ -1510,6 +1512,7 @@ def build_compressor_relay(sh):
         'COMPRESSOR RELAY / GND',
         True,
         XH2,
+        '+12V',
     )
 
 
@@ -1580,14 +1583,14 @@ def build_amp_current(sh):
     )
     vin = pin_cell(dc, '9_10')
     wire(sh, vin, (vin[0], 108), (24, 108))
-    rail_symbol(sh, '+5V', (24, 108))
+    rail_symbol(sh, '+5V_ISO', (24, 108))
     for column, value in ((30, '10uF'), (38, '100nF')):
         vcap(sh, value, column, 108)
         drop_ground(sh, (column, 114), 0)
     en = pin_cell(dc, '8')
     wire(sh, en, (46, en[1]))
     vres(sh, '100k', 46, en[1] - 6)
-    rail_symbol(sh, '+5V', (46, en[1] - 6))
+    rail_symbol(sh, '+5V_ISO', (46, en[1] - 6))
     drop_ground(sh, pin_cell(dc, '1'), 2)
     vout = pin_cell(dc, '5_6')
     wire(sh, vout, (vout[0], vout[1]), (96, vout[1]))
@@ -1994,13 +1997,13 @@ def build_i2c_bridge(sh):
     wire(sh, vdd, (vdd[0], 46))
     wire(sh, vref, (vref[0], 46))
     wire(sh, (vdd[0], 46), (vref[0], 46))
-    rail_symbol(sh, '+3V3', ((vdd[0] + vref[0]) // 2, 46))
+    rail_symbol(sh, '+3V3_COOL', ((vdd[0] + vref[0]) // 2, 46))
     drop_ground(sh, pin_cell(bridge, '13'), 2)
     place_blocks(
         sh,
         [
-            ('SC18IS604 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF')),
-            ('74LVC1G125 DECOUPLING CAPACITORS', '+3V3', ('100nF',)),
+            ('SC18IS604 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF', '1uF')),
+            ('74LVC1G125 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF',)),
         ],
         150,
         100,
@@ -2046,7 +2049,7 @@ def build_i2c_bridge(sh):
     net_label(sh, 'SPI_MISO', spur(sh, buf, '4', 4), 0, is_global=True)
     vcc = pin_cell(buf, '5')
     wire(sh, vcc, (vcc[0], vcc[1] - 4))
-    rail_symbol(sh, '+3V3', (vcc[0], vcc[1] - 4))
+    rail_symbol(sh, '+3V3_COOL', (vcc[0], vcc[1] - 4))
     drop_ground(sh, pin_cell(buf, '3'), 2)
     for pin, net in (('1', 'SDA'), ('2', 'SCL')):
         net_label(sh, net, spur(sh, bridge, pin, 6), 0, is_global=True)
@@ -2087,10 +2090,10 @@ def build_cooling(sh):
     # supply and ground
     vdd = pin_cell(emc, '3')
     wire(sh, vdd, (vdd[0], 50))
-    rail_symbol(sh, '+3V3', (vdd[0], 50))
+    rail_symbol(sh, '+3V3_COOL', (vdd[0], 50))
     place_blocks(
         sh,
-        [('EMC2303 DECOUPLING CAPACITORS', '+3V3', ('1uF', '100nF'))],
+        [('EMC2303 DECOUPLING CAPACITORS', '+3V3_COOL', ('1uF', '100nF'))],
         190,
         45,
     )
@@ -2263,10 +2266,10 @@ def build_cold_head(sh):
     wire(sh, avdd, (avdd[0], 42))
     wire(sh, dvdd, (dvdd[0], 42))
     wire(sh, (avdd[0], 42), (dvdd[0], 42))
-    rail_symbol(sh, '+3V3', ((avdd[0] + dvdd[0]) // 2, 42))
+    rail_symbol(sh, '+3V3_COOL', ((avdd[0] + dvdd[0]) // 2, 42))
     place_blocks(
         sh,
-        [('ADS1220 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF'))],
+        [('ADS1220 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF', '1uF'))],
         190,
         100,
     )
@@ -2354,7 +2357,9 @@ def build_cold_head(sh):
 def build_imu(sh):
     """Hand-laid: J14 (cable to the off-board Adafruit LSM6DSOX module) on the
     right, +3V3 / ground pins tied off beside it, each signal fanned out to a
-    100 R series resistor and a global label on the left.
+    100 R series resistor and a global label on the left. J14 pins 1-8 follow
+    the module's pads from top to bottom: Vin, GND, SCL, SDA, DO, CS, INT1,
+    INT2 (its 3Vo pad is not wired).
     """
     sh.handwired = True
     sh.note(
@@ -2365,7 +2370,7 @@ def build_imu(sh):
         15,
     )
     sh.note(
-        'Module Vin = +3V3 keeps its logic at 3.3 V (3Vo unused). 100 R '
+        'Module Vin = +3V3 keeps its logic at 3.3 V (its 3Vo pad stays open). 100 R '
         'series resistors damp the cable stub; the 10 k keeps CS high with '
         'the cable unplugged.',
         20,
@@ -2378,29 +2383,28 @@ def build_imu(sh):
     with kicadgen.pinned_refs('J', 13):
         header = conn(
             sh,
-            'Connector_Generic:Conn_01x10',
+            'Connector_Generic:Conn_01x08',
             'IMU LSM6DSOX module',
             200 * 1.27,
             60 * 1.27,
             {},
-            XH10,
+            XH8,
         )
-    tips = {number: pin_cell(header, number) for number in map(str, range(1, 11))}
+    tips = {number: pin_cell(header, number) for number in map(str, range(1, 9))}
     column = tips['1'][0]
-    # +3V3 and the three cable grounds: two cells out, symbol turned sideways
-    # so it clears the neighbouring signal rows
+    # +3V3 and the cable ground: two cells out, symbol turned sideways so it
+    # clears the neighbouring signal rows
     wire(sh, tips['1'], (column - 2, tips['1'][1]))
     rail_symbol(sh, '+3V3', (column - 2, tips['1'][1]), 90)
-    for number in ('2', '4', '7'):
-        wire(sh, tips[number], (column - 2, tips[number][1]))
-        rail_symbol(sh, 'GND', (column - 2, tips[number][1]), 270)
+    wire(sh, tips['2'], (column - 2, tips['2'][1]))
+    rail_symbol(sh, 'GND', (column - 2, tips['2'][1]), 270)
     signals = (
         ('3', 'SPI_SCK'),
-        ('5', 'SPI_MOSI'),
-        ('6', 'SPI_MISO'),
-        ('8', 'IMU_CS'),
-        ('9', 'IMU_INT1'),
-        ('10', 'IMU_INT2'),
+        ('4', 'SPI_MOSI'),
+        ('5', 'SPI_MISO'),
+        ('6', 'IMU_CS'),
+        ('7', 'IMU_INT1'),
+        ('8', 'IMU_INT2'),
     )
     # staircase fan-out, top signal turning furthest left, so no wires cross
     for index, (number, net) in enumerate(signals):
@@ -2511,6 +2515,83 @@ def build_indicators(sh):
 # start with it)
 ROOT_UUID = '8aa5b67b-a486-4448-878d-4d9f2d51f462'
 
+# ── supply switches ──────────────────────────────────────────────────────
+# One 1.27 mm jumper in series with each load's supply feed (pull it to power
+# that part off) and an LED on the switched side. Each switched rail is a
+# power net of its own: (key, main rail, switched rail, title, LED resistor);
+# an empty resistor means the rail already has a power LED (D15 / D16 / D17).
+SWITCH_HEADER = 'Connector_PinHeader_1.27mm:PinHeader_1x02_P1.27mm_Vertical'
+SWITCHES = (
+    ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1k'),
+    ('PS15', '+5V', '+5V_PS15', '+-15V SUPPLY +5V IN', '1k'),
+    ('ISO5', '+5V', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '1k'),
+    ('COOL', '+3V3', '+3V3_COOL', 'COOLING +3V3 (EMC2303, RTD ADC, I2C BRIDGE)', '1k'),
+)
+kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
+# highest reference numbers used elsewhere: the LED chains continue from them
+LAST_LED_REF, LAST_RESISTOR_REF = 17, 95
+
+
+def supply_block(sh, spec, led_index, column, row):
+    """Main rail -> jumper -> switched rail, with a PWR_FLAG on the switched
+    rail and an LED chain below it.
+    """
+    key, main, switched, title, ohms = spec
+    sh.note(title, column * 1.27, (row - 6) * 1.27, 1.6)
+    header = sh.add(
+        'Connector_Generic:Conn_01x02',
+        next_ref('JP'),
+        f'EN {key}',
+        (column + 14) * 1.27,
+        row * 1.27,
+        rot=0,
+        auto=False,
+        footprint=SWITCH_HEADER,
+    )
+    first, second = pin_cell(header, '1'), pin_cell(header, '2')
+    rail_symbol(sh, main, (first[0] - 3, first[1]))
+    wire(sh, (first[0] - 3, first[1]), first)
+    flag_x, switched_x = second[0] - 3, second[0] - 5
+    wire(sh, second, (flag_x, second[1]), (switched_x, second[1]))
+    rail_symbol(sh, switched, (switched_x, second[1]))
+    rail_flag(sh, (flag_x, second[1]))
+    if not ohms:
+        return
+    ground = 'ISO_GND' if switched.startswith('ISO') else 'GND'
+    with kicadgen.pinned_refs('R', LAST_RESISTOR_REF + led_index), (
+        kicadgen.pinned_refs('D', LAST_LED_REF + led_index)
+    ):
+        debug_rail_led(
+            sh,
+            switched,
+            ohms,
+            f'{title} (green)',
+            switched_x,
+            row + 8,
+            ground,
+        )
+
+
+def build_supply_switches(sh):
+    """Hand-laid grid of supply blocks, one per switched load."""
+    sh.handwired = True
+    sh.note(
+        'Each 1.27 mm jumper sits in series with one load supply: pull it to '
+        'power that part off. The LED shows the switched rail is present. '
+        'A part left unpowered can still be fed through its signal pins, so '
+        'disconnect the cable too when you need it fully dead.',
+        20,
+        15,
+    )
+    led_index = 0
+    for index, spec in enumerate(SWITCHES):
+        column = 24 + 90 * (index // 6)
+        row = 40 + 28 * (index % 6)
+        supply_block(sh, spec, led_index, column, row)
+        if spec[4]:
+            led_index += 1
+
+
 SHEETS = [
     ('Power Input', 'power_input', build_power_input, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
@@ -2532,6 +2613,7 @@ SHEETS = [
     ),
     ('I2C Bridge', 'i2c_bridge', build_i2c_bridge, 'A3'),
     ('Debug', 'debug', build_debug, 'A3'),
+    ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
 ]
 
 

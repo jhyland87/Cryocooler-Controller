@@ -34,7 +34,14 @@ STOCK_FOOTPRINTS = Path(
 )
 
 GROUND_NETS = {'GND', 'ISO_GND'}
-POWER_NETS = GROUND_NETS | {
+# switched supply nets (one jumper each) -> module box they belong to
+SWITCHED_NETS = {
+    '+3V3_SG': 'SIGNAL GENERATOR',
+    '+5V_PS15': 'POWER INPUT & RAILS',
+    '+5V_ISO': 'AMP CURRENT (ISOLATED)',
+    '+3V3_COOL': 'COOLING & TEMP',
+}
+POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
     '+3V3',
     '+5V',
     '+12V',
@@ -68,7 +75,7 @@ PLACEMENT = {
     'U8': (57.0, 21.0, 0),
     'Q6': (18.0, 21.0, 0),
     'Q5': (18.0, 27.0, 0),
-    'D4': (15.0, 32.6, 0),
+    'D4': (17.0, 32.6, 0),
     # isolation barrier (ISO side is left of x = 39.25)
     'J11': (5.6, 43.2, 270),
     'J12': (5.6, 55.0, 270),
@@ -84,53 +91,53 @@ PLACEMENT = {
     'U21': (74.0, 34.5, 0),
     'U22': (80.5, 34.5, 0),
     # power input and button
-    'J2': (5.6, 101.0, 270),
-    'F1': (19.0, 105.0, 0),
+    'J2': (5.6, 101, 270),
+    'F1': (19.0, 105, 0),
     'D1': (19.0, 95.25, 0),
-    'C6': (30.0, 104.0, 0),
-    'Q1': (46.5, 102.0, 0),
-    'U11': (17.0, 84.0, 0),
+    'C6': (30.0, 104, 0),
+    'Q1': (46.5, 102, 0),
+    'U11': (17.0, 84, 0),
     'U12': (26.0, 88.5, 0),
-    'U13': (7.0, 84.0, 0),
+    'U13': (7.0, 84, 0),
     'Q2': (34.0, 82.5, 0),
     'Q3': (39.0, 82.5, 0),
-    'Q4': (37.0, 90.0, 0),
+    'Q4': (37.0, 90, 0),
     'D3': (47.0, 86.25, 0),
-    'J7': (56.0, 87.0, 0),
-    'SW3': (46.0, 78.0, 0),
+    'J7': (56.0, 87, 0),
+    'SW3': (46.0, 78, 0),
     # 5 V / 3.3 V rails and system current
-    'U15': (67.0, 88.5, 0),
-    'L1': (73.5, 89.25, 0),
-    'U16': (81.5, 82.5, 0),
+    'U15': (64.5, 85.5, 0),
+    'L1': (71.0, 86.25, 0),
+    'U16': (79.0, 81, 0),
     'U23': (62.0, 102.5, 0),
     'R67': (62.5, 106.7, 0),
     'C71': (71.0, 105.1, 0),
     # cooling and cold head
-    'J3': (83.3, 106.0, 0),
-    'J4': (94.8, 106.0, 0),
-    'J5': (106.3, 106.0, 0),
-    'J6': (116.8, 106.0, 0),
+    'J3': (83.3, 106, 0),
+    'J4': (94.8, 106, 0),
+    'J5': (106.3, 106, 0),
+    'J6': (116.8, 106, 0),
     'J10': (126.0, 87.5, 90),
-    'U10': (99.5, 94.0, 0),
+    'U10': (99.5, 94, 0),
     'U14': (115.0, 83.25, 0),
     # panel indicators and IMU cable header
-    'J14': (118.5, 68.2, 90),
+    'J14': (119.4, 45.7, 270),
     'D9': (77.0, 13.0, 0),
     'D10': (81.0, 13.0, 0),
     'D11': (76.0, 6.0, 0),
     'D7': (56.0, 101.5, 90),
     'D8': (56.0, 106.5, 90),
     'U24': (76.0, 17.0, 0),
-    'D2': (103.5, 98.0, 0),
+    'D2': (103.5, 98, 0),
     # SC18IS604 I2C bridge and its MISO gate, close to the EMC2303 (U10)
-    'U25': (101.0, 65.2, 0),
-    'U26': (101.0, 72.0, 0),
+    'U25': (101.0, 67.5, 0),
+    'U26': (101.0, 75.2, 0),
     # compressor relay driver (open area in the middle of the board)
-    'J13': (96.0, 50.0, 0),
-    'Q7': (90.0, 46.0, 0),
-    'Q8': (90.0, 53.0, 0),
-    'D12': (102.5, 44.5, 0),
-    'D13': (103.0, 55.2, 0),
+    'J13': (96.0, 50.5, 0),
+    'Q7': (89.0, 47.0, 0),
+    'Q8': (89.0, 54.0, 0),
+    'D12': (100.9, 43.4, 0),
+    'D13': (100.9, 46.0, 0),
 }
 
 # ISO_GND island (left of the barrier); keep-out bands keep GND copper away
@@ -164,7 +171,7 @@ SILK_LABELS = {
     'SW1': 'RESET',
     'SW2': 'BOOT',
     'SW3': 'POWER',
-    'J7': 'PANEL BTN',
+    'J7': 'PANEL',
     'D2': 'FAN FAULT',
     'D3': 'POWER',
     'D4': 'AMP REM',
@@ -179,18 +186,43 @@ SILK_LABELS = {
     'D16': '-15V',
     'D17': 'ISO 3V3',
 }
+# Connector pin labels (pin 1 first): what each terminal is for, printed
+# beside the pads on the side facing the board interior.
+PIN_LABELS = {
+    'J2': ['+12V', 'GND'],
+    'J3': ['GND', '+12V', 'TACH', 'PWM'],
+    'J4': ['GND', '+12V', 'TACH', 'PWM'],
+    'J5': ['GND', '+12V', 'TACH'],
+    'J6': ['NTC', 'GND'],
+    'J7': ['BTN', 'GND'],
+    'J8': ['REM', 'GND'],
+    'J9': ['SIG', 'GND'],
+    'J10': ['F+', 'S+', 'S-', 'F-'],
+    'J11': ['+', '-'],
+    'J12': ['+', '-'],
+    'J13': ['+12V', 'GND'],
+    # the module's own pad names, top to bottom
+    'J14': ['VIN', 'GND', 'SCL', 'SDA', 'DO', 'CS', 'I1', 'I2'],
+}
+# what each supply jumper switches (JP1 ... JP4, in schematic order)
+JUMPER_LABELS = ('SG 3V3', '±15 PS', 'ISO PS', 'COOL 3V3')
+SILK_LABELS.update(
+    {f'JP{index}': text for index, text in enumerate(JUMPER_LABELS, start=1)}
+)
 SILK_TEXT_SIZE = 0.8
 SILK_TEXT_THICKNESS = 0.12
 LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
 LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
-LOGO_CENTER = (65.0, 53.0)
+LOGO_CENTER = (65.0, 51.0)
 LOGO_WIDTH = 80.0
 TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
 ALPHA_TEXT = 'ALPHA'
 
 HOLES = [(4.0, 35.7), (62.0, 30.0), (126.0, 58.0), (126.0, 95.0)]
 LOCAL_RECT_OVERRIDES = {
-    'RF_Module:ESP32-S3-WROOM-2': Rect(-9.2, -12.9, 9.2, 13.2)
+    'RF_Module:ESP32-S3-WROOM-2': Rect(-9.2, -12.9, 9.2, 13.2),
+    # the stock test point courtyard is 3.7 mm square around a 1.5 mm pad
+    'TestPoint:TestPoint_Pad_D1.5mm': Rect(-1.15, -1.15, 1.15, 1.15),
 }
 
 
@@ -233,6 +265,9 @@ class PcbBuilder:
         self.text_dims = {}
         self.pad_boxes = {}
         self.pockets = {}
+        self.pin_pockets = {}
+        self.require_pockets = True
+        self.early_labels = {}
         self.label_pockets = {}
         for name, nodes in self.nets.items():
             for ref, pad in nodes:
@@ -320,8 +355,11 @@ class PcbBuilder:
             return False
         return (
             ref[0] in 'RC'
-            or ref.startswith('TP')
-            or (ref[0] == 'D' and self.parts[ref]['sheet'] == 'Debug')
+            or ref.startswith(('TP', 'JP'))
+            or (
+                ref[0] == 'D'
+                and self.parts[ref]['sheet'] in ('Debug', 'Supply Switches')
+            )
         )
 
     def iso_side_passives(self):
@@ -367,18 +405,29 @@ class PcbBuilder:
             for pad in self.pad_local[ref]
         )
 
+    def part_module(self, ref):
+        """Module box of a part: its sheet's module, else the module of the
+        switched supply net it sits on (jumpers and their LEDs), else None.
+        """
+        module = pcbfloorplan.module_of_sheet(self.parts[ref]['sheet'])
+        if module is not None:
+            return module
+        for pad in self.pad_local[ref]:
+            switched = SWITCHED_NETS.get(self.pad_net[ref].get(pad))
+            if switched is not None:
+                return switched
+        return None
+
     def place_anchors(self):
         for ref, (center_x, center_y, angle) in PLACEMENT.items():
             if ref not in self.footprints:
                 raise KeyError(f'PLACEMENT names unknown ref {ref}')
             self.place(ref, center_x, center_y, angle)
-            self.module[ref] = pcbfloorplan.module_of_sheet(
-                self.parts[ref]['sheet']
-            )
+            self.module[ref] = self.part_module(ref)
         for index, (hole_x, hole_y) in enumerate(HOLES):
             self.occupancy.add(
                 f'hole{index}',
-                Rect(hole_x - 2.4, hole_y - 2.4, hole_x + 2.4, hole_y + 2.4),
+                Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
             )
 
     def add_track(self, net, layer, points, width, locked=True):
@@ -464,6 +513,8 @@ class PcbBuilder:
         to.
         """
         net = self.pad_net[ref].get(pad)
+        if ref.startswith('JP') and net not in SWITCHED_NETS:
+            return []
         if ref.startswith('TP') and net in GROUND_NETS:
             return [self.ground_tp_anchor(ref, net)]
         if net is None or net in GROUND_NETS:
@@ -544,7 +595,9 @@ class PcbBuilder:
         """
         boxes = []
         for name, rect in self.occupancy.rects.items():
-            if name.startswith(('txt_', 'silk_', 'hole', 'candidate')):
+            if name.startswith('txt_pin'):
+                boxes.append(rect.inflated(0.25))
+            elif name.startswith(('txt_', 'silk_', 'hole', 'candidate')):
                 boxes.append(rect.inflated(0.05))
             elif name in self.centers:
                 pad_box = self.pad_boxes.get(name)
@@ -600,10 +653,121 @@ class PcbBuilder:
             (self.pockets if kind == 'ref' else self.label_pockets)[ref] = spot
         return True
 
+    def pin_label_boxes(self, ref, side):
+        """Label boxes for a connector's pins on one side of its body:
+        [(text, centre x, centre y, turned, rect)], or None if any is off the
+        board.
+        """
+        footprint = self.footprints[ref]
+        pads = {
+            int(pad.GetNumber()): (
+                pad.GetPosition().x / 1e6,
+                pad.GetPosition().y / 1e6,
+            )
+            for pad in footprint.Pads()
+        }
+        body = self.occupancy.rects[ref]
+        column = side in ('left', 'right')
+        boxes = []
+        for number, text in enumerate(PIN_LABELS[ref], start=1):
+            pad_x, pad_y = pads[number]
+            base = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
+            length, thickness = 2 * base.max_x, 2 * base.max_y
+            if column:
+                width, height = length, thickness
+                center_y = pad_y
+                center_x = (
+                    body.max_x + 0.2 + width / 2
+                    if side == 'right'
+                    else body.min_x - 0.2 - width / 2
+                )
+            else:
+                width, height = thickness, length
+                center_x = pad_x
+                center_y = (
+                    body.max_y + 0.2 + height / 2
+                    if side == 'down'
+                    else body.min_y - 0.2 - height / 2
+                )
+            rect = Rect(
+                center_x - width / 2,
+                center_y - height / 2,
+                center_x + width / 2,
+                center_y + height / 2,
+            )
+            boxes.append((text, center_x, center_y, not column, rect))
+        return boxes
+
+    def reserve_pin_labels(self, ref):
+        """Reserves a label beside every pad of a connector, on the side
+        facing the board interior if it is free, else the other sides.
+        """
+        body = self.occupancy.rects[ref]
+        centre_x = (body.min_x + body.max_x) / 2
+        centre_y = (body.min_y + body.max_y) / 2
+        pads = [pad.GetPosition() for pad in self.footprints[ref].Pads()]
+        spread_x = max(p.x for p in pads) - min(p.x for p in pads)
+        spread_y = max(p.y for p in pads) - min(p.y for p in pads)
+        if spread_x < spread_y:
+            sides = ['right', 'left'] if centre_x < BOARD_WIDTH / 2 else ['left', 'right']
+        else:
+            sides = ['up', 'down'] if centre_y > BOARD_HEIGHT / 2 else ['down', 'up']
+        module = self.module_of_ref(ref)
+        for side in sides:
+            boxes = self.pin_label_boxes(ref, side)
+            obstacles = self.pocket_obstacles()
+            if all(
+                rect.inside(self.occupancy.board_rect)
+                and (not module or pcbfloorplan.text_inside(module, rect))
+                and not any(rect.overlaps(o) for o in obstacles)
+                for *_, rect in boxes
+            ):
+                for index, (_, _, _, _, rect) in enumerate(boxes):
+                    self.occupancy.add(f'txt_pin_{ref}_{index}', rect)
+                self.pin_pockets[ref] = boxes
+                return True
+        print('no room for the pin labels of', ref)
+        return False
+
+    def add_pin_labels(self):
+        """Prints the connector pin labels reserved above."""
+        for ref, labels in self.pin_pockets.items():
+            for index, (text, spot_x, spot_y, turned, rect) in enumerate(labels):
+                item = self.add_text(
+                    text,
+                    spot_x,
+                    spot_y,
+                    SILK_TEXT_SIZE,
+                    thickness=SILK_TEXT_THICKNESS,
+                )
+                if turned:
+                    item.SetTextAngleDegrees(90)
+                self.occupancy.add(f'silk_pin_{ref}_{index}', rect)
+
+    def reserve_module_labels(self):
+        """Picks each module box's title spot now, so parts placed later keep
+        clear of it.
+        """
+        board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
+        holes = [(hole_x, hole_y, 2.4) for hole_x, hole_y in HOLES]
+        self.early_labels = {}
+        for module in pcbfloorplan.MODULE_REGIONS:
+            spot = self.module_label_spot(module, board_rect, holes)
+            self.early_labels[module] = spot
+            if spot is not None:
+                text, left_x, line_y = spot
+                width = pcbfloorplan.label_width(text)
+                self.occupancy.add(
+                    f'silk_label_{module}',
+                    Rect(left_x, line_y - 0.5, left_x + width, line_y + 0.5),
+                )
+
     def reserve_anchor_pockets(self):
         """Reserves label room beside every placed (non-passive) part before
         the passives crowd in.
         """
+        for ref in PIN_LABELS:
+            self.reserve_pin_labels(ref)
         missing = []
         for ref in PLACEMENT:
             module = self.module.get(ref)
@@ -641,6 +805,19 @@ class PcbBuilder:
             if not progressed:
                 unplaced.extend(pending)
                 break
+        # second pass for the parts that found no spot with room for their
+        # labels: place them anyway, their labels are searched for afterwards
+        retry, unplaced = unplaced, []
+        self.require_pockets = False
+        for ref in retry:
+            choice = self.pick_target(ref, crowd)
+            if choice is not None and self.place_near(
+                ref, choice[0], choice[1], offsets
+            ):
+                crowd[choice[1]] += 1
+            else:
+                unplaced.append(ref)
+        self.require_pockets = True
         return unplaced
 
     def is_decoupling(self, ref):
@@ -686,9 +863,7 @@ class PcbBuilder:
         local_rect = self.local_rects[ref]
         # a passive stays in its own module's box; debug parts (no module)
         # join the box of the part they sit beside
-        module = pcbfloorplan.module_of_sheet(
-            self.parts[ref]['sheet']
-        ) or self.module.get(target[0])
+        module = self.part_module(ref) or self.module.get(target[0])
         best = None
         for offset_x, offset_y in offsets:
             if (
@@ -749,7 +924,9 @@ class PcbBuilder:
                     continue
                 pocket = self.find_pocket(rect, module, *size)
                 if pocket is None:
-                    return None
+                    if self.require_pockets:
+                        return None
+                    continue  # second pass: the label is searched for later
                 spot_x, spot_y, turned, pocket_rect = pocket
                 name = f'txt_{kind}_{ref}'
                 found.append(
@@ -793,6 +970,10 @@ class PcbBuilder:
                     '-16V5',
                     'ISO_3V3',
                     'USB_VBUS',
+                    '+3V3_SG',
+                    '+5V_PS15',
+                    '+5V_ISO',
+                    '+3V3_COOL',
                 ],
             ),
             'Power12V': (
@@ -1523,7 +1704,7 @@ class PcbBuilder:
             module = self.module_of_ref(ref)
             base = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
             best = None
-            for gap in (0.3, 0.7, 1.2, 1.8, 2.5, 3.5):
+            for gap in (0.3, 0.7, 1.2, 1.8, 2.5, 3.5, 5.0):
                 for turned in (False, True):
                     half_w, half_h = (
                         (base.max_y, base.max_x)
@@ -1756,7 +1937,9 @@ class PcbBuilder:
         self._removed_shapes = []
         self.box_labels = {}
         for module in pcbfloorplan.MODULE_REGIONS:
-            spot = self.module_label_spot(module, board_rect, holes)
+            spot = self.early_labels.get(module)
+            if spot is None:
+                spot = self.module_label_spot(module, board_rect, holes)
             if spot is None:
                 print('no free border for the label of', module)
             self.box_labels[module] = spot
@@ -1835,7 +2018,11 @@ class PcbBuilder:
                     ).inflated(0.05)
                 )
         for name, rect in self.occupancy.rects.items():
-            if name.startswith('silk_'):
+            if name.startswith('silk_pin'):
+                # keep other labels (and the connector's own reference) off
+                # the pin label strip
+                boxes.append(rect.inflated(0.25))
+            elif name.startswith('silk_'):
                 boxes.append(rect)
         for hole_x, hole_y in HOLES:
             boxes.append(
@@ -2082,11 +2269,16 @@ class PcbBuilder:
         for index, (hole_x, hole_y) in enumerate(HOLES):
             self.occupancy.add(
                 f'hole{index}',
-                Rect(hole_x - 2.4, hole_y - 2.4, hole_x + 2.4, hole_y + 2.4),
+                Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
             )
 
     def add_silkscreen(self):
         self.add_module_boxes()
+        if not self.pin_pockets:
+            # silk-only runs on an existing board: find the spots now
+            for ref in PIN_LABELS:
+                self.reserve_pin_labels(ref)
+        self.add_pin_labels()
         self.place_reference_texts()
         self.add_part_labels()
         self.bulge_module_boxes()
@@ -2096,6 +2288,7 @@ class PcbBuilder:
     def build(self):
         self.load_footprints()
         self.place_anchors()
+        self.reserve_module_labels()
         self.reserve_anchor_pockets()
         self.pre_route_current_path()
         self.pre_place_fine_pitch_ground_vias()

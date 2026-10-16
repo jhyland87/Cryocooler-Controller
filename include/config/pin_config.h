@@ -36,9 +36,9 @@
 
 // LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
 // cabled to header J14; SPI on the shared bus (AD9833, MCP4921, ...).
-#define LSM6DSOX_CS        1    // J14 pin 8
-#define LSM6DSOX_INT1_PIN  2    // J14 pin 9
-#define LSM6DSOX_INT2_PIN  39   // J14 pin 10
+#define LSM6DSOX_CS        1    // J14 pin 6
+#define LSM6DSOX_INT1_PIN  2    // J14 pin 7
+#define LSM6DSOX_INT2_PIN  39   // J14 pin 8
 
 // =============================================================================
 // AD9833 Waveform Generator
