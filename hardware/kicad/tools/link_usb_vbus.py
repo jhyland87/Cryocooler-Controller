@@ -15,6 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import export_fab
 import pcbnew
 
 KICAD_DIR = Path(__file__).resolve().parents[1]
@@ -91,6 +92,7 @@ def main():
                     shutil.copy(candidate, BOARD)
                     if violations(BOARD) == (0, 0):
                         print('linked USB_VBUS pairs:', right_x, row_y, left_x)
+                        export_fab.export_fabrication()
                         return 0
         shutil.copy(source, BOARD)
         print('no clean link found; board left unchanged')

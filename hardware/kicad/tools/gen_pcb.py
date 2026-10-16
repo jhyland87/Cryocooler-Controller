@@ -20,6 +20,7 @@ from pathlib import Path
 import pcbnew
 
 from pcbnetlist import KICAD_DIR, load_netlist
+import export_fab
 import pcbfloorplan
 import pcbmodels
 from pcbplace import Occupancy, Rect, placed_rect, ring_offsets, rotate_point
@@ -2214,4 +2215,7 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    exit_code = main()
+    # Gerbers, zip and renders follow every board write
+    export_fab.export_fabrication()
+    sys.exit(exit_code)

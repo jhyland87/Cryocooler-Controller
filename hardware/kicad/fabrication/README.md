@@ -5,19 +5,18 @@ attributes) and Excellon drill files (PTH and NPTH separate, mm, absolute origin
 made from `cryocooler.kicad_pcb` (4 layers, 130 x 110 mm). `gerbers/` holds the same
 files plus the drill maps and report; nothing in it is hand-edited.
 
-Regenerate after any board change (zones must already be filled; the generator and
-`link_usb_vbus.py` leave them filled, so do not use `--check-zones`, which refills
-and rewrites the board):
+These files, the zip and the front / back renders (`circuit-board-render-front.png`,
+`circuit-board-render-back.png`) are regenerated automatically by `tools/export_fab.py`,
+which `gen_pcb.py` (every mode) and `link_usb_vbus.py` run after they write the board. After a
+manual edit of `cryocooler.kicad_pcb` (for example a hand-routed fix), run it yourself:
 
 ```bash
-K=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
-$K pcb export gerbers --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Silkscreen,B.Silkscreen,Edge.Cuts \
-   --subtract-soldermask -o fabrication/gerbers/ cryocooler.kicad_pcb
-$K pcb export drill --format excellon --excellon-separate-th --excellon-units mm \
-   --excellon-zeros-format decimal --drill-origin absolute --generate-map --map-format pdf \
-   --generate-report --report-path fabrication/gerbers/drill_report.txt \
-   -o fabrication/gerbers/ cryocooler.kicad_pcb
+python3 hardware/kicad/tools/export_fab.py     # needs kicad-cli; about 30 s
+SKIP_FAB_EXPORT=1 ...                          # set this to skip the export while iterating
 ```
+
+Zones must already be filled (the generators leave them filled). The Gerber headers carry a
+creation date, so the files differ in git after every export even if the board did not change.
 
 ## Order settings to check
 
