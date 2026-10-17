@@ -28,7 +28,7 @@ from pcbplace import Occupancy, Rect, placed_rect, ring_offsets, rotate_point
 BOARD_WIDTH = 130.0
 BOARD_HEIGHT = 110.0
 EDGE_MARGIN = 0.8
-PASSIVE_GAP = 0.6
+PASSIVE_GAP = 0.45
 STOCK_FOOTPRINTS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints'
 )
@@ -37,10 +37,15 @@ GROUND_NETS = {'GND', 'ISO_GND'}
 # switched supply nets (one jumper each) -> module box they belong to
 SWITCHED_NETS = {
     '+3V3_SG': 'SIGNAL GENERATOR',
-    '+5V_PS15': 'POWER INPUT & RAILS',
+    '+5V_PS15': 'RAILS ±15V',
     '+5V_ISO': 'AMP CURRENT (ISOLATED)',
-    '+3V3_COOL': 'COOLING & TEMP',
+    '+3V3_COOL': 'WATER COOLING',
+    '+3V3_CH': 'COLD HEAD TEMP',
 }
+# sections too full for their test points: these sit in the nearest free
+# spot of the roomy power box instead
+TEST_POINTS_OUTSIDE = {'WATER COOLING', 'COLD HEAD TEMP'}
+TEST_POINT_OVERFLOW = 'POWER INPUT & RAILS'
 POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
     '+3V3',
     '+5V',
@@ -117,9 +122,10 @@ PLACEMENT = {
     'J4': (94.8, 106, 0),
     'J5': (106.3, 106, 0),
     'J6': (116.8, 106, 0),
-    'J10': (126.0, 87.5, 90),
+    'J10': (126.0, 88.0, 90),
     'U10': (99.5, 94, 0),
-    'U14': (115.0, 83.25, 0),
+    'U14': (113.0, 84.0, 0),
+    'JP5': (113.5, 76.0, 0),
     # panel indicators and IMU cable header
     'J14': (119.4, 45.7, 270),
     'D9': (77.0, 13.0, 0),
@@ -204,8 +210,8 @@ PIN_LABELS = {
     # the module's own pad names, top to bottom
     'J14': ['VIN', 'GND', 'SCL', 'SDA', 'DO', 'CS', 'I1', 'I2'],
 }
-# what each supply jumper switches (JP1 ... JP4, in schematic order)
-JUMPER_LABELS = ('SG 3V3', '±15 PS', 'ISO PS', 'COOL 3V3')
+# what each supply jumper switches (JP1 ... JP5, in schematic order)
+JUMPER_LABELS = ('SG 3V3', '±15V EN', 'ISO PS', 'WATER EN', 'HEAD EN')
 SILK_LABELS.update(
     {f'JP{index}': text for index, text in enumerate(JUMPER_LABELS, start=1)}
 )
@@ -864,6 +870,8 @@ class PcbBuilder:
         # a passive stays in its own module's box; debug parts (no module)
         # join the box of the part they sit beside
         module = self.part_module(ref) or self.module.get(target[0])
+        if ref.startswith('TP') and module in TEST_POINTS_OUTSIDE:
+            module = TEST_POINT_OVERFLOW
         best = None
         for offset_x, offset_y in offsets:
             if (
@@ -974,6 +982,7 @@ class PcbBuilder:
                     '+5V_PS15',
                     '+5V_ISO',
                     '+3V3_COOL',
+                    '+3V3_CH',
                 ],
             ),
             'Power12V': (
@@ -2254,6 +2263,15 @@ class PcbBuilder:
                 position.y / 1e6,
                 footprint.GetOrientationDegrees(),
             )
+            override = LOCAL_RECT_OVERRIDES.get(
+                self.parts.get(ref, {}).get('footprint')
+            )
+            if override is not None:
+                x_pos, y_pos, angle = self.centers[ref]
+                self.occupancy.add(
+                    ref, placed_rect(override, x_pos, y_pos, angle)
+                )
+                continue
             box = footprint.GetCourtyard(pcbnew.F_CrtYd).BBox()
             if box.GetWidth() == 0:
                 box = footprint.GetBoundingBox(False, False)

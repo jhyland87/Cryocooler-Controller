@@ -165,7 +165,7 @@ PARTS = {
     ('', 'PinHeader_1x02_P1.27mm_Vertical'): (
         '', '', 'CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER',
         'none',
-        'supply disable jumpers JP1-JP4; choose a 1.27 mm 2-pin header and '
+        'supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and '
         'shunt; the branches are logic supplies of a few hundred mA'),
     ('', 'JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'): (
         'JST', 'B2B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 2POS 2.5MM',

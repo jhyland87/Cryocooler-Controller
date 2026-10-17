@@ -35,6 +35,12 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **INA239 ALERT:** drives its red LED only; it is not wired to the MCU, and the firmware does not read it.
 
+### Circuit board
+
+![Front of the controller PCB (3D render)](hardware/kicad/fabrication/circuit-board-render-front.png)
+
+The 130 x 110 mm 4-layer board is generated from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). Each module has its own outlined, labelled box on the silkscreen, and the sections with their own supply jumper and LED can be switched off one at a time.
+
 ---
 
 ## Architecture

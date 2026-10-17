@@ -33,9 +33,9 @@ MODULE_OF_SHEET = {
     'Rails +-15V': 'RAILS ±15V',
     'Compressor Relay': 'COMPRESSOR RELAY',
     'IMU': 'IMU CABLE',
-    'I2C Bridge': 'COOLING & TEMP',
-    'Cold Head': 'COOLING & TEMP',
-    'Cooling': 'COOLING & TEMP',
+    'Water Cooling I2C Bridge': 'WATER COOLING',
+    'Water Cooling': 'WATER COOLING',
+    'Cold Head Temp': 'COLD HEAD TEMP',
     'Rails 5V 3V3': 'POWER INPUT & RAILS',
     'System Current': 'POWER INPUT & RAILS',
     'Power Input': 'POWER INPUT & RAILS',
@@ -51,18 +51,18 @@ MODULE_REGIONS = {
     'AMP CURRENT (ISOLATED)': [Rect(-3, 37.5, 51.5, 68.5)],
     'RAILS ±15V': [Rect(53.5, 30, 84, 72.7)],
     'COMPRESSOR RELAY': [Rect(85.8, 41.3, 104.4, 61.3)],
-    'IMU CABLE': [Rect(108.4, 41.2, 125, 70.2), Rect(106.2, 41.2, 110, 61.3)],
+    'IMU CABLE': [Rect(108.4, 41.2, 125, 69.3), Rect(106.2, 41.2, 110, 61.3)],
     'POWER INPUT & RAILS': [
         Rect(-3, 72.25, 51.5, 113),
         Rect(45, 76.5, 66, 97.5),
         Rect(60, 74.6, 84.5, 91),
         Rect(35, 94.5, 77.5, 113),
     ],
-    'COOLING & TEMP': [
-        Rect(108.6, 72.0, 133, 113),
-        Rect(104, 72.0, 110.6, 113),
-        Rect(86.3, 63.2, 106.4, 113),
-        Rect(79.5, 92.8, 125, 113),
+    'COLD HEAD TEMP': [Rect(108.2, 71.1, 133, 96.0)],
+    'WATER COOLING': [
+        Rect(86.3, 63.2, 106.0, 113),
+        Rect(79.5, 92.8, 106.0, 113),
+        Rect(100.0, 97.8, 133, 113),
     ],
 }
 
@@ -72,10 +72,20 @@ def module_of_sheet(sheet):
     return MODULE_OF_SHEET.get(sheet)
 
 
+# tighter part inset for the boxes that are very full
+MODULE_PART_INSET = {
+    'COLD HEAD TEMP': 0.7,
+    'WATER COOLING': 0.7,
+    'RAILS ±15V': 0.7,
+    'IMU CABLE': 0.7,
+}
+
+
 def region_contains(module, rect):
     """True if a part rectangle fits inside one of the module's regions."""
+    inset = MODULE_PART_INSET.get(module, PART_INSET)
     return any(
-        rect.inside(region.inflated(-PART_INSET))
+        rect.inside(region.inflated(-inset))
         for region in MODULE_REGIONS[module]
     )
 

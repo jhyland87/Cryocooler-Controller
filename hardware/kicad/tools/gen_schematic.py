@@ -2031,7 +2031,9 @@ def build_i2c_bridge(sh):
         )
     ):
         row = 100 + index * 6
-        rail_symbol(sh, '+3V3', (28, row))
+        # CS and RESET hold the MCU-side lines when the section is off
+        rail = '+3V3' if net in ('BRIDGE_CS', 'BRIDGE_RESET') else '+3V3_COOL'
+        rail_symbol(sh, rail, (28, row))
         hres(sh, ohms, 31, row)
         wire(sh, (34, row), (36, row))
         net_label(sh, net, (36, row), 0, is_global=is_global)
@@ -2104,10 +2106,10 @@ def build_cooling(sh):
     for pin, value in (('4', '33k'), ('9', '4.7k')):
         end = spur(sh, emc, pin, 5)
         hres(sh, value, end[0] - 3, end[1])
-        rail_symbol(sh, '+3V3', (end[0] - 6, end[1]))
+        rail_symbol(sh, '+3V3_COOL', (end[0] - 6, end[1]))
     alert = spur(sh, emc, '10', 4)
     hres(sh, '10k', alert[0] - 3, alert[1])
-    rail_symbol(sh, '+3V3', (alert[0] - 6, alert[1]))
+    rail_symbol(sh, '+3V3_COOL', (alert[0] - 6, alert[1]))
     wire(sh, alert, (alert[0], alert[1] + 6), (alert[0] - 1, alert[1] + 6))
     d_fault = sh.add(
         'Device:LED',
@@ -2123,7 +2125,7 @@ def build_cooling(sh):
     wire(sh, (alert[0] - 1, alert[1] + 6), k_cell)
     wire(sh, a_cell, (a_cell[0] - 1, a_cell[1]))
     hres(sh, '1k', a_cell[0] - 4, a_cell[1])
-    rail_symbol(sh, '+3V3', (a_cell[0] - 7, a_cell[1]))
+    rail_symbol(sh, '+3V3_COOL', (a_cell[0] - 7, a_cell[1]))
     wire(sh, (alert[0], alert[1] + 6), (alert[0], alert[1] + 10))
     net_label(sh, 'FAN_ALERT', (alert[0], alert[1] + 10), 180, is_global=True)
     # right side: fan on channel 1
@@ -2150,9 +2152,9 @@ def build_cooling(sh):
     )
     wire(sh, tach1, pin_cell(j_fan, '3'))
     vres(sh, '10k', 84, 46)
-    rail_symbol(sh, '+3V3', (84, 46))
+    rail_symbol(sh, '+3V3_COOL', (84, 46))
     vres(sh, '4.7k', 92, tach1[1] - 6)
-    rail_symbol(sh, '+3V3', (92, tach1[1] - 6))
+    rail_symbol(sh, '+3V3_COOL', (92, tach1[1] - 6))
     plus = pin_cell(j_fan, '2')
     wire(sh, plus, (plus[0] - 10, plus[1]))
     rail_symbol(sh, '+12V', (plus[0] - 6, plus[1]))
@@ -2189,9 +2191,9 @@ def build_cooling(sh):
         pin_cell(j_pump, '3'),
     )
     vres(sh, '10k', 90, 78)
-    rail_symbol(sh, '+3V3', (90, 78))
+    rail_symbol(sh, '+3V3_COOL', (90, 78))
     vres(sh, '4.7k', 104, pin_cell(j_pump, '3')[1] - 6)
-    rail_symbol(sh, '+3V3', (104, pin_cell(j_pump, '3')[1] - 6))
+    rail_symbol(sh, '+3V3_COOL', (104, pin_cell(j_pump, '3')[1] - 6))
     plus = pin_cell(j_pump, '2')
     wire(sh, plus, (plus[0] - 10, plus[1]))
     rail_symbol(sh, '+12V', (plus[0] - 6, plus[1]))
@@ -2216,7 +2218,7 @@ def build_cooling(sh):
     wire(sh, (raw[0] - 12, raw[1]), (raw[0] - 30, raw[1]))
     net_label(sh, 'FLOW_TACH', (raw[0] - 30, raw[1]), 180, is_global=True)
     vres(sh, '10k', raw[0] - 20, raw[1] - 6)
-    rail_symbol(sh, '+3V3', (raw[0] - 20, raw[1] - 6))
+    rail_symbol(sh, '+3V3_COOL', (raw[0] - 20, raw[1] - 6))
     plus_pin, gnd_pin = pin_cell(j_flow, '2'), pin_cell(j_flow, '1')
     wire(sh, plus_pin, (plus_pin[0] - 4, plus_pin[1]))
     rail_symbol(sh, '+12V', (plus_pin[0] - 4, plus_pin[1]))
@@ -2235,7 +2237,7 @@ def build_cooling(sh):
     wire(sh, ntc, (ntc[0] - 30, ntc[1]))
     net_label(sh, 'NTC_ADC', (ntc[0] - 30, ntc[1]), 180, is_global=True)
     vres(sh, '10k', ntc[0] - 14, ntc[1] - 6)
-    rail_symbol(sh, '+3V3', (ntc[0] - 14, ntc[1] - 6))
+    rail_symbol(sh, '+3V3_COOL', (ntc[0] - 14, ntc[1] - 6))
     vcap(sh, '100nF', ntc[0] - 22, ntc[1])
     drop_ground(sh, (ntc[0] - 22, ntc[1] + 6), 0)
     ground(sh, spur(sh, j_ntc, '2', 2))
@@ -2266,10 +2268,10 @@ def build_cold_head(sh):
     wire(sh, avdd, (avdd[0], 42))
     wire(sh, dvdd, (dvdd[0], 42))
     wire(sh, (avdd[0], 42), (dvdd[0], 42))
-    rail_symbol(sh, '+3V3_COOL', ((avdd[0] + dvdd[0]) // 2, 42))
+    rail_symbol(sh, '+3V3_CH', ((avdd[0] + dvdd[0]) // 2, 42))
     place_blocks(
         sh,
-        [('ADS1220 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF', '1uF'))],
+        [('ADS1220 DECOUPLING CAPACITORS', '+3V3_CH', ('100nF', '1uF'))],
         190,
         100,
     )
@@ -2297,7 +2299,7 @@ def build_cold_head(sh):
     drdy = (drdy_end[0], drdy_end[1] + 4)
     wire(sh, drdy_end, drdy, (drdy[0], drdy[1] + 4))
     hres(sh, '10k', drdy[0] - 3, drdy[1])
-    rail_symbol(sh, '+3V3', (drdy[0] - 6, drdy[1]))
+    rail_symbol(sh, '+3V3_CH', (drdy[0] - 6, drdy[1]))
     test_point(sh, 'ADS1220_DRDY', (drdy[0], drdy[1] + 4), rot=180)
     # right side inputs
     sh.nc(adc, '7')
@@ -2523,9 +2525,10 @@ ROOT_UUID = '8aa5b67b-a486-4448-878d-4d9f2d51f462'
 SWITCH_HEADER = 'Connector_PinHeader_1.27mm:PinHeader_1x02_P1.27mm_Vertical'
 SWITCHES = (
     ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1k'),
-    ('PS15', '+5V', '+5V_PS15', '+-15V SUPPLY +5V IN', '1k'),
+    ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '1k'),
     ('ISO5', '+5V', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '1k'),
-    ('COOL', '+3V3', '+3V3_COOL', 'COOLING +3V3 (EMC2303, RTD ADC, I2C BRIDGE)', '1k'),
+    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (EMC2303, I2C BRIDGE, NTC)', '1k'),
+    ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1k'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
 # highest reference numbers used elsewhere: the LED chains continue from them
@@ -2595,10 +2598,10 @@ def build_supply_switches(sh):
 SHEETS = [
     ('Power Input', 'power_input', build_power_input, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
-    ('Cooling', 'cooling', build_cooling, 'A3'),
+    ('Water Cooling', 'cooling', build_cooling, 'A3'),
     ('Power Button', 'power_button', build_power_button, 'A3'),
     ('Amp Control', 'amp_control', build_amp_control, 'A3'),
-    ('Cold Head', 'cold_head', build_cold_head, 'A3'),
+    ('Cold Head Temp', 'cold_head', build_cold_head, 'A3'),
     ('Rails 5V 3V3', 'rails_logic', build_rails_logic, 'A3'),
     ('Amp Current', 'amp_current', build_amp_current, 'A3'),
     ('IMU', 'imu', build_imu, 'A3'),
@@ -2611,7 +2614,7 @@ SHEETS = [
         build_compressor_relay,
         'A3',
     ),
-    ('I2C Bridge', 'i2c_bridge', build_i2c_bridge, 'A3'),
+    ('Water Cooling I2C Bridge', 'i2c_bridge', build_i2c_bridge, 'A3'),
     ('Debug', 'debug', build_debug, 'A3'),
     ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
 ]

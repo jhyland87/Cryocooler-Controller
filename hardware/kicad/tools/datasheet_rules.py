@@ -25,13 +25,13 @@ from verify_netlist import load
 RULES = [
     # EMC2303: ADDR_SEL decoded from a pull-up (33k -> 0x4D), CLK pull-up sets
     # default drive, PWM open-drain pull-ups
-    ('res', 'EMC2303-x-KP', '4', '33k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '9', '4.7k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '5', '10k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '7', '10k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '6', '4.7k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '8', '4.7k', '+3V3'),
-    ('res', 'EMC2303-x-KP', '10', '10k', '+3V3'),
+    ('res', 'EMC2303-x-KP', '4', '33k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '9', '4.7k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '5', '10k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '7', '10k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '6', '4.7k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '8', '4.7k', '+3V3_COOL'),
+    ('res', 'EMC2303-x-KP', '10', '10k', '+3V3_COOL'),
     ('net', 'EMC2303-x-KP', '3', '+3V3_COOL'),
     ('net', 'EMC2303-x-KP', '13', 'GND'),
     # MIE1W0505: VSEL to GND2 selects 3.3 V; EN must be driven high
@@ -100,6 +100,8 @@ RULES = [
     ('net', 'EN ISO5', '2', '+5V_ISO'),
     ('net', 'EN COOL', '1', '+3V3'),
     ('net', 'EN COOL', '2', '+3V3_COOL'),
+    ('net', 'EN CH', '1', '+3V3'),
+    ('net', 'EN CH', '2', '+3V3_CH'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '39', '10k', '+3V3'),
     # ISO7741 input idle levels while the ESP32 GPIOs float (CS, SCLK, MOSI
     # pulled to 3V3)
@@ -153,8 +155,8 @@ RULES = [
     ('res', 'INA239AIDGSR', '3', '10k', '+3V3'),
     # ADS1220 (SPI, SBAS501D TSSOP-16): AVDD/DVDD 3.3 V, AVSS/DGND/REFN0 on
     # GND, internal oscillator (CLK to GND), AIN2 unused, CS and DRDY pulled up
-    ('net', 'ADS1220IPW', '12', '+3V3_COOL'),
-    ('net', 'ADS1220IPW', '13', '+3V3_COOL'),
+    ('net', 'ADS1220IPW', '12', '+3V3_CH'),
+    ('net', 'ADS1220IPW', '13', '+3V3_CH'),
     ('net', 'ADS1220IPW', '4', 'GND'),
     ('net', 'ADS1220IPW', '5', 'GND'),
     ('net', 'ADS1220IPW', '8', 'GND'),
@@ -165,7 +167,7 @@ RULES = [
     ('net', 'ADS1220IPW', '16', 'SPI_MOSI'),
     ('net', 'ADS1220IPW', '15', 'SPI_MISO'),
     ('res', 'ADS1220IPW', '2', '10k', '+3V3'),
-    ('res', 'ADS1220IPW', '14', '10k', '+3V3'),
+    ('res', 'ADS1220IPW', '14', '10k', '+3V3_CH'),
     # SC18IS604 (SPI to I2C bridge, NXP rev 1.0 TSSOP16): VDD and VREFP on
     # 3.3 V, VSS on GND, CS/RESET/INT# pulled up, I2C pull-ups, MISO gated by
     # a 74LVC1G125 whose OE# follows CS
@@ -178,11 +180,11 @@ RULES = [
     ('net', 'SC18IS604PW', '4', 'BRIDGE_RESET'),
     ('res', 'SC18IS604PW', '8', '10k', '+3V3'),
     ('res', 'SC18IS604PW', '4', '10k', '+3V3'),
-    ('res', 'SC18IS604PW', '3', '10k', '+3V3'),
+    ('res', 'SC18IS604PW', '3', '10k', '+3V3_COOL'),
     ('net', 'SC18IS604PW', '1', 'SDA'),
     ('net', 'SC18IS604PW', '2', 'SCL'),
-    ('res', 'SC18IS604PW', '1', '4.7k', '+3V3'),
-    ('res', 'SC18IS604PW', '2', '4.7k', '+3V3'),
+    ('res', 'SC18IS604PW', '1', '4.7k', '+3V3_COOL'),
+    ('res', 'SC18IS604PW', '2', '4.7k', '+3V3_COOL'),
     ('join', 'SC18IS604PW', '1', 'EMC2303-x-KP', '1'),
     ('join', 'SC18IS604PW', '2', 'EMC2303-x-KP', '2'),
     ('join', 'SC18IS604PW', '14', '74LVC1G125', '2'),

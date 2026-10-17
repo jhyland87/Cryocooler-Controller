@@ -20,14 +20,14 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED |
 | `amp_current` | ACS37800 (SPI) + ISO7741 + MIE1W0505 (VSEL→GND2 = 3.3 V output), 4×1 MΩ + 4.02 kΩ divider |
 | `system_current` | INA239 (SPI mode 1, CS on GPIO3) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT and 3V3 power LEDs |
-| `i2c_bridge` | SC18IS604 SPI-to-I2C bridge (SPI mode 3, CS GPIO8, RESET GPIO9) with 4.7 kΩ I2C pull-ups, 74LVC1G125 MISO gate, INT# pull-up + test point |
-| `cooling` | EMC2303 (0x4D via 33 kΩ ADDR_SEL pull-up; fan + pump), Alphacool ES flow tach and NTC |
-| `cold_head` | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point |
+| `i2c_bridge` ("Water Cooling I2C Bridge") | SC18IS604 SPI-to-I2C bridge (SPI mode 3, CS GPIO8, RESET GPIO9) with 4.7 kΩ I2C pull-ups, 74LVC1G125 MISO gate, INT# pull-up + test point |
+| `cooling` ("Water Cooling") | EMC2303 (0x4D via 33 kΩ ADDR_SEL pull-up; fan + pump), Alphacool ES flow tach and NTC; its pull-ups sit on the switched `+3V3_COOL` rail |
+| `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
 | `imu` | Header J14 (JST XH 8-pin) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND, 100 Ω series resistors, 10 kΩ CS pull-up |
 | `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin JST XH output |
 | `indicators` | READY / FAULT LEDs, WS2812B status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds, buses, chip selects and control lines; LEDs on +5V, ±15V and ISO 3V3 |
-| `supply_switches` | 4 two-pin 1.27 mm header jumpers JP1-JP4, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
+| `supply_switches` | 5 two-pin 1.27 mm header jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
 
 ## GPIO map (ESP32-S3-WROOM-2)
 
@@ -85,7 +85,7 @@ passives may be flipped), and `tools/datasheet_rules.py` checks datasheet-critic
 Every IC was audited against its datasheet; see [`DESIGN_REVIEW.md`](DESIGN_REVIEW.md) for the
 errors found and fixed, what was verified, and the open issues that need a decision (notably:
 the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S50).
-`tools/datasheet_rules.py` re-checks 173 datasheet-derived connections on every change.
+`tools/datasheet_rules.py` re-checks 175 datasheet-derived connections on every change.
 
 ## PCB layout
 
@@ -99,13 +99,14 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   middle, MCU & USB top right (antenna overhanging the right edge over a copper keep-out), the isolated amp
   current block middle left (ISO_GND island with 1.5 mm keep-out bands), +-15 V rails in the middle, compressor
   relay and the IMU cable header (J14) down the right, 12 V input / button / 5 V and 3.3 V rails / system current
-  bottom left, cooling, RTD and the I2C bridge bottom right (fan/pump/flow/NTC headers on the bottom edge, RTD on
-  the right edge). Parts and their passives are placed only inside their own box, debug test points join the box
-  of the part they sit beside, and `gen_pcb.py` fails if a part leaves its box or two boxes are closer than 1.8 mm.
+  bottom left, and bottom right the WATER COOLING box (EMC2303, I2C bridge, flow sensor, NTC; fan/pump/flow/NTC
+  headers on the bottom edge) and the COLD HEAD TEMP box (ADS1220 + PT1000 header on the right edge). Parts and
+  their passives are placed only inside their own box, debug test points join the box of the part they sit beside
+  (the cooling-section ones overflow into free spots of the power box, since those two boxes are full), and `gen_pcb.py` fails if a part leaves its box or two boxes are closer than 1.8 mm.
   Lines stop short of the mounting holes; labels sit on a box border.
-* **Supply jumpers (JP1-JP4):** to debug one section at a time, pull the shunt from its jumper and that supply
+* **Supply jumpers (JP1-JP5):** to debug one section at a time, pull the shunt from its jumper and that supply
   is cut. Each jumper sits in its own section next to the load, with a name printed beside it and a green LED
-  (D18-D21, resistor R96-R99) that lights while the switched rail is present. Pin 1 is the main rail, pin 2 the
+  (D18-D22, resistor R96-R100) that lights while the switched rail is present. Pin 1 is the main rail, pin 2 the
   switched rail. They are 1.27 mm headers, rated only about 1 A per pin, which is plenty for these logic rails.
   A part whose supply is pulled can still be fed through its signal pins (the ESD diodes), so disconnect its
   cable too when you need it fully dead.
@@ -113,9 +114,14 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   | Jumper | Label | Cuts | Section |
   |---|---|---|---|
   | JP1 | SG 3V3 | +3.3 V to the signal generator (AD9833 side, MCP4921) | Signal Generator |
-  | JP2 | ±15 PS | +5 V into the ±15 V generator (ADP5071); sits in the power section next to the +5 V rail | Rails ±15V |
+  | JP2 | ±15V EN | +5 V into the ±15 V generator (ADP5071), the only source of both ±15 V rails: pull it to disable +15 V and -15 V | Rails ±15V |
   | JP3 | ISO PS | +5 V into the isolated supply (PS1), which powers the whole isolated side | Amp Current (Isolated) |
-  | JP4 | COOL 3V3 | one switched +3.3 V net (`+3V3_COOL`) feeding the EMC2303, the RTD ADC and the I2C bridge | Cooling & Temp |
+  | JP4 | WATER EN | switched +3.3 V net `+3V3_COOL`: EMC2303, I2C bridge (SC18IS604 + 74LVC1G125) and the NTC divider, plus their pull-ups | Water Cooling |
+  | JP5 | HEAD EN | switched +3.3 V net `+3V3_CH`: the ADS1220 PT1000 ADC and its DRDY pull-up | Cold Head Temp |
+
+  Pulling JP4 cuts only the 3.3 V logic: the 12 V fans, pump and flow sensor stay powered, and with the EMC2303 off
+  their PWM lines float (many 4-pin fans then run at full speed). An unpowered ADS1220 can still clamp the shared
+  SPI MISO line through its ESD diodes while other devices are being read, so leave JP5 fitted during normal operation.
 
 * **IMU cable (J14, JST XH 8-pin):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
   cryocooler. J14 pins 1-8 run top to bottom on the board as VIN, GND, SCL, SDA, DO, CS, I1, I2, the same order
@@ -142,7 +148,7 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
   and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.
-* **Checks (2026-10-16):** `kicad-cli pcb drc` reports 0 errors and 0 unconnected items (two silkscreen overlap warnings, J5's reference text against J6's outline); schematic ERC is 0 and all 173 datasheet rules pass. 299 footprints, including about 45 test points. Freerouting left three items open or in conflict (the R53 pad, the R67 VSW sense pad, and the USB-C VBUS pad pairs) plus one In2 track through a via-in-pad; they were fixed by hand with short tracks, a B.Cu link and a rerouted segment.
+* **Checks (2026-10-17):** `kicad-cli pcb drc` reports 0 unconnected items and no copper violations; the only warnings are 6 silkscreen ones (reference text against reference text or a neighbour's outline, and the back-side logo over the JP2 / JP3 pads). Schematic ERC is 0 and all 175 datasheet rules pass. 302 footprints. After the water-cooling / cold-head split, Freerouting left four connections open (+12V to the amp REM section, a +15V link to C22, VIN at U11, the J12 net at R53) and two stitching vias too close to inner tracks; they were completed with a small grid router (clearance-aware, using the board's own copper as obstacles) and a 0.13 mm via nudge, then the zones were refilled.
 * **Fabrication export:** every `gen_pcb.py` run and `link_usb_vbus.py` ends by running `tools/export_fab.py` (Gerbers, drill files, the JLCPCB zip and the front / back renders in `fabrication/`); set `SKIP_FAB_EXPORT=1` to skip it, or run the script yourself after a manual board edit.
 * **After `route`:** run `python3 tools/link_usb_vbus.py` (KiCad's python). Freerouting leaves the A4/B9 pair of the USB-C VBUS pads unconnected; the script adds a stub, two vias and a short B.Cu link, trying positions until DRC is clean.
 * **Fine-pitch ground pads:** the INA239 (U23 pad 7) and AD9833 (U4 pads 4, 9) ground pads get locked 0.35 mm / 0.2 mm via-in-pad before routing; `cryocooler.kicad_pro` allows 0.35 mm vias and a 0.075 mm annular ring for them (order filled/capped vias, check the fab's minimums).
