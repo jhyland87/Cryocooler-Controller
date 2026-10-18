@@ -29,6 +29,8 @@ BOARD_WIDTH = 130.0
 BOARD_HEIGHT = 110.0
 EDGE_MARGIN = 0.8
 PASSIVE_GAP = 0.45
+# JLCPCB needs 0.2 mm drills on 0.45 mm pads or larger, else a paid 4-wire test.
+VIA_IN_PAD_DIAMETER = 0.45
 STOCK_FOOTPRINTS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints'
 )
@@ -953,7 +955,7 @@ class PcbBuilder:
         settings = self.board.GetDesignSettings()
         settings.m_MinClearance = to_internal(0.15)
         settings.m_TrackMinWidth = to_internal(0.15)
-        settings.m_ViasMinSize = to_internal(0.35)
+        settings.m_ViasMinSize = to_internal(VIA_IN_PAD_DIAMETER)
         settings.m_ViasMinAnnulus = to_internal(0.075)
         settings.m_MinThroughDrill = to_internal(0.2)
         settings.m_CopperEdgeClearance = to_internal(0.3)
@@ -1482,7 +1484,7 @@ class PcbBuilder:
         # see VIA_IN_PAD_REFS)
         via = pcbnew.PCB_VIA(self.board)
         via.SetPosition(center)
-        via.SetWidth(to_internal(0.35))
+        via.SetWidth(to_internal(VIA_IN_PAD_DIAMETER))
         via.SetDrill(to_internal(0.2))
         via.SetViaType(pcbnew.VIATYPE_THROUGH)
         via.SetNet(self.net_item(net))
@@ -1591,7 +1593,7 @@ class PcbBuilder:
                         ),
                     )
                 )
-                via.SetWidth(to_internal(0.35))
+                via.SetWidth(to_internal(VIA_IN_PAD_DIAMETER))
                 via.SetDrill(to_internal(0.2))
                 via.SetViaType(pcbnew.VIATYPE_THROUGH)
                 via.SetNet(self.net_item(self.full_net(net)))
@@ -2323,14 +2325,14 @@ class PcbBuilder:
 
 def patch_project_rules():
     """Writes the fine-pitch via limits into cryocooler.kicad_pro (pcbnew does
-    not persist the annular-width minimum): 0.35 mm vias, 0.2 mm drills and a
+    not persist the annular-width minimum): 0.45 mm vias, 0.2 mm drills and a
     0.075 mm ring for the 0.5 mm pitch LGA/MSOP ground pads.
     """
     path = KICAD_DIR / 'cryocooler.kicad_pro'
     project = json.loads(path.read_text())
     rules = project['board']['design_settings']['rules']
     rules['min_via_annular_width'] = 0.075
-    rules['min_via_diameter'] = 0.35
+    rules['min_via_diameter'] = VIA_IN_PAD_DIAMETER
     rules['min_through_hole_diameter'] = 0.2
     path.write_text(json.dumps(project, indent=2) + '\n')
 
@@ -2347,7 +2349,9 @@ def main():
         builder.board = pcbnew.LoadBoard(
             str(KICAD_DIR / 'cryocooler.kicad_pcb')
         )
-        builder.board.GetDesignSettings().m_ViasMinSize = to_internal(0.35)
+        builder.board.GetDesignSettings().m_ViasMinSize = to_internal(
+            VIA_IN_PAD_DIAMETER
+        )
         for zone in builder.board.Zones():
             if not zone.GetIsRuleArea() and zone.GetNetname() in GROUND_NETS:
                 zone.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)

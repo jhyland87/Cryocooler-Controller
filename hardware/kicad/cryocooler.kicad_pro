@@ -155,7 +155,7 @@
         "min_through_hole_diameter": 0.2,
         "min_track_width": 0.15,
         "min_via_annular_width": 0.075,
-        "min_via_diameter": 0.35,
+        "min_via_diameter": 0.45,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
       },
@@ -516,14 +516,13 @@
         "bus_width": 12,
         "clearance": 0.15,
         "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": -1,
+        "priority": 0,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.3,
         "tuning_profile": "",
@@ -535,14 +534,13 @@
         "bus_width": 12,
         "clearance": 0.15,
         "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power12V",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": -1,
+        "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.8,
         "tuning_profile": "",
@@ -554,14 +552,13 @@
         "bus_width": 12,
         "clearance": 0.15,
         "diff_pair_gap": 0.18,
-        "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Usb",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": -1,
+        "priority": 2,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
         "tuning_profile": "",
@@ -609,26 +606,6 @@
         "pattern": "/USB_VBUS"
       },
       {
-        "netclass": "Power",
-        "pattern": "+3V3_SG"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+5V_PS15"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+5V_ISO"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+3V3_COOL"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+3V3_CH"
-      },
-      {
         "netclass": "Power12V",
         "pattern": "VIN"
       },
@@ -659,6 +636,22 @@
       {
         "netclass": "Usb",
         "pattern": "Net-(J1-D--PadA7)"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "+3V3_SG"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "+5V_PS15"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "+5V_ISO"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "+3V3_COOL"
       }
     ]
   },

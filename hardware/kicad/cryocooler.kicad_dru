@@ -1,0 +1,7 @@
+(version 1)
+
+# 0.45 mm / 0.2 mm via-in-pad on 0.5 mm pitch pads leaves 0.1 mm to the
+# neighbouring pad, which JLCPCB manufactures on 4 layers.
+(rule via_in_pad_clearance
+  (condition "A.Type == 'Via' && A.Hole == 0.2mm")
+  (constraint clearance (min 0.1mm)))
