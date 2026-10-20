@@ -36,6 +36,9 @@ void run_sensor_mock_ramp_tests();
 // log ring buffer and LogStream tests (defined in test_log_buffer.cpp)
 void run_log_tests();
 
+// +-15 V power-good monitor tests (defined in test_power_good.cpp)
+void run_power_good_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1668,6 +1671,7 @@ int main(int argc, char **argv) {
 
     // log ring buffer and LogStream
     run_log_tests();
+    run_power_good_tests();
 
     return UNITY_END();
 }

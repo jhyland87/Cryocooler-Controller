@@ -32,6 +32,9 @@ C1210 = 'Capacitor_SMD:C_1210_3225Metric'
 CP_ELEC = 'Capacitor_SMD:CP_Elec_8x10'
 CP_TANT = 'Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B'
 LED0603 = 'LED_SMD:LED_0603_1608Metric'
+R0402 = 'Resistor_SMD:R_0402_1005Metric'
+LED0402 = 'LED_SMD:LED_0402_1005Metric'
+SOT323 = 'Package_TO_SOT_SMD:SOT-323_SC-70'
 LED1206 = 'LED_SMD:LED_1206_3216Metric'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 KK3 = 'Connector_Molex:Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'
@@ -990,9 +993,9 @@ def build_rails_15v(sh):
         21,
     )
     sh.note(
-        'PG_15V = +15 V through 220k/62k, pulled to ground by PGP and PGN: '
-        'about 3.2 V only when both rails are good, 0 V if either is bad or '
-        'missing. It gates the amplifier REM switch.',
+        'PGP and PGN (open collector, low = bad) go to nodes PGP_15V / '
+        'PGN_15V built on the power_good sheet, which also makes PG_15V and '
+        'lights one LED per pin.',
         20,
         27,
     )
@@ -1126,13 +1129,11 @@ def build_rails_15v(sh):
     # grounds and the unused current-limit pins share one bar
     gnd_bus(sh, [pin_cell(reg, number) for number in ('5', '13', '11')])
     channels = (
-        # output, sense, PGFB, PG, SET pin, rail net
-        ('21', '20', '17', '4', '18', '+15V'),
-        ('15', '14', '10', '9', '12', '-15V'),
+        # output, sense, PGFB, PG, SET pin, rail net, power-good node
+        ('21', '20', '17', '4', '18', '+15V', 'PGP_15V'),
+        ('15', '14', '10', '9', '12', '-15V', 'PGN_15V'),
     )
-    for index, (out, sense, feedback, good, setpoint, rail) in enumerate(
-        channels
-    ):
+    for out, sense, feedback, good, setpoint, rail, good_net in channels:
         o, s = pin_cell(reg, out), pin_cell(reg, sense)
         # output rail: Kelvin sense joins the output wire, 22 uF at the end
         wire(sh, o, (o[0] + 46, o[1]))
@@ -1148,9 +1149,9 @@ def build_rails_15v(sh):
             vres(sh, '10k', divider, o[1] + 6)
         drop_ground(sh, (divider, o[1] + 12), 0)
         wire(sh, pgfb, (divider, pgfb[1]))
-        # open-collector power-good pin to the shared PG_15V net
+        # open-collector power-good pin to its own node
         net_label(
-            sh, 'PG_15V', spur(sh, reg, good, 2), 0, is_global=True
+            sh, good_net, spur(sh, reg, good, 2), 0, is_global=True
         )
         # SET resistor and bypass cap to ground
         pin = pin_cell(reg, setpoint)
@@ -1160,36 +1161,82 @@ def build_rails_15v(sh):
         wire(sh, (pin[0] + 8, pin[1] + 6), (pin[0] + 14, pin[1] + 6))
         drop_ground(sh, (pin[0] + 8, pin[1] + 6), 2)
     kicadgen.retire_refs('C', 1)  # the old block used five capacitors
-    # PG_15V: +15 V rail -> 220k -> node -> 62k -> ground; the open-collector
-    # PGP / PGN pins pull the node down
-    o = pin_cell(reg, '21')
-    with high_refs('R'):
-        vres(sh, '220k', o[0] + 22, o[1])
-        vres(sh, '62k', o[0] + 22, o[1] + 6)
-    drop_ground(sh, (o[0] + 22, o[1] + 12), 0)
-    wire(sh, (o[0] + 22, o[1] + 6), (o[0] + 25, o[1] + 6))
-    net_label(sh, 'PG_15V', (o[0] + 25, o[1] + 6), 0, is_global=True)
 
 
 def build_power_good(sh):
-    """Hand-laid: the +-15 V power-good flag as an LED and a 3.3 V logic level."""
+    """Hand-laid: one node and LED per LT3097 power-good pin, their AND as
+    PG_15V, and the active-low flag for the ESP32.
+    """
     sh.handwired = True
     sh.note(
-        'PG_15V (from the LT3097, about 3.2 V when both +-15 V rails are '
-        'good, 0 V otherwise) turns on a green LED and reads LOW on GPIO43 '
-        '(PG_15V_N) when both rails are good.',
+        'PGP and PGN pull their own node low when bad. Each node is the +15 V '
+        'rail through 220k/62k (about 3.2 V when good, 0 V if its pin pulls '
+        'low or the rail is missing) and lights its green LED.',
         20,
         15,
     )
-    power_good_indicator(sh, 70, 60)
+    sh.note(
+        'PG_15V = the two nodes ANDed by a BAT54AW with a 10k pull-up '
+        'to +3V3 (3.3 V only when both are good); it gates the amplifier REM '
+        'switch and reads LOW on GPIO43 (PG_15V_N) when both rails are good.',
+        20,
+        21,
+    )
+    power_good_node(sh, 'PGP_15V', 30, 40)
+    power_good_node(sh, 'PGN_15V', 50, 40)
+    power_good_and(sh, 90, 44)
+    power_good_flag(sh, 160, 80)
+    power_good_led(sh, 'PGP_15V', 'PG +15V (green)', 30, 110)
+    power_good_led(sh, 'PGN_15V', 'PG -15V (green)', 70, 110)
 
 
-def power_good_indicator(sh, column, row):
-    """PG_15V gates a BSS138: its drain lights a green LED and, through 1k,
+def power_good_node(sh, label, column, row):
+    """+15 V -> 220k -> node -> 62k -> ground; the node carries the label."""
+    rail_symbol(sh, '+15V', (column, row))
+    with high_refs('R'):
+        vres(sh, '220k', column, row, fp=R0402)
+        vres(sh, '62k', column, row + 6, fp=R0402)
+    drop_ground(sh, (column, row + 12), 0)
+    wire(sh, (column, row + 6), (column + 4, row + 6))
+    net_label(sh, label, (column + 4, row + 6), 0, is_global=True)
+
+
+def power_good_and(sh, column, row):
+    """BAT54AW (two Schottky diodes, common anode on PG_15V, cathodes on
+    PGP_15V / PGN_15V) with a 10k pull-up to +3V3: PG_15V is high only while
+    both nodes are.
+    """
+    with high_refs('D'):
+        pair = sh.add(
+            'Diode:BAT54AW',
+            next_ref('D'),
+            'BAT54AW',
+            column * 1.27,
+            row * 1.27,
+            auto=False,
+            footprint=SOT323,
+        )
+    k1, k2, anode = (pin_cell(pair, number) for number in ('1', '2', '3'))
+    wire(sh, k1, (k1[0] - 4, k1[1]))
+    net_label(sh, 'PGP_15V', (k1[0] - 4, k1[1]), 180, is_global=True)
+    wire(sh, k2, (k2[0] + 4, k2[1]))
+    net_label(sh, 'PGN_15V', (k2[0] + 4, k2[1]), 0, is_global=True)
+    node = (anode[0], anode[1] + 2)
+    wire(sh, anode, node)
+    wire(sh, node, (node[0] + 12, node[1]))
+    net_label(sh, 'PG_15V', (node[0] + 12, node[1]), 0, is_global=True)
+    # 10k pull-up hangs below the output wire, +3V3 symbol turned downwards
+    with high_refs('R'):
+        vres(sh, '10k', node[0] + 5, node[1], fp=R0402)
+    rail_symbol(sh, '+3V3', (node[0] + 5, node[1] + 6), rot=180)
+
+
+def power_good_flag(sh, column, row):
+    """PG_15V gates a BSS138W whose drain, pulled up to +3V3 and through 1k,
     reads as PG_15V_N (low = both rails good) on the ESP32.
     """
     with high_refs('Q'):
-        fet = nfet(sh, 'BSS138', '', '', pose=at(column, row))
+        fet = nfet(sh, 'BSS138', '', '', pose=at(column, row), fp=SOT323)
     gate, drain = pin_cell(fet, '1'), pin_cell(fet, '3')
     wire(sh, gate, (gate[0] - 4, gate[1]))
     net_label(sh, 'PG_15V', (gate[0] - 4, gate[1]), 180, is_global=True)
@@ -1204,37 +1251,50 @@ def power_good_indicator(sh, column, row):
     wire(sh, node, (node[0] - 10, node[1]))
     pull_x = node[0] - 10
     with high_refs('R'):
-        vres(sh, '10k', pull_x, node[1] - 6)
+        vres(sh, '10k', pull_x, node[1] - 6, fp=R0402)
     rail_symbol(sh, '+3V3', (pull_x, node[1] - 6))
-    # +3V3 -> 1k -> LED -> node
-    led_x = node[0] - 20
-    wire(sh, (pull_x, node[1]), (led_x, node[1]))
+    # node -> 1k -> PG_15V_N (ESP32 GPIO43)
+    wire(sh, node, (node[0] + 4, node[1]))
     with high_refs('R'):
-        vres(sh, '1k', led_x, node[1] - 18)
-    rail_symbol(sh, '+3V3', (led_x, node[1] - 18))
+        hres(sh, '1k', node[0] + 7, node[1], fp=R0402)
+    wire(sh, (node[0] + 10, node[1]), (node[0] + 14, node[1]))
+    net_label(sh, 'PG_15V_N', (node[0] + 14, node[1]), 0, is_global=True)
+
+
+def power_good_led(sh, node_net, text, column, row):
+    """A node turns a BSS138W on; its drain pulls a green LED (1k to +3V3) low."""
+    with high_refs('Q'):
+        fet = nfet(sh, 'BSS138', '', '', pose=at(column, row), fp=SOT323)
+    gate, drain = pin_cell(fet, '1'), pin_cell(fet, '3')
+    wire(sh, gate, (gate[0] - 4, gate[1]))
+    net_label(sh, node_net, (gate[0] - 4, gate[1]), 180, is_global=True)
+    spur(sh, fet, '2', 2)
+    ground(
+        sh,
+        (pin_cell(fet, '2')[0], pin_cell(fet, '2')[1] + 2),
+    )
+    node = (drain[0], drain[1] - 4)
+    wire(sh, drain, node)
+    with high_refs('R'):
+        vres(sh, '1k', node[0], node[1] - 18, fp=R0402)
+    rail_symbol(sh, '+3V3', (node[0], node[1] - 18))
     with high_refs('D'):
         indicator = sh.add(
             'Device:LED',
             next_ref('D'),
-            'PG 15V (green)',
-            led_x * 1.27,
+            text,
+            node[0] * 1.27,
             (node[1] - 9) * 1.27,
             rot=90,
             auto=False,
-            footprint=LED0603,
+            footprint=LED0402,
         )
     anode, cathode = pin_cell(indicator, '2'), pin_cell(indicator, '1')
     if anode[1] > cathode[1]:
         indicator.rot = 270
         anode, cathode = pin_cell(indicator, '2'), pin_cell(indicator, '1')
-    wire(sh, (led_x, node[1] - 12), anode)
-    wire(sh, cathode, (led_x, node[1]))
-    # node -> 1k -> PG_15V_N (ESP32 GPIO43)
-    wire(sh, node, (node[0] + 4, node[1]))
-    with high_refs('R'):
-        hres(sh, '1k', node[0] + 7, node[1])
-    wire(sh, (node[0] + 10, node[1]), (node[0] + 14, node[1]))
-    net_label(sh, 'PG_15V_N', (node[0] + 14, node[1]), 0, is_global=True)
+    wire(sh, (node[0], node[1] - 12), anode)
+    wire(sh, cathode, node)
 
 
 def opamp_unit(

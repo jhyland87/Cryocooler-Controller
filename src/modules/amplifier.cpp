@@ -30,6 +30,7 @@
 #include "tracking.h"
 #include "tick.h"
 #include "logger.h"
+#include "power_good.h"
 
 // ---------------------------------------------------------------------------
 // Module-private state
@@ -46,6 +47,9 @@ static bool sDacAvailable = false;
 
 /// True while the relay output is energised (cached).
 static bool sRelayOn = false;
+
+/// Debounced +-15 V power-good level (PG_15V_N_PIN is active LOW).
+static PowerGoodMonitor sPowerGood(AMPLIFIER_POWER_GOOD_DEBOUNCE_MS);
 
 // Waveform generator (AD9833 over SPI)
 static MD_AD9833 ad9833_(AD9833_CS);
@@ -110,6 +114,34 @@ static void setRelay(bool on) {
     sRelayOn = on;
     digitalWrite(AMPLIFIER_RELAY_PIN, on ? HIGH : LOW);
     ESP_LOGD(TAG, "Relay → %s", on ? "ON" : "OFF");
+}
+
+/**
+ * Read the raw power-good level: PG_15V_N is pulled LOW by the power-good
+ * stage only while both +-15 V rails are in regulation.
+ */
+static bool readPowerGoodPin() {
+    return digitalRead(PG_15V_N_PIN) == LOW;
+}
+
+/**
+ * Sample the power-good input and log a line for every confirmed change.
+ * The lines reach the dashboard console through the logger ring buffer.
+ */
+static void pollPowerGood() {
+    switch (sPowerGood.update(readPowerGoodPin(), tick::nowMs())) {
+        case PowerGoodMonitor::Event::Lost:
+            _Log.printf("WARNING: +/-15 V power lost (PG_15V_N high), AMP_REM blocked%s\n",
+                        enabled_ ? " while the output was enabled" : "");
+            break;
+        case PowerGoodMonitor::Event::Restored:
+            _Log.printf("+/-15 V power restored after %lu ms (PG_15V_N low)\n",
+                        static_cast<unsigned long>(sPowerGood.lastOutageMs()));
+            break;
+        case PowerGoodMonitor::Event::None:
+        default:
+            break;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +212,9 @@ module::InitStatus init() {
         }
     }
     _Log.println(F("Amplifier relay initialized"));
+
+    // -- +-15 V power good ----------------------------------------------------
+    initPowerGood();
 
     // -- MCP4921 DAC -----------------------------------------------------------
     // This is the multiplier voltage that gets passed to the AD633 voltage
@@ -300,6 +335,21 @@ module::InitStatus initRelay() {
 
     ESP_LOGI(TAG, "Amplifier relay initialised — relay OFF");
     return module::MODULE_INIT_SUCCESS;
+}
+
+module::InitStatus initPowerGood() {
+    // GPIO43 is U0TXD: INPUT hands the pad over from the UART to the GPIO
+    // matrix (the console is native USB CDC, so UART0 is otherwise unused).
+    pinMode(PG_15V_N_PIN, INPUT);
+    const bool good = readPowerGoodPin();
+    sPowerGood.begin(good, tick::nowMs());
+    _Log.printf("+/-15 V power good: %s (PG_15V_N %s)\n",
+                good ? "yes" : "NO, AMP_REM blocked", good ? "low" : "high");
+    return module::MODULE_INIT_SUCCESS;
+}
+
+bool isPowerGood() {
+    return sPowerGood.isGood();
 }
 
 bool checkDependencies() {
@@ -449,6 +499,8 @@ module::ServiceStatus service() {
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_SKIPPED;
     }
+
+    pollPowerGood();
 
     // -- DEBUG: dump raw ACS37800 register contents periodically -------------
     // Runs regardless of sAcsAvailable so we can see what SPI reads return
