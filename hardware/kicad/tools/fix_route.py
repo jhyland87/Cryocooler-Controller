@@ -9,19 +9,26 @@ Fixes the leftovers Freerouting 2.5.0 produced on the LT3097 revision:
     included) are removed, and co-located duplicates are collapsed;
   * pour fragments left without a via get one at their roomiest point, and
     signal vias that touch copper on one layer only are removed;
+  * pads whose thermal relief leads into an isolated pour island get their
+    pour connection switched off (DRC "starved thermal");
   * the R53 pad 2 to J12 current-path link is closed with a short F.Cu track;
   * the Q2 gate track is pulled 0.25 mm away from Q4 pad 2.
 The track edits match one routing result (coordinates below), so they only
 apply when the expected segments are found; a re-route needs them re-checked.
 """
 
+import json
 import math
+import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pcbnew
 
 KICAD_DIR = Path(__file__).resolve().parent.parent
+KICAD_CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
 GROUND_NETS = {'GND', 'ISO_GND'}
 # removed items stay referenced: freeing them while the board is in use
 # corrupts the other pcbnew objects
@@ -56,9 +63,44 @@ def segment_distance(point, start, end):
     )
 
 
+def relocate_pad_via(board, via, position, radius, clearance=0.25):
+    """Moves a via inside a large pad of its own net to the point of the pad
+    with the most room to foreign copper; False if no spot has `clearance`.
+    """
+    net = via.GetNetname()
+    for footprint in board.GetFootprints():
+        for pad in footprint.Pads():
+            box = pad.GetBoundingBox()
+            width, height = mm(box.GetWidth()), mm(box.GetHeight())
+            if pad.GetNetname() != net or min(width, height) < 1.5:
+                continue
+            left, top = mm(box.GetLeft()), mm(box.GetTop())
+            right, bottom = mm(box.GetRight()), mm(box.GetBottom())
+            if not (left <= position[0] <= right and top <= position[1] <= bottom):
+                continue
+            best = None
+            margin = radius + 0.15
+            x = left + margin
+            while x <= right - margin:
+                y = top + margin
+                while y <= bottom - margin:
+                    gap = foreign_gap(board, x, y, radius, net)
+                    if best is None or gap > best[0]:
+                        best = (gap, x, y)
+                    y += 0.25
+                x += 0.25
+            if best and best[0] >= clearance:
+                via.SetPosition(
+                    pcbnew.VECTOR2I(pcbnew.FromMM(best[1]), pcbnew.FromMM(best[2]))
+                )
+                return True
+    return False
+
+
 def remove_crowding_vias(board):
-    """Removes GND vias within clearance of a foreign-net track on any layer,
-    and duplicate vias at one position. Returns the removed vias' positions.
+    """Moves (inside a large pad) or removes GND vias within clearance of a
+    foreign-net track on any layer, and collapses duplicate vias at one
+    position. Returns the positions of the vias it changed.
     """
     removed = []
     tracks = [
@@ -91,6 +133,9 @@ def remove_crowding_vias(board):
             end = (mm(track.GetEnd().x), mm(track.GetEnd().y))
             limit = radius + mm(track.GetWidth()) / 2 + VIA_TRACK_CLEARANCE
             if segment_distance(position, start, end) < limit:
+                if relocate_pad_via(board, via, position, radius):
+                    removed.append(position)
+                    break
                 board.Remove(via)
                 REMOVED.append(via)
                 removed.append(position)
@@ -289,6 +334,45 @@ def remove_dangling_vias(board):
     return removed
 
 
+def starved_thermal_pads(path):
+    """(reference, pad number) of every pad DRC reports with a starved thermal
+    relief (spokes into an isolated pour island).
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        report = Path(tmp) / 'drc.json'
+        subprocess.run(
+            [
+                KICAD_CLI, 'pcb', 'drc', '--format', 'json',
+                '--severity-error', '--output', str(report), str(path),
+            ],
+            check=False,
+            capture_output=True,
+        )
+        data = json.loads(report.read_text())
+    pads = []
+    for violation in data.get('violations', []):
+        if violation.get('type') != 'starved_thermal':
+            continue
+        for item in violation.get('items', []):
+            match = re.search(r'pad (\S+) \[.*\] of (\S+)', item.get('description', ''))
+            if match:
+                pads.append((match.group(2), match.group(1)))
+    return pads
+
+
+def disconnect_starved_pads(board, pads):
+    """Turns the pour connection off for pads whose only spokes lead into an
+    isolated island (they are wired by tracks).
+    """
+    done = []
+    for footprint in board.GetFootprints():
+        for pad in footprint.Pads():
+            if (footprint.GetReference(), pad.GetNumber()) in pads:
+                pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_NONE)
+                done.append((footprint.GetReference(), pad.GetNumber()))
+    return done
+
+
 def main():
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else KICAD_DIR / 'cryocooler.kicad_pcb'
     board = pcbnew.LoadBoard(str(path))
@@ -302,6 +386,11 @@ def main():
     print('island vias added:', reconnect_ground_islands(board))
     filler.Fill(board.Zones())
     pcbnew.SaveBoard(str(path), board)
+    starved = starved_thermal_pads(path)
+    if starved:
+        print('pour connection off for:', disconnect_starved_pads(board, starved))
+        filler.Fill(board.Zones())
+        pcbnew.SaveBoard(str(path), board)
 
 
 if __name__ == '__main__':
