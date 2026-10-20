@@ -83,6 +83,7 @@ PLACEMENT = {
     'Q6': (18.0, 21.0, 0),
     'Q5': (18.0, 27.0, 0),
     'D4': (17.0, 32.6, 0),
+    'Q9': (23.5, 27.0, 0),
     # isolation barrier (ISO side is left of x = 39.25)
     'J11': (5.6, 43.2, 270),
     'J12': (5.6, 55.0, 270),
@@ -95,8 +96,7 @@ PLACEMENT = {
     'D5': (73.0, 42.0, 0),
     'L3': (64.0, 60.5, 0),
     'D6': (74.0, 54.0, 0),
-    'U21': (74.0, 34.5, 0),
-    'U22': (80.5, 34.5, 0),
+    'U21': (77.0, 36.0, 0),
     # power input and button
     'J2': (5.6, 101, 270),
     'F1': (19.0, 105, 0),
@@ -115,8 +115,10 @@ PLACEMENT = {
     # 5 V / 3.3 V rails and system current
     'U15': (64.5, 85.5, 0),
     'L1': (71.0, 86.25, 0),
-    'U16': (79.0, 81, 0),
+    'U16': (79.0, 83.0, 0),
     'U23': (62.0, 102.5, 0),
+    'Q10': (14.0, 78.0, 0),
+    'D23': (18.5, 78.0, 0),
     'R67': (62.5, 106.7, 0),
     'C71': (71.0, 105.1, 0),
     # cooling and cold head
@@ -153,11 +155,34 @@ PLACEMENT = {
 ISO_REGION = Rect(0.0, 36.5, 39.25, 70.0)
 ISO_NETS = {'ISO_GND', 'ISO_3V3'}
 
+# Same-net pad chains on 0.5 mm pitch parts, joined by locked F.Cu stubs before
+# routing (the 0.3 mm power tracks do not fit between the pads): consecutive
+# pads of each chain, plus the exposed-pad links.
+PAD_BRIDGES = {
+    'U21': (
+        ('1', '2', '3'),  # INP, INP, ENP/UVP
+        ('6', '7', '8'),  # INN, INN, ENN/UVN
+        ('7', '24'),  # INN to its exposed pad
+        ('14', '15', '16'),  # OUTSN, OUTN, OUTN
+        ('20', '21', '22'),  # OUTSP, OUTP, OUTP
+        ('19', '23'),  # GND to its exposed pad
+    ),
+}
+BRIDGE_WIDTH = 0.2
+
 # GND pads that get a locked via-in-pad before routing (fine-pitch LGA)
 FINE_PITCH_GROUND_PADS = {
     'U23': {'7'},
     'U4': {'4', '9'},
+    'U21': {'5', '11', '13', '19'},
 }
+# GND pads of placed passives that are boxed in by their own signal track and
+# would otherwise get a via-in-pad after routing, on top of an inner track
+LATE_GROUND_PADS = {
+    'R62': {'2'},
+    'R64': {'2'},
+}
+MIN_TRACK_WIDTH = 0.15
 
 # Anchors for ground test points (ground nets have no natural neighbour pad):
 # the k-th TP on GND sits beside the k-th entry; ISO_GND beside the isolator.
@@ -1568,13 +1593,64 @@ class PcbBuilder:
             if not pcbnew.ImportSpecctraSES(self.board, str(ses)):
                 raise RuntimeError('SES import failed')
 
-    def pre_place_fine_pitch_ground_vias(self):
+    def pre_place_pad_bridges(self):
+        """Locked 0.2 mm F.Cu stubs between same-net pads of PAD_BRIDGES, so
+        the router sees one pad group per net instead of pads it cannot reach.
+        """
+        for ref, chains in PAD_BRIDGES.items():
+            if ref not in self.footprints:
+                continue
+            for chain in chains:
+                for first, second in zip(chain, chain[1:]):
+                    net = self.pad_net[ref].get(first)
+                    if net is None or net != self.pad_net[ref].get(second):
+                        raise RuntimeError(
+                            f'{ref} pads {first} and {second} are not on '
+                            'one net'
+                        )
+                    start = self.pad_position(ref, first)
+                    end = self.pad_position(ref, second)
+                    # exposed pads are large: end the stub 0.5 mm inside them
+                    if second in ('23', '24'):
+                        end = (start[0] + (end[0] - start[0]) * 0.6, start[1])
+                    track = pcbnew.PCB_TRACK(self.board)
+                    track.SetStart(
+                        pcbnew.VECTOR2I(
+                            to_internal(start[0]), to_internal(start[1])
+                        )
+                    )
+                    track.SetEnd(
+                        pcbnew.VECTOR2I(
+                            to_internal(end[0]), to_internal(end[1])
+                        )
+                    )
+                    track.SetWidth(to_internal(BRIDGE_WIDTH))
+                    track.SetLayer(pcbnew.F_Cu)
+                    track.SetNet(self.net_item(self.full_net(net)))
+                    track.SetLocked(True)
+                    self.board.Add(track)
+
+    def widen_thin_tracks(self):
+        """Freerouting squeezes a few stubs down to 0.125 mm; widen them to
+        the board's minimum track width.
+        """
+        widened = 0
+        for track in self.board.GetTracks():
+            if (
+                track.Type() == pcbnew.PCB_TRACE_T
+                and track.GetWidth() < to_internal(MIN_TRACK_WIDTH)
+            ):
+                track.SetWidth(to_internal(MIN_TRACK_WIDTH))
+                widened += 1
+        return widened
+
+    def pre_place_fine_pitch_ground_vias(self, table=None):
         """Locked 0.35 mm via-in-pad on the fine-pitch LGA/MSOP ground pads before
         autorouting. The LGA pads are 0.5 mm apart, so a router-placed via
         or an inner-layer track under them cannot be kept clear; 0.35 mm
         keeps 0.15 mm to the neighbouring pads (order filled/capped vias).
         """
-        for ref, pads in FINE_PITCH_GROUND_PADS.items():
+        for ref, pads in (table or FINE_PITCH_GROUND_PADS).items():
             footprint = self.footprints.get(ref)
             if footprint is None:
                 continue
@@ -2312,7 +2388,9 @@ class PcbBuilder:
         self.reserve_anchor_pockets()
         self.pre_route_current_path()
         self.pre_place_fine_pitch_ground_vias()
+        self.pre_place_pad_bridges()
         unplaced = self.place_passives()
+        self.pre_place_fine_pitch_ground_vias(LATE_GROUND_PADS)
         for footprint in self.footprints.values():
             self.board.Add(footprint)
         self.add_outline_and_keepouts()
@@ -2410,6 +2488,7 @@ def main():
         work_dir = Path(tempfile.mkdtemp(prefix='cryo_route_'))
         builder.autoroute(work_dir)
         print('routing files in', work_dir)
+        print('thin tracks widened:', builder.widen_thin_tracks())
         builder.add_inner_power_planes()
         builder.add_outer_pours()
     else:

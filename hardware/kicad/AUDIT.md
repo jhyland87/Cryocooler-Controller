@@ -31,6 +31,7 @@ Gerber package in `fabrication/` is still valid.
 | INA239 | pins, SPI mode 1, MISO Hi-Z with CS high, VS/VBUS limits |
 | ADS1220 | pins, SPI mode 1, DOUT Hi-Z with CS high, reference and IDAC wiring |
 | SC18IS604 | pins, VREFP to VDD, INT#/RESET# rules, SPI mode 3. MISO Hi-Z is **not** stated, so a 74LVC1G125 gates it |
+| LT3097 (DFN-22, datasheet Rev. 0, 3/2023) | pins 1-22 plus exposed pads 23 (GND) and 24 (INN), PGP / PGN open-collector, SET current 100 µA, output range 0-15 V / 0 to -19.5 V (added 2026-10-20) |
 | AD633JR (SOIC) | Y1 1, Y2 2, -VS 3, Z 4, W 5, +VS 6, X1 7, X2 8 (rotated vs the PDIP, matches the schematic) |
 | AP63205 | 1 FB, 2 EN, 3 VIN, 4 GND, 5 SW, 6 BST; EN may be tied to VIN (abs max 35 V) |
 | CL25N8-G | SOT-89: VA 1, VB 2 (tab), N/C 3 |
@@ -42,7 +43,6 @@ Gerber package in `fabrication/` is still valid.
 
 | Part | Notes |
 |---|---|
-| ADP7182 | 1 GND, 2 VIN, 3 EN, 4 ADJ, 5 VOUT |
 | LTC2954 (TSOT-8) | 1 VIN, 2 PB, 3 ONT, 4 GND, 5 INT#, 6 EN#, 7 PDT, 8 KILL# |
 | USBLC6-2SC6 | 1 I/O1, 2 GND, 3 I/O2, 4 I/O2, 5 VBUS, 6 I/O1 |
 | LSM6DSOX SDO | The timing table lists an SDO output-disable time and the part is routinely shared on SPI buses, so the output is almost certainly Hi-Z with CS high, but the sentence was not found. Bench item below |
@@ -50,7 +50,7 @@ Gerber package in `fabrication/` is still valid.
 **C: from earlier-session datasheet audits only (see DESIGN_REVIEW.md), not re-fetched**
 
 ESP32-S3-WROOM-2 (pin map also matches the footprint), EMC2303 (KiCad's official symbol, QFN-12 +
-EP), ISO7741, ACS37800, ADP5071, ADP7142, AD9833, MCP4921, OPA1656, OPA188, LD1117S33, IRF4905S,
+EP), ISO7741, ACS37800, ADP5071, AD9833, MCP4921, OPA1656, OPA188, LD1117S33, IRF4905S,
 BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C receptacle.
 
 ## Findings

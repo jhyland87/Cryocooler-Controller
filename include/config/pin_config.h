@@ -116,6 +116,15 @@
 #define AMPLIFIER_RELAY_PIN          6
 
 // =============================================================================
+// +-15 V power good (active LOW)
+// =============================================================================
+// Low when both LT3097 outputs are in regulation. The hardware already blocks
+// AMP_REM while it is high; read it before starting the signal generator.
+// GPIO43 is U0TXD (it toggles with ROM boot messages), behind a 1 kOhm series
+// resistor; the console is native USB CDC, so UART0 is otherwise unused.
+#define PG_15V_N_PIN                 43
+
+// =============================================================================
 
 
 

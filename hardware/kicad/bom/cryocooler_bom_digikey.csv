@@ -13,9 +13,8 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C47,22uF,C_1206_3216Metric,suggested,isolated 3.3 V output (needs 10 V or more)
 1,C1206C473K5RACTU,Kemet,CAP CER 0.047UF 50V X7R 1206,C59,47nF,C_1206_3216Metric,suggested,ADP5071 compensation (C59)
 1,CC1206KRX7R9BB683,Yageo,CAP CER 0.068UF 50V X7R 1206,C61,68nF,C_1206_3216Metric,suggested,ADP5071 compensation (C61)
-2,CL32B106KBJNNNF,Samsung Electro-Mechanics,CAP CER 10UF 50V X7R 1210,C62 C63,10uF/50V,C_1210_3225Metric,ordered,+/-16.5 V rails (50 V needed: DC bias derating); substitute for CL32B106KBJNNNE
-4,CL31A475KAHNNNE,Samsung Electro-Mechanics,CAP CER 4.7UF 25V X5R 1206,C65 C66 C67 C69,4.7uF/25V,C_1206_3216Metric,suggested,+/-15 V LDO outputs
-1,C1206C101J5GACTU,Kemet,CAP CER 100PF 50V C0G/NP0 1206,C68,100pF,C_1206_3216Metric,ordered,"-15 V rail, C0G dielectric; Digi-Key marks this Samsung part obsolete, so pick a current 100 pF 50 V C0G 1206 (for example Kemet C1206C101J5GACTU); substitute for CL31C101JBCNNNC"
+4,CL32B226KBJNNNE,Samsung Electro-Mechanics,CAP CER 22UF 50V X7R 1210,C62 C63 C65 C67,22uF/50V,C_1210_3225Metric,suggested,"ADP5071 outputs / LT3097 inputs (C62, C63) and LT3097 outputs (C65, C67); >= 10 uF effective at 15 V DC bias, so check the maker's DC-bias curve (ADI suggests the Murata GCM series)"
+2,CL31B105KBHNNNE,Samsung Electro-Mechanics,CAP CER 1UF 50V X7R 1206,C66 C68,1uF/50V,C_1206_3216Metric,suggested,LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)
 1,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C72,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
 1,LTST-C190KRKT,Lite-On,LED RED CLEAR 0603 SMD,D2,FAN FAULT,LED_0603_1608Metric,suggested,colour assumed red
@@ -32,6 +31,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,LTW-C193TS5,Lite-On,LED WHITE CLEAR 0603 SMD,D16,-15V (white),LED_0603_1608Metric,suggested,
 1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D17,ISO 3V3 (green),LED_0603_1608Metric,suggested,
 5,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D18 D19 D20 D21 D22,SUPPLY ON (green),LED_0603_1608Metric,suggested,
+1,LTST-C190KGKT,Lite-On,LED GREEN CLEAR 0603 SMD,D23,PG 15V (green),LED_0603_1608Metric,suggested,
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
 5,1729128,Phoenix Contact,"TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08",J2 J8 J9 J11 J12,,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",suggested,"screw terminals: 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out"
@@ -41,14 +41,14 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,B4B-XH-A,JST,CONN HEADER XH VERT 4POS 2.5MM,J10,,JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,ordered,substitute for B4B-XH-A(LF)(SN)
 1,B8B-XH-A(LF)(SN),JST,CONN HEADER XH VERT 8POS 2.5MM,J14,,JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,suggested,J14: cable to the off-board Adafruit LSM6DSOX module
 5,,,CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER,JP1 JP2 JP3 JP4 JP5,,PinHeader_1x02_P1.27mm_Vertical,none,supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and shunt; the branches are logic supplies of a few hundred mA
-1,SRN6045TA-4R7M,Bourns,FIXED IND 4.7UH 4.5A 26MOHM SMD,L1,SRN6045TA-4R7M,L_Bourns_SRN6045TA,design,
+1,SRP6050CA-4R7M,Bourns,FIXED IND 4.7UH 8.5A 18.4MOHM SMD,L1,SRN6045TA-4R7M,L_Bourns_SRN6045TA,suggested,"shielded replacement for the SRN6045TA-4R7M the board footprint was drawn for; terminals land inside the 2.35 x 5.1 mm pads, check the first one by hand"
 1,SRP7050TA-3R3M,Bourns,FIXED IND 3.3UH 12A 20.9MOHM SMD,L2,SRP7050TA-3R3M,L_Bourns_SRP7050TA,design,"ADP5071 boost inductor, fully shielded"
 1,SRP7050TA-6R8M,Bourns,FIXED IND 6.8UH 8.5A 51.5MOHM SMD,L3,SRP7050TA-6R8M,L_Bourns_SRP7050TA,design,"ADP5071 inverting inductor, fully shielded"
 1,MIE1W0505BGLVH-3R-Z,Monolithic Power Systems,"ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12",PS1,MIE1W0505BGLVH-3R-Z,CONV_MIE1W0505BGLVH-3R-Z,design,
 1,IRF4905STRLPBF,Infineon,MOSFET P-CH 55V 74A D2PAK,Q1,IRF4905S,TO-263-3_TabPin2,design,
-5,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2 Q3 Q4 Q5 Q7,BSS138,SOT-23,suggested,
+7,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2 Q3 Q4 Q5 Q7 Q9 Q10,BSS138,SOT-23,suggested,
 2,BSS84,onsemi,MOSFET P-CH 50V 130MA SOT23-3,Q6 Q8,BSS84,SOT-23,ordered,output stage is limited to about 130 mA; substitute for BSS84-7-F
-25,AR0603FR-0710KL,Yageo,RES 10K OHM 1% 1/10W 0603,R1 R2 R13 R16 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R62 R64 R68 R69 R74 R81 R82 R83,10k,R_0603_1608Metric,ordered,substitute for RC0603FR-0710KL
+26,AR0603FR-0710KL,Yageo,RES 10K OHM 1% 1/10W 0603,R1 R2 R13 R16 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R83 R101 R102 R105,10k,R_0603_1608Metric,ordered,substitute for RC0603FR-0710KL
 2,CR0603-FX-5101ELF,Bourns,RES 5.1K OHM 1% 1/10W 0603,R3 R4,5.1k,R_0603_1608Metric,ordered,substitute for RC0603FR-075K1L
 10,AR0603FR-07100KL,Yageo,RES 100K OHM 1% 1/10W 0603,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78,100k,R_0603_1608Metric,ordered,substitute for RC0603FR-07100KL
 1,CR0603-FX-5102ELF,Bourns,RES 51K OHM 1% 1/10W 0603,R6,51k,R_0603_1608Metric,ordered,substitute for RC0603FR-0751KL
@@ -58,8 +58,8 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0603FR-0730KL,Yageo,RES 30K OHM 1% 1/10W 0603,R12,30k,R_0603_1608Metric,suggested,
 1,RC0603FR-0733KL,Yageo,RES 33K OHM 1% 1/10W 0603,R14,33k,R_0603_1608Metric,suggested,
 7,RC0603FR-074K7L,Yageo,RES 4.7K OHM 1% 1/10W 0603,R15 R19 R21 R84 R85 R87 R88,4.7k,R_0603_1608Metric,suggested,
-16,RC0603FR-071KL,Yageo,RES 1K OHM 1% 1/10W 0603,R17 R22 R35 R38 R42 R43 R70 R76 R79 R86 R89 R96 R97 R98 R99 R100,1k,R_0603_1608Metric,suggested,
-1,RC0603FR-07220KL,Yageo,RES 220K OHM 1% 1/10W 0603,R25,220k,R_0603_1608Metric,suggested,
+18,RC0603FR-071KL,Yageo,RES 1K OHM 1% 1/10W 0603,R17 R22 R35 R38 R42 R43 R70 R76 R79 R86 R89 R96 R97 R98 R99 R100 R106 R107,1k,R_0603_1608Metric,suggested,
+2,RC0603FR-07220KL,Yageo,RES 220K OHM 1% 1/10W 0603,R25 R103,220k,R_0603_1608Metric,suggested,
 1,RC0603FR-0782KL,Yageo,RES 82K OHM 1% 1/10W 0603,R27,82k,R_0603_1608Metric,suggested,
 3,RC0603FR-07330RL,Yageo,RES 330 OHM 1% 1/10W 0603,R30 R31 R75,330,R_0603_1608Metric,suggested,
 2,RC0603FR-072K2L,Yageo,RES 2.2K OHM 1% 1/10W 0603,R39 R80,2.2k,R_0603_1608Metric,suggested,
@@ -72,11 +72,12 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0603FR-07137KL,Yageo,RES 137K OHM 1% 1/10W 0603,R58,137k,R_0603_1608Metric,suggested,
 1,RC0603FR-072M55L,Yageo,RES 2.55M OHM 1% 1/10W 0603,R59,2.55M,R_0603_1608Metric,suggested,
 1,RC0603FR-07118KL,Yageo,RES 118K OHM 1% 1/10W 0603,R60,118k,R_0603_1608Metric,suggested,
-1,RC0603FR-07115KL,Yageo,RES 115K OHM 1% 1/10W 0603,R61,115k,R_0603_1608Metric,suggested,
-1,RC0603FR-07113KL,Yageo,RES 113K OHM 1% 1/10W 0603,R63,113k,R_0603_1608Metric,suggested,
+2,RC0603FR-07432KL,Yageo,RES 432K OHM 1% 1/10W 0603,R61 R63,432k,R_0603_1608Metric,suggested,
+2,RC0603FR-07147KL,Yageo,RES 147K OHM 1% 1/10W 0603,R62 R64,147k,R_0603_1608Metric,suggested,
 1,WSL2512R0150FEA18,Vishay Dale,RES 0.015 OHM 1% 2W 2512,R65,15m,R_2512_6332Metric,suggested,"INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the ""18"" suffix is the 2 W part (WSL2512R0150FEA is 1 W)"
 2,RC0603FR-0749R9L,Yageo,RES 49.9 OHM 1% 1/10W 0603,R66 R67,49.9,R_0603_1608Metric,suggested,
 3,RC0603FR-07470RL,Yageo,RES 470 OHM 1% 1/10W 0603,R71 R72 R73,470,R_0603_1608Metric,suggested,
+1,RC0603FR-0762KL,Yageo,RES 62K OHM 1% 1/10W 0603,R104,62k,R_0603_1608Metric,suggested,
 3,TL3342F160QG/TR,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,ordered,footprint is the TL3342 family (3.5 x 6 mm); substitute for TL3342F160QG
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,
 1,USBLC6-2SC6,STMicroelectronics,TVS DIODE 5.25V 17V SOT23-6,U2,USBLC6-2SC6,SOT-23-6,design,
@@ -97,8 +98,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,ISO7741DWR,Texas Instruments,DIGITAL ISOLATOR 4CH 16SOIC,U17,ISO7741DW,SOIC-16W_7.5x10.3mm_P1.27mm,suggested,DWR is the reel; DW is the tube
 1,ACS37800KMACTR-030B3-SPI,Allegro MicroSystems,SENSOR CURRENT/VOLTAGE 30A SPI 16SOIC,U18,ACS37800KMACTR-030B3-SPI,SOIC-16W_7.5x10.3mm_P1.27mm,design,
 1,ADP5071AREZ,Analog Devices,IC REG DC DC +/- 16.5V 20TSSOP-EP,U20,ADP5071AREZ,ETSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3x4.2mm,design,
-1,ADP7142AUJZ-R7,Analog Devices,IC REG LINEAR ADJ 200MA TSOT5,U21,ADP7142AUJZ,TSOT-23-5,suggested,"adjustable version, +15 V"
-1,ADP7182AUJZ-R7,Analog Devices,IC REG LINEAR NEG ADJ 200MA TSOT5,U22,ADP7182AUJZ,TSOT-23-5,suggested,"adjustable version, -15 V"
+1,LT3097ADJC#PBF,Analog Devices,IC REG LINEAR POS/NEG ADJ 500MA 22DFN,U21,LT3097ADJC,DFN-22-2EP_6x3mm_P0.5mm_LT3097,suggested,"#PBF is the tube, #TRPBF the reel; DFN with two exposed pads (23 = GND, 24 = INN = -16.5 V)"
 1,INA239AIDGSR,Texas Instruments,IC CURRENT/POWER MONITOR 10VSSOP,U23,INA239AIDGSR,TSSOP-10_3x3mm_P0.5mm,design,
 1,SN74AHCT1G125DBVR,Texas Instruments,IC BUF NON-INVERT 5.5V SOT23-5,U24,74AHCT1G125,SOT-23-5,suggested,5 V level shifter for the WS2812B
 1,SC18IS604PWJ,NXP,IC SPI TO I2C BRIDGE 16TSSOP,U25,SC18IS604PW,TSSOP-16_4.4x5mm_P0.65mm,suggested,PWJ is the reel

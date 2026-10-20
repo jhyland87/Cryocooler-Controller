@@ -50,6 +50,11 @@ ENVELOPES = {
         'MIE1W0505_envelope',
         [(5.0, 4.0, 1.8, 0.0, 0.0, BLACK)],
     ),
+    # LT3097 22-lead DFN, 3 x 6 mm, 0.75 mm high (datasheet Fig. 132)
+    'DFN-22-2EP_6x3mm_P0.5mm_LT3097': (
+        'LT3097_envelope',
+        [(3.0, 6.0, 0.75, 0.0, 0.0, BLACK)],
+    ),
 }
 
 

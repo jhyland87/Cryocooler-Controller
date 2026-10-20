@@ -51,20 +51,40 @@ RULES = [
     ('net', 'SG-8002CA-PH 25MHz', '4', '+5V'),
     ('net', 'SG-8002CA-PH 25MHz', '2', 'GND'),
     ('net', 'SG-8002CA-PH 25MHz', '1', '+5V'),
-    # ADP7182: EN must be |VEN| >= 2 V (tied to VIN), never ground
-    ('same', 'ADP7182AUJZ', '2', '3'),
-    ('net', 'ADP7182AUJZ', '2', '-16V5'),
-    ('net', 'ADP7182AUJZ', '1', 'GND'),
-    ('net', 'ADP7182AUJZ', '5', '-15V'),
-    ('res', 'ADP7182AUJZ', '4', '113k', '-15V'),
-    ('res', 'ADP7182AUJZ', '4', '10k', 'GND'),
-    # ADP7142: EN tied to VIN, VOUT = 1.2 V x (1 + R1/R2)
-    ('same', 'ADP7142AUJZ', '1', '3'),
-    ('net', 'ADP7142AUJZ', '1', '+16V5'),
-    ('net', 'ADP7142AUJZ', '2', 'GND'),
-    ('net', 'ADP7142AUJZ', '5', '+15V'),
-    ('res', 'ADP7142AUJZ', '4', '115k', '+15V'),
-    ('res', 'ADP7142AUJZ', '4', '10k', 'GND'),
+    # LT3097: both regulators from the ADP5071 rails, enables tied to their
+    # inputs, VOUT = 100 uA x RSET (147k = 14.7 V, the +15 V side is limited
+    # to 15 V), pad 23 = GND and pad 24 = INN, ILIM pins grounded
+    ('net', 'LT3097ADJC', '1', '+16V5'),
+    ('net', 'LT3097ADJC', '2', '+16V5'),
+    ('same', 'LT3097ADJC', '3', '1'),
+    ('net', 'LT3097ADJC', '6', '-16V5'),
+    ('net', 'LT3097ADJC', '7', '-16V5'),
+    ('net', 'LT3097ADJC', '24', '-16V5'),
+    ('same', 'LT3097ADJC', '8', '6'),
+    ('net', 'LT3097ADJC', '21', '+15V'),
+    ('net', 'LT3097ADJC', '22', '+15V'),
+    ('same', 'LT3097ADJC', '20', '21'),
+    ('net', 'LT3097ADJC', '15', '-15V'),
+    ('net', 'LT3097ADJC', '16', '-15V'),
+    ('same', 'LT3097ADJC', '14', '15'),
+    ('net', 'LT3097ADJC', '13', 'GND'),
+    ('net', 'LT3097ADJC', '19', 'GND'),
+    ('net', 'LT3097ADJC', '23', 'GND'),
+    ('net', 'LT3097ADJC', '5', 'GND'),
+    ('net', 'LT3097ADJC', '11', 'GND'),
+    ('res', 'LT3097ADJC', '18', '147k', 'GND'),
+    ('res', 'LT3097ADJC', '12', '147k', 'GND'),
+    # power-good thresholds: 0.3 V x (1 + 432k / 10k) = 13.3 V
+    ('res', 'LT3097ADJC', '17', '432k', '+15V'),
+    ('res', 'LT3097ADJC', '17', '10k', 'GND'),
+    ('res', 'LT3097ADJC', '10', '432k', '-15V'),
+    ('res', 'LT3097ADJC', '10', '10k', 'GND'),
+    # PGP and PGN pull one shared node low; it is fed from +15 V so it reads
+    # 0 V when either rail is missing
+    ('net', 'LT3097ADJC', '4', 'PG_15V'),
+    ('net', 'LT3097ADJC', '9', 'PG_15V'),
+    ('res', 'LT3097ADJC', '4', '220k', '+15V'),
+    ('res', 'LT3097ADJC', '4', '62k', 'GND'),
     # ADP5071 (datasheet Fig. 47)
     ('net', 'ADP5071AREZ', '17', '+5V_PS15'),
     ('net', 'ADP5071AREZ', '18', '+5V_PS15'),
@@ -231,8 +251,9 @@ RULES = [
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '24'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '25'),
     # ACS_CS is on GPIO17 (module pin 10), not GPIO43 / U0TXD (pin 37), which
-    # toggles with ROM boot messages
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '37', 'UART0_TX'),
+    # toggles with ROM boot messages; it carries the power-good flag (active
+    # low) behind a 1k series resistor
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '37', 'PG_15V_N'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '10', '10k', '+3V3'),
 ]
 

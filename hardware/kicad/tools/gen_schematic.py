@@ -6,6 +6,7 @@ GPIO assignments follow include/config/pin_config.h.
 
 import json
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 import kicadgen
@@ -44,6 +45,24 @@ TERM2 = (
 INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 
 PITCH = 12.7
+
+# Highest reference number in use per prefix. Parts added after the first
+# release take numbers above these, so no existing reference is renumbered.
+NEW_REFS = {'R': 100, 'C': 79, 'D': 22, 'Q': 8}
+
+# The ADP5071 output capacitors also serve as the LT3097 input capacitors
+# (they sit beside its inputs; the module box has no room for a second pair).
+RAIL_CAP = '22uF/50V'
+
+
+@contextmanager
+def high_refs(prefix):
+    """Numbers parts created inside the block from the next free number above
+    every reference already used on the board.
+    """
+    with kicadgen.pinned_refs(prefix, NEW_REFS[prefix]):
+        yield
+        NEW_REFS[prefix] = kicadgen._ref_counters[prefix]
 
 
 def grid(value):
@@ -269,7 +288,7 @@ def build_mcu(sh):
         '34': 'SPI_MOSI',
         '35': 'SPI_SCK',
         '36': 'ADS1220_CS',
-        '37': 'UART0_TX',
+        '37': 'PG_15V_N',
     }
     for pin, net in left.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
@@ -957,17 +976,25 @@ def build_rails_15v(sh):
     """
     sh.handwired = True
     sh.note(
-        'ADP5071AREZ (5 V in): +16.5 V boost and -16.5 V inverting rails; '
-        'ADP7142 (+15 V) and ADP7182 (-15 V) post-regulate.',
+        'ADP5071AREZ (5 V in): +16.4 V boost and -16.5 V inverting rails; '
+        'one LT3097 post-regulates them to +/-14.7 V.',
         20,
         15,
     )
     sh.note(
-        'Values from ADP5071 datasheet Fig. 47 / Tables 9-11 (+/-16.5 V '
-        'output rows rescaled via RFT). ADP7182 EN tied to VIN (auto-start); '
-        '|VEN| >= 2 V enables.',
+        'ADP5071 values from datasheet Fig. 47 / Tables 9-11. LT3097: VOUT = '
+        '100 uA x RSET (147k = 14.7 V, +15 V is the top of its range); '
+        'PGFB dividers 432k/10k trip power good near 13.3 V (also enables '
+        'fast start-up).',
         20,
         21,
+    )
+    sh.note(
+        'PG_15V = +15 V through 220k/62k, pulled to ground by PGP and PGN: '
+        'about 3.2 V only when both rails are good, 0 V if either is bad or '
+        'missing. It gates the amplifier REM switch.',
+        20,
+        27,
     )
     u = place_ic(sh, 'cryocooler:ADP5071AREZ', 'ADP5071AREZ', 110, 100, None)
     # +5V input: bus left of the IC, rail above it with three decoupling caps
@@ -1041,7 +1068,7 @@ def build_rails_15v(sh):
     vres(sh, '137k', 150, 96)
     drop_ground(sh, (150, 102), 0)
     wire(sh, (150, 96), (124, 96), (124, 92), pin_cell(u, '7'))
-    vcap(sh, '10uF/50V', 166, 90, fp=C1210)
+    vcap(sh, RAIL_CAP, 166, 90, fp=C1210)
     drop_ground(sh, (166, 96), 0)
     # inverting channel
     aux(
@@ -1070,75 +1097,144 @@ def build_rails_15v(sh):
     wire(sh, (150, 108), (150, 112))
     vres(sh, '2.55M', 150, 112)
     vres(sh, '118k', 150, 118)
-    vcap(sh, '10uF/50V', 166, 108, fp=C1210)
+    vcap(sh, RAIL_CAP, 166, 108, fp=C1210)
     drop_ground(sh, (166, 114), 0)
     wire(sh, (150, 118), (126, 118), (126, 106), pin_cell(u, '13'))
     wire(sh, pin_cell(u, '14'), (124, 104), (124, 124), (150, 124))
     vcap(sh, '1uF', 130, 124)
     drop_ground(sh, (130, 130), 0)
-    # +15 V LDO
-    pos = place_ic(
+    # LT3097: +15 V regulator on top, -15 V regulator below, both inputs on
+    # the left, feedback and power-good parts on the right
+    reg = place_ic(
         sh,
-        'Regulator_Linear:ADP7142AUJZ',
-        'ADP7142AUJZ',
-        60,
-        150,
-        'Package_TO_SOT_SMD:TSOT-23-5',
+        'cryocooler:LT3097ADJC',
+        'LT3097ADJC',
+        84,
+        172,
+        'cryocooler:DFN-22-2EP_6x3mm_P0.5mm_LT3097',
     )
-    vin, en, vout, adj = (pin_cell(pos, n) for n in ('1', '3', '5', '4'))
-    wire(sh, vin, (vin[0] - 14, vin[1]))
-    wire(sh, en, (en[0] - 2, en[1]), (en[0] - 2, vin[1]))
-    rail_symbol(sh, '+16V5', (vin[0] - 14, vin[1]))
-    vcap(sh, '4.7uF/25V', vin[0] - 10, vin[1], fp=C1206)
-    drop_ground(sh, (vin[0] - 10, vin[1] + 6), 0)
-    spur(sh, pos, '2', 2)
-    drop_ground(sh, (pin_cell(pos, '2')[0], pin_cell(pos, '2')[1] + 2), 2)
-    wire(sh, vout, (vout[0] + 28, vout[1]))
-    rail_symbol(sh, '+15V', (vout[0] + 28, vout[1]))
-    vres(sh, '115k', vout[0] + 14, vout[1])
-    vres(sh, '10k', vout[0] + 14, vout[1] + 6)
-    drop_ground(sh, (vout[0] + 14, vout[1] + 12), 0)
-    wire(
+    kicadgen.retire_refs('U', 1)  # U22 was the ADP7182
+    for rail, input_pin, enable_pin in (
+        ('+16V5', '1', '3'),
+        ('-16V5', '6', '8'),
+    ):
+        vin, enable = pin_cell(reg, input_pin), pin_cell(reg, enable_pin)
+        wire(sh, vin, (vin[0] - 14, vin[1]))
+        rail_symbol(sh, rail, (vin[0] - 14, vin[1]))
+        # ENP/UVP and ENN/UVN tied to the input: on whenever the rail is up
+        wire(sh, enable, (enable[0] - 2, enable[1]), (enable[0] - 2, vin[1]))
+    # grounds and the unused current-limit pins share one bar
+    gnd_bus(sh, [pin_cell(reg, number) for number in ('5', '13', '11')])
+    channels = (
+        # output, sense, PGFB, PG, SET pin, rail net
+        ('21', '20', '17', '4', '18', '+15V'),
+        ('15', '14', '10', '9', '12', '-15V'),
+    )
+    for index, (out, sense, feedback, good, setpoint, rail) in enumerate(
+        channels
+    ):
+        o, s = pin_cell(reg, out), pin_cell(reg, sense)
+        # output rail: Kelvin sense joins the output wire, 22 uF at the end
+        wire(sh, o, (o[0] + 46, o[1]))
+        rail_symbol(sh, rail, (o[0] + 46, o[1]))
+        wire(sh, s, (s[0] + 4, s[1]), (s[0] + 4, o[1]))
+        vcap(sh, '22uF/50V', o[0] + 40, o[1], fp=C1210)
+        drop_ground(sh, (o[0] + 40, o[1] + 6), 0)
+        # power-good threshold divider from the output (tap = PGFB pin)
+        pgfb = pin_cell(reg, feedback)
+        divider = o[0] + 14
+        vres(sh, '432k', divider, o[1])
+        with high_refs('R'):
+            vres(sh, '10k', divider, o[1] + 6)
+        drop_ground(sh, (divider, o[1] + 12), 0)
+        wire(sh, pgfb, (divider, pgfb[1]))
+        # open-collector power-good pin to the shared PG_15V net
+        net_label(
+            sh, 'PG_15V', spur(sh, reg, good, 2), 0, is_global=True
+        )
+        # SET resistor and bypass cap to ground
+        pin = pin_cell(reg, setpoint)
+        wire(sh, pin, (pin[0] + 14, pin[1]))
+        vres(sh, '147k', pin[0] + 8, pin[1])
+        vcap(sh, '1uF/50V', pin[0] + 14, pin[1], fp=C1206)
+        wire(sh, (pin[0] + 8, pin[1] + 6), (pin[0] + 14, pin[1] + 6))
+        drop_ground(sh, (pin[0] + 8, pin[1] + 6), 2)
+    kicadgen.retire_refs('C', 1)  # the old block used five capacitors
+    # PG_15V: +15 V rail -> 220k -> node -> 62k -> ground; the open-collector
+    # PGP / PGN pins pull the node down
+    o = pin_cell(reg, '21')
+    with high_refs('R'):
+        vres(sh, '220k', o[0] + 22, o[1])
+        vres(sh, '62k', o[0] + 22, o[1] + 6)
+    drop_ground(sh, (o[0] + 22, o[1] + 12), 0)
+    wire(sh, (o[0] + 22, o[1] + 6), (o[0] + 25, o[1] + 6))
+    net_label(sh, 'PG_15V', (o[0] + 25, o[1] + 6), 0, is_global=True)
+
+
+def build_power_good(sh):
+    """Hand-laid: the +-15 V power-good flag as an LED and a 3.3 V logic level."""
+    sh.handwired = True
+    sh.note(
+        'PG_15V (from the LT3097, about 3.2 V when both +-15 V rails are '
+        'good, 0 V otherwise) turns on a green LED and reads LOW on GPIO43 '
+        '(PG_15V_N) when both rails are good.',
+        20,
+        15,
+    )
+    power_good_indicator(sh, 70, 60)
+
+
+def power_good_indicator(sh, column, row):
+    """PG_15V gates a BSS138: its drain lights a green LED and, through 1k,
+    reads as PG_15V_N (low = both rails good) on the ESP32.
+    """
+    with high_refs('Q'):
+        fet = nfet(sh, 'BSS138', '', '', pose=at(column, row))
+    gate, drain = pin_cell(fet, '1'), pin_cell(fet, '3')
+    wire(sh, gate, (gate[0] - 4, gate[1]))
+    net_label(sh, 'PG_15V', (gate[0] - 4, gate[1]), 180, is_global=True)
+    spur(sh, fet, '2', 2)
+    ground(
         sh,
-        adj,
-        (adj[0] + 3, adj[1]),
-        (adj[0] + 3, vout[1] + 6),
-        (vout[0] + 14, vout[1] + 6),
+        (pin_cell(fet, '2')[0], pin_cell(fet, '2')[1] + 2),
     )
-    vcap(sh, '4.7uF/25V', vout[0] + 24, vout[1], fp=C1206)
-    drop_ground(sh, (vout[0] + 24, vout[1] + 6), 0)
-    # -15 V LDO
-    neg = place_ic(
-        sh,
-        'cryocooler:ADP7182AUJZ',
-        'ADP7182AUJZ',
-        60,
-        185,
-        'Package_TO_SOT_SMD:TSOT-23-5',
-    )
-    vin, en, vout, adj = (pin_cell(neg, n) for n in ('2', '3', '5', '4'))
-    gnd_pin = pin_cell(neg, '1')
-    wire(sh, vin, (vin[0] - 14, vin[1]))
-    wire(sh, en, (en[0] - 2, en[1]), (en[0] - 2, vin[1]))
-    rail_symbol(sh, '-16V5', (vin[0] - 14, vin[1]))
-    vcap(sh, '4.7uF/25V', vin[0] - 10, vin[1], fp=C1206)
-    drop_ground(sh, (vin[0] - 10, vin[1] + 6), 0)
-    drop_ground(sh, gnd_pin, 2)
-    wire(sh, vout, (vout[0] + 28, vout[1]))
-    rail_symbol(sh, '-15V', (vout[0] + 28, vout[1]))
-    vres(sh, '113k', vout[0] + 14, vout[1])
-    vres(sh, '10k', vout[0] + 14, vout[1] + 6)
-    drop_ground(sh, (vout[0] + 14, vout[1] + 12), 0)
-    vcap(sh, '100pF', vout[0] + 8, vout[1])
-    wire(
-        sh,
-        adj,
-        (adj[0] + 3, adj[1]),
-        (adj[0] + 3, vout[1] + 6),
-        (vout[0] + 14, vout[1] + 6),
-    )
-    vcap(sh, '4.7uF/25V', vout[0] + 26, vout[1], fp=C1206)
-    drop_ground(sh, (vout[0] + 26, vout[1] + 6), 0)
+    node = (drain[0], drain[1] - 4)
+    wire(sh, drain, node)
+    # +3V3 -> 10k pull-up -> node
+    wire(sh, node, (node[0] - 10, node[1]))
+    pull_x = node[0] - 10
+    with high_refs('R'):
+        vres(sh, '10k', pull_x, node[1] - 6)
+    rail_symbol(sh, '+3V3', (pull_x, node[1] - 6))
+    # +3V3 -> 1k -> LED -> node
+    led_x = node[0] - 20
+    wire(sh, (pull_x, node[1]), (led_x, node[1]))
+    with high_refs('R'):
+        vres(sh, '1k', led_x, node[1] - 18)
+    rail_symbol(sh, '+3V3', (led_x, node[1] - 18))
+    with high_refs('D'):
+        indicator = sh.add(
+            'Device:LED',
+            next_ref('D'),
+            'PG 15V (green)',
+            led_x * 1.27,
+            (node[1] - 9) * 1.27,
+            rot=90,
+            auto=False,
+            footprint=LED0603,
+        )
+    anode, cathode = pin_cell(indicator, '2'), pin_cell(indicator, '1')
+    if anode[1] > cathode[1]:
+        indicator.rot = 270
+        anode, cathode = pin_cell(indicator, '2'), pin_cell(indicator, '1')
+    wire(sh, (led_x, node[1] - 12), anode)
+    wire(sh, cathode, (led_x, node[1]))
+    # node -> 1k -> PG_15V_N (ESP32 GPIO43)
+    wire(sh, node, (node[0] + 4, node[1]))
+    with high_refs('R'):
+        hres(sh, '1k', node[0] + 7, node[1])
+    wire(sh, (node[0] + 10, node[1]), (node[0] + 14, node[1]))
+    net_label(sh, 'PG_15V_N', (node[0] + 14, node[1]), 0, is_global=True)
 
 
 def opamp_unit(
@@ -1371,11 +1467,20 @@ def build_signal_gen(sh):
 
 
 def rem_switch(
-    sh, enable_net, bus_net, terminal, flyback=False, footprint=None, rail='+12V'
+    sh,
+    enable_net,
+    bus_net,
+    terminal,
+    flyback=False,
+    footprint=None,
+    rail='+12V',
+    interlock_net=None,
 ):
     """GPIO -> N-FET level shifter -> P-FET high-side +12 V switch -> output
     terminal with a red/green state LED; drawn left to right from row 60.
-    flyback adds a diode across the output for inductive loads.
+    flyback adds a diode across the output for inductive loads; interlock_net
+    adds a second N-FET in series with the level shifter's source, so the
+    output stays off unless that net is high.
     """
     net_label(sh, enable_net, (24, 60), 180, is_global=True)
     wire(sh, (24, 60), (28, 60))
@@ -1384,8 +1489,20 @@ def rem_switch(
     vres(sh, '100k', 40, 60)
     drop_ground(sh, (40, 66), 0)
     q_n = nfet(sh, 'BSS138', '', '', pose=at(50, 60))
-    spur(sh, q_n, '2', 2)
-    ground(sh, pin_cell(q_n, '2')[0:1] + (pin_cell(q_n, '2')[1] + 2,))
+    if interlock_net:
+        # series interlock FET (Q9) below the level shifter: its drain takes
+        # the level shifter's source, its gate the power-good net
+        with high_refs('Q'):
+            q_il = nfet(sh, 'BSS138', '', '', pose=at(50, 72))
+        wire(sh, pin_cell(q_n, '2'), pin_cell(q_il, '3'))
+        gate = pin_cell(q_il, '1')
+        wire(sh, gate, (gate[0] - 4, gate[1]))
+        net_label(sh, interlock_net, (gate[0] - 4, gate[1]), 180, is_global=True)
+        spur(sh, q_il, '2', 2)
+        ground(sh, pin_cell(q_il, '2')[0:1] + (pin_cell(q_il, '2')[1] + 2,))
+    else:
+        spur(sh, q_n, '2', 2)
+        ground(sh, pin_cell(q_n, '2')[0:1] + (pin_cell(q_n, '2')[1] + 2,))
     wire(sh, pin_cell(q_n, '3'), (52, 50), (76, 50))
     vres(sh, '100k', 62, 44)
     rail_symbol(sh, rail, (62, 44))
@@ -1463,7 +1580,8 @@ def build_amp_control(sh):
     sh.handwired = True
     sh.note(
         'GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side '
-        'switch). LED: green = on, red = off.',
+        'switch), but only while PG_15V is high (both +-15 V rails good: Q9 '
+        'in series with the level shifter). LED: green = on, red = off.',
         20,
         15,
     )
@@ -1474,7 +1592,12 @@ def build_amp_control(sh):
         21,
     )
     rem_switch(
-        sh, 'AMP_REM_EN', 'AMP_REM', 'AMP REM / GND', rail='+12V'
+        sh,
+        'AMP_REM_EN',
+        'AMP_REM',
+        'AMP REM / GND',
+        rail='+12V',
+        interlock_net='PG_15V',
     )
     j_sig = conn(
         sh,
@@ -1862,7 +1985,7 @@ DEBUG_SIGNALS = (
         'PWR_KILL',
         'COMP_RELAY_EN',
         'AMP_REM_EN',
-        'UART0_TX',
+        'PG_15V',
         'ESP_EN',
         'ESP_BOOT',
     )),
@@ -2606,6 +2729,7 @@ SHEETS = [
     ('Amp Current', 'amp_current', build_amp_current, 'A3'),
     ('IMU', 'imu', build_imu, 'A3'),
     ('Rails +-15V', 'rails_15v', build_rails_15v, 'A3'),
+    ('Power Good', 'power_good', build_power_good, 'A3'),
     ('System Current', 'system_current', build_system_current, 'A3'),
     ('Indicators', 'indicators', build_indicators, 'A3'),
     (

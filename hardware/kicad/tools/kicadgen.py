@@ -395,7 +395,7 @@ LABEL_DIRECTION = {
     'BRIDGE_CS': 'out',
     'BRIDGE_RESET': 'out',
     'ADS1220_CS': 'out',
-    'UART0_TX': 'in',
+    'PG_15V_N': 'in',
     'MCP4921_CS': 'out',
     'AD9833_FSYNC': 'out',
     'AMP_REM_EN': 'out',
