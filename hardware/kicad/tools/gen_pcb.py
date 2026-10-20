@@ -117,8 +117,13 @@ PLACEMENT = {
     'L1': (71.0, 86.25, 0),
     'U16': (79.0, 83.0, 0),
     'U23': (62.0, 102.5, 0),
-    'Q10': (14.0, 78.0, 0),
-    'D23': (18.5, 78.0, 0),
+    # power-good stage (top-left corner of the power box)
+    'Q11': (7.0, 78.0, 0),
+    'D24': (3.5, 78.0, 0),
+    'Q12': (13.0, 74.5, 0),
+    'D25': (16.5, 74.5, 0),
+    'D23': (8.5, 94.8, 0),
+    'Q10': (4.5, 94.8, 0),
     'R67': (62.5, 106.7, 0),
     'C71': (71.0, 105.1, 0),
     # cooling and cold head
@@ -218,6 +223,8 @@ SILK_LABELS = {
     'D15': '+15V',
     'D16': '-15V',
     'D17': 'ISO 3V3',
+    'D24': '+15V PG',
+    'D25': '-15V PG',
 }
 # Connector pin labels (pin 1 first): what each terminal is for, printed
 # beside the pads on the side facing the board interior.
@@ -381,8 +388,8 @@ class PcbBuilder:
         )
 
     def is_passive(self, ref):
-        """R, C, test points and the Debug sheet's LEDs are placed beside the
-        pad they serve.
+        """R, C, test points, the Debug sheet's LEDs and everything on the
+        Power Good sheet are placed beside the pad they serve.
         """
         if ref in PLACEMENT:
             return False
@@ -393,6 +400,7 @@ class PcbBuilder:
                 ref[0] == 'D'
                 and self.parts[ref]['sheet'] in ('Debug', 'Supply Switches')
             )
+            or self.parts[ref]['sheet'] == 'Power Good'
         )
 
     def iso_side_passives(self):
@@ -817,8 +825,10 @@ class PcbBuilder:
         while pending:
             progressed = False
             # signal-net passives first, then pure decoupling
+            # the Power Good sheet goes last so it only takes what is left
             pending.sort(
                 key=lambda r: (
+                    self.parts[r]['sheet'] == 'Power Good',
                     self.is_decoupling(r),
                     int(r.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ')),
                 )

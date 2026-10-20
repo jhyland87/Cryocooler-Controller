@@ -79,12 +79,14 @@ RULES = [
     ('res', 'LT3097ADJC', '17', '10k', 'GND'),
     ('res', 'LT3097ADJC', '10', '432k', '-15V'),
     ('res', 'LT3097ADJC', '10', '10k', 'GND'),
-    # PGP and PGN pull one shared node low; it is fed from +15 V so it reads
-    # 0 V when either rail is missing
-    ('net', 'LT3097ADJC', '4', 'PG_15V'),
-    ('net', 'LT3097ADJC', '9', 'PG_15V'),
+    # PGP and PGN each pull their own node low; each node is fed from +15 V so
+    # it reads 0 V when its rail is missing (the two are ANDed into PG_15V)
+    ('net', 'LT3097ADJC', '4', 'PGP_15V'),
+    ('net', 'LT3097ADJC', '9', 'PGN_15V'),
     ('res', 'LT3097ADJC', '4', '220k', '+15V'),
     ('res', 'LT3097ADJC', '4', '62k', 'GND'),
+    ('res', 'LT3097ADJC', '9', '220k', '+15V'),
+    ('res', 'LT3097ADJC', '9', '62k', 'GND'),
     # ADP5071 (datasheet Fig. 47)
     ('net', 'ADP5071AREZ', '17', '+5V_PS15'),
     ('net', 'ADP5071AREZ', '18', '+5V_PS15'),

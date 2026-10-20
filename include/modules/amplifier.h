@@ -46,6 +46,12 @@ module::InitStatus initDac();
 /** Initialise the amplifier relay GPIO pin and de-energise it. */
 module::InitStatus initRelay();
 
+/**
+ * Configure the +-15 V power-good input (PG_15V_N_PIN, active LOW) and log
+ * its starting level.  Called from init(); never fails.
+ */
+module::InitStatus initPowerGood();
+
 /** Read latest ACS37800 values; update lastRmsVoltage / lastRmsCurrent. */
 module::ServiceStatus service();
 
@@ -70,6 +76,17 @@ void setRelayState(bool on);
  * @return true if the relay is energised, false otherwise.
  */
 bool getRelayState();
+
+// ---------------------------------------------------------------------------
+// +-15 V power good
+// ---------------------------------------------------------------------------
+
+/**
+ * True while the LT3097 reports both +-15 V rails in regulation
+ * (PG_15V_N_PIN low).  The REM switch is blocked by hardware while this is
+ * false.  service() logs every confirmed change.
+ */
+bool isPowerGood();
 
 // ---------------------------------------------------------------------------
 // Enable / disable waveform output

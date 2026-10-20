@@ -36,6 +36,7 @@ BOARD = KICAD_DIR / 'cryocooler.kicad_pcb'
 # ── resistors (Yageo RC series, 1 %) ────────────────────────────────────────
 R0603 = 'R_0603_1608Metric'
 R1206 = 'R_1206_3216Metric'
+R0402 = 'R_0402_1005Metric'
 
 
 def resistor_code(value):
@@ -144,6 +145,14 @@ PARTS = {
     ('MIE1W0505BGLVH-3R-Z', 'CONV_MIE1W0505BGLVH-3R-Z'): (
         'Monolithic Power Systems', 'MIE1W0505BGLVH-3R-Z',
         'ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12', 'design', ''),
+    ('BSS138', 'SOT-323_SC-70'): (
+        'Diodes Incorporated', 'BSS138W-7-F', 'MOSFET N-CH 50V 200MA SOT323',
+        'suggested', 'power-good stage: same pinout as the SOT-23 BSS138 '
+        '(1 gate, 2 source, 3 drain)'),
+    ('BAT54AW', 'SOT-323_SC-70'): (
+        'Diodes Incorporated', 'BAT54AW-7-F',
+        'DIODE ARR SCHOTTKY 30V 200MA SOT323', 'design',
+        'common anode on PG_15V (pin 3), cathodes on pins 1 and 2'),
     ('BSS138', 'SOT-23'): (
         'Diodes Incorporated', 'BSS138-7-F', 'MOSFET N-CH 50V 200MA SOT23-3',
         'suggested', ''),
@@ -423,7 +432,9 @@ def classify(value, footprint):
     if footprint.startswith('R_'):
         if value == '15m':
             return PARTS[('15m', footprint)]
-        series = 'RC1206FR-07' if footprint == R1206 else 'RC0603FR-07'
+        series = {R1206: 'RC1206FR-07', R0402: 'RC0402FR-07'}.get(
+            footprint, 'RC0603FR-07'
+        )
         note = ''
         if value == '3.9k':
             note = ('Rref for the ADS1220: use 0.1 % 25 ppm (for example Yageo '
@@ -442,6 +453,10 @@ def classify(value, footprint):
         mpn, description, note = CAPS[(value, footprint)]
         return (CAP_MAKERS.get(mpn, SAMSUNG) if mpn else '', mpn, description,
                 'suggested' if mpn else 'none', note)
+    if footprint == 'LED_0402_1005Metric':
+        return ('Kingbright', 'APG1005SGC-F01', 'LED GREEN CLEAR 0402 SMD',
+                'suggested', 'power-good indicators; verify the 0402 green '
+                'LED part number before ordering')
     if footprint.startswith('LED_0603'):
         color = re.search(r'\((\w+)\)', value)
         color = color.group(1) if color else 'red'

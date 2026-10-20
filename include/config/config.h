@@ -145,6 +145,10 @@
 // Calibrate to your cryocooler's rated maximum current draw.
 #define AMPLIFIER_MAX_CURRENT_A  static_cast<float>(5.0f)
 
+// Time (ms) the +-15 V power-good input (PG_15V_N_PIN) must hold a new level
+// before the amplifier module logs a change.
+#define AMPLIFIER_POWER_GOOD_DEBOUNCE_MS  static_cast<uint32_t>(50)
+
 // =============================================================================
 // Safety — system supply voltage
 // =============================================================================

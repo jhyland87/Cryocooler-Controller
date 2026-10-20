@@ -29,17 +29,17 @@ function formatTime(entry: LogEntry): string {
 
 function lineColor(text: string): string {
   const t = text.toLowerCase();
-  if (t.includes('failed') || t.includes(' error') || t.includes('fault') || t.includes('halting')) {
+  if (t.includes('failed') || t.includes(' error') || t.includes('fault') || t.includes('halting') || t.includes('power lost')) {
     return '#f47067';
   }
-  if (t.includes('warn') || t.includes('timeout') || t.includes('retry')) {
+  if (t.includes('warn') || t.includes('timeout') || t.includes('retry') || t.includes('power good: no')) {
     return '#e2b714';
   }
   if (
     t.includes('complete') || t.includes('success') ||
     t.includes('initialized') || t.includes('initialisation complete') ||
     t.includes('connected') || t.includes('started') ||
-    t.includes('setup complete')
+    t.includes('setup complete') || t.includes('power restored') || t.includes('power good: yes')
   ) {
     return '#57c7a9';
   }

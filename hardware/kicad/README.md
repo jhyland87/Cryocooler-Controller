@@ -15,8 +15,8 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `power_input` | 12 V screw terminal, 5 A fuse, SMBJ16A TVS, bulk caps |
 | `power_button` | LTC2954CTS8-2, IRF4905S high-side P-FET, KILL# bias, CL25N8-G (SOT-89) + red/green LED |
 | `rails_logic` | AP63205 buck (12→5 V) → LD1117S33 (5→3.3 V) |
-| `rails_15v` | ADP5071AREZ ±16.4 V (datasheet Fig. 47 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); its PGP / PGN pins make the `PG_15V` power-good node (see below) |
-| `power_good` | `PG_15V` → BSS138 → green LED and a 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good) |
+| `rails_15v` | ADP5071AREZ ±16.4 V (datasheet Fig. 47 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); its PGP / PGN pins go to the `PGP_15V` / `PGN_15V` nodes on the `power_good` sheet (see below) |
+| `power_good` | One node and green LED per LT3097 PG pin (D24 = +15 V, D25 = −15 V), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); 0402 resistors and SOT-323 FETs |
 | `signal_gen` | 25 MHz osc, AD9833, OPA1656, MCP4921 + LM4040-2.5 + OPA188, AD633 |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800 (SPI) + ISO7741 + MIE1W0505 (VSEL→GND2 = 3.3 V output), 4×1 MΩ + 4.02 kΩ divider |
@@ -37,10 +37,13 @@ The ADP5071 makes +16.4 V / −16.5 V, one LT3097 post-regulates them to **±14.
 but run about 0.3 V low). The two ADP5071 output capacitors (22 µF / 50 V, C62 / C63) also serve as the LT3097
 input capacitors, and each output has a 22 µF / 50 V capacitor.
 
-`PG_15V` is +15 V through 220 kΩ / 62 kΩ (about 3.2 V), pulled to ground by the LT3097's open-collector PGP and PGN
-pins (thresholds from 432 kΩ / 10 kΩ dividers, about 13.3 V). It is high only while both rails are good and 0 V if
-either is bad or missing. It gates Q9 (a series BSS138 in the amplifier REM switch) and Q10 (LED and the
-`PG_15V_N` flag for GPIO43). The firmware should still read `PG_15V_N` before starting the signal generator.
+PGP and PGN are open-collector (low = bad). Each drives its own node (`PGP_15V`, `PGN_15V`): +15 V through
+220 kΩ / 62 kΩ, about 3.2 V when its rail is good and 0 V when its pin pulls low or the rail is missing (thresholds
+from the 432 kΩ / 10 kΩ PGFB dividers, about 13.3 V). Each node turns on a BSS138W that lights its green LED (D24
+for +15 V, D25 for −15 V). A BAT54AW (common anode) with a 10 kΩ pull-up to +3V3 ANDs the nodes into `PG_15V`
+(3.3 V only when both are good). `PG_15V` gates Q9 (a series BSS138 in the amplifier REM switch) and Q10 (the
+`PG_15V_N` flag for GPIO43). The amplifier module logs every change of `PG_15V_N` (they show in the dashboard
+console); the firmware should still check it before starting the signal generator.
 
 ## GPIO map (ESP32-S3-WROOM-2)
 
@@ -98,7 +101,7 @@ passives may be flipped), and `tools/datasheet_rules.py` checks datasheet-critic
 Every IC was audited against its datasheet; see [`DESIGN_REVIEW.md`](DESIGN_REVIEW.md) for the
 errors found and fixed, what was verified, and the open issues that need a decision (notably:
 the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S50).
-`tools/datasheet_rules.py` re-checks 191 datasheet-derived connections on every change.
+`tools/datasheet_rules.py` re-checks 193 datasheet-derived connections on every change.
 
 ## PCB layout
 
@@ -162,7 +165,7 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
   and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.
 * **Checks (2026-10-17):** `kicad-cli pcb drc` reports 0 unconnected items and no copper violations; the only warnings are 6 silkscreen ones (reference text against reference text or a neighbour's outline, and the back-side logo over the JP2 / JP3 pads). Schematic ERC is 0 and all 175 datasheet rules pass. 302 footprints. After the water-cooling / cold-head split, Freerouting left four connections open (+12V to the amp REM section, a +15V link to C22, VIN at U11, the J12 net at R53) and two stitching vias too close to inner tracks; they were completed with a small grid router (clearance-aware, using the board's own copper as obstacles) and a 0.13 mm via nudge, then the zones were refilled.
-* **Checks (2026-10-20, LT3097 revision):** `kicad-cli pcb drc --schematic-parity` reports 0 unconnected items, 0 parity issues and no copper violations; what remains is the TP24 / U1 courtyard overlap (also present on the previous board, the ESP32 courtyard includes its antenna keep-out), 28 silkscreen warnings and one 0.2 mm dangling stub at U1 USB_D-. Schematic ERC is 0 and all 191 datasheet rules pass. 310 footprints.
+* **Checks (2026-10-20, LT3097 revision):** `kicad-cli pcb drc --schematic-parity` reports 0 unconnected items, 0 parity issues and no copper violations; what remains is the TP24 / U1 courtyard overlap (also present on the previous board, the ESP32 courtyard includes its antenna keep-out), 29 silkscreen warnings and one short dangling stub at U1 USB_D-. Schematic ERC is 0 and all 193 datasheet rules pass. 310 footprints.
 * **Fabrication export:** every `gen_pcb.py` run and `link_usb_vbus.py` ends by running `tools/export_fab.py` (Gerbers, drill files, the JLCPCB zip and the front / back renders in `fabrication/`); set `SKIP_FAB_EXPORT=1` to skip it, or run the script yourself after a manual board edit.
 * **After `route`:** run `python3 tools/link_usb_vbus.py` (KiCad's python). Freerouting leaves the A4/B9 pair of the USB-C VBUS pads unconnected; the script adds a stub, two vias and a short B.Cu link, trying positions until DRC is clean.
 * **After `route` (LT3097 revision, Freerouting 2.5.0):** run `tools/fix_route.py` (KiCad's python) on the routed board. It removes GND vias that short or crowd a foreign-net track, gives pour fragments that lost their via a new one, removes signal vias that touch one layer only, links R53 pad 2 to the J12 current path and pulls the Q2 gate track away from Q4. Its two track edits match one routing result, so re-check them after any re-route. This run did not need `link_usb_vbus.py` (the VBUS pair routed). `gen_pcb.py` also joins the LT3097's same-net 0.5 mm-pitch pads with locked 0.2 mm stubs (`PAD_BRIDGES`) and pre-places its GND pad vias before routing, and it does not write the board stackup, so copy the `(stackup ...)` block from the previous board into `(setup` after a regeneration.

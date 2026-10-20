@@ -21,8 +21,10 @@ module::InitStatus    initWaveform(){ return module::MODULE_INIT_SUCCESS; }
 module::InitStatus    initAcs()     { return module::MODULE_INIT_SUCCESS; }
 module::InitStatus    initDac()     { return module::MODULE_INIT_SUCCESS; }
 module::InitStatus    initRelay()   { return module::MODULE_INIT_SUCCESS; }
+module::InitStatus    initPowerGood(){ return module::MODULE_INIT_SUCCESS; }
 module::ServiceStatus service()     { return module::MODULE_SERVICE_OK; }
 bool  checkDependencies()           { return true; }
+bool  isPowerGood()                 { return true; }
 
 void  setRelayState(bool on)        { sRelayState = on; }
 bool  getRelayState()               { return sRelayState; }
