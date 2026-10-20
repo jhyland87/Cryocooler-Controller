@@ -40,7 +40,7 @@ MODULE_OF_SHEET = {
     'System Current': 'POWER INPUT & RAILS',
     'Power Input': 'POWER INPUT & RAILS',
     'Power Button': 'POWER INPUT & RAILS',
-    'Power Good': 'POWER INPUT & RAILS',
+    'Power Good': 'RAILS ±15V',
 }
 
 # module -> rectangles (overlap them by > 2 * LINE_INSET to build L shapes)
