@@ -10,6 +10,9 @@ from the design. Part numbers come from the tables below:
 
 Test points are bare PCB pads and are left out.
 
+Also writes the JLCPCB files: bom/cryocooler_bom_full.csv (every part, JLCPCB
+columns) and bom/cryocooler_cpl.csv (SMD placements from the PCB).
+
 Usage: python3 tools/gen_bom.py   (needs kicad-cli)
 """
 
@@ -26,6 +29,9 @@ from sexpr import find_all, parse, sval
 KICAD_DIR = Path(__file__).resolve().parents[1]
 KICAD_CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
 OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_digikey.csv'
+FULL_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_full.csv'
+CPL_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_cpl.csv'
+BOARD = KICAD_DIR / 'cryocooler.kicad_pcb'
 
 # ── resistors (Yageo RC series, 1 %) ────────────────────────────────────────
 R0603 = 'R_0603_1608Metric'
@@ -62,8 +68,14 @@ CAPS = {
         'INA239 input filter across IN+/IN-'),
     ('10uF/25V', 'C_1206_3216Metric'): (
         'CL31A106KAHNNNE', 'CAP CER 10UF 25V X5R 1206', '12 V rail'),
-    ('4.7uF/25V', 'C_1206_3216Metric'): (
-        'CL31A475KAHNNNE', 'CAP CER 4.7UF 25V X5R 1206', '+/-15 V LDO outputs'),
+    ('22uF/50V', 'C_1210_3225Metric'): (
+        'CL32B226KBJNNNE', 'CAP CER 22UF 50V X7R 1210',
+        'ADP5071 outputs / LT3097 inputs (C62, C63) and LT3097 outputs (C65, '
+        'C67); >= 10 uF effective at 15 V DC bias, so check the maker\'s '
+        'DC-bias curve (ADI suggests the Murata GCM series)'),
+    ('1uF/50V', 'C_1206_3216Metric'): (
+        'CL31B105KBHNNNE', 'CAP CER 1UF 50V X7R 1206',
+        'LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)'),
     ('22uF/10V', 'C_1206_3216Metric'): (
         'CL31A226KPHNNNE', 'CAP CER 22UF 10V X5R 1206', '5 V buck output'),
     ('22uF', 'C_1206_3216Metric'): (
@@ -71,14 +83,6 @@ CAPS = {
         'isolated 3.3 V output (needs 10 V or more)'),
     ('22uF/25V', 'C_1210_3225Metric'): (
         'CL32A226KAJNNNE', 'CAP CER 22UF 25V X5R 1210', '12 V rail'),
-    ('10uF/50V', 'C_1210_3225Metric'): (
-        'CL32B106KBJNNNE', 'CAP CER 10UF 50V X7R 1210',
-        '+/-16.5 V rails (50 V needed: DC bias derating)'),
-    ('100pF', 'C_1206_3216Metric'): (
-        'CL31C101JBCNNNC', 'CAP CER 100PF 50V C0G/NP0 1206',
-        '-15 V rail, C0G dielectric; Digi-Key marks this Samsung part '
-        'obsolete, so pick a current 100 pF 50 V C0G 1206 (for example '
-        'Kemet C1206C101J5GACTU)'),
     ('47nF', 'C_1206_3216Metric'): (
         'C1206C473K5RACTU', 'CAP CER 0.047UF 50V X7R 1206',
         'ADP5071 compensation (C59)'),
@@ -89,7 +93,6 @@ CAPS = {
 # makers for the caps that are not Samsung
 CAP_MAKERS = {
     'C1206C473K5RACTU': 'Kemet',
-    'C1206C101J5GACTU': 'Kemet',
     'CC1206KRX7R9BB683': 'Yageo',
 }
 
@@ -127,8 +130,11 @@ PARTS = {
         'NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup '
         'only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
     ('SRN6045TA-4R7M', 'L_Bourns_SRN6045TA'): (
-        'Bourns', 'SRN6045TA-4R7M', 'FIXED IND 4.7UH 4.5A 26MOHM SMD',
-        'design', ''),
+        'Bourns', 'SRP6050CA-4R7M', 'FIXED IND 4.7UH 8.5A 18.4MOHM SMD',
+        'suggested',
+        'shielded replacement for the SRN6045TA-4R7M the board footprint '
+        'was drawn for; terminals land inside the 2.35 x 5.1 mm pads, '
+        'check the first one by hand'),
     ('SRP7050TA-3R3M', 'L_Bourns_SRP7050TA'): (
         'Bourns', 'SRP7050TA-3R3M', 'FIXED IND 3.3UH 12A 20.9MOHM SMD',
         'design', 'ADP5071 boost inductor, fully shielded'),
@@ -194,12 +200,11 @@ PARTS = {
     ('ADP5071AREZ', 'ETSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3x4.2mm'): (
         'Analog Devices', 'ADP5071AREZ', 'IC REG DC DC +/- 16.5V 20TSSOP-EP',
         'design', ''),
-    ('ADP7142AUJZ', 'TSOT-23-5'): (
-        'Analog Devices', 'ADP7142AUJZ-R7', 'IC REG LINEAR ADJ 200MA TSOT5',
-        'suggested', 'adjustable version, +15 V'),
-    ('ADP7182AUJZ', 'TSOT-23-5'): (
-        'Analog Devices', 'ADP7182AUJZ-R7', 'IC REG LINEAR NEG ADJ 200MA TSOT5',
-        'suggested', 'adjustable version, -15 V'),
+    ('LT3097ADJC', 'DFN-22-2EP_6x3mm_P0.5mm_LT3097'): (
+        'Analog Devices', 'LT3097ADJC#PBF',
+        'IC REG LINEAR POS/NEG ADJ 500MA 22DFN', 'suggested',
+        '#PBF is the tube, #TRPBF the reel; DFN with two exposed pads '
+        '(23 = GND, 24 = INN = -16.5 V)'),
     ('ADS1220IPW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
         'Texas Instruments', 'ADS1220IPWR', 'IC ADC 24BIT SIGMA-DELTA 16TSSOP',
         'design', ''),
@@ -279,8 +284,6 @@ SUBSTITUTES = {
     'EEE-FK1E101P': ('EEE-FK1E101AP', 'Panasonic'),
     'CL32A226KAJNNNE': ('C1210C226K3PACTU', 'Kemet'),
     'CL31A106KAHNNNE': ('C3216X5R1E106K085AC', 'TDK'),
-    'CL32B106KBJNNNE': ('CL32B106KBJNNNF', 'Samsung Electro-Mechanics'),
-    'CL31C101JBCNNNC': ('C1206C101J5GACTU', 'Kemet'),
     'B2B-XH-A(LF)(SN)': ('B2B-XH-A', 'JST'),
     'B4B-XH-A(LF)(SN)': ('B4B-XH-A', 'JST'),
     'BSS84-7-F': ('BSS84', 'onsemi'),
@@ -309,6 +312,15 @@ MOUSER_LINES = {
 MOUSER_MPN = {'OPA188AID': 'OPA188AIDR'}
 MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'
 
+# JLCPCB: manufacturer part number -> LCSC part number (C-number). Fill in as
+# parts are matched in JLCPCB's BOM upload; blank cells are left for the upload.
+LCSC_PARTS = {}
+
+# JLCPCB: KiCad footprint -> degrees added to the KiCad rotation in the CPL.
+# JLCPCB's part library orients some packages differently; set these from the
+# placement preview in JLCPCB's order page.
+ROTATION_OFFSETS = {}
+
 
 def load_netlist():
     with tempfile.TemporaryDirectory() as tmp:
@@ -334,6 +346,71 @@ def load_netlist():
             )
         )
     return parts
+
+
+def load_placements():
+    """Returns the SMD placements from the PCB as (ref, x, y, side, rotation, package, value).
+
+    Coordinates are absolute (board origin), the same as the Gerbers that
+    export_fab.py writes, so the CPL lines up with the fabricated pads.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / 'positions.csv'
+        subprocess.run(
+            [
+                KICAD_CLI, 'pcb', 'export', 'pos', '--format', 'csv',
+                '--units', 'mm', '--side', 'both', '--smd-only',
+                '-o', str(path), str(BOARD),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        with path.open(newline='') as handle:
+            return [
+                (row['Ref'], float(row['PosX']), float(row['PosY']),
+                 row['Side'], float(row['Rot']), row['Package'], row['Val'])
+                for row in csv.DictReader(handle)
+            ]
+
+
+def jlcpcb_footprint(footprint):
+    """'R_0603_1608Metric' -> '0603'; other footprints keep their KiCad name."""
+    match = re.match(r'(?:R|C|LED|D)_(\d{4})_', footprint)
+    return match.group(1) if match else footprint
+
+
+def write_jlcpcb_files(rows):
+    """Writes the full JLCPCB BOM and the CPL; returns (bom lines, placements).
+
+    Both follow JLCPCB's samples: the BOM has Comment, Designator, Footprint and
+    the part number column; the CPL has Mid X / Mid Y in mm, Top / Bottom layer.
+    """
+    with FULL_OUTPUT.open('w', newline='', encoding='utf-8') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(['Comment', 'Designator', 'Footprint',
+                         'JLCPCB Part #\uff08optional\uff09', ''])
+        for row in rows:
+            mpn = row['Manufacturer Part Number']
+            writer.writerow([
+                row['Value'] or mpn or row['Description'],
+                ','.join(row['Customer Reference'].split()),
+                jlcpcb_footprint(row['Package']),
+                LCSC_PARTS.get(mpn, ''),
+                '',
+            ])
+    bom_refs = {ref for row in rows for ref in row['Customer Reference'].split()}
+    placements = [p for p in load_placements() if p[0] in bom_refs]
+    placements.sort(key=lambda placement: sort_key(placement[0]))
+    with CPL_OUTPUT.open('w', newline='', encoding='utf-8') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(['Designator', 'Val', 'Package', 'Mid X', 'Mid Y',
+                         'Rotation', 'Layer'])
+        for ref, pos_x, pos_y, side, rotation, package, value in placements:
+            rotation = (rotation + ROTATION_OFFSETS.get(package, 0)) % 360
+            writer.writerow([ref, value, package, f'{pos_x:.4f}mm',
+                             f'{pos_y:.4f}mm', f'{rotation:g}',
+                             side.capitalize()])
+    return len(rows), len(placements)
 
 
 def sort_key(ref):
@@ -391,7 +468,7 @@ def main():
     parts = [p for p in load_netlist() if not p[0].startswith('TP')]
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
-        if footprint.startswith('LED_0603') and int(ref[1:]) >= 18:
+        if footprint.startswith('LED_0603') and 18 <= int(ref[1:]) <= 22:
             value = 'SUPPLY ON (green)'  # the switched-rail indicators
         if footprint.startswith(
             ('TerminalBlock', 'Molex_KK', 'JST_XH', 'PinHeader')
@@ -451,6 +528,9 @@ def main():
     total = sum(row['Quantity'] for row in rows)
     counts = collections.Counter(row['MPN basis'] for row in rows)
     print(f'{len(rows)} lines, {total} parts, bases {dict(counts)} -> {OUTPUT}')
+    bom_lines, placed = write_jlcpcb_files(rows)
+    print(f'JLCPCB: {bom_lines} BOM lines -> {FULL_OUTPUT}, '
+          f'{placed} placements -> {CPL_OUTPUT}')
     return 0
 
 

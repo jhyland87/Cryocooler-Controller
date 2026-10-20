@@ -37,6 +37,7 @@ EXPECTED = {
     'FAN_ALERT': 21,
     'NTC_ADC': 4,
     'STATUS_RGB': 38,
+    'PG_15V_N': 43,
 }
 # module pins that carry a UART name instead of IOn
 UART_PIN_NAMES = {43: 'TXD0', 44: 'RXD0'}

@@ -405,15 +405,57 @@ SYMBOLS = [
         bottom=[('7', 'GND', 'power_in')],
         keywords='power monitor spi',
     ),
-    from_stock(
-        'Regulator_Linear',
-        'ADP7182AUJZ',
-        'ADP7182AUJZ',
+    symbol(
+        'LT3097ADJC',
         'U',
-        left=['2', '3'],
-        right=['5', '4'],
-        bottom=['1'],
-        keywords='negative ldo',
+        'Analog Devices dual 500 mA positive/negative ultra-low noise LDO '
+        'with power good, 22-lead DFN. Pads 23 (GND) and 24 (INN) are the '
+        'exposed pads',
+        'https://www.analog.com/media/en/technical-documentation/'
+        'data-sheets/lt3097.pdf',
+        'cryocooler:DFN-22-2EP_6x3mm_P0.5mm_LT3097',
+        left=[
+            (['1', '2'], 'INP', 'power_in'),
+            ('3', 'ENP/UVP', 'input'),
+            (['6', '7', '24'], 'INN', 'power_in'),
+            ('8', 'ENN/UVN', 'input'),
+        ],
+        right=[
+            (['21', '22'], 'OUTP', 'power_out'),
+            ('20', 'OUTSP', 'input'),
+            ('17', 'PGFBP', 'input'),
+            ('4', 'PGP', 'open_collector'),
+            ('18', 'SETP', 'passive'),
+            (['15', '16'], 'OUTN', 'power_out'),
+            ('14', 'OUTSN', 'input'),
+            ('10', 'PGFBN', 'input'),
+            ('9', 'PGN', 'open_collector'),
+            ('12', 'SETN', 'passive'),
+        ],
+        bottom=[
+            ('5', 'ILIMP', 'passive'),
+            (['13', '19', '23'], 'GND', 'power_in'),
+            ('11', 'ILIMN', 'passive'),
+        ],
+        keywords='dual ldo low noise power good',
+        # pin rows in mm above the symbol centre: the positive group sits on
+        # top, the negative group below, each with room for its feedback parts
+        y_override={
+            '1': 30.48,
+            '3': 27.94,
+            '6': -12.7,
+            '8': -15.24,
+            '21': 30.48,
+            '20': 27.94,
+            '17': 22.86,
+            '4': 17.78,
+            '18': 7.62,
+            '15': -12.7,
+            '14': -15.24,
+            '10': -20.32,
+            '9': -25.4,
+            '12': -35.56,
+        },
     ),
     from_stock(
         'Regulator_Switching',

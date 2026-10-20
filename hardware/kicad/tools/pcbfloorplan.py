@@ -40,6 +40,7 @@ MODULE_OF_SHEET = {
     'System Current': 'POWER INPUT & RAILS',
     'Power Input': 'POWER INPUT & RAILS',
     'Power Button': 'POWER INPUT & RAILS',
+    'Power Good': 'POWER INPUT & RAILS',
 }
 
 # module -> rectangles (overlap them by > 2 * LINE_INSET to build L shapes)
@@ -49,16 +50,16 @@ MODULE_REGIONS = {
     'INDICATORS': [Rect(70, -3, 84, 28)],
     'MCU & USB': [Rect(85.8, -3, 133, 39.4)],
     'AMP CURRENT (ISOLATED)': [Rect(-3, 37.5, 51.5, 68.5)],
-    'RAILS ±15V': [Rect(53.5, 30, 84, 72.7)],
+    'RAILS ±15V': [Rect(53.5, 30, 84, 74.7)],
     'COMPRESSOR RELAY': [Rect(85.8, 41.3, 104.4, 61.3)],
     'IMU CABLE': [Rect(108.4, 41.2, 125, 69.3), Rect(106.2, 41.2, 110, 61.3)],
     'POWER INPUT & RAILS': [
         Rect(-3, 72.25, 51.5, 113),
         Rect(45, 76.5, 66, 97.5),
-        Rect(60, 74.6, 84.5, 91),
+        Rect(60, 76.5, 84.5, 91),
         Rect(35, 94.5, 77.5, 113),
     ],
-    'COLD HEAD TEMP': [Rect(108.2, 71.1, 133, 96.0)],
+    'COLD HEAD TEMP': [Rect(107.9, 71.1, 133, 96.0)],
     'WATER COOLING': [
         Rect(86.3, 63.2, 106.0, 113),
         Rect(79.5, 92.8, 106.0, 113),
