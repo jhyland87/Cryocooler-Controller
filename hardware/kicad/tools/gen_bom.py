@@ -172,11 +172,13 @@ PARTS = {
         'suggested', 'footprint is the GCT USB4105-xx-A'),
     ('', 'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'): (
         'Phoenix Contact', '1729128', 'TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08',
-        'suggested', 'screw terminals: 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out'),
+        'suggested', 'screw terminals, 5.08 mm side entry, black; 12 V in, amplifier REM, '
+        'amplifier signal, amp out, cryocooler out'),
     ('', 'Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'): (
-        'Molex', '0022232041', 'CONN HEADER KK 254 VERT 4POS', 'suggested', 'fan and pump (4-pin PWM)'),
+        'Molex', '0022232041', 'CONN HEADER KK 254 VERT 4POS', 'suggested', 'fan and pump (4-pin PWM); housings black'),
     ('', 'Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'): (
-        'Molex', '0022232031', 'CONN HEADER KK 254 VERT 3POS', 'suggested', ''),
+        'Molex', '0022232031', 'CONN HEADER KK 254 VERT 3POS', 'suggested',
+        'J5 fan tach; housing red'),
     ('', 'PinHeader_1x02_P1.27mm_Vertical'): (
         '', '', 'CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER',
         'none',
@@ -184,13 +186,13 @@ PARTS = {
         'shunt; the branches are logic supplies of a few hundred mA'),
     ('', 'JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'): (
         'JST', 'B2B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 2POS 2.5MM',
-        'suggested', 'NTC, panel button, compressor relay'),
+        'suggested', 'NTC, panel button, compressor relay; housing white'),
     ('', 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical'): (
         'JST', 'B4B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 4POS 2.5MM',
-        'suggested', ''),
+        'suggested', 'J10 cold head temp; housing white'),
     ('', 'JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical'): (
         'JST', 'B8B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 8POS 2.5MM',
-        'suggested', 'J14: cable to the off-board Adafruit LSM6DSOX module'),
+        'suggested', 'J14: cable to the off-board Adafruit LSM6DSOX module; housing white'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),

@@ -96,7 +96,7 @@ def render_board():
             [
                 'pcb', 'render', '--side', side, '--width', RENDER_SIZE[0],
                 '--height', RENDER_SIZE[1], '--quality', 'high',
-                '--background', 'opaque', *extra,
+                '--background', 'opaque', '--use-board-stackup-colors', *extra,
                 '-o', str(FAB_DIR / name), str(BOARD),
             ]
         )
