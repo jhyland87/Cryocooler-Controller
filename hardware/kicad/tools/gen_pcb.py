@@ -357,6 +357,7 @@ class PcbBuilder:
                 raise RuntimeError(f'missing footprint {part["footprint"]}')
             pcbmodels.attach_missing_models(footprint)
             footprint.SetReference(ref)
+            pcbmodels.apply_connector_colour(footprint)
             footprint.SetValue(part['value'])
             footprint.Reference().SetTextSize(
                 pcbnew.VECTOR2I(to_internal(0.8), to_internal(0.8))
@@ -2510,6 +2511,12 @@ def main():
             if pcbmodels.attach_missing_models(footprint)
         ]
         print('3D envelope models added to:', added)
+        coloured = [
+            ref
+            for ref, footprint in builder.footprints.items()
+            if pcbmodels.apply_connector_colour(footprint)
+        ]
+        print('connector colours applied to:', coloured)
         builder.add_silkscreen()
         pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
         return 0

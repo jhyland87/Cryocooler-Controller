@@ -36,12 +36,12 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,APG1005SGC-F01,Kingbright,LED GREEN CLEAR 0402 SMD,D25,PG -15V (green),LED_0402_1005Metric,suggested,power-good indicators; verify the 0402 green LED part number before ordering
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
-5,1729128,Phoenix Contact,"TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08",J2 J8 J9 J11 J12,,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",suggested,"screw terminals: 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out"
-2,0022232041,Molex,CONN HEADER KK 254 VERT 4POS,J3 J4,,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,suggested,fan and pump (4-pin PWM)
-1,0022232031,Molex,CONN HEADER KK 254 VERT 3POS,J5,,Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical,suggested,
-3,B2B-XH-A,JST,CONN HEADER XH VERT 2POS 2.5MM,J6 J7 J13,,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,ordered,"NTC, panel button, compressor relay; substitute for B2B-XH-A(LF)(SN)"
-1,B4B-XH-A,JST,CONN HEADER XH VERT 4POS 2.5MM,J10,,JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,ordered,substitute for B4B-XH-A(LF)(SN)
-1,B8B-XH-A(LF)(SN),JST,CONN HEADER XH VERT 8POS 2.5MM,J14,,JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,suggested,J14: cable to the off-board Adafruit LSM6DSOX module
+5,1729128,Phoenix Contact,"TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08",J2 J8 J9 J11 J12,,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",suggested,"screw terminals, 5.08 mm side entry, black; 12 V in, amplifier REM, amplifier signal, amp out, cryocooler out"
+2,0022232041,Molex,CONN HEADER KK 254 VERT 4POS,J3 J4,,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,suggested,fan and pump (4-pin PWM); housings black
+1,0022232031,Molex,CONN HEADER KK 254 VERT 3POS,J5,,Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical,suggested,J5 fan tach; housing red
+3,B2B-XH-A,JST,CONN HEADER XH VERT 2POS 2.5MM,J6 J7 J13,,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,ordered,"NTC, panel button, compressor relay; housing white; substitute for B2B-XH-A(LF)(SN)"
+1,B4B-XH-A,JST,CONN HEADER XH VERT 4POS 2.5MM,J10,,JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,ordered,J10 cold head temp; housing white; substitute for B4B-XH-A(LF)(SN)
+1,B8B-XH-A(LF)(SN),JST,CONN HEADER XH VERT 8POS 2.5MM,J14,,JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,suggested,J14: cable to the off-board Adafruit LSM6DSOX module; housing white
 5,,,CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER,JP1 JP2 JP3 JP4 JP5,,PinHeader_1x02_P1.27mm_Vertical,none,supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and shunt; the branches are logic supplies of a few hundred mA
 1,SRP6050CA-4R7M,Bourns,FIXED IND 4.7UH 8.5A 18.4MOHM SMD,L1,SRN6045TA-4R7M,L_Bourns_SRN6045TA,suggested,"shielded replacement for the SRN6045TA-4R7M the board footprint was drawn for; terminals land inside the 2.35 x 5.1 mm pads, check the first one by hand"
 1,SRP7050TA-3R3M,Bourns,FIXED IND 3.3UH 12A 20.9MOHM SMD,L2,SRP7050TA-3R3M,L_Bourns_SRP7050TA,design,"ADP5071 boost inductor, fully shielded"
