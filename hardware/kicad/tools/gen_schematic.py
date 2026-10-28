@@ -37,13 +37,23 @@ LED0402 = 'LED_SMD:LED_0402_1005Metric'
 SOT323 = 'Package_TO_SOT_SMD:SOT-323_SC-70'
 LED1206 = 'LED_SMD:LED_1206_3216Metric'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
-KK3 = 'Connector_Molex:Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'
-KK4 = 'Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'
-XH2 = 'Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'
-XH8 = 'Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical'
-TERM2 = (
-    'TerminalBlock_Phoenix:'
-    'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
+# Right-angle connectors: every plug enters parallel to the board, through the
+# housing side walls. Ratings are from each maker's datasheet.
+XH3_SIDE = 'Connector_JST:JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal'  # 3 A
+XH4_SIDE = 'Connector_JST:JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal'  # 3 A
+DF13_2P = 'Connector_Hirose:Hirose_DF13-02P-1.25DS_1x02_P1.25mm_Horizontal'
+DF13_4P = 'Connector_Hirose:Hirose_DF13-04P-1.25DS_1x04_P1.25mm_Horizontal'
+MICROLOCK8 = (
+    'cryocooler:Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal'
+)
+# pluggable Phoenix headers: MSTBA 2,5 (12 A) for power, MC 1,5 (8 A) for
+# the amp control lines
+TERM_POWER = (
+    'Connector_Phoenix_MSTB:'
+    'PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'
+)
+TERM_SIGNAL = (
+    'Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal'
 )
 INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 
@@ -405,6 +415,7 @@ def build_mcu(sh):
     vbus = pin_cell(usb, 'A4')
     wire(sh, vbus_esd, (vbus_esd[0], 84), (226, 84), (226, vbus[1]), vbus)
     net_label(sh, 'USB_VBUS', (205, 84), 180)  # names the net for the PCB rules
+    test_point(sh, 'USB_VBUS', (214, 84))
     vcap(sh, '4.7uF', 210, 84, fp=C0805)
     drop_ground(sh, (210, 90), 0)
     rail_flag(sh, (218, 84))
@@ -455,7 +466,7 @@ def build_power_input(sh):
         rot=0,
         mirror=True,
         auto=False,
-        footprint=TERM2,
+        footprint=TERM_POWER,
     )
     raw = pin_cell(j_in, '1')
     fuse = aux(
@@ -552,7 +563,7 @@ def build_power_button(sh):
         rot=0,
         mirror=True,
         auto=False,
-        footprint=XH2,
+        footprint=DF13_2P,
     )
     wire(sh, pin_cell(j_panel, '1'), (36, 66), (36, pb[1]))
     wire(
@@ -583,6 +594,7 @@ def build_power_button(sh):
     )
     sh.nc(ref, '3')
     ground(sh, (88, 50))
+    test_point(sh, 'LM4040_5V', (84, 44))
     # PDT cap, EN# to the P-FET gate, INT# with pull-up
     pdt = pin_cell(u, '7')
     wire(sh, pdt, (74, pdt[1]))
@@ -1477,6 +1489,7 @@ def build_signal_gen(sh):
     vcap(sh, '100nF', 92, 100)
     drop_ground(sh, (92, 106), 0)
     rail_flag(sh, (88, 100))
+    test_point(sh, 'MCP4921_VREF', (90, 100))
     gnd_bus(sh, [pin_cell(dac, '5'), pin_cell(dac, '7')])
     opa188 = place_ic(
         sh,
@@ -1612,7 +1625,7 @@ def rem_switch(
         140 * 1.27,
         58 * 1.27,
         {},
-        footprint or TERM2,
+        footprint or TERM_SIGNAL,
     )
     spur(sh, j_rem, '2', 2)
     ground(sh, (pin_cell(j_rem, '2')[0] - 2, pin_cell(j_rem, '2')[1]))
@@ -1666,7 +1679,7 @@ def build_amp_control(sh):
         140 * 1.27,
         90 * 1.27,
         {},
-        TERM2,
+        TERM_SIGNAL,
     )
     sig = pin_cell(j_sig, '1')
     wire(sh, sig, (sig[0] - 6, sig[1]))
@@ -1694,7 +1707,7 @@ def build_compressor_relay(sh):
         'COMP_RELAY',
         'COMPRESSOR RELAY / GND',
         True,
-        XH2,
+        DF13_2P,
         '+12V',
     )
 
@@ -1838,7 +1851,7 @@ def build_amp_current(sh):
         170 * 1.27,
         64 * 1.27,
         {},
-        TERM2,
+        TERM_POWER,
     )
     j_load = conn(
         sh,
@@ -1847,7 +1860,7 @@ def build_amp_current(sh):
         170 * 1.27,
         58 * 1.27,
         {},
-        TERM2,
+        TERM_POWER,
     )
     for connector in (j_out, j_load):
         spur(sh, connector, '2', 2)
@@ -2019,6 +2032,12 @@ DEBUG_RAILS = (
     '+16V5',
     '-16V5',
     'ISO_3V3',
+    # switched section rails, so every IC has a test point on its supply
+    '+3V3_SG',
+    '+3V3_COOL',
+    '+3V3_CH',
+    '+5V_PS15',
+    '+5V_ISO',
 )
 DEBUG_GROUNDS = ('GND', 'GND', 'GND', 'ISO_GND')
 DEBUG_SIGNALS = (
@@ -2123,7 +2142,10 @@ def build_debug(sh):
     )
     column, row = 24, 36
     sh.note('POWER RAILS', 20 * 1.27, (row - 8) * 1.27, 1.8)
-    for net in DEBUG_RAILS:
+    for index, net in enumerate(DEBUG_RAILS):
+        if index and index % 10 == 0:  # wrap onto a second row
+            column = 24
+            row += 18
         debug_unit(sh, 'rail', net, column, row)
         column += 22
     column = 24
@@ -2322,7 +2344,7 @@ def build_cooling(sh):
         rot=180,
         mirror=True,
         auto=False,
-        footprint=KK4,
+        footprint=XH4_SIDE,
     )
     wire(
         sh,
@@ -2355,7 +2377,7 @@ def build_cooling(sh):
         rot=180,
         mirror=True,
         auto=False,
-        footprint=KK4,
+        footprint=XH4_SIDE,
     )
     wire(
         sh,
@@ -2393,7 +2415,7 @@ def build_cooling(sh):
         110 * 1.27,
         124 * 1.27,
         {},
-        KK3,
+        XH3_SIDE,
     )
     raw = pin_cell(j_flow, '3')
     wire(sh, raw, (raw[0] - 6, raw[1]))
@@ -2414,7 +2436,7 @@ def build_cooling(sh):
         110 * 1.27,
         150 * 1.27,
         {},
-        XH2,
+        DF13_2P,
     )
     ntc = pin_cell(j_ntc, '1')
     wire(sh, ntc, (ntc[0] - 30, ntc[1]))
@@ -2493,7 +2515,7 @@ def build_cold_head(sh):
         170 * 1.27,
         60 * 1.27,
         {},
-        'Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical',
+        DF13_4P,
     )
     fp_pin, sp_pin, sn_pin, ref_pin = (
         pin_cell(j_rtd, n) for n in ('1', '2', '3', '4')
@@ -2573,7 +2595,7 @@ def build_imu(sh):
             200 * 1.27,
             60 * 1.27,
             {},
-            XH8,
+            MICROLOCK8,
         )
     tips = {number: pin_cell(header, number) for number in map(str, range(1, 9))}
     column = tips['1'][0]
@@ -2846,6 +2868,22 @@ def main():
             )
         )
     import textlayout
+    import part_links
+
+    unlinked = []
+    for sheet in [root] + children:
+        for part in sheet.parts:
+            if part.ref.startswith('#'):
+                continue
+            footprint = part.footprint or kicadgen.symbol_prop(
+                kicadgen.get_symbol(part.lib_id), 'Footprint'
+            )
+            found = part_links.links(part.ref, part.value, footprint)
+            if not found and not part.ref.startswith('TP'):
+                unlinked.append(part.ref)
+            part.props.update(found)
+    print(f'part links: {len(unlinked)} parts without a part number:',
+          ' '.join(unlinked))
 
     overlaps = 0
     junctions = 0

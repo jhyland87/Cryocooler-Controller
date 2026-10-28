@@ -85,6 +85,11 @@ ENVELOPES = {
         'MIE1W0505_envelope',
         [(5.0, 4.0, 1.8, 0.0, 0.0, BLACK)],
     ),
+    # Molex 505448-0871 body 9.6 x 8.95 mm, 8.43 mm high (sales drawing sheet 1)
+    'Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal': (
+        'Molex_505448_envelope',
+        [(9.6, 8.95, 8.43, 0.0, 0.0, BLACK)],
+    ),
     # LT3097 22-lead DFN, 3 x 6 mm, 0.75 mm high (datasheet Fig. 132)
     'DFN-22-2EP_6x3mm_P0.5mm_LT3097': (
         'LT3097_envelope',

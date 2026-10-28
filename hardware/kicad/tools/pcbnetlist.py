@@ -34,8 +34,8 @@ def export_netlist(out_path):
 
 
 def load_netlist():
-    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet);
-    nets[name] = [(ref, pin)].
+    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet,
+    pins) with pins[pin number] = symbol pin name; nets[name] = [(ref, pin)].
     """
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'n.net'
@@ -52,12 +52,17 @@ def load_netlist():
             'value': sval(find_all(comp, 'value')[0][1]),
             'footprint': sval(find_all(comp, 'footprint')[0][1]),
             'sheet': sheet,
+            'pins': {},
         }
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):
         name = sval(find_all(net, 'name')[0][1])
-        nets[name] = [
-            (sval(find_all(n, 'ref')[0][1]), sval(find_all(n, 'pin')[0][1]))
-            for n in find_all(net, 'node')
-        ]
+        nets[name] = []
+        for node in find_all(net, 'node'):
+            ref = sval(find_all(node, 'ref')[0][1])
+            pin = sval(find_all(node, 'pin')[0][1])
+            nets[name].append((ref, pin))
+            function = find_all(node, 'pinfunction')
+            if function and ref in parts:
+                parts[ref]['pins'][pin] = sval(function[0][1])
     return parts, nets
