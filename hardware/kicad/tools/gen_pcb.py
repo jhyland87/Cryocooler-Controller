@@ -285,6 +285,18 @@ SILK_LABELS.update(
     {f'JP{index}': text for index, text in enumerate(JUMPER_LABELS, start=1)}
 )
 SILK_TEXT_SIZE = 0.8
+# part numbers printed under the IC bodies as a placement aid: font sizes to
+# try (largest first) and the refs that get one (modules and oversize parts skip)
+IC_LABEL_SIZES = (0.9, 0.8, 0.7)
+IC_LABEL_SKIP = ('U1',)
+IC_LABEL_STEP = 0.25
+# shorter text for parts whose full value will not fit under the body
+IC_LABEL_TEXT = {
+    'U3': 'SG-8002CA',
+    'U7': 'MCP4921',
+    'U18': 'ACS37800',
+    'PS1': 'MIE1W0505',
+}
 SILK_TEXT_THICKNESS = 0.12
 LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
 LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
@@ -2414,6 +2426,181 @@ class PcbBuilder:
                 Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
             )
 
+    @staticmethod
+    def ic_label_variants(text):
+        """The part number as one line, and as two lines split at the hyphen
+        (or letter/digit boundary) nearest the middle."""
+        variants = [text]
+        cuts = [
+            index
+            for index in range(2, len(text) - 1)
+            if text[index - 1] == '-'
+            or text[index].isdigit() != text[index - 1].isdigit()
+        ]
+        if cuts:
+            cut = min(cuts, key=lambda index: abs(index - len(text) / 2))
+            variants.append(text[:cut] + '\n' + text[cut:])
+        return variants
+
+    @staticmethod
+    def ic_label_text(footprint):
+        """Text printed for an IC: its value, or the shorter override."""
+        return IC_LABEL_TEXT.get(footprint.GetReference(), footprint.GetValue())
+
+    def ic_label_obstacles(self, footprint):
+        """Boxes an IC part number must stay off: the part's pads and silk
+        graphics, plus every visible reference / value text on the board.
+        """
+        boxes = []
+        for pad in footprint.Pads():
+            box = pad.GetBoundingBox()
+            boxes.append(
+                Rect(
+                    box.GetLeft() / 1e6 - 0.2,
+                    box.GetTop() / 1e6 - 0.2,
+                    box.GetRight() / 1e6 + 0.2,
+                    box.GetBottom() / 1e6 + 0.2,
+                )
+            )
+        for item in footprint.GraphicalItems():
+            if item.GetLayer() != pcbnew.F_SilkS:
+                continue
+            box = item.GetBoundingBox()
+            boxes.append(
+                Rect(
+                    box.GetLeft() / 1e6 - 0.15,
+                    box.GetTop() / 1e6 - 0.15,
+                    box.GetRight() / 1e6 + 0.15,
+                    box.GetBottom() / 1e6 + 0.15,
+                )
+            )
+        boxes.extend(self.footprint_texts())
+        return boxes
+
+    def ic_body_rect(self, footprint):
+        """Package body from the footprint's fab outline (falls back to the
+        pad box)."""
+        boxes = [
+            item.GetBoundingBox()
+            for item in footprint.GraphicalItems()
+            if item.GetLayer() == pcbnew.F_Fab
+            and not isinstance(item, pcbnew.PCB_TEXT)
+        ]
+        if not boxes:
+            boxes = [pad.GetBoundingBox() for pad in footprint.Pads()]
+        return Rect(
+            min(box.GetLeft() for box in boxes) / 1e6,
+            min(box.GetTop() for box in boxes) / 1e6,
+            max(box.GetRight() for box in boxes) / 1e6,
+            max(box.GetBottom() for box in boxes) / 1e6,
+        )
+
+    def fit_ic_label(self, footprint):
+        """Finds the largest part-number text that fits between the part's
+        pads inside its body, nearest the body centre. Returns
+        (text, size, angle, x, y) or None.
+        """
+        body = self.ic_body_rect(footprint)
+        obstacles = self.ic_label_obstacles(footprint)
+        center_x = (body.min_x + body.max_x) / 2
+        center_y = (body.min_y + body.max_y) / 2
+        for size in IC_LABEL_SIZES:
+            for variant in self.ic_label_variants(
+                IC_LABEL_TEXT.get(footprint.GetReference(), footprint.GetValue())
+            ):
+                for angle in (0, 90):
+                    # measured on a text that is never added to the board
+                    probe = pcbnew.PCB_TEXT(self.board)
+                    probe.SetText(variant)
+                    probe.SetLayer(pcbnew.F_SilkS)
+                    probe.SetTextSize(
+                        pcbnew.VECTOR2I(to_internal(size), to_internal(size))
+                    )
+                    probe.SetTextThickness(to_internal(SILK_TEXT_THICKNESS))
+                    probe.SetTextAngleDegrees(angle)
+                    extent = self.text_box(probe)
+                    half_width = (extent.max_x - extent.min_x) / 2
+                    half_height = (extent.max_y - extent.min_y) / 2
+                    reach_x = (body.max_x - body.min_x) / 2 - half_width - 0.1
+                    reach_y = (body.max_y - body.min_y) / 2 - half_height - 0.1
+                    if reach_x < 0 or reach_y < 0:
+                        continue
+                    steps_x = int(reach_x / IC_LABEL_STEP)
+                    steps_y = int(reach_y / IC_LABEL_STEP)
+                    spots = sorted(
+                        (
+                            (step_x * IC_LABEL_STEP) ** 2
+                            + (step_y * IC_LABEL_STEP) ** 2,
+                            center_x + step_x * IC_LABEL_STEP,
+                            center_y + step_y * IC_LABEL_STEP,
+                        )
+                        for step_x in range(-steps_x, steps_x + 1)
+                        for step_y in range(-steps_y, steps_y + 1)
+                    )
+                    for _, spot_x, spot_y in spots:
+                        rect = Rect(
+                            spot_x - half_width,
+                            spot_y - half_height,
+                            spot_x + half_width,
+                            spot_y + half_height,
+                        )
+                        if not any(rect.overlaps(other) for other in obstacles):
+                            return variant, size, angle, spot_x, spot_y
+        return None
+
+    def add_ic_labels(self):
+        """Prints each IC's part number on the silkscreen inside its body,
+        between the pads, so the soldered part covers it. Returns
+        (placed refs, skipped refs).
+        """
+        placed = []
+        skipped = []
+        for ref, footprint in sorted(self.footprints.items()):
+            if not ref.startswith(('U', 'PS')) or ref in IC_LABEL_SKIP:
+                continue
+            fit = None
+            if footprint.GetLayer() == pcbnew.F_Cu:
+                fit = self.fit_ic_label(footprint)
+            if fit is None:
+                skipped.append(ref)
+                continue
+            variant, size, angle, spot_x, spot_y = fit
+            item = self.add_text(
+                variant, spot_x, spot_y, size, thickness=SILK_TEXT_THICKNESS
+            )
+            item.SetTextAngleDegrees(angle)
+            placed.append(ref)
+        return placed, skipped
+
+    def remove_ic_labels(self):
+        """Removes earlier IC part-number texts (silk text equal to a part's
+        value, centred inside its body) so add_ic_labels can run again."""
+        removed = 0
+        for item in list(self.board.GetDrawings()):
+            if (
+                not isinstance(item, pcbnew.PCB_TEXT)
+                or item.GetLayer() != pcbnew.F_SilkS
+            ):
+                continue
+            position = item.GetPosition()
+            for ref, footprint in self.footprints.items():
+                if not ref.startswith(('U', 'PS')):
+                    continue
+                body = self.ic_body_rect(footprint)
+                if (
+                    item.GetText().replace('\n', '').replace('-', '')
+                    == self.ic_label_text(footprint).replace('-', '')
+                    and body.min_x <= position.x / 1e6 <= body.max_x
+                    and body.min_y <= position.y / 1e6 <= body.max_y
+                ):
+                    self.board.Remove(item)
+                    self._removed_ic_labels = getattr(
+                        self, '_removed_ic_labels', []
+                    ) + [item]
+                    removed += 1
+                    break
+        return removed
+
     def add_silkscreen(self):
         self.add_module_boxes()
         if not self.pin_pockets:
@@ -2423,6 +2610,8 @@ class PcbBuilder:
         self.add_pin_labels()
         self.place_reference_texts()
         self.add_part_labels()
+        placed, skipped = self.add_ic_labels()
+        print('IC part numbers placed:', placed, 'skipped:', skipped)
         self.bulge_module_boxes()
         self.add_alpha_mark()
         self.add_logo()
@@ -2462,9 +2651,10 @@ def patch_project_rules():
 
 
 def main():
-    """Usage: gen_pcb.py [place|route|finish|texts] [freerouting.jar] —
+    """Usage: gen_pcb.py [place|route|finish|texts|iclabels] [freerouting.jar] —
     `route` also autoroutes and fills zones; `texts` redoes all silkscreen
-    and adds 3D envelope models on the existing board.
+    and adds 3D envelope models on the existing board; `iclabels` only adds
+    the IC part numbers under the IC bodies.
     """
     mode = sys.argv[1] if len(sys.argv) > 1 else 'place'
     builder = PcbBuilder()
@@ -2491,6 +2681,15 @@ def main():
             str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board
         )
         patch_project_rules()
+        return 0
+    if mode == 'iclabels':
+        # add only the IC part numbers on the existing board
+        builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
+        builder.adopt_board()
+        print('old IC labels removed:', builder.remove_ic_labels())
+        placed, skipped = builder.add_ic_labels()
+        print('IC part numbers placed:', placed, 'skipped:', skipped)
+        pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
         return 0
     if mode == 'texts':
         # redo all silkscreen (module boxes, reference texts, part labels,
