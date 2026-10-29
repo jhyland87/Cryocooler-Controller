@@ -194,13 +194,15 @@ PARTS = {
         'none',
         'supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and '
         'shunt; the branches are logic supplies of a few hundred mA'),
-    ('', 'Hirose_DF13-02P-1.25DS_1x02_P1.25mm_Horizontal'): (
-        'Hirose', 'DF13-2P-1.25DS(25)', 'CONN HEADER DF13 R/A 2POS 1.25MM',
-        'suggested', 'NTC, panel button, compressor relay; DF13-2S-1.25C '
-        'housing; 1 A/pin (2.5 A with 26 AWG on 2-pin)'),
-    ('', 'Hirose_DF13-04P-1.25DS_1x04_P1.25mm_Horizontal'): (
-        'Hirose', 'DF13-4P-1.25DS(25)', 'CONN HEADER DF13 R/A 4POS 1.25MM',
-        'suggested', 'J10 cold head PT1000; DF13-4S-1.25C housing'),
+    ('', 'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'): (
+        'Adafruit', '1769', 'CONN HEADER JST PH COMPATIBLE R/A SMT 2POS 2MM, 2 A',
+        'design', 'J6 NTC, J7 panel button, J13 relay 12 V out; 4UCON 17311; '
+        'mates with a JST PHR-2 housing or JST PH 2-pin pigtail'),
+    ('', 'TE_T4145035041-001_M12_A-Code_4P_Female_Horizontal'): (
+        'TE Connectivity', 'T4145035041-001',
+        'CONN M12 RCPT FEMALE 4POS A-CODE R/A PANEL/PCB SHIELDED, 4 A',
+        'design', 'J10 cold head PT1000 (4-wire); mounts through the side wall '
+        '(2.0-3.0 mm panel, 12.2 mm hole); mates with an A-coded male M12 cable'),
     ('', 'Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal'): (
         'Molex', '5054480871', 'CONN HEADER MICRO-LOCK PLUS R/A 8POS 1.25MM',
         'design', 'J14: cable to the off-board Adafruit LSM6DSOX module; '
@@ -493,7 +495,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'TerminalBlock', 'PhoenixContact', 'Molex_', 'JST_XH', 'Hirose_',
-    'PinHeader',
+    'PinHeader', 'Adafruit_1769', 'TE_T4145035041',
 )
 
 

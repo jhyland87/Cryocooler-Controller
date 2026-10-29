@@ -34,6 +34,7 @@ EDGE_MARGIN = 0.8
 PASSIVE_GAP = 0.2
 # JLCPCB needs 0.2 mm drills on 0.45 mm pads or larger, else a paid 4-wire test.
 VIA_IN_PAD_DIAMETER = 0.45
+HOLE_TO_HOLE = 0.25  # board rule (min_hole_to_hole), drill edge to drill edge
 STOCK_FOOTPRINTS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints'
 )
@@ -107,10 +108,12 @@ PLACEMENT = {
     # power button: switch MOSFET, panel connector and button on the bottom wall
     'Q1': (35.0, 66.5, 0),
     'SW3': (30.0, 96.3, 0),
-    'J7': (38.5, 95.5, 180),
+    # JST PH headers: mating face 0.6 mm inside the bottom edge (copper
+    # edge clearance for their fitting nails)
+    'J7': (38.80, 95.00, 0),
     'U11': (30.0, 80.0, 0),
     'U13': (37.0, 80.0, 0),
-    'J13': (49.0, 95.5, 180),
+    'J13': (49.00, 95.00, 0),
     # system current: 12 V bulk capacitor and INA239
     'C71': (50.0, 66.0, 0),
     'U23': (51.0, 76.0, 0),
@@ -122,14 +125,14 @@ PLACEMENT = {
     'D6': (76.0, 61.5, 0),
     'U21': (92.0, 55.0, 0),
     # cold head and IMU on the right wall
-    'U14': (106.0, 60.0, 90),
-    'J10': (115.5, 50.6, 270),
+    'U14': (104.50, 60.00, 90),
+    'J10': (111.35, 59.00, 90),
     'J14': (114.7, 30.0, 270),
     # water cooling: pump on the right wall, NTC / flow / fan on the bottom
     'J4': (110.8, 85.0, 90),
-    'J3': (79.0, 90.8, 0),
-    'J5': (67.0, 90.8, 0),
-    'J6': (59.6, 95.5, 180),
+    'J3': (80.50, 90.80, 0),
+    'J5': (68.50, 90.80, 0),
+    'J6': (60.80, 95.00, 0),
     'U10': (100.0, 88.0, 0),
     'U25': (74.0, 75.0, 0),
 }
@@ -165,7 +168,7 @@ FINE_PITCH_GROUND_PADS = {
 }
 # GND pads of placed passives that are boxed in by their own signal track and
 # would otherwise get a via-in-pad after routing, on top of an inner track
-LATE_GROUND_PADS = {'C30': {'2'}, 'C74': {'2'}}
+LATE_GROUND_PADS = {'C30': {'2'}, 'C74': {'2'}, 'U24': {'3'}}
 MIN_TRACK_WIDTH = 0.15
 
 # Anchors for ground test points (ground nets have no natural neighbour pad):
@@ -245,7 +248,8 @@ PIN_LABELS = {
     'J7': ['BTN', 'GND'],
     'J8': ['REM', 'GND'],
     'J9': ['SIG', 'GND'],
-    'J10': ['F+', 'S+', 'S-', 'F-'],
+    # M12 A-coded: pins sit in a square under the body, so name the pins
+    'J10': ['1 F+', '2 S+', '3 S-', '4 F-'],
     'J11': ['+', '-'],
     'J12': ['+', '-'],
     'J13': ['+12V', 'GND'],
@@ -811,9 +815,7 @@ class PcbBuilder:
                         spot_x + box_w / 2,
                         spot_y + box_h / 2,
                     )
-                    if module and not pcbfloorplan.text_inside(
-                        module, rect, self.side
-                    ):
+                    if not self.inside_a_box(rect, module):
                         continue
                     if not rect.inside(self.occupancy.board_rect):
                         continue
@@ -823,6 +825,17 @@ class PcbBuilder:
                         continue
                     return spot_x, spot_y, turned, rect
         return None
+
+    def inside_a_box(self, rect, module=None):
+        """True if a text box lies inside the given module's box, or with no
+        module inside any one box (so it never crosses a section line).
+        """
+        if module:
+            return pcbfloorplan.text_inside(module, rect, self.side)
+        return any(
+            pcbfloorplan.text_inside(name, rect, self.side)
+            for name in pcbfloorplan.modules(self.side)
+        )
 
     def pocket_obstacles(self, around=None):
         """Boxes a label pocket must keep off: other pockets, silk, holes,
@@ -1036,7 +1049,7 @@ class PcbBuilder:
             if all(
                 rect.inside(self.occupancy.board_rect)
                 and not any(rect.overlaps(k) for k in self.occupancy.keepouts)
-                and (not module or pcbfloorplan.text_inside(module, rect, self.side))
+                and self.inside_a_box(rect, module)
                 and not any(rect.overlaps(o) for o in obstacles)
                 for *_, rect in boxes
             ):
@@ -2178,6 +2191,146 @@ class PcbBuilder:
                     Rect(via_x - 0.45, via_y - 0.45, via_x + 0.45, via_y + 0.45),
                 )
 
+
+    def fanout_ground_pads(self, via_diameter=0.5, drill=0.3, width=0.3, clearance=0.2):
+        """Before routing: a locked via beside every small SMD ground pad,
+        joined by a short track, so the router always leaves each pad a way
+        down to the ground plane (a pad it fences in with other nets' tracks
+        would otherwise be left on a pour island). Returns the pads with no
+        room for one.
+        """
+        radius = via_diameter / 2
+        boxes = []
+        holes = []
+        for footprint in self.board.GetFootprints():
+            for pad in footprint.Pads():
+                if not pad.GetNumber() and pad.GetAttribute() == pcbnew.PAD_ATTRIB_SMD:
+                    continue  # paste apertures (unnumbered non-plated holes stay)
+                box = pad.GetBoundingBox()
+                boxes.append((
+                    Rect(box.GetLeft() / 1e6, box.GetTop() / 1e6,
+                         box.GetRight() / 1e6, box.GetBottom() / 1e6),
+                    pad.GetNetname(),
+                    pad.IsOnLayer(pcbnew.F_Cu),
+                    pad.IsOnLayer(pcbnew.B_Cu),
+                ))
+                if pad.GetDrillSize().x > 0:
+                    # drilled pads (thermal vias too) count as holes
+                    holes.append((
+                        pad.GetPosition().x / 1e6,
+                        pad.GetPosition().y / 1e6,
+                        min(pad.GetDrillSize().x, pad.GetDrillSize().y) / 2e6,
+                    ))
+        vias = [
+            (item.GetPosition().x / 1e6, item.GetPosition().y / 1e6, item.GetNetname())
+            for item in self.board.GetTracks()
+            if item.Type() == pcbnew.PCB_VIA_T
+        ]
+        board = Rect(0.0, 0.0, BOARD_WIDTH, BOARD_HEIGHT).inflated(-(EDGE_MARGIN + radius))
+        keepouts = self.occ['F'].keepouts + self.occ['B'].keepouts
+        in_pad = {
+            (ref, number)
+            for table in (FINE_PITCH_GROUND_PADS, LATE_GROUND_PADS)
+            for ref, numbers in table.items()
+            for number in numbers
+        }
+        missing = []
+        for ref, footprint in self.footprints.items():
+            if ref not in self.centers:
+                continue
+            for pad in footprint.Pads():
+                number = pad.GetNumber()
+                net = self.pad_net[ref].get(number)
+                if net not in GROUND_NETS or (ref, number) in in_pad:
+                    continue
+                if pad.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
+                    continue  # through-hole pads reach the plane themselves
+                size_x, size_y = pad.GetBoundingBox().GetWidth() / 1e6, pad.GetBoundingBox().GetHeight() / 1e6
+                if size_x * size_y > 6.0:
+                    continue  # big pads keep room for an escape via
+                full = self.full_net(net)
+                pad_x, pad_y = pad.GetPosition().x / 1e6, pad.GetPosition().y / 1e6
+                if any(
+                    other.GetDrillSize().x > 0 and pad.HitTest(other.GetPosition())
+                    for other in footprint.Pads()
+                ):
+                    continue  # an exposed pad with its own thermal vias
+                if any(math.dist((pad_x, pad_y), (vx, vy)) < 1.2 for vx, vy, vnet in vias if vnet == full):
+                    continue
+                front = pad.IsOnLayer(pcbnew.F_Cu)
+                spot = None
+                for reach in (0.35, 0.6, 0.9, 1.3):
+                    for angle in range(0, 360, 45):
+                        delta_x = math.cos(math.radians(angle))
+                        delta_y = math.sin(math.radians(angle))
+                        via_x = pad_x + delta_x * (size_x / 2 + radius + reach)
+                        via_y = pad_y + delta_y * (size_y / 2 + radius + reach)
+                        if self.ground_via_spot_ok(
+                            via_x, via_y, pad_x, pad_y, full, front, radius, width,
+                            clearance, boxes, vias, board, keepouts,
+                        ) and all(
+                            math.dist((via_x, via_y), (hole_x, hole_y))
+                            - drill / 2 - hole_radius >= HOLE_TO_HOLE
+                            for hole_x, hole_y, hole_radius in holes
+                        ):
+                            spot = (via_x, via_y)
+                            break
+                    if spot:
+                        break
+                if spot is None:
+                    missing.append(f'{ref}.{number}')
+                    continue
+                via = pcbnew.PCB_VIA(self.board)
+                via.SetPosition(pcbnew.VECTOR2I(to_internal(spot[0]), to_internal(spot[1])))
+                via.SetWidth(to_internal(via_diameter))
+                via.SetDrill(to_internal(drill))
+                via.SetViaType(pcbnew.VIATYPE_THROUGH)
+                via.SetNet(self.net_item(full))
+                via.SetLocked(True)
+                self.board.Add(via)
+                layer = pcbnew.F_Cu if front else pcbnew.B_Cu
+                self.add_track(full, layer, [(pad_x, pad_y), spot], width)
+                vias.append((spot[0], spot[1], full))
+        return missing
+
+    @staticmethod
+    def ground_via_spot_ok(via_x, via_y, pad_x, pad_y, net, front, radius, width,
+                           clearance, boxes, vias, board, keepouts):
+        """True if a fan-out via fits at (via_x, via_y): on the board, out of
+        the keep-outs and the isolation band, clear of other nets' pads (on
+        both sides) and of other vias, with a clear track back to its pad.
+        """
+        if not (board.min_x <= via_x <= board.max_x and board.min_y <= via_y <= board.max_y):
+            return False
+        via_box = Rect(via_x - radius, via_y - radius, via_x + radius, via_y + radius)
+        if any(via_box.overlaps(k) for k in keepouts):
+            return False
+        iso = net.endswith('ISO_GND')
+        if iso != via_box.inside(ISO_REGION.inflated(-0.3)) or (
+            not iso and via_box.inflated(ISO_BAND).overlaps(ISO_REGION)
+        ):
+            return False
+        for vx, vy, _ in vias:
+            if math.dist((via_x, via_y), (vx, vy)) < 2 * radius + clearance + 0.05:
+                return False
+        steps = 6
+        track = [
+            (pad_x + (via_x - pad_x) * k / steps, pad_y + (via_y - pad_y) * k / steps)
+            for k in range(steps + 1)
+        ]
+        for rect, pad_net, on_front, on_back in boxes:
+            if pad_net == net:
+                continue
+            if pcbfloorplan.rect_gap(via_box, rect) < clearance:
+                return False
+            if (on_front if front else on_back) and any(
+                pcbfloorplan.rect_gap(
+                    Rect(x - width / 2, y - width / 2, x + width / 2, y + width / 2), rect
+                ) < clearance
+                for x, y in track
+            ):
+                return False
+        return True
 
     # ─── silkscreen ───
 
@@ -3672,6 +3825,7 @@ class PcbBuilder:
         self.pre_place_pad_bridges()
         unplaced = self.place_passives()
         self.pre_place_fine_pitch_ground_vias(LATE_GROUND_PADS)
+        print('ground pads with no fan-out via:', self.fanout_ground_pads())
         self.add_outline_and_keepouts()
         self.add_net_classes()
         self.add_mounting_holes()

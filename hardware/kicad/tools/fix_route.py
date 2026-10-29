@@ -34,6 +34,7 @@ GROUND_NETS = {'GND', 'ISO_GND'}
 REMOVED = []
 # clearance a via keeps from a foreign-net track (via_in_pad_clearance rule)
 VIA_TRACK_CLEARANCE = 0.1
+HOLE_TO_HOLE = 0.25  # board rule (min_hole_to_hole)
 
 
 def mm(value):
@@ -172,9 +173,10 @@ def add_track(board, net_name, points, width, layer=pcbnew.F_Cu):
 
 
 def remove_blocked_ground_vias(board):
-    """Removes GND vias inside a no-via rule area (the board's or a
-    footprint's) or overlapping a pad of another net on either side.
-    Returns their positions.
+    """Removes unlocked GND vias inside a no-via rule area (the board's or
+    a footprint's), overlapping a pad of another net on either side, or with
+    their hole closer than HOLE_TO_HOLE to another hole (a pad's or a
+    via's). Returns their positions.
     """
     areas = [zone for zone in board.Zones() if zone.GetIsRuleArea()]
     for footprint in board.GetFootprints():
@@ -190,18 +192,53 @@ def remove_blocked_ground_vias(board):
         blocked = any(zone.Outline().Collide(position, reach) for zone in areas)
         if not blocked:
             for pad in pads:
-                if pad.GetNetname() == via.GetNetname():
+                if pad.GetNetname() == via.GetNetname() or is_paste_aperture(pad):
                     continue
                 box = pad.GetBoundingBox()
                 box.Inflate(reach)
                 if box.Contains(position) and pad.HitTest(position, reach):
                     blocked = True
                     break
+        if not blocked and not via.IsLocked():
+            blocked = hole_too_close(board, via, pads)
         if blocked:
             board.Remove(via)
             REMOVED.append(via)
             removed.append((round(mm(position.x), 2), round(mm(position.y), 2)))
     return removed
+
+
+def hole_too_close(board, via, pads):
+    """True if the via's hole comes within HOLE_TO_HOLE of a drilled pad or
+    of another via that stays (thermal vias in a footprint's pad included).
+    """
+    centre = (mm(via.GetPosition().x), mm(via.GetPosition().y))
+    reach = mm(via.GetDrillValue()) / 2
+    for pad in pads:
+        drill = pad.GetDrillSize()
+        if drill.x <= 0:
+            continue
+        other = (mm(pad.GetPosition().x), mm(pad.GetPosition().y))
+        if math.dist(centre, other) - reach - mm(min(drill.x, drill.y)) / 2 < HOLE_TO_HOLE:
+            return True
+    # (pcbnew hands out a new wrapper for the same item, so compare uuids)
+    own = via.m_Uuid.AsString()
+    for other in board.GetTracks():
+        if other.Type() != pcbnew.PCB_VIA_T or other.m_Uuid.AsString() == own:
+            continue
+        position = (mm(other.GetPosition().x), mm(other.GetPosition().y))
+        if math.dist(centre, position) - reach - mm(other.GetDrillValue()) / 2 < HOLE_TO_HOLE:
+            # of two crowded unlocked vias, the one with the lower uuid stays
+            if other.IsLocked() or other.m_Uuid.AsString() < own:
+                return True
+    return False
+
+
+def is_paste_aperture(pad):
+    """True for an unnumbered SMD pad: a paste opening on an exposed pad,
+    not copper of another net (unnumbered non-plated holes still count).
+    """
+    return not pad.GetNumber() and pad.GetAttribute() == pcbnew.PAD_ATTRIB_SMD
 
 
 def foreign_gap(board, x, y, radius, net, layer=None):
@@ -230,7 +267,7 @@ def foreign_gap(board, x, y, radius, net, layer=None):
         )
     for footprint in board.GetFootprints():
         for pad in footprint.Pads():
-            if pad.GetNetname() == net:
+            if pad.GetNetname() == net or is_paste_aperture(pad):
                 continue
             if layer is not None and not pad.IsOnLayer(layer):
                 continue
@@ -439,35 +476,51 @@ def drc_violations(path, kind):
 
 
 def nudge_crowded_tracks(board, path, margin=0.005):
-    """Moves a track segment that DRC finds too close to a track of another
-    net (usually one Freerouting squeezed and gen_pcb then widened) away by
-    the shortfall, dragging the ends of the same-net segments it joins.
-    Returns the nets nudged.
+    """Moves a track segment that DRC finds too close to a track or pad of
+    another net (usually one Freerouting squeezed and gen_pcb then widened)
+    away by the shortfall, dragging the ends of the same-net segments it
+    joins. Returns the nets nudged.
     """
     tracks = {
         item.m_Uuid.AsString(): item
         for item in board.GetTracks()
         if item.Type() == pcbnew.PCB_TRACE_T
     }
+    pads = {
+        pad.m_Uuid.AsString(): pad
+        for footprint in board.GetFootprints()
+        for pad in footprint.Pads()
+    }
     nudged = []
     moved = set()
     for violation in drc_violations(path, 'clearance'):
-        found = [tracks.get(item.get('uuid')) for item in violation.get('items', [])]
-        if len(found) != 2 or None in found:
+        uuids = [item.get('uuid') for item in violation.get('items', [])]
+        found = [tracks.get(uuid) for uuid in uuids]
+        crowding_pad = next((pads[uuid] for uuid in uuids if uuid in pads), None)
+        if len(uuids) == 2 and crowding_pad is not None and found.count(None) == 1:
+            # a track against a pad: only the track moves
+            found = [next(t for t in found if t is not None), crowding_pad]
+        elif len(found) != 2 or None in found:
             continue
         match = re.search(r'clearance ([\d.]+) mm; actual ([\d.]+) mm', violation['description'])
         if not match:
             continue
         shortfall = float(match.group(1)) - float(match.group(2)) + margin
-        mover, other = sorted(found, key=lambda t: t.GetWidth())
+        if crowding_pad is not None and found[1] is crowding_pad:
+            mover, other = found
+        else:
+            mover, other = sorted(found, key=lambda t: t.GetWidth())
         if mover.m_Uuid.AsString() in moved:
             continue  # DRC lists a crowded pair once per segment end
         moved.add(mover.m_Uuid.AsString())
         start = (mm(mover.GetStart().x), mm(mover.GetStart().y))
         end = (mm(mover.GetEnd().x), mm(mover.GetEnd().y))
         middle = ((start[0] + end[0]) / 2, (start[1] + end[1]) / 2)
-        other_start = (mm(other.GetStart().x), mm(other.GetStart().y))
-        other_end = (mm(other.GetEnd().x), mm(other.GetEnd().y))
+        if other is crowding_pad:
+            other_start = other_end = (mm(other.GetPosition().x), mm(other.GetPosition().y))
+        else:
+            other_start = (mm(other.GetStart().x), mm(other.GetStart().y))
+            other_end = (mm(other.GetEnd().x), mm(other.GetEnd().y))
         # the point of the other segment nearest the mover's middle
         delta = (other_end[0] - other_start[0], other_end[1] - other_start[1])
         length_sq = delta[0] ** 2 + delta[1] ** 2 or 1e-12

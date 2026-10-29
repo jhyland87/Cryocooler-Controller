@@ -62,8 +62,10 @@ DATASHEETS = {
     'SG-8002CA',
     '5054480871': 'https://www.molex.com/content/dam/molex/molex-dot-com/'
     'products/automated/en-us/salesdrawingpdf/505/505448/5054480871_sd.pdf',
-    'DF13-': 'https://www.hirose.com/api/v1/series/DF13/documents/'
-    'product_series_catalog/content?lang=EN',
+    '1769': 'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
+    'T4145035041-001': 'https://www.te.com/commerce/DocumentDelivery/'
+    'DDEController?Action=srchrtrv&DocNm=T41450350X1001&DocType=Customer%20Drawing'
+    '&DocLang=English&DocFormat=pdf&PartCntxt=T4145035041-001',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
     'S4B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
 }
@@ -75,6 +77,8 @@ PRODUCT_PAGES = {
     '1803277': 'https://www.phoenixcontact.com/en-us/products/'
     'pcb-header-mc-15-2-g-381-1803277',
     '5054480871': 'https://www.molex.com/en-us/products/part-detail/5054480871',
+    '1769': 'https://www.adafruit.com/product/1769',
+    'T4145035041-001': 'https://www.te.com/en/product-T4145035041-001.html',
 }
 
 

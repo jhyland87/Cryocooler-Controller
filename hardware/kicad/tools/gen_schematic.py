@@ -41,8 +41,9 @@ SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 # housing side walls. Ratings are from each maker's datasheet.
 XH3_SIDE = 'Connector_JST:JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal'  # 3 A
 XH4_SIDE = 'Connector_JST:JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal'  # 3 A
-DF13_2P = 'Connector_Hirose:Hirose_DF13-02P-1.25DS_1x02_P1.25mm_Horizontal'
-DF13_4P = 'Connector_Hirose:Hirose_DF13-04P-1.25DS_1x04_P1.25mm_Horizontal'
+PH_2P = 'cryocooler:Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'  # 2 A
+# 4-wire PT1000 cable: M12 A-coded panel receptacle through the side wall
+M12_4P = 'cryocooler:TE_T4145035041-001_M12_A-Code_4P_Female_Horizontal'  # 4 A
 MICROLOCK8 = (
     'cryocooler:Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal'
 )
@@ -563,7 +564,7 @@ def build_power_button(sh):
         rot=0,
         mirror=True,
         auto=False,
-        footprint=DF13_2P,
+        footprint=PH_2P,
     )
     wire(sh, pin_cell(j_panel, '1'), (36, 66), (36, pb[1]))
     wire(
@@ -1707,7 +1708,7 @@ def build_compressor_relay(sh):
         'COMP_RELAY',
         'COMPRESSOR RELAY / GND',
         True,
-        DF13_2P,
+        PH_2P,
         '+12V',
     )
 
@@ -2436,7 +2437,7 @@ def build_cooling(sh):
         110 * 1.27,
         150 * 1.27,
         {},
-        DF13_2P,
+        PH_2P,
     )
     ntc = pin_cell(j_ntc, '1')
     wire(sh, ntc, (ntc[0] - 30, ntc[1]))
@@ -2515,7 +2516,7 @@ def build_cold_head(sh):
         170 * 1.27,
         60 * 1.27,
         {},
-        DF13_4P,
+        M12_4P,
     )
     fp_pin, sp_pin, sn_pin, ref_pin = (
         pin_cell(j_rtd, n) for n in ('1', '2', '3', '4')

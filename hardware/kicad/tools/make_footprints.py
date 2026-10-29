@@ -52,14 +52,23 @@ def smd_pad(number, x, y, width, height):
     )
 
 
-def footprint(name, descr, tags, body):
+def tht_pad(number, x, y, drill, diameter):
+    return (
+        f'\t(pad "{number}" thru_hole circle\n\t\t(at {fmt(x)} {fmt(y)})\n'
+        f'\t\t(size {fmt(diameter)} {fmt(diameter)})\n'
+        f'\t\t(drill {fmt(drill)})\n'
+        '\t\t(layers "*.Cu" "*.Mask")\n\t)'
+    )
+
+
+def footprint(name, descr, tags, body, attr='smd'):
     # 3D envelope models are attached by pcbmodels.py
     return (
         f'(footprint "{name}"\n\t(version 20260206)\n'
         '\t(generator "cryocooler_gen")\n\t(generator_version "1.0")\n'
         f'\t(layer "F.Cu")\n\t(descr "{descr}")\n\t(tags "{tags}")\n'
         + '\n'.join(body)
-        + '\n\t(attr smd)\n)\n'
+        + f'\n\t(attr {attr})\n)\n'
     )
 
 
@@ -127,7 +136,117 @@ def molex_505448_0871():
     )
 
 
-FOOTPRINTS = [molex_505448_0871]
+# ─── Adafruit 1769 (4UCON 17311), JST PH compatible 2-pin SMT right angle ─
+# Drawing https://cdn-shop.adafruit.com/datasheets/17311.pdf: signal pads
+# 1.0 x 3.5 on 2.0 mm pitch; fitting nails 1.5 x 3.4, inner edge 1.6 past the
+# outer pin centre, top 5.6 below the signal pad tops, bottom at the mating
+# face. Body B 7.9 wide, 6.0 deep, 5.5 high, pins 2.6 behind the body. Mating
+# face at +y, pin 1 on the left (pin-1 triangle on the plan view).
+PH_PITCH = 2.0
+PH_PAD = (1.0, 3.5)
+PH_PAD_Y = -2.85
+PH_NAIL = (1.5, 3.4)
+PH_NAIL_TOP = PH_PAD_Y - PH_PAD[1] / 2 + 5.6
+PH_BODY = (7.9, 6.0, 5.5)
+
+
+def adafruit_1769():
+    name = 'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'
+    pads = [
+        smd_pad(1, -PH_PITCH / 2, PH_PAD_Y, *PH_PAD),
+        smd_pad(2, PH_PITCH / 2, PH_PAD_Y, *PH_PAD),
+    ]
+    nail_x = PH_PITCH / 2 + 1.6 + PH_NAIL[0] / 2
+    nail_y = PH_NAIL_TOP + PH_NAIL[1] / 2
+    for side in (-1, 1):
+        pads.append(smd_pad('MP', side * nail_x, nail_y, *PH_NAIL))
+    front = PH_NAIL_TOP + PH_NAIL[1]
+    back = front - PH_BODY[1]
+    half_w = PH_BODY[0] / 2
+    court_x = max(half_w, nail_x + PH_NAIL[0] / 2) + 0.25
+    court_top = PH_PAD_Y - PH_PAD[1] / 2 - 0.25
+    court_bottom = front + 0.25
+    body = [
+        text_prop('Reference', 'REF**', 0, court_top - 0.9, 'F.SilkS'),
+        text_prop('Value', name, 0, court_bottom + 0.9, 'F.Fab'),
+        text_prop('Datasheet', 'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
+                  0, 0, 'F.Fab', hide=True),
+        text_prop('Description', 'JST PH compatible 2-pin 2.0 mm right-angle '
+                  'SMT header (Adafruit 1769)', 0, 0, 'F.Fab', hide=True),
+    ]
+    body += rect(-half_w, back, half_w, front, 'F.Fab', 0.1)
+    # pin-1 mark on silk, left of pad 1
+    mark_x = -PH_PITCH / 2 - PH_PAD[0] / 2 - 0.4
+    body.append(line(mark_x, PH_PAD_Y - 1.0, mark_x, PH_PAD_Y + 1.0, 'F.SilkS', 0.15))
+    body += rect(-court_x, court_top, court_x, court_bottom, 'F.CrtYd', 0.05)
+    descr = (
+        'Adafruit 1769 (4UCON 17311) JST PH compatible 2-pin, 2.0 mm pitch, '
+        'right angle, SMT, 2 A; land pattern from '
+        'https://cdn-shop.adafruit.com/datasheets/17311.pdf'
+    )
+    return name, footprint(name, descr, 'connector JST PH horizontal Adafruit 1769', body + pads)
+
+
+# ─── TE T4145035041-001, M12 A-coded 4-pin female, right angle, shielded ──
+# Customer drawing T41450350X1001 rev B (recommended PCB layout, component
+# side; PCB 1.6 mm): contacts 1-4 on Ø1.30 holes at 45° on a Ø5.00 circle
+# about the datum; Ø2.35 legs at X ±7.50 on the datum row, Ø2.80 legs and
+# the Ø1.30 shield hole 4.00 towards the panel. The panel's inner face is
+# 9.0 in front of the datum row (side view: 4.0 legs to contacts, 9.0 panel
+# to contacts); body 19.5 wide, rear 11.9 behind the panel face, axis 8.5
+# above the board, 16.0 high. Panel 2.0-3.0 thick, Ø12.20 cutout. +y is the
+# panel side.
+M12_CONTACT_DRILL = 1.30
+M12_CONTACT_PAD = 2.0
+M12_CIRCLE = 5.0
+M12_LEG_X = 7.5
+M12_FRONT_ROW = 4.0
+M12_PANEL_Y = 9.0
+M12_REAR_Y = M12_PANEL_Y - 11.9
+M12_WIDTH = 19.5
+
+
+def te_t4145035041():
+    name = 'TE_T4145035041-001_M12_A-Code_4P_Female_Horizontal'
+    offset = M12_CIRCLE / 2 / 2 ** 0.5
+    pads = [
+        tht_pad(1, -offset, -offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+        tht_pad(2, offset, -offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+        tht_pad(3, offset, offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+        tht_pad(4, -offset, offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+        tht_pad('MP', 0, M12_FRONT_ROW, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+    ]
+    for side in (-1, 1):
+        pads.append(tht_pad('MP', side * M12_LEG_X, 0, 2.35, 3.0))
+        pads.append(tht_pad('MP', side * M12_LEG_X, M12_FRONT_ROW, 2.80, 3.5))
+    half_w = M12_WIDTH / 2
+    court_x = half_w + 0.25
+    body = [
+        text_prop('Reference', 'REF**', 0, M12_REAR_Y - 1.2, 'F.SilkS'),
+        text_prop('Value', name, 0, M12_PANEL_Y + 1.2, 'F.Fab'),
+        text_prop('Datasheet', 'https://www.te.com/commerce/DocumentDelivery/DDEController'
+                  '?Action=srchrtrv&DocNm=T41450350X1001&DocType=Customer%20Drawing'
+                  '&DocLang=English&DocFormat=pdf&PartCntxt=T4145035041-001',
+                  0, 0, 'F.Fab', hide=True),
+        text_prop('Description', 'M12 A-coded 4-pin female receptacle, right angle, '
+                  'shielded, panel and PCB mount (TE T4145035041-001)', 0, 0, 'F.Fab',
+                  hide=True),
+    ]
+    body += rect(-half_w, M12_REAR_Y, half_w, M12_PANEL_Y, 'F.Fab', 0.1)
+    # panel face line, and a pin-1 mark on silk beside contact 1
+    body.append(line(-half_w, M12_PANEL_Y - 0.2, half_w, M12_PANEL_Y - 0.2, 'F.Fab', 0.1))
+    body.append(line(-offset - 1.6, -offset - 1.2, -offset - 1.6, -offset + 0.2, 'F.SilkS', 0.15))
+    body += rect(-court_x, M12_REAR_Y - 0.25, court_x, M12_PANEL_Y, 'F.CrtYd', 0.05)
+    descr = (
+        'TE Connectivity T4145035041-001, M12 A-coded 4-pin female, right angle, '
+        'shielded, 4 A, 250 V, IP67, panel 2.0-3.0 mm; layout from TE customer '
+        'drawing T41450350X1001 rev B'
+    )
+    return name, footprint(name, descr, 'connector M12 circular TE A-code', body + pads,
+                           attr='through_hole')
+
+
+FOOTPRINTS = [molex_505448_0871, adafruit_1769, te_t4145035041]
 
 
 def main():

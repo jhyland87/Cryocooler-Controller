@@ -165,9 +165,25 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   | 7 | inner | IMU_INT1 (GPIO 2) | I1 |
   | 8 | edge | IMU_INT2 (GPIO 39) | I2 |
 
+* **Cold head PT1000 (J10, TE T4145035041-001):** M12 A-coded 4-pin female receptacle, right angle, shielded,
+  4 A / 250 V, IP67. It mounts through the right side wall (wall 2.0-3.0 mm, Ø12.2 mm hole, nut torque 0.6 Nm)
+  with its panel face 0.35 mm beyond the board edge; the axis is 8.5 mm above the board. Turn the inside nut so
+  a flat faces the board. The four shield / mounting legs are not connected to a net. The sensor cable needs an
+  A-coded male M12 plug wired 4-wire:
+
+  | J10 pin | Board signal | PT1000 wire |
+  |---|---|---|
+  | 1 | F+ (excitation) | force + |
+  | 2 | S+ (sense) | sense + |
+  | 3 | S- (sense) | sense - |
+  | 4 | F- (return) | force - |
+
+* **2-pin headers (J6 NTC, J7 panel button, J13 relay 12 V out):** Adafruit 1769 (4UCON 17311), JST PH
+  compatible, 2.0 mm, right angle SMT, 2 A; they take JST PHR-2 housings or PH 2-pin pigtails. The mating face
+  sits 0.6 mm inside the bottom edge.
 * **Connector labels:** every connector has its function (`SILK_LABELS`, e.g. `12V IN`, `TO CRYOCOOLER`) and
   its pin functions (`PIN_LABELS`) printed beside it: J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5 GND/+12V/TACH,
-  J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 SIG/GND, J10 F+/S+/S-/F- (4-wire PT1000: force, sense), J11/J12 +/-,
+  J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 SIG/GND, J10 1 F+ / 2 S+ / 3 S- / 4 F- (the M12's pins sit under its body, so these are on the back beside them), J11/J12 +/-,
   J13 +12V/GND, J14 as above. Pin 1 is the first label; on a pitch finer than the text, every second label
   steps out. Both are reserved before the passives are placed; when the top has no room they go beside the
   connector's pins on the back.
@@ -179,7 +195,7 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   The board ID (`Cryocooler-Controller`, `UCS 145-125 rev <git short hash>`) is on the back, behind the
   isolated section (top left seen from the front).
   References that have no readable spot beside their part are left off the silkscreen (they stay on the Fab
-  layer); the run prints them (5 on this board: R36, C57, C64, C65, R100).
+  layer); the run prints them (8 on this board: D19, R36, R41, TP44, TP51, C57, C64, C65).
 * **Test points:** every IC has test points on its supply, ground and key signals, on the same side of the
   board as the IC and within 8 mm of the part they serve (`test_point_problems` fails the run otherwise; the
   through-hole ground loops TP22-TP25 reach any ground and are exempt).
@@ -187,14 +203,18 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   (placement, Freerouting on F.Cu/In2/B.Cu, pours, stitching vias, island vias); then `tools/fix_route.py`
   (KiCad's python) on the routed board. It removes duplicate GND vias and ones that crowd a foreign track, sit in
   a keep-out or land on another net's pad, reconnects pour fragments that lost their via, removes dangling signal
-  vias, nudges a squeezed track clear of its neighbour and switches off starved thermals. Run
-  `tools/link_usb_vbus.py` only if DRC shows the USB-C VBUS pad pair unconnected. Freerouting 2.x needs Java 25.
-* **Fine-pitch ground pads:** U4, U11, U20, U21, U23 and U25 ground pads (and C30 / C74 pad 2, which the router
-  would otherwise box in) get locked 0.45 mm / 0.2 mm via-in-pad before routing (`FINE_PITCH_GROUND_PADS`,
+  vias and GND vias whose hole crowds another hole, nudges a squeezed track clear of a neighbouring track or pad,
+  and switches off starved thermals. (`tools/link_usb_vbus.py` matches an earlier board's routing and is not
+  needed on this one.) Freerouting 2.x needs Java 25.
+* **Ground fan-out:** before routing, every small SMD ground pad gets a locked 0.5 / 0.3 mm via beside it with a
+  short track (`fanout_ground_pads`), so the router never fences a ground pad onto a pour island; exposed pads
+  with their own thermal vias and big pads are left to the pour.
+* **Fine-pitch ground pads:** U4, U11, U20, U21, U23 and U25 ground pads (and C30 / C74 pad 2 and U24 pin 3,
+  which the router would otherwise box in) get locked 0.45 mm / 0.2 mm via-in-pad before routing (`FINE_PITCH_GROUND_PADS`,
   `LATE_GROUND_PADS`); `cryocooler.kicad_dru` allows them 0.1 mm copper and 0.2 mm hole clearance. Order
   filled / capped vias.
-* **Checks (2026-10-28, UCS 145-125 board):** `kicad-cli pcb drc --schematic-parity` reports 0 errors, 0
-  unconnected items and 0 parity issues; the only warnings are 41 "silkscreen clipped by board edge" for the
+* **Checks (2026-10-29, UCS 145-125 board):** `kicad-cli pcb drc --schematic-parity` reports 0 errors, 0
+  unconnected items and 0 parity issues; the only warnings are 25 "silkscreen clipped by board edge" for the
   connector outlines that overhang the edge on purpose. Schematic ERC is 0, all 193 datasheet rules pass, 326
   footprints plus the 4 mounting holes.
 * **Fabrication export:** every `gen_pcb.py` run and `link_usb_vbus.py` ends by running `tools/export_fab.py`
