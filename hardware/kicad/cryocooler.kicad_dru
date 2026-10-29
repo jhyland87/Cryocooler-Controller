@@ -1,7 +1,26 @@
 (version 1)
 
-# 0.45 mm / 0.2 mm via-in-pad on 0.5 mm pitch pads leaves 0.1 mm to the
-# neighbouring pad, which JLCPCB manufactures on 4 layers.
+# 0.45 mm / 0.2 mm via-in-pad on 0.5 mm pitch pads leaves 0.1 mm of copper
+# and about 0.2 mm of hole clearance to the neighbouring pad, which JLCPCB
+# manufactures on 4 layers.
 (rule via_in_pad_clearance
   (condition "A.Type == 'Via' && A.Hole == 0.2mm")
-  (constraint clearance (min 0.1mm)))
+  (constraint clearance (min 0.1mm))
+  (constraint hole_clearance (min 0.2mm)))
+
+# Housing restricted corners: no parts except the mounting hole itself.
+(rule housing_corner_parts
+  (condition "A.Type == 'Footprint' && A.Reference != 'H*' && A.intersectsArea('housing_corner')")
+  (constraint disallow footprint))
+
+# ESP32 antenna keep-out strips: no parts except the module, whose antenna
+# courtyard reaches into them.
+(rule antenna_keepout_parts
+  (condition "A.Type == 'Footprint' && A.Reference != 'U1' && A.intersectsArea('antenna_keepout')")
+  (constraint disallow footprint))
+
+# The USB-C receptacle's own locating pegs sit 0.19 mm from its shield pads
+# (GCT USB4105 land pattern).
+(rule usb_c_pegs
+  (condition "A.memberOfFootprint('J1') && B.memberOfFootprint('J1')")
+  (constraint hole_clearance (min 0.15mm)))

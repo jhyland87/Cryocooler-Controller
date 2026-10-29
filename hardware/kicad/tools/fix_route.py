@@ -4,17 +4,16 @@ Run with KiCad's bundled python after `gen_pcb.py route` and before
 `link_usb_vbus.py`:
     .../Python.framework/Versions/Current/bin/python3 tools/fix_route.py [board]
 
-Fixes the leftovers Freerouting 2.5.0 produced on the LT3097 revision:
+Fixes the leftovers of Freerouting and the stitching / escape-via passes:
   * GND vias that short or crowd a track of another net (inner layers
     included) are removed, and co-located duplicates are collapsed;
-  * pour fragments left without a via get one at their roomiest point, and
-    signal vias that touch copper on one layer only are removed;
+  * GND vias inside a no-via keep-out (board or footprint rule area) or on a
+    pad of another net (either side) are removed;
+  * pour fragments left without a via get one at their roomiest point (or a
+    short track from a stranded ground pad to a new via), and signal vias
+    that touch copper on one layer only are removed;
   * pads whose thermal relief leads into an isolated pour island get their
-    pour connection switched off (DRC "starved thermal");
-  * the R53 pad 2 to J12 current-path link is closed with a short F.Cu track;
-  * the Q2 gate track is pulled 0.25 mm away from Q4 pad 2.
-The track edits match one routing result (coordinates below), so they only
-apply when the expected segments are found; a re-route needs them re-checked.
+    pour connection switched off (DRC "starved thermal").
 """
 
 import json
@@ -172,47 +171,49 @@ def add_track(board, net_name, points, width, layer=pcbnew.F_Cu):
         board.Add(track)
 
 
-def close_current_path_link(board):
-    """R53 pad 2 up to the locked 2 mm J12 -> ACS37800 path."""
-    pad = next(
-        pad
-        for footprint in board.GetFootprints()
-        if footprint.GetReference() == 'R53'
-        for pad in footprint.Pads()
-        if pad.GetNumber() == '2'
-    )
-    x, y = mm(pad.GetPosition().x), mm(pad.GetPosition().y)
-    # the 2 mm path runs along y = 55.0 from J12 to x = 21.35
-    add_track(board, pad.GetNetname(), [(x, y), (x, 55.0)], 0.25)
-
-
-def move_q2_gate_track(board):
-    """Q2 gate stub: replace the 0.15 mm squeeze past Q4 pad 2 by a 0.25 mm
-    run 0.35 mm further from the pad.
+def remove_blocked_ground_vias(board):
+    """Removes GND vias inside a no-via rule area (the board's or a
+    footprint's) or overlapping a pad of another net on either side.
+    Returns their positions.
     """
-    net = 'Net-(Q2-G)'
-    vertical = find_track(board, net, (34.6787, 90.9941), (34.6787, 90.5448))
-    horizontal = find_track(board, net, (34.6787, 90.5448), (35.2138, 90.5448))
-    diagonal = find_track(board, net, (35.2138, 90.5448), (35.4647, 90.2939))
-    if not (vertical and horizontal and diagonal):
-        return False
-    board.Remove(horizontal)
-    board.Remove(diagonal)
-    REMOVED.extend([horizontal, diagonal])
-    vertical.SetEnd(
-        pcbnew.VECTOR2I(pcbnew.FromMM(34.6787), pcbnew.FromMM(90.2939))
-    )
-    add_track(board, net, [(34.6787, 90.2939), (35.4647, 90.2939)], 0.25)
-    return True
+    areas = [zone for zone in board.Zones() if zone.GetIsRuleArea()]
+    for footprint in board.GetFootprints():
+        areas += [zone for zone in footprint.Zones() if zone.GetIsRuleArea()]
+    areas = [zone for zone in areas if zone.GetDoNotAllowVias()]
+    pads = [pad for footprint in board.GetFootprints() for pad in footprint.Pads()]
+    removed = []
+    for via in [t for t in board.GetTracks() if t.Type() == pcbnew.PCB_VIA_T]:
+        if via.GetNetname() not in GROUND_NETS:
+            continue
+        position = via.GetPosition()
+        reach = via.GetWidth() // 2
+        blocked = any(zone.Outline().Collide(position, reach) for zone in areas)
+        if not blocked:
+            for pad in pads:
+                if pad.GetNetname() == via.GetNetname():
+                    continue
+                box = pad.GetBoundingBox()
+                box.Inflate(reach)
+                if box.Contains(position) and pad.HitTest(position, reach):
+                    blocked = True
+                    break
+        if blocked:
+            board.Remove(via)
+            REMOVED.append(via)
+            removed.append((round(mm(position.x), 2), round(mm(position.y), 2)))
+    return removed
 
 
-def foreign_gap(board, x, y, radius, net):
+def foreign_gap(board, x, y, radius, net, layer=None):
     """Smallest gap in mm between a via of the given radius at (x, y) and
-    copper of any other net (tracks on every layer, vias, pads).
+    copper of any other net (tracks on every layer, vias, pads); with
+    `layer`, only copper on that layer (for a track there).
     """
     gap = 1e9
     for item in board.GetTracks():
         if item.GetNetname() == net:
+            continue
+        if layer is not None and not item.IsOnLayer(layer):
             continue
         if item.Type() == pcbnew.PCB_VIA_T:
             centre = (mm(item.GetPosition().x), mm(item.GetPosition().y))
@@ -231,6 +232,8 @@ def foreign_gap(board, x, y, radius, net):
         for pad in footprint.Pads():
             if pad.GetNetname() == net:
                 continue
+            if layer is not None and not pad.IsOnLayer(layer):
+                continue
             box = pad.GetBoundingBox()
             delta_x = max(mm(box.GetLeft()) - x, x - mm(box.GetRight()), 0.0)
             delta_y = max(mm(box.GetTop()) - y, y - mm(box.GetBottom()), 0.0)
@@ -239,8 +242,8 @@ def foreign_gap(board, x, y, radius, net):
 
 
 def reconnect_ground_islands(board, diameter=0.5, drill=0.3, margin=0.2):
-    """Gives each F.Cu ground pour fragment that has no via (after the removals
-    above) one via at its roomiest point, clear of foreign copper.
+    """Gives each outer-layer ground pour fragment that has no via (after the
+    removals above) one via at its roomiest point, clear of foreign copper.
     """
     added = []
     radius = diameter / 2
@@ -248,7 +251,7 @@ def reconnect_ground_islands(board, diameter=0.5, drill=0.3, margin=0.2):
         if (
             zone.GetIsRuleArea()
             or zone.GetNetname() not in GROUND_NETS
-            or zone.GetLayer() != pcbnew.F_Cu
+            or zone.GetLayer() not in (pcbnew.F_Cu, pcbnew.B_Cu)
         ):
             continue
         net = zone.GetNetname()
@@ -257,7 +260,7 @@ def reconnect_ground_islands(board, diameter=0.5, drill=0.3, margin=0.2):
             for item in board.GetTracks()
             if item.Type() == pcbnew.PCB_VIA_T and item.GetNetname() == net
         ]
-        filled = zone.GetFilledPolysList(pcbnew.F_Cu)
+        filled = zone.GetFilledPolysList(zone.GetLayer())
         for index in range(filled.OutlineCount()):
             if any(filled.Contains(via.GetPosition(), index) for via in vias):
                 continue
@@ -305,6 +308,88 @@ def reconnect_ground_islands(board, diameter=0.5, drill=0.3, margin=0.2):
     return added
 
 
+def link_stranded_ground_pads(board, diameter=0.45, drill=0.2, width=0.25):
+    """For each outer-layer ground pour fragment still without a via, joins
+    one of its ground pads by a short track on that layer to a new via within 2 mm, at the
+    first spot where both clear other nets (0.15 mm). Returns the vias.
+    """
+    added = []
+    radius = diameter / 2
+    for zone in list(board.Zones()):
+        if zone.GetIsRuleArea() or zone.GetNetname() not in GROUND_NETS:
+            continue
+        if zone.GetLayer() not in (pcbnew.F_Cu, pcbnew.B_Cu):
+            continue
+        net = zone.GetNetname()
+        vias = [t for t in board.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net]
+        filled = zone.GetFilledPolysList(zone.GetLayer())
+        for index in range(filled.OutlineCount()):
+            if any(filled.Contains(via.GetPosition(), index) for via in vias):
+                continue
+            pads = [
+                pad
+                for footprint in board.GetFootprints()
+                for pad in footprint.Pads()
+                if pad.GetNetname() == net
+                and pad.IsOnLayer(zone.GetLayer())
+                and filled.Contains(pad.GetPosition(), index)
+            ]
+            spot = None
+            for pad in pads:
+                pad_x, pad_y = mm(pad.GetPosition().x), mm(pad.GetPosition().y)
+                candidates = sorted(
+                    (
+                        (pad_x + 0.1 * step_x, pad_y + 0.1 * step_y)
+                        for step_x in range(-20, 21)
+                        for step_y in range(-20, 21)
+                    ),
+                    key=lambda point: math.dist(point, (pad_x, pad_y)),
+                )
+                for via_x, via_y in candidates:
+                    if foreign_gap(board, via_x, via_y, radius, net) < 0.15:
+                        continue
+                    length = math.dist((pad_x, pad_y), (via_x, via_y))
+                    steps = max(1, int(length / 0.1))
+                    points = [
+                        (
+                            pad_x + (via_x - pad_x) * step / steps,
+                            pad_y + (via_y - pad_y) * step / steps,
+                        )
+                        for step in range(steps + 1)
+                    ]
+                    # the part of the track on the pad adds no copper
+                    points = [
+                        point
+                        for point in points
+                        if not pad.HitTest(
+                            pcbnew.VECTOR2I(pcbnew.FromMM(point[0]), pcbnew.FromMM(point[1]))
+                        )
+                    ]
+                    if all(
+                        foreign_gap(board, *point, width / 2, net, zone.GetLayer()) >= 0.15
+                        for point in points
+                    ):
+                        spot = (pad, via_x, via_y, pad_x, pad_y)
+                        break
+                if spot:
+                    break
+            if spot is None:
+                print('no spot to link a stranded ground pad near', [p.GetParentFootprint().GetReference() for p in pads])
+                continue
+            pad, via_x, via_y, pad_x, pad_y = spot
+            via = pcbnew.PCB_VIA(board)
+            via.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(via_x), pcbnew.FromMM(via_y)))
+            via.SetWidth(pcbnew.FromMM(diameter))
+            via.SetDrill(pcbnew.FromMM(drill))
+            via.SetNet(pad.GetNet())
+            board.Add(via)
+            if math.dist((pad_x, pad_y), (via_x, via_y)) > 1e-6:
+                add_track(board, net, [(pad_x, pad_y), (via_x, via_y)], width, zone.GetLayer())
+            vias.append(via)
+            added.append((pad.GetParentFootprint().GetReference(), pad.GetNumber(), round(via_x, 2), round(via_y, 2)))
+    return added
+
+
 def remove_dangling_vias(board):
     """Removes signal vias that touch copper on only one layer."""
     layers = (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)
@@ -317,12 +402,15 @@ def remove_dangling_vias(board):
         centre = via.GetPosition()
         position = (mm(centre.x), mm(centre.y))
         touched = set()
+        # a track counts if it reaches the via pad, not only its centre
+        reach = mm(via.GetWidth()) / 2
         for item in board.GetTracks():
             if item.Type() != pcbnew.PCB_TRACE_T or item.GetNetname() != via.GetNetname():
                 continue
-            for end in (item.GetStart(), item.GetEnd()):
-                if math.dist(position, (mm(end.x), mm(end.y))) < 0.01:
-                    touched.add(item.GetLayer())
+            start = (mm(item.GetStart().x), mm(item.GetStart().y))
+            end = (mm(item.GetEnd().x), mm(item.GetEnd().y))
+            if segment_distance(position, start, end) < reach + mm(item.GetWidth()) / 2:
+                touched.add(item.GetLayer())
         for footprint in board.GetFootprints():
             for pad in footprint.Pads():
                 if pad.GetNetname() == via.GetNetname() and pad.HitTest(centre):
@@ -332,6 +420,75 @@ def remove_dangling_vias(board):
             REMOVED.append(via)
             removed.append(position)
     return removed
+
+
+def drc_violations(path, kind):
+    """Error-level DRC violations of one type for the board file."""
+    with tempfile.TemporaryDirectory() as tmp:
+        report = Path(tmp) / 'drc.json'
+        subprocess.run(
+            [
+                KICAD_CLI, 'pcb', 'drc', '--format', 'json',
+                '--severity-error', '--output', str(report), str(path),
+            ],
+            check=False,
+            capture_output=True,
+        )
+        data = json.loads(report.read_text())
+    return [v for v in data.get('violations', []) if v.get('type') == kind]
+
+
+def nudge_crowded_tracks(board, path, margin=0.005):
+    """Moves a track segment that DRC finds too close to a track of another
+    net (usually one Freerouting squeezed and gen_pcb then widened) away by
+    the shortfall, dragging the ends of the same-net segments it joins.
+    Returns the nets nudged.
+    """
+    tracks = {
+        item.m_Uuid.AsString(): item
+        for item in board.GetTracks()
+        if item.Type() == pcbnew.PCB_TRACE_T
+    }
+    nudged = []
+    moved = set()
+    for violation in drc_violations(path, 'clearance'):
+        found = [tracks.get(item.get('uuid')) for item in violation.get('items', [])]
+        if len(found) != 2 or None in found:
+            continue
+        match = re.search(r'clearance ([\d.]+) mm; actual ([\d.]+) mm', violation['description'])
+        if not match:
+            continue
+        shortfall = float(match.group(1)) - float(match.group(2)) + margin
+        mover, other = sorted(found, key=lambda t: t.GetWidth())
+        if mover.m_Uuid.AsString() in moved:
+            continue  # DRC lists a crowded pair once per segment end
+        moved.add(mover.m_Uuid.AsString())
+        start = (mm(mover.GetStart().x), mm(mover.GetStart().y))
+        end = (mm(mover.GetEnd().x), mm(mover.GetEnd().y))
+        middle = ((start[0] + end[0]) / 2, (start[1] + end[1]) / 2)
+        other_start = (mm(other.GetStart().x), mm(other.GetStart().y))
+        other_end = (mm(other.GetEnd().x), mm(other.GetEnd().y))
+        # the point of the other segment nearest the mover's middle
+        delta = (other_end[0] - other_start[0], other_end[1] - other_start[1])
+        length_sq = delta[0] ** 2 + delta[1] ** 2 or 1e-12
+        ratio = max(0.0, min(1.0, (
+            (middle[0] - other_start[0]) * delta[0] + (middle[1] - other_start[1]) * delta[1]
+        ) / length_sq))
+        nearest = (other_start[0] + ratio * delta[0], other_start[1] + ratio * delta[1])
+        away = (middle[0] - nearest[0], middle[1] - nearest[1])
+        norm = math.hypot(*away) or 1.0
+        shift = (away[0] / norm * shortfall, away[1] / norm * shortfall)
+        for old in (start, end):
+            new = pcbnew.VECTOR2I(pcbnew.FromMM(old[0] + shift[0]), pcbnew.FromMM(old[1] + shift[1]))
+            for track in tracks.values():
+                if track.GetNetname() != mover.GetNetname() or track.GetLayer() != mover.GetLayer():
+                    continue
+                if math.dist(old, (mm(track.GetStart().x), mm(track.GetStart().y))) < 1e-3:
+                    track.SetStart(new)
+                if math.dist(old, (mm(track.GetEnd().x), mm(track.GetEnd().y))) < 1e-3:
+                    track.SetEnd(new)
+        nudged.append(mover.GetNetname())
+    return nudged
 
 
 def starved_thermal_pads(path):
@@ -377,15 +534,23 @@ def main():
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else KICAD_DIR / 'cryocooler.kicad_pcb'
     board = pcbnew.LoadBoard(str(path))
     print('vias removed:', remove_crowding_vias(board))
-    close_current_path_link(board)
-    print('J12 / R53 link added')
-    print('Q2 gate track moved:', move_q2_gate_track(board))
+    print('blocked GND vias removed:', remove_blocked_ground_vias(board))
     print('dangling vias removed:', remove_dangling_vias(board))
     filler = pcbnew.ZONE_FILLER(board)
     filler.Fill(board.Zones())
     print('island vias added:', reconnect_ground_islands(board))
     filler.Fill(board.Zones())
+    # the fine-pitch via size (cryocooler.kicad_dru) for the tight fragments
+    print('small island vias added:', reconnect_ground_islands(board, 0.45, 0.2, 0.1))
+    filler.Fill(board.Zones())
+    print('stranded ground pads linked:', link_stranded_ground_pads(board))
+    filler.Fill(board.Zones())
     pcbnew.SaveBoard(str(path), board)
+    nudged = nudge_crowded_tracks(board, path)
+    if nudged:
+        print('tracks nudged clear:', nudged)
+        filler.Fill(board.Zones())
+        pcbnew.SaveBoard(str(path), board)
     starved = starved_thermal_pads(path)
     if starved:
         print('pour connection off for:', disconnect_starved_pads(board, starved))

@@ -35,7 +35,8 @@ def export_netlist(out_path):
 
 def load_netlist():
     """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet,
-    pins) with pins[pin number] = symbol pin name; nets[name] = [(ref, pin)].
+    pins, fields) with pins[pin number] = symbol pin name and fields the
+    symbol's own fields (Datasheet, Product, ...); nets[name] = [(ref, pin)].
     """
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'n.net'
@@ -48,11 +49,18 @@ def load_netlist():
         for prop in find_all(comp, 'property'):
             if sval(find_all(prop, 'name')[0][1]) == 'Sheetname':
                 sheet = sval(find_all(prop, 'value')[0][1])
+        fields = {}
+        for group in find_all(comp, 'fields'):
+            for field in find_all(group, 'field'):
+                name = sval(find_all(field, 'name')[0][1])
+                if name != 'Footprint' and len(field) > 2:
+                    fields[name] = sval(field[-1])
         parts[ref] = {
             'value': sval(find_all(comp, 'value')[0][1]),
             'footprint': sval(find_all(comp, 'footprint')[0][1]),
             'sheet': sheet,
             'pins': {},
+            'fields': fields,
         }
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):

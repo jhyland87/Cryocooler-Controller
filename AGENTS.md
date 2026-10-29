@@ -149,7 +149,9 @@ Standing rules for any schematic or PCB work in `hardware/kicad/` (or a new boar
 - **Reference on orders** — when ordering a part from a supplier, include its
   reference designator(s) (e.g. `U3`, `R12`) in the line's customer-reference field.
 - **Test points** — every IC gets at least a minimal set of test points (supply,
-  ground, and its key signals/buses), placed beside the part.
+  ground, and its key signals/buses), placed beside the part. A test point goes
+  on the same side of the board as the part it tests, as close to it as
+  possible, so both can be probed without turning the board over.
 - **Dense placement** — pack the layout tightly. Leave empty space only where a
   part's datasheet requires it (keep-outs, thermal, isolation clearance) or no
   other arrangement works.

@@ -757,9 +757,11 @@ class Sheet:
             '\t\t(body_style 1)',
             '\t\t(exclude_from_sim no)',
             (
+                # pad test points are bare copper: nothing to order
                 '\t\t(in_bom yes)'
                 if not getattr(part, 'is_power', False)
                 and not part.ref.startswith('#')
+                and 'TestPoint_Pad' not in (part.footprint or '')
                 else '\t\t(in_bom no)'
             ),
             (

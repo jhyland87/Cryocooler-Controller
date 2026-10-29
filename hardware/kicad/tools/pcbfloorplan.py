@@ -43,65 +43,29 @@ MODULE_OF_SHEET = {
     'Power Button': 'POWER BUTTON',
 }
 
-# Board is 100 x 62 mm (Phoenix UCS 125-87 PCB). Top side: connectors, ICs,
-# inductors, LEDs, buttons; module -> rectangles (overlapping rectangles of one
-# module build L shapes).
+# Board is 120 x 100 mm (Phoenix UCS 145-125 PCB). module -> rectangles on
+# the top side (overlapping rectangles of one module build L shapes).
 MODULE_REGIONS = {
-    'AMP CURRENT (ISOLATED)': [Rect(-3, -3, 33, 37)],
-    'AMP CONTROL': [Rect(33, -3, 56, 13)],
-    'SIGNAL GENERATOR': [Rect(33, 13, 56, 26), Rect(52, 21, 61.5, 26)],
-    'RAILS 5V/3V3': [Rect(33, 26, 56, 37)],
-    'MCU & USB': [
-        Rect(56, -3, 89.9, 21),
-        Rect(89.5, -3, 103, 20),
-        Rect(70.2, -3, 89.9, 30),
-    ],
-    'IMU': [Rect(89.9, 20, 103, 31.5)],
-    'INDICATORS': [Rect(61.5, 21, 70.2, 30.5), Rect(56, 26, 70.2, 30.5)],
-    'RAILS ±15V': [Rect(56, 30.5, 84, 40.5), Rect(56, 40, 69, 48)],
-    'COLD HEAD': [Rect(84, 31.5, 103, 40.5)],
-    'POWER IN': [Rect(-3, 37, 22, 65)],
-    'POWER BUTTON': [Rect(22, 37, 40.5, 49.7), Rect(22, 49.7, 39.5, 65)],
-    'COMP RELAY': [Rect(39.5, 49.7, 47, 65), Rect(40.5, 48, 47, 49.7)],
-    'SYSTEM CURRENT': [Rect(40.5, 37, 56, 48)],
-    'POWER GOOD': [Rect(69, 40.5, 80, 48)],
-    'WATER COOLING': [Rect(47, 48, 80, 65), Rect(80, 40.5, 103, 65)],
+    'AMP CURRENT (ISOLATED)': [Rect(-3, -3, 33, 40)],
+    'AMP CONTROL': [Rect(33, -3, 58, 18)],
+    'SIGNAL GENERATOR': [Rect(33, 18, 58, 60)],
+    'RAILS 5V/3V3': [Rect(-3, 66, 24, 82)],
+    'MCU & USB': [Rect(58, -3, 97, 36), Rect(97, -3, 123, 22)],
+    'IMU': [Rect(97, 22, 123, 42)],
+    'INDICATORS': [Rect(58, 36, 80, 48)],
+    'POWER GOOD': [Rect(80, 36, 97, 48)],
+    'RAILS ±15V': [Rect(58, 48, 100, 66), Rect(84, 65, 100, 84)],
+    'COLD HEAD': [Rect(97, 42, 123, 48), Rect(100, 48, 123, 74)],
+    'POWER IN': [Rect(-3, 40, 24, 66), Rect(24, 40, 33, 60)],
+    'POWER BUTTON': [Rect(24, 60, 44, 103), Rect(-3, 82, 24, 103)],
+    'SYSTEM CURRENT': [Rect(44, 60, 58, 82), Rect(56, 66, 64, 84)],
+    'COMP RELAY': [Rect(44, 82, 56, 103)],
+    'I2C BRIDGE': [Rect(64, 66, 84, 84)],
+    'WATER COOLING': [Rect(56, 84, 123, 103), Rect(100, 74, 123, 103)],
 }
 
-# Bottom side: passives, test points and the ICs moved under their module.
-# Modules missing here use their top regions. Under the right-angle
-# connectors only their pin rows go through, so the bridge and power-good
-# circuits sit there.
-MODULE_REGIONS_BOTTOM = {
-    'MCU & USB': [
-        Rect(70.5, -3, 89.9, 25),
-        Rect(89.5, -3, 103, 17),
-        Rect(86, 25, 89.9, 30.5),
-    ],
-    'AMP CONTROL': [Rect(33, -3, 56, 14.5)],
-    'SIGNAL GENERATOR': [Rect(33, 14.5, 56, 29), Rect(56, 6.75, 70.5, 21)],
-    'RAILS 5V/3V3': [Rect(33, 29, 56, 37)],
-    'IMU': [Rect(89.9, 17, 103, 30.5)],
-    'INDICATORS': [Rect(56, 21, 70.5, 30.5)],
-    'COLD HEAD': [Rect(84, 30.5, 103, 50)],
-    'RAILS ±15V': [
-        Rect(56, 30.5, 84, 40.5),
-        Rect(70.5, 25, 86, 30.5),
-        Rect(51, 40, 78, 48),
-    ],
-    'POWER IN': [Rect(-3, 37, 11, 65)],
-    'POWER BUTTON': [Rect(11, 37, 27, 65)],
-    'COMP RELAY': [Rect(27, 48, 43, 65)],
-    'SYSTEM CURRENT': [Rect(27, 37, 51, 48), Rect(51, 37, 56, 40)],
-    'I2C BRIDGE': [Rect(43, 48, 65.5, 65)],
-    'POWER GOOD': [Rect(65.5, 48, 81, 65)],
-    'WATER COOLING': [
-        Rect(81, 50, 103, 65),
-        Rect(78, 40.5, 84, 48),
-        Rect(81, 48, 84, 50),
-    ],
-}
-
+# Bottom side: modules missing here use their top regions.
+MODULE_REGIONS_BOTTOM = {}
 
 def regions(module, side='F'):
     """Rectangles of a module's box on one side ('F' top, 'B' bottom)."""
@@ -125,7 +89,6 @@ def module_of_sheet(sheet):
 
 # part inset for the boxes that are very full
 MODULE_PART_INSET = {
-    'IMU': 0.15,
     'WATER COOLING': 0.3,
 }
 
@@ -325,13 +288,16 @@ def outline_segments(module, board_rect, holes, labels=(), side='F',
     """
     rects = _line_rects(module, side)
     drawable = board_rect.inflated(-0.4)
-    label_cuts = []
+    # every line, on the label's border or crossing it, stops short of it
+    label_boxes = []
     for text, start_x, start_y, *vertical in labels:
-        length = label_width(text) + LABEL_GAP
+        length = label_width(text)
         if vertical:
-            label_cuts.append(('v', start_x, start_y - LABEL_GAP, start_y + length))
+            label_boxes.append(Rect(start_x - 0.9, start_y - LABEL_GAP,
+                                    start_x + 0.9, start_y + length + LABEL_GAP))
         else:
-            label_cuts.append(('h', start_y, start_x - LABEL_GAP, start_x + length))
+            label_boxes.append(Rect(start_x - LABEL_GAP, start_y - 0.9,
+                                    start_x + length + LABEL_GAP, start_y + 0.9))
     raw = []
     for index, rect in enumerate(rects):
         others = [other for j, other in enumerate(rects) if j != index]
@@ -381,13 +347,8 @@ def outline_segments(module, board_rect, holes, labels=(), side='F',
                 )
             )
             if keep and any(
-                (
-                    abs(point[1] - fixed_at) < 1e-6 and cut_from < point[0] < cut_to
-                    if kind == 'h'
-                    else abs(point[0] - fixed_at) < 1e-6
-                    and cut_from < point[1] < cut_to
-                )
-                for kind, fixed_at, cut_from, cut_to in label_cuts
+                box.min_x < point[0] < box.max_x and box.min_y < point[1] < box.max_y
+                for box in label_boxes
             ):
                 keep = False
             if keep and any(

@@ -170,7 +170,7 @@ PARTS = {
     ('USB_C', 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal'): (
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
-    # Right-angle connectors for the UCS 125-87 housing (plugs enter through
+    # Right-angle connectors for the UCS 145-125 housing (plugs enter through
     # the side walls). Ratings from each maker's datasheet.
     ('', 'PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'): (
         'Phoenix Contact', '1757242', 'PCB HEADER MSTBA 2,5/ 2-G-5,08, 12 A',

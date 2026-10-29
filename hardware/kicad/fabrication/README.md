@@ -2,7 +2,7 @@
 
 `cryocooler_jlcpcb.zip` is the upload for JLCPCB: Gerbers (Protel extensions, X2
 attributes) and Excellon drill files (PTH and NPTH separate, mm, absolute origin)
-made from `cryocooler.kicad_pcb` (4 layers, 130 x 110 mm). `gerbers/` holds the same
+made from `cryocooler.kicad_pcb` (4 layers, 120 x 100 mm, Phoenix UCS 145-125 housing). `gerbers/` holds the same
 files plus the drill maps and report; nothing in it is hand-edited.
 
 These files, the zip and the front / back renders (`circuit-board-render-front.png`,
@@ -20,15 +20,20 @@ creation date, so the files differ in git after every export even if the board d
 
 ## Order settings to check
 
-* 4 layers, 130 x 110 mm, 1.6 mm, 1 oz copper, no impedance control.
-* Design minimums: 0.15 mm track / clearance, 0.2 mm smallest drill, 0.3 mm board
-  edge clearance.
-* **Via-in-pad:** the INA239 (U23) and AD9833 (U4) ground pads use 0.35 mm
-  pads with 0.2 mm drills (0.075 mm ring), placed inside 0.5 mm pitch pads. Check
-  JLCPCB's current via and ring limits and its via-filling option before paying; if
-  they are too small the vias need enlarging and the pad connections reworking.
-* Back silkscreen carries the cryocooler logo and title; check the viewer shows it
-  mirrored correctly from the back.
+* 4 layers, 120 x 100 mm, 1.6 mm, 1 oz copper, **blue** solder mask, no impedance control.
+* Design minimums: 0.15 mm track / clearance, 0.2 mm smallest drill, 0.5 mm board
+  edge clearance. The board has a routed notch in the top edge under the ESP32
+  antenna (74.5-93.5 x 0-6 mm), and the four corner squares around the mounting
+  holes have no solder mask (housing requirement).
+* **Via-in-pad:** the fine-pitch ground pads (U4, U11, U20, U21, U23, U25) and
+  C30 / C74 pad 2 carry 0.45 mm vias with 0.2 mm drills, some inside 0.5 mm pitch
+  pads (0.1 mm to the neighbouring pad). Check JLCPCB's current via limits and order
+  filled / capped vias; if they are too small the vias need enlarging and the pad
+  connections reworking.
+* Parts on both sides: the back carries a few passives and small transistors.
+* The back silkscreen carries the board ID (name and git revision); check the viewer
+  shows it mirrored correctly from the back.
 
-The drill report lists every hole size: 0.2 mm (19), 0.3 mm (394 vias), 0.35 mm (7),
-component holes 0.6 to 1.3 mm, and 3.2 mm mounting holes.
+The drill report lists every hole size: plated 0.2 mm (35), 0.3 mm (411 vias),
+0.35 mm (8), component holes 0.6 to 1.4 mm; unplated 0.65 mm (2, USB-C pegs) and
+3.2 mm (4 mounting holes).
