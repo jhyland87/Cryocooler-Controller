@@ -70,13 +70,63 @@ def placed_rect(local_rect, center_x, center_y, angle_degrees):
     )
 
 
+class RectIndex(dict):
+    """name -> Rect dict with a coarse grid index, so collision checks only
+    look at the rectangles near a spot.
+    """
+
+    CELL = 4.0
+
+    def __init__(self):
+        super().__init__()
+        self.grid = {}
+
+    def _cells(self, rect):
+        for cell_x in range(
+            math.floor(rect.min_x / self.CELL), math.floor(rect.max_x / self.CELL) + 1
+        ):
+            for cell_y in range(
+                math.floor(rect.min_y / self.CELL),
+                math.floor(rect.max_y / self.CELL) + 1,
+            ):
+                yield cell_x, cell_y
+
+    def __setitem__(self, name, rect):
+        if name in self:
+            del self[name]
+        super().__setitem__(name, rect)
+        for cell in self._cells(rect):
+            self.grid.setdefault(cell, set()).add(name)
+
+    def __delitem__(self, name):
+        for cell in self._cells(self[name]):
+            self.grid[cell].discard(name)
+        super().__delitem__(name)
+
+    def pop(self, name, *default):
+        if name not in self:
+            if default:
+                return default[0]
+            raise KeyError(name)
+        rect = self[name]
+        del self[name]
+        return rect
+
+    def near(self, rect):
+        """Names of the rectangles that may overlap rect."""
+        names = set()
+        for cell in self._cells(rect):
+            names |= self.grid.get(cell, set())
+        return names
+
+
 class Occupancy:
     """Tracks placed rectangles and keep-out areas inside the board outline."""
 
     def __init__(self, board_rect, edge_margin, gap):
         self.board_rect = board_rect.inflated(-edge_margin)
         self.gap = gap
-        self.rects = {}
+        self.rects = RectIndex()
         self.keepouts = []
 
     def add(self, name, rect):
@@ -89,8 +139,8 @@ class Occupancy:
             return False
         padded = rect.inflated(self.gap / 2)
         return not any(
-            padded.overlaps(other.inflated(self.gap / 2))
-            for name, other in self.rects.items()
+            padded.overlaps(self.rects[name].inflated(self.gap / 2))
+            for name in self.rects.near(rect.inflated(self.gap))
             if name not in ignore
         )
 

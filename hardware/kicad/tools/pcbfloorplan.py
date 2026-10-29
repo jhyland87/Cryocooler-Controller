@@ -49,23 +49,23 @@ MODULE_OF_SHEET = {
 MODULE_REGIONS = {
     'AMP CURRENT (ISOLATED)': [Rect(-3, -3, 33, 37)],
     'AMP CONTROL': [Rect(33, -3, 56, 13)],
-    'SIGNAL GENERATOR': [Rect(33, 13, 56, 26.5)],
-    'RAILS 5V/3V3': [Rect(33, 26.5, 56, 37)],
+    'SIGNAL GENERATOR': [Rect(33, 13, 56, 26), Rect(52, 21, 61.5, 26)],
+    'RAILS 5V/3V3': [Rect(33, 26, 56, 37)],
     'MCU & USB': [
         Rect(56, -3, 89.9, 21),
         Rect(89.5, -3, 103, 20),
         Rect(70.2, -3, 89.9, 30),
     ],
     'IMU': [Rect(89.9, 20, 103, 31.5)],
-    'INDICATORS': [Rect(56, 21, 70.2, 30.5)],
-    'RAILS ±15V': [Rect(56, 30.5, 86, 40.5), Rect(56, 40, 70, 48)],
-    'COLD HEAD': [Rect(86, 31.5, 103, 40.5)],
-    'POWER IN': [Rect(-3, 37, 22.5, 65)],
-    'POWER BUTTON': [Rect(22.5, 37, 40.5, 65)],
-    'COMP RELAY': [Rect(40.5, 48, 47, 65)],
+    'INDICATORS': [Rect(61.5, 21, 70.2, 30.5), Rect(56, 26, 70.2, 30.5)],
+    'RAILS ±15V': [Rect(56, 30.5, 84, 40.5), Rect(56, 40, 69, 48)],
+    'COLD HEAD': [Rect(84, 31.5, 103, 40.5)],
+    'POWER IN': [Rect(-3, 37, 22, 65)],
+    'POWER BUTTON': [Rect(22, 37, 40.5, 49.7), Rect(22, 49.7, 39.5, 65)],
+    'COMP RELAY': [Rect(39.5, 49.7, 47, 65), Rect(40.5, 48, 47, 49.7)],
     'SYSTEM CURRENT': [Rect(40.5, 37, 56, 48)],
-    'POWER GOOD': [Rect(70, 40.5, 78, 48)],
-    'WATER COOLING': [Rect(47, 48, 103, 65), Rect(78, 40.5, 103, 48.5)],
+    'POWER GOOD': [Rect(69, 40.5, 80, 48)],
+    'WATER COOLING': [Rect(47, 48, 80, 65), Rect(80, 40.5, 103, 65)],
 }
 
 # Bottom side: passives, test points and the ICs moved under their module.
@@ -73,11 +73,33 @@ MODULE_REGIONS = {
 # connectors only their pin rows go through, so the bridge and power-good
 # circuits sit there.
 MODULE_REGIONS_BOTTOM = {
-    'SIGNAL GENERATOR': [Rect(33, 13, 56, 31)],
-    'RAILS 5V/3V3': [Rect(33, 31, 56, 37)],
-    'I2C BRIDGE': [Rect(47, 48, 66, 65)],
-    'POWER GOOD': [Rect(70, 40.5, 78, 48.5), Rect(66, 48, 78, 65)],
-    'WATER COOLING': [Rect(78, 40.5, 103, 65)],
+    'MCU & USB': [
+        Rect(70.5, -3, 89.9, 25),
+        Rect(89.5, -3, 103, 17),
+        Rect(86, 25, 89.9, 30.5),
+    ],
+    'AMP CONTROL': [Rect(33, -3, 56, 14.5)],
+    'SIGNAL GENERATOR': [Rect(33, 14.5, 56, 29), Rect(56, 6.75, 70.5, 21)],
+    'RAILS 5V/3V3': [Rect(33, 29, 56, 37)],
+    'IMU': [Rect(89.9, 17, 103, 30.5)],
+    'INDICATORS': [Rect(56, 21, 70.5, 30.5)],
+    'COLD HEAD': [Rect(84, 30.5, 103, 50)],
+    'RAILS ±15V': [
+        Rect(56, 30.5, 84, 40.5),
+        Rect(70.5, 25, 86, 30.5),
+        Rect(51, 40, 78, 48),
+    ],
+    'POWER IN': [Rect(-3, 37, 11, 65)],
+    'POWER BUTTON': [Rect(11, 37, 27, 65)],
+    'COMP RELAY': [Rect(27, 48, 43, 65)],
+    'SYSTEM CURRENT': [Rect(27, 37, 51, 48), Rect(51, 37, 56, 40)],
+    'I2C BRIDGE': [Rect(43, 48, 65.5, 65)],
+    'POWER GOOD': [Rect(65.5, 48, 81, 65)],
+    'WATER COOLING': [
+        Rect(81, 50, 103, 65),
+        Rect(78, 40.5, 84, 48),
+        Rect(81, 48, 84, 50),
+    ],
 }
 
 
@@ -209,7 +231,18 @@ def _breakpoints(values, low, high):
 
 
 # shorter label texts to fall back on when the full name has no room
-LABEL_ALTERNATIVES = {'AMP CONTROL': ['AMP CONTROL', 'AMP CTRL']}
+LABEL_ALTERNATIVES = {
+    'AMP CONTROL': ['AMP CONTROL', 'AMP CTRL'],
+    'AMP CURRENT (ISOLATED)': ['AMP CURRENT (ISOLATED)', 'AMP CURRENT (ISO)'],
+    'SIGNAL GENERATOR': ['SIGNAL GENERATOR', 'SIGNAL GEN'],
+    'SYSTEM CURRENT': ['SYSTEM CURRENT', 'SYS CURRENT', 'SYS I'],
+    'POWER BUTTON': ['POWER BUTTON', 'PWR BUTTON', 'BUTTON'],
+    'POWER IN': ['POWER IN', 'PWR IN'],
+    'WATER COOLING': ['WATER COOLING', 'WATER COOL', 'WATER'],
+    'COMP RELAY': ['COMP RELAY', 'RELAY'],
+    'POWER GOOD': ['POWER GOOD', 'PWR GOOD', 'PGOOD'],
+    'COLD HEAD': ['COLD HEAD', 'CH TEMP'],
+}
 
 
 def label_texts(module):
@@ -217,8 +250,16 @@ def label_texts(module):
     return LABEL_ALTERNATIVES.get(module, [module])
 
 
+# gen_pcb sets this to a function that measures a label text with pcbnew
+measure_label = None
+
+
 def label_width(text):
-    """Estimated width of a label text (mm)."""
+    """Width of a label text (mm): measured when gen_pcb provides a
+    measurer, else estimated.
+    """
+    if measure_label is not None:
+        return measure_label(text) + 0.4
     return len(text) * LABEL_CHAR_WIDTH * LABEL_SIZE + 0.4
 
 
@@ -240,6 +281,12 @@ def label_candidates(module, text, board_rect, side='F'):
                 left_x += 1.0
 
 
+def covered_vertical(segments, line_x, start_y, end_y):
+    """True if vertical drawn segments at line_x span [start_y, end_y]."""
+    flipped = [((a[1], a[0]), (b[1], b[0])) for a, b in segments]
+    return covered(flipped, line_x, start_y, end_y)
+
+
 def covered(segments, line_y, start_x, end_x):
     """True if horizontal drawn segments at line_y span [start_x, end_x]."""
     spans = sorted(
@@ -259,7 +306,7 @@ def text_hits_hole(left_x, line_y, width, holes):
     """True if the label box comes within the hole clearance of a hole."""
     for hole_x, hole_y, hole_radius in holes:
         nearest_x = min(max(hole_x, left_x), left_x + width)
-        nearest_y = min(max(hole_y, line_y - 0.5), line_y + 0.5)
+        nearest_y = min(max(hole_y, line_y - 0.9), line_y + 0.9)
         distance = ((hole_x - nearest_x) ** 2 + (hole_y - nearest_y) ** 2) ** 0.5
         if distance < hole_radius + HOLE_CLEARANCE:
             return True
@@ -269,18 +316,22 @@ def text_hits_hole(left_x, line_y, width, holes):
 def outline_segments(module, board_rect, holes, labels=(), side='F',
                      keepouts=()):
     """Silkscreen line segments tracing the union of the module's regions,
-    clipped to the board, broken around every module label (text, left_x,
-    line_y) on the side (a shared border carries its neighbour's label too),
-    around mounting holes and out of keep-out rectangles.
+    clipped to the board, broken around every module label on the side (a
+    shared border carries its neighbour's label too), around mounting holes
+    and out of keep-out rectangles. A label is (text, left_x, line_y) on a
+    horizontal border or (text, line_x, top_y, 'v') running up a vertical one.
 
     Returns a list of ((x0, y0), (x1, y1)).
     """
     rects = _line_rects(module, side)
     drawable = board_rect.inflated(-0.4)
-    label_cuts = [
-        (line_y, left_x - LABEL_GAP, left_x + label_width(text) + LABEL_GAP)
-        for text, left_x, line_y in labels
-    ]
+    label_cuts = []
+    for text, start_x, start_y, *vertical in labels:
+        length = label_width(text) + LABEL_GAP
+        if vertical:
+            label_cuts.append(('v', start_x, start_y - LABEL_GAP, start_y + length))
+        else:
+            label_cuts.append(('h', start_y, start_x - LABEL_GAP, start_x + length))
     raw = []
     for index, rect in enumerate(rects):
         others = [other for j, other in enumerate(rects) if j != index]
@@ -330,8 +381,13 @@ def outline_segments(module, board_rect, holes, labels=(), side='F',
                 )
             )
             if keep and any(
-                abs(point[1] - cut_y) < 1e-6 and cut_from < point[0] < cut_to
-                for cut_y, cut_from, cut_to in label_cuts
+                (
+                    abs(point[1] - fixed_at) < 1e-6 and cut_from < point[0] < cut_to
+                    if kind == 'h'
+                    else abs(point[0] - fixed_at) < 1e-6
+                    and cut_from < point[1] < cut_to
+                )
+                for kind, fixed_at, cut_from, cut_to in label_cuts
             ):
                 keep = False
             if keep and any(
