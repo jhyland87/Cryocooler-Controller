@@ -206,7 +206,12 @@ PARTS = {
     ('', 'Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal'): (
         'Molex', '5054480871', 'CONN HEADER MICRO-LOCK PLUS R/A 8POS 1.25MM',
         'design', 'J14: cable to the off-board Adafruit LSM6DSOX module; '
-        'mates with the 505432 series dual-row receptacle housing'),
+        'cable end: housing 5054320801 (8 circuits) with 505431 crimp '
+        'terminals, or tin pre-crimped leads 797581148 (150 mm) / 797581149 '
+        '(300 mm), 26 AWG'),
+    ('', 'TestPoint_Keystone_5000-5004_Miniature'): (
+        'Keystone Electronics', '5001', 'TEST POINT PC MINIATURE BLACK',
+        'design', 'TP22-TP25 ground loops; 1.02 mm hole'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
@@ -495,7 +500,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'TerminalBlock', 'PhoenixContact', 'Molex_', 'JST_XH', 'Hirose_',
-    'PinHeader', 'Adafruit_1769', 'TE_T4145035041',
+    'PinHeader', 'Adafruit_1769', 'TE_T4145035041', 'TestPoint_Keystone',
 )
 
 
@@ -525,7 +530,11 @@ def resolve(value, footprint):
 
 
 def main():
-    parts = [p for p in load_netlist() if not p[0].startswith('TP')]
+    # pad test points are bare copper; the through-hole ground loops are parts
+    parts = [
+        p for p in load_netlist()
+        if not (p[0].startswith('TP') and 'TestPoint_Pad' in p[2])
+    ]
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
         groups[(bom_value(ref, value, footprint), footprint)].append(ref)

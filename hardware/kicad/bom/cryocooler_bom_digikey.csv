@@ -42,7 +42,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 3,1769,Adafruit,"CONN HEADER JST PH COMPATIBLE R/A SMT 2POS 2MM, 2 A",J6 J7 J13,,Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD,design,"J6 NTC, J7 panel button, J13 relay 12 V out; 4UCON 17311; mates with a JST PHR-2 housing or JST PH 2-pin pigtail"
 2,1803277,Phoenix Contact,"PCB HEADER MC 1,5/ 2-G-3,81, 8 A",J8 J9,,"PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal",suggested,"right-angle pluggable header; amplifier REM and amplifier signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number before ordering)"
 1,T4145035041-001,TE Connectivity,"CONN M12 RCPT FEMALE 4POS A-CODE R/A PANEL/PCB SHIELDED, 4 A",J10,,TE_T4145035041-001_M12_A-Code_4P_Female_Horizontal,design,"J10 cold head PT1000 (4-wire); mounts through the side wall (2.0-3.0 mm panel, 12.2 mm hole); mates with an A-coded male M12 cable"
-1,5054480871,Molex,CONN HEADER MICRO-LOCK PLUS R/A 8POS 1.25MM,J14,,Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal,design,J14: cable to the off-board Adafruit LSM6DSOX module; mates with the 505432 series dual-row receptacle housing
+1,5054480871,Molex,CONN HEADER MICRO-LOCK PLUS R/A 8POS 1.25MM,J14,,Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal,design,"J14: cable to the off-board Adafruit LSM6DSOX module; cable end: housing 5054320801 (8 circuits) with 505431 crimp terminals, or tin pre-crimped leads 797581148 (150 mm) / 797581149 (300 mm), 26 AWG"
 5,,,CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER,JP1 JP2 JP3 JP4 JP5,,PinHeader_1x02_P1.27mm_Vertical,none,supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and shunt; the branches are logic supplies of a few hundred mA
 1,SRP6050CA-4R7M,Bourns,FIXED IND 4.7UH 8.5A 18.4MOHM SMD,L1,SRN6045TA-4R7M,L_Bourns_SRN6045TA,suggested,"shielded replacement for the SRN6045TA-4R7M the board footprint was drawn for; terminals land inside the 2.35 x 5.1 mm pads, check the first one by hand"
 1,SRP7050TA-3R3M,Bourns,FIXED IND 3.3UH 12A 20.9MOHM SMD,L2,SRP7050TA-3R3M,L_Bourns_SRP7050TA,design,"ADP5071 boost inductor, fully shielded"
@@ -86,6 +86,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/10W 0402,R107 R108,10k,R_0402_1005Metric,suggested,
 3,RC0402FR-071KL,Yageo,RES 1K OHM 1% 1/10W 0402,R109 R110 R111,1k,R_0402_1005Metric,suggested,
 3,TL3342F160QG/TR,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,ordered,footprint is the TL3342 family (3.5 x 6 mm); substitute for TL3342F160QG
+4,5001,Keystone Electronics,TEST POINT PC MINIATURE BLACK,TP22 TP23 TP24 TP25,,TestPoint_Keystone_5000-5004_Miniature,design,TP22-TP25 ground loops; 1.02 mm hole
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,
 1,USBLC6-2SC6,STMicroelectronics,TVS DIODE 5.25V 17V SOT23-6,U2,USBLC6-2SC6,SOT-23-6,design,
 1,SG-8002CA 25.0000M-PHCLX,Epson,OSC 25.000MHZ CMOS 5V SMD 7x5,U3,SG-8002CA-PH 25MHz,Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm,suggested,"PH = 5 V CMOS with output enable; the PHBB variant is discontinued, PHCLX is +/-100 ppm which is plenty for the AD9833 clock"

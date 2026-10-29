@@ -149,8 +149,9 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 
 * **IMU cable (J14, Molex Micro-Lock Plus 505448-0871, 2 x 4, 1.25 mm, right angle):** the LSM6DSOX is the
   Adafruit breakout (product 4438) mounted on the cryocooler. Odd pins are the row away from the board edge,
-  even pins the row at the edge; the cable takes a Micro-Lock Plus 505432-series 8-circuit receptacle (check the
-  exact part number when ordering). Power the breakout's `Vin` from 3V3 so its logic stays 3.3 V, and leave its
+  even pins the row at the edge. The cable end is a Molex 5054320801 housing (Micro-Lock Plus dual-row, 8
+  circuits) with 505431-series crimp terminals, or Molex's tin pre-crimped leads 797581148 (150 mm) / 797581149
+  (300 mm), 26 AWG (tin, to match the header). Power the breakout's `Vin` from 3V3 so its logic stays 3.3 V, and leave its
   `3Vo` pad open. Keep the cable short (it hangs on the shared SPI bus; each signal has a 100 Ω series
   resistor at J14). The pin names are printed beside the connector in pairs (VIN/GND, SCL/SDA, DO/CS, I1/I2).
 
@@ -168,8 +169,8 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 * **Cold head PT1000 (J10, TE T4145035041-001):** M12 A-coded 4-pin female receptacle, right angle, shielded,
   4 A / 250 V, IP67. It mounts through the right side wall (wall 2.0-3.0 mm, Ø12.2 mm hole, nut torque 0.6 Nm)
   with its panel face 0.35 mm beyond the board edge; the axis is 8.5 mm above the board. Turn the inside nut so
-  a flat faces the board. The four shield / mounting legs are not connected to a net. The sensor cable needs an
-  A-coded male M12 plug wired 4-wire:
+  a flat faces the board. Its shield pin and four shell legs are the symbol's `SH` pin, tied to GND, so a
+  shielded sensor cable is grounded at the board end. The sensor cable needs an A-coded male M12 plug wired 4-wire:
 
   | J10 pin | Board signal | PT1000 wire |
   |---|---|---|
@@ -195,10 +196,11 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   The board ID (`Cryocooler-Controller`, `UCS 145-125 rev <git short hash>`) is on the back, behind the
   isolated section (top left seen from the front).
   References that have no readable spot beside their part are left off the silkscreen (they stay on the Fab
-  layer); the run prints them (8 on this board: D19, R36, R41, TP44, TP51, C57, C64, C65).
+  layer); the run prints them (9 on this board: TP10, D19, R36, R41, TP44, TP51, C57, C64, C65).
 * **Test points:** every IC has test points on its supply, ground and key signals, on the same side of the
   board as the IC and within 8 mm of the part they serve (`test_point_problems` fails the run otherwise; the
-  through-hole ground loops TP22-TP25 reach any ground and are exempt).
+  through-hole ground loops TP22-TP25, Keystone 5001 black miniature PC test points, reach any ground and are
+  exempt). The pad test points are bare copper and stay out of the BOM; the loops are in it.
 * **Flow:** `gen_pcb.py place` (placement and silkscreen only) or `gen_pcb.py route freerouting.jar`
   (placement, Freerouting on F.Cu/In2/B.Cu, pours, stitching vias, island vias); then `tools/fix_route.py`
   (KiCad's python) on the routed board. It removes duplicate GND vias and ones that crowd a foreign track, sit in

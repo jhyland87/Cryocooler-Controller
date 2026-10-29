@@ -214,11 +214,12 @@ def te_t4145035041():
         tht_pad(2, offset, -offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
         tht_pad(3, offset, offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
         tht_pad(4, -offset, offset, M12_CONTACT_DRILL, M12_CONTACT_PAD),
-        tht_pad('MP', 0, M12_FRONT_ROW, M12_CONTACT_DRILL, M12_CONTACT_PAD),
+        # shield pin and the four shell legs: the symbol's SH pin (to GND)
+        tht_pad('SH', 0, M12_FRONT_ROW, M12_CONTACT_DRILL, M12_CONTACT_PAD),
     ]
     for side in (-1, 1):
-        pads.append(tht_pad('MP', side * M12_LEG_X, 0, 2.35, 3.0))
-        pads.append(tht_pad('MP', side * M12_LEG_X, M12_FRONT_ROW, 2.80, 3.5))
+        pads.append(tht_pad('SH', side * M12_LEG_X, 0, 2.35, 3.0))
+        pads.append(tht_pad('SH', side * M12_LEG_X, M12_FRONT_ROW, 2.80, 3.5))
     half_w = M12_WIDTH / 2
     court_x = half_w + 0.25
     body = [

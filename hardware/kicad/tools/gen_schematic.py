@@ -802,7 +802,8 @@ def hcap(sh, value, column, row, fp=None):
 
 
 TP_PAD = 'TestPoint:TestPoint_Pad_D1.5mm'
-TP_LOOP = 'TestPoint:TestPoint_Loop_D2.50mm_Drill1.0mm'
+# ground test loops: Keystone 5001 (black miniature PC test point, Ø1.02 mm hole)
+TP_LOOP = 'TestPoint:TestPoint_Keystone_5000-5004_Miniature'
 
 
 def test_point(sh, label, cell, fp=TP_PAD, rot=0):
@@ -2511,13 +2512,15 @@ def build_cold_head(sh):
     sh.nc(adc, '7')
     j_rtd = conn(
         sh,
-        'Connector_Generic:Conn_01x04',
+        'Connector_Generic_Shielded:Conn_01x04_Shielded',
         'RTD PT1000 4-wire',
         170 * 1.27,
         60 * 1.27,
         {},
         M12_4P,
     )
+    # the M12 shell and its legs ground the cable shield at the board end
+    drop_ground(sh, pin_cell(j_rtd, 'SH'), 2)
     fp_pin, sp_pin, sn_pin, ref_pin = (
         pin_cell(j_rtd, n) for n in ('1', '2', '3', '4')
     )

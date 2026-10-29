@@ -63,6 +63,7 @@ DATASHEETS = {
     '5054480871': 'https://www.molex.com/content/dam/molex/molex-dot-com/'
     'products/automated/en-us/salesdrawingpdf/505/505448/5054480871_sd.pdf',
     '1769': 'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
+    '5001': 'https://www.keyelco.com/product-pdf.cfm?p=1310',
     'T4145035041-001': 'https://www.te.com/commerce/DocumentDelivery/'
     'DDEController?Action=srchrtrv&DocNm=T41450350X1001&DocType=Customer%20Drawing'
     '&DocLang=English&DocFormat=pdf&PartCntxt=T4145035041-001',
@@ -78,6 +79,7 @@ PRODUCT_PAGES = {
     'pcb-header-mc-15-2-g-381-1803277',
     '5054480871': 'https://www.molex.com/en-us/products/part-detail/5054480871',
     '1769': 'https://www.adafruit.com/product/1769',
+    '5001': 'https://www.keyelco.com/product.cfm/product_id/1310',
     'T4145035041-001': 'https://www.te.com/en/product-T4145035041-001.html',
 }
 
@@ -105,7 +107,7 @@ def links(ref, value, footprint):
     """{'Datasheet': url, 'Product': url} for one part, or {} if it has no
     orderable part (test points, parts without a chosen MPN).
     """
-    if ref.startswith(('#', 'TP')):
+    if ref.startswith('#') or 'TestPoint_Pad' in footprint:
         return {}
     name = footprint.split(':')[-1]
     _maker, mpn, *_rest = gen_bom.resolve(
