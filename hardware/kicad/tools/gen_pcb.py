@@ -1203,6 +1203,9 @@ class PcbBuilder:
         """
         first = self.preferred_side(ref, target)
         tries = [(first, False), ('B' if first == 'F' else 'F', False)]
+        if 'LED' in self.parts[ref]['footprint']:
+            # an indicator is only any use where it can be seen: the top
+            tries = [('F', False)]
         if ref.startswith('TP'):
             # a test point stays on the side of the part it tests; in the
             # last pass it takes the nearest free spot in any box, so it
@@ -3806,6 +3809,10 @@ def main():
         for pair in builder.occupancy.overlaps_report()
         if not any('_current_' in name for name in pair)
         and not any(name.startswith(('silk_box', 'silk_esp32')) for name in pair)
+        # a part's own label may sit in its courtyard margin (the silkscreen
+        # check keeps it off the pads and outline)
+        and f'silk_{pair[0]}' != pair[1]
+        and f'silk_{pair[1]}' != pair[0]
         and not (
             any(name.startswith('txt_') for name in pair)
             and not all(name.startswith('txt_') for name in pair)
