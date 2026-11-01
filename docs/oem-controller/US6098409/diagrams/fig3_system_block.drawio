@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="FIG 3">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;US6098409 FIG 3 - Temperature control system 50 (analog loops + microcontroller)&lt;/b&gt;&lt;br&gt;&lt;i&gt;US6098409 sheet 2 of 25 (PDF p3); identical in US6256999&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sref" value="SYSTEM&lt;br&gt;TEMP&lt;br&gt;REFERENCE (µP)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;78&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pid" value="PID&lt;br&gt;AMP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;34&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="200" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pd" value="PD&lt;br&gt;AMP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;32&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="340" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sw" value="LIMITER&lt;br&gt;(drawn as a&lt;br&gt;clipping box)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;68&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="475" y="345" width="90" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="mult" value="×&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;70&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="610" y="355" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sine" value="60Hz sine&lt;br&gt;(µP)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="590" y="260" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="drv" value="COOLER&lt;br&gt;DRIVER" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;direction=south;" vertex="1" parent="1">
+          <mxGeometry x="700" y="340" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cooler" value="CRYO&lt;br&gt;COOLER&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;40&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="850" y="340" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="th60" value="thermistor (60)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="730" y="440" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="therm" value="THERMISTOR&lt;br&gt;SENSOR&lt;br&gt;PROCESSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;62&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="480" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="k64" value="knock sensor (64)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="950" y="300" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="knock" value="&amp;quot;KNOCK&amp;quot;&lt;br&gt;SENSOR&lt;br&gt;PROCESSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;66&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="440" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="up66" value="µP" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="452" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ctl68" value="(unlabelled input -&lt;br&gt;limit setting)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="460" y="270" width="120" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="d16" value="▶| sensor diode&lt;br&gt;on cold finger" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="840" y="560" width="110" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tsp16" value="TEMP&lt;br&gt;SENSOR&lt;br&gt;PROCESSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;16&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="560" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="up33" value="µP" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="367" y="470" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="fcs" value="FILTER&lt;br&gt;COLD STAGE" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="990" y="190" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dcs" value="▶| sensor diode&lt;br&gt;on cold stage" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="990" y="110" width="110" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tsp20" value="TEMP&lt;br&gt;SENSOR&lt;br&gt;PROCESSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;20&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="10" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="up44" value="µP" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="140" y="120" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="mc" value="MICROCONTROLLER&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;52&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="620" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eprom" value="EPROM&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;54&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="730" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="il" value="INTERFACE&lt;br&gt;LOGIC&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;56&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="620" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="adc" value="A/D&lt;br&gt;CONVERTER&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;58&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="730" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="upil" value="µP" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="420" y="632" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="74" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sref" target="pd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" edge="1" parent="1" source="sref" target="pid">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="390" />
+              <mxPoint x="150" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="inverting" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="up44" target="pid">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="158" y="224" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="tsp20" target="up44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="158" y="40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.2;entryDx=0;entryDy=0;" edge="1" parent="1" source="pid" target="pd">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="240" />
+              <mxPoint x="300" y="356" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="inverting" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="up33" target="pd">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="330" y="488" />
+              <mxPoint x="330" y="404" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="tsp16" target="up33">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1045" y="700" />
+              <mxPoint x="385" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="pd" target="sw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="therm" target="sw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="ctl68" target="sw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="72" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="sw" target="mult">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="sine" target="mult">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="mult" target="drv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="drv" target="cooler">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="cooler" target="th60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="th60" target="therm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="cooler" target="k64">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="k64" target="knock">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1065" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="knock" target="up66">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;dashed=1;endArrow=none;" edge="1" parent="1" source="cooler" target="d16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="d16" target="tsp16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;dashed=1;endArrow=none;" edge="1" parent="1" source="cooler" target="fcs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;dashed=1;endArrow=none;" edge="1" parent="1" source="fcs" target="dcs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="dcs" target="tsp20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;" edge="1" parent="1" source="mc" target="eprom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;" edge="1" parent="1" source="mc" target="il">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;startArrow=block;startFill=1;" edge="1" parent="1" source="il" target="upil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="il" target="adc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.7;exitY=0;exitDx=0;exitDy=0;entryX=0.6;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="adc" target="il">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="µP circles mark points the microcontroller sets or reads (spec: sensor readings, references and the 60 Hz drive are under processor control). Spec col. 5: limiter 68 clamps the inner-loop output 38; together with the knock sensor 64/66 (PZT/microphone, back-EMF or current analyzer detecting OVERSTROKES) it keeps the cooler from being overdriven, e.g. at start-up; with thermistor 60/62 it limits power when the cooler gets too hot. Multiplier 70 amplitude-modulates the 60 Hz drive with limiter output 72. PD amp 32 inputs: 36 (primary), reference 74, cold finger 33. See analysis/OVERSTROKE.md." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="480" y="740" width="640" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

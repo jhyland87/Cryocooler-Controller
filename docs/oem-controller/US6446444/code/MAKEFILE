@@ -1,0 +1,9 @@
+#
+#$(CC)      = -gks -v2xx -mb -als -x1 -frJ:\GROUPS\SYSENG\NCP3G
+#$(ASM)     = -glsw -v2xx
+#$(LINK)    = -c -e _C_int0 -f 0 -heap 128 -m ncp.map -o ncp.out -stack 128 -x
+#$(OBJS)    = TASKS.OBJ
+#
+
+TASKS.OBJ       : TASKS.C
+                  dspcl TASKS.C

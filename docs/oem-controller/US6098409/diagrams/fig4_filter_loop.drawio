@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="FIG 4">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;US6098409 FIG 4 - Filter loop 100 (per-carrier heater control)&lt;/b&gt;&lt;br&gt;&lt;i&gt;US6098409 sheet 3 of 25 (PDF p4); identical in US6256999&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="tref" value="T_REF" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="200" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fl" value="FILTER&lt;br&gt;LOOP&lt;br&gt;(PID)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;100&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="190" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg" value="HTSC filter carrier package (90), mounted on heat-sink 10" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;verticalAlign=top;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="420" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="glass&lt;br&gt;pads (92)&lt;br&gt;on mounting&lt;br&gt;edge&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;94&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="80" width="70" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="glass&lt;br&gt;pads (92)&lt;br&gt;on mounting&lt;br&gt;edge&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;94&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="80" width="70" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="heat" value="THICK FILM&lt;br&gt;RESISTORS (96)&lt;br&gt;two in parallel" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="90" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gnd" value="⏚ GND" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="610" y="105" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sens" value="TEMP&lt;br&gt;SENSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;98&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="220" width="90" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="tref" target="fl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="90" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="fl" target="heat">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="230" />
+              <mxPoint x="250" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="heat" target="gnd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="sens" target="fl">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="360" />
+              <mxPoint x="170" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note" value="Spec col. 6: PID controller 100 regulates the voltage across resistors 96 to fine-tune each carrier package temperature (range on the order of 1 degree); glass pads 92 on mounting edges 94 thermally isolate the package from the heat-sink. Also usable to tune filter centre frequency. Filter loop per US5818097." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="380" width="700" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

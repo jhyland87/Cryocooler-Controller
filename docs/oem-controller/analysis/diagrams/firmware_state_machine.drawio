@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="Firmware states">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;US6446444 firmware - StateMachine() (TASKS.C)&lt;/b&gt;&lt;br&gt;&lt;i&gt;US6446444/code/TASKS.C lines 559-1066; runs 60 times/s; advances only in automatic mode (SMBF_MODE clear)&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="20" y="60" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="init" value="&lt;b&gt;SM_INIT (0)  L599&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT on, READY on&lt;br&gt;FAULT relay ON, BYPASS relay ON, LNA off&lt;br&gt;ph0 set IO, start timer&lt;br&gt;ph1 wait 15 s&lt;br&gt;ph2 → IDLE if automatic" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="70" y="10" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="idle" value="&lt;b&gt;SM_IDLE (1)  L651&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT on, READY off&lt;br&gt;FAULT relay ON, BYPASS relay ON, LNA off&lt;br&gt;ph0 ImSp=0, MotorOn(TRUE)&lt;br&gt;ph1 ImSp += POWER_INCR each second&lt;br&gt;    until ImSp ≥ ImLoLimit (~40 W)&lt;br&gt;ph2 wait for Tcsw in range" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="470" y="10" width="270" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="cool" value="&lt;b&gt;SM_COOLDOWN (2)  L714&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT toggle, READY toggle&lt;br&gt;FAULT relay ON, BYPASS relay ON, LNA off&lt;br&gt;ph0 reset PID state&lt;br&gt;ph1 m,b of cooldown line from Tamb&lt;br&gt;    (90 W, 48 V cooler)&lt;br&gt;ph2 ramp ImSp += 0x456/pass (~3App/min)&lt;br&gt;    while Tcsn&lt;TcSp and ImSp ≤ CoolDownSp&lt;br&gt;ph3 ImSp = CoolDownSp() while Tcsn&lt;TcSp&lt;br&gt;    and CoolDownSp &lt; PidSp&lt;br&gt;ph4 ImSp = PidSp(); → CONTROL if auto" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="960" y="10" width="290" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ctl" value="&lt;b&gt;SM_CONTROL (3)  L842&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT off, READY on&lt;br&gt;FAULT relay OFF, BYPASS relay OFF, LNA ON&lt;br&gt;ImSp = PidSp() every pass&lt;br&gt;ph1 wait 5 min, ph2 enable Tcsn median filter&lt;br&gt;ph3 |TcSp-Tcsn| &gt; 200 → TCSP error,&lt;br&gt;    RELAY_OFF(BYPASS); else RELAY_ON(BYPASS)*&lt;br&gt;Ilna outside [Lo,Hi] → ILNA flag only" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="960" y="320" width="290" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="pd" value="&lt;b&gt;SM_POWERDOWN (4)  L933&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT on, READY off&lt;br&gt;FAULT relay ON, BYPASS relay ON, LNA off&lt;br&gt;ph1 ImSp -= POWER_INCR every 1/16 s&lt;br&gt;at 0: MotorOn(FALSE)&lt;br&gt;ph2 → FINAL (any mode)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="470" y="320" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="fin" value="&lt;b&gt;SM_FINAL (5)  L993&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;LEDs: FAULT on, READY off&lt;br&gt;FAULT relay ON, BYPASS relay ON, LNA off&lt;br&gt;&quot;off state, either by choice&lt;br&gt;(manual mode) or system error&quot;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fillColor=#e6e6e6;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="70" y="320" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="start" target="init">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="15 s elapsed&lt;br&gt;AND automatic" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="init" target="idle">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="Tcsw in range&lt;br&gt;(TcswHiTemp&amp;lt;Tcsw&amp;lt;TcswLoTemp)&lt;br&gt;AND automatic; clears TCSW error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="idle" target="cool">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="Tcsn reached TcSp, or&lt;br&gt;CoolDownSp ≥ PidSp&lt;br&gt;(→ ph4) AND automatic" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="cool" target="ctl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="Tcsw out of range&lt;br&gt;→ set TCSW error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.9;exitDx=0;exitDy=0;entryX=1;entryY=0.9;entryDx=0;entryDy=0;" edge="1" parent="1" source="cool" target="idle">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="199" />
+              <mxPoint x="850" y="145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="Tcsw out of range&lt;br&gt;→ set TCSW error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.2;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctl" target="idle">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="354" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="ImSp reached 0,&lt;br&gt;motor off" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="pd" target="fin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="TREJ error AND Trej &amp;gt; TrejLoTemp, or&lt;br&gt;VIN error AND VinLo &amp;lt; Vin &amp;lt; VinHi&lt;br&gt;→ clear flag" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="fin" target="init">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="any" value="ANY STATE&lt;br&gt;(checked first, every pass, L565-575)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="470" y="560" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="Trej &amp;lt; TrejHiTemp (motor too hot;&lt;br&gt;thermocouple has neg. tempco) → TREJ error&lt;br&gt;OR Vin outside (VinLo, VinHi) → VIN error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="any" target="pd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="manual" value="&lt;b&gt;Manual mode&lt;/b&gt; (serial S6 = 1): states only advance when automatic. S8 sets SmCurrentState.Phase directly (0-5), S7 sets ImSp, S9/S10/S11 set LNA, FAULT and BYPASS relay bits. An unknown state → SM_POWERDOWN (L1048)." style="shape=note;whiteSpace=wrap;html=1;size=12;align=left;verticalAlign=top;spacingLeft=6;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="960" y="540" width="380" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="relay" value="* Relay macros (L128-129): RELAY_ON(x) CLEARS the status bit, RELAY_OFF(x) SETS it; OperationMonitor copies the bits to port D every 500 ms (L1280). So in SM_CONTROL phase 3 a small tracking error re-issues the same call every bypass state uses. Read literally, that looks inverted; check it against the hardware polarity. Sensor counts rise as temperature falls (TCSW_300K=230, TCSW_70K=965), so &amp;quot;Tcsn &amp;lt; TcSp&amp;quot; means warmer than the set point." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="70" y="650" width="1250" height="55" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
