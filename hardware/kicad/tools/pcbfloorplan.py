@@ -10,11 +10,11 @@ from pcbplace import Rect
 
 # parts must sit this far inside a region edge; the silk line sits LINE_INSET
 # inside it, leaving room for the label that straddles the line
-PART_INSET = 0.9
-LINE_INSET = 0.35
+PART_INSET = 0.5
+LINE_INSET = 0.25
 # regions of different modules stay at least this far apart so the two silk
 # lines are not read as one
-MIN_REGION_GAP = 1.8
+MIN_REGION_GAP = 0.8
 LINE_WIDTH = 0.15
 LABEL_SIZE = 1.0
 LABEL_CHAR_WIDTH = 0.9
@@ -40,31 +40,60 @@ MODULE_OF_SHEET = {
     'System Current': 'POWER INPUT & RAILS',
     'Power Input': 'POWER INPUT & RAILS',
     'Power Button': 'POWER INPUT & RAILS',
-    'Power Good': 'RAILS ±15V',
+    'Power Good': 'POWER GOOD',
+    'Display': 'DISPLAY',
 }
 
-# module -> rectangles (overlap them by > 2 * LINE_INSET to build L shapes)
+# The rev 2 board (UCS 125-87, 100 x 62 mm) uses both sides. Each module
+# has one region set per side, keyed 'NAME@top' / 'NAME@bottom'; the top
+# carries connectors, tall parts, LEDs and switches, the bottom the
+# low-profile ICs with their passives and test points.
+SIDE_SEPARATOR = '@'
+
+
+def module_key(module, side):
+    """Region key of a module on one board side."""
+    return f'{module}{SIDE_SEPARATOR}{side}'
+
+
+def split_key(key):
+    """(module name, side) of a region key; plain names are top."""
+    name, _, side = key.partition(SIDE_SEPARATOR)
+    return name, side or 'top'
+
+# region key -> rectangles (overlap them by > 2 * LINE_INSET to build L
+# shapes). Board 100 x 62; corner squares (7.4 mm) and the antenna notch
+# (x 60-80, y 0-6.6) stay free of parts through keep-outs in gen_pcb.py.
 MODULE_REGIONS = {
-    'AMP CONTROL': [Rect(-3, -3, 15.1, 35.5), Rect(13.5, 17.5, 27.2, 35.5)],
-    'SIGNAL GENERATOR': [Rect(17, -3, 68, 15.5), Rect(29, 13, 68, 27.5)],
-    'INDICATORS': [Rect(70, -3, 84, 28)],
-    'MCU & USB': [Rect(85.8, -3, 133, 39.4)],
-    'AMP CURRENT (ISOLATED)': [Rect(-3, 37.5, 51.5, 68.5)],
-    'RAILS ±15V': [Rect(53.5, 30, 84, 74.7)],
-    'COMPRESSOR RELAY': [Rect(85.8, 41.3, 104.4, 61.3)],
-    'IMU CABLE': [Rect(108.4, 41.2, 125, 69.3), Rect(106.2, 41.2, 110, 61.3)],
-    'POWER INPUT & RAILS': [
-        Rect(-3, 72.25, 51.5, 113),
-        Rect(45, 76.5, 66, 97.5),
-        Rect(60, 76.5, 84.5, 91),
-        Rect(35, 94.5, 77.5, 113),
+    # ─── top side ───
+    'IMU CABLE@top': [Rect(-3, 9.3, 19.7, 28.2)],
+    'COLD HEAD TEMP@top': [Rect(6.6, -3, 32.2, 8.5)],
+    'DISPLAY@top': [Rect(33.0, -3, 47.8, 8.7)],
+    'MCU & USB@top': [Rect(48.6, -3, 80.3, 26.8)],
+    'INDICATORS@top': [Rect(81.1, 7.6, 103, 22.0)],
+    'COMPRESSOR RELAY@top': [Rect(88.4, 22.8, 103, 37.2)],
+    'WATER COOLING@top': [Rect(-3, 29.0, 19.7, 65)],
+    'POWER INPUT & RAILS@top': [
+        Rect(20.5, 50.2, 33.4, 65),
+        Rect(20.5, 9.6, 47.8, 45.7),
     ],
-    'COLD HEAD TEMP': [Rect(107.9, 71.1, 133, 96.0)],
-    'WATER COOLING': [
-        Rect(86.3, 63.2, 106.0, 113),
-        Rect(79.5, 92.8, 106.0, 113),
-        Rect(100.0, 97.8, 133, 113),
-    ],
+    'AMP CONTROL@top': [Rect(34.2, 46.5, 52.9, 65)],
+    'RAILS ±15V@top': [Rect(48.6, 27.6, 87.6, 37.2)],
+    'AMP CURRENT (ISOLATED)@top': [Rect(53.7, 38.0, 92.4, 65)],
+    # ─── bottom side ───
+    'COLD HEAD TEMP@bottom': [Rect(-3, -3, 13.4, 15.0)],
+    'POWER GOOD@bottom': [Rect(-3, 15.8, 9.4, 30.0), Rect(-3, 23.0, 17.3, 30.0)],
+    'IMU CABLE@bottom': [Rect(14.2, 8.0, 17.3, 22.2), Rect(10.2, 15.8, 17.3, 22.2)],
+    'WATER COOLING@bottom': [Rect(-3, 30.8, 21.0, 65), Rect(18.1, 23.3, 21.0, 31.4)],
+    'SIGNAL GENERATOR@bottom': [Rect(18.1, -3, 47.0, 22.5)],
+    'DISPLAY@bottom': [Rect(47.8, 9.8, 59.6, 27.2), Rect(55.0, 23.8, 80.3, 27.2)],
+    'MCU & USB@bottom': [Rect(60.4, 6.6, 80.3, 23.0)],
+    'INDICATORS@bottom': [Rect(81.1, -3, 103, 16.0)],
+    'COMPRESSOR RELAY@bottom': [Rect(81.1, 16.8, 103, 27.2)],
+    'POWER INPUT & RAILS@bottom': [Rect(21.8, 23.3, 47.0, 65)],
+    'AMP CONTROL@bottom': [Rect(47.8, 28.0, 59.4, 40.4)],
+    'RAILS ±15V@bottom': [Rect(60.2, 28.0, 103, 40.4)],
+    'AMP CURRENT (ISOLATED)@bottom': [Rect(47.8, 41.2, 103, 65)],
 }
 
 
@@ -74,12 +103,7 @@ def module_of_sheet(sheet):
 
 
 # tighter part inset for the boxes that are very full
-MODULE_PART_INSET = {
-    'COLD HEAD TEMP': 0.7,
-    'WATER COOLING': 0.7,
-    'RAILS ±15V': 0.7,
-    'IMU CABLE': 0.7,
-}
+MODULE_PART_INSET = {}
 
 
 def region_contains(module, rect):
@@ -113,10 +137,11 @@ def bump_ok(module, rect):
     coming within 1 mm (region to region) of another module's box.
     """
     bump = bump_rect(rect)
+    side = split_key(module)[1]
     return all(
         rect_gap(bump, region) >= 1.0
         for name, regions in MODULE_REGIONS.items()
-        if name != module
+        if name != module and split_key(name)[1] == side
         for region in regions
     )
 
@@ -145,6 +170,8 @@ def check_regions(board_rect):
     names = list(MODULE_REGIONS)
     for index, first in enumerate(names):
         for second in names[index + 1 :]:
+            if split_key(first)[1] != split_key(second)[1]:
+                continue  # the two sides do not see each other
             for rect_a in MODULE_REGIONS[first]:
                 for rect_b in MODULE_REGIONS[second]:
                     gap = rect_gap(rect_a, rect_b)
@@ -188,7 +215,8 @@ LABEL_ALTERNATIVES = {'AMP CONTROL': ['AMP CONTROL', 'AMP CTRL']}
 
 def label_texts(module):
     """Label texts to try for a module, longest first."""
-    return LABEL_ALTERNATIVES.get(module, [module])
+    name = split_key(module)[0]
+    return LABEL_ALTERNATIVES.get(name, [name])
 
 
 def label_width(text):

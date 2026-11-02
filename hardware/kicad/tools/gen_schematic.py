@@ -870,7 +870,7 @@ def decoupling_block(sh, title, column, row, supply, values, ground='GND'):
     rail_symbol(sh, supply, (column, row))
     rail_symbol(sh, ground, (column, row + 6))
     for x, value in zip(caps, values):
-        vcap(sh, value, x, row, fp=C0805 if value in ('1uF', '10uF') else None)
+        vcap(sh, value, x, row, fp=C0805 if value == '10uF' else None)
     return max(caps[-1] - column, round(len(title) * 1.4)) + 6
 
 
@@ -2107,15 +2107,11 @@ DEBUG_SIGNALS = (
         'BRIDGE_RESET',
         'SDA',
         'SCL',
-        'IMU_INT1',
-        'IMU_INT2',
         'FAN_ALERT',
         'PWR_KILL',
         'COMP_RELAY_EN',
         'AMP_REM_EN',
         'PG_15V',
-        'ESP_EN',
-        'ESP_BOOT',
     )),
     ('Analog and sensors', (
         'DDS_SINE',

@@ -55,10 +55,12 @@ class Rect:
         )
 
 
-def placed_rect(local_rect, center_x, center_y, angle_degrees):
-    """Bounding rect of a footprint-local rect after rotation/translation."""
+def placed_rect(local_rect, center_x, center_y, angle_degrees, bottom=False):
+    """Bounding rect of a footprint-local rect after rotation/translation;
+    a bottom-side part is mirrored in y first (KiCad's left-right flip).
+    """
     corners = [
-        rotate_point(x, y, angle_degrees)
+        rotate_point(x, -y if bottom else y, angle_degrees)
         for x in (local_rect.min_x, local_rect.max_x)
         for y in (local_rect.min_y, local_rect.max_y)
     ]
@@ -71,16 +73,38 @@ def placed_rect(local_rect, center_x, center_y, angle_degrees):
 
 
 class Occupancy:
-    """Tracks placed rectangles and keep-out areas inside the board outline."""
+    """Tracks placed rectangles and keep-out areas inside the board outline.
+
+    Every rectangle belongs to a side: 'top', 'bottom' or 'both' (through-hole
+    parts, holes). New rectangles take the current `side`; collision checks
+    only see rectangles on the same side or on both.
+    """
 
     def __init__(self, board_rect, edge_margin, gap):
         self.board_rect = board_rect.inflated(-edge_margin)
         self.gap = gap
         self.rects = {}
+        self.sides = {}
         self.keepouts = []
+        self.side = 'top'
 
-    def add(self, name, rect):
+    def add(self, name, rect, side=None):
         self.rects[name] = rect
+        self.sides[name] = side or self.side
+
+    def shares_side(self, name, side=None):
+        """True if the named rectangle blocks parts on `side`."""
+        side = side or self.side
+        other = self.sides.get(name, 'both')
+        return 'both' in (side, other) or other == side
+
+    def on_side(self, side=None):
+        """(name, rect) pairs that block parts on `side`."""
+        return [
+            (name, rect)
+            for name, rect in self.rects.items()
+            if self.shares_side(name, side)
+        ]
 
     def is_free(self, rect, ignore=()):
         if not rect.inside(self.board_rect):
@@ -90,7 +114,7 @@ class Occupancy:
         padded = rect.inflated(self.gap / 2)
         return not any(
             padded.overlaps(other.inflated(self.gap / 2))
-            for name, other in self.rects.items()
+            for name, other in self.on_side()
             if name not in ignore
         )
 
@@ -99,6 +123,8 @@ class Occupancy:
         pairs = []
         for index, first in enumerate(names):
             for second in names[index + 1 :]:
+                if not self.shares_side(first, self.sides.get(second, 'both')):
+                    continue
                 if self.rects[first].overlaps(self.rects[second]):
                     pairs.append((first, second))
         return pairs

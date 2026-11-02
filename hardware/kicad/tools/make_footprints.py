@@ -154,19 +154,21 @@ def rjsse5380():
         npth(-hole_x, 0, 2.69),
         npth(hole_x, 0, 2.69),
     ]
-    # body: 16.51 wide, 15.75 deep, front face 4.05 mm in front of the holes
+    # body: 16.51 wide, 15.75 deep, front face 4.05 mm in front of the holes;
+    # the signal tails reach 14.31 mm back, so the courtyard covers them too
     front, back = 4.05, 4.05 - 15.75
+    tails = -14.31
     outline = ''.join(
         line(*points, layer, width)
-        for layer, width, grow in (
-            ('F.Fab', 0.1, 0.0),
-            ('F.CrtYd', 0.05, 0.5),
+        for layer, width, grow, rear in (
+            ('F.Fab', 0.1, 0.0, back),
+            ('F.CrtYd', 0.05, 0.5, tails),
         )
         for points in (
-            (-8.255 - grow, back - grow, 8.255 + grow, back - grow),
-            (8.255 + grow, back - grow, 8.255 + grow, front + grow),
+            (-8.255 - grow, rear - grow, 8.255 + grow, rear - grow),
+            (8.255 + grow, rear - grow, 8.255 + grow, front + grow),
             (8.255 + grow, front + grow, -8.255 - grow, front + grow),
-            (-8.255 - grow, front + grow, -8.255 - grow, back - grow),
+            (-8.255 - grow, front + grow, -8.255 - grow, rear - grow),
         )
     )
     silk = ''.join(
