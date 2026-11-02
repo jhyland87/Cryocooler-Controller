@@ -54,6 +54,30 @@ SAMSUNG = 'Samsung Electro-Mechanics'
 CAPS = {
     ('100nF', 'C_0603_1608Metric'): (
         'CL10B104KB8NNNC', 'CAP CER 0.1UF 50V X7R 0603', ''),
+    ('100nF', 'C_0402_1005Metric'): (
+        'CL05B104KB54PNC', 'CAP CER 0.1UF 50V X7R 0402', ''),
+    ('10nF', 'C_0402_1005Metric'): (
+        'CL05B103KB5NNNC', 'CAP CER 10000PF 50V X7R 0402', ''),
+    ('4.7nF', 'C_0402_1005Metric'): (
+        'CL05B472KB5NNNC', 'CAP CER 4700PF 50V X7R 0402',
+        'LT8582 VC1 compensation'),
+    ('2.2nF', 'C_0402_1005Metric'): (
+        'CL05B222KB5NNNC', 'CAP CER 2200PF 50V X7R 0402',
+        'LT8582 VC2 compensation'),
+    ('1nF/C0G', 'C_0402_1005Metric'): (
+        'CL05C102JB5NNNC', 'CAP CER 1000PF 50V C0G 0402',
+        'across R6 (22k) in the sine gain stage'),
+    ('47pF', 'C_0402_1005Metric'): (
+        'CL05C470JB5NNNC', 'CAP CER 47PF 50V C0G 0402',
+        'LT8582 VC high-frequency poles'),
+    ('1uF', 'C_0603_1608Metric'): (
+        'CL10A105KB8NNNC', 'CAP CER 1UF 50V X5R 0603', ''),
+    ('4.7uF/25V', 'C_0805_2012Metric'): (
+        'CL21A475KAQNNNE', 'CAP CER 4.7UF 25V X5R 0805',
+        'LT8582 VIN1 / VIN2 input caps'),
+    ('2.2uF/50V', 'C_1206_3216Metric'): (
+        'CL31B225KBHNNNE', 'CAP CER 2.2UF 50V X7R 1206',
+        'LT8582 inverting coupling cap C1 (sees VIN + |VOUT| = 21.5 V)'),
     ('100nF', 'C_0805_2012Metric'): (
         'CL21B104KBCNNNC', 'CAP CER 0.1UF 50V X7R 0805', ''),
     ('10nF', 'C_0603_1608Metric'): (
@@ -179,20 +203,12 @@ PARTS = {
     ('', 'Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'): (
         'Molex', '0022232031', 'CONN HEADER KK 254 VERT 3POS', 'suggested',
         'J5 fan tach; housing red'),
-    ('', 'PinHeader_1x02_P1.27mm_Vertical'): (
-        '', '', 'CONN HEADER VERT 2POS 1.27MM + 1.27 MM SHORTING JUMPER',
-        'none',
-        'supply disable jumpers JP1-JP5; choose a 1.27 mm 2-pin header and '
-        'shunt; the branches are logic supplies of a few hundred mA'),
     ('', 'JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'): (
         'JST', 'B2B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 2POS 2.5MM',
         'suggested', 'NTC, panel button, compressor relay; housing white'),
     ('', 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical'): (
         'JST', 'B4B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 4POS 2.5MM',
         'suggested', 'J10 cold head temp; housing white'),
-    ('', 'JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical'): (
-        'JST', 'B8B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 8POS 2.5MM',
-        'suggested', 'J14: cable to the off-board Adafruit LSM6DSOX module; housing white'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
@@ -208,9 +224,29 @@ PARTS = {
     ('AD9833BRMZ', 'MSOP-10_3x3mm_P0.5mm'): (
         'Analog Devices', 'AD9833BRMZ', 'IC DDS WAVEFORM GEN 10MSOP', 'design',
         ''),
-    ('ADP5071AREZ', 'ETSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3x4.2mm'): (
-        'Analog Devices', 'ADP5071AREZ', 'IC REG DC DC +/- 16.5V 20TSSOP-EP',
-        'design', ''),
+    ('LT8582EDKD#PBF', 'DFN-24-1EP_4x7mm_P0.5mm_EP2.64x6.44mm'): (
+        'Analog Devices', 'LT8582EDKD#PBF',
+        'IC REG BOOST/INVERTING DUAL 3A 24DFN', 'design',
+        '#TRPBF is the reel; exposed pad 25 is GND'),
+    ('XAL6060-472MEB', 'L_Coilcraft_XAL6060-XXX'): (
+        'Coilcraft', 'XAL6060-472MEB', 'FIXED IND 4.7UH SHIELDED SMD',
+        'design', 'LT8582 boost inductor (datasheet p.30 part)'),
+    ('MSD7342-103MLC', 'L_Coilcraft_MSD7342'): (
+        'Coilcraft', 'MSD7342-103MLC', 'COUPLED INDUCTOR 10UH 1:1 SMD',
+        'design', 'LT8582 inverting channel: 10 uH needed at duty ~0.80 '
+        '(datasheet L_MIN ~5.6 uH)'),
+    ('TSC2046EIPW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
+        'Texas Instruments', 'TSC2046EIPWR',
+        'IC TOUCH SCREEN CTRLR 4-WIRE 16TSSOP', 'design', ''),
+    ('FH12-14S-0.5SH(55)',
+     'Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal'): (
+        'Hirose', 'FH12-14S-0.5SH(55)', 'CONN FFC BOTTOM 14POS 0.50MM R/A',
+        'design', 'display FPC (Phoenix datasheet 109921); check the FFC '
+        'contact side so pin 1 lands on pin 1'),
+    ('RJSSE-5380', 'RJ45_Amphenol_RJSSE-5380_Horizontal'): (
+        'Amphenol', 'RJSSE-5380', 'CONN MOD JACK 8P8C R/A SHIELDED SMD',
+        'design', 'J14 IMU cable; plain jack, no magnetics (drawing '
+        'P-RJSSE-5380 rev E)'),
     ('LT3097ADJC', 'DFN-22-2EP_6x3mm_P0.5mm_LT3097'): (
         'Analog Devices', 'LT3097ADJC#PBF',
         'IC REG LINEAR POS/NEG ADJ 500MA 22DFN', 'suggested',
@@ -431,12 +467,23 @@ def sort_key(ref):
 
 def classify(value, footprint):
     """Returns (manufacturer, mpn, description, basis, note) for one group."""
+    if value.startswith('EN '):
+        return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
+                'supply disable jumpers JP1-JP5 ("true zero ohm", 0603 '
+                'resistor land pattern); desolder to cut a section')
     if footprint.startswith('R_'):
         if value == '15m':
             return PARTS[('15m', footprint)]
-        series = {R1206: 'RC1206FR-07', R0402: 'RC0402FR-07'}.get(
-            footprint, 'RC0603FR-07'
-        )
+        series = {
+            R1206: 'RC1206FR-07',
+            R0402: 'RC0402FR-07',
+            'R_0805_2012Metric': 'RC0805FR-07',
+        }.get(footprint, 'RC0603FR-07')
+        watts = {
+            R1206: '1/4W',
+            R0402: '1/16W',
+            'R_0805_2012Metric': '1/8W',
+        }.get(footprint, '1/10W')
         note = ''
         if value == '3.9k':
             note = ('Rref for the ADS1220: use 0.1 % 25 ppm (for example Yageo '
@@ -447,7 +494,7 @@ def classify(value, footprint):
         return (
             'Yageo',
             f'{series}{resistor_code(value)}L',
-            f'RES {value.upper()} OHM 1% 1/10W {footprint[2:6]}',
+            f'RES {value.upper()} OHM 1% {watts} {footprint[2:6]}',
             'suggested',
             note,
         )
@@ -456,9 +503,14 @@ def classify(value, footprint):
         return (CAP_MAKERS.get(mpn, SAMSUNG) if mpn else '', mpn, description,
                 'suggested' if mpn else 'none', note)
     if footprint == 'LED_0402_1005Metric':
+        if value == 'red':
+            return ('', '', 'LED RED CLEAR 0402 SMD', 'none',
+                    'fault indicators at ~1 mA: pick an AlInGaP red 0402 '
+                    '(Vf ~1.9 V)')
         return ('Kingbright', 'APG1005SGC-F01', 'LED GREEN CLEAR 0402 SMD',
-                'suggested', 'power-good indicators; verify the 0402 green '
-                'LED part number before ordering')
+                'suggested', 'indicators sized for ~1 mA (1.5k on 3.3 V, '
+                '3.3k on 5 V, 13k on 15 V); verify the part number and pick '
+                'an AlInGaP green (Vf ~1.9 V) before ordering')
     if footprint.startswith('LED_0603'):
         color = re.search(r'\((\w+)\)', value)
         color = color.group(1) if color else 'red'
@@ -485,10 +537,10 @@ def main():
     parts = [p for p in load_netlist() if not p[0].startswith('TP')]
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
-        if footprint.startswith('LED_0603') and 18 <= int(ref[1:]) <= 22:
-            value = 'SUPPLY ON (green)'  # the switched-rail indicators
+        if footprint == 'LED_0402_1005Metric':
+            value = 'red' if '(red)' in value or 'FAULT' in value else 'green'
         if footprint.startswith(
-            ('TerminalBlock', 'Molex_KK', 'JST_XH', 'PinHeader')
+            ('TerminalBlock', 'Molex_KK', 'JST_XH')
         ):
             value = ''  # connectors group by footprint, not by label
         if footprint.startswith('SW_SPST'):

@@ -25,13 +25,14 @@ PROJECT = 'cryocooler'
 R0603 = 'Resistor_SMD:R_0603_1608Metric'
 R1206 = 'Resistor_SMD:R_1206_3216Metric'
 R2512 = 'Resistor_SMD:R_2512_6332Metric'
+C0402 = 'Capacitor_SMD:C_0402_1005Metric'
 C0603 = 'Capacitor_SMD:C_0603_1608Metric'
+SMALL_CAPS = ('100nF', '10nF', '1nF', '1nF/C0G', '4.7nF', '2.2nF', '47pF')
 C0805 = 'Capacitor_SMD:C_0805_2012Metric'
 C1206 = 'Capacitor_SMD:C_1206_3216Metric'
 C1210 = 'Capacitor_SMD:C_1210_3225Metric'
 CP_ELEC = 'Capacitor_SMD:CP_Elec_8x10'
 CP_TANT = 'Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B'
-LED0603 = 'LED_SMD:LED_0603_1608Metric'
 R0402 = 'Resistor_SMD:R_0402_1005Metric'
 R0805 = 'Resistor_SMD:R_0805_2012Metric'
 LED0402 = 'LED_SMD:LED_0402_1005Metric'
@@ -77,7 +78,7 @@ def grid(value):
 # ── component helpers ────────────────────────────────────────────────────
 # Discretes are auto-placed beside the pin named by near=(part, pin);
 # ICs/connectors are fixed.
-def res(sh, value, a, b, near=None, fp=R0603, pose=None, **props):
+def res(sh, value, a, b, near=None, fp=R0402, pose=None, **props):
     px, py, prot = pose or (0, 0, 0)
     part = sh.add(
         'Device:R_US',
@@ -97,10 +98,12 @@ def res(sh, value, a, b, near=None, fp=R0603, pose=None, **props):
 
 
 def cap(sh, value, a, b='GND', near=None, fp=None, pose=None):
+    # rev 2 packs small values in 0402 (50 V X7R / C0G), 1 uF in 0603
     fp = fp or (
-        C0603
-        if value in ('100nF', '10nF', '1nF')
-        else C0805 if value in ('1uF', '2.2uF', '4.7uF', '10uF') else C1206
+        C0402
+        if value in SMALL_CAPS
+        else C0603 if value == '1uF'
+        else C0805 if value in ('2.2uF', '4.7uF', '10uF') else C1206
     )
     px, py, prot = pose or (0, 0, 0)
     part = sh.add(
@@ -137,7 +140,7 @@ def cap_pol(sh, value, a, b='GND', near=None, fp=CP_TANT, pose=None):
     return part
 
 
-def led(sh, value, anode, cathode, near=None, fp=LED0603):
+def led(sh, value, anode, cathode, near=None, fp=LED0402):
     part = sh.add(
         'Device:LED', next_ref('D'), value, 0, 0, footprint=fp, near=near
     )
@@ -643,8 +646,8 @@ def build_power_button(sh):
     rail_symbol(sh, 'VIN', (va[0] - 2, va[1]))
     sh.nc(cl, '3')
     wire(sh, vb, (60, vb[1]), (90, vb[1]))
-    vres(sh, '330', 60, vb[1])
-    vres(sh, '330', 90, vb[1])
+    vres(sh, '330', 60, vb[1], fp=R0603)
+    vres(sh, '330', 90, vb[1], fp=R0603)
     led = aux(
         sh,
         'Device:LED_Dual_Bidirectional',
@@ -771,7 +774,7 @@ def spur(sh, part, pin, length=2):
     return end
 
 
-def vres(sh, value, column, top, fp=R0603):
+def vres(sh, value, column, top, fp=R0402):
     """Vertical resistor: pin 1 on (column, top), pin 2 six cells lower."""
     return res(sh, value, '', '', pose=at(column, top + 3), fp=fp)
 
@@ -783,7 +786,7 @@ def vcap(sh, value, column, top, fp=None):
     return cap(sh, value, '', '', pose=at(column, top + 3), fp=fp)
 
 
-def hres(sh, value, column, row, fp=R0603):
+def hres(sh, value, column, row, fp=R0402):
     """Horizontal resistor centred on (column, row): pin 1 left, pin 2 right
     (three cells each side).
     """
@@ -794,7 +797,7 @@ def hcap(sh, value, column, row, fp=None):
     return cap(sh, value, '', '', pose=at(column, row, 90), fp=fp)
 
 
-TP_PAD = 'TestPoint:TestPoint_Pad_D1.5mm'
+TP_PAD = 'TestPoint:TestPoint_Pad_D1.0mm'
 TP_LOOP = 'TestPoint:TestPoint_Loop_D2.50mm_Drill1.0mm'
 
 
@@ -1317,7 +1320,7 @@ def power_good_led(sh, node_net, text, column, row):
     node = (drain[0], drain[1] - 4)
     wire(sh, drain, node)
     with high_refs('R'):
-        vres(sh, '1k', node[0], node[1] - 18, fp=R0402)
+        vres(sh, '1.5k', node[0], node[1] - 18, fp=R0402)
     rail_symbol(sh, '+3V3', (node[0], node[1] - 18))
     with high_refs('D'):
         indicator = sh.add(
@@ -1418,8 +1421,11 @@ def build_signal_gen(sh):
     vcap(sh, '100nF', 52, 39)
     drop_ground(sh, (52, 45), 0)
     rail_flag(sh, (cap_pin[0], 48))
-    # AC coupling into the buffer
+    # AC coupling into the buffer; the raw DDS output is named for its
+    # debug test point
     wire(sh, pin_cell(dds, '10'), (74, 62))
+    wire(sh, (74, 62), (74, 67))
+    net_label(sh, 'DDS_SINE', (74, 67), 270, is_global=True)
     hcap(sh, '1uF', 77, 62)
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
@@ -2017,12 +2023,12 @@ def build_system_current(sh):
         alert[1] * 1.27,
         rot=0,
         auto=False,
-        footprint=LED0603,
+        footprint=LED0402,
     )
     k_cell, a_cell = pin_cell(d_alert, '1'), pin_cell(d_alert, '2')
     wire(sh, (alert[0] + 1, alert[1]), k_cell)
     wire(sh, a_cell, (a_cell[0] + 1, a_cell[1]))
-    hres(sh, '1k', a_cell[0] + 4, a_cell[1])
+    hres(sh, '1.5k', a_cell[0] + 4, a_cell[1])
     rail_symbol(sh, '+3V3', (a_cell[0] + 7, a_cell[1]))
     # supply and ground
     vs = pin_cell(ina, '6')
@@ -2039,7 +2045,7 @@ def build_system_current(sh):
     sh.note('3V3 POWER LED', 40 * 1.27, 92 * 1.27, 1.8)
     wire(sh, (40, 100), (44, 100))
     rail_symbol(sh, '+3V3', (40, 100))
-    hres(sh, '470', 47, 100)
+    hres(sh, '1.5k', 47, 100)
     wire(sh, (50, 100), (52, 100))
     d_power = sh.add(
         'Device:LED',
@@ -2049,7 +2055,7 @@ def build_system_current(sh):
         100 * 1.27,
         rot=180,
         auto=False,
-        footprint=LED0603,
+        footprint=LED0402,
     )
     drop_ground(sh, pin_cell(d_power, '1'), 2)
 
@@ -2096,6 +2102,7 @@ DEBUG_SIGNALS = (
         'ESP_BOOT',
     )),
     ('Analog and sensors', (
+        'DDS_SINE',
         'SIG_SINE',
         'NTC_ADC',
         'FLOW_TACH',
@@ -2105,10 +2112,10 @@ DEBUG_SIGNALS = (
 # (rail, resistor, LED description[, return net]): LEDs on rails that have no
 # indicator yet; the isolated rail returns to ISO_GND, never to GND
 DEBUG_RAIL_LEDS = (
-    ('+5V', '1k', '5V (yellow)'),
-    ('+15V', '4.7k', '+15V (white)'),
-    ('-15V', '4.7k', '-15V (white)'),
-    ('ISO_3V3', '1k', 'ISO 3V3 (green)', 'ISO_GND'),
+    ('+5V', '3.3k', '5V (green)'),
+    ('+15V', '13k', '+15V (green)'),
+    ('-15V', '13k', '-15V (green)'),
+    ('ISO_3V3', '1.5k', 'ISO 3V3 (green)', 'ISO_GND'),
 )
 
 
@@ -2150,7 +2157,7 @@ def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
         row * 1.27,
         rot=180,
         auto=False,
-        footprint=LED0603,
+        footprint=LED0402,
     )
 
 
@@ -2357,12 +2364,12 @@ def build_cooling(sh):
         (alert[1] + 6) * 1.27,
         rot=180,
         auto=False,
-        footprint=LED0603,
+        footprint=LED0402,
     )
     k_cell, a_cell = pin_cell(d_fault, '1'), pin_cell(d_fault, '2')
     wire(sh, (alert[0] - 1, alert[1] + 6), k_cell)
     wire(sh, a_cell, (a_cell[0] - 1, a_cell[1]))
-    hres(sh, '1k', a_cell[0] - 4, a_cell[1])
+    hres(sh, '1.5k', a_cell[0] - 4, a_cell[1])
     rail_symbol(sh, '+3V3_COOL', (a_cell[0] - 7, a_cell[1]))
     wire(sh, (alert[0], alert[1] + 6), (alert[0], alert[1] + 10))
     net_label(sh, 'FAN_ALERT', (alert[0], alert[1] + 10), 180, is_global=True)
@@ -2595,56 +2602,71 @@ def build_cold_head(sh):
 
 
 def build_imu(sh):
-    """Hand-laid: J14 (cable to the off-board Adafruit LSM6DSOX module) on the
-    right, +3V3 / ground pins tied off beside it, each signal fanned out to a
-    100 R series resistor and a global label on the left. J14 pins 1-8 follow
-    the module's pads from top to bottom: Vin, GND, SCL, SDA, DO, CS, INT1,
-    INT2 (its 3Vo pad is not wired).
+    """Hand-laid: J14 (shielded SMT RJ45 cabled to the off-board Adafruit
+    LSM6DSOX module) on the right, +3V3 / ground pins tied off beside it, each
+    signal fanned out to a 100 R series resistor and a global label on the
+    left. Pins follow the T568B pairs: 1-2 SCK/GND, 3-6 MOSI/MISO,
+    4-5 +3V3/CS, 7-8 INT1/INT2.
     """
     sh.handwired = True
     sh.note(
         'LSM6DSOX is the off-board Adafruit module (product 4438) on the '
-        'cooler, cabled to J14 over the main SPI bus (CS GPIO1, INT1 GPIO2 '
-        'single-tap, INT2 GPIO39 wake-up).',
+        'cooler, cabled to J14 (RJ45, straight Cat5e cable) over the main SPI '
+        'bus (CS GPIO1, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up).',
         20,
         15,
     )
     sh.note(
-        'Module Vin = +3V3 keeps its logic at 3.3 V (its 3Vo pad stays open). 100 R '
-        'series resistors damp the cable stub; the 10 k keeps CS high with '
-        'the cable unplugged.',
+        'RJ45 pin -> module pad: 1 SCL, 2 GND, 3 SDA, 4 Vin, 5 CS, 6 DO, '
+        '7 I1, 8 I2 (3Vo pad open). Pairs: SCK with GND, MOSI with MISO, '
+        '+3V3 with CS, INT1 with INT2. Plain jack, no magnetics.',
         20,
         21,
+    )
+    sh.note(
+        'Module Vin = +3V3 keeps its logic at 3.3 V. 100 R series resistors '
+        'damp the cable; the 10 k keeps CS high with the cable unplugged; '
+        'the jack shield is tied to GND.',
+        20,
+        27,
     )
     # the on-board sensor (U19) and its three capacitors (C53-C55) are gone;
     # their numbers stay retired so every later part keeps its reference
     kicadgen.retire_refs('U', 1)
     kicadgen.retire_refs('C', 3)
     with kicadgen.pinned_refs('J', 13):
-        header = conn(
-            sh,
-            'Connector_Generic:Conn_01x08',
-            'IMU LSM6DSOX module',
+        header = sh.add(
+            'Connector:8P8C_Shielded',
+            next_ref('J'),
+            'RJSSE-5380',
             200 * 1.27,
             60 * 1.27,
-            {},
-            XH8,
+            mirror=True,
+            auto=False,
+            footprint='cryocooler:RJ45_Amphenol_RJSSE-5380_Horizontal',
         )
-    tips = {number: pin_cell(header, number) for number in map(str, range(1, 9))}
+    tips = {
+        number: pin_cell(header, number)
+        for number in [str(n) for n in range(1, 9)] + ['SH']
+    }
     column = tips['1'][0]
     # +3V3 and the cable ground: two cells out, symbol turned sideways so it
-    # clears the neighbouring signal rows
-    wire(sh, tips['1'], (column - 2, tips['1'][1]))
-    rail_symbol(sh, '+3V3', (column - 2, tips['1'][1]), 90)
+    # clears the neighbouring signal rows; the shield drops to ground
+    wire(sh, tips['4'], (column - 2, tips['4'][1]))
+    rail_symbol(sh, '+3V3', (column - 2, tips['4'][1]), 90)
     wire(sh, tips['2'], (column - 2, tips['2'][1]))
     rail_symbol(sh, 'GND', (column - 2, tips['2'][1]), 270)
-    signals = (
-        ('3', 'SPI_SCK'),
-        ('4', 'SPI_MOSI'),
-        ('5', 'SPI_MISO'),
-        ('6', 'IMU_CS'),
-        ('7', 'IMU_INT1'),
-        ('8', 'IMU_INT2'),
+    drop_ground(sh, tips['SH'], 2)
+    signals = sorted(
+        (
+            ('1', 'SPI_SCK'),
+            ('3', 'SPI_MOSI'),
+            ('6', 'SPI_MISO'),
+            ('5', 'IMU_CS'),
+            ('7', 'IMU_INT1'),
+            ('8', 'IMU_INT2'),
+        ),
+        key=lambda signal: tips[signal[0]][1],
     )
     # staircase fan-out, top signal turning furthest left, so no wires cross
     for index, (number, net) in enumerate(signals):
@@ -2813,10 +2835,10 @@ def display_parts(sh):
 
 
 def led_chain(sh, net, value, row):
-    """GPIO label -> 470 ohm -> LED -> ground, drawn left to right."""
+    """GPIO label -> 1.5k -> LED -> ground, drawn left to right."""
     net_label(sh, net, (36, row), 180, is_global=True)
     wire(sh, (36, row), (40, row))
-    hres(sh, '470', 43, row)
+    hres(sh, '1.5k', 43, row)
     wire(sh, (46, row), (48, row))
     led_part = sh.add(
         'Device:LED',
@@ -2826,7 +2848,7 @@ def led_chain(sh, net, value, row):
         row * 1.27,
         rot=180,
         auto=False,
-        footprint=LED0603,
+        footprint=LED0402,
     )
     drop_ground(sh, pin_cell(led_part, '1'), 2)
     return led_part
@@ -2903,17 +2925,19 @@ def build_indicators(sh):
 ROOT_UUID = '8aa5b67b-a486-4448-878d-4d9f2d51f462'
 
 # ── supply switches ──────────────────────────────────────────────────────
-# One 1.27 mm jumper in series with each load's supply feed (pull it to power
-# that part off) and an LED on the switched side. Each switched rail is a
+# One SMT 0R jumper in series with each load's supply feed (desolder it to
+# power that part off) and an LED on the switched side. Each switched rail is a
 # power net of its own: (key, main rail, switched rail, title, LED resistor);
 # an empty resistor means the rail already has a power LED (D15 / D16 / D17).
-SWITCH_HEADER = 'Connector_PinHeader_1.27mm:PinHeader_1x02_P1.27mm_Vertical'
+# Keystone 5110: a 'true zero ohm' 0603 SMT jumper that drops onto a
+# standard 0603 resistor land pattern (Keystone catalog p.60)
+SWITCH_HEADER = 'Resistor_SMD:R_0603_1608Metric'
 SWITCHES = (
-    ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1k'),
-    ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '1k'),
-    ('ISO5', '+5V', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '1k'),
-    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (EMC2303, I2C BRIDGE, NTC)', '1k'),
-    ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1k'),
+    ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1.5k'),
+    ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '3.3k'),
+    ('ISO5', '+5V', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '3.3k'),
+    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (EMC2303, I2C BRIDGE, NTC)', '1.5k'),
+    ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1.5k'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
 # highest reference numbers used elsewhere: the LED chains continue from them
@@ -2926,23 +2950,23 @@ def supply_block(sh, spec, led_index, column, row):
     """
     key, main, switched, title, ohms = spec
     sh.note(title, column * 1.27, (row - 6) * 1.27, 1.6)
-    header = sh.add(
-        'Connector_Generic:Conn_01x02',
+    jumper = sh.add(
+        'Jumper:Jumper_2_Bridged',
         next_ref('JP'),
         f'EN {key}',
-        (column + 14) * 1.27,
+        (column + 10) * 1.27,
         row * 1.27,
         rot=0,
         auto=False,
         footprint=SWITCH_HEADER,
     )
-    first, second = pin_cell(header, '1'), pin_cell(header, '2')
-    rail_symbol(sh, main, (first[0] - 3, first[1]))
-    wire(sh, (first[0] - 3, first[1]), first)
-    flag_x, switched_x = second[0] - 3, second[0] - 5
+    first, second = pin_cell(jumper, '1'), pin_cell(jumper, '2')
+    rail_symbol(sh, main, (first[0] - 4, first[1]))
+    wire(sh, (first[0] - 4, first[1]), first)
+    flag_x, switched_x = second[0] + 3, second[0] + 6
     wire(sh, second, (flag_x, second[1]), (switched_x, second[1]))
-    rail_symbol(sh, switched, (switched_x, second[1]))
     rail_flag(sh, (flag_x, second[1]))
+    rail_symbol(sh, switched, (switched_x, second[1]))
     if not ohms:
         return
     ground = 'ISO_GND' if switched.startswith('ISO') else 'GND'
@@ -2954,7 +2978,7 @@ def supply_block(sh, spec, led_index, column, row):
             switched,
             ohms,
             f'{title} (green)',
-            switched_x,
+            column + 4,
             row + 8,
             ground,
         )
@@ -2964,8 +2988,8 @@ def build_supply_switches(sh):
     """Hand-laid grid of supply blocks, one per switched load."""
     sh.handwired = True
     sh.note(
-        'Each 1.27 mm jumper sits in series with one load supply: pull it to '
-        'power that part off. The LED shows the switched rail is present. '
+        'Each Keystone 5110 0603 jumper sits in series with one load supply: '
+        'remove it to power that part off. The LED shows the switched rail is present. '
         'A part left unpowered can still be fed through its signal pins, so '
         'disconnect the cable too when you need it fully dead.',
         20,

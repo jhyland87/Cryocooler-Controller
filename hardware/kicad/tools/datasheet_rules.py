@@ -118,14 +118,17 @@ RULES = [
     # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
     # 100 R series resistor next to the connector; CS keeps a 10 k pull-up on
     # the board side so it idles high with the cable unplugged.
-    ('net', 'IMU LSM6DSOX module', '1', '+3V3'),
-    ('net', 'IMU LSM6DSOX module', '2', 'GND'),
-    ('between', '100', ('NET', 'SPI_SCK'), ('IMU LSM6DSOX module', '3')),
-    ('between', '100', ('NET', 'SPI_MOSI'), ('IMU LSM6DSOX module', '4')),
-    ('between', '100', ('NET', 'SPI_MISO'), ('IMU LSM6DSOX module', '5')),
-    ('between', '100', ('NET', 'IMU_CS'), ('IMU LSM6DSOX module', '6')),
-    ('between', '100', ('NET', 'IMU_INT1'), ('IMU LSM6DSOX module', '7')),
-    ('between', '100', ('NET', 'IMU_INT2'), ('IMU LSM6DSOX module', '8')),
+    # J14 is a plain shielded RJ45 (RJSSE-5380), T568B pairs 1-2 SCK/GND,
+    # 3-6 MOSI/MISO, 4-5 +3V3/CS, 7-8 INT1/INT2; shield to GND
+    ('net', 'RJSSE-5380', '4', '+3V3'),
+    ('net', 'RJSSE-5380', '2', 'GND'),
+    ('net', 'RJSSE-5380', 'SH', 'GND'),
+    ('between', '100', ('NET', 'SPI_SCK'), ('RJSSE-5380', '1')),
+    ('between', '100', ('NET', 'SPI_MOSI'), ('RJSSE-5380', '3')),
+    ('between', '100', ('NET', 'SPI_MISO'), ('RJSSE-5380', '6')),
+    ('between', '100', ('NET', 'IMU_CS'), ('RJSSE-5380', '5')),
+    ('between', '100', ('NET', 'IMU_INT1'), ('RJSSE-5380', '7')),
+    ('between', '100', ('NET', 'IMU_INT2'), ('RJSSE-5380', '8')),
     # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
     ('net', 'EN SG3', '1', '+3V3'),
     ('net', 'EN SG3', '2', '+3V3_SG'),

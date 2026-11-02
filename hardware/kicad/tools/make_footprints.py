@@ -131,8 +131,72 @@ def msd7342():
     )
 
 
+def rjsse5380():
+    """Amphenol RJSSE-5380 SMT RJ45, 8P8C, shielded, no magnetics (drawing
+    P-RJSSE-5380 rev E, component side). Origin midway between the two
+    2.69 mm locating holes; +y points out of the jack mouth (board edge).
+    Pin 8 is 1.63 mm right of the left hole, pitch 1.27, 0.56 x 2.54 mm
+    pads 14.31 mm behind the hole line; shield pads 6.22 x 3.18 mm, 3.00 mm
+    behind it, outer edges 1.92 mm outside the holes.
+    """
+    hole_x = 6.35
+    pad_y = -14.31 + 2.54 / 2
+    pads = [
+        smd_pad(str(number), round(1.63 + (8 - number) * 1.27 - hole_x, 3),
+                round(pad_y, 3), 0.56, 2.54)
+        for number in range(1, 9)
+    ]
+    shield_y = round(-3.00 - 3.18 / 2, 3)
+    shield_x = round(-1.92 + 6.22 / 2 - hole_x, 3)
+    pads += [
+        smd_pad('SH', shield_x, shield_y, 6.22, 3.18),
+        smd_pad('SH', -shield_x, shield_y, 6.22, 3.18),
+        npth(-hole_x, 0, 2.69),
+        npth(hole_x, 0, 2.69),
+    ]
+    # body: 16.51 wide, 15.75 deep, front face 4.05 mm in front of the holes
+    front, back = 4.05, 4.05 - 15.75
+    outline = ''.join(
+        line(*points, layer, width)
+        for layer, width, grow in (
+            ('F.Fab', 0.1, 0.0),
+            ('F.CrtYd', 0.05, 0.5),
+        )
+        for points in (
+            (-8.255 - grow, back - grow, 8.255 + grow, back - grow),
+            (8.255 + grow, back - grow, 8.255 + grow, front + grow),
+            (8.255 + grow, front + grow, -8.255 - grow, front + grow),
+            (-8.255 - grow, front + grow, -8.255 - grow, back - grow),
+        )
+    )
+    silk = ''.join(
+        line(*points, 'F.SilkS', 0.12)
+        for points in (
+            (-8.4, -10.0, -8.4, front + 0.15),
+            (8.4, -10.0, 8.4, front + 0.15),
+        )
+    )
+    return (
+        '(footprint "RJ45_Amphenol_RJSSE-5380_Horizontal"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Amphenol RJSSE-5380 SMT RJ45 8P8C, shielded, no magnetics; '
+        'land pattern from drawing P-RJSSE-5380 rev E '
+        '(https://www.amphenol-cs.com/modular-jacks-rjsse5380.html)")\n'
+        + text('Reference', 'REF**', 0, back - 1.5, 'F.SilkS')
+        + text('Value', 'RJSSE-5380', 0, front + 1.5, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + silk
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
     'L_Coilcraft_MSD7342': msd7342,
+    'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
 }
 
 
