@@ -12,6 +12,7 @@ serves, keep-outs and mounting holes.
 
 import collections
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -153,7 +154,11 @@ PLACEMENT = {
     'C58': (50.8, 30.5, 90),
     'C60': (64.1, 30.5, 90),
     'C67': (82.0, 30.5, 90),
+    'C57': (64.0, 35.0, 0),
     'TP8': (44.5, 25.5, 0),
+    # fan / pump +12 V bulk capacitors (1210): the bottom cooling box is full
+    'C27': (3.6, 46.6, 0),
+    'C26': (3.6, 43.0, 0),
     # ADS1220 1 uF bulk cap: the bottom cold-head corner is full
     'C32': (14.0, 5.6, 90),
     # USB VBUS filter cap: the bottom under the USB-C shell has no room
@@ -205,10 +210,7 @@ FINE_PITCH_GROUND_PADS = {
 }
 # GND pads of placed passives that are boxed in by their own signal track and
 # would otherwise get a via-in-pad after routing, on top of an inner track
-LATE_GROUND_PADS = {
-    'R62': {'2'},
-    'R64': {'2'},
-}
+LATE_GROUND_PADS = {}
 MIN_TRACK_WIDTH = 0.15
 
 # Anchors for ground test points (ground nets have no natural neighbour pad):
@@ -284,11 +286,16 @@ JUMPER_LABELS = ('SG 3V3', '±15V EN', 'ISO PS', 'WATER EN', 'HEAD EN')
 SILK_LABELS.update(
     {f'JP{index}': text for index, text in enumerate(JUMPER_LABELS, start=1)}
 )
-SILK_TEXT_SIZE = 0.7
-TP_TEXT_SIZE = 0.6
+# JLCPCB minimums: 1.0 mm text height, 0.15 mm silk line / stroke
+SILK_MIN_TEXT = 1.0
+SILK_MIN_LINE = 0.15
+SILK_TEXT_SIZE = SILK_MIN_TEXT
+TP_TEXT_SIZE = SILK_MIN_TEXT
+# silk keeps JLCPCB's 0.15 mm off pads, plus 0.05 mm for the mask margin
+SILK_PAD_CLEARANCE = 0.2
 # part numbers printed under the IC bodies as a placement aid: font sizes to
 # try (largest first) and the refs that get one (modules and oversize parts skip)
-IC_LABEL_SIZES = (0.9, 0.8, 0.7)
+IC_LABEL_SIZES = (SILK_MIN_TEXT,)
 IC_LABEL_SKIP = ('U1',)
 IC_LABEL_STEP = 0.25
 # shorter text for parts whose full value will not fit under the body
@@ -298,15 +305,22 @@ IC_LABEL_TEXT = {
     'U18': 'ACS37800',
     'PS1': 'MIE1W0505',
 }
-SILK_TEXT_THICKNESS = 0.12
+SILK_TEXT_THICKNESS = SILK_MIN_LINE
 LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
 LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
 LOGO_CENTER = (65.0, 51.0)
 LOGO_WIDTH = 80.0
 TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
-BOARD_NAME = 'Cryocooler-Controller'
+# KiCad project name (AGENTS.md allows the project or the repo name; the
+# shorter one fits this board)
+BOARD_NAME = 'cryocooler'
+# development stage printed in the board ID block (rev 1 carried ALPHA)
+BOARD_STAGE = 'BETA'
+# solder mask colour (JLCPCB standard blue): set in the board stackup, which
+# the renders use; order the board in blue (mask dam limit 0.10 mm)
+MASK_COLOUR = 'Blue'
 # preferred spot of the board ID block (back silkscreen, board coordinates)
-BOARD_ID_SPOT = (50.0, 58.0)
+BOARD_ID_SPOT = (85.0, 47.0)
 ALPHA_TEXT = 'ALPHA'
 
 # 91.6 x 53.6 mm hole pattern, centred
@@ -338,6 +352,97 @@ def set_courtyard(footprint, rect):
     shape.SetStart(pcbnew.VECTOR2I(to_internal(rect.min_x), to_internal(rect.min_y)))
     shape.SetEnd(pcbnew.VECTOR2I(to_internal(rect.max_x), to_internal(rect.max_y)))
     footprint.Add(shape)
+
+
+def widen_silk(footprint):
+    """Raises footprint silkscreen strokes to JLCPCB's 0.15 mm minimum (the
+    stock KiCad libraries draw 0.12 mm); filled shapes are left alone.
+    """
+    for item in footprint.GraphicalItems():
+        if item.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
+            continue
+        if item.Type() == pcbnew.PCB_TEXT_T:
+            # e.g. a pin-1 marker digit: up to the 1.0 mm minimum
+            if item.GetTextHeight() < to_internal(SILK_MIN_TEXT):
+                item.SetTextSize(
+                    pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
+                )
+            if item.GetTextThickness() < to_internal(SILK_MIN_LINE):
+                item.SetTextThickness(to_internal(SILK_MIN_LINE))
+            continue
+        if item.Type() == pcbnew.PCB_SHAPE_T and not item.IsAnyFill():
+            if item.GetWidth() < to_internal(SILK_MIN_LINE):
+                item.SetWidth(to_internal(SILK_MIN_LINE))
+
+
+def link_to_symbol(footprint, part):
+    """Stores the schematic symbol link (sheet path + symbol uuid) so KiCad's
+    Update PCB from Schematic matches the footprint instead of adding a copy.
+    """
+    footprint.SetPath(pcbnew.KIID_PATH(part['path']))
+    footprint.SetSheetname(part['sheet_names'])
+
+
+def stackup_block():
+    """The 4-layer 1.6 mm stackup with the board colours (MASK_COLOUR,
+    white silk); pcbnew's Python API cannot set stackup colours.
+    """
+    def layer(name, kind, extra=''):
+        return f'\t\t\t(layer "{name}"\n\t\t\t\t(type "{kind}"){extra}\n\t\t\t)\n'
+
+    copper = '\n\t\t\t\t(thickness 0.035)'
+    mask = f'\n\t\t\t\t(color "{MASK_COLOUR}")\n\t\t\t\t(thickness 0.01)'
+    silk = '\n\t\t\t\t(color "White")'
+
+    def dielectric(index, kind):
+        return (
+            f'\n\t\t\t\t(thickness 0.48)\n\t\t\t\t(material "FR4")'
+            f'\n\t\t\t\t(epsilon_r 4.5)\n\t\t\t\t(loss_tangent 0.02)'
+        ), f'dielectric {index}', kind
+
+    body = layer('F.SilkS', 'Top Silk Screen', silk)
+    body += layer('F.Paste', 'Top Solder Paste')
+    body += layer('F.Mask', 'Top Solder Mask', mask)
+    body += layer('F.Cu', 'copper', copper)
+    for index, (inner, kind) in enumerate((('In1.Cu', 'core'), ('In2.Cu', 'prepreg')), start=1):
+        extra, name, kind = dielectric(index, kind)
+        body += layer(name, kind, extra)
+        body += layer(inner, 'copper', copper)
+    extra, name, kind = dielectric(3, 'core')
+    body += layer(name, kind, extra)
+    body += layer('B.Cu', 'copper', copper)
+    body += layer('B.Mask', 'Bottom Solder Mask', mask)
+    body += layer('B.Paste', 'Bottom Solder Paste')
+    body += layer('B.SilkS', 'Bottom Silk Screen', silk)
+    return (
+        '\t\t(stackup\n' + body
+        + '\t\t\t(copper_finish "None")\n\t\t\t(dielectric_constraints no)\n\t\t)\n'
+    )
+
+
+def save_board(board, path=None):
+    """Saves the board, then writes the stackup (mask colour) into it."""
+    path = Path(path or KICAD_DIR / 'cryocooler.kicad_pcb')
+    pcbnew.SaveBoard(str(path), board)
+    text = path.read_text()
+    text = re.sub(r'\t\t\(stackup\n.*?\n\t\t\)\n', '', text, count=1, flags=re.S)
+    text = text.replace('\t(setup\n', '\t(setup\n' + stackup_block(), 1)
+    path.write_text(text)
+
+
+def covers(segment, candidate, tolerance=0.01):
+    """True if an axis-aligned segment already covers the candidate one
+    (same line, candidate's span inside it).
+    """
+    (ax, ay), (bx, by) = segment
+    (cx, cy), (dx, dy) = candidate
+    if abs(ay - by) < tolerance and abs(cy - dy) < tolerance and abs(ay - cy) < tolerance:
+        low, high = sorted((ax, bx))
+        return low - tolerance <= min(cx, dx) and max(cx, dx) <= high + tolerance
+    if abs(ax - bx) < tolerance and abs(cx - dx) < tolerance and abs(ax - cx) < tolerance:
+        low, high = sorted((ay, by))
+        return low - tolerance <= min(cy, dy) and max(cy, dy) <= high + tolerance
+    return False
 
 
 def silk_layer(side):
@@ -403,6 +508,7 @@ class PcbBuilder:
             if footprint is None:
                 raise RuntimeError(f'missing footprint {part["footprint"]}')
             pcbmodels.attach_missing_models(footprint)
+            widen_silk(footprint)
             if part['footprint'] in BODY_COURTYARDS:
                 set_courtyard(footprint, BODY_COURTYARDS[part['footprint']])
                 # its built-in antenna keep-out assumes an un-notched edge;
@@ -410,10 +516,11 @@ class PcbBuilder:
                 for zone in list(footprint.Zones()):
                     footprint.Remove(zone)
             footprint.SetReference(ref)
+            link_to_symbol(footprint, part)
             pcbmodels.apply_connector_colour(footprint)
             footprint.SetValue(part['value'])
             footprint.Reference().SetTextSize(
-                pcbnew.VECTOR2I(to_internal(0.8), to_internal(0.8))
+                pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
             )
             footprint.Reference().SetTextThickness(to_internal(0.15))
             if ref.startswith('TP'):
@@ -422,7 +529,7 @@ class PcbBuilder:
                 footprint.Value().SetTextSize(
                     pcbnew.VECTOR2I(to_internal(TP_TEXT_SIZE), to_internal(TP_TEXT_SIZE))
                 )
-                footprint.Value().SetTextThickness(to_internal(0.12))
+                footprint.Value().SetTextThickness(to_internal(SILK_MIN_LINE))
             text_box = self.display_text(footprint, ref).GetBoundingBox()
             self.text_dims[ref] = (
                 text_box.GetWidth() / 1e6 + 0.2,
@@ -1275,13 +1382,28 @@ class PcbBuilder:
 
     def add_net_classes(self):
         settings = self.board.GetDesignSettings()
+        # JLCPCB 4-layer / 1 oz limits (pcb-capabilities, design-rules blog),
+        # with margin: trace/space >= 0.09 mm, via >= 0.15 / 0.25 mm and
+        # 0.1 mm ring, hole to copper 0.2 mm, via hole to hole 0.2 mm, copper
+        # to routed edge >= 0.2 mm, silk >= 0.15 mm line / 1.0 mm text and
+        # 0.15 mm off pads, mask dam >= 0.1 mm (blue). Pad hole to hole
+        # (0.45 mm), PTH ring (0.15 mm) and inner-layer PTH clearance (0.3 mm)
+        # are in cryocooler.kicad_dru.
         settings.m_MinClearance = to_internal(0.15)
         settings.m_TrackMinWidth = to_internal(0.15)
         settings.m_ViasMinSize = to_internal(VIA_IN_PAD_DIAMETER)
-        settings.m_ViasMinAnnulus = to_internal(0.075)
+        settings.m_ViasMinAnnularWidth = to_internal(0.1)
         settings.m_MinThroughDrill = to_internal(0.2)
         settings.m_CopperEdgeClearance = to_internal(0.3)
-        settings.m_HoleClearance = to_internal(0.15)
+        settings.m_HoleClearance = to_internal(0.2)
+        settings.m_HoleToHoleMin = to_internal(0.2)
+        settings.m_SilkClearance = to_internal(0.15)
+        settings.m_MinSilkTextHeight = to_internal(SILK_MIN_TEXT)
+        settings.m_MinSilkTextThickness = to_internal(SILK_MIN_LINE)
+        # apertures closer than this merge in DRC; 0.099 lets a web of exactly
+        # JLCPCB's 0.10 mm (PS1's land pattern) pass
+        settings.m_SolderMaskMinWidth = to_internal(0.099)
+        settings.m_SolderMaskExpansion = 0
         net_settings = settings.m_NetSettings
         default = net_settings.GetDefaultNetclass()
         default.SetClearance(to_internal(0.15))
@@ -1738,15 +1860,25 @@ class PcbBuilder:
     def add_escape_via(self, pad, net, via_diameter, clearance):
         center = pad.GetPosition()
         center_x, center_y = center.x / 1e6, center.y / 1e6
-        # drop only the pad itself and tracks that touch it; a diagonal
-        # track's bounding box can cover the pad without being connected
+        own = pad.GetBoundingBox()
+        own_box = (
+            own.GetLeft() / 1e6, own.GetTop() / 1e6,
+            own.GetRight() / 1e6, own.GetBottom() / 1e6,
+        )
+        # drop only the pad itself and tracks that touch it (with parts on
+        # both sides another side's pad can cover the same point); a
+        # diagonal track's bounding box can cover the pad without touching it
         obstacles = [
             o
             for o in self.obstacle_list()
             if not (
-                o[0] <= center_x <= o[2]
-                and o[1] <= center_y <= o[3]
-                and (o[4] is None or self.point_blocked(center_x, center_y, 0.05, o))
+                (o[4] is None and all(abs(a - b) < 1e-6 for a, b in zip(o[:4], own_box)))
+                or (
+                    o[4] is not None
+                    and o[0] <= center_x <= o[2]
+                    and o[1] <= center_y <= o[3]
+                    and self.point_blocked(center_x, center_y, 0.05, o)
+                )
             )
         ]
         for distance in (0.9, 1.1, 1.4, 1.8, 2.4, 3.0, 4.0):
@@ -1959,7 +2091,7 @@ class PcbBuilder:
         or an inner-layer track under them cannot be kept clear; 0.35 mm
         keeps 0.15 mm to the neighbouring pads (order filled/capped vias).
         """
-        for ref, pads in (table or FINE_PITCH_GROUND_PADS).items():
+        for ref, pads in (FINE_PITCH_GROUND_PADS if table is None else table).items():
             footprint = self.footprints.get(ref)
             if footprint is None:
                 continue
@@ -1984,6 +2116,14 @@ class PcbBuilder:
                 via.SetNet(self.net_item(self.full_net(net)))
                 via.SetLocked(True)
                 self.board.Add(via)
+                # a through via: parts on the other side must keep off it
+                via_x, via_y = self.pad_position(ref, pad.GetNumber())
+                half = VIA_IN_PAD_DIAMETER / 2 + 0.25
+                self.occupancy.add(
+                    f'via_{ref}_{pad.GetNumber()}',
+                    Rect(via_x - half, via_y - half, via_x + half, via_y + half),
+                    'both',
+                )
 
 
     # ─── silkscreen ───
@@ -2005,19 +2145,58 @@ class PcbBuilder:
             for _, other in self.occupancy.on_side(side)
         )
 
-    def add_board_id(self):
-        """Board name and the git revision the files were generated from, in
-        a small block on the back silkscreen nearest BOARD_ID_SPOT (same place
-        and format on every revision, per AGENTS.md).
-        """
+    def board_id_lines(self):
         revision = subprocess.run(
             ['git', 'rev-parse', '--short', 'HEAD'],
             capture_output=True,
             text=True,
             cwd=KICAD_DIR,
         ).stdout.strip()
-        lines = (BOARD_NAME, f'rev {revision}')
-        size = 0.8
+        return (BOARD_NAME, f'{BOARD_STAGE} rev {revision}')
+
+    def reserve_board_id(self):
+        """Claims the board ID block's spot on the back before the passives
+        are placed, as near BOARD_ID_SPOT as the anchors allow.
+        """
+        lines = self.board_id_lines()
+        half_w = max(len(line) for line in lines) * SILK_MIN_TEXT * 0.45 + 0.4
+        half_h = SILK_MIN_TEXT * 1.4
+        best = None
+        for step_y in range(3, int(BOARD_HEIGHT) - 3):
+            for step_x in range(3, int(BOARD_WIDTH) - 3):
+                rect = Rect(step_x - half_w, step_y - half_h, step_x + half_w, step_y + half_h)
+                if not rect.inside(self.occupancy.board_rect) or any(
+                    rect.overlaps(k) for k in self.occupancy.keepouts
+                ) or any(
+                    rect.overlaps(other.inflated(0.3))
+                    for _, other in self.occupancy.on_side('bottom')
+                ):
+                    continue
+                distance = (step_x - BOARD_ID_SPOT[0]) ** 2 + (step_y - BOARD_ID_SPOT[1]) ** 2
+                if best is None or distance < best[0]:
+                    best = (distance, step_x, step_y, rect)
+        if best is None:
+            print('board ID: no free spot on the back')
+            return
+        self.board_id_spot = best[1:]
+        self.occupancy.add('silk_board_id', best[3], 'bottom')
+
+    def add_board_id(self):
+        """Board name and the git revision the files were generated from, in
+        a small block on the back silkscreen nearest BOARD_ID_SPOT (same place
+        and format on every revision, per AGENTS.md).
+        """
+        lines = self.board_id_lines()
+        size = SILK_MIN_TEXT
+        if getattr(self, 'board_id_spot', None) is not None:
+            center_x, center_y, rect = self.board_id_spot
+            for offset, line in zip((-0.6, 0.6), lines):
+                self.add_text(
+                    line, center_x, center_y + offset * size * 1.2, size,
+                    layer=pcbnew.B_SilkS, mirrored=True,
+                )
+            print('board ID at', (center_x, center_y), lines)
+            return
         half_w = max(len(line) for line in lines) * size * 0.45 + 0.4
         half_h = size * 1.4
         best = None
@@ -2038,7 +2217,7 @@ class PcbBuilder:
             print('board ID: no free spot on the back')
             return
         _, center_x, center_y, rect = best
-        for offset, line in zip((-0.55, 0.55), lines):
+        for offset, line in zip((-0.6, 0.6), lines):
             self.add_text(
                 line, center_x, center_y + offset * size * 1.2, size,
                 layer=pcbnew.B_SilkS, mirrored=True,
@@ -2085,7 +2264,7 @@ class PcbBuilder:
         item.SetPosition(pcbnew.VECTOR2I(to_internal(x), to_internal(y)))
         item.SetTextSize(pcbnew.VECTOR2I(to_internal(size), to_internal(size)))
         item.SetTextThickness(
-            to_internal(thickness if thickness else max(0.12, size * 0.15))
+            to_internal(max(SILK_MIN_LINE, thickness or size * 0.15))
         )
         item.SetHorizJustify(
             {
@@ -2337,16 +2516,39 @@ class PcbBuilder:
                 if pcbfloorplan.text_hits_hole(left_x, line_y, width, holes):
                     continue
                 box = Rect(left_x, line_y - 0.5, left_x + width, line_y + 0.5)
+                # labels sharing a wall keep 1.5 mm apart so they read apart
+                spaced = Rect(box.min_x - 1.5, box.min_y, box.max_x + 1.5, box.max_y)
                 if any(
-                    box.overlaps(other)
+                    (spaced if name.startswith('silk_label_') else box).overlaps(other)
                     for name, other in self.occupancy.on_side(
                         pcbfloorplan.split_key(module)[1]
                     )
-                    if not name.startswith('silk_box')
+                    if not name.startswith('silk_box') and name != f'silk_label_{module}'
                 ):
                     continue
                 return text, left_x, line_y
         return None
+
+    def set_silk_avoid(self):
+        """Tells the box outliner where it may not draw: the antenna notch
+        and every pad on each side, 0.2 mm around (JLCPCB silk-to-pad 0.15 mm
+        plus the mask margin).
+        """
+        notch = ANTENNA_NOTCH.inflated(0.5)
+        for side, copper in (('top', pcbnew.F_Cu), ('bottom', pcbnew.B_Cu)):
+            avoid = [notch]
+            for footprint in self.board.GetFootprints():
+                for pad in footprint.Pads():
+                    if not pad.IsOnLayer(copper):
+                        continue
+                    box = pad.GetBoundingBox()
+                    avoid.append(
+                        Rect(
+                            box.GetLeft() / 1e6, box.GetTop() / 1e6,
+                            box.GetRight() / 1e6, box.GetBottom() / 1e6,
+                        ).inflated(SILK_PAD_CLEARANCE)
+                    )
+            pcbfloorplan.SILK_AVOID[side] = avoid
 
     def draw_module_lines(self, module, spot, board_rect, holes):
         """Draws the silk outline of one module (replacing any earlier one)
@@ -2361,9 +2563,20 @@ class PcbBuilder:
             del self.occupancy.rects[name]
         shapes = []
         side = pcbfloorplan.split_key(module)[1]
+        drawn = self.drawn_walls.setdefault(side, [])
+        # a redraw (bulge) first forgets this module's own earlier walls
+        for segment in self.module_walls.pop(module, []):
+            if segment in drawn:
+                drawn.remove(segment)
+        own = self.module_walls.setdefault(module, [])
         for index, (start, end) in enumerate(
             pcbfloorplan.outline_segments(module, board_rect, holes, spot)
         ):
+            # a wall shared with a neighbouring section is drawn once
+            if any(covers(other, (start, end)) for other in drawn):
+                continue
+            drawn.append((start, end))
+            own.append((start, end))
             line = pcbnew.PCB_SHAPE(self.board)
             line.SetShape(pcbnew.SHAPE_T_SEGMENT)
             line.SetLayer(silk_layer(side))
@@ -2394,6 +2607,9 @@ class PcbBuilder:
         """
         board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
         holes = [(hole_x, hole_y, 2.4) for hole_x, hole_y in HOLES]
+        self.set_silk_avoid()
+        self.drawn_walls = {}
+        self.module_walls = {}
         self._removed_shapes = []
         self.box_labels = {}
         for module in pcbfloorplan.MODULE_REGIONS:
@@ -2472,7 +2688,7 @@ class PcbBuilder:
                         box.GetTop() / 1e6,
                         box.GetRight() / 1e6,
                         box.GetBottom() / 1e6,
-                    ).inflated(0.05)
+                    ).inflated(SILK_PAD_CLEARANCE)
                 )
             for graphic in footprint.GraphicalItems():
                 if graphic.GetLayer() != silk:
@@ -2954,6 +3170,7 @@ class PcbBuilder:
     def build(self):
         self.load_footprints()
         self.place_anchors()
+        self.reserve_board_id()
         self.reserve_module_labels()
         self.reserve_anchor_pockets()
         self.pre_route_current_path()
@@ -2972,12 +3189,24 @@ class PcbBuilder:
 def patch_project_rules():
     """Writes the fine-pitch via limits into cryocooler.kicad_pro (pcbnew does
     not persist the annular-width minimum): 0.45 mm vias, 0.2 mm drills and a
-    0.075 mm ring for the 0.5 mm pitch LGA/MSOP ground pads.
+    0.125 mm ring (JLCPCB's minimum is 0.1 mm), plus the JLCPCB hole, silk
+    and mask limits.
     """
     path = KICAD_DIR / 'cryocooler.kicad_pro'
     project = json.loads(path.read_text())
     rules = project['board']['design_settings']['rules']
-    rules['min_via_annular_width'] = 0.075
+    defaults = project['board']['design_settings']['defaults']
+    defaults['silk_line_width'] = SILK_MIN_LINE
+    defaults['silk_text_thickness'] = SILK_MIN_LINE
+    defaults['silk_text_size_h'] = SILK_MIN_TEXT
+    defaults['silk_text_size_v'] = SILK_MIN_TEXT
+    rules['min_via_annular_width'] = 0.1
+    rules['min_hole_clearance'] = 0.2
+    rules['min_hole_to_hole'] = 0.2
+    rules['min_silk_clearance'] = 0.15
+    rules['min_text_height'] = SILK_MIN_TEXT
+    rules['min_text_thickness'] = SILK_MIN_LINE
+    rules['solder_mask_min_width'] = 0.099
     rules['min_via_diameter'] = VIA_IN_PAD_DIAMETER
     rules['min_through_hole_diameter'] = 0.2
     path.write_text(json.dumps(project, indent=2) + '\n')
@@ -3010,10 +3239,20 @@ def main():
         )
         print('escape vias:', builder.escape_ground_pads())
         builder.fill_zones()
-        pcbnew.SaveBoard(
-            str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board
-        )
+        save_board(builder.board)
         patch_project_rules()
+        return 0
+    if mode == 'link':
+        # stamp the symbol links onto an existing (routed) board
+        builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
+        linked = 0
+        for footprint in builder.board.GetFootprints():
+            part = builder.parts.get(footprint.GetReference())
+            if part is not None:
+                link_to_symbol(footprint, part)
+                linked += 1
+        save_board(builder.board)
+        print('footprints linked to their symbols:', linked)
         return 0
     if mode == 'iclabels':
         # add only the IC part numbers on the existing board
@@ -3022,7 +3261,7 @@ def main():
         print('old IC labels removed:', builder.remove_ic_labels())
         placed, skipped = builder.add_ic_labels()
         print('IC part numbers placed:', placed, 'skipped:', skipped)
-        pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
+        save_board(builder.board)
         return 0
     if mode == 'texts':
         # redo all silkscreen (module boxes, reference texts, part labels,
@@ -3050,7 +3289,7 @@ def main():
         ]
         print('connector colours applied to:', coloured)
         builder.add_silkscreen()
-        pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
+        save_board(builder.board)
         return 0
     unplaced = builder.build()
     def own_hole(pair):
@@ -3062,6 +3301,8 @@ def main():
         pair
         for pair in builder.occupancy.overlaps_report()
         if not own_hole(pair)
+        # pre-placed vias only steer the passives; DRC checks real clearances
+        and not any(name.startswith('via_') for name in pair)
         if not any('_current_' in name for name in pair)
         and not any(name.startswith('silk_box') for name in pair)
         and not (
@@ -3092,7 +3333,7 @@ def main():
     )
     print('escape vias:', builder.escape_ground_pads())
     builder.fill_zones()
-    pcbnew.SaveBoard(str(out_path), builder.board)
+    save_board(builder.board, out_path)
     patch_project_rules()
     print(f'wrote {out_path}; {len(builder.footprints)} footprints')
     return 1 if unplaced or overlaps or floorplan_problems else 0

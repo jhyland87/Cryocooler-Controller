@@ -1,7 +1,38 @@
 (version 1)
 
 # 0.45 mm / 0.2 mm via-in-pad on 0.5 mm pitch pads leaves 0.1 mm to the
-# neighbouring pad, which JLCPCB manufactures on 4 layers.
+# neighbouring pad, which JLCPCB manufactures on 4 layers (copper spacing
+# minimum 0.09 mm; via-in-pad must be ordered filled and capped).
 (rule via_in_pad_clearance
   (condition "A.Type == 'Via' && A.Hole == 0.2mm")
   (constraint clearance (min 0.1mm)))
+
+# ── JLCPCB 4-layer limits the board-wide settings cannot express ──
+# (jlcpcb.com/capabilities/pcb-capabilities)
+
+# plated pad holes at least 0.45 mm apart (vias: 0.2 mm, board setting)
+(rule jlc_pad_hole_to_hole
+  (condition "A.Type == 'Pad' && B.Type == 'Pad'")
+  (constraint hole_to_hole (min 0.45mm)))
+
+# plated through-hole pads: 0.15 mm annular ring minimum (0.2 mm recommended)
+(rule jlc_pth_annular_ring
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'")
+  (constraint annular_width (min 0.15mm)))
+
+# inner layers: 0.3 mm from a plated pad hole to other copper
+(rule jlc_inner_pth_hole_clearance
+  (layer inner)
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'")
+  (constraint hole_clearance (min 0.3mm)))
+
+# non-plated holes: 0.2 mm to any copper
+(rule jlc_npth_to_copper
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'NPTH, mechanical'")
+  (constraint hole_clearance (min 0.2mm)))
+
+# the USB-C receptacle's own GND pads sit closer than 0.2 mm to its own
+# locating holes by design (GCT USB4105 land pattern); JLCPCB builds it as is
+(rule usb_c_own_holes
+  (condition "A.memberOfFootprint('J1') && B.memberOfFootprint('J1')")
+  (constraint hole_clearance (min 0mm)))

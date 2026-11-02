@@ -11,10 +11,12 @@ from pcbplace import Rect
 # parts must sit this far inside a region edge; the silk line sits LINE_INSET
 # inside it, leaving room for the label that straddles the line
 PART_INSET = 0.5
-LINE_INSET = 0.25
-# regions of different modules stay at least this far apart so the two silk
-# lines are not read as one
-MIN_REGION_GAP = 0.8
+# lines run on the region edge itself, so neighbouring sections share one
+# wall (AGENTS.md PCB directives); regions within SHARED_WALL_GAP of each
+# other are closed up to meet at the midpoint
+LINE_INSET = 0.0
+MIN_REGION_GAP = 0.0
+SHARED_WALL_GAP = 1.0
 LINE_WIDTH = 0.15
 LABEL_SIZE = 1.0
 LABEL_CHAR_WIDTH = 0.9
@@ -95,6 +97,36 @@ MODULE_REGIONS = {
     'RAILS ±15V@bottom': [Rect(60.2, 28.0, 103, 40.4)],
     'AMP CURRENT (ISOLATED)@bottom': [Rect(47.8, 41.2, 103, 65)],
 }
+
+
+def share_walls(regions):
+    """Closes small gaps between same-side regions of different modules so
+    their outlines coincide (one shared wall instead of two lines).
+    """
+    keys = list(regions)
+    for index, first in enumerate(keys):
+        for second in keys[index + 1 :]:
+            if split_key(first)[1] != split_key(second)[1]:
+                continue
+            for rect_a in regions[first]:
+                for rect_b in regions[second]:
+                    overlap_y = min(rect_a.max_y, rect_b.max_y) - max(rect_a.min_y, rect_b.min_y)
+                    overlap_x = min(rect_a.max_x, rect_b.max_x) - max(rect_a.min_x, rect_b.min_x)
+                    if overlap_y > 0:
+                        for left, right in ((rect_a, rect_b), (rect_b, rect_a)):
+                            gap = right.min_x - left.max_x
+                            if 0 < gap <= SHARED_WALL_GAP:
+                                middle = (left.max_x + right.min_x) / 2
+                                left.max_x = right.min_x = middle
+                    if overlap_x > 0:
+                        for upper, lower in ((rect_a, rect_b), (rect_b, rect_a)):
+                            gap = lower.min_y - upper.max_y
+                            if 0 < gap <= SHARED_WALL_GAP:
+                                middle = (upper.max_y + lower.min_y) / 2
+                                upper.max_y = lower.min_y = middle
+
+
+share_walls(MODULE_REGIONS)
 
 
 def module_of_sheet(sheet):
@@ -238,7 +270,13 @@ def label_candidates(module, text, board_rect):
                 continue
             left_x = max(rect.min_x + 1.5, 3.0)
             while left_x + width <= min(rect.max_x - 1.0, drawable.max_x):
-                yield left_x, line_y
+                corners = (
+                    (left_x, line_y - 0.6), (left_x + width, line_y - 0.6),
+                    (left_x, line_y + 0.6), (left_x + width, line_y + 0.6),
+                    (left_x + width / 2, line_y),
+                )
+                if not any(_avoided(module, corner) for corner in corners):
+                    yield left_x, line_y
                 left_x += 1.0
 
 
@@ -266,6 +304,20 @@ def text_hits_hole(left_x, line_y, width, holes):
         if distance < hole_radius + HOLE_CLEARANCE:
             return True
     return False
+
+
+# areas where no box line or label may be drawn, per side ('top' /
+# 'bottom'): board cut-outs and pads (with the silk-to-pad clearance); set
+# by gen_pcb.py before the boxes are drawn
+SILK_AVOID = {'top': [], 'bottom': []}
+
+
+def _avoided(module, point):
+    side = split_key(module)[1]
+    return any(
+        rect.min_x <= point[0] <= rect.max_x and rect.min_y <= point[1] <= rect.max_y
+        for rect in SILK_AVOID.get(side, [])
+    )
 
 
 def outline_segments(module, board_rect, holes, label=None):
@@ -325,7 +377,8 @@ def outline_segments(module, board_rect, holes, label=None):
                 first_end[1] + (second_end[1] - first_end[1]) * fraction,
             )
             keep = (
-                drawable.min_x <= point[0] <= drawable.max_x
+                not _avoided(module, point)
+                and drawable.min_x <= point[0] <= drawable.max_x
                 and drawable.min_y <= point[1] <= drawable.max_y
                 and not any(
                     (point[0] - hole_x) ** 2 + (point[1] - hole_y) ** 2

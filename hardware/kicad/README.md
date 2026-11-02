@@ -15,27 +15,34 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `power_input` | 12 V screw terminal, 5 A fuse, SMBJ16A TVS, bulk caps |
 | `power_button` | LTC2954CTS8-2, IRF4905S high-side P-FET, KILL# bias, CL25N8-G (SOT-89) + red/green LED |
 | `rails_logic` | AP63205 buck (12→5 V) → LD1117S33 (5→3.3 V) |
-| `rails_15v` | ADP5071AREZ ±16.4 V (datasheet Fig. 47 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); its PGP / PGN pins go to the `PGP_15V` / `PGN_15V` nodes on the `power_good` sheet (see below) |
-| `power_good` | One node and green LED per LT3097 PG pin (D24 = +15 V, D25 = −15 V), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); 0402 resistors and SOT-323 FETs |
+| `rails_15v` | LT8582 dual converter at 1.5 MHz (datasheet p.30 circuit): boost to +16.4 V, coupled-inductor (MSD7342-103) inverter to −16.5 V → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); PG1 / PG2 and the LT3097 PGP / PGN go to the `power_good` sheet (see below) |
+| `power_good` | One node and green LED per LT3097 PG pin, a BAT54AW AND of the two nodes into `PG_15V`, the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good), and 20k / 39k nodes for the LT8582 PG1 / PG2; all four flags are also read by the SC18IS604 GPIOs |
 | `signal_gen` | 25 MHz osc, AD9833, OPA1656, MCP4921 + LM4040-2.5 + OPA188, AD633 |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800 (SPI) + ISO7741 + MIE1W0505 (VSEL→GND2 = 3.3 V output), 4×1 MΩ + 4.02 kΩ divider |
 | `system_current` | INA239 (SPI mode 1, CS on GPIO3) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT and 3V3 power LEDs |
-| `i2c_bridge` ("Water Cooling I2C Bridge") | SC18IS604 SPI-to-I2C bridge (SPI mode 3, CS GPIO8, RESET GPIO9) with 4.7 kΩ I2C pull-ups, 74LVC1G125 MISO gate, INT# pull-up + test point |
+| `i2c_bridge` ("Water Cooling I2C Bridge") | SC18IS604 SPI-to-I2C bridge (SPI mode 3, CS GPIO8, RESET GPIO9) with 4.7 kΩ I2C pull-ups, 74LVC1G125 MISO gate, INT# pull-up + test point; GPIO0 = display backlight enable, GPIO1-4 = the four ±15 V power-good flags |
 | `cooling` ("Water Cooling") | EMC2303 (0x4D via 33 kΩ ADDR_SEL pull-up; fan + pump), Alphacool ES flow tach and NTC; its pull-ups sit on the switched `+3V3_COOL` rail |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
-| `imu` | Header J14 (JST XH 8-pin) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND, 100 Ω series resistors, 10 kΩ CS pull-up |
+| `imu` | J14, a plain shielded SMT RJ45 (Amphenol RJSSE-5380, no magnetics) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND on T568B pairs, 100 Ω series resistors, 10 kΩ CS pull-up, shield to GND |
 | `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin JST XH output |
 | `indicators` | READY / FAULT LEDs, WS2812B status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds, buses, chip selects and control lines; LEDs on +5V, ±15V and ISO 3V3 |
-| `supply_switches` | 5 two-pin 1.27 mm header jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
+| `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
+| `display` | FH12-14S FPC (J15) to the Phoenix 2.4" ST7789V touch display in the UCS 125-87-F-GD-D2,4 lid (pinout from datasheet 109921), TSC2046 touch controller on the shared SPI bus, BSS138 backlight switch (+5 V through 39 Ω), 10 kΩ pull-downs on the GPIO45 / GPIO46 straps |
 
 ## ±15 V rails and power good
 
-The ADP5071 makes +16.4 V / −16.5 V, one LT3097 post-regulates them to **±14.7 V** (V = 100 µA × R_SET, 147 kΩ;
+The LT8582 makes +16.4 V / −16.5 V (RFBX1 182k, RFBX2 198k; the inverter needs at least 5.6 µH at its ~0.80 duty,
+hence the 10 µH coupled MSD7342), and one LT3097 post-regulates them to **±14.7 V** (V = 100 µA × R_SET, 147 kΩ;
 +15 V would sit at the top of the LT3097's 0–15 V positive range, so the nets keep their `+15V` / `-15V` names
-but run about 0.3 V low). The two ADP5071 output capacitors (22 µF / 50 V, C62 / C63) also serve as the LT3097
-input capacitors, and each output has a 22 µF / 50 V capacitor.
+but run about 0.3 V low). The two LT8582 output capacitors (22 µF / 50 V) also serve as the LT3097 input
+capacitors, and each LT3097 output has a 22 µF / 50 V capacitor. The compensation values are the datasheet's
+±12 V ones; check the loops on the bench.
+
+The LT8582 PG1 / PG2 pins (open drain, high = within 4 % of regulation, 0.5 mA max) each pull a 20k / 39k node from
+its 5 V input: 3.3 V when good, 0 V when the converter is off. Together with `PGP_15V` / `PGN_15V` they go to the
+SC18IS604 GPIO1-4, and the amplifier module logs which rail changed (`amplifier::railFlags()`).
 
 PGP and PGN are open-collector (low = bad). Each drives its own node (`PGP_15V`, `PGN_15V`): +15 V through
 220 kΩ / 62 kΩ, about 3.2 V when its rail is good and 0 V when its pin pulls low or the rail is missing (thresholds
@@ -57,6 +64,7 @@ console); the firmware should still check it before starting the signal generato
 | EMC2303 ALERT# | 21 | NTC ADC | 4 |
 | Status RGB (WS2812B) | 38 | Compressor relay enable | 16 |
 | INA239 CS (shared SPI bus) | 3 | ADS1220 CS (shared SPI bus) | 44 (RXD0) |
+| Display CS / D/C | 47 / 48 | Display RESET / touch CS | 46 / 45 (straps, 10 kΩ pull-downs) |
 
 GPIO3 is a strapping pin (JTAG source); the 10 kΩ pull-up on INA239_CS keeps it high at reset, which selects the default USB-JTAG. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.

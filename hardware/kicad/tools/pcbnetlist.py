@@ -48,10 +48,16 @@ def load_netlist():
         for prop in find_all(comp, 'property'):
             if sval(find_all(prop, 'name')[0][1]) == 'Sheetname':
                 sheet = sval(find_all(prop, 'value')[0][1])
+        # symbol link: sheet instance path + symbol uuid (first unit's)
+        sheetpath = find_all(comp, 'sheetpath')[0]
+        sheet_path = sval(find_all(sheetpath, 'tstamps')[0][1])
+        symbol = sval(find_all(comp, 'tstamps')[0][1]).split()[0]
         parts[ref] = {
             'value': sval(find_all(comp, 'value')[0][1]),
             'footprint': sval(find_all(comp, 'footprint')[0][1]),
             'sheet': sheet,
+            'path': sheet_path + symbol,
+            'sheet_names': sval(find_all(sheetpath, 'names')[0][1]),
         }
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):

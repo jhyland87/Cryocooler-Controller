@@ -810,14 +810,48 @@ TP_PAD = 'TestPoint:TestPoint_Pad_D1.0mm'
 TP_LOOP = 'TestPoint:TestPoint_Loop_D2.50mm_Drill1.0mm'
 
 
+# Short test point names: the value is what the PCB silkscreen prints beside
+# the pad, and JLCPCB's 1.0 mm minimum text height leaves room for about six
+# characters on this board. Names not listed print as they are.
+TP_NAMES = {
+    'LTC2954_INT': 'PB_INT',
+    'ADS1220_DRDY': 'DRDY',
+    'BRIDGE_INT': 'BR_INT',
+    'TOUCH_IRQ': 'T_IRQ',
+    'ISO_3V3': 'ISO3V3',
+    'ISO_GND': 'ISOGND',
+    'SPI_SCK': 'SCK',
+    'SPI_MOSI': 'MOSI',
+    'SPI_MISO': 'MISO',
+    'MCP4921_CS': 'DAC_CS',
+    'AD9833_FSYNC': 'DDS_CS',
+    'INA239_CS': 'INA_CS',
+    'ADS1220_CS': 'ADC_CS',
+    'BRIDGE_CS': 'BR_CS',
+    'ACS_MISO': 'A_MISO',
+    'BRIDGE_RESET': 'BR_RST',
+    'FAN_ALERT': 'FAN_AL',
+    'PWR_KILL': 'KILL',
+    'COMP_RELAY_EN': 'RLY_EN',
+    'AMP_REM_EN': 'REM_EN',
+    'PG_15V': 'PG15V',
+    'DDS_SINE': 'DDS',
+    'SIG_SINE': 'SINE',
+    'NTC_ADC': 'NTC',
+    'FLOW_TACH': 'FLOW',
+    'STATUS_RGB': 'RGB',
+}
+
+
 def test_point(sh, label, cell, fp=TP_PAD, rot=0):
     """Test point whose connection sits on the given cell; rot 0 hangs the
-    pad above the wire end, rot 180 below it.
+    pad above the wire end, rot 180 below it. Its value is the short name
+    from TP_NAMES (printed on the board).
     """
     return sh.add(
         'Connector:TestPoint',
         next_ref('TP'),
-        label,
+        TP_NAMES.get(label, label),
         cell[0] * 1.27,
         cell[1] * 1.27,
         rot=rot,
