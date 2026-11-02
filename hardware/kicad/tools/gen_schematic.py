@@ -47,6 +47,10 @@ TERM2 = (
     'TerminalBlock_Phoenix:'
     'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
 )
+TERM3 = (
+    'TerminalBlock_Phoenix:'
+    'TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal'
+)
 # signal-only terminals (amplifier REM and line input): Phoenix PT 1,5/2-3,5-H
 TERM2_SMALL = (
     'TerminalBlock_Phoenix:'
@@ -1888,31 +1892,37 @@ def build_amp_current(sh):
     wire(sh, ip_minus, (160, ip_minus[1]), (160, 58), (166, 58))
     for index in range(4):
         vres(sh, '1M', 150, 38 + index * 6, fp=R1206)
-    wire(sh, ip_plus, (166, ip_plus[1]))
+    wire(sh, ip_plus, (162, ip_plus[1]), (162, 70), (166, 70))
+    # 3-way terminals: pin 3 of each is the protective earth, passed straight
+    # through from the amplifier side to the cryocooler
     j_out = conn(
         sh,
-        'Connector:Screw_Terminal_01x02',
-        'AMP OUT (+ / -)',
+        'Connector:Screw_Terminal_01x03',
+        'AMP OUT (+ / - / EARTH)',
         170 * 1.27,
-        64 * 1.27,
+        72 * 1.27,
         {},
-        TERM2,
+        TERM3,
     )
     j_load = conn(
         sh,
-        'Connector:Screw_Terminal_01x02',
-        'CRYOCOOLER (+ / -)',
+        'Connector:Screw_Terminal_01x03',
+        'CRYOCOOLER (+ / - / EARTH)',
         170 * 1.27,
-        58 * 1.27,
+        60 * 1.27,
         {},
-        TERM2,
+        TERM3,
     )
     for connector in (j_out, j_load):
+        net_label(sh, 'EARTH', spur(sh, connector, '3', 2), 270)
+    for connector in (j_out, j_load):
         spur(sh, connector, '2', 2)
+        # turned sideways so it clears the EARTH label on pin 3 below
         rail_symbol(
             sh,
             'ISO_GND',
             (pin_cell(connector, '2')[0] - 2, pin_cell(connector, '2')[1]),
+            270,
         )
     place_blocks(
         sh,

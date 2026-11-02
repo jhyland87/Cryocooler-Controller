@@ -298,6 +298,9 @@ RULES = [
     ('net', 'TSC2046EIPW', '15', 'TOUCH_CS'),
     ('nc', 'TSC2046EIPW', '9'),
     ('res', 'TSC2046EIPW', '15', '10k', 'GND'),
+    # J11 / J12 pin 3: protective earth passed straight through, nothing else
+    ('join', 'AMP OUT (+ / - / EARTH)', '3', 'CRYOCOOLER (+ / - / EARTH)', '3'),
+    ('same', 'AMP OUT (+ / - / EARTH)', '2', '2'),
 ]
 
 
