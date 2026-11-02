@@ -114,19 +114,38 @@ Add these to the `right` dict in `build_mcu` and remove pins 16/24/25/26 from it
 - Next commit: J8 / J9 (AMP REM, AMP SIGNAL) moved to Phoenix PT 1,5/2-3,5-H (3.5 mm); 12 V IN, AMP OUT and CRYOCOOLER stay 5.08 mm (user's choice).
 - Schematic state: ERC 0, 225/225 datasheet rules, 0 text overlaps, 0 duplicate refs.
 
-## PCB plan (in progress)
+## PCB state (2026-11-02 afternoon)
 
-- Area budget: about 6,220 mm² of courtyard vs 6,120 mm² per side. Two sides are mandatory.
-- `gen_pcb.py` has no bottom-side support. Planned:
-  - side-aware occupancy (top / bottom / both for through-hole parts and holes);
-  - flip bottom parts with `Flip(pos, FLIP_DIRECTION_LEFT_RIGHT)`. KiCad 10 mirrors y, so a pad's board position is rotate(mirror_y(local), angle);
-  - a side for each module box;
-  - silk on B.SilkS (mirrored) for bottom parts.
-- Height rule (no clearance figure for under the PCB in the housing drawing): the bottom side takes only low-profile SMD parts (passives, SOIC/TSSOP/QFN/DFN/SOT, test points). Through-hole parts, inductors, electrolytics, D2PAK, ESP32, LEDs, switches and connectors stay on top. Test points go on their IC's side.
-- Holes at (4.2, 4.2), (95.8, 4.2), (4.2, 57.8), (95.8, 57.8), Ø3.2. Keep parts out of the 7.4 mm corner squares (Ø6 screw head plus the 4.45 mm no-part / no-mask squares).
-- No Freerouting jar is on this machine. Ask the user before downloading v2.4.1 from GitHub.
+- Commit a3b02e8 has the double-sided placement on 100 x 62. It places every part with a clean floorplan and DRC 0 (unrouted).
+- `gen_pcb.py` changes:
+  - side-aware occupancy in `pcbplace.py`;
+  - `place(..., side)` flips with `FLIP_DIRECTION_LEFT_RIGHT`;
+  - through-hole pins and holes block both sides;
+  - passives go on the bottom, LEDs on top, and a retry pass tries the other side;
+  - module keys carry the side, `NAME@top` / `NAME@bottom` (`pcbfloorplan.module_key` / `split_key`);
+  - per-side silk; test points print their net name;
+  - the ESP32 courtyard is cut to the module body and its built-in antenna zone removed (the board-level `ANTENNA_KEEPOUT` covers the routed notch);
+  - corner keep-outs and mask-free squares;
+  - a board ID block on the back silkscreen.
+- Firmware: commit b71df27 adds the display module, bridge GPIOs and per-rail PG flags. It builds. `pio test -e native` still has the old `src/commands.cpp` stub errors.
+- Freerouting 2.4.1 jar is in the session scratchpad (`freerouting/`). Downloading it again needs the user's OK.
+- Routing: `SKIP_FAB_EXPORT=1 <kicad python> tools/gen_pcb.py route <jar>`. The first run started 12:14.
 
-## Remaining work, in order
+## Routing state (2026-11-02 evening) — NOT READY TO ORDER
+
+- DRC (JLCPCB rules, errors): **0 violations, parity 0, 5 unconnected**.
+- How it got there:
+  - Freerouting got down to 24 open items; its second pass stalled at 43 unrouted (its own count), so it was stopped.
+  - `tools/gridroute.py` (grid A* over F / In2 / B, 0.45/0.2 vias, no via-in-pad except on a net's own pad at a high cost) routed most of the rest.
+  - `tools/ripup.py` cleared the U20/U21 signal nets so they could be re-routed with the DFN pins first.
+  - `tools/finish_route.py` removed the GND via 0.3 mm from the left edge, refilled the pours, and stitched B.Cu pour islands.
+- Still open:
+  - `PGP_15V` (U21.4), `PGN_15V` (U21.9) and `PGN_16V5` (U20.10) to the SC18IS604 GPIOs. The ±15 V section is sealed on F / In2 / B by its own power copper (+5V_PS15, ±16V5, ±15V, switch nodes). The only automatic way through was a ~13 mm slot in the In1 GND plane under the LT8582, which was rejected. Fixing it needs a placement change: move the bridge GPIO side, or rotate / move U21 so its PG pins face west and open a channel beside U20. Alternatively, hand-route those three in KiCad.
+  - Two GND pour fragments, F and B, with no room for a stitching via (the F islands at about (20,23), (49,13), (36,16) and (34,9) are the candidates).
+- Routing at 0.2 mm where the 0.3 mm power class didn't fit: `-15V` (one leg) and `VIN` to U11 (LTC2954) and R27 (82k), microamp loads only. `-15V` is fine at 0.2 mm for the op-amp load, but widen it by hand if there is room.
+- The fab files and renders in `fabrication/` were regenerated from this state on request. **Don't upload the zip until the three PG nets are routed.**
+
+## Remaining work, in order (items 1-7 done)
 
 1. Fix the 5 SC18IS604 rules. Write `build_display` (a new `display` sheet in `SHEETS`) and the GPIO map changes. Add datasheet rules for the TSC2046 and FPC.
 2. RJ45: choose a plain SMT 8P8C part (see above), add its footprint to `make_footprints.py`, and replace J14 in `build_imu`. Document the RJ45 pin → Adafruit pad map.

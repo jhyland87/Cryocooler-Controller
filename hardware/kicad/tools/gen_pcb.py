@@ -12,6 +12,7 @@ serves, keep-outs and mounting holes.
 
 import collections
 import json
+import os
 import re
 import subprocess
 import sys
@@ -233,7 +234,7 @@ CORNER_KEEPOUTS = [
     Rect(BOARD_WIDTH - CORNER, BOARD_HEIGHT - CORNER, BOARD_WIDTH, BOARD_HEIGHT),
 ]
 FREEROUTING_JAR = Path(sys.argv[2]) if len(sys.argv) > 2 else None
-MAX_PASSES = '12'
+MAX_PASSES = '20'
 JAVA = (
     '/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/java'
 )
@@ -381,6 +382,14 @@ def link_to_symbol(footprint, part):
     """
     footprint.SetPath(pcbnew.KIID_PATH(part['path']))
     footprint.SetSheetname(part['sheet_names'])
+    library, name = part['footprint'].split(':')
+    footprint.SetFPID(pcbnew.LIB_ID(library, name))
+    # match the symbol's attributes (the stock test points exclude
+    # themselves from the BOM; gen_bom.py leaves them out anyway)
+    footprint.SetExcludedFromBOM(False)
+    for field, value in part.get('fields', {}).items():
+        footprint.SetField(field, value)
+        footprint.GetField(field).SetVisible(False)
 
 
 def stackup_block():
@@ -1561,6 +1570,7 @@ class PcbBuilder:
             )
             footprint.SetReference('')
             footprint.Reference().SetVisible(False)
+            footprint.SetBoardOnly(True)  # mechanical: not in the schematic
             footprint.Value().SetVisible(False)
             footprint.SetPosition(
                 pcbnew.VECTOR2I(to_internal(hole_x), to_internal(hole_y))
@@ -1945,7 +1955,15 @@ class PcbBuilder:
                 )
                 return 1
         # no room for a stub: via-in-pad (order filled/capped vias for these,
-        # see VIA_IN_PAD_REFS)
+        # see VIA_IN_PAD_REFS), but only where no other net's track runs
+        # under the pad on any layer (the via goes through all of them)
+        if any(
+            o[4] is not None
+            and self.point_blocked(center_x, center_y, VIA_IN_PAD_DIAMETER / 2 + clearance, o)
+            for o in obstacles
+        ):
+            print('no escape for', pad.GetParentFootprint().GetReference(), pad.GetNumber())
+            return 0
         via = pcbnew.PCB_VIA(self.board)
         via.SetPosition(center)
         via.SetWidth(to_internal(VIA_IN_PAD_DIAMETER))
@@ -2022,10 +2040,15 @@ class PcbBuilder:
                     str(ses),
                     '-mp',
                     MAX_PASSES,
+                    # 0 optimiser threads skips the optimisation stage, which
+                    # crashes in v2.4.1 (NullPointerException in
+                    # SearchTreeObject.shapeLayer) and never writes the session
                     '-mt',
-                    '1',
+                    '0',
                 ],
                 check=False,
+                # no Freerouting window (it pops modal error dialogs)
+                env={**os.environ, 'FREEROUTING__GUI__ENABLED': 'false'},
             )
             if not ses.exists() or ses.stat().st_size == 0:
                 raise RuntimeError('Freerouting produced no session file')
@@ -3242,11 +3265,24 @@ def main():
         save_board(builder.board)
         patch_project_rules()
         return 0
+    if mode == 'reroute':
+        # one more Freerouting round on the saved board: existing copper
+        # stays, only the missing connections are added
+        builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
+        work_dir = Path(tempfile.mkdtemp(prefix='cryo_reroute_'))
+        builder.autoroute(work_dir, rounds=1)
+        print('thin tracks widened:', builder.widen_thin_tracks())
+        builder.fill_zones()
+        save_board(builder.board)
+        patch_project_rules()
+        return 0
     if mode == 'link':
         # stamp the symbol links onto an existing (routed) board
         builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
         linked = 0
         for footprint in builder.board.GetFootprints():
+            if not footprint.GetReference():
+                footprint.SetBoardOnly(True)  # mounting holes
             part = builder.parts.get(footprint.GetReference())
             if part is not None:
                 link_to_symbol(footprint, part)

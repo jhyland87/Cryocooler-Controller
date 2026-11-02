@@ -58,6 +58,12 @@ def load_netlist():
             'sheet': sheet,
             'path': sheet_path + symbol,
             'sheet_names': sval(find_all(sheetpath, 'names')[0][1]),
+            # symbol fields the board copy must match (schematic parity)
+            'fields': {
+                field: sval(find_all(comp, key)[0][1])
+                for field, key in (('Description', 'description'), ('Datasheet', 'datasheet'))
+                if find_all(comp, key)
+            },
         }
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):
