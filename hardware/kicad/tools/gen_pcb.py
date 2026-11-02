@@ -1315,6 +1315,8 @@ class PcbBuilder:
                 0.35,
                 ['VIN', 'VSW', '+12V', 'Net-(J2-Pin_1)'],
             ),
+            # protective earth passed straight through J11 pin 3 -> J12 pin 3
+            'Earth': (1.5, 0.8, 0.4, ['EARTH']),
             'Usb': (
                 0.2,
                 0.6,

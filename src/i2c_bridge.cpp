@@ -30,6 +30,8 @@ static constexpr uint8_t CMD_WRITE_REG      = 0x20;
 static constexpr uint8_t CMD_READ_REG       = 0x21;
 static constexpr uint8_t CMD_VERSION        = 0xFE;
 
+static constexpr uint8_t REG_IO_CONFIG      = 0x00;
+static constexpr uint8_t REG_IO_STATE       = 0x01;
 static constexpr uint8_t REG_I2C_CLOCK      = 0x02;
 static constexpr uint8_t REG_I2C_STATUS     = 0x04;
 static constexpr uint8_t I2C_CLOCK_100KHZ   = 19;    // Table 7: 99 kHz
@@ -39,6 +41,7 @@ static constexpr uint8_t STATUS_BUSY        = 0xF3;
 
 static SPIClass* sSpi    = nullptr;
 static bool      sPresent = false;
+static uint8_t   sGpioOut = 0;   // output levels written to IOState
 
 /** One SPI transaction: @p count bytes out (and back into @p rx if given). */
 static void transfer(const uint8_t* tx, uint8_t* rx, size_t count) {
@@ -114,6 +117,8 @@ bool begin(SPIClass& spi) {
         return false;
     }
     writeRegister(REG_I2C_CLOCK, I2C_CLOCK_100KHZ);
+    // GPIO0 drives the display backlight; GPIO1-4 read the power-good flags
+    configureGpio(1u << BRIDGE_GPIO_DISP_BL);
     ESP_LOGI(TAG, "SC18IS604 found: %s", reinterpret_cast<const char*>(version));
     return true;
 }
@@ -122,10 +127,39 @@ void recover() {
     if (sSpi == nullptr) return;
     pulseReset();
     writeRegister(REG_I2C_CLOCK, I2C_CLOCK_100KHZ);
+    configureGpio(1u << BRIDGE_GPIO_DISP_BL);
     ESP_LOGI(TAG, "SC18IS604 reset");
 }
 
 bool isPresent() { return sPresent; }
+
+bool configureGpio(uint8_t outputMask) {
+    if (!sPresent) return false;
+    // IOConfig: two bits per GPIO0-3; 00 = input-only, 10 = push-pull output
+    uint8_t config = 0;
+    for (uint8_t pin = 0; pin < 4; ++pin) {
+        if (outputMask & (1u << pin)) config |= static_cast<uint8_t>(0b10 << (pin * 2));
+    }
+    writeRegister(REG_IO_CONFIG, config);
+    writeRegister(REG_IO_STATE, sGpioOut);
+    return true;
+}
+
+bool writeGpio(uint8_t pin, bool level) {
+    if (!sPresent || pin > 3) return false;
+    if (level) {
+        sGpioOut |= static_cast<uint8_t>(1u << pin);
+    } else {
+        sGpioOut &= static_cast<uint8_t>(~(1u << pin));
+    }
+    writeRegister(REG_IO_STATE, sGpioOut);
+    return true;
+}
+
+int16_t readGpio() {
+    if (!sPresent) return -1;
+    return static_cast<int16_t>(readRegister(REG_IO_STATE) & 0x1F);
+}
 
 // ---------------------------------------------------------------------------
 // EMC230xBus on top of the bridge

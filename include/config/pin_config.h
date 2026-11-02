@@ -125,6 +125,27 @@
 #define PG_15V_N_PIN                 43
 
 // =============================================================================
+// Display (Phoenix 2.4" touch display in the UCS 125-87 lid: ST7789V, 4-wire
+// SPI half duplex on the shared bus) and its TSC2046 touch controller
+// =============================================================================
+// GPIO45 and GPIO46 are strapping pins; 10 kOhm pull-downs hold their default
+// (low) levels at reset, so TOUCH_CS must be driven HIGH before any SPI
+// traffic and the display stays in reset until the firmware releases it.
+#define DISP_CS_PIN                  47
+#define DISP_DC_PIN                  48
+#define DISP_RST_PIN                 46
+#define TOUCH_CS_PIN                 45
+
+// =============================================================================
+// SC18IS604 bridge GPIOs (read / written over SPI, see i2c_bridge.h)
+// =============================================================================
+#define BRIDGE_GPIO_DISP_BL          0   // output: display backlight enable
+#define BRIDGE_GPIO_PGP_15V          1   // input: LT3097 +15 V power good
+#define BRIDGE_GPIO_PGN_15V          2   // input: LT3097 -15 V power good
+#define BRIDGE_GPIO_PGP_16V5         3   // input: LT8582 +16.4 V power good (PG1)
+#define BRIDGE_GPIO_PGN_16V5         4   // input: LT8582 -16.5 V power good (PG2)
+
+// =============================================================================
 
 
 
