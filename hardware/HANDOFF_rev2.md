@@ -1,4 +1,4 @@
-# Rev 2 board handoff (paused 2026-11-02)
+# Rev 2 board handoff (updated 2026-11-02, afternoon)
 
 Work on `hardware/TODO.md` (bench results of 11/01/2026). Approved plan:
 `~/.claude/plans/users-justinhyland-documents-platformio-valiant-pnueli.md`.
@@ -106,6 +106,25 @@ Check script (recreate it if the scratchpad is gone; it runs `make_lib`, `gen_sc
 | 45 | 26 | `TOUCH_CS` | 10k pull-down, which matches the default VDD_SPI strap; firmware must drive it high before any SPI traffic |
 
 Add these to the `right` dict in `build_mcu` and remove pins 16/24/25/26 from its nc list.
+
+## Progress since the first pause (committed on `ucs-125-87-rev2`)
+
+- f9c9397: LT8582, display sheet (FH12 FPC + TSC2046, GPIO45-48), PG flags to bridge GPIOs, R6 fix, duplicate-reference check in the generator.
+- 9318fb0: J14 = Amphenol RJSSE-5380 (plain shielded SMT 8P8C; footprint from `dev/rjsse5380.pdf`, T568B pairs SCK/GND, MOSI/MISO, +3V3/CS, INT1/INT2), JP1-JP5 = Keystone 5110 (0603 pads), 0402 LEDs at ~1 mA (green good / red fault), DDS_SINE test point, 0402 passives, 1.0 mm test pads, BOM tables.
+- Next commit: J8 / J9 (AMP REM, AMP SIGNAL) moved to Phoenix PT 1,5/2-3,5-H (3.5 mm); 12 V IN, AMP OUT and CRYOCOOLER stay 5.08 mm (user's choice).
+- Schematic state: ERC 0, 225/225 datasheet rules, 0 text overlaps, 0 duplicate refs.
+
+## PCB plan (in progress)
+
+- Area budget: about 6,220 mm² of courtyard vs 6,120 mm² per side. Two sides are mandatory.
+- `gen_pcb.py` has no bottom-side support. Planned:
+  - side-aware occupancy (top / bottom / both for through-hole parts and holes);
+  - flip bottom parts with `Flip(pos, FLIP_DIRECTION_LEFT_RIGHT)`. KiCad 10 mirrors y, so a pad's board position is rotate(mirror_y(local), angle);
+  - a side for each module box;
+  - silk on B.SilkS (mirrored) for bottom parts.
+- Height rule (no clearance figure for under the PCB in the housing drawing): the bottom side takes only low-profile SMD parts (passives, SOIC/TSSOP/QFN/DFN/SOT, test points). Through-hole parts, inductors, electrolytics, D2PAK, ESP32, LEDs, switches and connectors stay on top. Test points go on their IC's side.
+- Holes at (4.2, 4.2), (95.8, 4.2), (4.2, 57.8), (95.8, 57.8), Ø3.2. Keep parts out of the 7.4 mm corner squares (Ø6 screw head plus the 4.45 mm no-part / no-mask squares).
+- No Freerouting jar is on this machine. Ask the user before downloading v2.4.1 from GitHub.
 
 ## Remaining work, in order
 

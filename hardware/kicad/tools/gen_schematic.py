@@ -47,6 +47,11 @@ TERM2 = (
     'TerminalBlock_Phoenix:'
     'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
 )
+# signal-only terminals (amplifier REM and line input): Phoenix PT 1,5/2-3,5-H
+TERM2_SMALL = (
+    'TerminalBlock_Phoenix:'
+    'TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50mm_Horizontal'
+)
 INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 
 PITCH = 12.7
@@ -1710,6 +1715,7 @@ def build_amp_control(sh):
         'AMP REM / GND',
         rail='+12V',
         interlock_net='PG_15V',
+        footprint=TERM2_SMALL,
     )
     j_sig = conn(
         sh,
@@ -1718,7 +1724,7 @@ def build_amp_control(sh):
         140 * 1.27,
         90 * 1.27,
         {},
-        TERM2,
+        TERM2_SMALL,
     )
     sig = pin_cell(j_sig, '1')
     wire(sh, sig, (sig[0] - 6, sig[1]))

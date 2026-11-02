@@ -196,8 +196,11 @@ PARTS = {
         'suggested', 'footprint is the GCT USB4105-xx-A'),
     ('', 'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'): (
         'Phoenix Contact', '1729128', 'TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08',
-        'suggested', 'screw terminals, 5.08 mm side entry, black; 12 V in, amplifier REM, '
-        'amplifier signal, amp out, cryocooler out'),
+        'suggested', 'screw terminals, 5.08 mm side entry, black; 12 V in, amp out, '
+        'cryocooler out'),
+    ('', 'TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50mm_Horizontal'): (
+        'Phoenix Contact', '1984617', 'TERM BLOCK 2POS 3.5MM PUSH-IN, PT 1,5/ 2-3,5-H',
+        'suggested', 'amplifier REM and amplifier signal (low current)'),
     ('', 'Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'): (
         'Molex', '0022232041', 'CONN HEADER KK 254 VERT 4POS', 'suggested', 'fan and pump (4-pin PWM); housings black'),
     ('', 'Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'): (
