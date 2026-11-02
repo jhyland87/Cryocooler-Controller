@@ -9,6 +9,7 @@ as a small grey second line in the node label.
 """
 
 import html
+import re
 import xml.etree.ElementTree as ET
 
 # ─── Shape styles ───
@@ -33,6 +34,12 @@ SHAPES = {
 }
 
 EDGE = 'edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;'
+# Edge labels go beside their line so text never covers it (side picked from the route).
+LABEL_ABOVE = 'verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;'
+LABEL_RIGHT = 'align=left;verticalAlign=middle;labelBackgroundColor=none;spacingLeft=6;'
+LABEL_LEFT = 'align=right;verticalAlign=middle;labelBackgroundColor=none;spacingRight=6;'
+LABEL_BELOW = 'verticalAlign=top;labelBackgroundColor=none;spacingTop=2;'
+SIDES = {'above': LABEL_ABOVE, 'below': LABEL_BELOW, 'left': LABEL_LEFT, 'right': LABEL_RIGHT}
 
 
 def label_html(text, ref=None):
@@ -69,6 +76,10 @@ class Diagram:
     def node(self, node_id, text, x, y, w=110, h=50, shape='box', ref=None, style=''):
         """Add a vertex. `text` uses \\n for line breaks."""
         self._id(node_id)
+        if shape in ('tri', 'tri_left'):
+            # keep the label in the wide end of the triangle, clear of the slanted sides
+            side = 'Right' if shape == 'tri' else 'Left'
+            style = f'fontSize=10;spacing{side}={round(w * 0.4)};' + style
         self.cells.append(('v', node_id, label_html(text, ref), SHAPES[shape] + style, x, y, w, h))
         return node_id
 
@@ -83,10 +94,11 @@ class Diagram:
         """Add a small junction dot centred on (x, y)."""
         return self.node(node_id, '', x - 4, y - 4, 8, 8, shape='dot')
 
-    def edge(self, src, dst, label='', points=(), style='', exit_=None, entry=None):
-        """Connect two vertices; exit_/entry are (x, y) fractions of the node box."""
+    def edge(self, src, dst, label='', points=(), style='', exit_=None, entry=None, side=None):
+        """Connect two vertices; exit_/entry are (x, y) fractions of the node box.
+        `side` (above/below/left/right) overrides the automatic label placement."""
         edge_id = self._id()
-        extra = ''
+        extra = SIDES[side] if side else ''
         if exit_:
             extra += f'exitX={exit_[0]};exitY={exit_[1]};exitDx=0;exitDy=0;'
         if entry:
@@ -96,12 +108,55 @@ class Diagram:
                            src, dst, list(points)))
         return edge_id
 
-    def line(self, points, style='', label=''):
+    def line(self, points, style='', label='', side=None):
         """Free polyline with no endpoints (boundaries, dashed links)."""
         edge_id = self._id()
+        style = (SIDES[side] if side else '') + style
         self.cells.append(('l', edge_id, label_html(label) if label else '',
                            'endArrow=none;html=1;rounded=0;' + style, list(points)))
         return edge_id
+
+    def _route(self, src, dst, style, pts):
+        """Approximate the orthogonal route draw.io draws, as a list of points."""
+        boxes = {c[1]: c[4:8] for c in self.cells if c[0] == 'v'}
+
+        def anchor(box, key):
+            x, y, w, h = box
+            fx = re.search(rf'{key}X=([\d.]+)', style)
+            fy = re.search(rf'{key}Y=([\d.]+)', style)
+            if fx and fy:
+                return x + w * float(fx.group(1)), y + h * float(fy.group(1)), True
+            return x + w / 2, y + h / 2, False
+
+        sx, sy, s_fixed = anchor(boxes[src], 'exit')
+        tx, ty, t_fixed = anchor(boxes[dst], 'entry')
+        route = [(sx, sy)] + list(pts) + [(tx, ty)]
+        if not pts:
+            (ax, ay, aw, ah), (bx, by, bw, bh) = boxes[src], boxes[dst]
+            side_by_side = bx >= ax + aw or ax >= bx + bw
+            if s_fixed and t_fixed and (sx in (ax, ax + aw)) != (tx in (bx, bx + bw)):
+                route = [(sx, sy), (tx, sy), (tx, ty)] if sx in (ax, ax + aw) else [(sx, sy), (sx, ty), (tx, ty)]
+            elif side_by_side:
+                mid = (sx + tx) / 2
+                route = [(sx, sy), (mid, sy), (mid, ty), (tx, ty)]
+            else:
+                mid = (sy + ty) / 2
+                route = [(sx, sy), (sx, mid), (tx, mid), (tx, ty)]
+        return route
+
+    @staticmethod
+    def _label_side(route):
+        """Style that puts a label beside (not on) the segment at the route's midpoint."""
+        segments = [(a, b, abs(b[0] - a[0]) + abs(b[1] - a[1])) for a, b in zip(route, route[1:])]
+        segments = [seg for seg in segments if seg[2] >= 1] or segments
+        half = sum(length for _, _, length in segments) / 2
+        for a, b, length in segments:
+            if half <= length:
+                break
+            half -= length
+        if abs(b[1] - a[1]) > abs(b[0] - a[0]):
+            return LABEL_RIGHT
+        return LABEL_ABOVE
 
     def to_xml(self):
         """Serialise as an mxGraphModel element."""
@@ -122,6 +177,8 @@ class Diagram:
                               height=str(h), **{'as': 'geometry'})
             elif kind == 'e':
                 _, cid, value, style, src, dst, pts = cell
+                if value and 'verticalAlign' not in style and 'align=' not in style:
+                    style += self._label_side(self._route(src, dst, style, pts))
                 c = ET.SubElement(root, 'mxCell', id=cid, value=value, style=style, edge='1',
                                   parent='1', source=src, target=dst)
                 g = ET.SubElement(c, 'mxGeometry', relative='1', **{'as': 'geometry'})
@@ -131,6 +188,8 @@ class Diagram:
                         ET.SubElement(arr, 'mxPoint', x=str(px), y=str(py))
             else:
                 _, cid, value, style, pts = cell
+                if value and 'verticalAlign' not in style and 'align=' not in style:
+                    style += self._label_side(pts)
                 c = ET.SubElement(root, 'mxCell', id=cid, value=value, style=style, edge='1',
                                   parent='1')
                 g = ET.SubElement(c, 'mxGeometry', relative='1', **{'as': 'geometry'})

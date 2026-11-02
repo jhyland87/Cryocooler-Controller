@@ -46,8 +46,85 @@ Diagram: [diagrams/overstroke_signal_path.drawio](diagrams/overstroke_signal_pat
   piezo (PZT) knock sensor, matching '409's first sensor option.
 - The NSP screen (p66) sets the drive frequency through an "Osc. Divisor" of a 2 MHz clock (nominal 60 Hz).
 
-### 2.3 Schematic (US6098409 FIG 5C / FIG 5G, KiCad transcription)
-_Being completed. See the FIG 5C and FIG 5G pages in [../kicad/](../kicad/README.md)._
+### 2.3 Schematic: the back-off counter (US6098409 FIG 5C, 5E, 5G)
+Source: FIG 5C-1/5C-2 (PDF p7-8), FIG 5E (p12), FIG 5G-3 (p17). See the KiCad pages `US6098409_fig5c`, `_fig5e` and
+`_fig5g` in [../kicad/](../kicad/README.md). Part values and pins are as printed, and anomalies are in
+[../kicad/TRANSCRIPTION_NOTES.md](../kicad/TRANSCRIPTION_NOTES.md). Numbers marked **[estimate]** are calculated from
+printed values (74HC123 pulse width taken as 0.45·R·C) and are not stated anywhere.
+
+None of the patent text describes this circuit. It is the only place where the sensor, threshold, step size and
+decay that §5 asks about appear. All of it is in hardware: the microcontroller only reads the result.
+
+1. **Sensor input and amplifier (5C-1).** `HOG_T` / `HOG_TR` come from off the board.
+   - `HOG_T` → R285 2.21K → C150 .01uF → **U53A** (LT1124, inverting). Gain is set by R266, printed "221K(RM) / 49.0K"
+     (RM/TM = rack/tower build, see the FIG 5A option table). C155 .01uF is in its feedback.
+   - `HOG_TR` returns to ground via R286 2.21K. U53A + is biased through R267 221K.
+   - U53A → C155 (AC coupling) → R232 20K → **U53B** (LT1124, non-inverting). Its feedback holds a **thermistor
+     network** for the TM build (RT1 "Y4401", R281 3.08(TM), R282 12.4(TM), R283 unvalued, C167). R284 is "0(RM)", so
+     the RM build is a unity follower. Output test point TPX1.
+   - **[assumption]** `HOG_T` is the overstroke (knock) sensor channel, i.e. '409's knock sensor 64 / processor 66.
+     The circuit is an AC-coupled, temperature-compensated amplifier, which fits a piezo or accelerometer. Nothing
+     printed names it.
+2. **Trip comparator (5C-1).** U53B → R253 10K → R254 10K → **U48 LT1011A** + input (pin 2, TP4, C141 to ground).
+   - The − input (pin 3, TP5) is a threshold: R255 90.7K from +5VA against R256 2.09K, in parallel with the 10K pot
+     R285 to ground. **[estimate]** That makes it adjustable from about 0 to 94 mV.
+   - Output pin 7 is open collector, pulled up to +5VA by R233 1K.
+   - **As drawn**, the U48 output also connects back to the R253/R254 junction, which is strong positive feedback.
+     Taken literally, this makes U48 latch. It may be meant as hysteresis, or it may be a drafting error. It is
+     transcribed as drawn.
+3. **Count step: short one-shot (5C-2).** U48 output → the B input of **U28A** (HC123, pin 2), triggered on a rising
+   edge.
+   - Timing is R144 10K / C53 2.2uF, so **[estimate] ≈ 10 ms**. It is retriggerable.
+   - While it runs, Q̄ (pin 4) turns **Q5** (INLD110) off. R167 64.8K from +5V then pushes current through the
+     gate-channel junction of **Q4** (2N4220 JFET, drain and source tied, used as a low-leakage diode) into
+     **C71 10uF**.
+   - **[estimate]** About 0.4 µC per trip, i.e. a step of roughly 40 mV on C71 near 2 V. A burst of trips holds the
+     one-shot on and charges C71 continuously.
+4. **Hold and decay: long one-shot (5C-2).** The same trip also triggers **U28B** (pin 10).
+   - Timing is R145 640K / C72 100uF, so **[estimate] ≈ 30 s**.
+   - Each trip restarts it. While it runs, Q̄ (pin 12) holds **Q1** off.
+   - After ~30 s with no trips, Q1 turns on and bleeds C71 through **R130 1M** (**[estimate] τ ≈ 10 s**). So the count
+     holds while overstrokes keep occurring and decays once they stop.
+5. **Reset (5C-2).** While `SHUTO_T` is low:
+   - Both one-shots are cleared (CLR pins 3 and 11), so Q5 and Q1 are on.
+   - **Q2** is off, so the R190 10K / R142 10K divider (2.5 V) feeds C71 through **Q3** (2N4220 used as a diode).
+   - **[estimate]** C71 therefore settles near 1.9 V, the zero-count baseline.
+
+   `SHUTO_T`'s source is not on the transcribed pages. 5B latches `RAW_SHUTO_T-` (U29 MC2001 output O3), and 5E ORs it
+   with `SYS.RESET` into J8 pin 3.
+6. **Output to the microcontroller (5C-2 → 5G-3).** C71 → R143 1K → **U27A** (LMC6-482 follower, +5VA/−5V) →
+   **`BACK_OFF_COUNT`** → **U22 PE3/AN3, pin 39**, an ADC input of the microcontroller (68HC11K-family guess).
+   - This is the voltage the SuperFilter LOOP screen shows as "Back-off Count" (§2.2). **[inference]** The displayed
+     number is the ADC reading relative to its reset value.
+   - "DAC Back Off" (300) is still unexplained. No DAC is drawn on this path.
+7. **Back-off of the drive ceiling (5C-2).**
+   - `BACK_OFF_COUNT` → R141 51.1K → **U27B** − input (pin 2), together with an offset from −10V through R165 50K + pot
+     R197 200K. The + input goes to ground via R166 4.01K.
+   - **No feedback part is drawn on U27B**, so as drawn it is an open-loop comparator. **[estimate]** It switches
+     when `BACK_OFF_COUNT` passes about 2-10 V, set by R197. **[inference]** A missing feedback resistor, making it an
+     inverting amplifier, would give a proportional back-off and fit the manual's "relative amount" wording better.
+   - U27B output → **R163 (value printed "XXX")** → the **ceiling node** at U26 + input (pin 3). R140 200K from the
+     `CMT_T` precision rectifier (U11 → U26A with CR10/CR11) also feeds that node.
+   - **U26 (LT1124) with CR14 1N4149** from its − input to its output is an ideal-diode clamp. The set-point sum from
+     **U34** (LT1012, via R139 10K) cannot rise above the ceiling node. So the drive command is
+     `min(set-point sum, ceiling)`, and a higher back-off count lowers the ceiling.
+8. **Drive command out (5C-2 → 5E → 5G).**
+   - The clamped node → R162 10K → **U33** (LMC6-482, gain 1 + R185/R194 = 1.05) → **`NOT_TOTAL`** (TP1).
+   - **[inference]** `NOT_TOTAL` is the net printed `HOT TOTAL` on 5E and `HOT-TOTAL` on 5G (joined in the KiCad
+     project; see the transcription notes).
+   - On 5E it feeds the reference (URF, pin 10) of the microcontroller-programmed serial pot UX1. UX1's line out
+     → R136 → **U10** (LT1124, two stages) → R132 → an off-board line. **[inference]** This is the amplitude reference
+     for the 60 Hz drive, i.e. multiplier 70's amplitude input in FIG 3.
+   - On 5G it is also read by **U22 PE4/AN4, pin 38**.
+
+Put together, this is FIG 3's knock sensor 64 → processor 66 → limiter 68 → multiplier 70, built in hardware:
+- **Detection:** U53 + U48.
+- **Integrating count with ~30 s hold and decay:** U28 + C71.
+- **Limiter:** U27B + U26 clamp.
+- **Amplitude scaling:** UX1 + U10.
+
+The microcontroller sees the count (PE3) and the clamped drive (PE4), but the back-off itself does not depend on
+firmware.
 
 ## 3. DSP generation: US6446444 and its published firmware
 
@@ -111,8 +188,9 @@ PDF p183), "piston overstroke" as a sensor-based safety (p208), and an optical s
 shut-offs (p211).
 
 ## 5. What is not documented anywhere
-1. The SuperFilter overstroke detector's actual transducer, threshold, back-off step size, decay or recovery rate,
-   and the units of "Back-off Count".
+1. The SuperFilter overstroke detector's actual transducer and the units of "Back-off Count". The threshold, step
+   size, hold and decay can only be estimated from the FIG 5C values (§2.3). R163 and R283 are unvalued, and the U48
+   feedback and U27B stage look incomplete as drawn.
 2. The meaning of "DAC Back Off" (300).
 3. The algorithm behind SuperLink's "Power Drive Limit Foldback", and its impedance and phase limits.
 4. Numeric values of `ImLoLimit`, `TrejLoTemp` and the other EEPROM parameters.

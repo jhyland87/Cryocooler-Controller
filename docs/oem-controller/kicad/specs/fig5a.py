@@ -2,7 +2,7 @@
 
 from oemsch import P
 
-TITLE = 'FIG 5A - Connectors, option table, reset comparator, spare sections'
+TITLE = 'FIG 5A - Connectors, option table, reset comparator'
 SOURCE = 'US6098409 sheet 4 of 25 (PDF p5), FIG 5A'
 PAPER = 'A2'
 

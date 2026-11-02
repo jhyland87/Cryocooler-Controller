@@ -9,12 +9,12 @@
           <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
         </mxCell>
         <mxCell id="tref" value="T_REF" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="0" y="160" width="80" height="60" as="geometry" />
+          <mxGeometry x="0" y="148" width="80" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="outer" value="OUTER&lt;br&gt;LOOP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;34&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="outer" value="OUTER&lt;br&gt;LOOP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;34&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;fontSize=10;spacingRight=36;" vertex="1" parent="1">
           <mxGeometry x="130" y="150" width="90" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="inner" value="INNER&lt;br&gt;LOOP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;32&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="inner" value="INNER&lt;br&gt;LOOP&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;32&lt;/font&gt;" style="triangle;whiteSpace=wrap;html=1;fontSize=10;spacingRight=36;" vertex="1" parent="1">
           <mxGeometry x="290" y="40" width="90" height="80" as="geometry" />
         </mxCell>
         <mxCell id="cooler" value="CRYO&lt;br&gt;COOLER&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;40&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
@@ -26,19 +26,19 @@
         <mxCell id="css" value="COLD&lt;br&gt;STAGE&lt;br&gt;SENSOR&lt;br&gt;&lt;font style=&quot;font-size:9px&quot; color=&quot;#808080&quot;&gt;20&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="570" y="260" width="110" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="e1" value="42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" edge="1" parent="1" source="tref" target="outer">
+        <mxCell id="e1" value="42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.35;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="tref" target="outer">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" value="36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="outer" target="inner">
+        <mxCell id="e2" value="36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;align=right;verticalAlign=middle;labelBackgroundColor=none;spacingRight=6;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="outer" target="inner">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" value="38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="inner" target="cooler">
+        <mxCell id="e3" value="38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="inner" target="cooler">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="cooler" target="cfs">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" value="33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="cfs" target="inner">
+        <mxCell id="e5" value="33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="cfs" target="inner">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="625" y="150" />
@@ -47,7 +47,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e6" value="44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="css" target="outer">
+        <mxCell id="e6" value="44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="css" target="outer">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="110" y="290" />

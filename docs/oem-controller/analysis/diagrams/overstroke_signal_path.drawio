@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="Back-off counter (FIG 5C)">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Overstroke back-off counter and drive clamp (US6098409 / US6256999)&lt;/b&gt;&lt;br&gt;&lt;i&gt;FIG 5C-1/5C-2 (PDF p7-8), FIG 5E (p12), FIG 5G-3 (p17). Values as printed; &amp;quot;≈&amp;quot; = estimate from printed values (see analysis/OVERSTROKE.md §2.3)&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sens" value="HOG_T / HOG_TR&lt;br&gt;(off-board sensor)&lt;br&gt;assumed: knock sensor 64" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" vertex="1" parent="1">
+          <mxGeometry x="0" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="amp" value="U53A LT1124&lt;br&gt;inverting AC amp&lt;br&gt;R266 221K(RM) / 49.0K(TM)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="210" y="40" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tc" value="U53B LT1124&lt;br&gt;thermistor-compensated (TM)&lt;br&gt;RT1 Y4401; R284 0Ω (RM)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="450" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp" value="U48 LT1011A comparator&lt;br&gt;threshold ≈ 0-94 mV&lt;br&gt;(R255/R256, pot R285)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="700" y="40" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="C150" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="sens" target="amp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="C155" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="amp" target="tc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="R253&lt;br&gt;R254" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="tc" target="cmp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="os1" value="U28A HC123 (B = pin 2)&lt;br&gt;≈10 ms one-shot&lt;br&gt;R144 10K / C53 2.2uF" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="970" y="0" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="os2" value="U28B HC123 (B = pin 10)&lt;br&gt;≈30 s, retriggered&lt;br&gt;R145 640K / C72 100uF" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="970" y="120" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="chg" value="Q5 off → R167 64.8K&lt;br&gt;→ Q4 (JFET as diode)&lt;br&gt;≈ +40 mV per trip" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="0" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bld" value="after ≈30 s with no trip:&lt;br&gt;Q1 on, C71 bleeds via&lt;br&gt;R130 1M (τ ≈ 10 s)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="120" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cap" value="C71 10uF&lt;br&gt;back-off count" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cmp" target="os1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cmp" target="os2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="trip" value="trip ↑" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="872" y="48" width="46" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="Q̄ low" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="os1" target="chg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="Q̄ high" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="os2" target="bld">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="chg" target="cap">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="bld" target="cap">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rst" value="SHUTO_T low&lt;br&gt;(reset; source not&lt;br&gt;on transcribed pages)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="700" y="250" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pre" value="Q2 off → R190/R142 2.5 V&lt;br&gt;→ Q3 → C71 ≈ 1.9 V&lt;br&gt;(zero-count baseline)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="250" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rst" target="os2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1055" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="clr" value="CLR (pins 3, 11)" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1062" y="200" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="Q2 gate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;verticalAlign=top;labelBackgroundColor=none;spacingTop=2;" edge="1" parent="1" source="rst" target="pre">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="pre" target="cap">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fol" value="U27A LMC6-482&lt;br&gt;follower" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1680" y="60" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="adc1" value="U22 PE3/AN3 (pin 39)&lt;br&gt;BACK_OFF_COUNT&lt;br&gt;µC ADC (FIG 5G)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="0" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmpb" value="U27B LMC6-482&lt;br&gt;− in: R141 51.1K, and −10V via&lt;br&gt;R165 50K + R197 200K pot&lt;br&gt;(no feedback part drawn)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="110" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="R143" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="cap" target="fol">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fol" target="adc1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fol" target="cmpb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cmt" value="CMTO_T → U11&lt;br&gt;→ CMT_T" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="0" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rect" value="U26A LT1124&lt;br&gt;precision rectifier&lt;br&gt;CR10 / CR11" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="210" y="380" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sp" value="U34 LT1012 set-point sum&lt;br&gt;(WP.SHOSET, WP.SHTR,&lt;br&gt;OF_SET, OF_CTAL, OFT_TE)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="450" y="465" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ceil" value="ceiling node&lt;br&gt;(U26 pin 3)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="970" y="380" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="clamp" value="U26 LT1124 + CR14&lt;br&gt;ideal-diode clamp&lt;br&gt;out = min(sum, ceiling)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="460" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="u33" value="U33 LMC6-482&lt;br&gt;×1.05 → NOT_TOTAL&lt;br&gt;(TP1)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="465" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pot" value="UX1 serial pot (FIG 5E)&lt;br&gt;URF = HOT TOTAL&lt;br&gt;set by µC over NSP bus" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1760" y="465" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="u10" value="U10 LT1124 ×2 → R132&lt;br&gt;→ off board: 60 Hz drive&lt;br&gt;amplitude (multiplier 70)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" vertex="1" parent="1">
+          <mxGeometry x="2040" y="465" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="adc2" value="U22 PE4/AN4 (pin 38)&lt;br&gt;HOT-TOTAL (FIG 5G)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1760" y="590" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="R127" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="cmt" target="rect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="R140 200K" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="rect" target="ceil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="R163 &amp;quot;XXX&amp;quot;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="cmpb" target="ceil">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1980" y="340" />
+              <mxPoint x="1055" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" value="limit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="ceil" target="clamp">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1330" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e20" value="R139 10K" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="sp" target="clamp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="R162" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="clamp" target="u33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="= HOT TOTAL&lt;br&gt;(inference)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="u33" target="pot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="LINE OUT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="pot" target="u10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" edge="1" parent="1" source="u33" target="adc2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1570" y="615" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="notes" value="&lt;b&gt;Reading notes&lt;/b&gt;&lt;br&gt;• Higher count → lower ceiling → smaller drive amplitude. With no trips the count holds for ≈30 s, then decays.&lt;br&gt;• As drawn, U48 output also ties back to the R253/R254 junction (positive feedback; would latch if taken literally).&lt;br&gt;• U27B has no feedback part drawn, so as drawn it is a comparator (switches at BACK_OFF_COUNT ≈ 2-10 V). A proportional amplifier was probably intended.&lt;br&gt;• The µC only reads the count (PE3) and the clamped command (PE4); the back-off itself is all hardware. SuperFilter &quot;Back-off Count&quot; (LOOP screen) is this value." style="shape=note;whiteSpace=wrap;html=1;size=12;align=left;verticalAlign=top;spacingLeft=6;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="0" y="580" width="1450" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page1" name="Across sources">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Overstroke handling in each STI source&lt;/b&gt;&lt;br&gt;&lt;i&gt;US6098409 col. 5 / FIG 3; SuperFilter guide p16, p64-65; US6446444 TASKS.C; SuperLink Rx manual p14, p67-71&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="h0" value="US6098409 FIG 3 (patent text)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c0r0" value="Knock sensor 64&lt;br&gt;(PZT / back-EMF / current)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="20" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c0r1" value="Knock processor 66" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="20" y="170" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="c0r0" target="c0r1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c0r2" value="Limiter 68&lt;br&gt;(+ thermistor 60/62, PD loop 38)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="20" y="270" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="c0r1" target="c0r2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c0r3" value="Multiplier 70&lt;br&gt;× 60 Hz → cryocooler 40" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="20" y="370" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="c0r2" target="c0r3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" value="SuperFilter (product of the analog design)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="0" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c1r0" value="Overstroke Detector&lt;br&gt;(Fig 3, on the cooler)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="320" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c1r1" value="FIG 5C back-off counter&lt;br&gt;(page 1 of this file)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="320" y="170" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="c1r0" target="c1r1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c1r2" value="&amp;quot;Back-off Count&amp;quot; (LOOP screen)&lt;br&gt;0 = no back-off" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="320" y="270" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="c1r1" target="c1r2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c1r3" value="&amp;quot;DAC Back Off&amp;quot; = 300&lt;br&gt;factory set, not explained" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" vertex="1" parent="1">
+          <mxGeometry x="320" y="370" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="US6446444 firmware (DSP)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="0" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c2r0" value="No overstroke / knock code" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2r1" value="CoolDownSp(): ceiling = m·Tcsw + b&lt;br&gt;(TASKS.C:1749)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="170" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2r2" value="Motor-hot derating&lt;br&gt;Trej &amp;lt; TrejLoTemp (L1755)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="270" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2r3" value="Clamp to MAX_IMOT (90L, 48 V)&lt;br&gt;→ ImServo → sine amplitude" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="370" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" value="SuperLink Rx (later DSP product)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="0" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c3r0" value="Motor current &amp;amp; voltage sensors&lt;br&gt;(Fig 4, no overstroke block)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="920" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c3r1" value="Cooler impedance, current phase&lt;br&gt;(likely indicators, inference)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" vertex="1" parent="1">
+          <mxGeometry x="920" y="170" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c3r2" value="&amp;quot;Power Drive Limit Foldback&amp;quot;&lt;br&gt;off the cooldown table (p67)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="920" y="270" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c3r3" value="PM fault: impedance out of&lt;br&gt;bounds (p71)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="920" y="370" width="220" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

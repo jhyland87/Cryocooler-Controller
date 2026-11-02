@@ -61,6 +61,52 @@ kicadgen.stable_uuid = _stable_uuid
 kicadgen.get_symbol = _get_symbol
 kicadgen.q = _quote
 
+import textlayout  # noqa: E402  (cryocooler tool; used read-only)
+
+_place_text = textlayout.place_text
+
+
+def _flag_box(net, x, y, angle):
+    """Box a global-label flag really covers (wider and taller than textlayout assumes)."""
+    length = _flag_length(net)
+    half = 1.5
+    return {0: (x, y - half, x + length, y + half), 180: (x - length, y - half, x, y + half),
+            90: (x - half, y - length, x + half, y), 270: (x - half, y, x + half, y + length)}[int(angle) % 360]
+
+
+def _flag_length(net):
+    return len(net) * 1.15 + 4.5
+
+
+def _place_text_keep_fixed(sheet):
+    """
+    Run the shared field layout, then restore fields this generator fixed itself and
+    move any part's fields down, as a pair, until they clear the global-label flags.
+    """
+    _place_text(sheet)
+    flags = [_flag_box(net, x, y, angle) for kind, net, (x, y), angle in sheet.labels
+             if kind == 'global_label']
+    for part in sheet.parts:
+        if getattr(part, 'fixed_fields', None):
+            part.fields = part.fixed_fields
+        fields = getattr(part, 'fields', None) or {}
+        shown = [(name, info) for name, info in fields.items() if not info.get('hide')]
+
+        def boxes(shift):
+            return [textlayout.field_box(info['x'], info['y'] + shift,
+                                         textlayout.text_width(part.ref if name == 'Reference' else part.value),
+                                         info.get('justify')) for name, info in shown]
+
+        shift = 0.0
+        while shift < 4 * 2.54 and any(textlayout.hits(box, flag, 0.1) for box in boxes(shift) for flag in flags):
+            shift += 1.27
+        if 0 < shift < 4 * 2.54:
+            for _, info in shown:
+                info['y'] += shift
+
+
+textlayout.place_text = _place_text_keep_fixed
+
 # ─── Discrete kinds → stock symbols ───
 KINDS = {
     'R': ('Device:R_US', 'R'),
@@ -111,6 +157,7 @@ def P(ref, value, kind, at, rot=0, mirror=False, pins=None, printed=None,
 # ─── Custom symbol library ───
 
 def _pin(number, name, x, y, angle, length=2.54):
+    name = '' if name == '~' else name  # '~' prints literally in KiCad 10; '' shows no name
     return (f'\t\t\t(pin passive line (at {x:g} {y:g} {angle}) (length {length:g})\n'
             f'\t\t\t\t(name "{name}" (effects (font (size 1.27 1.27))))\n'
             f'\t\t\t\t(number "{number}" (effects (font (size 1.27 1.27))))\n\t\t\t)\n')
@@ -130,31 +177,52 @@ def _symbol(name, ref_prefix, graphics, pin_text, hide_names=False, value=None):
             f'\t\t(embedded_fonts no)\n\t)\n')
 
 
+def _pin_length(entries):
+    """Pin length that fits the longest pin number on a side (numbers sit along the pin)."""
+    longest = max([len(entry[0]) for entry in entries if entry] + [1])
+    return 2.54 if longest <= 2 else 2.54 * math.ceil((longest * 0.95 + 0.8) / 2.54)
+
+
+def _name_room(entries):
+    """Length (mm) a side's pin names take inside the body."""
+    return max([len(entry[1]) * 0.95 + 1.3 for entry in entries if entry and entry[1] != '~'] + [0])
+
+
 def box_symbol(name, spec):
     """Rectangle IC. spec: left/right/top/bottom lists of (number, name) or None gaps."""
     left, right = spec.get('left', []), spec.get('right', [])
     top, bottom = spec.get('top', []), spec.get('bottom', [])
     rows = max(len(left), len(right), 1)
     half_h = 2.54 * math.ceil((rows + 1) / 2)
+    # top and bottom pin names run vertically into the body; keep them apart
+    half_h = max(half_h, 2.54 * math.ceil((_name_room(top) + _name_room(bottom)) / 2 / 2.54 + 0.5))
     longest = max([len(p[1]) for p in left + right if p] + [1])
     across = max(len(top), len(bottom))
     width = max(10.16, 2.54 * math.ceil((2 * longest * 0.9 + 5) / 2.54), 2.54 * (across + 1))
     width = 2.54 * math.ceil(width / 2.54 / 2) * 2
     half_w = width / 2
+    # side pin names must stop short of the vertical top/bottom pin names
+    if any(top + bottom):
+        span = 1.27 * (across - 1)
+        half_w = max(half_w, 2.54 * math.ceil((max(_name_room(left), _name_room(right)) + span + 1.0) / 2.54))
     graphics = (f'\t\t\t(rectangle (start {-half_w:g} {half_h:g}) (end {half_w:g} {-half_h:g}) '
                 '(stroke (width 0.254) (type default)) (fill (type background)))\n')
     text = ''
+    length = _pin_length(left)
     for index, entry in enumerate(left):
         if entry:
-            text += _pin(entry[0], entry[1], -half_w - 2.54, half_h - 2.54 * (index + 1), 0)
+            text += _pin(entry[0], entry[1], -half_w - length, half_h - 2.54 * (index + 1), 0, length)
+    length = _pin_length(right)
     for index, entry in enumerate(right):
         if entry:
-            text += _pin(entry[0], entry[1], half_w + 2.54, half_h - 2.54 * (index + 1), 180)
-    for side, y, angle in ((top, half_h + 2.54, 270), (bottom, -half_h - 2.54, 90)):
+            text += _pin(entry[0], entry[1], half_w + length, half_h - 2.54 * (index + 1), 180, length)
+    for side, sign, angle in ((top, 1, 270), (bottom, -1, 90)):
+        length = _pin_length(side)
         start = -2.54 * (len(side) - 1) / 2
         for index, entry in enumerate(side):
             if entry:
-                text += _pin(entry[0], entry[1], round((start + 2.54 * index) / 1.27) * 1.27, y, angle)
+                text += _pin(entry[0], entry[1], round((start + 2.54 * index) / 1.27) * 1.27,
+                             sign * (half_h + length), angle, length)
     return _symbol(name, spec.get('prefix', 'U'), graphics, text)
 
 
@@ -169,10 +237,13 @@ def opamp_symbol(name, pinmap):
         text += _pin(pinmap['+'], '+', -7.62, -2.54, 0)
     if 'out' in pinmap:
         text += _pin(pinmap['out'], '~', 7.62, 0, 180)
+    # supply pin names are left blank: they would sit on the input names; the pin
+    # numbers and the power symbols on the stubs identify them
+    # 5.08 mm supply pins keep their numbers clear of the slanted sides
     if 'v+' in pinmap:
-        text += _pin(pinmap['v+'], 'V+', -2.54, 6.35, 270)
+        text += _pin(pinmap['v+'], '', -2.54, 8.89, 270, 5.08)
     if 'v-' in pinmap:
-        text += _pin(pinmap['v-'], 'V-', -2.54, -6.35, 90)
+        text += _pin(pinmap['v-'], '', -2.54, -8.89, 90, 5.08)
     return _symbol(name, 'U', graphics, text)
 
 
@@ -258,6 +329,43 @@ def _net_only_in_group(net, group, stub_end, groups):
     return all(groups.get(key) == group for key, (_, _, other) in stub_end.items() if other == net)
 
 
+def _centre_fields(placed):
+    """
+    A horizontal two-pin part with a global label on a pin: the shared text layout puts
+    its fields to the right, over the label flag. Centre them above and below the body.
+    """
+    if len(placed.pin_table) != 2 or not placed.lib_id.startswith('Device:D'):
+        return
+    if any(_direction(placed.pin_out_angle(n))[1] != 0 for n in placed.pin_table):
+        return
+    placed.fixed_fields = {
+        'Reference': {'x': placed.x, 'y': placed.y - 2.54, 'justify': None, 'hide': False},
+        'Value': {'x': placed.x, 'y': placed.y + 2.54, 'justify': None, 'hide': False},
+    }
+
+
+def _clear_neighbours(sheet, markers):
+    """
+    A local label's text sits beside its wire, so a global-label flag or power symbol on
+    the neighbouring pin (one pitch away, same side) overlaps it. Lengthen that label's
+    stub past the neighbour.
+    """
+    for index, (kind, net, end, angle) in enumerate(sheet.labels):
+        if kind != 'label':
+            continue
+        dx, dy = _direction(angle)
+        extra = 0
+        for (mx, my), direction, width in markers:
+            along = (mx - end[0]) * dx + (my - end[1]) * dy
+            across = abs((mx - end[0]) * dy - (my - end[1]) * dx)
+            if direction == (dx, dy) and abs(along) < 0.01 and 0.01 < across <= 2 * CELL + 0.01:
+                extra = max(extra, width)
+        if extra:
+            new_end = (end[0] + dx * extra, end[1] + dy * extra)
+            sheet.wires.append((end, new_end))
+            sheet.labels[index] = (kind, net, new_end, angle)
+
+
 def build_sheet(sheet, spec, globals_):
     """Place the spec's parts on `sheet` and attach stubs, wires, labels and power symbols."""
     sheet.handwired = True
@@ -283,10 +391,12 @@ def build_sheet(sheet, spec, globals_):
         for number, net in part['pins'].items():
             assert number in placed.pin_table, f'{spec.__name__}: {part["ref"]} has no pin {number}'
             x, y = placed.pin_point(number)
-            if net == 'NC':
-                sheet.no_connects.append((x, y))
-                continue
             dx, dy = _direction(placed.pin_out_angle(number))
+            if net == 'NC':
+                # marker on a short stub, clear of the pin number
+                sheet.wires.append(((x, y), (x + dx * 2 * CELL, y + dy * 2 * CELL)))
+                sheet.no_connects.append((x + dx * 2 * CELL, y + dy * 2 * CELL))
+                continue
             end = (x + dx * 2 * CELL, y + dy * 2 * CELL)
             sheet.wires.append(((x, y), end))
             stub_end[(part['ref'], number)] = (end, (dx, dy), net)
@@ -301,6 +411,7 @@ def build_sheet(sheet, spec, globals_):
 
     # Every pin gets a label/power symbol unless it is wired to a pin that already has one.
     labelled_groups = set()
+    markers = []  # (end, direction, width): global-label flags and power symbols, for spacing below
     for key, (end, (dx, dy), net) in stub_end.items():
         group = groups.get(key)
         if group is not None:
@@ -312,12 +423,17 @@ def build_sheet(sheet, spec, globals_):
             symbol = sheet.add(f'power:{POWER[net]}', f'#PWR{kicadgen._pwr_counter[0]:03d}', net,
                                end[0], end[1], auto=False)
             symbol.is_power = True
+            markers.append((end, (dx, dy), 2 * CELL))
             continue
         if group is not None and _net_only_in_group(net, group, stub_end, groups) and net not in globals_:
             continue
         angle = {(1, 0): 0, (-1, 0): 180, (0, -1): 90, (0, 1): 270}[(dx, dy)]
         kind = 'global_label' if net in globals_ else 'label'
         sheet.labels.append((kind, net, end, angle))
+        if kind == 'global_label':
+            markers.append((end, (dx, dy), CELL * math.ceil(_flag_length(net) / CELL)))
+            _centre_fields(placed_by_ref[key[0]][0])
+    _clear_neighbours(sheet, markers)
     for text, col, row in getattr(spec, 'NOTES', []):
         sheet.note(text, col * CELL, row * CELL, 1.5)
 

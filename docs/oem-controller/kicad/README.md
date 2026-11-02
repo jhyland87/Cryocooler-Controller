@@ -41,6 +41,9 @@ Each page carries its title and source sheet number in the top-left corner.
     (identification guesses, never replacing the printed value).
 - Every IC uses a **transcription symbol** (`lib/oem_patent.kicad_sym`) with pins numbered and named as printed. These
   are not verified against datasheets. The patent drawings are the reference, including any errors in them.
+- Op-amp supply pins show only their numbers; the power symbol on each stub names the rail.
+- Unused pins carry the no-connect marker on a short stub, clear of the pin number. A local label
+  next to a global-label flag or power symbol gets a longer stub, so the texts don't touch.
 - No footprints and no PCB. This is a reading aid, not a design.
 
 See [TRANSCRIPTION_NOTES.md](TRANSCRIPTION_NOTES.md) for every anomaly, uncertainty and identification guess, per figure.
@@ -54,6 +57,10 @@ docs/oem-controller/kicad/tools/check.sh /tmp/oem-build                 # build 
 docs/oem-controller/kicad/tools/check.sh /tmp/oem-build fig5c fig5g     # only some figures
 python3 -I docs/oem-controller/kicad/tools/gen_oem_schematic.py         # write the real project files here
 ```
+
+`check_text_overlap.py` (run by `check.sh` on KiCad's SVG export) reports any text that overlaps
+other text or is crossed by a line (wire, symbol outline, pin, label flag, frame), and any wire that
+runs through a symbol body. All pages currently pass with 0 problems.
 
 `verify_netlist.py` checks that KiCad's exported connectivity matches the specs exactly. Two pins share a KiCad net
 if and only if they share a net in the spec, which catches wires that accidentally short or split nets. ERC reports

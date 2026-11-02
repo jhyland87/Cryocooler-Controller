@@ -5,7 +5,7 @@ The sheet is drawn rotated 90 degrees on the patent page; this page is upright.
 
 from oemsch import P
 
-TITLE = 'FIG 5E - I/O connectors, HOT TOTAL line driver, serial/SPI parts'
+TITLE = 'FIG 5E - I/O connectors, HOT TOTAL driver, serial'
 SOURCE = 'US6098409 sheet 11 of 25 (PDF p12), FIG 5E (drawn rotated)'
 PAPER = 'A2'
 
@@ -105,7 +105,7 @@ PARTS = [
       note='Bottom end to an unlabeled filled down-arrow'),
     P('L1', '2100', 'L', at=(172, 258), rot=90, pins={'1': 'TKD', '2': '5E_J9_3'},
       probable='Ferrite bead (value "2100")'),
-    P('C94', '.001uF', 'C', at=(150, 288), pins={'1': 'RXD', '2': '5E_ARROW_C94'},
+    P('C94', '.001uF', 'C', at=(150, 298), pins={'1': 'RXD', '2': '5E_ARROW_C94'},
       note='Bottom end to an unlabeled filled down-arrow'),
     P('L2', '2100', 'L', at=(172, 280), rot=90, pins={'1': 'RXD', '2': '5E_J9_4'},
       probable='Ferrite bead'),
@@ -152,7 +152,7 @@ PARTS = [
     P('R185', '10K', 'R', at=(418, 202), pins={'1': '5E_U10B_NI', '2': 'GND'}),
     P('R132', '?', 'R', at=(446, 192), pins={'1': '5E_U10_OUT', '2': '5E_U10_OUT_R'},
       note='No value printed; output end runs up to the test point and back to J8-2'),
-    P('TPX2', 'TP', 'TP', at=(452, 150), pins={'1': '5E_U10_OUT_R'}, printed='',
+    P('TPX2', 'TP', 'TP', at=(436, 150), pins={'1': '5E_U10_OUT_R'}, printed='',
       note='Unlabeled test point'),
 
     # ── SPI device with ferrite-filtered supplies ──

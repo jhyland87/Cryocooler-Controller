@@ -12,3 +12,6 @@ kicad-cli sch export netlist --format kicadsexpr -o "$OUT/net.net" "$OUT/oem-con
 OEM_ONLY="$*" python3 -I tools/verify_netlist.py "$OUT/net.net"
 kicad-cli sch export pdf -o "$OUT/schematic.pdf" "$OUT/oem-controller.kicad_sch" >/dev/null
 echo "pdf: $OUT/schematic.pdf (page 1 root, 2 patent sheet, 3+ figures in order)"
+rm -rf "$OUT/svg" && mkdir -p "$OUT/svg"
+kicad-cli sch export svg -o "$OUT/svg" "$OUT/oem-controller.kicad_sch" >/dev/null
+python3 -I tools/check_text_overlap.py "$OUT/svg" | tail -1

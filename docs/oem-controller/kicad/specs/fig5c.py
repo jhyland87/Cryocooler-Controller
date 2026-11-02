@@ -12,7 +12,7 @@ on the left edge of 5C-2 (edge y positions at 400 dpi/4: 196/194, 231/230,
 
 from oemsch import P
 
-TITLE = 'FIG 5C - Set-point summing, CMT/HOG channels, overstroke back-off'
+TITLE = 'FIG 5C - Set-point sum, overstroke back-off'
 SOURCE = 'US6098409 sheets 6-7 of 25 (PDF p7-8), FIG 5C-1 + FIG 5C-2'
 PAPER = 'A1'
 
@@ -189,9 +189,9 @@ PARTS = [
     P('C76B', '.1uF', 'C', at=(492, 96), pins={'1': '+15V', '2': 'GND'},
       printed='C76', note='C76 printed twice on FIG 5C-2'),
     P('C70', '.1uF', 'C', at=(492, 134), pins={'1': '-15V', '2': 'GND'}),
+    P('C69', '.01uF', 'C', at=(528, 80), pins={'1': '5C_U26B_INV', '2': '5C_U26B_OUT'}),
     P('CR14', '1N4149', 'D', at=(512, 80), pins={'1': '5C_U26B_OUT', '2': '5C_U26B_INV'},
       note='Anode to pin 2 node, cathode to pin 6'),
-    P('C69', '.01uF', 'C', at=(528, 80), pins={'1': '5C_U26B_INV', '2': '5C_U26B_OUT'}),
     P('R162', '10K', 'R', at=(548, 60), rot=90, pins={'1': '5C_U26B_INV', '2': '5C_U33_NI'}),
     P('U33', 'LMC6-482', 'OPAMP', at=(590, 66),
       pinmap={'-': '6', '+': '5', 'out': '7', 'v+': '8', 'v-': '4'},
@@ -259,19 +259,21 @@ PARTS = [
       printed='U27', probable='LMC6482', note=NOTE_SUPPLY_UNNUM + ' (V- = 4); follower (6 tied to 7)'),
     P('C52', '.1uF', 'C', at=(588, 268), pins={'1': '+5VA', '2': 'GND'}),
     P('C50', '.1uF', 'C', at=(588, 310), pins={'1': '-5V', '2': 'GND'}),
-    P('R141', '51.1K', 'R', at=(604, 288), rot=90, pins={'1': 'BACK_OFF_COUNT', '2': '5C_U27B_INV'}),
-    P('U27B', 'LMC6-482', 'OPAMP', at=(636, 290), pinmap={'-': '2', '+': '3', 'out': '1'},
+    P('R141', '51.1K', 'R', at=(618, 288), rot=90, pins={'1': 'BACK_OFF_COUNT', '2': '5C_U27B_INV'}),
+    P('U27B', 'LMC6-482', 'OPAMP', at=(632, 330), pinmap={'-': '2', '+': '3', 'out': '1'},
       pins={'2': '5C_U27B_INV', '3': '5C_U27B_NI', '1': '5C_U27B_OUT'}, printed='U27', probable='LMC6482'),
-    P('R165', '50K', 'R', at=(616, 316), pins={'1': '5C_U27B_INV', '2': '5C_R197_3'}),
-    P('R197', '200K', 'POT', at=(616, 340), pins={'3': '5C_R197_3', '2': '-10V', '1': '-10V'},
+    P('R165', '50K', 'R', at=(612, 356), pins={'1': '5C_U27B_INV', '2': '5C_R197_3'}),
+    P('R197', '200K', 'POT', at=(612, 380), pins={'3': '5C_R197_3', '2': '-10V', '1': '-10V'},
       note='Wiper (2) tied to pin 1, to -10V'),
-    P('R166', '4.01K', 'R', at=(636, 318), pins={'1': '5C_U27B_NI', '2': 'GND'}),
+    P('R166', '4.01K', 'R', at=(636, 356), pins={'1': '5C_U27B_NI', '2': 'GND'}),
     P('R163', 'XXX', 'R', at=(600, 180), rot=90, pins={'1': '5C_U26B_NI', '2': '5C_U27B_OUT'},
       note='Value printed as XXX (not specified)'),
 ]
 
 WIRES = [
     ('R299.2', 'R298.1', 'vh'),
+    ('R162B.1', 'R187.1', 'vh'),
+    ('U33.4', 'R162B.1', 'hv'),
     ('C105.2', 'C104.1'),
     ('C104.2', 'R199B.1', 'vh'),
     ('C35.1', 'R82.1', 'vh'),
@@ -301,7 +303,7 @@ WIRES = [
 NOTES = [
     ('FIG 5C-1 | FIG 5C-2 page seam: the 8 lines leaving 5C-1 right edge continue in order on 5C-2 left edge\n'
      '(R192/R189/R193/R195/R199 -> U34 pin 2; R140 -> U26 pin 3; SHUTO_T -> Q2/U28 CLR; U48 out -> U28 O inputs)',
-     15, 455),
+     15, 437),
     ('OVERSTROKE BACK-OFF COUNTER: each U48 trip fires U28 (pin 2 O) -> Q5 off -> R167 charges C71 via Q4 (JFET diode);\n'
      'U28 (pin 10 O) is retriggered by each trip and holds Q1 off; after ~R145*C72 with no trips Q1 bleeds C71 via R130.\n'
      'SHUTO_T low: clears both one-shots and turns Q2 off so R190/R142 charge C71 via Q3. C71 -> U27 buffer -> BACK_OFF_COUNT.',

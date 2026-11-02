@@ -2,7 +2,7 @@
 
 from oemsch import P
 
-TITLE = 'FIG 6C - Channel J15, board connector J10, mounting holes'
+TITLE = 'FIG 6C - Channel J15, connector J10'
 SOURCE = 'US6098409 sheet 25 of 25 (PDF p26), FIG 6C (drawn rotated 90 deg)'
 PAPER = 'A2'
 

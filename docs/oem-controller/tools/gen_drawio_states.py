@@ -30,7 +30,7 @@ def state(d, node_id, title, body, x, y, w=230, h=110, style=''):
     lines = body.split('\n')
     html = f'<b>{title}</b><hr size="1">' + '<br>'.join(lines)
     d.text(node_id, html, x, y, w, h, raw=True, shape='state',
-           style='align=left;verticalAlign=top;spacingLeft=6;fontSize=10;' + style)
+           style='align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;' + style)
 
 
 def superlink():
@@ -39,45 +39,49 @@ def superlink():
     d.node('start', '', 20, 50, 20, 20, 'start')
     state(d, 's0', '0. Initial  (Bypass mode)',
           'Bypass relay: Bypass\nBYPASS(red) On, STATUS(green) On\n'
-          'Initializes system; cooler motor to\nminimum power setting', 70, 10, style=BYPASS)
+          'Initializes system; cooler motor to\nminimum power setting', 70, 10, 240, 120, style=BYPASS)
     state(d, 's1', '1. Cooldown  (Bypass mode)',
           'Bypass relay: Bypass\nBYPASS On, STATUS On\nMax motor drive from the cooler\'s\n'
-          'cooldown profile. LNAs turn on when NR\ntemp is within operating bounds', 420, 10, 250, 120,
+          'cooldown profile. LNAs turn on when NR\ntemp is within operating bounds', 440, 10, 260, 130,
           style=BYPASS)
     state(d, 's2', '2. Regulate  (= SuperLink mode)',
           'Bypass relay: Normal\nBYPASS Off, STATUS On (steady green)\nRegulates cold stage temperature\n'
-          'indefinitely', 860, 10, 250, 110, style=NORMAL)
+          'indefinitely', 960, 10, 260, 120, style=NORMAL)
     state(d, 's3', '3. Bypass (Fault)  (Bypass mode)',
           'Bypass relay: Bypass\nBYPASS On, STATUS Off\nContinues to regulate the cooler\ntemperature',
-          860, 300, 250, 100, style=FAULT)
+          960, 330, 260, 110, style=FAULT)
     state(d, 's4', '4. Shutdown (Fault)  (Bypass mode)',
           'Bypass relay: Bypass\nBYPASS On, STATUS Off\nCooler motor drive reduces to zero\nand is turned off',
-          420, 300, 250, 100, style=FAULT)
+          440, 330, 260, 110, style=FAULT)
     state(d, 's5', '5. Forced Bypass  (Bypass mode)',
           'Bypass relay: Bypass\nLEDs: "Flash if On" (at least one LED\nalways flashes); alarm relay in alarm\n'
-          'Forces Bypass regardless of any\nother conditions', 1300, 150, 250, 120, style=BYPASS)
-    d.edge('start', 's0')
-    d.edge('s0', 's1', 'always\n(Table 7)')
-    d.edge('s1', 's2', 'NR temp within operating\ntolerance for 300 s (LNA on)')
-    d.edge('s2', 's3', 'Input Voltage out of bounds', exit_=(0.4, 1), entry=(0.4, 0))
-    d.edge('s3', 's2', 'Input Voltage fault cleared\n(Automatic mode)', exit_=(0.7, 0), entry=(0.7, 1))
-    d.edge('s2', 's4', 'driver current at an\nunacceptable level (p13)', exit_=(0.1, 1), entry=(0.8, 0),
-           points=[(885, 250), (620, 250)])
+          'Forces Bypass regardless of any\nother conditions', 1510, 160, 260, 130, style=BYPASS)
+    d.edge('start', 's0', entry=(0, 50 / 120))
+    d.edge('s0', 's1', 'always\n(Table 7)', exit_=(1, 50 / 120), entry=(0, 50 / 130))
+    d.edge('s1', 's2', 'NR temp within operating\ntolerance for 300 s (LNA on)', exit_=(1, 50 / 130),
+           entry=(0, 50 / 120))
+    d.edge('s2', 's3', 'Input Voltage out of bounds', exit_=(0.3, 1), entry=(0.3, 0), side='left')
+    d.edge('s3', 's2', 'Input Voltage fault cleared\n(Automatic mode)', exit_=(0.75, 0), entry=(0.75, 1),
+           side='right')
+    d.edge('s2', 's4', exit_=(0, 100 / 120), entry=(0.8, 0), points=[(830, 110), (830, 280), (648, 280)])
+    d.text('s2s4', 'driver current at an\nunacceptable level (p13)', 660, 284, 165, 30, style='align=left;')
     d.edge('s1', 's4', 'driver current fault (p13)\n[source state inferred]', exit_=(0.5, 1),
-           entry=(0.5, 0), style=INFERRED)
-    d.edge('s4', 's0', 'NR temp warmed out of its valid range\nAND faults cleared (Automatic mode)',
-           exit_=(0, 0.5), entry=(0.5, 1), points=[(185, 350)])
-    d.edge('s2', 's5', 'FORCED BYPASS button /\nportal (p42)', exit_=(1, 0.5), entry=(0.5, 0),
-           points=[(1425, 65)])
-    d.edge('s5', 's2', 'button pressed again → Regulate\n(steady green STATUS) (p42)', exit_=(0, 0.6),
-           entry=(1, 0.8), points=[(1200, 222), (1200, 98)])
+           entry=(0.5, 0), style=INFERRED, side='right')
+    d.edge('s4', 's0', exit_=(0, 0.5), entry=(0.5, 1), points=[(190, 385)])
+    d.text('s4s0', 'NR temp warmed out of its valid range\nAND faults cleared (Automatic mode)',
+           198, 345, 235, 30, style='align=left;')
+    d.edge('s2', 's5', 'FORCED BYPASS button /\nportal (p42)', exit_=(1, 0.3), entry=(0.5, 0),
+           points=[(1640, 46)])
+    d.edge('s5', 's2', exit_=(0, 0.6), entry=(1, 0.8), points=[(1300, 238), (1300, 106)])
+    d.text('s5s2', 'button pressed again → Regulate\n(steady green STATUS) (p42)', 1306, 246, 196, 34,
+           style='align=left;fontSize=11;')
     d.text('notes', 'Footer of Table 7: "Regulate state = SuperLink mode. In all other states, the SL Rx '
            'is in Bypass mode." Each switch to Bypass activates the alarm relay (p13). '
            'p13 also lists out-of-range temperature or LNA current -> Bypass mode (target state not '
            'numbered). Install expectation: Regulate within 5 hours (p38); ~78 K operating '
            'temperature. Manual mode: the operator selects the state (p69). Forced Bypass is entered '
            'from any state (Table 7: "regardless of any other conditions"); only the Regulate '
-           'arrows are drawn.', 20, 440, 1500, 60, shape='ltext')
+           'arrows are drawn.', 20, 480, 1700, 60, shape='ltext')
     return d
 
 
@@ -116,9 +120,9 @@ def superfilter():
     d.edge('start', 's0')
     d.edge('s7', 's8', 'LNA current changes ±20% from\ninitial value → "System State 8" (p65)',
            exit_=(0.5, 1), entry=(1, 0.5), points=[(1270, 525)])
-    d.edge('s6', 's8', 'input power / driver current / CoRE temp\nunacceptable → Bypass + alarm (p14-15)\n'
-           '[mapping to state 8 inferred]', exit_=(0.3, 1), entry=(0.3, 0), style=INFERRED,
-           points=[(862, 420), (682, 420)])
+    d.edge('s6', 's8', exit_=(0.3, 1), entry=(0.3, 0), style=INFERRED, points=[(862, 420), (682, 420)])
+    d.text('s6s8', 'input power / driver current / CoRE temp\nunacceptable → Bypass + alarm (p14-15)\n'
+           '[mapping to state 8 inferred]', 690, 424, 235, 44, style='align=left;fontColor=#7f7f7f;')
     d.text('fb', '<b>Forced Bypass (overlay, any state)</b><br>SET FORCED BYPASS ON → relay Bypass, READY '
            'slow-flash AMBER in all states, alarm relay in alarm condition. SET FORCED BYPASS OFF → '
            'returns (READY steady green when cooled). (p14, p36, p62)', 70, 480, 380, 90, raw=True,
@@ -135,54 +139,55 @@ def firmware():
                 'US6446444/code/TASKS.C lines 559-1066; runs 60 times/s; advances only in automatic mode '
                 '(SMBF_MODE clear)')
     out = 'LEDs: {}\nFAULT relay {}, BYPASS relay {}, LNA {}'
-    d.node('start', '', 20, 60, 20, 20, 'start')
+    d.node('start', '', 20, 50, 20, 20, 'start')
     state(d, 'init', 'SM_INIT (0)  L599',
           out.format('FAULT on, READY on', 'ON', 'ON', 'off') + '\nph0 set IO, start timer\nph1 wait 15 s\n'
-          'ph2 → IDLE if automatic', 70, 10, 260, 130, style=BYPASS)
+          'ph2 → IDLE if automatic', 70, 10, 260, 140, style=BYPASS)
     state(d, 'idle', 'SM_IDLE (1)  L651',
           out.format('FAULT on, READY off', 'ON', 'ON', 'off') + '\nph0 ImSp=0, MotorOn(TRUE)\n'
           'ph1 ImSp += POWER_INCR each second\n    until ImSp ≥ ImLoLimit (~40 W)\n'
-          'ph2 wait for Tcsw in range', 470, 10, 270, 150, style=BYPASS)
+          'ph2 wait for Tcsw in range', 520, 10, 290, 170, style=BYPASS)
     state(d, 'cool', 'SM_COOLDOWN (2)  L714',
           out.format('FAULT toggle, READY toggle', 'ON', 'ON', 'off') + '\nph0 reset PID state\n'
           'ph1 m,b of cooldown line from Tamb\n    (90 W, 48 V cooler)\n'
           'ph2 ramp ImSp += 0x456/pass (~3App/min)\n    while Tcsn<TcSp and ImSp ≤ CoolDownSp\n'
           'ph3 ImSp = CoolDownSp() while Tcsn<TcSp\n    and CoolDownSp < PidSp\n'
-          'ph4 ImSp = PidSp(); → CONTROL if auto', 960, 10, 290, 210, style=BYPASS)
+          'ph4 ImSp = PidSp(); → CONTROL if auto', 1060, 10, 300, 230, style=BYPASS)
     state(d, 'ctl', 'SM_CONTROL (3)  L842',
           out.format('FAULT off, READY on', 'OFF', 'OFF', 'ON') + '\nImSp = PidSp() every pass\n'
           'ph1 wait 5 min, ph2 enable Tcsn median filter\n'
           'ph3 |TcSp-Tcsn| > 200 → TCSP error,\n    RELAY_OFF(BYPASS); else RELAY_ON(BYPASS)*\n'
-          'Ilna outside [Lo,Hi] → ILNA flag only', 960, 320, 290, 170, style=NORMAL)
+          'Ilna outside [Lo,Hi] → ILNA flag only', 1060, 380, 300, 190, style=NORMAL)
     state(d, 'pd', 'SM_POWERDOWN (4)  L933',
           out.format('FAULT on, READY off', 'ON', 'ON', 'off') + '\nph1 ImSp -= POWER_INCR every 1/16 s\n'
-          'at 0: MotorOn(FALSE)\nph2 → FINAL (any mode)', 470, 320, 270, 130, style=FAULT)
+          'at 0: MotorOn(FALSE)\nph2 → FINAL (any mode)', 520, 380, 290, 150, style=FAULT)
     state(d, 'fin', 'SM_FINAL (5)  L993',
           out.format('FAULT on, READY off', 'ON', 'ON', 'off') + '\n"off state, either by choice\n'
-          '(manual mode) or system error"', 70, 320, 260, 120, style=OFF)
-    d.edge('start', 'init')
-    d.edge('init', 'idle', '15 s elapsed\nAND automatic')
-    d.edge('idle', 'cool', 'Tcsw in range\n(TcswHiTemp<Tcsw<TcswLoTemp)\nAND automatic; clears TCSW error')
-    d.edge('cool', 'ctl', 'Tcsn reached TcSp, or\nCoolDownSp ≥ PidSp\n(→ ph4) AND automatic')
-    d.edge('cool', 'idle', 'Tcsw out of range\n→ set TCSW error', exit_=(0, 0.9), entry=(1, 0.9),
-           points=[(850, 199), (850, 145)])
-    d.edge('ctl', 'idle', 'Tcsw out of range\n→ set TCSW error', exit_=(0, 0.2), entry=(0.85, 1),
-           points=[(700, 354)])
-    d.edge('pd', 'fin', 'ImSp reached 0,\nmotor off')
+          '(manual mode) or system error"', 70, 380, 260, 140, style=OFF)
+    d.edge('start', 'init', entry=(0, 50 / 140))
+    d.edge('init', 'idle', '15 s elapsed\nAND automatic', exit_=(1, 50 / 140), entry=(0, 50 / 170))
+    d.edge('idle', 'cool', 'Tcsw in range\n(TcswHiTemp<Tcsw<TcswLoTemp)\nAND automatic; clears TCSW error',
+           exit_=(1, 50 / 170), entry=(0, 50 / 230))
+    d.edge('cool', 'ctl', 'Tcsn reached TcSp, or\nCoolDownSp ≥ PidSp\n(→ ph4) AND automatic',
+           exit_=(0.5, 1), entry=(0.5, 0))
+    d.edge('cool', 'idle', 'Tcsw out of range\n→ set TCSW error', exit_=(0, 160 / 230), entry=(1, 160 / 170))
+    d.edge('ctl', 'idle', 'Tcsw out of range\n→ set TCSW error', exit_=(0, 28 / 190), entry=(1, 140 / 170),
+           points=[(840, 408), (840, 150)])
+    d.edge('pd', 'fin', 'ImSp reached 0,\nmotor off', exit_=(0, 70 / 150), entry=(1, 0.5))
     d.edge('fin', 'init', 'TREJ error AND Trej > TrejLoTemp, or\nVIN error AND VinLo < Vin < VinHi\n'
            '→ clear flag', exit_=(0.5, 0), entry=(0.5, 1))
-    d.node('any', 'ANY STATE\n(checked first, every pass, L565-575)', 470, 560, 270, 60, style=FAULT)
+    d.node('any', 'ANY STATE\n(checked first, every pass, L565-575)', 520, 650, 290, 60, style=FAULT)
     d.edge('any', 'pd', 'Trej < TrejHiTemp (motor too hot;\nthermocouple has neg. tempco) → TREJ error\n'
-           'OR Vin outside (VinLo, VinHi) → VIN error')
+           'OR Vin outside (VinLo, VinHi) → VIN error', exit_=(0.5, 0), entry=(0.5, 1))
     d.text('manual', '<b>Manual mode</b> (serial S6 = 1): states only advance when automatic. S8 sets '
            'SmCurrentState.Phase directly (0-5), S7 sets ImSp, S9/S10/S11 set LNA, FAULT and BYPASS '
-           'relay bits. An unknown state → SM_POWERDOWN (L1048).', 960, 540, 380, 75, raw=True, shape='note')
+           'relay bits. An unknown state → SM_POWERDOWN (L1048).', 1060, 640, 380, 80, raw=True, shape='note')
     d.text('relay', '* Relay macros (L128-129): RELAY_ON(x) CLEARS the status bit, RELAY_OFF(x) SETS it; '
            'OperationMonitor copies the bits to port D every 500 ms (L1280). So in SM_CONTROL phase 3 a '
            'small tracking error re-issues the same call every bypass state uses. Read literally, that '
            'looks inverted; check it against the hardware polarity. Sensor counts rise as temperature '
            'falls (TCSW_300K=230, TCSW_70K=965), so "Tcsn < TcSp" means warmer than the set point.',
-           70, 650, 1250, 55, shape='ltext')
+           70, 760, 1370, 55, shape='ltext')
     return d
 
 

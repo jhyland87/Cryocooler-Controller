@@ -2,7 +2,7 @@
 
 from oemsch import P
 
-TITLE = 'FIG 5G - Microcontroller, memory, watchdog, ALIVE optos, relays K1-K3, RS-232'
+TITLE = 'FIG 5G - Microcontroller, memory, relays, RS-232'
 SOURCE = 'US6098409 sheets 14-17 of 25 (PDF p15-18), FIG 5G-1/5G-2/5G-3/5G-4 (2x2 mosaic)'
 PAPER = 'A1'
 

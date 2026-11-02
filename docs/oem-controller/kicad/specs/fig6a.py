@@ -2,7 +2,7 @@
 
 from oemsch import P
 
-TITLE = 'FIG 6A - Sensor input amplifiers J1-J7 (LTC1150) and REF buffers'
+TITLE = 'FIG 6A - Sensor amplifiers J1-J7, REF buffers'
 SOURCE = 'US6098409 sheets 21-22 of 25 (PDF p22-23), FIG 6A-1/6A-2'
 PAPER = 'A2'
 

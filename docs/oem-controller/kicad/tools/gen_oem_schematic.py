@@ -50,7 +50,39 @@ def load_specs(only):
             specs.append((stem, importlib.import_module(f'specs.{name}')))
     # Refs are made unique among the specs being built (all of them for the real build).
     make_refs_unique([spec for _, spec in specs])
+    apply_aliases([spec for _, spec in specs])
     return specs
+
+
+# Printed name -> name used, for one wire printed differently on different figures.
+# Each join is listed on the page it changes and in ../TRANSCRIPTION_NOTES.md.
+ALIASES = {
+    'COOLER.MON': 'COOLER_MON',      # 5H; 5G prints COOLER_MON (U22 PE5)
+    'ERR.WARMERS': 'ERR_WARNERS',    # 5H; 5G prints ERR_WARNERS (U22 PE2)
+    'CS_CNTRL': 'CS_CTRL',           # 5A; 5B/5H print CS_CTRL
+    'DEMAR_TEMP': 'DEWAR_TEMP',      # 5H; 5A prints DEWAR_TEMP
+    'RAM_SHUTO_T-': 'RAW_SHUTO_T-',  # 5E; 5B prints RAW_SHUTO_T-
+    # [inference] 5C U33 drives NOT_TOTAL and nothing reads it; 5E/5G read HOT TOTAL /
+    # HOT-TOTAL and nothing drives it. Taken as one net.
+    'HOT_TOTAL': 'NOT_TOTAL',        # 5E prints "HOT TOTAL"
+    'HOT-TOTAL': 'NOT_TOTAL',        # 5G U22 PE4/AN4
+}
+
+
+def apply_aliases(specs):
+    """Rename aliased nets in pins and GLOBALS; record the joins on spec._aliases."""
+    for spec in specs:
+        if hasattr(spec, '_aliases'):
+            continue
+        used = set()
+        for part in spec.PARTS:
+            for pin, net in part['pins'].items():
+                if ALIASES.get(net, net) != net:
+                    used.add(net)
+                    part['pins'][pin] = ALIASES[net]
+        if hasattr(spec, 'GLOBALS'):
+            spec.GLOBALS = [ALIASES.get(net, net) for net in spec.GLOBALS]
+        spec._aliases = sorted(used)
 
 
 def make_refs_unique(specs):
@@ -134,7 +166,9 @@ def main():
             child.uid = kicadgen.stable_uuid(f'sheet/{stem}/{name}')
             child.path = f'{patent.path}/{child.uid}'
             oemsch.build_sheet(child, spec, globals_)
-            child.note(f'{spec.TITLE}\nSource: {spec.SOURCE}', 15, 18, 2.5)
+            joined = ''.join(f'\nNet joined across figures: printed "{net}" = {ALIASES[net]}'
+                             for net in spec._aliases)
+            child.note(f'{spec.TITLE}\nSource: {spec.SOURCE}{joined}', 15, 18, 2.5)
             column, row = index % 3, index // 3
             patent.sheet_symbols.append(oemsch.sheet_block(
                 patent.path, child, f'{stem}_{name}.kicad_sch', page,
