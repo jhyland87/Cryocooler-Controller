@@ -12,6 +12,7 @@ serves, keep-outs and mounting holes.
 
 import collections
 import json
+import math
 import os
 import re
 import subprocess
@@ -27,14 +28,14 @@ import pcbfloorplan
 import pcbmodels
 from pcbplace import Occupancy, Rect, placed_rect, ring_offsets, rotate_point
 
-# Phoenix UCS 125-87 housing: 100 x 62 mm board (dev/UCS_125-87_PCB_Dimensions)
-BOARD_WIDTH = 100.0
-BOARD_HEIGHT = 62.0
+# Phoenix Contact UCS 145-125 housing PCB (drawing 2203447): 120 x 100 mm,
+# 31 mm clearance above the board and 10 mm below
+BOARD_WIDTH = 120.0
+BOARD_HEIGHT = 100.0
 EDGE_MARGIN = 0.5
 PASSIVE_GAP = 0.3
 # rev 1 reserved a label pocket beside every part before placing the next;
-# the 100 x 62 board has no room for that, so labels are fitted afterwards
-# and the ones that do not fit stay hidden
+# labels are now fitted afterwards and the ones that do not fit stay hidden
 RESERVE_LABEL_POCKETS = False
 # JLCPCB needs 0.2 mm drills on 0.45 mm pads or larger, else a paid 4-wire test.
 VIA_IN_PAD_DIAMETER = 0.45
@@ -54,6 +55,12 @@ SWITCHED_NETS = {
 # sections too full for their test points: these sit in the nearest free
 # spot of the roomy power box instead
 TEST_POINTS_OUTSIDE = set()
+# how far (mm, from the pad it serves) a test point may go before the retry
+# pass
+TEST_POINT_REACH = 8.0
+# the fit check allows a little more: a crowded test point may land in the
+# retry pass, still inside its section
+TEST_POINT_CHECK_REACH = 12.0
 TEST_POINT_OVERFLOW = 'POWER INPUT & RAILS'
 POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
     '+3V3',
@@ -70,137 +77,97 @@ POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
 }
 
 # ref -> (x, y, rotation[, side]); everything that is not a plain R/C is
-# placed here. Side defaults to 'top'; the bottom takes only low-profile SMD
-# parts (no clearance figure for under the board in the housing drawing).
+# placed here. Side defaults to 'top'. Connectors face the housing walls
+# (mating faces at or just past the board edge).
 PLACEMENT = {
-    # ─── top: back edge (y = 0): PT1000, display FPC, USB-C, ESP32 ───
-    'J10': (21.0, 4.0, 0),
-    'J15': (40.4, 5.0, 180),
-    'J1': (54.6, 4.2, 180),
-    'U1': (70.0, 12.95, 0),
-    'SW1': (53.4, 14.5, 0),
-    'SW2': (53.4, 21.5, 0),
-    # ─── top: left edge: IMU RJ45, cooling headers ───
-    'J14': (3.35, 18.6, 270),
-    'J3': (9.6, 33.0, 0),
-    'J4': (9.6, 43.15, 0),
-    'J5': (9.6, 53.35, 0),
-    'J6': (3.6, 35.0, 90),
-    # ─── top: front edge (y = 62): power in, amplifier, cryocooler ───
-    'J2': (24.2, 56.6, 0),
-    'J9': (37.1, 56.7, 0),
-    'J8': (46.1, 56.7, 0),
-    'D4': (48.5, 48.4, 0),
-    'J11': (62.0, 56.6, 0),
-    'J12': (78.5, 56.6, 0),
-    # ─── top: power path and tall parts ───
-    'Q1': (33.0, 39.5, 0),
-    'C6': (26.3, 29.0, 0),
-    'C73': (37.3, 29.0, 0),
-    'L1': (43.2, 14.0, 0),
-    'SW3': (25.5, 14.2, 0),
-    'J7': (34.0, 13.6, 0),
-    'D3': (24.5, 20.0, 0),
-    'L2': (60.98, 32.6, 0),
-    'L3': (72.0, 31.9, 0),
-    'U18': (75.96, 44.5, 90),
-    'PS1': (59.0, 46.0, 180),
-    # ─── top: right column: indicators, compressor relay ───
-    'D11': (86.5, 12.0, 0),
-    'D9': (92.0, 17.0, 0),
-    'D10': (95.0, 17.0, 0),
-    'J13': (92.0, 27.0, 0),
-    'D12': (93.0, 33.5, 0),
-    # ─── bottom: signal generator ───
-    'U3': (22.7, 12.5, 0, 'bottom'),
-    'U4': (30.0, 10.5, 0, 'bottom'),
-    'U5': (41.0, 9.6, 0, 'bottom'),
-    'U6': (42.0, 3.5, 0, 'bottom'),
-    'U7': (24.0, 19.0, 0, 'bottom'),
-    'U9': (32.5, 19.0, 0, 'bottom'),
-    'U8': (40.0, 19.0, 0, 'bottom'),
-    # ─── bottom: MCU, display ───
-    'U2': (63.0, 12.2, 0, 'bottom'),
-    'U27': (53.7, 13.5, 0, 'bottom'),
-    'Q25': (53.7, 20.0, 0, 'bottom'),
-    'U24': (88.0, 8.0, 0, 'bottom'),
-    # ─── bottom: cold head, water cooling ───
-    'U14': (8.95, 11.0, 0, 'bottom'),
-    'U10': (4.0, 49.6, 0, 'bottom'),
-    'U25': (13.0, 37.9, 0, 'bottom'),
-    'U26': (4.0, 44.0, 0, 'bottom'),
-    'D2': (3.5, 40.5, 0),
-    # ─── bottom: power input, button, logic rails, system current ───
-    'F1': (27.0, 47.5, 0, 'bottom'),
-    'D1': (27.0, 52.0, 0, 'bottom'),
-    'U11': (36.0, 34.0, 0, 'bottom'),
-    'U12': (41.0, 34.0, 0, 'bottom'),
-    'U13': (30.0, 37.0, 0, 'bottom'),
-    'Q2': (36.0, 39.0, 0, 'bottom'),
-    'Q3': (41.0, 39.0, 0, 'bottom'),
-    'Q4': (31.0, 42.0, 0, 'bottom'),
-    'U15': (42.5, 26.0, 0, 'bottom'),
-    'U16': (35.0, 27.5, 0, 'bottom'),
-    'U23': (37.5, 48.5, 0, 'bottom'),
-    'R65': (44.0, 45.0, 90, 'bottom'),
-    # ground scope loops (through-hole): spots free on both sides
-    'TP14': (45.2, 30.0, 0),
-    'TP15': (45.2, 35.0, 0),
-    'TP16': (45.2, 39.6, 0),
-    # LT3097 -15 V output capacitor (1210), over the regulator in the free
-    # corner of the top +-15 V box
-    'C69': (78.0, 30.5, 90),
-    # LT3097 +15 V output (1210, 2.5 mm tall): the bottom +-15 V box is full
-    'C67': (82.0, 30.5, 90),
-    # LT8582 input caps over U20's exposed pad (GND pads sit on its vias);
-    # C56's VIN pad lands on pin 22's via, C61 / C62 on the SS pin vias
-    'C57': (66.1, 30.0, 90),
-    'C56': (65.6, 33.6, 90),
-    'C61': (67.15, 34.9, 270),
-    'C62': (66.0, 36.4, 180),
-    'TP8': (44.5, 25.5, 0),
-    # fan / pump +12 V bulk capacitors (1210): the bottom cooling box is full
-    'C27': (3.6, 46.6, 0),
-    'C26': (3.6, 43.0, 0),
-    # ADS1220 1 uF bulk cap: the bottom cold-head corner is full
-    'C32': (14.0, 5.6, 90),
-    # USB VBUS filter cap: the bottom under the USB-C shell has no room
-    'C5': (58.0, 10.3, 0),
-    # ─── bottom: amplifier control, compressor relay ───
-    'Q5': (51.0, 31.0, 0, 'bottom'),
-    'Q6': (56.0, 31.0, 0, 'bottom'),
-    'Q21': (51.0, 36.0, 0, 'bottom'),
-    'Q7': (86.0, 20.0, 0, 'bottom'),
-    'Q8': (91.0, 20.0, 0, 'bottom'),
-    'D13': (96.0, 20.0, 0, 'bottom'),
-    # ─── bottom: +-15 V rails ───
-    # LT8582 turned so SW1 (pins 1, 24) faces west to D5 / L2 and SW2 (pins
-    # 12, 13) faces east to C59 / D6 / L3: both switch nodes stay a few mm of
-    # wide copper. Control pins face north to their passives, RT / SS south.
-    'U20': (67.5, 32.4, 270, 'bottom'),
-    'D5': (61.85, 32.6, 270, 'bottom'),
-    'C58': (61.9, 27.35, 90, 'bottom'),
-    'C59': (72.7, 32.4, 270, 'bottom'),
-    'D6': (75.3, 32.4, 270, 'bottom'),
-    'C60': (73.5, 27.4, 0, 'bottom'),
-    'C64': (64.45, 28.0, 90, 'bottom'),
-    'R59': (65.55, 28.0, 90, 'bottom'),
-    'R55': (66.65, 28.0, 90, 'bottom'),
-    'R56': (67.75, 28.0, 90, 'bottom'),
-    'R60': (68.85, 28.0, 90, 'bottom'),
-    'C66': (69.95, 28.0, 90, 'bottom'),
-    'C63': (65.55, 25.7, 90, 'bottom'),
-    'C65': (68.85, 25.7, 90, 'bottom'),
-    'R57': (66.7, 35.9, 0, 'bottom'),
-    'R58': (69.25, 35.9, 0, 'bottom'),
-    'U21': (79.0, 33.0, 0, 'bottom'),
-    # ─── bottom: isolated amplifier current ───
-    'U17': (58.5, 47.2, 0, 'bottom'),
+    # ─── top wall: display FPC (cable side to the edge), ESP32 over the
+    # routed antenna notch; right wall: USB-C ───
+    'J15': (42.0, 5.0, 180),
+    'U1': (84.0, 12.75, 0),
+    'SW1': (66.5, 11.0, 0),
+    'SW2': (66.5, 18.5, 0),
+    'J1': (116.325, 14.0, 90),
+    # ─── left wall: amplifier output and cryocooler (isolated section, the
+    # barrier at x = 25.25 under U17 / PS1), 12 V in, amplifier REM / signal ───
+    'J11': (10.0, 11.7, 270),
+    'J12': (10.0, 33.0, 270),
+    'U18': (18.7, 14.0, 0),
+    'U17': (26.0, 25.3, 180),
+    'PS1': (26.0, 33.2, 0),
+    'J2': (10.0, 52.4, 270),
+    'J9': (8.0, 66.3, 270),
+    'J8': (8.0, 77.5, 270),
+    'Q5': (16.0, 67.0, 0),
+    'Q6': (16.0, 72.0, 0),
+    'Q21': (16.0, 79.5, 0),
+    # ─── top: 12 V input path, 5 V buck and 3.3 V LDO, power switch ───
+    'F1': (19.0, 47.5, 90),
+    'D1': (19.0, 56.0, 0),
+    'C6': (28.0, 48.5, 90),
+    'Q1': (46.0, 65.0, 0),
+    'C73': (39.0, 77.0, 0),
+    'L1': (27.5, 66.5, 0),
+    'U15': (27.5, 72.5, 0),
+    'U16': (27.5, 80.0, 0),
+    # ─── top: signal generator (the +-15 V stage sits beside it) ───
+    'U3': (38.0, 18.5, 0),
+    'U4': (46.5, 18.5, 0),
+    'U7': (55.0, 19.5, 90),
+    'U5': (38.0, 31.0, 90),
+    'U6': (46.5, 31.0, 90),
+    'U9': (55.0, 31.0, 90),
+    'U8': (40.0, 42.0, 0),
+    # ─── top: +-15 V rails. LT8582 upright: SW1 (pins 1, 24) north to D5 /
+    # L2, SW2 (pins 12, 13) south to L3; the LT3097 west of it, its outputs
+    # facing the signal generator ───
+    'U20': (70.0, 54.0, 0),
+    'D5': (66.0, 48.7, 0),
+    'L2': (72.5, 44.5, 270),
+    'L3': (70.9, 62.3, 180),
+    'D6': (63.5, 62.3, 0),
+    'U21': (63.0, 56.0, 180),
+    # ─── top: indicators ───
+    'D11': (68.0, 35.0, 0),
+    'U24': (76.0, 35.0, 0),
+    # ─── right wall: IMU RJ45, PT1000 header, pump; bottom wall: panel
+    # button, relay out, NTC, flow, fan ───
+    'J14': (116.65, 31.3, 90),
+    'J10': (114.8, 52.0, 90),
+    'J4': (110.8, 85.0, 90),
+    'SW3': (27.0, 95.8, 0),
+    'J7': (38.8, 95.0, 0),
+    'J13': (49.2, 95.0, 0),
+    'J6': (61.0, 95.0, 0),
+    'J5': (68.5, 90.8, 0),
+    'J3': (80.5, 90.8, 0),
+    # ─── bottom ───
+    'U27': (32.0, 6.5, 0, 'bottom'),
+    'Q25': (52.0, 10.0, 0, 'bottom'),
+    'U2': (107.0, 13.0, 90, 'bottom'),
+    'U14': (106.0, 52.0, 90, 'bottom'),
+    'U23': (29.0, 52.0, 0, 'bottom'),
+    'U11': (10.5, 88.5, 0, 'bottom'),
+    'U13': (16.5, 88.5, 0, 'bottom'),
+    'U12': (10.5, 92.5, 0, 'bottom'),
+    'Q2': (16.5, 93.0, 0, 'bottom'),
+    'Q3': (12.0, 96.5, 0, 'bottom'),
+    'Q4': (17.0, 97.3, 0, 'bottom'),
+    'Q7': (47.5, 85.5, 0, 'bottom'),
+    'Q8': (52.8, 85.5, 0, 'bottom'),
+    'D13': (50.0, 89.5, 0, 'bottom'),
+    'U25': (80.0, 78.0, 0, 'bottom'),
+    'U26': (88.0, 78.0, 0, 'bottom'),
+    'U10': (96.0, 85.0, 0, 'bottom'),
 }
 
-# ISO_GND island (bottom right, right of the barrier at x = 59 that U17 and
-# PS1 straddle); keep-out bands keep GND copper away from it.
-ISO_REGION = Rect(59.0, 38.3, BOARD_WIDTH, BOARD_HEIGHT)
+# Parts whose passives stay on their own side (switching loops and the LDO
+# outputs keep off vias); every other passive goes on the bottom.
+SAME_SIDE_TARGETS = {'U15', 'U16', 'U20', 'U21'}
+
+# ISO_GND island (top-left corner, left of the barrier at x = 25.25 that U17
+# and PS1 straddle); keep-out bands keep GND copper away from it. J12 pin 3
+# (the cryocooler's protective ground, on board GND) sits just below it.
+ISO_REGION = Rect(0.0, 0.0, 25.25, 40.5)
 ISO_NETS = {'ISO_GND', 'ISO_3V3'}
 
 # Same-net pad chains on 0.5 mm pitch parts, joined by locked F.Cu stubs before
@@ -237,14 +204,17 @@ MIN_TRACK_WIDTH = 0.15
 GND_TP_ANCHORS = [('U25', '13'), ('U27', '6'), ('U10', '13')]
 ISO_GND_TP_ANCHOR = ('U17', '9')
 ISO_BAND = 1.5
-# routed notch under the ESP32 antenna (module top edge at y = 0.2, antenna
-# area down to y = 6.2), and the copper keep-out band around it
-ANTENNA_NOTCH = Rect(60.0, 0.0, 80.0, 6.6)
-ANTENNA_KEEPOUT = Rect(59.0, 0.0, 81.0, 7.4)
-# corner squares: screw heads (6 mm) and the housing's 4.45 mm no-part /
-# no-mask squares
+# ESP32 antenna: the board is cut away under it (routed notch in the top
+# edge) and the strips beside the notch, within the module's 15 mm keep-out,
+# carry no copper and no parts.
+ANTENNA_NOTCH = Rect(74.5, 0.0, 93.5, 6.0)
+ANTENNA_KEEPOUTS = [Rect(60.0, 0.0, 74.5, 6.75), Rect(93.5, 0.0, 108.0, 6.75)]
+# housing restricted areas (no parts, no copper, no solder mask): a 4.45 mm
+# corner square joined with a 6 mm ring round each mounting hole; CORNER is
+# the square that holds both, for part placement
 CORNER = 7.4
-MASK_FREE_CORNER = 4.45
+CORNER_SQUARE = 4.45
+HOLE_RING_RADIUS = 3.0
 CORNER_KEEPOUTS = [
     Rect(0.0, 0.0, CORNER, CORNER),
     Rect(BOARD_WIDTH - CORNER, 0.0, BOARD_WIDTH, CORNER),
@@ -265,7 +235,21 @@ SILK_LABELS = {
     'SW1': 'RESET',
     'SW2': 'BOOT',
     'SW3': 'POWER',
+    'J1': 'USB',
+    'J2': '12V IN',
+    'J3': 'FAN',
+    'J4': 'PUMP',
+    'J5': 'FLOW',
+    'J6': 'NTC',
     'J7': 'PANEL',
+    'J8': 'AMP REM',
+    'J9': 'AMP SIGNAL',
+    'J10': 'PT1000',
+    'J11': 'FROM AMP',
+    'J12': 'TO CRYOCOOLER',
+    'J13': 'RELAY 12V OUT',
+    'J14': 'IMU',
+    'J15': 'DISPLAY',
     'D2': 'FAN FAULT',
     'D3': 'POWER',
     'D4': 'AMP REM',
@@ -294,8 +278,8 @@ PIN_LABELS = {
     'J8': ['REM', 'GND'],
     'J9': ['SIG', 'GND'],
     'J10': ['F+', 'S+', 'S-', 'F-'],
-    'J11': ['+', '-', 'E'],
-    'J12': ['+', '-', 'E'],
+    'J11': ['+', '-'],
+    'J12': ['+', '-', 'GND'],
     'J13': ['+12V', 'GND'],
     # RJ45 pins 1-8 (T568B pairs) by the module pad they reach
     'J14': ['SCL', 'GND', 'SDA', 'VIN', 'CS', 'DO', 'I1', 'I2'],
@@ -325,6 +309,9 @@ IC_LABEL_TEXT = {
     'PS1': 'MIE1W0505',
 }
 SILK_TEXT_THICKNESS = SILK_MIN_LINE
+# pin-1 dot radius, and the parts that get one (ICs, modules, connectors)
+PIN1_DOT_RADIUS = 0.3
+PIN1_PREFIXES = ('U', 'J', 'PS')
 LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
 LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
 LOGO_CENTER = (65.0, 51.0)
@@ -338,12 +325,13 @@ BOARD_STAGE = 'BETA'
 # solder mask colour (JLCPCB standard blue): set in the board stackup, which
 # the renders use; order the board in blue (mask dam limit 0.10 mm)
 MASK_COLOUR = 'Blue'
-# preferred spot of the board ID block (back silkscreen, board coordinates)
-BOARD_ID_SPOT = (85.0, 47.0)
+# preferred spot of the board ID block (back silkscreen, board coordinates),
+# the same spot as on the earlier 145-125 layout
+BOARD_ID_SPOT = (19.0, 2.4)
 ALPHA_TEXT = 'ALPHA'
 
-# 91.6 x 53.6 mm hole pattern, centred
-HOLES = [(4.2, 4.2), (95.8, 4.2), (4.2, 57.8), (95.8, 57.8)]
+# 111.6 x 91.6 mm hole pattern, centred
+HOLES = [(4.2, 4.2), (115.8, 4.2), (4.2, 95.8), (115.8, 95.8)]
 LOCAL_RECT_OVERRIDES = {
     'RF_Module:ESP32-S3-WROOM-2': Rect(-9.2, -12.9, 9.2, 13.2),
     # the stock test point courtyard is 3.7 mm square around a 1.5 mm pad
@@ -472,9 +460,71 @@ def covers(segment, candidate, tolerance=0.01):
     return False
 
 
+def has_own_pin1_mark(footprint, pad_x, pad_y, reach=3.0):
+    """True if the footprint's own silkscreen already marks pin 1 near the
+    pin: a small filled shape (the stock triangle or dot) or a small closed
+    outline of short lines (a drawn triangle).
+    """
+    segments = []
+    for item in footprint.GraphicalItems():
+        if item.Type() != pcbnew.PCB_SHAPE_T:
+            continue
+        if item.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
+            continue
+        box = item.GetBoundingBox()
+        centre = box.GetCenter()
+        if math.dist((centre.x / 1e6, centre.y / 1e6), (pad_x, pad_y)) > reach:
+            continue
+        if max(box.GetWidth(), box.GetHeight()) / 1e6 > 1.5:
+            continue
+        if item.GetShape() in (pcbnew.SHAPE_T_POLY, pcbnew.SHAPE_T_CIRCLE):
+            return True
+        if item.GetShape() == pcbnew.SHAPE_T_SEGMENT:
+            segments.append(tuple(
+                (round(end.x / 1e4), round(end.y / 1e4))
+                for end in (item.GetStart(), item.GetEnd())
+            ))
+    # a closed loop of three or more short lines among them
+    while segments:
+        loop = [segments.pop()]
+        grown = True
+        while grown:
+            grown = False
+            corners = {end for segment in loop for end in segment}
+            for segment in list(segments):
+                if segment[0] in corners or segment[1] in corners:
+                    loop.append(segment)
+                    segments.remove(segment)
+                    grown = True
+        ends = collections.Counter(end for segment in loop for end in segment)
+        if len(loop) >= 3 and all(count == 2 for count in ends.values()):
+            return True
+    return False
+
+
 def silk_layer(side):
     """Silkscreen layer of a board side."""
     return pcbnew.B_SilkS if side == 'bottom' else pcbnew.F_SilkS
+
+
+def restricted_outline(hole_x, hole_y, steps=32):
+    """Polygon (mm points) of one restricted corner: the corner square joined
+    with the ring round the hole, as drawn in the housing's PCB2D drawing.
+    """
+    corner_x = 0.0 if hole_x < BOARD_WIDTH / 2 else BOARD_WIDTH
+    corner_y = 0.0 if hole_y < BOARD_HEIGHT / 2 else BOARD_HEIGHT
+    sign_x = 1 if corner_x == 0.0 else -1
+    sign_y = 1 if corner_y == 0.0 else -1
+    # walk the circle from the edge parallel to x round to the edge parallel
+    # to y, on the side away from the corner, then close along the square
+    points = [(corner_x, corner_y), (corner_x + sign_x * CORNER_SQUARE, corner_y)]
+    for step in range(steps + 1):
+        angle = -math.pi / 2 + math.pi * 1.5 * step / steps
+        offset_x = HOLE_RING_RADIUS * math.cos(angle)
+        offset_y = HOLE_RING_RADIUS * math.sin(angle)
+        points.append((hole_x + sign_x * offset_x, hole_y + sign_y * offset_y))
+    points.append((corner_x, corner_y + sign_y * CORNER_SQUARE))
+    return points
 
 
 def footprint_path(footprint_id):
@@ -508,7 +558,7 @@ class PcbBuilder:
         self.occupancy = Occupancy(
             Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), EDGE_MARGIN, PASSIVE_GAP
         )
-        self.occupancy.keepouts.extend([ANTENNA_KEEPOUT, *CORNER_KEEPOUTS])
+        self.occupancy.keepouts.extend([*ANTENNA_KEEPOUTS, *CORNER_KEEPOUTS])
         self.side = {}
         self.forced_side = {}
         self.pin_label_side = {}
@@ -539,7 +589,7 @@ class PcbBuilder:
             if part['footprint'] in BODY_COURTYARDS:
                 set_courtyard(footprint, BODY_COURTYARDS[part['footprint']])
                 # its built-in antenna keep-out assumes an un-notched edge;
-                # the board-level ANTENNA_KEEPOUT covers the notch instead
+                # the board-level ANTENNA_KEEPOUTS cover the notch sides instead
                 for zone in list(footprint.Zones()):
                     footprint.Remove(zone)
             footprint.SetReference(ref)
@@ -743,14 +793,16 @@ class PcbBuilder:
         return 'LED' in self.parts[ref]['footprint']
 
     def passive_side(self, ref, target_ref):
-        """LEDs stay on top where they can be seen; every other passive goes
-        on the bottom with the ICs (the top is kept for connectors and tall
-        parts), unless its module has no bottom region.
+        """LEDs stay on top where they can be seen; test points and the
+        passives of SAME_SIDE_TARGETS sit on their part's side; every other
+        passive goes on the bottom, unless its module has no bottom region.
         """
         if ref in self.forced_side:
             return self.forced_side[ref]
         if self.is_led(ref):
             return 'top'
+        if ref.startswith('TP') or target_ref in SAME_SIDE_TARGETS:
+            return self.side.get(target_ref, 'top')
         key = self.part_module(ref, 'bottom')
         if key is None:
             target_key = self.module.get(target_ref)
@@ -791,44 +843,46 @@ class PcbBuilder:
             self.board.Add(track)
 
     def pre_route_current_path(self, width=2.0):
-        """Wide locked F.Cu traces for the amplifier current path J11 ->
-        U18 pins 1-4 / 5-8 -> J12. The connectors sit on the front edge below
-        U18, whose current pins face them in one row: each trace runs up from
-        the connector's pin 1 to that row, then along its four pads.
+        """Wide locked F.Cu traces for the amplifier current path J11 -> U18
+        pins 1-4 / 5-8 -> J12. The connectors sit on the left wall level with
+        U18's current pins: each trace runs across from the connector's pin 1
+        to the pin column, then along its four pads.
         """
-        for connector, net, pins in (
-            ('J11', 'Net-(J11-Pin_1)', ('1', '2', '3', '4')),
-            ('J12', 'Net-(J12-Pin_1)', ('5', '6', '7', '8')),
+        for connector, net, pins, end_cap in (
+            ('J11', 'Net-(J11-Pin_1)', ('1', '2', '3', '4'), 'down'),
+            ('J12', 'Net-(J12-Pin_1)', ('5', '6', '7', '8'), 'up'),
         ):
             start_x, start_y = self.pad_position(connector, '1')
             pad_points = [self.pad_position('U18', pin) for pin in pins]
-            row_y = sum(point[1] for point in pad_points) / len(pad_points)
-            # the 2 mm track overhangs its end pads: pull its ends 0.7 mm in so
-            # it stays clear of the other group's pads
-            pad_xs = [point[0] for point in pad_points]
-            low_x = min(start_x, min(pad_xs) + 0.7)
-            high_x = max(start_x, max(pad_xs) - 0.7)
+            column_x = sum(point[0] for point in pad_points) / len(pad_points)
+            top = min(point[1] for point in pad_points)
+            bottom = max(point[1] for point in pad_points)
+            end_y = bottom - 0.8 if end_cap == 'down' else top + 0.8
             self.add_track(
                 net,
                 pcbnew.F_Cu,
-                [(start_x, start_y), (start_x, row_y)],
+                [(start_x, start_y), (column_x, start_y), (column_x, end_y)],
                 width,
             )
-            self.add_track(net, pcbnew.F_Cu, [(low_x, row_y), (high_x, row_y)], width)
             margin = width / 2 + 0.6
             self.occupancy.add(
                 f'{connector}_current_a',
                 Rect(
-                    start_x - margin,
-                    min(start_y, row_y) - margin,
-                    start_x + margin,
-                    max(start_y, row_y) + margin,
+                    min(start_x, column_x) - margin,
+                    start_y - margin,
+                    max(start_x, column_x) + margin,
+                    start_y + margin,
                 ),
                 'top',
             )
             self.occupancy.add(
                 f'{connector}_current_b',
-                Rect(low_x - margin, row_y - margin, high_x + margin, row_y + margin),
+                Rect(
+                    column_x - margin,
+                    min(start_y, end_y) - margin,
+                    column_x + margin,
+                    max(start_y, end_y) + margin,
+                ),
                 'top',
             )
 
@@ -858,30 +912,26 @@ class PcbBuilder:
                 pcbnew.VECTOR2I(to_internal(end_x), to_internal(end_y))
             )
             self.board.Add(segment)
-        # the housing's no-part / no-mask corner squares: mask opened on both
-        # sides, kept free of tracks
-        size = MASK_FREE_CORNER
-        for corner_x, corner_y in (
-            (0, 0),
-            (BOARD_WIDTH - size, 0),
-            (0, BOARD_HEIGHT - size),
-            (BOARD_WIDTH - size, BOARD_HEIGHT - size),
-        ):
-            square = Rect(corner_x, corner_y, corner_x + size, corner_y + size)
+        # the housing's restricted corners: mask opened on both sides, kept
+        # free of copper
+        for hole_x, hole_y in HOLES:
+            points = restricted_outline(hole_x, hole_y)
+            self.add_keepout(None, points=points)
             for layer in (pcbnew.F_Mask, pcbnew.B_Mask):
+                polygon = pcbnew.SHAPE_POLY_SET()
+                outline = polygon.NewOutline()
+                for point_x, point_y in points:
+                    polygon.Append(
+                        pcbnew.VECTOR2I(to_internal(point_x), to_internal(point_y)),
+                        outline,
+                    )
                 shape = pcbnew.PCB_SHAPE(self.board)
-                shape.SetShape(pcbnew.SHAPE_T_RECT)
+                shape.SetShape(pcbnew.SHAPE_T_POLY)
                 shape.SetLayer(layer)
                 shape.SetFilled(True)
                 shape.SetWidth(0)
-                shape.SetStart(
-                    pcbnew.VECTOR2I(to_internal(square.min_x), to_internal(square.min_y))
-                )
-                shape.SetEnd(
-                    pcbnew.VECTOR2I(to_internal(square.max_x), to_internal(square.max_y))
-                )
+                shape.SetPolyShape(polygon)
                 self.board.Add(shape)
-            self.add_keepout(square)
 
     # ─── passive placement ───
 
@@ -896,6 +946,14 @@ class PcbBuilder:
             return [self.ground_tp_anchor(ref, net)]
         if net is None or net in GROUND_NETS:
             return []
+        if ref.startswith('TP'):
+            owners = self.test_point_owners(ref, net)
+            if owners:
+                return [
+                    (other_ref, other_pad)
+                    for other_ref, other_pad in self.net_pads[net]
+                    if other_ref in owners
+                ]
         sheet = self.parts[ref]['sheet']
         found = []
         for other_ref, other_pad in self.net_pads[net]:
@@ -914,6 +972,22 @@ class PcbBuilder:
                 if r != ref and r in self.centers and not self.is_passive(r)
             ]
         return found
+
+    def test_point_owners(self, ref, net):
+        """Placed parts a test point on `net` can be for: the ICs and
+        connectors on the net (the MCU only if nothing else), those on the
+        test point's own sheet first.
+        """
+        placed = [
+            other
+            for other, _ in self.net_pads.get(net, [])
+            if other != ref and other in self.centers
+            and not other.startswith('TP') and not self.is_passive(other)
+        ]
+        # the MCU reaches every GPIO net: a test point there is for the load
+        placed = [other for other in placed if other != 'U1'] or placed
+        sheet = self.parts[ref]['sheet']
+        return [o for o in placed if self.parts[o]['sheet'] == sheet] or placed
 
     def ground_tp_anchor(self, ref, net):
         if net == 'ISO_GND':
@@ -1249,7 +1323,7 @@ class PcbBuilder:
                 crowd[choice[1]] += 1
                 continue
             # last resort: the other side of the board, over / under its target
-            if choice is not None and not self.is_led(ref):
+            if choice is not None and not self.is_led(ref) and not ref.startswith('TP'):
                 first = self.passive_side(ref, choice[1][0])
                 self.forced_side[ref] = 'top' if first == 'bottom' else 'bottom'
                 if self.place_near(ref, choice[0], choice[1], offsets):
@@ -1317,12 +1391,21 @@ class PcbBuilder:
             module = TEST_POINT_OVERFLOW
         if module not in pcbfloorplan.MODULE_REGIONS or self.is_led(ref):
             module = None  # LEDs go wherever the top has room near their driver
+        # a test point keeps close to its part until the retry pass (ground
+        # loops excepted: any ground will do)
+        reach = None
+        if (
+            ref.startswith('TP')
+            and self.require_pockets
+            and self.pad_net[ref].get(primary_pad) not in GROUND_NETS
+        ):
+            reach = TEST_POINT_REACH
         best = None
         for offset_x, offset_y in offsets:
-            if (
-                best is not None
-                and (offset_x**2 + offset_y**2) ** 0.5 > best[0] + 1.5
-            ):
+            distance = (offset_x**2 + offset_y**2) ** 0.5
+            if best is not None and distance > best[0] + 1.5:
+                break
+            if reach is not None and distance > reach:
                 break
             for angle in (0, 90, 180, 270):
                 center_x, center_y = target_x + offset_x, target_y + offset_y
@@ -1464,8 +1547,6 @@ class PcbBuilder:
                 0.35,
                 ['VIN', 'VSW', '+12V', 'Net-(J2-Pin_1)'],
             ),
-            # protective earth passed straight through J11 pin 3 -> J12 pin 3
-            'Earth': (1.5, 0.8, 0.4, ['EARTH']),
             'Usb': (
                 0.2,
                 0.6,
@@ -1523,7 +1604,7 @@ class PcbBuilder:
         ):
             outline.Append(to_internal(corner_x), to_internal(corner_y))
 
-    def add_keepout(self, rect, footprints=False):
+    def add_keepout(self, rect, footprints=False, points=None):
         zone = pcbnew.ZONE(self.board)
         zone.SetIsRuleArea(True)
         zone.SetDoNotAllowZoneFills(True)
@@ -1532,7 +1613,13 @@ class PcbBuilder:
         zone.SetDoNotAllowFootprints(footprints)
         zone.SetDoNotAllowPads(False)
         zone.SetLayerSet(pcbnew.LSET.AllCuMask())
-        self.set_outline(zone, rect)
+        if points is None:
+            self.set_outline(zone, rect)
+        else:
+            outline = zone.Outline()
+            outline.NewOutline()
+            for point_x, point_y in points:
+                outline.Append(to_internal(point_x), to_internal(point_y))
         self.board.Add(zone)
 
     def add_planes(self):
@@ -1561,7 +1648,8 @@ class PcbBuilder:
             self.add_keepout(
                 Rect(region.min_x, region.max_y, region.max_x, region.max_y + ISO_BAND)
             )
-        self.add_keepout(ANTENNA_KEEPOUT)
+        for keepout in ANTENNA_KEEPOUTS:
+            self.add_keepout(keepout)
         self.add_zone('GND', pcbnew.In1_Cu, board_rect, 1)
         self.add_zone('ISO_GND', pcbnew.In1_Cu, region, 2)
 
@@ -2311,6 +2399,7 @@ class PcbBuilder:
             {
                 'center': pcbnew.GR_TEXT_H_ALIGN_CENTER,
                 'left': pcbnew.GR_TEXT_H_ALIGN_LEFT,
+                'right': pcbnew.GR_TEXT_H_ALIGN_RIGHT,
             }[justify]
         )
         item.SetMirrored(mirrored)
@@ -2748,7 +2837,7 @@ class PcbBuilder:
                 # keep other labels (and the connector's own reference) off
                 # the pin label strip
                 boxes.append(rect.inflated(0.25))
-            elif name.startswith('silk_'):
+            elif name.startswith(('silk_', 'mark_', 'hole_')):
                 boxes.append(rect)
         for hole_x, hole_y in HOLES:
             boxes.append(
@@ -3194,6 +3283,186 @@ class PcbBuilder:
                     break
         return removed
 
+    def free_mark_spot(self, rect, obstacles):
+        """True if a pin-1 dot or pin name fits there: on the board, off the
+        keep-outs and clear of every silk obstacle on its side.
+        """
+        if not rect.inside(self.occupancy.board_rect):
+            return False
+        if any(rect.overlaps(keepout) for keepout in self.occupancy.keepouts):
+            return False
+        return not any(rect.overlaps(other) for other in obstacles)
+
+    def add_esp32_pin_names(self):
+        """Prints each ESP32 pin name beside its pad: just outside the module
+        past the pad, else on the module outline inside it. Returns the names
+        with room in neither spot.
+        """
+        footprint = self.footprints.get('U1')
+        if footprint is None:
+            return []
+        side = self.side.get('U1', 'top')
+        mirrored = side == 'bottom'
+        names = self.parts['U1'].get('pins', {})
+        center_x, _, _ = self.centers['U1']
+        obstacles = self.silk_obstacles(side)
+        left = 'left'
+        right = 'right'
+        skipped = []
+        for pad in sorted(footprint.Pads(), key=lambda item: int(item.GetNumber())):
+            number = pad.GetNumber()
+            # the netlist suffixes repeated pin names with the pin number
+            name = names.get(number, '').removesuffix(f'_{number}')
+            if not name or name == 'GND':
+                continue
+            pad_x = pad.GetPosition().x / 1e6
+            pad_y = pad.GetPosition().y / 1e6
+            box = pad.GetBoundingBox()
+            width = box.GetWidth() / 1e6
+            height = box.GetHeight() / 1e6
+            if width >= height:  # side column, reads across
+                outward = -1 if pad_x < center_x else 1
+                reach = width / 2 + SILK_PAD_CLEARANCE + 0.05
+                spots = [
+                    (pad_x + outward * reach, pad_y, left if outward > 0 else right, 0),
+                    (pad_x - outward * reach, pad_y, right if outward > 0 else left, 0),
+                ]
+            else:  # bottom row, turned
+                reach = height / 2 + SILK_PAD_CLEARANCE + 0.05
+                spots = [
+                    (pad_x, pad_y + reach, right, 90),
+                    (pad_x, pad_y - reach, left, 90),
+                ]
+            for spot_x, spot_y, justify, angle in spots:
+                item = self.add_text(
+                    name, spot_x, spot_y, SILK_TEXT_SIZE,
+                    layer=silk_layer(side), mirrored=mirrored,
+                    thickness=SILK_TEXT_THICKNESS, justify=justify,
+                )
+                item.SetTextAngleDegrees(angle)
+                rect = self.text_box(item).inflated(0.05)
+                if self.free_mark_spot(rect, obstacles):
+                    obstacles.append(rect)
+                    self.occupancy.add(f'mark_esp32_{number}', rect, side)
+                    break
+                self.board.Remove(item)
+            else:
+                skipped.append(name)
+        return skipped
+
+    def add_pin1_marks(self):
+        """A filled dot beside pin 1 of every IC, module and connector that
+        lacks its own marker, in the first spot clear of pads and silk.
+        Returns the parts with no room for one.
+        """
+        missing = []
+        radius = PIN1_DOT_RADIUS
+        for side in ('top', 'bottom'):
+            obstacles = self.silk_obstacles(side)
+            for ref, footprint in sorted(self.footprints.items()):
+                if self.side.get(ref, 'top') != side or not ref.startswith(PIN1_PREFIXES):
+                    continue
+                first = [pad for pad in footprint.Pads() if pad.GetNumber() in ('1', 'A1')]
+                if not first:
+                    continue
+                pad = first[0]
+                pad_x = pad.GetPosition().x / 1e6
+                pad_y = pad.GetPosition().y / 1e6
+                if has_own_pin1_mark(footprint, pad_x, pad_y):
+                    continue
+                box = pad.GetBoundingBox()
+                center_x, center_y, _ = self.centers[ref]
+                reach_x = box.GetWidth() / 2e6 + radius + SILK_PAD_CLEARANCE
+                reach_y = box.GetHeight() / 2e6 + radius + SILK_PAD_CLEARANCE
+                away_x = 1 if pad_x >= center_x else -1
+                away_y = 1 if pad_y >= center_y else -1
+                for scale in (1.0, 1.5, 2.2):
+                    spots = [
+                        (pad_x + away_x * reach_x * scale, pad_y),
+                        (pad_x, pad_y + away_y * reach_y * scale),
+                        (pad_x + away_x * reach_x * scale, pad_y + away_y * reach_y * scale),
+                        (pad_x - away_x * reach_x * scale, pad_y),
+                        (pad_x, pad_y - away_y * reach_y * scale),
+                    ]
+                    spot = next(
+                        (
+                            (dot_x, dot_y)
+                            for dot_x, dot_y in spots
+                            if self.free_mark_spot(
+                                Rect(dot_x - radius, dot_y - radius,
+                                     dot_x + radius, dot_y + radius).inflated(0.1),
+                                obstacles,
+                            )
+                        ),
+                        None,
+                    )
+                    if spot is not None:
+                        break
+                if spot is None:
+                    missing.append(ref)
+                    continue
+                dot_x, dot_y = spot
+                shape = pcbnew.PCB_SHAPE(self.board)
+                shape.SetShape(pcbnew.SHAPE_T_CIRCLE)
+                shape.SetLayer(silk_layer(side))
+                shape.SetFilled(True)
+                shape.SetWidth(pcbnew.FromMM(SILK_MIN_LINE))
+                shape.SetCenter(pcbnew.VECTOR2I(pcbnew.FromMM(dot_x), pcbnew.FromMM(dot_y)))
+                shape.SetEnd(pcbnew.VECTOR2I(pcbnew.FromMM(dot_x + radius), pcbnew.FromMM(dot_y)))
+                self.board.Add(shape)
+                rect = Rect(dot_x - radius, dot_y - radius, dot_x + radius, dot_y + radius)
+                obstacles.append(rect.inflated(0.1))
+                self.occupancy.add(f'mark_pin1_{ref}', rect, side)
+        return missing
+
+    def tested_part(self, ref):
+        """The part a test point tests: the nearest of its owners
+        (test_point_owners), else the nearest part on its net.
+        """
+        net = self.pad_net[ref].get('1')
+        here_x, here_y, _ = self.centers[ref]
+        owners = self.test_point_owners(ref, net) or [
+            other
+            for other, _ in self.net_pads.get(net, [])
+            if other in self.centers and other != ref and not other.startswith('TP')
+        ]
+        if not owners:
+            return None
+        return min(
+            owners,
+            key=lambda other: (self.centers[other][0] - here_x) ** 2
+            + (self.centers[other][1] - here_y) ** 2,
+        )
+
+    def test_point_problems(self):
+        """Test points on the other side from the part they test, or more
+        than TEST_POINT_CHECK_REACH mm from it (AGENTS.md: same side, close by).
+        Ground loops go through the board and are reachable from both sides.
+        """
+        problems = []
+        for ref in sorted(self.centers):
+            if not ref.startswith('TP'):
+                continue
+            if self.pad_net[ref].get('1') in GROUND_NETS:
+                continue
+            tested = self.tested_part(ref)
+            if tested is None:
+                continue
+            if self.side.get(tested, 'top') != self.side.get(ref, 'top'):
+                problems.append(f'{ref} is on the other side from {tested}')
+                continue
+            # measured pad to pad, as place_near reaches for the target pad
+            net = self.pad_net[ref].get('1')
+            here = self.pad_position(ref, '1')
+            gap = min(
+                math.dist(here, self.pad_position(tested, pad))
+                for other, pad in self.net_pads[net]
+                if other == tested
+            )
+            if gap > TEST_POINT_CHECK_REACH:
+                problems.append(f'{ref} is {gap:.1f} mm from {tested}')
+        return problems
+
     def add_silkscreen(self):
         self.add_module_boxes()
         if not self.pin_pockets:
@@ -3201,6 +3470,8 @@ class PcbBuilder:
             for ref in PIN_LABELS:
                 self.reserve_pin_labels(ref)
         self.add_pin_labels()
+        print('pin-1 marks with no room:', self.add_pin1_marks())
+        print('ESP32 pin names left out (no room):', self.add_esp32_pin_names())
         self.place_reference_texts()
         self.add_part_labels()
         placed, skipped = self.add_ic_labels()
@@ -3359,12 +3630,15 @@ def main():
         and not any(name.startswith('via_') for name in pair)
         if not any('_current_' in name for name in pair)
         and not any(name.startswith('silk_box') for name in pair)
+        # pin-1 dots, pin names and a part's own label sit on its courtyard
+        and not any(name.startswith('mark_') for name in pair)
+        and not (pair[1] == f'silk_{pair[0]}' or pair[0] == f'silk_{pair[1]}')
         and not (
             any(name.startswith('txt_') for name in pair)
             and not all(name.startswith('txt_') for name in pair)
         )
     ]
-    floorplan_problems = builder.check_floorplan()
+    floorplan_problems = builder.check_floorplan() + builder.test_point_problems()
     out_path = KICAD_DIR / 'cryocooler.kicad_pcb'
     print('unplaced:', unplaced)
     print('overlapping pairs:', overlaps)

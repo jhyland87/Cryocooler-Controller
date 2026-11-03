@@ -46,10 +46,10 @@ MODULE_OF_SHEET = {
     'Display': 'DISPLAY',
 }
 
-# The rev 2 board (UCS 125-87, 100 x 62 mm) uses both sides. Each module
-# has one region set per side, keyed 'NAME@top' / 'NAME@bottom'; the top
-# carries connectors, tall parts, LEDs and switches, the bottom the
-# low-profile ICs with their passives and test points.
+# The UCS 145-125 board (120 x 100 mm) uses both sides. Each module has one
+# region set per side, keyed 'NAME@top' / 'NAME@bottom'; the top carries the
+# connectors, the ESP32, tall parts, LEDs and the switching stages, the bottom
+# the other ICs with most of the passives.
 SIDE_SEPARATOR = '@'
 
 
@@ -63,39 +63,43 @@ def split_key(key):
     name, _, side = key.partition(SIDE_SEPARATOR)
     return name, side or 'top'
 
-# region key -> rectangles (overlap them by > 2 * LINE_INSET to build L
-# shapes). Board 100 x 62; corner squares (7.4 mm) and the antenna notch
-# (x 60-80, y 0-6.6) stay free of parts through keep-outs in gen_pcb.py.
-MODULE_REGIONS = {
-    # ─── top side ───
-    'IMU CABLE@top': [Rect(-3, 9.3, 19.7, 28.2)],
-    'COLD HEAD TEMP@top': [Rect(6.6, -3, 32.2, 8.5)],
-    'DISPLAY@top': [Rect(33.0, -3, 47.8, 8.7)],
-    'MCU & USB@top': [Rect(48.6, -3, 80.3, 26.8)],
-    'INDICATORS@top': [Rect(81.1, 7.6, 103, 22.0)],
-    'COMPRESSOR RELAY@top': [Rect(88.4, 22.8, 103, 37.2)],
-    'WATER COOLING@top': [Rect(-3, 29.0, 19.7, 65)],
-    'POWER INPUT & RAILS@top': [
-        Rect(20.5, 50.2, 33.4, 65),
-        Rect(20.5, 9.6, 47.8, 45.7),
+# module -> rectangles (overlap them by > 2 * LINE_INSET to build L shapes),
+# the same on both sides. Corner squares (7.4 mm) and the antenna notch
+# (x 74.5-93.5, y 0-6) stay free of parts through keep-outs in gen_pcb.py.
+# Walls: left = amplifier (J11 / J12 / J9 / J8) and 12 V in, top = display
+# FPC and ESP32 antenna, right = USB, IMU, PT1000, pump, bottom = panel
+# button, relay, water cooling.
+FLOORPLAN = {
+    'AMP CURRENT (ISOLATED)': [
+        Rect(-3, -3, 25.25, 40.5),
+        Rect(19.5, 13, 33, 42),
+        Rect(-3, 26, 13.5, 47.8),
     ],
-    'AMP CONTROL@top': [Rect(34.2, 46.5, 52.9, 65)],
-    'RAILS ±15V@top': [Rect(48.6, 27.6, 87.6, 37.2)],
-    'AMP CURRENT (ISOLATED)@top': [Rect(53.7, 38.0, 92.4, 65)],
-    # ─── bottom side ───
-    'COLD HEAD TEMP@bottom': [Rect(-3, -3, 13.4, 15.0)],
-    'POWER GOOD@bottom': [Rect(-3, 15.8, 9.4, 30.0), Rect(-3, 23.0, 17.3, 30.0)],
-    'IMU CABLE@bottom': [Rect(14.2, 8.0, 17.3, 22.2), Rect(10.2, 15.8, 17.3, 22.2)],
-    'WATER COOLING@bottom': [Rect(-3, 30.8, 21.0, 65), Rect(18.1, 23.3, 21.0, 31.4)],
-    'SIGNAL GENERATOR@bottom': [Rect(18.1, -3, 47.0, 22.5)],
-    'DISPLAY@bottom': [Rect(47.8, 9.8, 59.6, 27.2)],
-    'MCU & USB@bottom': [Rect(60.4, 6.6, 80.3, 23.0)],
-    'INDICATORS@bottom': [Rect(81.1, -3, 103, 16.0)],
-    'COMPRESSOR RELAY@bottom': [Rect(81.1, 16.8, 103, 27.2)],
-    'POWER INPUT & RAILS@bottom': [Rect(21.8, 23.3, 47.0, 65)],
-    'AMP CONTROL@bottom': [Rect(47.8, 28.0, 59.4, 40.4)],
-    'RAILS ±15V@bottom': [Rect(60.2, 28.0, 103, 40.4), Rect(60.2, 24.2, 76.6, 28.8)],
-    'AMP CURRENT (ISOLATED)@bottom': [Rect(47.8, 41.2, 103, 65)],
+    'DISPLAY': [Rect(25.25, -3, 60, 13)],
+    'SIGNAL GENERATOR': [Rect(33, 13, 60, 58)],
+    'MCU & USB': [Rect(60, -3, 100, 30), Rect(100, -3, 123, 21.5)],
+    'IMU CABLE': [Rect(100, 21.5, 123, 42)],
+    'INDICATORS': [Rect(60, 30, 100, 40)],
+    'RAILS ±15V': [Rect(60, 40, 80, 72)],
+    'POWER GOOD': [Rect(80, 40, 100, 72)],
+    'COLD HEAD TEMP': [Rect(100, 42, 123, 64)],
+    'AMP CONTROL': [Rect(-3, 62.5, 22, 85)],
+    'POWER INPUT & RAILS': [
+        Rect(13.5, 42, 33, 62.5),
+        Rect(-3, 47.8, 13.5, 62.5),
+        Rect(22, 62.5, 33, 103),
+        Rect(-3, 85, 22, 103),
+        Rect(33, 58, 60, 72),
+        Rect(33, 72, 56, 82),
+        Rect(33, 82, 44.2, 103),
+    ],
+    'COMPRESSOR RELAY': [Rect(44.2, 82, 56, 103)],
+    'WATER COOLING': [Rect(56, 72, 100, 103), Rect(100, 64, 123, 103)],
+}
+MODULE_REGIONS = {
+    module_key(module, side): [Rect(r.min_x, r.min_y, r.max_x, r.max_y) for r in rects]
+    for side in ('top', 'bottom')
+    for module, rects in FLOORPLAN.items()
 }
 
 
@@ -242,7 +246,10 @@ def _breakpoints(values, low, high):
 
 
 # shorter label texts to fall back on when the full name has no room
-LABEL_ALTERNATIVES = {'AMP CONTROL': ['AMP CONTROL', 'AMP CTRL']}
+LABEL_ALTERNATIVES = {
+    'AMP CONTROL': ['AMP CONTROL', 'AMP CTRL'],
+    'COMPRESSOR RELAY': ['COMPRESSOR RELAY', 'COMP RELAY', 'RELAY'],
+}
 
 
 def label_texts(module):

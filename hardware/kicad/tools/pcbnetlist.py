@@ -34,8 +34,9 @@ def export_netlist(out_path):
 
 
 def load_netlist():
-    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet);
-    nets[name] = [(ref, pin)].
+    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet,
+    pins, ...) with pins[pin number] = symbol pin name; nets[name] =
+    [(ref, pin)].
     """
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'n.net'
@@ -58,6 +59,7 @@ def load_netlist():
             'sheet': sheet,
             'path': sheet_path + symbol,
             'sheet_names': sval(find_all(sheetpath, 'names')[0][1]),
+            'pins': {},
             # symbol fields the board copy must match (schematic parity)
             'fields': {
                 field: sval(find_all(comp, key)[0][1])
@@ -68,8 +70,12 @@ def load_netlist():
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):
         name = sval(find_all(net, 'name')[0][1])
-        nets[name] = [
-            (sval(find_all(n, 'ref')[0][1]), sval(find_all(n, 'pin')[0][1]))
-            for n in find_all(net, 'node')
-        ]
+        nets[name] = []
+        for node in find_all(net, 'node'):
+            ref = sval(find_all(node, 'ref')[0][1])
+            pin = sval(find_all(node, 'pin')[0][1])
+            nets[name].append((ref, pin))
+            function = find_all(node, 'pinfunction')
+            if function and ref in parts:
+                parts[ref]['pins'][pin] = sval(function[0][1])
     return parts, nets
