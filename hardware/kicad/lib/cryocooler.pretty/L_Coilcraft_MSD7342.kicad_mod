@@ -1,0 +1,165 @@
+(footprint "L_Coilcraft_MSD7342"
+	(version 20260206)
+	(generator "make_footprints")
+	(layer "F.Cu")
+	(descr "Coilcraft MSD7342 1:1 coupled inductor, 7.5 x 7.5 x 4.6 mm; land pattern from https://www.coilcraft.com/getmedia/msd7342.pdf (Document 621-1)")
+	(property "Reference" "REF**"
+		(at 0 -4.95 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "L_Coilcraft_MSD7342"
+		(at 0 4.95 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -3.75 -3.75)
+		(end 3.75 -3.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 3.75 -3.75)
+		(end 3.75 3.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 3.75 3.75)
+		(end -3.75 3.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -3.75 3.75)
+		(end -3.75 -3.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -4.05 -4.05)
+		(end 4.05 -4.05)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 4.05 -4.05)
+		(end 4.05 4.05)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 4.05 4.05)
+		(end -4.05 4.05)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -4.05 4.05)
+		(end -4.05 -4.05)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -4.25 -4.25)
+		(end 4.25 -4.25)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 4.25 -4.25)
+		(end 4.25 4.25)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 4.25 4.25)
+		(end -4.25 4.25)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -4.25 4.25)
+		(end -4.25 -4.25)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_circle
+		(center 2.6 -2.6)
+		(end 2.85 -2.6)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+	)
+	(pad "2" smd rect
+		(at -0.85 -2.7)
+		(size 1.1 2.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "1" smd rect
+		(at 0.85 -2.7)
+		(size 1.1 2.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "3" smd rect
+		(at -0.85 2.7)
+		(size 1.1 2.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "4" smd rect
+		(at 0.85 2.7)
+		(size 1.1 2.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+)

@@ -34,9 +34,8 @@ def export_netlist(out_path):
 
 
 def load_netlist():
-    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet,
-    pins, fields) with pins[pin number] = symbol pin name and fields the
-    symbol's own fields (Datasheet, Product, ...); nets[name] = [(ref, pin)].
+    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet);
+    nets[name] = [(ref, pin)].
     """
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'n.net'
@@ -49,28 +48,28 @@ def load_netlist():
         for prop in find_all(comp, 'property'):
             if sval(find_all(prop, 'name')[0][1]) == 'Sheetname':
                 sheet = sval(find_all(prop, 'value')[0][1])
-        fields = {}
-        for group in find_all(comp, 'fields'):
-            for field in find_all(group, 'field'):
-                name = sval(find_all(field, 'name')[0][1])
-                if name != 'Footprint' and len(field) > 2:
-                    fields[name] = sval(field[-1])
+        # symbol link: sheet instance path + symbol uuid (first unit's)
+        sheetpath = find_all(comp, 'sheetpath')[0]
+        sheet_path = sval(find_all(sheetpath, 'tstamps')[0][1])
+        symbol = sval(find_all(comp, 'tstamps')[0][1]).split()[0]
         parts[ref] = {
             'value': sval(find_all(comp, 'value')[0][1]),
             'footprint': sval(find_all(comp, 'footprint')[0][1]),
             'sheet': sheet,
-            'pins': {},
-            'fields': fields,
+            'path': sheet_path + symbol,
+            'sheet_names': sval(find_all(sheetpath, 'names')[0][1]),
+            # symbol fields the board copy must match (schematic parity)
+            'fields': {
+                field: sval(find_all(comp, key)[0][1])
+                for field, key in (('Description', 'description'), ('Datasheet', 'datasheet'))
+                if find_all(comp, key)
+            },
         }
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):
         name = sval(find_all(net, 'name')[0][1])
-        nets[name] = []
-        for node in find_all(net, 'node'):
-            ref = sval(find_all(node, 'ref')[0][1])
-            pin = sval(find_all(node, 'pin')[0][1])
-            nets[name].append((ref, pin))
-            function = find_all(node, 'pinfunction')
-            if function and ref in parts:
-                parts[ref]['pins'][pin] = sval(function[0][1])
+        nets[name] = [
+            (sval(find_all(n, 'ref')[0][1]), sval(find_all(n, 'pin')[0][1]))
+            for n in find_all(net, 'node')
+        ]
     return parts, nets

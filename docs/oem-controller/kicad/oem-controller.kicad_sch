@@ -1,0 +1,76 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "b0f66ecf-3448-59ee-b6a9-8bf091796314")
+	(paper "A4")
+	(title_block
+		(title "OEM controller (patent schematics)")
+		(rev "A")
+		(company "OEM controller - patent transcription")
+	)
+	(lib_symbols)
+	(text "Transcribed from the STI patents. One sheet per patent PDF that contains\nelectrical schematics; one page per figure. See ../TRANSCRIPTION_NOTES.md."
+		(exclude_from_sim no)
+		(at 20 30 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left top)
+		)
+		(uuid "53f82211-603c-528e-8312-b560dc7deb56")
+	)
+	(sheet
+		(at 30.48 60.96)
+		(size 60.96 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e6f0d361-8d74-57a7-ad88-ebc0b4431525")
+		(property "Sheetname" "US6098409 (= US6256999)"
+			(at 30.48 60.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "sheets/US6098409.kicad_sch"
+			(at 30.48 71.72 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

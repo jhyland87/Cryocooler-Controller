@@ -1,0 +1,179 @@
+(footprint "RJ45_Amphenol_RJSSE-5380_Horizontal"
+	(version 20260206)
+	(generator "make_footprints")
+	(layer "F.Cu")
+	(descr "Amphenol RJSSE-5380 SMT RJ45 8P8C, shielded, no magnetics; land pattern from drawing P-RJSSE-5380 rev E (https://www.amphenol-cs.com/modular-jacks-rjsse5380.html)")
+	(property "Reference" "REF**"
+		(at 0 -13.2 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "RJSSE-5380"
+		(at 0 5.55 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -8.255 -11.7)
+		(end 8.255 -11.7)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 8.255 -11.7)
+		(end 8.255 4.05)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 8.255 4.05)
+		(end -8.255 4.05)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -8.255 4.05)
+		(end -8.255 -11.7)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -8.755 -14.81)
+		(end 8.755 -14.81)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 8.755 -14.81)
+		(end 8.755 4.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 8.755 4.55)
+		(end -8.755 4.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -8.755 4.55)
+		(end -8.755 -14.81)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -8.4 -10.0)
+		(end -8.4 4.2)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 8.4 -10.0)
+		(end 8.4 4.2)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(pad "1" smd rect
+		(at 4.17 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at 2.9 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "3" smd rect
+		(at 1.63 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "4" smd rect
+		(at 0.36 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "5" smd rect
+		(at -0.91 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "6" smd rect
+		(at -2.18 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "7" smd rect
+		(at -3.45 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "8" smd rect
+		(at -4.72 -13.04)
+		(size 0.56 2.54)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "SH" smd rect
+		(at -5.16 -4.59)
+		(size 6.22 3.18)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "SH" smd rect
+		(at 5.16 -4.59)
+		(size 6.22 3.18)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "" np_thru_hole circle
+		(at -6.35 0)
+		(size 2.69 2.69)
+		(drill 2.69)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "" np_thru_hole circle
+		(at 6.35 0)
+		(size 2.69 2.69)
+		(drill 2.69)
+		(layers "*.Cu" "*.Mask")
+	)
+)

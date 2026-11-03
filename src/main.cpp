@@ -23,6 +23,7 @@
 #include "telemetry.h"
 #include "commands.h"
 #include "sysinfo.h"
+#include "display.h"
 #include "cooling.h"
 #include "dashboard.h"
 #include "imu.h"
@@ -79,6 +80,7 @@ static const module::ModuleEntry persistentModules[] = {
 #endif
     MODULE_ENTRY(telemetry, false),
     MODULE_ENTRY(sysinfo,   false),
+    MODULE_ENTRY(display,   false),
 };
 static constexpr size_t NUM_PERSISTENT = sizeof(persistentModules) / sizeof(persistentModules[0]);
 
@@ -99,6 +101,7 @@ static const module::ModuleEntry tickServiceModules[] = {
     MODULE_ENTRY(imu,       false),
     MODULE_ENTRY(amplifier, false),
     MODULE_ENTRY(cooling,   false),
+    MODULE_ENTRY(display,   false),
 };
 static constexpr size_t NUM_TICK_SERVICE = sizeof(tickServiceModules) / sizeof(tickServiceModules[0]);
 
@@ -110,6 +113,7 @@ static const module::ModuleEntry allModulesForBanner[] = {
     MODULE_ENTRY(ota,           false),
     MODULE_ENTRY(dashboard,     false),
     MODULE_ENTRY(sysinfo,       false),
+    MODULE_ENTRY(display,       false),
     MODULE_ENTRY(cooling,       false),
     MODULE_ENTRY(amplifier,     false),
     MODULE_ENTRY(cold_head,     false),

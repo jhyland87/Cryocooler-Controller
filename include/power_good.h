@@ -104,3 +104,33 @@ private:
     uint32_t lastOutageMs_  = 0;
     uint32_t changeCount_   = 0;
 };
+
+/**
+ * The four +-15 V power-good flags the SC18IS604 bridge reads (LT3097 PGP /
+ * PGN and LT8582 PG1 / PG2). Each node is high (true) when its rail is good.
+ */
+struct RailFlags {
+    bool posLdo;     ///< LT3097 +15 V output (PGP)
+    bool negLdo;     ///< LT3097 -15 V output (PGN)
+    bool posBoost;   ///< LT8582 +16.4 V boost (PG1)
+    bool negInvert;  ///< LT8582 -16.5 V inverter (PG2)
+
+    /** True when every rail reports good. */
+    bool allGood() const { return posLdo && negLdo && posBoost && negInvert; }
+};
+
+/**
+ * Decode the bridge IOState byte into rail flags.
+ * @param ioState  Bit n = level of bridge GPIOn.
+ * @param bitPosLdo, bitNegLdo, bitPosBoost, bitNegInvert  GPIO numbers of
+ *                 the four flags (BRIDGE_GPIO_* in pin_config.h).
+ * @return The decoded flags.
+ * @code
+ * RailFlags flags = decodeRailFlags(0b11110, 1, 2, 3, 4);  // all good
+ * @endcode
+ */
+inline RailFlags decodeRailFlags(uint8_t ioState, uint8_t bitPosLdo, uint8_t bitNegLdo,
+                                 uint8_t bitPosBoost, uint8_t bitNegInvert) {
+    auto bit = [ioState](uint8_t index) { return ((ioState >> index) & 1u) != 0; };
+    return RailFlags{bit(bitPosLdo), bit(bitNegLdo), bit(bitPosBoost), bit(bitNegInvert)};
+}

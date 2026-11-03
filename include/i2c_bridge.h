@@ -33,4 +33,29 @@ bool isPresent();
 /** The EMC230xBus view of the I2C bus behind the bridge. */
 EMC230xBus& bus();
 
+/**
+ * Configure the bridge GPIOs: GPIO0-3 each as input-only (false) or push-pull
+ * output (true); GPIO4 is always an input. All pins power up as inputs.
+ * @param outputMask Bit n set = GPIOn is a push-pull output (bits 0-3).
+ * @return false if the bridge is absent.
+ * @code
+ * i2c_bridge::configureGpio(1u << BRIDGE_GPIO_DISP_BL);  // GPIO0 out, 1-4 in
+ * @endcode
+ */
+bool configureGpio(uint8_t outputMask);
+
+/**
+ * Drive one output GPIO (configured with configureGpio()).
+ * @param pin   GPIO number 0-3.
+ * @param level Output level.
+ * @return false if the bridge is absent or @p pin is not 0-3.
+ */
+bool writeGpio(uint8_t pin, bool level);
+
+/**
+ * Read the level of all five bridge GPIOs.
+ * @return Bit n = level of GPIOn (bits 0-4), or -1 if the bridge is absent.
+ */
+int16_t readGpio();
+
 }  // namespace i2c_bridge

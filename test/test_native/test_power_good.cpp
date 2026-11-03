@@ -91,6 +91,21 @@ void test_pg_millis_wraparound(void) {
     TEST_ASSERT_EQUAL(Event::Lost, monitor.update(false, 0x00000040u));  // 80 ms later, past the wrap
 }
 
+void test_rail_flags_all_good(void) {
+    // bridge GPIO1-4 high, GPIO0 (backlight output) don't care
+    const RailFlags flags = decodeRailFlags(0b11110, 1, 2, 3, 4);
+    TEST_ASSERT_TRUE(flags.allGood());
+}
+
+void test_rail_flags_name_the_bad_rail(void) {
+    const RailFlags flags = decodeRailFlags(0b10111, 1, 2, 3, 4);  // GPIO3 low
+    TEST_ASSERT_TRUE(flags.posLdo);
+    TEST_ASSERT_TRUE(flags.negLdo);
+    TEST_ASSERT_FALSE(flags.posBoost);
+    TEST_ASSERT_TRUE(flags.negInvert);
+    TEST_ASSERT_FALSE(flags.allGood());
+}
+
 void run_power_good_tests() {
     RUN_TEST(test_pg_begin_raises_no_event);
     RUN_TEST(test_pg_loss_reported_after_debounce);
@@ -100,4 +115,6 @@ void run_power_good_tests() {
     RUN_TEST(test_pg_restore_reports_outage_length);
     RUN_TEST(test_pg_starts_bad_then_restores);
     RUN_TEST(test_pg_millis_wraparound);
+    RUN_TEST(test_rail_flags_all_good);
+    RUN_TEST(test_rail_flags_name_the_bad_rail);
 }

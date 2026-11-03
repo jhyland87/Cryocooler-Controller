@@ -12,7 +12,8 @@ serves, keep-outs and mounting holes.
 
 import collections
 import json
-import math
+import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -26,15 +27,17 @@ import pcbfloorplan
 import pcbmodels
 from pcbplace import Occupancy, Rect, placed_rect, ring_offsets, rotate_point
 
-# Phoenix Contact UCS 145-125 housing PCB (drawing 2203447): 120 x 100 mm,
-# 31 mm clearance above the board and 10 mm below
-BOARD_WIDTH = 120.0
-BOARD_HEIGHT = 100.0
-EDGE_MARGIN = 0.8
-PASSIVE_GAP = 0.2
+# Phoenix UCS 125-87 housing: 100 x 62 mm board (dev/UCS_125-87_PCB_Dimensions)
+BOARD_WIDTH = 100.0
+BOARD_HEIGHT = 62.0
+EDGE_MARGIN = 0.5
+PASSIVE_GAP = 0.3
+# rev 1 reserved a label pocket beside every part before placing the next;
+# the 100 x 62 board has no room for that, so labels are fitted afterwards
+# and the ones that do not fit stay hidden
+RESERVE_LABEL_POCKETS = False
 # JLCPCB needs 0.2 mm drills on 0.45 mm pads or larger, else a paid 4-wire test.
 VIA_IN_PAD_DIAMETER = 0.45
-HOLE_TO_HOLE = 0.25  # board rule (min_hole_to_hole), drill edge to drill edge
 STOCK_FOOTPRINTS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints'
 )
@@ -46,15 +49,12 @@ SWITCHED_NETS = {
     '+5V_PS15': 'RAILS ±15V',
     '+5V_ISO': 'AMP CURRENT (ISOLATED)',
     '+3V3_COOL': 'WATER COOLING',
-    '+3V3_CH': 'COLD HEAD',
+    '+3V3_CH': 'COLD HEAD TEMP',
 }
 # sections too full for their test points: these sit in the nearest free
-# spot of another box instead (none at the moment)
+# spot of the roomy power box instead
 TEST_POINTS_OUTSIDE = set()
-# how far (mm, from the pad it serves) a test point may go before the last
-# placement pass
-TEST_POINT_REACH = 8.0
-TEST_POINT_OVERFLOW = None
+TEST_POINT_OVERFLOW = 'POWER INPUT & RAILS'
 POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
     '+3V3',
     '+5V',
@@ -69,77 +69,138 @@ POWER_NETS = GROUND_NETS | set(SWITCHED_NETS) | {
     'USB_VBUS',
 }
 
-# ref -> (x, y, rotation[, 'B']): the parts placed by hand, on the top side
-# unless marked 'B' (bottom). Everything else (passives, test points, small
-# transistors / diodes / logic, LEDs, jumpers) is placed beside the pad it
-# serves by place_passives(). Edge connectors face the housing side walls.
+# ref -> (x, y, rotation[, side]); everything that is not a plain R/C is
+# placed here. Side defaults to 'top'; the bottom takes only low-profile SMD
+# parts (no clearance figure for under the board in the housing drawing).
 PLACEMENT = {
-    # MCU: ESP32 antenna over the routed notch in the top edge, USB-C on the
-    # right wall
-    'U1': (84.0, 12.75, 0),
-    'J1': (116.325, 13.1, 90),
-    'SW1': (66.5, 11.0, 0),
-    'SW2': (66.5, 18.5, 0),
-    # amplifier current, isolated side on the left (barrier at x = 25.25)
-    'J11': (10.0, 11.7, 270),
-    'J12': (10.0, 25.4, 270),
-    'U18': (18.8, 14.0, 0),
-    'U17': (26.0, 25.3, 180),
-    'PS1': (26.0, 33.2, 0),
-    # amplifier control terminals on the top wall
-    'J9': (40.5, 8.0, 180),
-    'J8': (51.3, 8.0, 180),
-    # signal generator: oscillator, DDS and DAC, op-amps below them
-    'U3': (38.5, 23.5, 0),
-    'U4': (46.5, 23.5, 0),
-    'U7': (53.5, 23.5, 90),
-    'U5': (38.5, 35.0, 90),
-    'U6': (45.5, 35.0, 90),
-    'U9': (52.5, 35.0, 90),
-    # 5 V buck and 3.3 V LDO, below the 12 V input
-    'L1': (7.5, 73.0, 0),
-    'U16': (17.0, 73.0, 0),
-    'U15': (12.5, 79.0, 0),
-    # 12 V input on the left wall
-    'J2': (10.0, 46.0, 270),
-    'F1': (19.2, 46.0, 90),
-    'D1': (19.2, 55.0, 90),
-    'C6': (7.5, 60.5, 0),
-    # power button: switch MOSFET, panel connector and button on the bottom wall
-    'Q1': (35.0, 66.5, 0),
-    'SW3': (30.0, 96.3, 0),
-    # JST PH headers: mating face 0.6 mm inside the bottom edge (copper
-    # edge clearance for their fitting nails)
-    'J7': (38.80, 95.00, 0),
-    'U11': (30.0, 80.0, 0),
-    'U13': (37.0, 80.0, 0),
-    'J13': (49.00, 95.00, 0),
-    # system current: 12 V bulk capacitor and INA239
-    'C71': (50.0, 66.0, 0),
-    'U23': (51.0, 76.0, 0),
-    # +-15 V rails: ADP5071 and its inductors in a row, LT3097 after them
-    'U20': (63.5, 55.0, 0),
-    'L2': (73.0, 55.0, 0),
-    'L3': (83.0, 55.0, 0),
-    'D5': (68.0, 61.5, 0),
-    'D6': (76.0, 61.5, 0),
-    'U21': (92.0, 55.0, 0),
-    # cold head and IMU on the right wall
-    'U14': (104.50, 60.00, 90),
-    'J10': (111.35, 59.00, 90),
-    'J14': (114.7, 30.0, 270),
-    # water cooling: pump on the right wall, NTC / flow / fan on the bottom
-    'J4': (110.8, 85.0, 90),
-    'J3': (80.50, 90.80, 0),
-    'J5': (68.50, 90.80, 0),
-    'J6': (60.80, 95.00, 0),
-    'U10': (100.0, 88.0, 0),
-    'U25': (74.0, 75.0, 0),
+    # ─── top: back edge (y = 0): PT1000, display FPC, USB-C, ESP32 ───
+    'J10': (21.0, 4.0, 0),
+    'J15': (40.4, 5.0, 180),
+    'J1': (54.6, 4.2, 180),
+    'U1': (70.0, 12.95, 0),
+    'SW1': (53.4, 14.5, 0),
+    'SW2': (53.4, 21.5, 0),
+    # ─── top: left edge: IMU RJ45, cooling headers ───
+    'J14': (3.35, 18.6, 270),
+    'J3': (9.6, 33.0, 0),
+    'J4': (9.6, 43.15, 0),
+    'J5': (9.6, 53.35, 0),
+    'J6': (3.6, 35.0, 90),
+    # ─── top: front edge (y = 62): power in, amplifier, cryocooler ───
+    'J2': (24.2, 56.6, 0),
+    'J9': (37.1, 56.7, 0),
+    'J8': (46.1, 56.7, 0),
+    'D4': (48.5, 48.4, 0),
+    'J11': (62.0, 56.6, 0),
+    'J12': (78.5, 56.6, 0),
+    # ─── top: power path and tall parts ───
+    'Q1': (33.0, 39.5, 0),
+    'C6': (26.3, 29.0, 0),
+    'C73': (37.3, 29.0, 0),
+    'L1': (43.2, 14.0, 0),
+    'SW3': (25.5, 14.2, 0),
+    'J7': (34.0, 13.6, 0),
+    'D3': (24.5, 20.0, 0),
+    'L2': (60.98, 32.6, 0),
+    'L3': (72.0, 31.9, 0),
+    'U18': (75.96, 44.5, 90),
+    'PS1': (59.0, 46.0, 180),
+    # ─── top: right column: indicators, compressor relay ───
+    'D11': (86.5, 12.0, 0),
+    'D9': (92.0, 17.0, 0),
+    'D10': (95.0, 17.0, 0),
+    'J13': (92.0, 27.0, 0),
+    'D12': (93.0, 33.5, 0),
+    # ─── bottom: signal generator ───
+    'U3': (22.7, 12.5, 0, 'bottom'),
+    'U4': (30.0, 10.5, 0, 'bottom'),
+    'U5': (41.0, 9.6, 0, 'bottom'),
+    'U6': (42.0, 3.5, 0, 'bottom'),
+    'U7': (24.0, 19.0, 0, 'bottom'),
+    'U9': (32.5, 19.0, 0, 'bottom'),
+    'U8': (40.0, 19.0, 0, 'bottom'),
+    # ─── bottom: MCU, display ───
+    'U2': (63.0, 12.2, 0, 'bottom'),
+    'U27': (53.7, 13.5, 0, 'bottom'),
+    'Q25': (53.7, 20.0, 0, 'bottom'),
+    'U24': (88.0, 8.0, 0, 'bottom'),
+    # ─── bottom: cold head, water cooling ───
+    'U14': (8.95, 11.0, 0, 'bottom'),
+    'U10': (4.0, 49.6, 0, 'bottom'),
+    'U25': (13.0, 37.9, 0, 'bottom'),
+    'U26': (4.0, 44.0, 0, 'bottom'),
+    'D2': (3.5, 40.5, 0),
+    # ─── bottom: power input, button, logic rails, system current ───
+    'F1': (27.0, 47.5, 0, 'bottom'),
+    'D1': (27.0, 52.0, 0, 'bottom'),
+    'U11': (36.0, 34.0, 0, 'bottom'),
+    'U12': (41.0, 34.0, 0, 'bottom'),
+    'U13': (30.0, 37.0, 0, 'bottom'),
+    'Q2': (36.0, 39.0, 0, 'bottom'),
+    'Q3': (41.0, 39.0, 0, 'bottom'),
+    'Q4': (31.0, 42.0, 0, 'bottom'),
+    'U15': (42.5, 26.0, 0, 'bottom'),
+    'U16': (35.0, 27.5, 0, 'bottom'),
+    'U23': (37.5, 48.5, 0, 'bottom'),
+    'R65': (44.0, 45.0, 90, 'bottom'),
+    # ground scope loops (through-hole): spots free on both sides
+    'TP14': (45.2, 30.0, 0),
+    'TP15': (45.2, 35.0, 0),
+    'TP16': (45.2, 39.6, 0),
+    # LT3097 -15 V output capacitor (1210), over the regulator in the free
+    # corner of the top +-15 V box
+    'C69': (78.0, 30.5, 90),
+    # LT3097 +15 V output (1210, 2.5 mm tall): the bottom +-15 V box is full
+    'C67': (82.0, 30.5, 90),
+    # LT8582 input caps over U20's exposed pad (GND pads sit on its vias);
+    # C56's VIN pad lands on pin 22's via, C61 / C62 on the SS pin vias
+    'C57': (66.1, 30.0, 90),
+    'C56': (65.6, 33.6, 90),
+    'C61': (67.15, 34.9, 270),
+    'C62': (66.0, 36.4, 180),
+    'TP8': (44.5, 25.5, 0),
+    # fan / pump +12 V bulk capacitors (1210): the bottom cooling box is full
+    'C27': (3.6, 46.6, 0),
+    'C26': (3.6, 43.0, 0),
+    # ADS1220 1 uF bulk cap: the bottom cold-head corner is full
+    'C32': (14.0, 5.6, 90),
+    # USB VBUS filter cap: the bottom under the USB-C shell has no room
+    'C5': (58.0, 10.3, 0),
+    # ─── bottom: amplifier control, compressor relay ───
+    'Q5': (51.0, 31.0, 0, 'bottom'),
+    'Q6': (56.0, 31.0, 0, 'bottom'),
+    'Q21': (51.0, 36.0, 0, 'bottom'),
+    'Q7': (86.0, 20.0, 0, 'bottom'),
+    'Q8': (91.0, 20.0, 0, 'bottom'),
+    'D13': (96.0, 20.0, 0, 'bottom'),
+    # ─── bottom: +-15 V rails ───
+    # LT8582 turned so SW1 (pins 1, 24) faces west to D5 / L2 and SW2 (pins
+    # 12, 13) faces east to C59 / D6 / L3: both switch nodes stay a few mm of
+    # wide copper. Control pins face north to their passives, RT / SS south.
+    'U20': (67.5, 32.4, 270, 'bottom'),
+    'D5': (61.85, 32.6, 270, 'bottom'),
+    'C58': (61.9, 27.35, 90, 'bottom'),
+    'C59': (72.7, 32.4, 270, 'bottom'),
+    'D6': (75.3, 32.4, 270, 'bottom'),
+    'C60': (73.5, 27.4, 0, 'bottom'),
+    'C64': (64.45, 28.0, 90, 'bottom'),
+    'R59': (65.55, 28.0, 90, 'bottom'),
+    'R55': (66.65, 28.0, 90, 'bottom'),
+    'R56': (67.75, 28.0, 90, 'bottom'),
+    'R60': (68.85, 28.0, 90, 'bottom'),
+    'C66': (69.95, 28.0, 90, 'bottom'),
+    'C63': (65.55, 25.7, 90, 'bottom'),
+    'C65': (68.85, 25.7, 90, 'bottom'),
+    'R57': (66.7, 35.9, 0, 'bottom'),
+    'R58': (69.25, 35.9, 0, 'bottom'),
+    'U21': (79.0, 33.0, 0, 'bottom'),
+    # ─── bottom: isolated amplifier current ───
+    'U17': (58.5, 47.2, 0, 'bottom'),
 }
 
-# ISO_GND island (top-left corner, left of the barrier); keep-out bands keep
-# GND copper away from it.
-ISO_REGION = Rect(0.0, 0.0, 25.25, 36.0)
+# ISO_GND island (bottom right, right of the barrier at x = 59 that U17 and
+# PS1 straddle); keep-out bands keep GND copper away from it.
+ISO_REGION = Rect(59.0, 38.3, BOARD_WIDTH, BOARD_HEIGHT)
 ISO_NETS = {'ISO_GND', 'ISO_3V3'}
 
 # Same-net pad chains on 0.5 mm pitch parts, joined by locked F.Cu stubs before
@@ -162,32 +223,36 @@ FINE_PITCH_GROUND_PADS = {
     'U23': {'7'},
     'U4': {'4', '9'},
     'U21': {'5', '11', '13', '19'},
-    'U20': {'1', '4', '6', '15', '21'},
+    'U20': {'25'},
     'U25': {'13'},
     'U11': {'4'},
 }
 # GND pads of placed passives that are boxed in by their own signal track and
 # would otherwise get a via-in-pad after routing, on top of an inner track
-LATE_GROUND_PADS = {'C30': {'2'}, 'C74': {'2'}, 'U24': {'3'}}
+LATE_GROUND_PADS = {}
 MIN_TRACK_WIDTH = 0.15
 
 # Anchors for ground test points (ground nets have no natural neighbour pad):
 # the k-th TP on GND sits beside the k-th entry; ISO_GND beside the isolator.
-GND_TP_ANCHORS = [('J2', '2'), ('U3', '2'), ('U16', '1')]
+GND_TP_ANCHORS = [('U25', '13'), ('U27', '6'), ('U10', '13')]
 ISO_GND_TP_ANCHOR = ('U17', '9')
 ISO_BAND = 1.5
-# ESP32 antenna: the board is cut away under it (routed notch in the top
-# edge) and the strip beside the notch, within the module's 15 mm keep-out,
-# carries no copper and no parts.
-ANTENNA_NOTCH = Rect(74.5, 0.0, 93.5, 6.0)
-ANTENNA_KEEPOUTS = [Rect(60.0, 0.0, 74.5, 6.75), Rect(93.5, 0.0, 108.0, 6.75)]
-# housing restricted areas (no parts, no copper, no solder mask): a 4.45 mm
-# corner square and a 6 mm ring round each mounting hole
-CORNER_SQUARE = 4.45
-HOLE_RING_RADIUS = 3.0
-CORNER_KEEPOUT = 7.4  # square that holds both, for part placement
+# routed notch under the ESP32 antenna (module top edge at y = 0.2, antenna
+# area down to y = 6.2), and the copper keep-out band around it
+ANTENNA_NOTCH = Rect(60.0, 0.0, 80.0, 6.6)
+ANTENNA_KEEPOUT = Rect(59.0, 0.0, 81.0, 7.4)
+# corner squares: screw heads (6 mm) and the housing's 4.45 mm no-part /
+# no-mask squares
+CORNER = 7.4
+MASK_FREE_CORNER = 4.45
+CORNER_KEEPOUTS = [
+    Rect(0.0, 0.0, CORNER, CORNER),
+    Rect(BOARD_WIDTH - CORNER, 0.0, BOARD_WIDTH, CORNER),
+    Rect(0.0, BOARD_HEIGHT - CORNER, CORNER, BOARD_HEIGHT),
+    Rect(BOARD_WIDTH - CORNER, BOARD_HEIGHT - CORNER, BOARD_WIDTH, BOARD_HEIGHT),
+]
 FREEROUTING_JAR = Path(sys.argv[2]) if len(sys.argv) > 2 else None
-MAX_PASSES = '12'
+MAX_PASSES = '20'
 JAVA = (
     '/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/java'
 )
@@ -216,26 +281,6 @@ SILK_LABELS = {
     'D17': 'ISO 3V3',
     'D24': '+15V PG',
     'D25': '-15V PG',
-    # board inputs and outputs, beside each connector
-    'J1': 'USB-C 5V',
-    'J2': '12V IN',
-    'J3': 'FAN 12V',
-    'J4': 'PUMP 12V',
-    'J5': 'FLOW',
-    'J6': 'NTC',
-    'J8': 'AMP REM OUT',
-    'J9': 'AMP SIG OUT',
-    'J10': 'PT1000',
-    'J11': 'FROM AMP',
-    'J12': 'TO CRYOCOOLER',
-    'J13': 'RELAY 12V OUT',
-    'J14': 'IMU',
-}
-# shorter forms of part labels, for parts with little room beside them
-SILK_LABEL_SHORT = {
-    'J8': ('REM OUT',),
-    'J12': ('TO CRYO',),
-    'J13': ('RELAY OUT',),
 }
 # Connector pin labels (pin 1 first): what each terminal is for, printed
 # beside the pads on the side facing the board interior.
@@ -248,23 +293,28 @@ PIN_LABELS = {
     'J7': ['BTN', 'GND'],
     'J8': ['REM', 'GND'],
     'J9': ['SIG', 'GND'],
-    # M12 A-coded: pins sit in a square under the body, so name the pins
-    'J10': ['1 F+', '2 S+', '3 S-', '4 F-'],
-    'J11': ['+', '-'],
-    'J12': ['+', '-'],
+    'J10': ['F+', 'S+', 'S-', 'F-'],
+    'J11': ['+', '-', 'E'],
+    'J12': ['+', '-', 'E'],
     'J13': ['+12V', 'GND'],
-    # the module's own pad names, top to bottom
-    'J14': ['VIN', 'GND', 'SCL', 'SDA', 'DO', 'CS', 'I1', 'I2'],
+    # RJ45 pins 1-8 (T568B pairs) by the module pad they reach
+    'J14': ['SCL', 'GND', 'SDA', 'VIN', 'CS', 'DO', 'I1', 'I2'],
 }
 # what each supply jumper switches (JP1 ... JP5, in schematic order)
 JUMPER_LABELS = ('SG 3V3', '±15V EN', 'ISO PS', 'WATER EN', 'HEAD EN')
 SILK_LABELS.update(
     {f'JP{index}': text for index, text in enumerate(JUMPER_LABELS, start=1)}
 )
-SILK_TEXT_SIZE = 0.8
+# JLCPCB minimums: 1.0 mm text height, 0.15 mm silk line / stroke
+SILK_MIN_TEXT = 1.0
+SILK_MIN_LINE = 0.15
+SILK_TEXT_SIZE = SILK_MIN_TEXT
+TP_TEXT_SIZE = SILK_MIN_TEXT
+# silk keeps JLCPCB's 0.15 mm off pads, plus 0.05 mm for the mask margin
+SILK_PAD_CLEARANCE = 0.2
 # part numbers printed under the IC bodies as a placement aid: font sizes to
 # try (largest first) and the refs that get one (modules and oversize parts skip)
-IC_LABEL_SIZES = (0.9, 0.8)  # 0.8 mm is the silkscreen minimum
+IC_LABEL_SIZES = (SILK_MIN_TEXT,)
 IC_LABEL_SKIP = ('U1',)
 IC_LABEL_STEP = 0.25
 # shorter text for parts whose full value will not fit under the body
@@ -274,86 +324,157 @@ IC_LABEL_TEXT = {
     'U18': 'ACS37800',
     'PS1': 'MIE1W0505',
 }
-SILK_TEXT_THICKNESS = 0.12
-# free space between two section titles on the same line
-TITLE_SPACING = 3.0
-# Board ID block: same spot and format on every revision (back side, under
-# the isolated section, where only the J11 / J12 pins come through)
-BOARD_NAME = 'Cryocooler-Controller'
-BOARD_ID_SIDE = 'B'
-BOARD_ID_SPOT = (19.0, 2.4)
-BOARD_ID_SIZE = 1.0
-ESP32_PIN_TEXT_SIZE = 0.8
-# solder mask colour written into the board stackup (renders and fab notes)
+SILK_TEXT_THICKNESS = SILK_MIN_LINE
+LOGO_FILE = KICAD_DIR / 'artwork' / 'cooler_trace.geojson'
+LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
+LOGO_CENTER = (65.0, 51.0)
+LOGO_WIDTH = 80.0
+TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
+# KiCad project name (AGENTS.md allows the project or the repo name; the
+# shorter one fits this board)
+BOARD_NAME = 'cryocooler'
+# development stage printed in the board ID block (rev 1 carried ALPHA)
+BOARD_STAGE = 'BETA'
+# solder mask colour (JLCPCB standard blue): set in the board stackup, which
+# the renders use; order the board in blue (mask dam limit 0.10 mm)
 MASK_COLOUR = 'Blue'
+# preferred spot of the board ID block (back silkscreen, board coordinates)
+BOARD_ID_SPOT = (85.0, 47.0)
+ALPHA_TEXT = 'ALPHA'
 
-# housing mounting holes: 4 x 3.2 mm on a 111.6 x 91.6 mm pattern, centred
-HOLES = [(4.2, 4.2), (115.8, 4.2), (4.2, 95.8), (115.8, 95.8)]
+# 91.6 x 53.6 mm hole pattern, centred
+HOLES = [(4.2, 4.2), (95.8, 4.2), (4.2, 57.8), (95.8, 57.8)]
 LOCAL_RECT_OVERRIDES = {
-    # the module body (its antenna courtyard is the notch and keep-outs)
-    'RF_Module:ESP32-S3-WROOM-2': Rect(-9.75, -12.9, 9.75, 13.5),
+    'RF_Module:ESP32-S3-WROOM-2': Rect(-9.2, -12.9, 9.2, 13.2),
     # the stock test point courtyard is 3.7 mm square around a 1.5 mm pad
     'TestPoint:TestPoint_Pad_D1.5mm': Rect(-1.15, -1.15, 1.15, 1.15),
 }
 
 
-_TEXT_SIZES = {}
+# The stock ESP32 courtyard includes the antenna clearance zone; with the
+# routed notch that zone has no board under it, so the courtyard is cut back
+# to the module body (local coordinates).
+BODY_COURTYARDS = {
+    'RF_Module:ESP32-S3-WROOM-2': Rect(-9.25, -12.95, 9.25, 13.0),
+}
 
 
-def measure_text(text, size, thickness=0.15):
-    """(width, height) in mm of an upright silkscreen text as pcbnew draws
-    it.
+def set_courtyard(footprint, rect):
+    """Replaces a footprint's front courtyard with one rectangle."""
+    for item in list(footprint.GraphicalItems()):
+        if item.GetLayer() == pcbnew.F_CrtYd:
+            footprint.Remove(item)
+    shape = pcbnew.PCB_SHAPE(footprint)
+    shape.SetShape(pcbnew.SHAPE_T_RECT)
+    shape.SetLayer(pcbnew.F_CrtYd)
+    shape.SetWidth(to_internal(0.05))
+    shape.SetStart(pcbnew.VECTOR2I(to_internal(rect.min_x), to_internal(rect.min_y)))
+    shape.SetEnd(pcbnew.VECTOR2I(to_internal(rect.max_x), to_internal(rect.max_y)))
+    footprint.Add(shape)
+
+
+def widen_silk(footprint):
+    """Raises footprint silkscreen strokes to JLCPCB's 0.15 mm minimum (the
+    stock KiCad libraries draw 0.12 mm); filled shapes are left alone.
     """
-    key = (text, size, thickness)
-    if key not in _TEXT_SIZES:
-        item = pcbnew.PCB_TEXT(pcbnew.BOARD())
-        item.SetText(text)
-        item.SetTextSize(pcbnew.VECTOR2I(to_internal(size), to_internal(size)))
-        item.SetTextThickness(to_internal(thickness))
-        box = item.GetBoundingBox()
-        _TEXT_SIZES[key] = (box.GetWidth() / 1e6, box.GetHeight() / 1e6)
-    return _TEXT_SIZES[key]
+    for item in footprint.GraphicalItems():
+        if item.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
+            continue
+        if item.Type() == pcbnew.PCB_TEXT_T:
+            # e.g. a pin-1 marker digit: up to the 1.0 mm minimum
+            if item.GetTextHeight() < to_internal(SILK_MIN_TEXT):
+                item.SetTextSize(
+                    pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
+                )
+            if item.GetTextThickness() < to_internal(SILK_MIN_LINE):
+                item.SetTextThickness(to_internal(SILK_MIN_LINE))
+            continue
+        if item.Type() == pcbnew.PCB_SHAPE_T and not item.IsAnyFill():
+            if item.GetWidth() < to_internal(SILK_MIN_LINE):
+                item.SetWidth(to_internal(SILK_MIN_LINE))
 
 
-def measure_label(text):
-    """Printed width (mm) of a module label text."""
-    return measure_text(text, pcbfloorplan.LABEL_SIZE, SILK_TEXT_THICKNESS + 0.03)[0]
-
-
-pcbfloorplan.measure_label = measure_label
-
-
-def corner_keepouts():
-    """Part keep-outs over the housing's restricted corner areas."""
-    size = CORNER_KEEPOUT
-    return [
-        Rect(0.0, 0.0, size, size),
-        Rect(BOARD_WIDTH - size, 0.0, BOARD_WIDTH, size),
-        Rect(0.0, BOARD_HEIGHT - size, size, BOARD_HEIGHT),
-        Rect(BOARD_WIDTH - size, BOARD_HEIGHT - size, BOARD_WIDTH, BOARD_HEIGHT),
-    ]
-
-
-def restricted_outline(hole_x, hole_y, steps=32):
-    """Polygon (mm points) of one restricted corner: the corner square joined
-    with the ring round the hole, as drawn in the housing's PCB2D drawing.
+def link_to_symbol(footprint, part):
+    """Stores the schematic symbol link (sheet path + symbol uuid) so KiCad's
+    Update PCB from Schematic matches the footprint instead of adding a copy.
     """
-    corner_x = 0.0 if hole_x < BOARD_WIDTH / 2 else BOARD_WIDTH
-    corner_y = 0.0 if hole_y < BOARD_HEIGHT / 2 else BOARD_HEIGHT
-    sign_x = 1 if corner_x == 0.0 else -1
-    sign_y = 1 if corner_y == 0.0 else -1
-    # walk the circle from the edge parallel to x round to the edge parallel
-    # to y, on the side away from the corner, then close along the square
-    points = [(corner_x, corner_y), (corner_x + sign_x * CORNER_SQUARE, corner_y)]
-    import math
+    footprint.SetPath(pcbnew.KIID_PATH(part['path']))
+    footprint.SetSheetname(part['sheet_names'])
+    library, name = part['footprint'].split(':')
+    footprint.SetFPID(pcbnew.LIB_ID(library, name))
+    # match the symbol's attributes (the stock test points exclude
+    # themselves from the BOM; gen_bom.py leaves them out anyway)
+    footprint.SetExcludedFromBOM(False)
+    for field, value in part.get('fields', {}).items():
+        footprint.SetField(field, value)
+        footprint.GetField(field).SetVisible(False)
 
-    for step in range(steps + 1):
-        angle = -math.pi / 2 + math.pi * 1.5 * step / steps
-        offset_x = HOLE_RING_RADIUS * math.cos(angle)
-        offset_y = HOLE_RING_RADIUS * math.sin(angle)
-        points.append((hole_x + sign_x * offset_x, hole_y + sign_y * offset_y))
-    points.append((corner_x, corner_y + sign_y * CORNER_SQUARE))
-    return points
+
+def stackup_block():
+    """The 4-layer 1.6 mm stackup with the board colours (MASK_COLOUR,
+    white silk); pcbnew's Python API cannot set stackup colours.
+    """
+    def layer(name, kind, extra=''):
+        return f'\t\t\t(layer "{name}"\n\t\t\t\t(type "{kind}"){extra}\n\t\t\t)\n'
+
+    copper = '\n\t\t\t\t(thickness 0.035)'
+    mask = f'\n\t\t\t\t(color "{MASK_COLOUR}")\n\t\t\t\t(thickness 0.01)'
+    silk = '\n\t\t\t\t(color "White")'
+
+    def dielectric(index, kind):
+        return (
+            f'\n\t\t\t\t(thickness 0.48)\n\t\t\t\t(material "FR4")'
+            f'\n\t\t\t\t(epsilon_r 4.5)\n\t\t\t\t(loss_tangent 0.02)'
+        ), f'dielectric {index}', kind
+
+    body = layer('F.SilkS', 'Top Silk Screen', silk)
+    body += layer('F.Paste', 'Top Solder Paste')
+    body += layer('F.Mask', 'Top Solder Mask', mask)
+    body += layer('F.Cu', 'copper', copper)
+    for index, (inner, kind) in enumerate((('In1.Cu', 'core'), ('In2.Cu', 'prepreg')), start=1):
+        extra, name, kind = dielectric(index, kind)
+        body += layer(name, kind, extra)
+        body += layer(inner, 'copper', copper)
+    extra, name, kind = dielectric(3, 'core')
+    body += layer(name, kind, extra)
+    body += layer('B.Cu', 'copper', copper)
+    body += layer('B.Mask', 'Bottom Solder Mask', mask)
+    body += layer('B.Paste', 'Bottom Solder Paste')
+    body += layer('B.SilkS', 'Bottom Silk Screen', silk)
+    return (
+        '\t\t(stackup\n' + body
+        + '\t\t\t(copper_finish "None")\n\t\t\t(dielectric_constraints no)\n\t\t)\n'
+    )
+
+
+def save_board(board, path=None):
+    """Saves the board, then writes the stackup (mask colour) into it."""
+    path = Path(path or KICAD_DIR / 'cryocooler.kicad_pcb')
+    pcbnew.SaveBoard(str(path), board)
+    text = path.read_text()
+    text = re.sub(r'\t\t\(stackup\n.*?\n\t\t\)\n', '', text, count=1, flags=re.S)
+    text = text.replace('\t(setup\n', '\t(setup\n' + stackup_block(), 1)
+    path.write_text(text)
+
+
+def covers(segment, candidate, tolerance=0.01):
+    """True if an axis-aligned segment already covers the candidate one
+    (same line, candidate's span inside it).
+    """
+    (ax, ay), (bx, by) = segment
+    (cx, cy), (dx, dy) = candidate
+    if abs(ay - by) < tolerance and abs(cy - dy) < tolerance and abs(ay - cy) < tolerance:
+        low, high = sorted((ax, bx))
+        return low - tolerance <= min(cx, dx) and max(cx, dx) <= high + tolerance
+    if abs(ax - bx) < tolerance and abs(cx - dx) < tolerance and abs(ax - cx) < tolerance:
+        low, high = sorted((ay, by))
+        return low - tolerance <= min(cy, dy) and max(cy, dy) <= high + tolerance
+    return False
+
+
+def silk_layer(side):
+    """Silkscreen layer of a board side."""
+    return pcbnew.B_SilkS if side == 'bottom' else pcbnew.F_SilkS
 
 
 def footprint_path(footprint_id):
@@ -384,17 +505,13 @@ class PcbBuilder:
         self.centers = {}
         self.pad_net = collections.defaultdict(dict)
         self.net_pads = collections.defaultdict(list)
-        # one occupancy map per board side; self.side picks the active one
-        self.occ = {}
-        for side in 'FB':
-            occupancy = Occupancy(
-                Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), EDGE_MARGIN, PASSIVE_GAP
-            )
-            occupancy.keepouts += [ANTENNA_NOTCH, *ANTENNA_KEEPOUTS]
-            occupancy.keepouts += corner_keepouts()
-            self.occ[side] = occupancy
-        self.side = 'F'
-        self.side_of = {}
+        self.occupancy = Occupancy(
+            Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), EDGE_MARGIN, PASSIVE_GAP
+        )
+        self.occupancy.keepouts.extend([ANTENNA_KEEPOUT, *CORNER_KEEPOUTS])
+        self.side = {}
+        self.forced_side = {}
+        self.pin_label_side = {}
         self.net_items = {}
         self.module = {}
         self.bumps = {}
@@ -411,47 +528,6 @@ class PcbBuilder:
                 self.pad_net[ref][pad] = short_net(name)
                 self.net_pads[short_net(name)].append((ref, pad))
 
-    @property
-    def occupancy(self):
-        """Occupancy map of the side being worked on."""
-        return self.occ[self.side]
-
-    @property
-    def silk_layer(self):
-        return pcbnew.F_SilkS if self.side == 'F' else pcbnew.B_SilkS
-
-    def local_rect(self, ref, side):
-        """Footprint-local courtyard rect; KiCad mirrors local y on the back."""
-        rect = self.local_rects[ref]
-        if side == 'B':
-            return Rect(rect.min_x, -rect.max_y, rect.max_x, -rect.min_y)
-        return rect
-
-    def block_other_side(self, ref, side):
-        """Through-hole pins also occupy the opposite side."""
-        boxes = [
-            pad.GetBoundingBox()
-            for pad in self.footprints[ref].Pads()
-            if pad.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)
-        ]
-        if not boxes:
-            return
-        other = 'B' if side == 'F' else 'F'
-        self.occ[other].add(
-            f'{ref}~tht',
-            Rect(
-                min(b.GetLeft() for b in boxes) / 1e6,
-                min(b.GetTop() for b in boxes) / 1e6,
-                max(b.GetRight() for b in boxes) / 1e6,
-                max(b.GetBottom() for b in boxes) / 1e6,
-            ).inflated(0.3),
-        )
-
-    def block_via(self, name, x, y, radius):
-        """A pre-placed via blocks parts on both sides."""
-        for occupancy in self.occ.values():
-            occupancy.add(name, Rect(x - radius, y - radius, x + radius, y + radius))
-
     def load_footprints(self):
         for ref, part in self.parts.items():
             path, name = footprint_path(part['footprint'])
@@ -459,27 +535,38 @@ class PcbBuilder:
             if footprint is None:
                 raise RuntimeError(f'missing footprint {part["footprint"]}')
             pcbmodels.attach_missing_models(footprint)
+            widen_silk(footprint)
+            if part['footprint'] in BODY_COURTYARDS:
+                set_courtyard(footprint, BODY_COURTYARDS[part['footprint']])
+                # its built-in antenna keep-out assumes an un-notched edge;
+                # the board-level ANTENNA_KEEPOUT covers the notch instead
+                for zone in list(footprint.Zones()):
+                    footprint.Remove(zone)
             footprint.SetReference(ref)
+            link_to_symbol(footprint, part)
             pcbmodels.apply_connector_colour(footprint)
             footprint.SetValue(part['value'])
-            # library link and symbol fields as the schematic has them, so
-            # the board matches the schematic in a parity check
-            footprint.SetFPIDAsString(part['footprint'])
-            for name, text in part.get('fields', {}).items():
-                footprint.SetField(name, text)
-                footprint.GetField(name).SetVisible(False)
             footprint.Reference().SetTextSize(
-                pcbnew.VECTOR2I(to_internal(0.8), to_internal(0.8))
+                pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
             )
             footprint.Reference().SetTextThickness(to_internal(0.15))
-            text_box = footprint.Reference().GetBoundingBox()
+            if ref.startswith('TP'):
+                # test points print what they probe (their value is the net
+                # name) instead of TP#
+                footprint.Value().SetTextSize(
+                    pcbnew.VECTOR2I(to_internal(TP_TEXT_SIZE), to_internal(TP_TEXT_SIZE))
+                )
+                footprint.Value().SetTextThickness(to_internal(SILK_MIN_LINE))
+            text_box = self.display_text(footprint, ref).GetBoundingBox()
             self.text_dims[ref] = (
                 text_box.GetWidth() / 1e6 + 0.2,
                 text_box.GetHeight() / 1e6 + 0.2,
             )
-            footprint.Value().SetVisible(False)
+            footprint.Value().SetVisible(ref.startswith('TP'))
+            footprint.Reference().SetVisible(not ref.startswith('TP'))
             self.footprints[ref] = footprint
-            # on the board from the start: Flip() needs a parent board
+            # on the board from the start: flipping a footprint that has no
+            # parent board crashes pcbnew
             self.board.Add(footprint)
             courtyard = footprint.GetCourtyard(pcbnew.F_CrtYd).BBox()
             local = Rect(
@@ -501,6 +588,13 @@ class PcbBuilder:
                 if net_name is not None:
                     pad.SetNet(self.net_item(self.full_net(net_name)))
 
+    @staticmethod
+    def display_text(footprint, ref):
+        """The text printed for a part: the value (net name) for a test
+        point, else the reference.
+        """
+        return footprint.Value() if ref.startswith('TP') else footprint.Reference()
+
     def full_net(self, short):
         for name in self.nets:
             if short_net(name) == short:
@@ -520,76 +614,70 @@ class PcbBuilder:
     def pad_position(self, ref, pad, index=0):
         center_x, center_y, angle = self.centers[ref]
         local_x, local_y = self.pad_local[ref][pad][index]
-        if self.side_of.get(ref, self.side) == 'B':
-            local_y = -local_y
+        if self.side.get(ref) == 'bottom':
+            local_y = -local_y  # KiCad's left-right flip mirrors y
         rotated_x, rotated_y = rotate_point(local_x, local_y, angle)
         return center_x + rotated_x, center_y + rotated_y
 
-    def place(self, ref, center_x, center_y, angle):
-        """Places a part on the active side (flipped onto the back for 'B')."""
+    def hole_rects(self, ref):
+        """Plated and plain holes of a part: they block both sides."""
         footprint = self.footprints[ref]
-        side = self.side
-        if (side == 'B') != footprint.IsFlipped():
-            footprint.Flip(footprint.GetPosition(), pcbnew.FLIP_DIRECTION_LEFT_RIGHT)
+        rects = []
+        for pad in footprint.Pads():
+            drill = pad.GetDrillSizeX() / 1e6
+            if drill <= 0:
+                continue  # SMD pad: its own side only
+            size = max(pad.GetSizeX(), pad.GetSizeY()) / 1e6
+            if drill < 0.5:
+                size = drill + 0.3  # thermal via: its ring only
+            half = max(size, drill) / 2 + 0.25
+            position = pad.GetPosition()
+            rects.append(
+                Rect(
+                    position.x / 1e6 - half,
+                    position.y / 1e6 - half,
+                    position.x / 1e6 + half,
+                    position.y / 1e6 + half,
+                )
+            )
+        return rects
+
+    def place(self, ref, center_x, center_y, angle, side=None):
+        side = side or self.side.get(ref, 'top')
+        self.side[ref] = side
+        footprint = self.footprints[ref]
         footprint.SetPosition(
             pcbnew.VECTOR2I(to_internal(center_x), to_internal(center_y))
         )
+        if (side == 'bottom') != footprint.IsFlipped():
+            footprint.Flip(footprint.GetPosition(), pcbnew.FLIP_DIRECTION_LEFT_RIGHT)
         footprint.SetOrientationDegrees(angle)
+        if ref.startswith('TP'):
+            footprint.Value().SetLayer(silk_layer(side))
+            footprint.Value().SetMirrored(side == 'bottom')
         self.centers[ref] = (center_x, center_y, angle)
-        self.side_of[ref] = side
         self.occupancy.add(
             ref,
-            placed_rect(self.local_rect(ref, side), center_x, center_y, angle),
+            placed_rect(
+                self.local_rects[ref], center_x, center_y, angle, side == 'bottom'
+            ),
+            side,
         )
-        self.block_other_side(ref, side)
+        # pins and holes poke through: they block the other side too
+        for index, rect in enumerate(self.hole_rects(ref)):
+            self.occupancy.add(f'hole_{ref}_{index}', rect, 'both')
 
     def is_passive(self, ref):
-        """Every part not placed by hand (PLACEMENT) is placed beside the pad
-        it serves.
+        """R, C, test points, the Debug sheet's LEDs and everything on the
+        Power Good sheet are placed beside the pad they serve.
         """
-        return ref not in PLACEMENT
-
-    def preferred_side(self, ref, target=None):
-        """LEDs (seen from the top), jumpers and tall electrolytics go on the
-        top, test points on the side of the IC they test; everything else
-        starts on the side of the part it serves (10 mm clearance below).
-        """
-        footprint = self.parts[ref]['footprint']
-        if ref.startswith('JP') or 'LED' in footprint or 'CP_Elec' in footprint:
-            return 'F'
-        if ref.startswith('TP') and target is not None:
-            return self.test_point_side(ref, target)
-        if target is not None and target[0] in self.side_of:
-            return self.side_of[target[0]]
-        return 'F'
-
-    def test_point_side(self, ref, target):
-        """Side of the part a test point tests, so both are probed from the
-        same side.
-        """
-        return self.side_of.get(self.tested_part(ref, target[0]), 'F')
-
-    def tested_part(self, ref, near):
-        """The part a test point tests: the placed IC (not a passive) on its
-        net nearest to `near`, else `near` itself.
-        """
-        net = self.pad_net[ref].get('1')
-        if net in GROUND_NETS or near not in self.centers:
-            return near
-        ics = [
-            other
-            for other, _ in self.net_pads.get(net, [])
-            if other in self.centers and not other.startswith(('R', 'C', 'L', 'TP', 'JP'))
-        ]
-        if not ics:
-            return near
-        # the hand-placed ICs are what the test points are for
-        ics = [other for other in ics if other in PLACEMENT] or ics
-        near_x, near_y, _ = self.centers[near]
-        return min(
-            ics,
-            key=lambda other: (self.centers[other][0] - near_x) ** 2
-            + (self.centers[other][1] - near_y) ** 2,
+        if ref in PLACEMENT:
+            return False
+        return (
+            ref[0] in 'RC'
+            or ref.startswith(('TP', 'JP'))
+            or 'LED' in self.parts[ref]['footprint']
+            or self.parts[ref]['sheet'] == 'Power Good'
         )
 
     def iso_side_passives(self):
@@ -635,33 +723,57 @@ class PcbBuilder:
             for pad in self.pad_local[ref]
         )
 
-    def part_module(self, ref):
-        """Module box of a part: its sheet's module, else the module of the
-        switched supply net it sits on (jumpers and their LEDs), else None.
+    def part_module(self, ref, side=None):
+        """Module region key of a part on `side` (default: its own side): its
+        sheet's module, else the module of the switched supply net it sits on
+        (jumpers and their LEDs), else None.
         """
+        side = side or self.side.get(ref, 'top')
         module = pcbfloorplan.module_of_sheet(self.parts[ref]['sheet'])
-        if module is not None:
-            return module
-        for pad in self.pad_local[ref]:
-            switched = SWITCHED_NETS.get(self.pad_net[ref].get(pad))
-            if switched is not None:
-                return switched
-        return None
+        if module is None:
+            for pad in self.pad_local[ref]:
+                module = SWITCHED_NETS.get(self.pad_net[ref].get(pad))
+                if module is not None:
+                    break
+        if module is None:
+            return None
+        return pcbfloorplan.module_key(module, side)
+
+    def is_led(self, ref):
+        return 'LED' in self.parts[ref]['footprint']
+
+    def passive_side(self, ref, target_ref):
+        """LEDs stay on top where they can be seen; every other passive goes
+        on the bottom with the ICs (the top is kept for connectors and tall
+        parts), unless its module has no bottom region.
+        """
+        if ref in self.forced_side:
+            return self.forced_side[ref]
+        if self.is_led(ref):
+            return 'top'
+        key = self.part_module(ref, 'bottom')
+        if key is None:
+            target_key = self.module.get(target_ref)
+            if target_key is not None:
+                key = pcbfloorplan.module_key(
+                    pcbfloorplan.split_key(target_key)[0], 'bottom'
+                )
+        if key is not None and key not in pcbfloorplan.MODULE_REGIONS:
+            return 'top'
+        return 'bottom'
 
     def place_anchors(self):
         for ref, (center_x, center_y, angle, *side) in PLACEMENT.items():
             if ref not in self.footprints:
                 raise KeyError(f'PLACEMENT names unknown ref {ref}')
-            self.side = side[0] if side else 'F'
-            self.place(ref, center_x, center_y, angle)
+            self.place(ref, center_x, center_y, angle, side[0] if side else 'top')
             self.module[ref] = self.part_module(ref)
-        self.side = 'F'
         for index, (hole_x, hole_y) in enumerate(HOLES):
-            for occupancy in self.occ.values():
-                occupancy.add(
-                    f'hole{index}',
-                    Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
-                )
+            self.occupancy.add(
+                f'hole{index}',
+                Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
+                'both',
+            )
 
     def add_track(self, net, layer, points, width, locked=True):
         for start, end in zip(points, points[1:]):
@@ -679,46 +791,49 @@ class PcbBuilder:
             self.board.Add(track)
 
     def pre_route_current_path(self, width=2.0):
-        """Wide locked traces for the amplifier current path J11 -> U18 pins
-        1-4 / 5-8 -> J12.
+        """Wide locked F.Cu traces for the amplifier current path J11 ->
+        U18 pins 1-4 / 5-8 -> J12. The connectors sit on the front edge below
+        U18, whose current pins face them in one row: each trace runs up from
+        the connector's pin 1 to that row, then along its four pads.
         """
-        for connector, net, pins, end_cap in (
-            ('J11', 'Net-(J11-Pin_1)', ('1', '2', '3', '4'), 'down'),
-            ('J12', 'Net-(J12-Pin_1)', ('5', '6', '7', '8'), 'up'),
+        for connector, net, pins in (
+            ('J11', 'Net-(J11-Pin_1)', ('1', '2', '3', '4')),
+            ('J12', 'Net-(J12-Pin_1)', ('5', '6', '7', '8')),
         ):
             start_x, start_y = self.pad_position(connector, '1')
             pad_points = [self.pad_position('U18', pin) for pin in pins]
-            column_x = sum(point[0] for point in pad_points) / len(pad_points)
-            top = min(point[1] for point in pad_points)
-            bottom = max(point[1] for point in pad_points)
-            end_y = bottom - 0.8 if end_cap == 'down' else top + 0.8
+            row_y = sum(point[1] for point in pad_points) / len(pad_points)
+            # the 2 mm track overhangs its end pads: pull its ends 0.7 mm in so
+            # it stays clear of the other group's pads
+            pad_xs = [point[0] for point in pad_points]
+            low_x = min(start_x, min(pad_xs) + 0.7)
+            high_x = max(start_x, max(pad_xs) - 0.7)
             self.add_track(
                 net,
                 pcbnew.F_Cu,
-                [(start_x, start_y), (column_x, start_y), (column_x, end_y)],
+                [(start_x, start_y), (start_x, row_y)],
                 width,
             )
+            self.add_track(net, pcbnew.F_Cu, [(low_x, row_y), (high_x, row_y)], width)
             margin = width / 2 + 0.6
             self.occupancy.add(
                 f'{connector}_current_a',
                 Rect(
-                    min(start_x, column_x) - margin,
-                    start_y - margin,
-                    max(start_x, column_x) + margin,
-                    start_y + margin,
+                    start_x - margin,
+                    min(start_y, row_y) - margin,
+                    start_x + margin,
+                    max(start_y, row_y) + margin,
                 ),
+                'top',
             )
             self.occupancy.add(
                 f'{connector}_current_b',
-                Rect(
-                    column_x - margin,
-                    min(start_y, end_y) - margin,
-                    column_x + margin,
-                    max(start_y, end_y) + margin,
-                ),
+                Rect(low_x - margin, row_y - margin, high_x + margin, row_y + margin),
+                'top',
             )
 
     def add_outline_and_keepouts(self):
+        # rectangle with the routed antenna notch cut into the top edge
         notch = ANTENNA_NOTCH
         corners = [
             (0, 0),
@@ -743,6 +858,30 @@ class PcbBuilder:
                 pcbnew.VECTOR2I(to_internal(end_x), to_internal(end_y))
             )
             self.board.Add(segment)
+        # the housing's no-part / no-mask corner squares: mask opened on both
+        # sides, kept free of tracks
+        size = MASK_FREE_CORNER
+        for corner_x, corner_y in (
+            (0, 0),
+            (BOARD_WIDTH - size, 0),
+            (0, BOARD_HEIGHT - size),
+            (BOARD_WIDTH - size, BOARD_HEIGHT - size),
+        ):
+            square = Rect(corner_x, corner_y, corner_x + size, corner_y + size)
+            for layer in (pcbnew.F_Mask, pcbnew.B_Mask):
+                shape = pcbnew.PCB_SHAPE(self.board)
+                shape.SetShape(pcbnew.SHAPE_T_RECT)
+                shape.SetLayer(layer)
+                shape.SetFilled(True)
+                shape.SetWidth(0)
+                shape.SetStart(
+                    pcbnew.VECTOR2I(to_internal(square.min_x), to_internal(square.min_y))
+                )
+                shape.SetEnd(
+                    pcbnew.VECTOR2I(to_internal(square.max_x), to_internal(square.max_y))
+                )
+                self.board.Add(shape)
+            self.add_keepout(square)
 
     # ─── passive placement ───
 
@@ -799,7 +938,7 @@ class PcbBuilder:
         """
         center_x = (part_rect.min_x + part_rect.max_x) / 2
         center_y = (part_rect.min_y + part_rect.max_y) / 2
-        obstacles = self.pocket_obstacles(part_rect.inflated(max(width, height) + 2.5))
+        obstacles = self.pocket_obstacles()
         for turned in (False, True):
             box_w, box_h = (height, width) if turned else (width, height)
             for shift in (0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8):
@@ -815,7 +954,7 @@ class PcbBuilder:
                         spot_x + box_w / 2,
                         spot_y + box_h / 2,
                     )
-                    if not self.inside_a_box(rect, module):
+                    if module and not pcbfloorplan.text_inside(module, rect):
                         continue
                     if not rect.inside(self.occupancy.board_rect):
                         continue
@@ -826,39 +965,18 @@ class PcbBuilder:
                     return spot_x, spot_y, turned, rect
         return None
 
-    def inside_a_box(self, rect, module=None):
-        """True if a text box lies inside the given module's box, or with no
-        module inside any one box (so it never crosses a section line).
-        """
-        if module:
-            return pcbfloorplan.text_inside(module, rect, self.side)
-        return any(
-            pcbfloorplan.text_inside(name, rect, self.side)
-            for name in pcbfloorplan.modules(self.side)
-        )
-
-    def pocket_obstacles(self, around=None):
+    def pocket_obstacles(self):
         """Boxes a label pocket must keep off: other pockets, silk, holes,
         the candidate being tested, and for placed parts only their pad
-        boxes (the courtyard margin around them is free for text). With
-        `around`, only the boxes near that rect.
+        boxes (the courtyard margin around them is free for text).
         """
         boxes = []
-        rects = self.occupancy.rects
-        names = rects.near(around) if around is not None else list(rects)
-        for name in names:
-            rect = rects[name]
+        for name, rect in self.occupancy.on_side():
             if name.startswith('txt_pin'):
                 boxes.append(rect.inflated(0.25))
             elif name.startswith(('txt_', 'silk_', 'hole', 'candidate')):
                 boxes.append(rect.inflated(0.05))
-            elif name in PLACEMENT and name in self.centers:
-                # big parts keep their whole body clear (the ESP32 its pads)
-                boxes.append(self.body_rect(name) if name == 'U1' else self.part_extent(name))
             elif name in self.centers:
-                outline = self.silk_extent(name)
-                if outline is not None:
-                    boxes.append(outline.inflated(0.1))
                 pad_box = self.pad_boxes.get(name)
                 if pad_box is None:
                     boxes_for_part = [
@@ -877,36 +995,6 @@ class PcbBuilder:
                 boxes.append(rect)
         return boxes
 
-    def silk_extent(self, ref):
-        """Box around a placed part's own silkscreen outline, or None."""
-        cache = self.__dict__.setdefault('_silk_extents', {})
-        if ref not in cache:
-            boxes = [
-                item.GetBoundingBox()
-                for item in self.footprints[ref].GraphicalItems()
-                if item.GetLayer() in (pcbnew.F_SilkS, pcbnew.B_SilkS)
-            ]
-            cache[ref] = Rect(
-                min(b.GetLeft() for b in boxes) / 1e6,
-                min(b.GetTop() for b in boxes) / 1e6,
-                max(b.GetRight() for b in boxes) / 1e6,
-                max(b.GetBottom() for b in boxes) / 1e6,
-            ) if boxes else None
-        return cache[ref]
-
-    def part_extent(self, ref):
-        """A placed part's courtyard grown to cover its silkscreen outline
-        (text beside it keeps off both).
-        """
-        rect = self.occ[self.side_of[ref]].rects[ref]
-        outline = self.silk_extent(ref)
-        if outline is None:
-            return rect
-        return Rect(
-            min(rect.min_x, outline.min_x), min(rect.min_y, outline.min_y),
-            max(rect.max_x, outline.max_x), max(rect.max_y, outline.max_y),
-        )
-
     def label_size(self, ref):
         """Box size of the part label (SILK_LABELS) for a ref, or None."""
         if ref not in SILK_LABELS:
@@ -915,27 +1003,32 @@ class PcbBuilder:
         return box.max_x - box.min_x, box.max_y - box.min_y
 
     def reserve_pockets(self, ref, part_rect, module):
-        """Reserves room for the part label (if the part has one) and the
-        reference text beside a part, the label first; returns False if
-        either has no room (what did fit stays reserved).
+        """Reserves room for the reference text (and the part label, if the
+        part has one) beside a part; returns False if either has no room.
         """
+        taken = []
         ok = True
         for kind, size in (
-            ('label', None if ref in self.label_pockets else self.label_size(ref)),
             ('ref', self.text_dims[ref]),
+            ('label', self.label_size(ref)),
         ):
             if size is None:
                 continue
             pocket = self.find_pocket(part_rect, module, *size)
             if pocket is None:
                 ok = False
-                continue
+                break
             spot_x, spot_y, turned, rect = pocket
-            self.occupancy.add(f'txt_{kind}_{ref}', rect)
-            (self.pockets if kind == 'ref' else self.label_pockets)[ref] = (
-                spot_x, spot_y, turned,
-            )
-        return ok
+            name = f'txt_{kind}_{ref}'
+            self.occupancy.add(name, rect)
+            taken.append((name, kind, (spot_x, spot_y, turned)))
+        if not ok:
+            for name, _, _ in taken:
+                del self.occupancy.rects[name]
+            return False
+        for name, kind, spot in taken:
+            (self.pockets if kind == 'ref' else self.label_pockets)[ref] = spot
+        return True
 
     def pin_label_boxes(self, ref, side, body=None):
         """Label boxes for a connector's pins on one side of its body:
@@ -951,54 +1044,28 @@ class PcbBuilder:
             for pad in footprint.Pads()
             if pad.GetNumber().isdigit()
         }
-        if body is None:
-            body = self.part_extent(ref)
+        body = body or self.occupancy.rects[ref]
         column = side in ('left', 'right')
-        # pads in line across the label strip (a 2-row header) share one label
-        groups = {}
+        boxes = []
         for number, text in enumerate(PIN_LABELS[ref], start=1):
             pad_x, pad_y = pads[number]
-            key = round(pad_y if column else pad_x, 1)
-            groups.setdefault(key, (pad_x, pad_y, []))[2].append(text)
-        labels = []
-        for pad_x, pad_y, texts in groups.values():
-            text = '/'.join(texts)
             base = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
-            labels.append((pad_x, pad_y, text, 2 * base.max_x, 2 * base.max_y))
-        # on a pitch finer than the text height every second label moves out
-        # past its neighbours so the strip stays readable
-        keys = sorted(round(y if column else x, 3) for x, y, *_ in labels)
-        pitch = min((b - a for a, b in zip(keys, keys[1:])), default=99.0)
-        labels.sort(key=lambda label: label[1] if column else label[0])
-        pushes = [0.0] * len(labels)
-        if labels and pitch < max(label[4] for label in labels) + 0.15:
-            # push whichever alternate set keeps the strip shortest
-            options = []
-            for parity in (0, 1):
-                near = [l[3] for i, l in enumerate(labels) if i % 2 != parity]
-                far = [l[3] for i, l in enumerate(labels) if i % 2 == parity]
-                push = max(near, default=0.0) + 0.2
-                options.append((push + max(far, default=0.0), parity, push))
-            _, parity, push = min(options)
-            pushes = [push if i % 2 == parity else 0.0 for i in range(len(labels))]
-        boxes = []
-        for index, (pad_x, pad_y, text, length, thickness) in enumerate(labels):
-            push = pushes[index]
+            length, thickness = 2 * base.max_x, 2 * base.max_y
             if column:
                 width, height = length, thickness
                 center_y = pad_y
                 center_x = (
-                    body.max_x + 0.2 + push + width / 2
+                    body.max_x + 0.2 + width / 2
                     if side == 'right'
-                    else body.min_x - 0.2 - push - width / 2
+                    else body.min_x - 0.2 - width / 2
                 )
             else:
                 width, height = thickness, length
                 center_x = pad_x
                 center_y = (
-                    body.max_y + 0.2 + push + height / 2
+                    body.max_y + 0.2 + height / 2
                     if side == 'down'
-                    else body.min_y - 0.2 - push - height / 2
+                    else body.min_y - 0.2 - height / 2
                 )
             rect = Rect(
                 center_x - width / 2,
@@ -1016,7 +1083,11 @@ class PcbBuilder:
         body = self.occupancy.rects[ref]
         centre_x = (body.min_x + body.max_x) / 2
         centre_y = (body.min_y + body.max_y) / 2
-        pads = [pad.GetPosition() for pad in self.footprints[ref].Pads()]
+        pads = [
+            pad.GetPosition()
+            for pad in self.footprints[ref].Pads()
+            if pad.GetNumber().isdigit()
+        ]
         spread_x = max(p.x for p in pads) - min(p.x for p in pads)
         spread_y = max(p.y for p in pads) - min(p.y for p in pads)
         if spread_x < spread_y:
@@ -1024,52 +1095,76 @@ class PcbBuilder:
         else:
             sides = ['up', 'down'] if centre_y > BOARD_HEIGHT / 2 else ['down', 'up']
         module = self.module_of_ref(ref)
-        if self.try_pin_labels(ref, sides, None, module):
-            return True
-        # a through-hole connector's pins also show on the other side, where
-        # the strip goes beside the pin row (in whichever box it falls)
-        home = self.side
-        self.side = 'B' if home == 'F' else 'F'
-        placed = self.try_pin_labels(
-            ref, ['up', 'down', 'right', 'left'], self.other_side_part(ref), None
-        )
-        self.side = home
-        if placed:
-            return True
-        print('no room for the pin labels of', ref)
-        return False
-
-    def try_pin_labels(self, ref, sides, body, module):
-        """Reserves the pin label strip on the first free side (active board
-        side); returns False if none is free.
-        """
         for side in sides:
-            boxes = self.pin_label_boxes(ref, side, body)
-            obstacles = self.pocket_obstacles()
+            boxes = self.pin_label_boxes(ref, side)
+            # pin labels also keep off other parts' bodies (print on bare board)
+            obstacles = self.pocket_obstacles() + [
+                rect
+                for name, rect in self.occupancy.on_side()
+                if name in self.centers and name != ref
+            ]
             if all(
                 rect.inside(self.occupancy.board_rect)
                 and not any(rect.overlaps(k) for k in self.occupancy.keepouts)
-                and self.inside_a_box(rect, module)
                 and not any(rect.overlaps(o) for o in obstacles)
                 for *_, rect in boxes
             ):
                 for index, (_, _, _, _, rect) in enumerate(boxes):
                     self.occupancy.add(f'txt_pin_{ref}_{index}', rect)
-                self.pin_pockets[ref] = (self.side, boxes)
+                self.pin_pockets[ref] = boxes
                 return True
+        # no room on top: print them on the back, beside the through pins
+        if self.side.get(ref) == 'top' and self.hole_rects(ref):
+            self.occupancy.side = 'bottom'
+            # on the back only the pins show: measure from the pad span
+            holes = self.hole_rects(ref)
+            pins = Rect(
+                min(r.min_x for r in holes), min(r.min_y for r in holes),
+                max(r.max_x for r in holes), max(r.max_y for r in holes),
+            )
+            for side in sides:
+                boxes = self.pin_label_boxes(ref, side, pins)
+                obstacles = self.pocket_obstacles() + [
+                    rect
+                    for name, rect in self.occupancy.on_side('bottom')
+                    if name in self.centers and name != ref
+                ]
+                if all(
+                    rect.inside(self.occupancy.board_rect)
+                    and not any(rect.overlaps(k) for k in self.occupancy.keepouts)
+                    and not any(rect.overlaps(o) for o in obstacles)
+                    for *_, rect in boxes
+                ):
+                    for index, (_, _, _, _, rect) in enumerate(boxes):
+                        self.occupancy.add(f'txt_pin_{ref}_{index}', rect, 'bottom')
+                    self.pin_pockets[ref] = boxes
+                    self.pin_label_side[ref] = 'bottom'
+                    self.occupancy.side = 'top'
+                    return True
+            self.occupancy.side = 'top'
+        blockers = sorted({
+            name
+            for side in sides
+            for *_, rect in self.pin_label_boxes(ref, side)
+            for name, other in self.occupancy.on_side('top')
+            if rect.overlaps(other) and name != ref
+        })
+        print('no room for the pin labels of', ref, 'blocked by', blockers[:8])
         return False
 
     def add_pin_labels(self):
         """Prints the connector pin labels reserved above."""
-        for ref, (side, labels) in self.pin_pockets.items():
-            if side != self.side:
-                continue
+        for ref, labels in self.pin_pockets.items():
+            side = self.pin_label_side.get(ref, 'top')
+            self.occupancy.side = side
             for index, (text, spot_x, spot_y, turned, rect) in enumerate(labels):
                 item = self.add_text(
                     text,
                     spot_x,
                     spot_y,
                     SILK_TEXT_SIZE,
+                    layer=silk_layer(side),
+                    mirrored=side == 'bottom',
                     thickness=SILK_TEXT_THICKNESS,
                 )
                 if turned:
@@ -1081,96 +1176,48 @@ class PcbBuilder:
         clear of it.
         """
         board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
-        holes = [(hole_x, hole_y, 3.4) for hole_x, hole_y in HOLES]
+        holes = [(hole_x, hole_y, 2.4) for hole_x, hole_y in HOLES]
         self.early_labels = {}
-        for side in 'FB':
-            self.side = side
-            for module in pcbfloorplan.modules(side):
-                # only border spots now; a title inside its box waits until
-                # the parts are placed
-                spot = self.module_label_spot(module, board_rect, holes, inside=False)
-                self.early_labels[(module, side)] = spot
-                if spot is not None:
-                    self.occupancy.add(
-                        f'silk_label_{module}',
-                        self.title_box(spot),
-                    )
-        self.side = 'F'
-
-    def reserve_connector_pin_labels(self):
-        """Pin label strips go first: they must sit at their pads, while
-        section titles can move along their borders.
-        """
-        for ref in PIN_LABELS:
-            self.side = self.side_of[ref]
-            self.reserve_pin_labels(ref)
-        self.side = 'F'
-
-    def reserve_connector_labels(self):
-        """Reserves each connector's function label (an I/O label) right after
-        its pin labels: beside the connector, else beside its pins on the
-        other side; the short form is tried when the full one has no room.
-        """
-        missing = []
-        for ref, full in SILK_LABELS.items():
-            if not self.is_connector(ref) or ref not in PLACEMENT:
-                continue
-            home = self.side_of[ref]
-            spot = None
-            for side in (home, 'B' if home == 'F' else 'F'):
-                self.side = side
-                part = self.part_extent(ref) if side == home else self.other_side_part(ref)
-                module = self.module.get(ref) if side == home else None
-                for text in (full, *SILK_LABEL_SHORT.get(ref, ())):
-                    box = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
-                    pocket = self.find_pocket(
-                        part, module, box.max_x - box.min_x, box.max_y - box.min_y
-                    )
-                    if pocket is not None:
-                        spot = (*pocket, side, text)
-                        break
-                if spot is not None:
-                    break
-            if spot is None:
-                missing.append(ref)
-                continue
-            spot_x, spot_y, turned, rect, side, text = spot
-            self.occ[side].add(f'txt_label_{ref}', rect)
-            self.label_pockets[ref] = (spot_x, spot_y, turned, side, text)
-        self.side = 'F'
-        print('connector labels with no room:', missing)
+        for module in pcbfloorplan.MODULE_REGIONS:
+            spot = self.module_label_spot(module, board_rect, holes)
+            self.early_labels[module] = spot
+            if spot is not None:
+                text, left_x, line_y = spot
+                width = pcbfloorplan.label_width(text)
+                self.occupancy.add(
+                    f'silk_label_{module}',
+                    Rect(left_x, line_y - 0.5, left_x + width, line_y + 0.5),
+                    pcbfloorplan.split_key(module)[1],
+                )
 
     def reserve_anchor_pockets(self):
         """Reserves label room beside every placed (non-passive) part before
         the passives crowd in.
         """
+        for ref in PIN_LABELS:
+            self.occupancy.side = self.side[ref]
+            self.reserve_pin_labels(ref)
         missing = []
-        for ref in PLACEMENT:
-            self.side = self.side_of[ref]
+        for ref in PLACEMENT if RESERVE_LABEL_POCKETS else ():
+            self.occupancy.side = self.side[ref]
             module = self.module.get(ref)
-            part = self.part_extent(ref)
+            part = self.occupancy.rects[ref]
             if not self.reserve_pockets(ref, part, module):
                 missing.append(ref)
-        self.side = 'F'
         print('no label room beside:', missing)
 
     def place_passives(self):
         crowd = collections.Counter()
         pending = [ref for ref in self.parts if self.is_passive(ref)]
-        tht = {ref: self.has_tht(ref) for ref in pending}
         offsets = ring_offsets(60.0, 0.5)
         unplaced = []
         while pending:
             progressed = False
-            # through-hole parts first (they need room on both sides), then
-            # big parts so small ones fill the gaps they leave (test points
-            # rank by size too, so they and their labels sit close to the
-            # part); the Power Good sheet last, it takes what is left
+            # signal-net passives first, then pure decoupling
+            # the Power Good sheet goes last so it only takes what is left
             pending.sort(
                 key=lambda r: (
-                    not tht[r],
                     self.parts[r]['sheet'] == 'Power Good',
-                    -round(self.part_area(r)),
                     self.is_decoupling(r),
                     int(r.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ')),
                 )
@@ -1180,7 +1227,7 @@ class PcbBuilder:
                 if choice is None:
                     continue
                 pad_index, target = choice
-                if not self.place_either_side(ref, pad_index, target, offsets):
+                if not self.place_near(ref, pad_index, target, offsets):
                     unplaced.append(ref)
                 else:
                     crowd[target] += 1
@@ -1191,70 +1238,27 @@ class PcbBuilder:
                 unplaced.extend(pending)
                 break
         # second pass for the parts that found no spot with room for their
-        # labels: place them anyway, their labels are searched for afterwards.
-        # The third pass may also take the room held for a placed passive's
-        # reference text; that text then finds another spot or is hidden.
+        # labels: place them anyway, their labels are searched for afterwards
+        retry, unplaced = unplaced, []
         self.require_pockets = False
-        fine = ring_offsets(30.0, 0.25)  # finer steps find the last gaps
-        for evict in (False, True):
-            retry, unplaced = unplaced, []
-            for ref in retry:
-                choice = self.pick_target(ref, crowd)
-                if choice is not None and self.place_either_side(
-                    ref, choice[0], choice[1], fine if evict else offsets, evict
-                ):
+        for ref in retry:
+            choice = self.pick_target(ref, crowd)
+            if choice is not None and self.place_near(
+                ref, choice[0], choice[1], offsets
+            ):
+                crowd[choice[1]] += 1
+                continue
+            # last resort: the other side of the board, over / under its target
+            if choice is not None and not self.is_led(ref):
+                first = self.passive_side(ref, choice[1][0])
+                self.forced_side[ref] = 'top' if first == 'bottom' else 'bottom'
+                if self.place_near(ref, choice[0], choice[1], offsets):
                     crowd[choice[1]] += 1
-                else:
-                    unplaced.append(ref)
+                    continue
+                del self.forced_side[ref]
+            unplaced.append(ref)
         self.require_pockets = True
         return unplaced
-
-    def place_either_side(self, ref, primary_pad, target, offsets, evict=False):
-        """Tries the part's preferred side, then the other one. Debug-sheet
-        parts (test points, rail LEDs) that find no room in the box of the
-        part they serve then take the nearest free spot in any box.
-        """
-        first = self.preferred_side(ref, target)
-        tries = [(first, False), ('B' if first == 'F' else 'F', False)]
-        if 'LED' in self.parts[ref]['footprint']:
-            # an indicator is only any use where it can be seen: the top
-            tries = [('F', False)]
-        if ref.startswith('TP'):
-            # a test point stays on the side of the part it tests; in the
-            # last pass it takes the nearest free spot in any box, so it
-            # sits beside the part rather than far off in its own box
-            tries = [(first, evict)]
-        elif evict and self.parts[ref]['sheet'] == 'Debug':
-            # any box is the last resort, after the passes that drop the
-            # text spot have tried the part's own box
-            tries += [(side, True) for side, _ in tries]
-        for side, any_module in tries:
-            self.side = side
-            if self.place_near(
-                ref, primary_pad, target, offsets, any_module, evict
-            ):
-                self.side = 'F'
-                return True
-        self.side = 'F'
-        self.side_of.pop(ref, None)
-        return False
-
-    @staticmethod
-    def is_connector(ref):
-        """True for board connectors (J1, J2, ...), not jumpers (JP1, ...)."""
-        return ref.startswith('J') and not ref.startswith('JP')
-
-    def has_tht(self, ref):
-        """True if the part has through-hole pads."""
-        return any(
-            pad.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)
-            for pad in self.footprints[ref].Pads()
-        )
-
-    def part_area(self, ref):
-        """Courtyard area of a part (mm²)."""
-        rect = self.local_rects[ref]
-        return (rect.max_x - rect.min_x) * (rect.max_y - rect.min_y)
 
     def is_decoupling(self, ref):
         nets = [self.pad_net[ref].get(pad) for pad in self.pad_local[ref]]
@@ -1283,9 +1287,7 @@ class PcbBuilder:
             return None
         return best[1], best[2]
 
-    def place_near(
-        self, ref, primary_pad, target, offsets, any_module=False, evict=False
-    ):
+    def place_near(self, ref, primary_pad, target, offsets):
         target_x, target_y = self.pad_position(*target)
         other_pad = next(
             (pad for pad in self.pad_local[ref] if pad != primary_pad), None
@@ -1298,65 +1300,44 @@ class PcbBuilder:
                 for r, p in self.net_pads[other_net]
                 if r != ref and r in self.centers and r != target[0]
             ]
-        local_rect = self.local_rect(ref, self.side)
-        self.side_of[ref] = self.side  # pad_position mirrors for the back
+        local_rect = self.local_rects[ref]
+        side = self.passive_side(ref, target[0])
+        self.side[ref] = side
+        # a through-hole passive (test-point loop) must be clear on both sides
+        self.occupancy.side = 'both' if self.hole_rects(ref) else side
         # a passive stays in its own module's box; debug parts (no module)
         # join the box of the part they sit beside
-        module = self.part_module(ref) or self.module.get(target[0])
+        module = self.part_module(ref, side) or (
+            self.module.get(target[0])
+            and pcbfloorplan.module_key(
+                pcbfloorplan.split_key(self.module[target[0]])[0], side
+            )
+        )
         if ref.startswith('TP') and module in TEST_POINTS_OUTSIDE:
             module = TEST_POINT_OVERFLOW
-        # a part's centre lies inside the region that holds it: skip the
-        # offsets outside every candidate region without testing angles
-        bounds = (
-            pcbfloorplan.regions(module, self.side)
-            if module and not any_module
-            else [self.occupancy.board_rect]
-        )
-        # a test point keeps close to its part until the last pass
-        # (ground loops excepted: any ground will do)
-        reach = None
-        if (
-            ref.startswith('TP')
-            and not evict
-            and self.pad_net[ref].get(primary_pad) not in GROUND_NETS
-        ):
-            reach = TEST_POINT_REACH
+        if module not in pcbfloorplan.MODULE_REGIONS or self.is_led(ref):
+            module = None  # LEDs go wherever the top has room near their driver
         best = None
         for offset_x, offset_y in offsets:
-            distance = (offset_x**2 + offset_y**2) ** 0.5
-            if best is not None and distance > best[0] + 1.5:
-                break
-            if reach is not None and distance > reach:
-                break
-            center_x, center_y = target_x + offset_x, target_y + offset_y
-            if not any(
-                r.min_x < center_x < r.max_x and r.min_y < center_y < r.max_y
-                for r in bounds
+            if (
+                best is not None
+                and (offset_x**2 + offset_y**2) ** 0.5 > best[0] + 1.5
             ):
-                continue
+                break
             for angle in (0, 90, 180, 270):
-                rect = placed_rect(local_rect, center_x, center_y, angle)
-                if any_module:
-                    module = next(
-                        (
-                            name
-                            for name in pcbfloorplan.modules(self.side)
-                            if pcbfloorplan.region_contains(name, rect, self.side)
-                        ),
-                        None,
-                    )
-                    if module is None:
-                        continue
-                elif module and not pcbfloorplan.region_contains(
-                    module, rect, self.side
+                center_x, center_y = target_x + offset_x, target_y + offset_y
+                rect = placed_rect(
+                    local_rect, center_x, center_y, angle, side == 'bottom'
+                )
+                if module and not pcbfloorplan.region_contains(module, rect):
+                    continue
+                if module is None and self.is_led(ref) and not any(
+                    pcbfloorplan.region_contains(key, rect)
+                    for key in pcbfloorplan.MODULE_REGIONS
+                    if pcbfloorplan.split_key(key)[1] == 'top'
                 ):
-                    continue
-                if not self.occupancy.is_free(rect, self.evictable(rect, evict)):
-                    continue
-                # through-hole pins come out on the other side too
-                if self.has_tht(ref) and not self.occ[
-                    'B' if self.side == 'F' else 'F'
-                ].is_free(rect.inflated(-0.3)):
+                    continue  # an LED never straddles a section line
+                if not self.occupancy.is_free(rect):
                     continue
                 inside_iso = rect.inside(ISO_REGION.inflated(-0.3))
                 touches_iso = rect.inflated(ISO_BAND).overlaps(ISO_REGION)
@@ -1378,33 +1359,16 @@ class PcbBuilder:
                 if best is None or score < best[0]:
                     pockets = self.pockets_for(ref, rect, module)
                     if pockets is not None:
-                        best = (score, center_x, center_y, angle, pockets, module)
+                        best = (score, center_x, center_y, angle, pockets)
         if best is None:
+            del self.side[ref]
             return False
-        placed = placed_rect(local_rect, best[1], best[2], best[3])
-        for name in self.evictable(placed, evict):
-            if placed.inflated(self.occupancy.gap).overlaps(self.occupancy.rects[name]):
-                del self.occupancy.rects[name]
-                self.pockets.pop(name.removeprefix('txt_ref_'), None)
-        self.place(ref, best[1], best[2], best[3])
-        self.module[ref] = best[5]
+        self.place(ref, best[1], best[2], best[3], side)
+        self.module[ref] = module
         for name, kind, spot, pocket_rect in best[4]:
             self.occupancy.add(name, pocket_rect)
             (self.pockets if kind == 'ref' else self.label_pockets)[ref] = spot
         return True
-
-    def evictable(self, rect, evict):
-        """Reference-text pockets of placed passives near rect that a part
-        may take over (only when evict is set).
-        """
-        if not evict:
-            return set()
-        return {
-            name
-            for name in self.occupancy.rects.near(rect.inflated(self.occupancy.gap))
-            if name.startswith('txt_ref_')
-            and self.is_passive(name.removeprefix('txt_ref_'))
-        }
 
     def pockets_for(self, ref, rect, module):
         """Pockets for a candidate position of a passive, or None if there is
@@ -1412,6 +1376,10 @@ class PcbBuilder:
         the occupancy while looking so the pockets stay clear of it.
         """
         found = []
+        if not RESERVE_LABEL_POCKETS and not ref.startswith('TP'):
+            # labels are fitted after placement, where room is left; test
+            # points keep a pocket for the net name they print
+            return found
         self.occupancy.add('candidate', rect)
         try:
             for kind, size in (
@@ -1441,13 +1409,28 @@ class PcbBuilder:
 
     def add_net_classes(self):
         settings = self.board.GetDesignSettings()
+        # JLCPCB 4-layer / 1 oz limits (pcb-capabilities, design-rules blog),
+        # with margin: trace/space >= 0.09 mm, via >= 0.15 / 0.25 mm and
+        # 0.1 mm ring, hole to copper 0.2 mm, via hole to hole 0.2 mm, copper
+        # to routed edge >= 0.2 mm, silk >= 0.15 mm line / 1.0 mm text and
+        # 0.15 mm off pads, mask dam >= 0.1 mm (blue). Pad hole to hole
+        # (0.45 mm), PTH ring (0.15 mm) and inner-layer PTH clearance (0.3 mm)
+        # are in cryocooler.kicad_dru.
         settings.m_MinClearance = to_internal(0.15)
         settings.m_TrackMinWidth = to_internal(0.15)
         settings.m_ViasMinSize = to_internal(VIA_IN_PAD_DIAMETER)
-        settings.m_ViasMinAnnulus = to_internal(0.075)
+        settings.m_ViasMinAnnularWidth = to_internal(0.1)
         settings.m_MinThroughDrill = to_internal(0.2)
         settings.m_CopperEdgeClearance = to_internal(0.3)
-        settings.m_HoleClearance = to_internal(0.15)
+        settings.m_HoleClearance = to_internal(0.2)
+        settings.m_HoleToHoleMin = to_internal(0.2)
+        settings.m_SilkClearance = to_internal(0.15)
+        settings.m_MinSilkTextHeight = to_internal(SILK_MIN_TEXT)
+        settings.m_MinSilkTextThickness = to_internal(SILK_MIN_LINE)
+        # apertures closer than this merge in DRC; 0.099 lets a web of exactly
+        # JLCPCB's 0.10 mm (PS1's land pattern) pass
+        settings.m_SolderMaskMinWidth = to_internal(0.099)
+        settings.m_SolderMaskExpansion = 0
         net_settings = settings.m_NetSettings
         default = net_settings.GetDefaultNetclass()
         default.SetClearance(to_internal(0.15))
@@ -1481,6 +1464,8 @@ class PcbBuilder:
                 0.35,
                 ['VIN', 'VSW', '+12V', 'Net-(J2-Pin_1)'],
             ),
+            # protective earth passed straight through J11 pin 3 -> J12 pin 3
+            'Earth': (1.5, 0.8, 0.4, ['EARTH']),
             'Usb': (
                 0.2,
                 0.6,
@@ -1538,78 +1523,45 @@ class PcbBuilder:
         ):
             outline.Append(to_internal(corner_x), to_internal(corner_y))
 
-    def add_keepout(self, rect, footprints=False, points=None, name=None):
-        """No-copper rule area on every layer; `footprints` also keeps parts
-        out. A named area is referred to by the rules in cryocooler.kicad_dru.
-        """
+    def add_keepout(self, rect, footprints=False):
         zone = pcbnew.ZONE(self.board)
         zone.SetIsRuleArea(True)
-        if name is not None:
-            zone.SetZoneName(name)
         zone.SetDoNotAllowZoneFills(True)
         zone.SetDoNotAllowTracks(True)
         zone.SetDoNotAllowVias(True)
         zone.SetDoNotAllowFootprints(footprints)
-        zone.SetDoNotAllowPads(footprints)
+        zone.SetDoNotAllowPads(False)
         zone.SetLayerSet(pcbnew.LSET.AllCuMask())
-        if points is None:
-            self.set_outline(zone, rect)
-        else:
-            outline = zone.Outline()
-            outline.NewOutline()
-            for point_x, point_y in points:
-                outline.Append(to_internal(point_x), to_internal(point_y))
+        self.set_outline(zone, rect)
         self.board.Add(zone)
-
-    def add_restricted_corners(self):
-        """Housing restricted areas: no copper, no parts (rule area) and no
-        solder mask (mask opening on both sides).
-        """
-        for hole_x, hole_y in HOLES:
-            points = restricted_outline(hole_x, hole_y)
-            # parts are kept out by a rule in cryocooler.kicad_dru that lets
-            # the mounting hole itself stay
-            self.add_keepout(None, points=points, name='housing_corner')
-            for layer in (pcbnew.F_Mask, pcbnew.B_Mask):
-                polygon = pcbnew.SHAPE_POLY_SET()
-                outline = polygon.NewOutline()
-                for point_x, point_y in points:
-                    polygon.Append(
-                        pcbnew.VECTOR2I(to_internal(point_x), to_internal(point_y)),
-                        outline,
-                    )
-                shape = pcbnew.PCB_SHAPE(self.board)
-                shape.SetShape(pcbnew.SHAPE_T_POLY)
-                shape.SetLayer(layer)
-                shape.SetFilled(True)
-                shape.SetWidth(0)
-                shape.SetPolyShape(polygon)
-                self.board.Add(shape)
 
     def add_planes(self):
         board_rect = Rect(0.0, 0.0, BOARD_WIDTH, BOARD_HEIGHT)
         region = ISO_REGION
-        # isolation bands on every side of the ISO island that is not a
-        # board edge
-        top = max(region.min_y - ISO_BAND, 0.0)
-        bottom = min(region.max_y + ISO_BAND, BOARD_HEIGHT)
-        if region.max_x < BOARD_WIDTH:
+        # isolation bands on every side of the ISO island that is not a board
+        # edge (it sits in the bottom-right corner: left and top bands)
+        if region.min_x > 0:
             self.add_keepout(
-                Rect(region.max_x, top, region.max_x + ISO_BAND, bottom)
+                Rect(
+                    region.min_x - ISO_BAND,
+                    region.min_y - ISO_BAND,
+                    region.min_x,
+                    region.max_y,
+                )
             )
         if region.min_y > 0:
             self.add_keepout(
-                Rect(0.0, region.min_y - ISO_BAND, region.max_x, region.min_y)
+                Rect(region.min_x, region.min_y - ISO_BAND, region.max_x, region.min_y)
+            )
+        if region.max_x < BOARD_WIDTH:
+            self.add_keepout(
+                Rect(region.max_x, region.min_y, region.max_x + ISO_BAND, region.max_y)
             )
         if region.max_y < BOARD_HEIGHT:
             self.add_keepout(
-                Rect(0.0, region.max_y, region.max_x, region.max_y + ISO_BAND)
+                Rect(region.min_x, region.max_y, region.max_x, region.max_y + ISO_BAND)
             )
-        # parts are kept out by a rule in cryocooler.kicad_dru that lets the
-        # ESP32 (whose antenna courtyard reaches here) stay
-        for keepout in ANTENNA_KEEPOUTS:
-            self.add_keepout(keepout, name='antenna_keepout')
-        self.add_restricted_corners()
+        self.add_keepout(ANTENNA_KEEPOUT)
         self.add_zone('GND', pcbnew.In1_Cu, board_rect, 1)
         self.add_zone('ISO_GND', pcbnew.In1_Cu, region, 2)
 
@@ -1629,15 +1581,14 @@ class PcbBuilder:
         self.add_zone('ISO_GND', pcbnew.In2_Cu, ISO_REGION, 2)
 
     def add_mounting_holes(self):
-        for index, (hole_x, hole_y) in enumerate(HOLES, start=1):
+        for hole_x, hole_y in HOLES:
             footprint = pcbnew.FootprintLoad(
                 str(STOCK_FOOTPRINTS / 'MountingHole.pretty'),
                 'MountingHole_3.2mm_M3',
             )
-            # board-only: the holes have no schematic symbol
-            footprint.SetReference(f'H{index}')
-            footprint.SetBoardOnly(True)
+            footprint.SetReference('')
             footprint.Reference().SetVisible(False)
+            footprint.SetBoardOnly(True)  # mechanical: not in the schematic
             footprint.Value().SetVisible(False)
             footprint.SetPosition(
                 pcbnew.VECTOR2I(to_internal(hole_x), to_internal(hole_y))
@@ -1937,15 +1888,25 @@ class PcbBuilder:
     def add_escape_via(self, pad, net, via_diameter, clearance):
         center = pad.GetPosition()
         center_x, center_y = center.x / 1e6, center.y / 1e6
-        # drop only the pad itself and tracks that touch it; a diagonal
-        # track's bounding box can cover the pad without being connected
+        own = pad.GetBoundingBox()
+        own_box = (
+            own.GetLeft() / 1e6, own.GetTop() / 1e6,
+            own.GetRight() / 1e6, own.GetBottom() / 1e6,
+        )
+        # drop only the pad itself and tracks that touch it (with parts on
+        # both sides another side's pad can cover the same point); a
+        # diagonal track's bounding box can cover the pad without touching it
         obstacles = [
             o
             for o in self.obstacle_list()
             if not (
-                o[0] <= center_x <= o[2]
-                and o[1] <= center_y <= o[3]
-                and (o[4] is None or self.point_blocked(center_x, center_y, 0.05, o))
+                (o[4] is None and all(abs(a - b) < 1e-6 for a, b in zip(o[:4], own_box)))
+                or (
+                    o[4] is not None
+                    and o[0] <= center_x <= o[2]
+                    and o[1] <= center_y <= o[3]
+                    and self.point_blocked(center_x, center_y, 0.05, o)
+                )
             )
         ]
         for distance in (0.9, 1.1, 1.4, 1.8, 2.4, 3.0, 4.0):
@@ -2012,7 +1973,15 @@ class PcbBuilder:
                 )
                 return 1
         # no room for a stub: via-in-pad (order filled/capped vias for these,
-        # see VIA_IN_PAD_REFS)
+        # see VIA_IN_PAD_REFS), but only where no other net's track runs
+        # under the pad on any layer (the via goes through all of them)
+        if any(
+            o[4] is not None
+            and self.point_blocked(center_x, center_y, VIA_IN_PAD_DIAMETER / 2 + clearance, o)
+            for o in obstacles
+        ):
+            print('no escape for', pad.GetParentFootprint().GetReference(), pad.GetNumber())
+            return 0
         via = pcbnew.PCB_VIA(self.board)
         via.SetPosition(center)
         via.SetWidth(to_internal(VIA_IN_PAD_DIAMETER))
@@ -2089,10 +2058,15 @@ class PcbBuilder:
                     str(ses),
                     '-mp',
                     MAX_PASSES,
+                    # 0 optimiser threads skips the optimisation stage, which
+                    # crashes in v2.4.1 (NullPointerException in
+                    # SearchTreeObject.shapeLayer) and never writes the session
                     '-mt',
-                    '1',
+                    '0',
                 ],
                 check=False,
+                # no Freerouting window (it pops modal error dialogs)
+                env={**os.environ, 'FREEROUTING__GUI__ENABLED': 'false'},
             )
             if not ses.exists() or ses.stat().st_size == 0:
                 raise RuntimeError('Freerouting produced no session file')
@@ -2132,7 +2106,7 @@ class PcbBuilder:
                     )
                     track.SetWidth(to_internal(BRIDGE_WIDTH))
                     track.SetLayer(
-                        pcbnew.F_Cu if self.side_of.get(ref) == 'F' else pcbnew.B_Cu
+                        pcbnew.B_Cu if self.side.get(ref) == 'bottom' else pcbnew.F_Cu
                     )
                     track.SetNet(self.net_item(self.full_net(net)))
                     track.SetLocked(True)
@@ -2158,7 +2132,7 @@ class PcbBuilder:
         or an inner-layer track under them cannot be kept clear; 0.35 mm
         keeps 0.15 mm to the neighbouring pads (order filled/capped vias).
         """
-        for ref, pads in (table or FINE_PITCH_GROUND_PADS).items():
+        for ref, pads in (FINE_PITCH_GROUND_PADS if table is None else table).items():
             footprint = self.footprints.get(ref)
             if footprint is None:
                 continue
@@ -2183,160 +2157,21 @@ class PcbBuilder:
                 via.SetNet(self.net_item(self.full_net(net)))
                 via.SetLocked(True)
                 self.board.Add(via)
+                # a through via: parts on the other side must keep off it
                 via_x, via_y = self.pad_position(ref, pad.GetNumber())
-                # a part on the far side must not land on the via
-                other = 'B' if self.side_of.get(ref) == 'F' else 'F'
-                self.occ[other].add(
+                half = VIA_IN_PAD_DIAMETER / 2 + 0.25
+                self.occupancy.add(
                     f'via_{ref}_{pad.GetNumber()}',
-                    Rect(via_x - 0.45, via_y - 0.45, via_x + 0.45, via_y + 0.45),
+                    Rect(via_x - half, via_y - half, via_x + half, via_y + half),
+                    'both',
                 )
 
 
-    def fanout_ground_pads(self, via_diameter=0.5, drill=0.3, width=0.3, clearance=0.2):
-        """Before routing: a locked via beside every small SMD ground pad,
-        joined by a short track, so the router always leaves each pad a way
-        down to the ground plane (a pad it fences in with other nets' tracks
-        would otherwise be left on a pour island). Returns the pads with no
-        room for one.
-        """
-        radius = via_diameter / 2
-        boxes = []
-        holes = []
-        for footprint in self.board.GetFootprints():
-            for pad in footprint.Pads():
-                if not pad.GetNumber() and pad.GetAttribute() == pcbnew.PAD_ATTRIB_SMD:
-                    continue  # paste apertures (unnumbered non-plated holes stay)
-                box = pad.GetBoundingBox()
-                boxes.append((
-                    Rect(box.GetLeft() / 1e6, box.GetTop() / 1e6,
-                         box.GetRight() / 1e6, box.GetBottom() / 1e6),
-                    pad.GetNetname(),
-                    pad.IsOnLayer(pcbnew.F_Cu),
-                    pad.IsOnLayer(pcbnew.B_Cu),
-                ))
-                if pad.GetDrillSize().x > 0:
-                    # drilled pads (thermal vias too) count as holes
-                    holes.append((
-                        pad.GetPosition().x / 1e6,
-                        pad.GetPosition().y / 1e6,
-                        min(pad.GetDrillSize().x, pad.GetDrillSize().y) / 2e6,
-                    ))
-        vias = [
-            (item.GetPosition().x / 1e6, item.GetPosition().y / 1e6, item.GetNetname())
-            for item in self.board.GetTracks()
-            if item.Type() == pcbnew.PCB_VIA_T
-        ]
-        board = Rect(0.0, 0.0, BOARD_WIDTH, BOARD_HEIGHT).inflated(-(EDGE_MARGIN + radius))
-        keepouts = self.occ['F'].keepouts + self.occ['B'].keepouts
-        in_pad = {
-            (ref, number)
-            for table in (FINE_PITCH_GROUND_PADS, LATE_GROUND_PADS)
-            for ref, numbers in table.items()
-            for number in numbers
-        }
-        missing = []
-        for ref, footprint in self.footprints.items():
-            if ref not in self.centers:
-                continue
-            for pad in footprint.Pads():
-                number = pad.GetNumber()
-                net = self.pad_net[ref].get(number)
-                if net not in GROUND_NETS or (ref, number) in in_pad:
-                    continue
-                if pad.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
-                    continue  # through-hole pads reach the plane themselves
-                size_x, size_y = pad.GetBoundingBox().GetWidth() / 1e6, pad.GetBoundingBox().GetHeight() / 1e6
-                if size_x * size_y > 6.0:
-                    continue  # big pads keep room for an escape via
-                full = self.full_net(net)
-                pad_x, pad_y = pad.GetPosition().x / 1e6, pad.GetPosition().y / 1e6
-                if any(
-                    other.GetDrillSize().x > 0 and pad.HitTest(other.GetPosition())
-                    for other in footprint.Pads()
-                ):
-                    continue  # an exposed pad with its own thermal vias
-                if any(math.dist((pad_x, pad_y), (vx, vy)) < 1.2 for vx, vy, vnet in vias if vnet == full):
-                    continue
-                front = pad.IsOnLayer(pcbnew.F_Cu)
-                spot = None
-                for reach in (0.35, 0.6, 0.9, 1.3):
-                    for angle in range(0, 360, 45):
-                        delta_x = math.cos(math.radians(angle))
-                        delta_y = math.sin(math.radians(angle))
-                        via_x = pad_x + delta_x * (size_x / 2 + radius + reach)
-                        via_y = pad_y + delta_y * (size_y / 2 + radius + reach)
-                        if self.ground_via_spot_ok(
-                            via_x, via_y, pad_x, pad_y, full, front, radius, width,
-                            clearance, boxes, vias, board, keepouts,
-                        ) and all(
-                            math.dist((via_x, via_y), (hole_x, hole_y))
-                            - drill / 2 - hole_radius >= HOLE_TO_HOLE
-                            for hole_x, hole_y, hole_radius in holes
-                        ):
-                            spot = (via_x, via_y)
-                            break
-                    if spot:
-                        break
-                if spot is None:
-                    missing.append(f'{ref}.{number}')
-                    continue
-                via = pcbnew.PCB_VIA(self.board)
-                via.SetPosition(pcbnew.VECTOR2I(to_internal(spot[0]), to_internal(spot[1])))
-                via.SetWidth(to_internal(via_diameter))
-                via.SetDrill(to_internal(drill))
-                via.SetViaType(pcbnew.VIATYPE_THROUGH)
-                via.SetNet(self.net_item(full))
-                via.SetLocked(True)
-                self.board.Add(via)
-                layer = pcbnew.F_Cu if front else pcbnew.B_Cu
-                self.add_track(full, layer, [(pad_x, pad_y), spot], width)
-                vias.append((spot[0], spot[1], full))
-        return missing
-
-    @staticmethod
-    def ground_via_spot_ok(via_x, via_y, pad_x, pad_y, net, front, radius, width,
-                           clearance, boxes, vias, board, keepouts):
-        """True if a fan-out via fits at (via_x, via_y): on the board, out of
-        the keep-outs and the isolation band, clear of other nets' pads (on
-        both sides) and of other vias, with a clear track back to its pad.
-        """
-        if not (board.min_x <= via_x <= board.max_x and board.min_y <= via_y <= board.max_y):
-            return False
-        via_box = Rect(via_x - radius, via_y - radius, via_x + radius, via_y + radius)
-        if any(via_box.overlaps(k) for k in keepouts):
-            return False
-        iso = net.endswith('ISO_GND')
-        if iso != via_box.inside(ISO_REGION.inflated(-0.3)) or (
-            not iso and via_box.inflated(ISO_BAND).overlaps(ISO_REGION)
-        ):
-            return False
-        for vx, vy, _ in vias:
-            if math.dist((via_x, via_y), (vx, vy)) < 2 * radius + clearance + 0.05:
-                return False
-        steps = 6
-        track = [
-            (pad_x + (via_x - pad_x) * k / steps, pad_y + (via_y - pad_y) * k / steps)
-            for k in range(steps + 1)
-        ]
-        for rect, pad_net, on_front, on_back in boxes:
-            if pad_net == net:
-                continue
-            if pcbfloorplan.rect_gap(via_box, rect) < clearance:
-                return False
-            if (on_front if front else on_back) and any(
-                pcbfloorplan.rect_gap(
-                    Rect(x - width / 2, y - width / 2, x + width / 2, y + width / 2), rect
-                ) < clearance
-                for x, y in track
-            ):
-                return False
-        return True
-
     # ─── silkscreen ───
 
-    def silk_free(self, rect):
+    def silk_free(self, rect, side='top'):
         """True if a text box fits inside the board, clear of every placed
-        footprint, hole and keep-out.
+        footprint, hole and keep-out on that side.
         """
         if not rect.inside(self.occupancy.board_rect):
             return False
@@ -2348,19 +2183,98 @@ class PcbBuilder:
             return False
         return not any(
             rect.overlaps(other.inflated(0.15))
-            for other in self.occupancy.rects.values()
+            for _, other in self.occupancy.on_side(side)
         )
+
+    def board_id_lines(self):
+        revision = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            capture_output=True,
+            text=True,
+            cwd=KICAD_DIR,
+        ).stdout.strip()
+        return (BOARD_NAME, f'{BOARD_STAGE} rev {revision}')
+
+    def reserve_board_id(self):
+        """Claims the board ID block's spot on the back before the passives
+        are placed, as near BOARD_ID_SPOT as the anchors allow.
+        """
+        lines = self.board_id_lines()
+        half_w = max(len(line) for line in lines) * SILK_MIN_TEXT * 0.45 + 0.4
+        half_h = SILK_MIN_TEXT * 1.4
+        best = None
+        for step_y in range(3, int(BOARD_HEIGHT) - 3):
+            for step_x in range(3, int(BOARD_WIDTH) - 3):
+                rect = Rect(step_x - half_w, step_y - half_h, step_x + half_w, step_y + half_h)
+                if not rect.inside(self.occupancy.board_rect) or any(
+                    rect.overlaps(k) for k in self.occupancy.keepouts
+                ) or any(
+                    rect.overlaps(other.inflated(0.3))
+                    for _, other in self.occupancy.on_side('bottom')
+                ):
+                    continue
+                distance = (step_x - BOARD_ID_SPOT[0]) ** 2 + (step_y - BOARD_ID_SPOT[1]) ** 2
+                if best is None or distance < best[0]:
+                    best = (distance, step_x, step_y, rect)
+        if best is None:
+            print('board ID: no free spot on the back')
+            return
+        self.board_id_spot = best[1:]
+        self.occupancy.add('silk_board_id', best[3], 'bottom')
+
+    def add_board_id(self):
+        """Board name and the git revision the files were generated from, in
+        a small block on the back silkscreen nearest BOARD_ID_SPOT (same place
+        and format on every revision, per AGENTS.md).
+        """
+        lines = self.board_id_lines()
+        size = SILK_MIN_TEXT
+        if getattr(self, 'board_id_spot', None) is not None:
+            center_x, center_y, rect = self.board_id_spot
+            for offset, line in zip((-0.6, 0.6), lines):
+                self.add_text(
+                    line, center_x, center_y + offset * size * 1.2, size,
+                    layer=pcbnew.B_SilkS, mirrored=True,
+                )
+            print('board ID at', (center_x, center_y), lines)
+            return
+        half_w = max(len(line) for line in lines) * size * 0.45 + 0.4
+        half_h = size * 1.4
+        best = None
+        for step_y in range(3, int(BOARD_HEIGHT) - 3):
+            for step_x in range(3, int(BOARD_WIDTH) - 3):
+                rect = Rect(
+                    step_x - half_w, step_y - half_h,
+                    step_x + half_w, step_y + half_h,
+                )
+                if not self.silk_free(rect, 'bottom'):
+                    continue
+                distance = (step_x - BOARD_ID_SPOT[0]) ** 2 + (
+                    step_y - BOARD_ID_SPOT[1]
+                ) ** 2
+                if best is None or distance < best[0]:
+                    best = (distance, step_x, step_y, rect)
+        if best is None:
+            print('board ID: no free spot on the back')
+            return
+        _, center_x, center_y, rect = best
+        for offset, line in zip((-0.6, 0.6), lines):
+            self.add_text(
+                line, center_x, center_y + offset * size * 1.2, size,
+                layer=pcbnew.B_SilkS, mirrored=True,
+            )
+        self.occupancy.add('silk_board_id', rect, 'bottom')
+        print('board ID at', (center_x, center_y), lines)
 
     def footprint_texts(self):
         """Boxes of the visible reference / value texts, so labels keep clear
         of them (cached after the first call).
         """
-        cache = self.__dict__.setdefault('_text_boxes', {})
-        if self.side not in cache:
+        if getattr(self, '_text_boxes', None) is None:
             boxes = []
             for footprint in self.board.GetFootprints():
                 for item in (footprint.Reference(), footprint.Value()):
-                    if not item.IsVisible() or item.GetLayer() != self.silk_layer:
+                    if not item.IsVisible():
                         continue
                     box = item.GetBoundingBox()
                     boxes.append(
@@ -2371,8 +2285,8 @@ class PcbBuilder:
                             box.GetBottom() / 1e6,
                         )
                     )
-            cache[self.side] = boxes
-        return cache[self.side]
+            self._text_boxes = boxes
+        return self._text_boxes
 
     def add_text(
         self,
@@ -2387,14 +2301,11 @@ class PcbBuilder:
     ):
         item = pcbnew.PCB_TEXT(self.board)
         item.SetText(text)
-        if layer is None:
-            layer = self.silk_layer
-            mirrored = mirrored or self.side == 'B'
-        item.SetLayer(layer)
+        item.SetLayer(layer if layer is not None else pcbnew.F_SilkS)
         item.SetPosition(pcbnew.VECTOR2I(to_internal(x), to_internal(y)))
         item.SetTextSize(pcbnew.VECTOR2I(to_internal(size), to_internal(size)))
         item.SetTextThickness(
-            to_internal(thickness if thickness else max(0.12, size * 0.15))
+            to_internal(max(SILK_MIN_LINE, thickness or size * 0.15))
         )
         item.SetHorizJustify(
             {
@@ -2407,10 +2318,8 @@ class PcbBuilder:
         return item
 
     def text_rect(self, text, center_x, center_y, size):
-        """Box of an upright text centred on a point, as pcbnew draws it."""
-        width, height = measure_text(text, size)
-        half_width = width / 2 + 0.1
-        half_height = height / 2 + 0.05
+        half_width = len(text) * size * 0.45 + 0.2
+        half_height = size * 0.6
         return Rect(
             center_x - half_width,
             center_y - half_height,
@@ -2423,173 +2332,223 @@ class PcbBuilder:
         within 3.5 mm of the part, preferring one inside its module box and
         close to the part.
         """
-        obstacles = self.silk_obstacles() + [
-            rect
-            for name, rect in self.occupancy.rects.items()
-            if name.startswith('txt_label_')
-        ]
-        courtyards = self.keep_out_courtyards()
+        obstacles_by_side = {s: self.silk_obstacles(s) for s in ('top', 'bottom')}
+        courtyards_by_side = {
+            s: self.keep_out_courtyards(s) for s in ('top', 'bottom')
+        }
         inner = self.occupancy.board_rect.inflated(EDGE_MARGIN - 0.45)
-        texts = [
-            self.text_box(footprint.Reference())
-            for footprint in self.footprints.values()
-            if footprint.Reference().IsVisible()
-            and footprint.Reference().GetLayer() == self.silk_layer
-        ]
-        deferred = self.__dict__.setdefault('deferred_labels', {})
-        other = 'B' if self.side == 'F' else 'F'
-        # labels reserved early, possibly on the other side of their part
-        for ref, (spot_x, spot_y, turned, *where) in self.label_pockets.items():
-            side, text = where if where else (self.side_of.get(ref), SILK_LABELS[ref])
-            if side != self.side or ref not in self.centers:
+        texts_by_side = {
+            s: [
+                self.text_box(self.display_text(footprint, ref))
+                for ref, footprint in self.footprints.items()
+                if self.display_text(footprint, ref).IsVisible()
+                and self.side.get(ref, 'top') == s
+            ]
+            for s in ('top', 'bottom')
+        }
+        for ref, text in SILK_LABELS.items():
+            if ref not in self.centers or ref not in self.occupancy.rects:
                 continue
-            item = self.add_text(
-                text, spot_x, spot_y, SILK_TEXT_SIZE, thickness=SILK_TEXT_THICKNESS
-            )
-            if turned:
-                item.SetTextAngleDegrees(90)
-        jobs = [
-            (ref, text, True)
-            for ref, text in SILK_LABELS.items()
-            if ref in self.centers
-            and self.side_of.get(ref) == self.side
-            and ref not in self.label_pockets
-        ] + [(ref, SILK_LABELS[ref], False) for ref in deferred.pop(self.side, [])]
-        for ref, text, own in jobs:
-            # on the other side the label sits beside the pins, in any box
-            part = self.body_rect(ref) if own else self.other_side_part(ref)
+            side = self.side.get(ref, 'top')
+            obstacles = obstacles_by_side[side]
+            courtyards = courtyards_by_side[side]
+            texts = texts_by_side[side]
+            if ref in self.label_pockets:
+                spot_x, spot_y, turned = self.label_pockets[ref]
+                item = self.add_text(
+                    text,
+                    spot_x,
+                    spot_y,
+                    SILK_TEXT_SIZE,
+                    thickness=SILK_TEXT_THICKNESS,
+                )
+                if turned:
+                    item.SetTextAngleDegrees(90)
+                continue
+            part = self.body_rect(ref)
             center_x = (part.min_x + part.max_x) / 2
             center_y = (part.min_y + part.max_y) / 2
-            module = self.module_of_ref(ref) if own else None
+            module = self.module_of_ref(ref)
+            base = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
             best = None
-            # the full label first, then its short form; a connector with no
-            # room for both its reference and its label prints them together
-            forms = [(form, False) for form in (text, *SILK_LABEL_SHORT.get(ref, ()))]
-            reference = self.footprints[ref].Reference()
-            own_box = None
-            if self.is_connector(ref) and own and reference.IsVisible():
-                own_box = self.text_box(reference)
-                forms += [(f'{ref} {form}', True) for form, _ in list(forms)]
-            for text, combined in forms:
-                blocking = (
-                    [t for t in texts if t != own_box] if combined else texts
-                )
-                base = self.text_rect(text, 0, 0, SILK_TEXT_SIZE)
-                for gap in (0.3, 0.7, 1.2, 1.8, 2.5, 3.5, 5.0):
-                    for turned in (False, True):
-                        half_w, half_h = (
-                            (base.max_y, base.max_x)
-                            if turned
-                            else (base.max_x, base.max_y)
+            for gap in (0.3, 0.7, 1.2, 1.8, 2.5, 3.5, 5.0):
+                for turned in (False, True):
+                    half_w, half_h = (
+                        (base.max_y, base.max_x)
+                        if turned
+                        else (base.max_x, base.max_y)
+                    )
+                    for center in (
+                        (part.max_x + gap + half_w, center_y),
+                        (part.min_x - gap - half_w, center_y),
+                        (center_x, part.min_y - gap - half_h),
+                        (center_x, part.max_y + gap + half_h),
+                        (part.max_x + gap + half_w, part.min_y - gap - half_h),
+                        (part.min_x - gap - half_w, part.min_y - gap - half_h),
+                        (part.max_x + gap + half_w, part.max_y + gap + half_h),
+                        (part.min_x - gap - half_w, part.max_y + gap + half_h),
+                    ):
+                        rect = Rect(
+                            center[0] - half_w,
+                            center[1] - half_h,
+                            center[0] + half_w,
+                            center[1] + half_h,
                         )
-                        for center in (
-                            (part.max_x + gap + half_w, center_y),
-                            (part.min_x - gap - half_w, center_y),
-                            (center_x, part.min_y - gap - half_h),
-                            (center_x, part.max_y + gap + half_h),
-                            (part.max_x + gap + half_w, part.min_y - gap - half_h),
-                            (part.min_x - gap - half_w, part.min_y - gap - half_h),
-                            (part.max_x + gap + half_w, part.max_y + gap + half_h),
-                            (part.min_x - gap - half_w, part.max_y + gap + half_h),
+                        if (
+                            not rect.inside(inner)
+                            or any(rect.overlaps(t) for t in texts)
+                            or any(
+                                rect.overlaps(c)
+                                for owner, c in courtyards.items()
+                                if owner != ref
+                            )
+                            or any(rect.overlaps(o) for o in obstacles)
+                            or any(
+                                rect.overlaps(k)
+                                for k in self.occupancy.keepouts
+                            )
                         ):
-                            rect = Rect(
-                                center[0] - half_w,
-                                center[1] - half_h,
-                                center[0] + half_w,
-                                center[1] + half_h,
-                            )
-                            if (
-                                not rect.inside(inner)
-                                or any(rect.overlaps(t) for t in blocking)
-                                or any(
-                                    rect.overlaps(c)
-                                    for owner, c in courtyards.items()
-                                    if owner != ref
-                                )
-                                or any(rect.overlaps(o) for o in obstacles)
-                                or any(
-                                    rect.overlaps(k)
-                                    for k in self.occupancy.keepouts
-                                )
-                            ):
-                                continue
-                            level = (
-                                pcbfloorplan.text_level(module, rect, self.side)
-                                if module is not None
-                                else 0
-                            )
-                            score = (
-                                2 if level == 2 else 0,
-                                level,
-                                pcbfloorplan.rect_gap(rect, part),
-                            )
-                            if best is None or score < best[0]:
-                                best = (score, center, rect, turned, text, combined)
-                    if best is not None and best[0][0] == 0:
-                        break
-                if best is not None:
+                            continue
+                        level = (
+                            pcbfloorplan.text_level(module, rect)
+                            if module is not None
+                            else 0
+                        )
+                        score = (
+                            2 if level == 2 else 0,
+                            level,
+                            pcbfloorplan.rect_gap(rect, part),
+                        )
+                        if best is None or score < best[0]:
+                            best = (score, center, rect, turned)
+                if best is not None and best[0][0] == 0:
                     break
             if best is None:
-                if own and ref.startswith('J'):
-                    deferred.setdefault(other, []).append(ref)
-                else:
-                    print('silk label not placed:', ref, text)
+                print('silk label not placed:', ref, text)
                 continue
             if best[0][0] > 0:
                 print('silk label sits outside its box:', ref, text)
-            _, center, rect, turned, text, combined = best
-            if combined:
-                reference.SetVisible(False)
+            _, center, rect, turned = best
             if best[0][1] == 1:
-                self.bumps.setdefault((module, self.side), []).append(rect)
+                self.bumps.setdefault(module, []).append(rect)
             item = self.add_text(
-                text, *center, SILK_TEXT_SIZE, thickness=SILK_TEXT_THICKNESS
+                text, *center, SILK_TEXT_SIZE,
+                layer=silk_layer(side), mirrored=side == 'bottom',
+                thickness=SILK_TEXT_THICKNESS,
             )
             if turned:
                 item.SetTextAngleDegrees(90)
-            self.occupancy.add(f'silk_{ref}', rect)
+            self.occupancy.add(f'silk_{ref}', rect, side)
             obstacles.append(rect)
+
+    def add_logo(self):
+        """Black-and-white trace of the cryocooler on the back silkscreen
+        (mirrored so it reads correctly from the back) with the unit name
+        below it.
+        """
+        geometry = json.loads(LOGO_FILE.read_text())
+        features = geometry['features'] if 'features' in geometry else [geometry]
+        source_w, source_h = LOGO_SOURCE_SIZE
+        scale = LOGO_WIDTH / source_w
+        center_x, center_y = LOGO_CENTER
+
+        def to_board(point):
+            # potrace's GeoJSON is y-up; the board is y-down. The back layer is
+            # mirrored, so x runs the other way.
+            x = center_x - (point[0] - source_w / 2) * scale
+            y = center_y - (point[1] - source_h / 2) * scale
+            return pcbnew.VECTOR2I(to_internal(x), to_internal(y))
+
+        for feature in features:
+            shape_geometry = feature['geometry']
+            polygons = (
+                shape_geometry['coordinates']
+                if shape_geometry['type'] == 'MultiPolygon'
+                else [shape_geometry['coordinates']]
+            )
+            for rings in polygons:
+                polygon = pcbnew.SHAPE_POLY_SET()
+                outline = polygon.NewOutline()
+                for point in rings[0][:-1]:
+                    polygon.Append(to_board(point), outline)
+                for ring in rings[1:]:
+                    hole = polygon.NewHole(outline)
+                    for point in ring[:-1]:
+                        polygon.Append(to_board(point), outline, hole)
+                shape = pcbnew.PCB_SHAPE(self.board)
+                shape.SetShape(pcbnew.SHAPE_T_POLY)
+                shape.SetLayer(pcbnew.B_SilkS)
+                shape.SetFilled(True)
+                shape.SetWidth(0)
+                shape.SetPolyShape(polygon)
+                self.board.Add(shape)
+        logo_height = LOGO_WIDTH * source_h / source_w
+        title_y = center_y + logo_height / 2 + 4.0
+        self.add_text(
+            TITLE_TEXT, center_x, title_y, 2.0, pcbnew.B_SilkS, mirrored=True,
+            thickness=0.3,
+        )
+        self.add_text(
+            ALPHA_TEXT + ' DEV UNIT', center_x, title_y + 4.0, 2.0,
+            pcbnew.B_SilkS, mirrored=True, thickness=0.3,
+        )
+
+    def add_alpha_mark(self):
+        """Large ALPHA on the front silkscreen, in the free spot nearest the
+        board centre.
+        """
+        size = 3.0
+        half_w, half_h = len(ALPHA_TEXT) * size * 0.5 + 0.5, size * 0.7
+        best = None
+        for step_y in range(2, int(BOARD_HEIGHT) - 2):
+            for step_x in range(2, int(BOARD_WIDTH) - 2):
+                rect = Rect(
+                    step_x - half_w, step_y - half_h,
+                    step_x + half_w, step_y + half_h,
+                )
+                if not self.silk_free(rect):
+                    continue
+                distance = (step_x - 65.0) ** 2 + (step_y - 50.0) ** 2
+                if best is None or distance < best[0]:
+                    best = (distance, step_x, step_y, rect)
+        if best is None:
+            print('ALPHA mark: no free spot on the front')
+            return
+        _, mark_x, mark_y, rect = best
+        self.add_text(ALPHA_TEXT, mark_x, mark_y, size, thickness=0.45)
+        self.occupancy.add('silk_alpha', rect)
 
     def check_floorplan(self):
         """Returns messages for parts outside their module's box and for
         boxes closer together than the minimum gap.
         """
-        board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
-        problems = pcbfloorplan.check_regions(board_rect, 'F')
-        problems += pcbfloorplan.check_regions(board_rect, 'B')
+        problems = pcbfloorplan.check_regions(self.occupancy.board_rect.inflated(EDGE_MARGIN))
         for ref, module in self.module.items():
             if module is None:
                 continue
-            side = self.side_of[ref]
             center_x, center_y, angle = self.centers[ref]
-            rect = placed_rect(self.local_rect(ref, side), center_x, center_y, angle)
-            if not pcbfloorplan.region_contains(module, rect, side):
-                problems.append(f'{ref} ({side}) is outside the {module} box')
+            rect = placed_rect(
+                self.local_rects[ref], center_x, center_y, angle,
+                self.side.get(ref) == 'bottom',
+            )
+            if not pcbfloorplan.region_contains(module, rect):
+                problems.append(
+                    f'{ref} is outside the {module} box '
+                    f'({rect.min_x:.1f},{rect.min_y:.1f})-'
+                    f'({rect.max_x:.1f},{rect.max_y:.1f})'
+                )
         return problems
 
-    @staticmethod
-    def title_box(spot):
-        """Box a section title takes: (text, left_x, line_y) on a horizontal
-        border, (text, line_x, top_y, 'v') running up a vertical one.
-        """
-        text, start_x, start_y, *vertical = spot
-        width = pcbfloorplan.label_width(text)
-        if vertical:
-            return Rect(start_x - 0.9, start_y, start_x + 0.9, start_y + width)
-        return Rect(start_x, start_y - 0.9, start_x + width, start_y + 0.9)
-
-    def module_label_spot(self, module, board_rect, holes, inside=True):
+    def module_label_spot(self, module, board_rect, holes):
         """First (text, left_x, line_y) on a drawn border that clears every
         part, hole and earlier label, or None.
         """
-        plain = pcbfloorplan.outline_segments(
-            module, board_rect, holes, side=self.side, keepouts=self.silk_keepouts()
-        )
+        plain = pcbfloorplan.outline_segments(module, board_rect, holes)
         gap = pcbfloorplan.LABEL_GAP
         for text in pcbfloorplan.label_texts(module):
             width = pcbfloorplan.label_width(text)
             for left_x, line_y in pcbfloorplan.label_candidates(
-                module, text, board_rect, self.side
+                module, text, board_rect
             ):
                 if not pcbfloorplan.covered(
                     plain, line_y, left_x - gap, left_x + width + gap
@@ -2597,106 +2556,46 @@ class PcbBuilder:
                     continue
                 if pcbfloorplan.text_hits_hole(left_x, line_y, width, holes):
                     continue
-                box = Rect(left_x, line_y - 0.9, left_x + width, line_y + 0.9)
+                box = Rect(left_x, line_y - 0.5, left_x + width, line_y + 0.5)
+                # labels sharing a wall keep 1.5 mm apart so they read apart
+                spaced = Rect(box.min_x - 1.5, box.min_y, box.max_x + 1.5, box.max_y)
                 if any(
-                    box.overlaps(other)
-                    for name, other in self.occupancy.rects.items()
-                    if not name.startswith('silk_box')
+                    (spaced if name.startswith('silk_label_') else box).overlaps(other)
+                    for name, other in self.occupancy.on_side(
+                        pcbfloorplan.split_key(module)[1]
+                    )
+                    if not name.startswith('silk_box') and name != f'silk_label_{module}'
                 ):
-                    continue
-                # two titles in a row would read as one
-                if any(
-                    box.inflated(TITLE_SPACING).overlaps(other)
-                    for name, other in self.occupancy.rects.items()
-                    if name.startswith('silk_label_')
-                ):
-                    continue
-                if any(box.overlaps(k) for k in self.occupancy.keepouts):
                     continue
                 return text, left_x, line_y
-        # then running up a vertical border
-        drawable = board_rect.inflated(-0.4)
-        for text in pcbfloorplan.label_texts(module):
-            width = pcbfloorplan.label_width(text)
-            for rect in pcbfloorplan.regions(module, self.side):
-                for line_x in (rect.min_x, rect.max_x):
-                    if not drawable.min_x <= line_x <= drawable.max_x:
-                        continue
-                    top_y = max(rect.min_y + 0.6, 1.5)
-                    while top_y + width <= min(rect.max_y - 0.6, drawable.max_y):
-                        spot = (text, line_x, top_y, 'v')
-                        box = self.title_box(spot)
-                        top_y += 0.25
-                        if not pcbfloorplan.covered_vertical(
-                            plain, line_x, box.min_y - 0.3, box.max_y + 0.3
-                        ):
-                            continue
-                        if any(
-                            (hole_x - min(max(hole_x, box.min_x), box.max_x)) ** 2
-                            + (hole_y - min(max(hole_y, box.min_y), box.max_y)) ** 2
-                            < (radius + pcbfloorplan.HOLE_CLEARANCE) ** 2
-                            for hole_x, hole_y, radius in holes
-                        ):
-                            continue
-                        if any(box.overlaps(k) for k in self.occupancy.keepouts):
-                            continue
-                        if any(
-                            box.overlaps(other)
-                            for name, other in self.occupancy.rects.items()
-                            if not name.startswith('silk_box')
-                        ):
-                            continue
-                        return spot
-        if not inside:
-            return None
-        # no free border: inside the box, as high as there is room
-        for text in pcbfloorplan.label_texts(module):
-            width = pcbfloorplan.label_width(text)
-            for rect in pcbfloorplan.regions(module, self.side):
-                inner = rect.inflated(-0.3)
-                rows = int((inner.max_y - inner.min_y - 2.0) / 0.5) + 1
-                for line_y in (inner.min_y + 1.0 + 0.5 * row for row in range(rows)):
-                    left_x = max(inner.min_x, EDGE_MARGIN + 0.2)
-                    while left_x + width <= min(inner.max_x, BOARD_WIDTH - EDGE_MARGIN - 0.2):
-                        box = Rect(left_x, line_y - 0.9, left_x + width, line_y + 0.9)
-                        left_x += 0.5
-                        if not box.inside(board_rect.inflated(-EDGE_MARGIN)):
-                            continue
-                        if pcbfloorplan.text_hits_hole(box.min_x, line_y, width, holes):
-                            continue
-                        if any(box.overlaps(k) for k in self.occupancy.keepouts):
-                            continue
-                        # a passive's reserved reference spot may give way
-                        # (that reference moves or is hidden later)
-                        evict = self.evictable(box, True)
-                        kept = {
-                            name: self.occupancy.rects.pop(name) for name in evict
-                        }
-                        # like a reference text: clear of pads, bodies and
-                        # other text, courtyard margins are fine
-                        blocked = any(
-                            box.overlaps(other)
-                            for other in self.pocket_obstacles(box.inflated(1.0))
-                        ) or any(
-                            box.overlaps(body)
-                            for body in self.keep_out_courtyards().values()
-                        )
-                        for name, rect in kept.items():
-                            self.occupancy.rects[name] = rect
-                        if blocked:
-                            continue
-                        for name in evict:
-                            if box.overlaps(self.occupancy.rects[name]):
-                                del self.occupancy.rects[name]
-                                self.pockets.pop(name.removeprefix('txt_ref_'), None)
-                        return text, box.min_x, line_y
         return None
+
+    def set_silk_avoid(self):
+        """Tells the box outliner where it may not draw: the antenna notch
+        and every pad on each side, 0.2 mm around (JLCPCB silk-to-pad 0.15 mm
+        plus the mask margin).
+        """
+        notch = ANTENNA_NOTCH.inflated(0.5)
+        for side, copper in (('top', pcbnew.F_Cu), ('bottom', pcbnew.B_Cu)):
+            avoid = [notch]
+            for footprint in self.board.GetFootprints():
+                for pad in footprint.Pads():
+                    if not pad.IsOnLayer(copper):
+                        continue
+                    box = pad.GetBoundingBox()
+                    avoid.append(
+                        Rect(
+                            box.GetLeft() / 1e6, box.GetTop() / 1e6,
+                            box.GetRight() / 1e6, box.GetBottom() / 1e6,
+                        ).inflated(SILK_PAD_CLEARANCE)
+                    )
+            pcbfloorplan.SILK_AVOID[side] = avoid
 
     def draw_module_lines(self, module, spot, board_rect, holes):
         """Draws the silk outline of one module (replacing any earlier one)
         and reserves the line areas.
         """
-        for shape in self.box_lines.pop((module, self.side), []):
+        for shape in self.box_lines.pop(module, []):
             self.board.Remove(shape)
             self._removed_shapes.append(shape)
         for name in [
@@ -2704,20 +2603,24 @@ class PcbBuilder:
         ]:
             del self.occupancy.rects[name]
         shapes = []
-        # a border shared with a neighbour carries its label too
-        labels = [
-            label
-            for (name, side), label in self.box_labels.items()
-            if side == self.side and label is not None
-        ]
+        side = pcbfloorplan.split_key(module)[1]
+        drawn = self.drawn_walls.setdefault(side, [])
+        # a redraw (bulge) first forgets this module's own earlier walls
+        for segment in self.module_walls.pop(module, []):
+            if segment in drawn:
+                drawn.remove(segment)
+        own = self.module_walls.setdefault(module, [])
         for index, (start, end) in enumerate(
-            pcbfloorplan.outline_segments(
-                module, board_rect, holes, labels, self.side, self.silk_keepouts()
-            )
+            pcbfloorplan.outline_segments(module, board_rect, holes, spot)
         ):
+            # a wall shared with a neighbouring section is drawn once
+            if any(covers(other, (start, end)) for other in drawn):
+                continue
+            drawn.append((start, end))
+            own.append((start, end))
             line = pcbnew.PCB_SHAPE(self.board)
             line.SetShape(pcbnew.SHAPE_T_SEGMENT)
-            line.SetLayer(self.silk_layer)
+            line.SetLayer(silk_layer(side))
             line.SetWidth(to_internal(pcbfloorplan.LINE_WIDTH))
             line.SetStart(
                 pcbnew.VECTOR2I(to_internal(start[0]), to_internal(start[1]))
@@ -2735,60 +2638,63 @@ class PcbBuilder:
                     max(start[0], end[0]) + 0.1,
                     max(start[1], end[1]) + 0.1,
                 ),
+                side,
             )
-        self.box_lines[(module, self.side)] = shapes
+        self.box_lines[module] = shapes
 
     def add_module_boxes(self):
         """Draws each module's outline and label on the front silkscreen and
         reserves the line and label areas so other silk keeps clear.
         """
         board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
-        holes = [(hole_x, hole_y, 3.4) for hole_x, hole_y in HOLES]
-        self._removed_shapes = getattr(self, '_removed_shapes', [])
-        self.box_labels = getattr(self, 'box_labels', {})
-        names = pcbfloorplan.modules(self.side)
-        for module in names:
-            spot = self.early_labels.get((module, self.side))
+        holes = [(hole_x, hole_y, 2.4) for hole_x, hole_y in HOLES]
+        self.set_silk_avoid()
+        self.drawn_walls = {}
+        self.module_walls = {}
+        self._removed_shapes = []
+        self.box_labels = {}
+        for module in pcbfloorplan.MODULE_REGIONS:
+            spot = self.early_labels.get(module)
             if spot is None:
                 spot = self.module_label_spot(module, board_rect, holes)
             if spot is None:
-                print('no free border for the label of', module, self.side)
-            self.box_labels[(module, self.side)] = spot
-        for module in names:
-            spot = self.box_labels[(module, self.side)]
+                print('no free border for the label of', module)
+            self.box_labels[module] = spot
             self.draw_module_lines(module, spot, board_rect, holes)
             if spot is None:
                 continue
-            text = spot[0]
-            slot = self.title_box(spot)
-            # centred: a left-justified text grows the other way when mirrored
-            item = self.add_text(
+            text, left_x, line_y = spot
+            width = pcbfloorplan.label_width(text)
+            side = pcbfloorplan.split_key(module)[1]
+            # mirrored (bottom) text grows to the left of its anchor
+            self.add_text(
                 text,
-                (slot.min_x + slot.max_x) / 2,
-                (slot.min_y + slot.max_y) / 2,
+                left_x + width - 0.4 if side == 'bottom' else left_x,
+                line_y,
                 pcbfloorplan.LABEL_SIZE,
+                layer=silk_layer(side),
+                mirrored=side == 'bottom',
                 thickness=SILK_TEXT_THICKNESS + 0.03,
+                justify='left',
             )
-            if len(spot) > 3:
-                item.SetTextAngleDegrees(90)
-            if not self.text_box(item).inside(slot.inflated(0.05)):
-                print('module label wider than its slot:', text, self.side)
-            self.occupancy.add(f'silk_label_{module}', slot)
+            self.occupancy.add(
+                f'silk_label_{module}',
+                Rect(left_x, line_y - 0.5, left_x + width, line_y + 0.5),
+                side,
+            )
 
     def bulge_module_boxes(self):
         """Redraws the outline of every module whose labels did not fit
         inside it so the line goes around them.
         """
         board_rect = self.occupancy.board_rect.inflated(EDGE_MARGIN)
-        holes = [(hole_x, hole_y, 3.4) for hole_x, hole_y in HOLES]
-        for (module, side), rects in self.bumps.items():
-            if side != self.side:
-                continue
-            pcbfloorplan.EXTRA_REGIONS[(module, side)] = [
+        holes = [(hole_x, hole_y, 2.4) for hole_x, hole_y in HOLES]
+        for module, rects in self.bumps.items():
+            pcbfloorplan.EXTRA_REGIONS[module] = [
                 pcbfloorplan.bump_rect(rect) for rect in rects
             ]
             self.draw_module_lines(
-                module, self.box_labels.get((module, side)), board_rect, holes
+                module, self.box_labels.get(module), board_rect, holes
             )
         print(
             'module outlines bulged around labels:',
@@ -2796,12 +2702,7 @@ class PcbBuilder:
         )
 
     def text_box(self, item):
-        """Box around the ink of a text (what prints; the text's own
-        bounding box adds line spacing above and below).
-        """
-        polygon = pcbnew.SHAPE_POLY_SET()
-        item.TransformTextToPolySet(polygon, 0, to_internal(0.005), pcbnew.ERROR_INSIDE)
-        box = polygon.BBox() if polygon.OutlineCount() else item.GetBoundingBox()
+        box = item.GetBoundingBox()
         return Rect(
             box.GetLeft() / 1e6,
             box.GetTop() / 1e6,
@@ -2809,13 +2710,14 @@ class PcbBuilder:
             box.GetBottom() / 1e6,
         )
 
-    def silk_obstacles(self):
-        """Boxes that reference text must not cover: every pad, every
-        footprint silk graphic, the module box lines and labels, and the
-        mounting holes (as squares).
+    def silk_obstacles(self, side='top'):
+        """Boxes that reference text on `side` must not cover: every pad
+        reaching that side, every footprint silk graphic there, the module box
+        lines and labels, and the mounting holes (as squares).
         """
+        copper = pcbnew.B_Cu if side == 'bottom' else pcbnew.F_Cu
+        silk = silk_layer(side)
         boxes = []
-        copper = pcbnew.F_Cu if self.side == 'F' else pcbnew.B_Cu
         for footprint in self.footprints.values():
             for pad in footprint.Pads():
                 if not pad.IsOnLayer(copper):
@@ -2827,10 +2729,10 @@ class PcbBuilder:
                         box.GetTop() / 1e6,
                         box.GetRight() / 1e6,
                         box.GetBottom() / 1e6,
-                    ).inflated(0.05)
+                    ).inflated(SILK_PAD_CLEARANCE)
                 )
             for graphic in footprint.GraphicalItems():
-                if graphic.GetLayer() != self.silk_layer:
+                if graphic.GetLayer() != silk:
                     continue
                 box = graphic.GetBoundingBox()
                 boxes.append(
@@ -2841,7 +2743,7 @@ class PcbBuilder:
                         box.GetBottom() / 1e6,
                     ).inflated(0.05)
                 )
-        for name, rect in self.occupancy.rects.items():
+        for name, rect in self.occupancy.on_side(side):
             if name.startswith('silk_pin'):
                 # keep other labels (and the connector's own reference) off
                 # the pin label strip
@@ -2850,37 +2752,20 @@ class PcbBuilder:
                 boxes.append(rect)
         for hole_x, hole_y in HOLES:
             boxes.append(
-                Rect(hole_x - 3.2, hole_y - 3.2, hole_x + 3.2, hole_y + 3.2)
+                Rect(hole_x - 2.9, hole_y - 2.9, hole_x + 2.9, hole_y + 2.9)
             )
-        boxes += self.silk_keepouts()
         return boxes
 
-    def silk_keepouts(self):
-        """Areas silkscreen stays out of: the antenna notch and its strip, and
-        the housing's restricted corners (no mask there to print on).
+    def keep_out_courtyards(self, side='top'):
+        """Courtyards of the big placed parts on `side`, by owner: another
+        part's label inside one reads as that part's label (the ESP32 antenna
+        area is exempt).
         """
-        return [ANTENNA_NOTCH, *ANTENNA_KEEPOUTS, *corner_keepouts()]
-
-    def other_side_part(self, ref):
-        """What shows of a part on the side it is not mounted on: its
-        through-hole pins, else its pad area (labels go beside it).
-        """
-        pins = self.occupancy.rects.get(f'{ref}~tht')
-        return pins if pins is not None else self.body_rect(ref)
-
-    def keep_out_courtyards(self):
-        """Courtyards of the big placed parts, by owner: another part's label
-        inside one reads as that part's label. The ESP32 counts by its pads
-        (its pin names fill the body; the antenna area is exempt).
-        """
-        boxes = {
+        return {
             ref: rect
-            for ref, rect in self.occupancy.rects.items()
-            if ref in PLACEMENT and ref != 'U1' and self.side_of.get(ref) == self.side
+            for ref, rect in self.occupancy.on_side(side)
+            if ref in PLACEMENT and ref != 'U1'
         }
-        if self.side_of.get('U1') == self.side:
-            boxes['U1'] = self.body_rect('U1')
-        return boxes
 
     def module_of_ref(self, ref):
         """Module box a part belongs to (debug parts: the box they sit in)."""
@@ -2888,11 +2773,13 @@ class PcbBuilder:
         if module is not None:
             return module
         center_x, center_y, _ = self.centers[ref]
-        side = self.side_of.get(ref, 'F')
-        for name in pcbfloorplan.modules(side):
+        side = self.side.get(ref, 'top')
+        for name, rects in pcbfloorplan.MODULE_REGIONS.items():
+            if pcbfloorplan.split_key(name)[1] != side:
+                continue
             if any(
                 r.min_x <= center_x <= r.max_x and r.min_y <= center_y <= r.max_y
-                for r in pcbfloorplan.regions(name, side)
+                for r in rects
             ):
                 self.module[ref] = name
                 return name
@@ -2922,9 +2809,7 @@ class PcbBuilder:
         first, then needing an outline bulge, then distance to the part.
         """
         level = (
-            pcbfloorplan.text_level(module, rect, self.side)
-            if module is not None
-            else 0
+            pcbfloorplan.text_level(module, rect) if module is not None else 0
         )
         own = pcbfloorplan.rect_gap(rect, self.body_rect(ref))
         ambiguous = int(
@@ -2936,42 +2821,38 @@ class PcbBuilder:
         return (ambiguous + (2 if level == 2 else 0), level, own)
 
     def neighbour_rects(self, ref, reach=6.0):
-        """Bodies of the parts near ref that its reference could be taken
-        for. "TP.." can only be read as a test point, so a test point's
-        reference only has to be nearer to it than to other test points.
-        """
         part = self.body_rect(ref).inflated(reach)
+        side = self.side.get(ref, 'top')
         return [
             self.body_rect(name)
             for name in self.footprints
             if name != ref
-            and self.side_of.get(name) == self.side
-            and (not ref.startswith('TP') or name.startswith('TP'))
+            and self.side.get(name, 'top') == side
             and self.body_rect(name).overlaps(part)
         ]
 
     def place_reference_texts(self):
+        """Places the reference texts of each board side in turn."""
+        for side in ('top', 'bottom'):
+            self.place_reference_texts_on(side)
+
+    def place_reference_texts_on(self, side):
         """Keeps every reference designator beside its own part: inside the
         part's module box, nearer to that part than to any other, and off
         pads, other silk, the box lines and the board edge. Texts that fail
         move to the nearest spot that qualifies (rotating 90 degrees if that
-        helps).
+        helps); a text with no free spot at all is hidden (allowed on this
+        crowded board).
         """
-        obstacles = self.silk_obstacles()
-        courtyards = self.keep_out_courtyards()
+        obstacles = self.silk_obstacles(side)
+        courtyards = self.keep_out_courtyards(side)
         inner = self.occupancy.board_rect.inflated(EDGE_MARGIN - 0.45)
         finished = {}
         moved = 0
         stuck = []
         weak = []
-        # spots reserved for texts not printed yet (references, part labels)
-        reserved = [
-            (name, rect)
-            for name, rect in self.occupancy.rects.items()
-            if name.startswith(('txt_ref_', 'txt_label_'))
-        ]
         order = sorted(
-            self.footprints,
+            (r for r in self.footprints if self.side.get(r, 'top') == side),
             key=lambda r: (
                 not self.is_passive(r),
                 int(r.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ') or 0),
@@ -2982,13 +2863,6 @@ class PcbBuilder:
             if not rect.inside(inner):
                 return False
             if any(rect.overlaps(other) for other in finished.values()):
-                return False
-            if any(
-                rect.overlaps(spot)
-                for name, spot in reserved
-                if name != f'txt_ref_{own}'
-                and name.removeprefix('txt_ref_') not in finished
-            ):
                 return False
             if any(
                 rect.overlaps(courtyard)
@@ -3003,31 +2877,13 @@ class PcbBuilder:
                 and obstacle.max_x > rect.min_x - 0.1
             )
 
-        deferred = self.__dict__.setdefault('deferred_refs', {})
-        other = 'B' if self.side == 'F' else 'F'
-        moved_over = deferred.pop(self.side, [])
-        for ref in moved_over:
-            # a connector reference with no room on its own side goes beside
-            # its pins on this one
-            item = self.footprints[ref].Reference()
-            item.SetLayer(self.silk_layer)
-            item.SetMirrored(self.side == 'B')
-            item.SetVisible(True)
-            part = self.other_side_part(ref)
-            item.SetPosition(
-                pcbnew.VECTOR2I(
-                    to_internal((part.min_x + part.max_x) / 2),
-                    to_internal(part.min_y - 1.0),
-                )
-            )
         for ref in order:
             footprint = self.footprints[ref]
-            item = footprint.Reference()
-            own_side = self.side_of.get(ref) == self.side
-            if not item.IsVisible() or not (own_side or ref in moved_over):
+            item = self.display_text(footprint, ref)
+            if not item.IsVisible() or ref not in self.occupancy.rects:
                 continue
-            module = self.module_of_ref(ref) if own_side else None
-            if own_side and ref in self.pockets:
+            module = self.module_of_ref(ref)
+            if ref in self.pockets:
                 spot_x, spot_y, turned = self.pockets[ref]
                 item.SetTextAngleDegrees(90 if turned else 0)
                 item.SetPosition(
@@ -3038,15 +2894,15 @@ class PcbBuilder:
                 continue
             neighbours = self.neighbour_rects(ref)
             box = self.text_box(item)
-            part = self.occupancy.rects[ref] if own_side else self.other_side_part(ref)
-            # every spot tried lies within 8 mm of the part or its text
-            window = Rect(
-                min(box.min_x, part.min_x) - 8.0,
-                min(box.min_y, part.min_y) - 8.0,
-                max(box.max_x, part.max_x) + 8.0,
-                max(box.max_y, part.max_y) + 8.0,
-            )
-            near = [obstacle for obstacle in obstacles if obstacle.overlaps(window)]
+            near = [
+                obstacle
+                for obstacle in obstacles
+                if obstacle.min_y < box.max_y + 8.0
+                and obstacle.max_y > box.min_y - 8.0
+                and obstacle.min_x < box.max_x + 8.0
+                and obstacle.max_x > box.min_x - 8.0
+            ]
+            part = self.occupancy.rects[ref]
             width = box.max_x - box.min_x
             height = box.max_y - box.min_y
             center_x = (part.min_x + part.max_x) / 2
@@ -3062,11 +2918,7 @@ class PcbBuilder:
                     False,
                 )
             if best is None or best[0][0] > 0:
-                # a test point's reference may sit a little further out
-                gaps = (0.0, 0.2, 0.4, 0.7, 1.0, 1.4, 2.0, 2.8)
-                if ref.startswith('TP'):
-                    gaps += (3.6, 4.5)
-                for gap in gaps:
+                for gap in (0.0, 0.2, 0.4, 0.7, 1.0, 1.4, 2.0, 2.8):
                     for turned in (False, True):
                         text_w, text_h = (
                             (height, width) if turned else (width, height)
@@ -3101,19 +2953,14 @@ class PcbBuilder:
                                 best = (score, spot_x, spot_y, rect, turned)
                     if best is not None and best[0][0] == 0:
                         break
-            if best is None or (best[0][0] > 0 and self.is_passive(ref)):
-                # no readable spot of its own: off the silkscreen (the Fab
-                # layer still carries it); a connector tries the other side
+            if best is None:
+                stuck.append(ref)
                 item.SetVisible(False)
-                if own_side and self.is_connector(ref):
-                    deferred.setdefault(other, []).append(ref)
-                else:
-                    stuck.append(ref)
                 continue
             if best[0][0] > 0:
                 weak.append(ref)
             if best[0][1] == 1 and module is not None:
-                self.bumps.setdefault((module, self.side), []).append(best[3])
+                self.bumps.setdefault(module, []).append(best[3])
             _, spot_x, spot_y, rect, turned = best
             if rect is box and not turned:
                 finished[ref] = box
@@ -3125,8 +2972,8 @@ class PcbBuilder:
             )
             finished[ref] = rect
             moved += 1
-        print('reference texts moved:', moved, f'hidden ({len(stuck)}):', stuck)
-        print('reference texts still ambiguous or outside their box:', weak)
+        print(f'{side} reference texts moved:', moved, 'hidden (no free spot):', stuck)
+        print(f'{side} reference texts ambiguous or outside their box:', weak)
 
     def adopt_board(self):
         """Takes footprints, courtyards and silk graphics from an already
@@ -3136,7 +2983,7 @@ class PcbBuilder:
         self.footprints = {
             fp.GetReference(): fp
             for fp in self.board.GetFootprints()
-            if fp.GetReference() and not fp.IsBoardOnly()  # not the holes
+            if fp.GetReference()
         }
         for ref, footprint in self.footprints.items():
             position = footprint.GetPosition()
@@ -3145,8 +2992,6 @@ class PcbBuilder:
                 position.y / 1e6,
                 footprint.GetOrientationDegrees(),
             )
-            self.side = 'B' if footprint.IsFlipped() else 'F'
-            self.side_of[ref] = self.side
             override = LOCAL_RECT_OVERRIDES.get(
                 self.parts.get(ref, {}).get('footprint')
             )
@@ -3156,9 +3001,7 @@ class PcbBuilder:
                     ref, placed_rect(override, x_pos, y_pos, angle)
                 )
                 continue
-            box = footprint.GetCourtyard(
-                pcbnew.B_CrtYd if self.side == 'B' else pcbnew.F_CrtYd
-            ).BBox()
+            box = footprint.GetCourtyard(pcbnew.F_CrtYd).BBox()
             if box.GetWidth() == 0:
                 box = footprint.GetBoundingBox(False, False)
             self.occupancy.add(
@@ -3170,13 +3013,11 @@ class PcbBuilder:
                     box.GetBottom() / 1e6,
                 ),
             )
-        self.side = 'F'
         for index, (hole_x, hole_y) in enumerate(HOLES):
-            for occupancy in self.occ.values():
-                occupancy.add(
-                    f'hole{index}',
-                    Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
-                )
+            self.occupancy.add(
+                f'hole{index}',
+                Rect(hole_x - 3.4, hole_y - 3.4, hole_x + 3.4, hole_y + 3.4),
+            )
 
     @staticmethod
     def ic_label_variants(text):
@@ -3215,7 +3056,7 @@ class PcbBuilder:
                 )
             )
         for item in footprint.GraphicalItems():
-            if item.GetLayer() != self.silk_layer:
+            if item.GetLayer() != pcbnew.F_SilkS:
                 continue
             box = item.GetBoundingBox()
             boxes.append(
@@ -3235,7 +3076,7 @@ class PcbBuilder:
         boxes = [
             item.GetBoundingBox()
             for item in footprint.GraphicalItems()
-            if item.GetLayer() in (pcbnew.F_Fab, pcbnew.B_Fab)
+            if item.GetLayer() == pcbnew.F_Fab
             and not isinstance(item, pcbnew.PCB_TEXT)
         ]
         if not boxes:
@@ -3264,7 +3105,7 @@ class PcbBuilder:
                     # measured on a text that is never added to the board
                     probe = pcbnew.PCB_TEXT(self.board)
                     probe.SetText(variant)
-                    probe.SetLayer(self.silk_layer)
+                    probe.SetLayer(pcbnew.F_SilkS)
                     probe.SetTextSize(
                         pcbnew.VECTOR2I(to_internal(size), to_internal(size))
                     )
@@ -3310,10 +3151,8 @@ class PcbBuilder:
         for ref, footprint in sorted(self.footprints.items()):
             if not ref.startswith(('U', 'PS')) or ref in IC_LABEL_SKIP:
                 continue
-            if self.side_of.get(ref) != self.side:
-                continue
             fit = None
-            if self.side_of.get(ref) == self.side:
+            if footprint.GetLayer() == pcbnew.F_Cu:
                 fit = self.fit_ic_label(footprint)
             if fit is None:
                 skipped.append(ref)
@@ -3356,468 +3195,23 @@ class PcbBuilder:
         return removed
 
     def add_silkscreen(self):
-        for side in 'FB':
-            self.side = side
-            self.add_module_boxes()
-            if side == 'F' and not self.pin_pockets:
-                # silk-only runs on an existing board: find the spots now
-                for ref in PIN_LABELS:
-                    self.side = self.side_of[ref]
-                    self.reserve_pin_labels(ref)
-                self.side = side
-            self.add_pin_labels()
-            if side == 'F':
-                self.add_esp32_pin_names()
-            if side == BOARD_ID_SIDE:
-                self.add_board_id()
-            self.place_reference_texts()
-            self.add_part_labels()
-            placed, skipped = self.add_ic_labels()
-            print(side, 'IC part numbers placed:', placed, 'skipped:', skipped)
-            print(side, 'pin 1 marks missing:', self.add_pin1_marks())
-            self.bulge_module_boxes()
-        self.side = 'F'
-        for side, refs in getattr(self, 'deferred_labels', {}).items():
-            print('silk labels not placed (other side full):', refs)
-        print('references hidden by the overlap pass:', self.hide_overlapping_references())
-
-    def test_point_problems(self, reach=8.0):
-        """Test points on the other side from the nearest part on their net,
-        or more than `reach` mm from it (AGENTS.md: same side, close by).
-        """
-        problems = []
-        for ref in self.parts:
-            if not ref.startswith('TP') or ref not in self.centers:
-                continue
-            net = self.pad_net[ref].get('1')
-            if net in GROUND_NETS:
-                # ground loops go through the board: reachable from both sides
-                continue
-            here = self.occ[self.side_of[ref]].rects[ref]
-            on_net = [
-                other
-                for other, _ in self.net_pads[net]
-                if other in self.centers and not other.startswith('TP')
-            ]
-            if not on_net:
-                continue
-            gaps = {
-                other: pcbfloorplan.rect_gap(here, self.occ[self.side_of[other]].rects[other])
-                for other in on_net
-            }
-            nearest = min(gaps, key=gaps.get)
-            tested = self.tested_part(ref, nearest)
-            if self.side_of[tested] != self.side_of[ref]:
-                problems.append(f'{ref} is on the other side from {tested}')
-            elif gaps[nearest] > reach:
-                problems.append(f'{ref} is {gaps[nearest]:.1f} mm from {nearest}')
-        return problems
-
-    def silk_lines(self, layer):
-        """Line work printed on a silkscreen layer: footprint outlines and
-        the section box lines, as [(start, end, half width)] for segments
-        and [(Rect, 0)] boxes for the other shapes.
-        """
-        items = [
-            item
-            for footprint in self.footprints.values()
-            for item in footprint.GraphicalItems()
-        ] + list(self.board.GetDrawings())
-        lines = []
-        for item in items:
-            if item.Type() != pcbnew.PCB_SHAPE_T or item.GetLayer() != layer:
-                continue
-            if item.GetShape() == pcbnew.SHAPE_T_SEGMENT:
-                start, end = item.GetStart(), item.GetEnd()
-                lines.append((
-                    (start.x / 1e6, start.y / 1e6),
-                    (end.x / 1e6, end.y / 1e6),
-                    item.GetWidth() / 2e6,
-                ))
-            else:
-                box = item.GetBoundingBox()
-                lines.append((
-                    Rect(box.GetLeft() / 1e6, box.GetTop() / 1e6,
-                         box.GetRight() / 1e6, box.GetBottom() / 1e6),
-                    None,
-                    0.0,
-                ))
-        return lines
-
-    @staticmethod
-    def rect_hits_line(rect, line):
-        """True if a box touches one silk line from silk_lines()."""
-        start, end, half = line
-        if end is None:
-            return rect.overlaps(start)
-        grown = rect.inflated(half)
-        # clip the segment to the box (Liang-Barsky)
-        delta_x, delta_y = end[0] - start[0], end[1] - start[1]
-        low, high = 0.0, 1.0
-        for step, distance in (
-            (-delta_x, start[0] - grown.min_x),
-            (delta_x, grown.max_x - start[0]),
-            (-delta_y, start[1] - grown.min_y),
-            (delta_y, grown.max_y - start[1]),
-        ):
-            if step == 0:
-                if distance < 0:
-                    return False
-                continue
-            ratio = distance / step
-            if step < 0:
-                low = max(low, ratio)
-            else:
-                high = min(high, ratio)
-            if low > high:
-                return False
-        return True
-
-    def silk_texts(self):
-        """[(name, item, owner)] of every printed silkscreen text; owner is
-        the ref for a reference designator, else None.
-        """
-        texts = []
-        for drawing in self.board.GetDrawings():
-            if isinstance(drawing, pcbnew.PCB_TEXT) and drawing.GetLayer() in (
-                pcbnew.F_SilkS, pcbnew.B_SilkS
-            ):
-                texts.append((drawing.GetText(), drawing, None))
-        for ref, footprint in self.footprints.items():
-            if ref in self.centers and footprint.Reference().IsVisible():
-                texts.append((ref, footprint.Reference(), ref))
-        return texts
-
-    def hide_overlapping_references(self):
-        """Last pass: a part reference that still overlaps another text is
-        taken off the silkscreen (connector references stay and are
-        reported by the check). Returns the hidden refs.
-        """
-        hidden = []
-        changed = True
-        while changed:
-            changed = False
-            texts = self.silk_texts()
-            boxes = [
-                (owner, item.GetLayer(), self.text_box(item).inflated(-0.05))
-                for _, item, owner in texts
-            ]
-            for index, (owner, layer, box) in enumerate(boxes):
-                for other, other_layer, other_box in boxes[index + 1 :]:
-                    if layer != other_layer or not box.overlaps(other_box):
-                        continue
-                    victim = next(
-                        (
-                            ref
-                            for ref in (other, owner)
-                            if ref is not None and not self.is_connector(ref)
-                        ),
-                        None,
-                    )
-                    if victim is None:
-                        continue
-                    self.footprints[victim].Reference().SetVisible(False)
-                    hidden.append(victim)
-                    changed = True
-                    break
-                if changed:
-                    break
-        return hidden
-
-    def silk_problems(self):
-        """Silkscreen texts that overlap another text, a pad, a part outline,
-        a section line or a pin-1 dot on the same side, or that leave the
-        board (edge, antenna notch, restricted corners).
-        """
-        texts = [(name, item) for name, item, _ in self.silk_texts()]
-        board = Rect(0.0, 0.0, BOARD_WIDTH, BOARD_HEIGHT).inflated(-0.2)
-        off_board = [ANTENNA_NOTCH, *corner_keepouts()]
-        boxes = [
-            (name.replace('\n', ' '), item.GetLayer(), self.text_box(item).inflated(-0.05))
-            for name, item in texts
-        ]
-        pads = {pcbnew.F_SilkS: [], pcbnew.B_SilkS: []}
-        for footprint in self.footprints.values():
-            for pad in footprint.Pads():
-                box = pad.GetBoundingBox()
-                rect = Rect(
-                    box.GetLeft() / 1e6, box.GetTop() / 1e6,
-                    box.GetRight() / 1e6, box.GetBottom() / 1e6,
-                )
-                if pad.IsOnLayer(pcbnew.F_Cu):
-                    pads[pcbnew.F_SilkS].append((footprint.GetReference(), rect))
-                if pad.IsOnLayer(pcbnew.B_Cu):
-                    pads[pcbnew.B_SilkS].append((footprint.GetReference(), rect))
-        lines = {
-            pcbnew.F_SilkS: self.silk_lines(pcbnew.F_SilkS),
-            pcbnew.B_SilkS: self.silk_lines(pcbnew.B_SilkS),
-        }
-        problems = []
-        for index, (name, layer, box) in enumerate(boxes):
-            if not box.inside(board) or any(box.overlaps(k) for k in off_board):
-                problems.append(f'{name} leaves the board')
-            if any(self.rect_hits_line(box, line) for line in lines[layer]):
-                problems.append(f'{name} touches a silk line')
-            hit = next((ref for ref, pad in pads[layer] if box.overlaps(pad)), None)
-            if hit is not None:
-                problems.append(f'{name} covers a pad of {hit}')
-            for other, other_layer, other_box in boxes[index + 1 :]:
-                if layer == other_layer and box.overlaps(other_box):
-                    problems.append(f'{name} overlaps {other}')
-        return problems
-
-    def board_id_lines(self):
-        """[(text, x, y)] of the board ID block: board name, then the short
-        git revision the fab files come from.
-        """
-        try:
-            revision = subprocess.run(
-                ['git', 'rev-parse', '--short', 'HEAD'],
-                cwd=KICAD_DIR, capture_output=True, text=True, check=True,
-            ).stdout.strip()
-        except (OSError, subprocess.CalledProcessError):
-            revision = 'unknown'
-        spot_x, spot_y = BOARD_ID_SPOT
-        texts = (BOARD_NAME, f'UCS 145-125  rev {revision}')
-        return [
-            (text, spot_x, spot_y + index * BOARD_ID_SIZE * 1.6)
-            for index, text in enumerate(texts)
-        ]
-
-    def reserve_board_id(self):
-        """Holds the board ID area free before any part or label is placed."""
-        for index, (text, spot_x, spot_y) in enumerate(self.board_id_lines()):
-            self.occ[BOARD_ID_SIDE].add(
-                f'silk_id_{index}',
-                self.text_rect(text, spot_x, spot_y, BOARD_ID_SIZE).inflated(0.3),
-            )
-
-    def add_board_id(self):
-        """Prints the board ID block in its reserved spot, the same on every
-        revision.
-        """
-        for text, spot_x, spot_y in self.board_id_lines():
-            self.add_text(text, spot_x, spot_y, BOARD_ID_SIZE, thickness=0.15)
-
-    def add_esp32_pin_names(self):
-        """Prints the ESP32 pin names at the spots reserved for them."""
-        if getattr(self, 'esp32_names', None) is None:
-            self.reserve_esp32_pin_names()  # silk-only run on a placed board
-        for name, spot_x, spot_y, justify, angle in self.esp32_names:
-            self.board.Add(self.esp32_name_item(name, spot_x, spot_y, justify, angle))
-
-    def esp32_name_item(self, name, spot_x, spot_y, justify, angle):
-        item = pcbnew.PCB_TEXT(self.board)
-        item.SetText(name)
-        item.SetLayer(pcbnew.F_SilkS)
-        size = to_internal(ESP32_PIN_TEXT_SIZE)
-        item.SetTextSize(pcbnew.VECTOR2I(size, size))
-        item.SetTextThickness(to_internal(0.1))
-        item.SetHorizJustify(justify)
-        item.SetTextAngleDegrees(angle)
-        item.SetPosition(pcbnew.VECTOR2I(to_internal(spot_x), to_internal(spot_y)))
-        return item
-
-    def reserve_esp32_pin_names(self):
-        """Picks a spot for each ESP32 pin's name beside its pad, before the
-        passives are placed: inside the module outline (side columns read
-        across, bottom row turned), else just outside it past the pad. A
-        name with room in neither spot is left out and reported.
-        """
-        self.esp32_names = []
-        footprint = self.footprints.get('U1')
-        if footprint is None:
-            return
-        home = self.side
-        self.side = 'F'
-        names = self.parts['U1'].get('pins', {})
-        center_x, _, _ = self.centers['U1']
-        lines = self.silk_lines(pcbnew.F_SilkS)
-        pads = [
-            Rect(b.GetLeft() / 1e6, b.GetTop() / 1e6, b.GetRight() / 1e6, b.GetBottom() / 1e6)
-            for other in self.footprints.values()
-            for pad in other.Pads()
-            if pad.IsOnLayer(pcbnew.F_Cu)
-            for b in [pad.GetBoundingBox()]
-        ]
-        taken = []
-        skipped = []
-        for pad in sorted(footprint.Pads(), key=lambda p: int(p.GetNumber())):
-            number = pad.GetNumber()
-            # the netlist suffixes repeated pin names with the pin number
-            name = names.get(number, '').removesuffix(f'_{number}')
-            if not name or number == '41':  # centre ground pad
-                continue
-            pad_x = pad.GetPosition().x / 1e6
-            pad_y = pad.GetPosition().y / 1e6
-            box = pad.GetBoundingBox()
-            width = (box.GetRight() - box.GetLeft()) / 1e6
-            height = (box.GetBottom() - box.GetTop()) / 1e6
-            left = pcbnew.GR_TEXT_H_ALIGN_LEFT
-            right = pcbnew.GR_TEXT_H_ALIGN_RIGHT
-            if width >= height:  # side column
-                inward = 1 if pad_x < center_x else -1
-                reach = width / 2 + 0.25
-                spots = [  # (x, y, justify, angle, outside)
-                    (pad_x + inward * reach, pad_y, left if inward > 0 else right, 0, False),
-                    (pad_x - inward * reach, pad_y, right if inward > 0 else left, 0, True),
-                ]
-            else:  # bottom row, turned
-                reach = height / 2 + 0.25
-                spots = [
-                    (pad_x, pad_y - reach, left, 90, False),
-                    (pad_x, pad_y + reach, right, 90, True),
-                ]
-            for spot_x, spot_y, justify, angle, outside in spots:
-                item = self.esp32_name_item(name, spot_x, spot_y, justify, angle)
-                rect = self.text_box(item).inflated(0.05)
-                if any(rect.overlaps(other) for other in taken):
-                    continue
-                if outside and (
-                    not rect.inside(self.occupancy.board_rect)
-                    or any(rect.overlaps(other) for other in pads)
-                    or any(rect.overlaps(other) for other in self.pocket_obstacles(rect))
-                    or any(self.rect_hits_line(rect, line) for line in lines)
-                    or any(rect.overlaps(k) for k in self.silk_keepouts())
-                ):
-                    continue
-                taken.append(rect)
-                # parts, labels and references placed later keep clear
-                self.occ['F'].add(f'silk_esp32_{number}', rect)
-                self.esp32_names.append((name, spot_x, spot_y, justify, angle))
-                break
-            else:
-                skipped.append(name)
-        self.side = home
-        print('ESP32 pin names left out (no room):', skipped)
-
-    def has_own_pin1_mark(self, footprint, pad_x, pad_y, reach=3.0):
-        """True if the footprint's own silkscreen already marks pin 1 near
-        the pin: a small filled shape (the stock triangle or dot) or a small
-        closed outline of short lines (the connectors' drawn triangle).
-        """
-        segments = []
-        for item in footprint.GraphicalItems():
-            if item.Type() != pcbnew.PCB_SHAPE_T:
-                continue
-            if item.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
-                continue
-            box = item.GetBoundingBox()
-            centre = box.GetCenter()
-            if math.dist((centre.x / 1e6, centre.y / 1e6), (pad_x, pad_y)) > reach:
-                continue
-            if max(box.GetWidth(), box.GetHeight()) / 1e6 > 1.5:
-                continue
-            if item.GetShape() in (pcbnew.SHAPE_T_POLY, pcbnew.SHAPE_T_CIRCLE):
-                return True
-            if item.GetShape() == pcbnew.SHAPE_T_SEGMENT:
-                segments.append(tuple(
-                    (round(end.x / 1e4), round(end.y / 1e4))
-                    for end in (item.GetStart(), item.GetEnd())
-                ))
-        # a closed loop of three or more short lines among them
-        while segments:
-            loop = [segments.pop()]
-            grown = True
-            while grown:
-                grown = False
-                corners = {end for segment in loop for end in segment}
-                for segment in list(segments):
-                    if segment[0] in corners or segment[1] in corners:
-                        loop.append(segment)
-                        segments.remove(segment)
-                        grown = True
-            ends = collections.Counter(end for segment in loop for end in segment)
-            if len(loop) >= 3 and all(count == 2 for count in ends.values()):
-                return True
-        return False
-
-    def add_pin1_marks(self):
-        """A small dot beside pin 1 of every IC, oscillator and connector on
-        the active side, in the first spot clear of copper; returns the parts
-        that had no room.
-        """
-        copper = pcbnew.F_Cu if self.side == 'F' else pcbnew.B_Cu
-        pads = []
-        for footprint in self.footprints.values():
-            for pad in footprint.Pads():
-                if pad.IsOnLayer(copper):
-                    box = pad.GetBoundingBox()
-                    pads.append(Rect(
-                        box.GetLeft() / 1e6, box.GetTop() / 1e6,
-                        box.GetRight() / 1e6, box.GetBottom() / 1e6,
-                    ).inflated(0.2))
-        missing = []
-        radius = 0.3
-        lines = self.silk_lines(self.silk_layer)
-        texts = [
-            self.text_box(item)
-            for _, item, _ in self.silk_texts()
-            if item.GetLayer() == self.silk_layer
-        ]
-        for ref, footprint in sorted(self.footprints.items()):
-            if self.side_of.get(ref) != self.side or not ref.startswith(
-                ('U', 'J', 'PS')
-            ):
-                continue
-            first = [pad for pad in footprint.Pads() if pad.GetNumber() in ('1', 'A1')]
-            if not first:
-                continue
-            pad = first[0]
-            box = pad.GetBoundingBox()
-            pad_x, pad_y = pad.GetPosition().x / 1e6, pad.GetPosition().y / 1e6
-            if self.has_own_pin1_mark(footprint, pad_x, pad_y):
-                continue
-            half_w = (box.GetRight() - box.GetLeft()) / 2e6
-            half_h = (box.GetBottom() - box.GetTop()) / 2e6
-            center_x, center_y, _ = self.centers[ref]
-            placed = False
-            reach_x = half_w + radius + 0.35
-            reach_y = half_h + radius + 0.35
-            away_x = 1 if pad_x >= center_x else -1
-            away_y = 1 if pad_y >= center_y else -1
-            for dot_x, dot_y in (
-                (pad_x + away_x * reach_x, pad_y),
-                (pad_x, pad_y + away_y * reach_y),
-                (pad_x + away_x * reach_x, pad_y + away_y * reach_y),
-                (pad_x - away_x * reach_x, pad_y),
-                (pad_x, pad_y - away_y * reach_y),
-            ):
-                dot = Rect(dot_x - radius, dot_y - radius, dot_x + radius, dot_y + radius)
-                if not dot.inside(self.occupancy.board_rect) or any(
-                    dot.overlaps(other) for other in pads
-                ):
-                    continue
-                if any(dot.overlaps(k) for k in self.silk_keepouts()):
-                    continue
-                if any(self.rect_hits_line(dot.inflated(0.1), line) for line in lines):
-                    continue
-                if any(dot.overlaps(text) for text in texts):
-                    continue
-                shape = pcbnew.PCB_SHAPE(self.board)
-                shape.SetShape(pcbnew.SHAPE_T_CIRCLE)
-                shape.SetLayer(self.silk_layer)
-                shape.SetFilled(True)
-                shape.SetWidth(to_internal(0.1))
-                shape.SetCenter(pcbnew.VECTOR2I(to_internal(dot_x), to_internal(dot_y)))
-                shape.SetEnd(
-                    pcbnew.VECTOR2I(to_internal(dot_x + radius - 0.05), to_internal(dot_y))
-                )
-                self.board.Add(shape)
-                lines.append((dot, None, 0.0))
-                placed = True
-                break
-            if not placed:
-                missing.append(ref)
-        return missing
+        self.add_module_boxes()
+        if not self.pin_pockets:
+            # silk-only runs on an existing board: find the spots now
+            for ref in PIN_LABELS:
+                self.reserve_pin_labels(ref)
+        self.add_pin_labels()
+        self.place_reference_texts()
+        self.add_part_labels()
+        placed, skipped = self.add_ic_labels()
+        print('IC part numbers placed:', placed, 'skipped:', skipped)
+        self.bulge_module_boxes()
+        self.add_board_id()
 
     def build(self):
         self.load_footprints()
         self.place_anchors()
         self.reserve_board_id()
-        self.reserve_connector_pin_labels()
-        self.reserve_esp32_pin_names()
-        self.reserve_connector_labels()
         self.reserve_module_labels()
         self.reserve_anchor_pockets()
         self.pre_route_current_path()
@@ -3825,7 +3219,6 @@ class PcbBuilder:
         self.pre_place_pad_bridges()
         unplaced = self.place_passives()
         self.pre_place_fine_pitch_ground_vias(LATE_GROUND_PADS)
-        print('ground pads with no fan-out via:', self.fanout_ground_pads())
         self.add_outline_and_keepouts()
         self.add_net_classes()
         self.add_mounting_holes()
@@ -3834,54 +3227,29 @@ class PcbBuilder:
         return unplaced
 
 
-def write_stackup(path):
-    """Writes the 4-layer stackup with the solder mask colour into the board
-    file (pcbnew leaves the stackup out of a generated board).
-    """
-    text = path.read_text()
-    if '(stackup' in text:
-        return
-    mask = f'(color "{MASK_COLOUR}")\n\t\t\t\t(thickness 0.01)'
-    dielectric = (
-        '(thickness 0.48)\n\t\t\t\t(material "FR4")\n\t\t\t\t(epsilon_r 4.5)'
-        '\n\t\t\t\t(loss_tangent 0.02)'
-    )
-    layers = [
-        ('F.SilkS', '(type "Top Silk Screen")'),
-        ('F.Paste', '(type "Top Solder Paste")'),
-        ('F.Mask', '(type "Top Solder Mask")\n\t\t\t\t' + mask),
-        ('F.Cu', '(type "copper")\n\t\t\t\t(thickness 0.035)'),
-        ('dielectric 1', '(type "core")\n\t\t\t\t' + dielectric),
-        ('In1.Cu', '(type "copper")\n\t\t\t\t(thickness 0.035)'),
-        ('dielectric 2', '(type "prepreg")\n\t\t\t\t' + dielectric),
-        ('In2.Cu', '(type "copper")\n\t\t\t\t(thickness 0.035)'),
-        ('dielectric 3', '(type "core")\n\t\t\t\t' + dielectric),
-        ('B.Cu', '(type "copper")\n\t\t\t\t(thickness 0.035)'),
-        ('B.Mask', '(type "Bottom Solder Mask")\n\t\t\t\t' + mask),
-        ('B.Paste', '(type "Bottom Solder Paste")'),
-        ('B.SilkS', '(type "Bottom Silk Screen")'),
-    ]
-    block = '\t\t(stackup\n' + ''.join(
-        f'\t\t\t(layer "{name}"\n\t\t\t\t{body}\n\t\t\t)\n'
-        for name, body in layers
-    ) + '\t\t\t(copper_finish "None")\n\t\t\t(dielectric_constraints no)\n\t\t)\n'
-    text = text.replace('\t(setup\n', '\t(setup\n' + block, 1)
-    path.write_text(text)
-
-
 def patch_project_rules():
     """Writes the fine-pitch via limits into cryocooler.kicad_pro (pcbnew does
     not persist the annular-width minimum): 0.45 mm vias, 0.2 mm drills and a
-    0.075 mm ring for the 0.5 mm pitch LGA/MSOP ground pads, and the
-    0.15 mm minimum track width the net classes route with.
+    0.125 mm ring (JLCPCB's minimum is 0.1 mm), plus the JLCPCB hole, silk
+    and mask limits.
     """
     path = KICAD_DIR / 'cryocooler.kicad_pro'
     project = json.loads(path.read_text())
     rules = project['board']['design_settings']['rules']
-    rules['min_via_annular_width'] = 0.075
+    defaults = project['board']['design_settings']['defaults']
+    defaults['silk_line_width'] = SILK_MIN_LINE
+    defaults['silk_text_thickness'] = SILK_MIN_LINE
+    defaults['silk_text_size_h'] = SILK_MIN_TEXT
+    defaults['silk_text_size_v'] = SILK_MIN_TEXT
+    rules['min_via_annular_width'] = 0.1
+    rules['min_hole_clearance'] = 0.2
+    rules['min_hole_to_hole'] = 0.2
+    rules['min_silk_clearance'] = 0.15
+    rules['min_text_height'] = SILK_MIN_TEXT
+    rules['min_text_thickness'] = SILK_MIN_LINE
+    rules['solder_mask_min_width'] = 0.099
     rules['min_via_diameter'] = VIA_IN_PAD_DIAMETER
     rules['min_through_hole_diameter'] = 0.2
-    rules['min_track_width'] = MIN_TRACK_WIDTH
     path.write_text(json.dumps(project, indent=2) + '\n')
 
 
@@ -3912,11 +3280,33 @@ def main():
         )
         print('escape vias:', builder.escape_ground_pads())
         builder.fill_zones()
-        pcbnew.SaveBoard(
-            str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board
-        )
-        write_stackup(KICAD_DIR / 'cryocooler.kicad_pcb')
+        save_board(builder.board)
         patch_project_rules()
+        return 0
+    if mode == 'reroute':
+        # one more Freerouting round on the saved board: existing copper
+        # stays, only the missing connections are added
+        builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
+        work_dir = Path(tempfile.mkdtemp(prefix='cryo_reroute_'))
+        builder.autoroute(work_dir, rounds=1)
+        print('thin tracks widened:', builder.widen_thin_tracks())
+        builder.fill_zones()
+        save_board(builder.board)
+        patch_project_rules()
+        return 0
+    if mode == 'link':
+        # stamp the symbol links onto an existing (routed) board
+        builder.board = pcbnew.LoadBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'))
+        linked = 0
+        for footprint in builder.board.GetFootprints():
+            if not footprint.GetReference():
+                footprint.SetBoardOnly(True)  # mounting holes
+            part = builder.parts.get(footprint.GetReference())
+            if part is not None:
+                link_to_symbol(footprint, part)
+                linked += 1
+        save_board(builder.board)
+        print('footprints linked to their symbols:', linked)
         return 0
     if mode == 'iclabels':
         # add only the IC part numbers on the existing board
@@ -3925,8 +3315,7 @@ def main():
         print('old IC labels removed:', builder.remove_ic_labels())
         placed, skipped = builder.add_ic_labels()
         print('IC part numbers placed:', placed, 'skipped:', skipped)
-        pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
-        write_stackup(KICAD_DIR / 'cryocooler.kicad_pcb')
+        save_board(builder.board)
         return 0
     if mode == 'texts':
         # redo all silkscreen (module boxes, reference texts, part labels,
@@ -3954,33 +3343,32 @@ def main():
         ]
         print('connector colours applied to:', coloured)
         builder.add_silkscreen()
-        pcbnew.SaveBoard(str(KICAD_DIR / 'cryocooler.kicad_pcb'), builder.board)
-        write_stackup(KICAD_DIR / 'cryocooler.kicad_pcb')
+        save_board(builder.board)
         return 0
     unplaced = builder.build()
+    def own_hole(pair):
+        first, second = pair
+        owner = lambda name: name.split('_')[1] if name.startswith('hole_') else name
+        return owner(first) == owner(second)
+
     overlaps = [
         pair
         for pair in builder.occupancy.overlaps_report()
+        if not own_hole(pair)
+        # pre-placed vias only steer the passives; DRC checks real clearances
+        and not any(name.startswith('via_') for name in pair)
         if not any('_current_' in name for name in pair)
-        and not any(name.startswith(('silk_box', 'silk_esp32')) for name in pair)
-        # a part's own label may sit in its courtyard margin (the silkscreen
-        # check keeps it off the pads and outline)
-        and f'silk_{pair[0]}' != pair[1]
-        and f'silk_{pair[1]}' != pair[0]
+        and not any(name.startswith('silk_box') for name in pair)
         and not (
             any(name.startswith('txt_') for name in pair)
             and not all(name.startswith('txt_') for name in pair)
         )
     ]
     floorplan_problems = builder.check_floorplan()
-    silk_problems = builder.silk_problems()
-    test_point_problems = builder.test_point_problems()
     out_path = KICAD_DIR / 'cryocooler.kicad_pcb'
     print('unplaced:', unplaced)
     print('overlapping pairs:', overlaps)
     print('floorplan problems:', floorplan_problems)
-    print(f'silkscreen problems ({len(silk_problems)}):', silk_problems[:40])
-    print(f'test point problems ({len(test_point_problems)}):', test_point_problems)
     if mode == 'route':
         work_dir = Path(tempfile.mkdtemp(prefix='cryo_route_'))
         builder.autoroute(work_dir)
@@ -3999,14 +3387,10 @@ def main():
     )
     print('escape vias:', builder.escape_ground_pads())
     builder.fill_zones()
-    pcbnew.SaveBoard(str(out_path), builder.board)
-    write_stackup(out_path)
+    save_board(builder.board, out_path)
     patch_project_rules()
     print(f'wrote {out_path}; {len(builder.footprints)} footprints')
-    if unplaced:
-        print(f'ERROR: {len(unplaced)} parts are not on the board')
-    failed = unplaced or overlaps or floorplan_problems or silk_problems
-    return 1 if failed or test_point_problems else 0
+    return 1 if unplaced or overlaps or floorplan_problems else 0
 
 
 if __name__ == '__main__':

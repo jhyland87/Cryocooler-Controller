@@ -87,32 +87,48 @@ RULES = [
     ('res', 'LT3097ADJC', '4', '62k', 'GND'),
     ('res', 'LT3097ADJC', '9', '220k', '+15V'),
     ('res', 'LT3097ADJC', '9', '62k', 'GND'),
-    # ADP5071 (datasheet Fig. 47)
-    ('net', 'ADP5071AREZ', '17', '+5V_PS15'),
-    ('net', 'ADP5071AREZ', '18', '+5V_PS15'),
-    ('net', 'ADP5071AREZ', '19', '+5V_PS15'),
-    ('net', 'ADP5071AREZ', '9', '+5V_PS15'),
-    ('net', 'ADP5071AREZ', '11', '+5V_PS15'),
-    ('net', 'ADP5071AREZ', '4', 'GND'),
-    ('net', 'ADP5071AREZ', '1', 'GND'),
-    ('net', 'ADP5071AREZ', '15', 'GND'),
-    ('res', 'ADP5071AREZ', '7', '2.67M', '+16V5'),
-    ('res', 'ADP5071AREZ', '7', '137k', 'GND'),
-    ('resjoin', 'ADP5071AREZ', '13', '118k', 'ADP5071AREZ', '14'),
-    ('res', 'ADP5071AREZ', '13', '2.55M', '-16V5'),
+    # LT8582 (datasheet p.30 / p.32): VIN and SHDN on the 5 V input, SYNC1
+    # grounded, CLKOUT1 -> SYNC2, RT 53.6k (1.5 MHz), master + slave switches
+    # tied, RFBX = (VOUT - 1.204) / 83.3 uA and (|VOUT| + 7 mV) / 83.3 uA
+    ('net', 'LT8582EDKD#PBF', '2', '+5V_PS15'),
+    ('net', 'LT8582EDKD#PBF', '11', '+5V_PS15'),
+    ('net', 'LT8582EDKD#PBF', '22', '+5V_PS15'),
+    ('net', 'LT8582EDKD#PBF', '15', '+5V_PS15'),
+    ('net', 'LT8582EDKD#PBF', '25', 'GND'),
+    ('net', 'LT8582EDKD#PBF', '19', 'GND'),
+    ('same', 'LT8582EDKD#PBF', '23', '18'),
+    ('nc', 'LT8582EDKD#PBF', '14'),
+    ('same', 'LT8582EDKD#PBF', '1', '24'),
+    ('same', 'LT8582EDKD#PBF', '12', '13'),
+    ('res', 'LT8582EDKD#PBF', '21', '53.6k', 'GND'),
+    ('res', 'LT8582EDKD#PBF', '16', '53.6k', 'GND'),
+    ('res', 'LT8582EDKD#PBF', '6', '182k', '+16V5'),
+    ('res', 'LT8582EDKD#PBF', '7', '198k', '-16V5'),
+    ('net', 'LT8582EDKD#PBF', '3', 'PGP_16V5'),
+    ('net', 'LT8582EDKD#PBF', '10', 'PGN_16V5'),
+    ('between', 'XAL6060-472MEB', ('NET', '+5V_PS15'), ('LT8582EDKD#PBF', '1')),
+    # MSD7342: winding 1-3 (dot 1) from VIN to SW2, winding 2-4 (dot 2) from
+    # node X to VOUT; C1 couples SW2 to node X
+    ('net', 'MSD7342-103MLC', '1', '+5V_PS15'),
+    ('join', 'MSD7342-103MLC', '3', 'LT8582EDKD#PBF', '12'),
+    ('net', 'MSD7342-103MLC', '2', '-16V5'),
+    ('between', '2.2uF/50V', ('LT8582EDKD#PBF', '12'), ('MSD7342-103MLC', '4')),
     # J14: off-board Adafruit LSM6DSOX module. Pins 1-8 follow the module's
     # pads (Vin, GND, SCL, SDA, DO, CS, INT1, INT2); its 3Vo pad is not
     # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
     # 100 R series resistor next to the connector; CS keeps a 10 k pull-up on
     # the board side so it idles high with the cable unplugged.
-    ('net', 'IMU LSM6DSOX module', '1', '+3V3'),
-    ('net', 'IMU LSM6DSOX module', '2', 'GND'),
-    ('between', '100', ('NET', 'SPI_SCK'), ('IMU LSM6DSOX module', '3')),
-    ('between', '100', ('NET', 'SPI_MOSI'), ('IMU LSM6DSOX module', '4')),
-    ('between', '100', ('NET', 'SPI_MISO'), ('IMU LSM6DSOX module', '5')),
-    ('between', '100', ('NET', 'IMU_CS'), ('IMU LSM6DSOX module', '6')),
-    ('between', '100', ('NET', 'IMU_INT1'), ('IMU LSM6DSOX module', '7')),
-    ('between', '100', ('NET', 'IMU_INT2'), ('IMU LSM6DSOX module', '8')),
+    # J14 is a plain shielded RJ45 (RJSSE-5380), T568B pairs 1-2 SCK/GND,
+    # 3-6 MOSI/MISO, 4-5 +3V3/CS, 7-8 INT1/INT2; shield to GND
+    ('net', 'RJSSE-5380', '4', '+3V3'),
+    ('net', 'RJSSE-5380', '2', 'GND'),
+    ('net', 'RJSSE-5380', 'SH', 'GND'),
+    ('between', '100', ('NET', 'SPI_SCK'), ('RJSSE-5380', '1')),
+    ('between', '100', ('NET', 'SPI_MOSI'), ('RJSSE-5380', '3')),
+    ('between', '100', ('NET', 'SPI_MISO'), ('RJSSE-5380', '6')),
+    ('between', '100', ('NET', 'IMU_CS'), ('RJSSE-5380', '5')),
+    ('between', '100', ('NET', 'IMU_INT1'), ('RJSSE-5380', '7')),
+    ('between', '100', ('NET', 'IMU_INT2'), ('RJSSE-5380', '8')),
     # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
     ('net', 'EN SG3', '1', '+3V3'),
     ('net', 'EN SG3', '2', '+3V3_SG'),
@@ -188,7 +204,7 @@ RULES = [
     ('net', 'ADS1220IPW', '1', 'SPI_SCK'),
     ('net', 'ADS1220IPW', '16', 'SPI_MOSI'),
     ('net', 'ADS1220IPW', '15', 'SPI_MISO'),
-    ('res', 'ADS1220IPW', '2', '10k', '+3V3'),
+    ('res', 'ADS1220IPW', '2', '10k', '+3V3_CH'),  # switched: no back-feed
     ('res', 'ADS1220IPW', '14', '10k', '+3V3_CH'),
     # SC18IS604 (SPI to I2C bridge, NXP rev 1.0 TSSOP16): VDD and VREFP on
     # 3.3 V, VSS on GND, CS/RESET/INT# pulled up, I2C pull-ups, MISO gated by
@@ -214,11 +230,13 @@ RULES = [
     ('net', '74LVC1G125', '4', 'SPI_MISO'),
     ('net', '74LVC1G125', '5', '+3V3_COOL'),
     ('net', '74LVC1G125', '3', 'GND'),
-    ('nc', 'SC18IS604PW', '9'),
-    ('nc', 'SC18IS604PW', '16'),
-    ('nc', 'SC18IS604PW', '7'),
-    ('nc', 'SC18IS604PW', '6'),
-    ('nc', 'SC18IS604PW', '5'),
+    # GPIO0-3 (pins 9, 16, 7, 6) are configurable, GPIO4 (pin 5) is
+    # input-only; all start as inputs after reset
+    ('net', 'SC18IS604PW', '9', 'DISP_BL_EN'),
+    ('net', 'SC18IS604PW', '16', 'PGP_15V'),
+    ('net', 'SC18IS604PW', '7', 'PGN_15V'),
+    ('net', 'SC18IS604PW', '6', 'PGP_16V5'),
+    ('net', 'SC18IS604PW', '5', 'PGN_16V5'),
     # compressor relay driver (same stage as the amplifier REM switch)
     ('net', 'BSS138', '2', 'GND'),
     ('net', 'BSS84', '2', '+12V'),
@@ -250,13 +268,39 @@ RULES = [
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '28'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '29'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '30'),
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '24'),
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '25'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '24', 'DISP_CS'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '25', 'DISP_DC'),
     # ACS_CS is on GPIO17 (module pin 10), not GPIO43 / U0TXD (pin 37), which
     # toggles with ROM boot messages; it carries the power-good flag (active
     # low) behind a 1k series resistor
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '37', 'PG_15V_N'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '10', '10k', '+3V3'),
+    # Phoenix 2.4" display FPC (datasheet 109921 p.7) and TSC2046 (TI SBAS417)
+    ('net', 'FH12-14S-0.5SH(55)', '5', 'GND'),
+    ('net', 'FH12-14S-0.5SH(55)', '6', '+3V3'),
+    ('net', 'FH12-14S-0.5SH(55)', '7', 'DISP_CS'),
+    ('net', 'FH12-14S-0.5SH(55)', '8', 'DISP_RST'),
+    ('net', 'FH12-14S-0.5SH(55)', '9', 'DISP_DC'),
+    ('net', 'FH12-14S-0.5SH(55)', '10', 'SPI_SCK'),
+    ('net', 'FH12-14S-0.5SH(55)', '11', 'SPI_MOSI'),
+    ('nc', 'FH12-14S-0.5SH(55)', '12'),
+    ('res', 'FH12-14S-0.5SH(55)', '13', '39', '+5V'),
+    ('join', 'FH12-14S-0.5SH(55)', '4', 'TSC2046EIPW', '2'),
+    ('join', 'FH12-14S-0.5SH(55)', '1', 'TSC2046EIPW', '3'),
+    ('join', 'FH12-14S-0.5SH(55)', '2', 'TSC2046EIPW', '4'),
+    ('join', 'FH12-14S-0.5SH(55)', '3', 'TSC2046EIPW', '5'),
+    ('net', 'TSC2046EIPW', '1', '+3V3'),
+    ('net', 'TSC2046EIPW', '10', '+3V3'),
+    ('net', 'TSC2046EIPW', '6', 'GND'),
+    ('net', 'TSC2046EIPW', '16', 'SPI_SCK'),
+    ('net', 'TSC2046EIPW', '14', 'SPI_MOSI'),
+    ('net', 'TSC2046EIPW', '12', 'SPI_MISO'),
+    ('net', 'TSC2046EIPW', '15', 'TOUCH_CS'),
+    ('nc', 'TSC2046EIPW', '9'),
+    ('res', 'TSC2046EIPW', '15', '10k', 'GND'),
+    # J11 / J12 pin 3: protective earth passed straight through, nothing else
+    ('join', 'AMP OUT (+ / - / EARTH)', '3', 'CRYOCOOLER (+ / - / EARTH)', '3'),
+    ('same', 'AMP OUT (+ / - / EARTH)', '2', '2'),
 ]
 
 

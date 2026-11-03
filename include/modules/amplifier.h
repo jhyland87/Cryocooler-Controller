@@ -20,6 +20,7 @@
 #include "config.h"
 #include "module.h"
 #include "tracking.h"
+#include "power_good.h"
 
 namespace amplifier {
 
@@ -87,6 +88,18 @@ bool getRelayState();
  * false.  service() logs every confirmed change.
  */
 bool isPowerGood();
+
+/**
+ * Latest individual +-15 V rail flags (LT3097 PGP / PGN, LT8582 PG1 / PG2),
+ * read through the SC18IS604 GPIOs every 250 ms.
+ * @param flags Receives the flags.
+ * @return false until the bridge has been read once (or if it is absent).
+ * @code
+ * RailFlags flags;
+ * if (amplifier::railFlags(flags) && !flags.allGood()) { ... }
+ * @endcode
+ */
+bool railFlags(RailFlags& flags);
 
 // ---------------------------------------------------------------------------
 // Enable / disable waveform output

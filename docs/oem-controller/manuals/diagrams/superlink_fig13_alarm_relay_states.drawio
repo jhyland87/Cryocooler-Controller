@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="SuperLink Fig 13">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;SuperLink Rx - Figure 13. Alarm Relay in Normal and Alarm States&lt;/b&gt;&lt;br&gt;&lt;i&gt;SuperLink Rx Operation and Installation Manual, PDF p37 (manual p32)&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_head" value="&lt;b&gt;Alarm Relay Normal Operation Condition&lt;/b&gt;&lt;br&gt;NO = Open in normal operation&lt;br&gt;C = Common&lt;br&gt;NC = Closed in normal operation" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="n_mode" value="SuperLink Mode" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="380" y="0" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="n_c" value="C" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="330" y="40" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="n_pivot" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="416" y="46" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="n_no" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="496" y="16" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="n_nc" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="496" y="76" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="n_nol" value="NO" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="10" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="n_ncl" value="NC" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="70" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="n_c" target="n_pivot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;edgeStyle=none;strokeWidth=2;" edge="1" parent="1" source="n_pivot" target="n_nc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="n_no" target="n_nol">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="n_nc" target="n_ncl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="115" as="sourcePoint" />
+            <mxPoint x="620" y="115" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_head" value="&lt;b&gt;Alarm Relay Fault Condition (Failure)&lt;/b&gt;&lt;br&gt;NO = Closed during fault condition&lt;br&gt;C = Common&lt;br&gt;NC = Open during fault condition&lt;br&gt;&lt;br&gt;&lt;b&gt;Note&lt;/b&gt;: Alarm Relay, dry contacts, rated at 2-amps." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="130" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="f_mode" value="Bypass (Fault) Mode" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="370" y="130" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f_c" value="C" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="330" y="200" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f_pivot" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="416" y="206" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="f_no" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="496" y="166" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="f_nc" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="496" y="236" width="8" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="f_nol" value="NO" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="160" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f_ncl" value="NC" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="230" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="f_c" target="f_pivot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;edgeStyle=none;strokeWidth=2;" edge="1" parent="1" source="f_pivot" target="f_no">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="f_no" target="f_nol">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endArrow=none;" edge="1" parent="1" source="f_nc" target="f_ncl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="logic" value="Logic: relay de-energised/energised mapping is not stated in the manual. Normal (SuperLink/Regulate) = C-NC closed; any Bypass/fault state = C-NO closed. See manuals/superlink_states.md." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="280" width="620" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

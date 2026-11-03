@@ -85,28 +85,6 @@ ENVELOPES = {
         'MIE1W0505_envelope',
         [(5.0, 4.0, 1.8, 0.0, 0.0, BLACK)],
     ),
-    # Molex 505448-0871 body 9.6 x 8.95 mm, 8.43 mm high (sales drawing sheet 1)
-    'Molex_Micro-Lock_Plus_505448-0871_2x04_P1.25mm_Horizontal': (
-        'Molex_505448_envelope',
-        [(9.6, 8.95, 8.43, 0.0, 0.0, BLACK)],
-    ),
-    # Adafruit 1769 (4UCON 17311): body 7.9 x 6.0 mm, 5.5 mm high, mating
-    # face at footprint y 4.4 (model y is footprint -y)
-    'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': (
-        'Adafruit_1769_envelope',
-        [(7.9, 6.0, 5.5, 0.0, -1.4, BLACK)],
-    ),
-    # TE T4145035041-001 (drawing T41450350X1001): housing 15 wide from the
-    # rear (y -2.9) to the nut, nut SW15 1.9 thick at the panel's inner face
-    # (y 9.0), coupling 14 mm beyond it; 16 mm high, axis 8.5 mm
-    'TE_T4145035041-001_M12_A-Code_4P_Female_Horizontal': (
-        'TE_T4145035041_envelope',
-        [
-            (15.0, 10.0, 13.0, 0.0, -2.1, BLACK),
-            (17.0, 1.9, 17.0, 0.0, -8.05, SILVER),
-            (15.0, 14.0, 16.0, 0.0, -16.0, SILVER),
-        ],
-    ),
     # LT3097 22-lead DFN, 3 x 6 mm, 0.75 mm high (datasheet Fig. 132)
     'DFN-22-2EP_6x3mm_P0.5mm_LT3097': (
         'LT3097_envelope',

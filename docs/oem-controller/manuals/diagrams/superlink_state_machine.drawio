@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="page0" name="SuperLink states">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;SuperLink Rx - internal state machine (Table 7)&lt;/b&gt;&lt;br&gt;&lt;i&gt;SuperLink Rx Operation and Installation Manual PDF p39 (Table 7), p38, p13, p42&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-70" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="20" y="50" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s0" value="&lt;b&gt;0. Initial  (Bypass mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Bypass&lt;br&gt;BYPASS(red) On, STATUS(green) On&lt;br&gt;Initializes system; cooler motor to&lt;br&gt;minimum power setting" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="70" y="10" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="&lt;b&gt;1. Cooldown  (Bypass mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Bypass&lt;br&gt;BYPASS On, STATUS On&lt;br&gt;Max motor drive from the cooler's&lt;br&gt;cooldown profile. LNAs turn on when NR&lt;br&gt;temp is within operating bounds" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="440" y="10" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="&lt;b&gt;2. Regulate  (= SuperLink mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Normal&lt;br&gt;BYPASS Off, STATUS On (steady green)&lt;br&gt;Regulates cold stage temperature&lt;br&gt;indefinitely" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="960" y="10" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;3. Bypass (Fault)  (Bypass mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Bypass&lt;br&gt;BYPASS On, STATUS Off&lt;br&gt;Continues to regulate the cooler&lt;br&gt;temperature" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="960" y="330" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="&lt;b&gt;4. Shutdown (Fault)  (Bypass mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Bypass&lt;br&gt;BYPASS On, STATUS Off&lt;br&gt;Cooler motor drive reduces to zero&lt;br&gt;and is turned off" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="440" y="330" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="&lt;b&gt;5. Forced Bypass  (Bypass mode)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Bypass relay: Bypass&lt;br&gt;LEDs: &quot;Flash if On&quot; (at least one LED&lt;br&gt;always flashes); alarm relay in alarm&lt;br&gt;Forces Bypass regardless of any&lt;br&gt;other conditions" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;arcSize=6;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1510" y="160" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0;entryY=0.4166666666666667;entryDx=0;entryDy=0;" edge="1" parent="1" source="start" target="s0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="always&lt;br&gt;(Table 7)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.4166666666666667;exitDx=0;exitDy=0;entryX=0;entryY=0.38461538461538464;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="s0" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="NR temp within operating&lt;br&gt;tolerance for 300 s (LNA on)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.38461538461538464;exitDx=0;exitDy=0;entryX=0;entryY=0.4166666666666667;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="Input Voltage out of bounds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;align=right;verticalAlign=middle;labelBackgroundColor=none;spacingRight=6;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="Input Voltage fault cleared&lt;br&gt;(Automatic mode)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;align=left;verticalAlign=middle;labelBackgroundColor=none;spacingLeft=6;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="s3" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.8333333333333334;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="110" />
+              <mxPoint x="830" y="280" />
+              <mxPoint x="648" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s2s4" value="driver current at an&lt;br&gt;unacceptable level (p13)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1">
+          <mxGeometry x="660" y="284" width="165" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="driver current fault (p13)&lt;br&gt;[source state inferred]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;align=left;verticalAlign=middle;labelBackgroundColor=none;spacingLeft=6;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;fontColor=#7f7f7f;strokeColor=#7f7f7f;" edge="1" parent="1" source="s1" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="s4" target="s0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="385" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s4s0" value="NR temp warmed out of its valid range&lt;br&gt;AND faults cleared (Automatic mode)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1">
+          <mxGeometry x="198" y="345" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="FORCED BYPASS button /&lt;br&gt;portal (p42)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;verticalAlign=bottom;labelBackgroundColor=none;spacingBottom=2;" edge="1" parent="1" source="s2" target="s5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1640" y="46" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0;exitY=0.6;exitDx=0;exitDy=0;entryX=1;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="s5" target="s2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1300" y="238" />
+              <mxPoint x="1300" y="106" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s5s2" value="button pressed again → Regulate&lt;br&gt;(steady green STATUS) (p42)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1306" y="246" width="196" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" value="Footer of Table 7: &amp;quot;Regulate state = SuperLink mode. In all other states, the SL Rx is in Bypass mode.&amp;quot; Each switch to Bypass activates the alarm relay (p13). p13 also lists out-of-range temperature or LNA current -&amp;gt; Bypass mode (target state not numbered). Install expectation: Regulate within 5 hours (p38); ~78 K operating temperature. Manual mode: the operator selects the state (p69). Forced Bypass is entered from any state (Table 7: &amp;quot;regardless of any other conditions&amp;quot;); only the Regulate arrows are drawn." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="480" width="1700" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

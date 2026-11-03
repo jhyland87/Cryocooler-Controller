@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "08ed6002-48e3-5354-b584-296beaa5593c")
+	(uuid "7eab92b0-5f10-5c1f-8722-d151f80951f2")
 	(paper "A3")
 	(title_block
 		(title "Power Good")
@@ -1331,6 +1331,145 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:+5V"
+			(power global)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "+5V"
+				(at 0 3.556 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5V\""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "+5V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GND"
 			(power global)
 			(pin_numbers
@@ -1456,7 +1595,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "08ba7fd7-83ba-5484-8c5b-59ec9549a689")
+		(uuid "2cb4ce97-b71b-5529-845b-e9ed8742d59a")
 	)
 	(text "PGP and PGN pull their own node low when bad. Each node is the +15 V rail through 220k/62k (about 3.2 V when good, 0 V if its pin pulls low or the rail is missing) and lights its green LED."
 		(exclude_from_sim no)
@@ -1467,101 +1606,54 @@
 			)
 			(justify left top)
 		)
-		(uuid "be435432-06d8-5472-a478-e0e0a94ae453")
+		(uuid "8252bc31-e6d5-529f-a331-3363a650c4f4")
+	)
+	(text "LT8582 POWER GOOD (to SC18IS604 GPIO3 / GPIO4)"
+		(exclude_from_sim no)
+		(at 25.4 177.8 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "a1e20ddd-dd37-5e48-aadf-077b7c1d6320")
 	)
 	(junction
-		(at 38.1 58.42)
+		(at 38.1 198.12)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "14118d62-8c5c-55b4-a222-d9660ebbe9bb")
-	)
-	(junction
-		(at 120.65 63.5)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "36556f47-0634-5c92-921e-bb571e0ee45c")
+		(uuid "3989778c-f705-5219-9ea9-6f91c75ffcac")
 	)
 	(junction
 		(at 205.74 91.44)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "ad3cf2f9-63dc-57a7-9e33-391fd2d1273e")
+		(uuid "a6c5867a-aeca-56df-a102-bfa0f0d32072")
+	)
+	(junction
+		(at 120.65 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "af6b5715-dfbb-50ea-8b24-a064ed4b034c")
+	)
+	(junction
+		(at 38.1 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e08dd144-cebc-5ccd-be53-b10269a3735d")
 	)
 	(junction
 		(at 63.5 58.42)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "fe08dbc9-b3d8-52bc-909a-98a944f82fbb")
+		(uuid "e08ead1c-cf5a-520e-ac7d-ea878d8d455f")
 	)
-	(wire
-		(pts
-			(xy 205.74 91.44) (xy 205.74 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "08a4f61a-5e66-54f5-b231-c429fc6ffaf0")
-	)
-	(wire
-		(pts
-			(xy 205.74 106.68) (xy 205.74 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0fb4f84c-a642-54a1-b332-e7fa2a16133e")
-	)
-	(wire
-		(pts
-			(xy 205.74 91.44) (xy 210.82 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "13b5acef-3981-5457-9c3b-0425a9110c0e")
-	)
-	(wire
-		(pts
-			(xy 91.44 121.92) (xy 91.44 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1bbf137e-8f41-54a7-8a39-04e18da0a424")
-	)
-	(wire
-		(pts
-			(xy 101.6 55.88) (xy 106.68 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3aae34e4-7f55-581e-a222-66b9a6a53c59")
-	)
-	(wire
-		(pts
-			(xy 193.04 101.6) (xy 198.12 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4f2e6c75-3242-5447-8f83-1296eff0d8ae")
-	)
-	(wire
-		(pts
-			(xy 38.1 58.42) (xy 43.18 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "525c55c1-f1c5-553f-b279-26057599df76")
+	(junction
+		(at 63.5 198.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e0d46890-c7d1-50f2-a8de-11557f2d74d7")
 	)
 	(wire
 		(pts
@@ -1571,107 +1663,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5ce856d9-6343-5a18-a173-1e2a62f38ee6")
+		(uuid "08bca681-8e82-5678-a837-ffc4ce2c7506")
 	)
 	(wire
 		(pts
-			(xy 40.64 144.78) (xy 40.64 147.32)
+			(xy 193.04 101.6) (xy 198.12 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "62e56f87-1376-5675-82d9-c35542308d03")
-	)
-	(wire
-		(pts
-			(xy 193.04 91.44) (xy 205.74 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6db9f782-93e7-59f2-8855-72f06cf07840")
-	)
-	(wire
-		(pts
-			(xy 78.74 139.7) (xy 83.82 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "736b4253-855e-555f-98a0-9fdddc410a65")
-	)
-	(wire
-		(pts
-			(xy 121.92 55.88) (xy 127 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "933f6a27-11eb-5005-865d-73b65164e808")
-	)
-	(wire
-		(pts
-			(xy 114.3 60.96) (xy 114.3 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9b819bd6-bcbe-5c11-834a-f66a5294cacd")
-	)
-	(wire
-		(pts
-			(xy 114.3 63.5) (xy 120.65 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aad40a3e-dbe5-52c0-ae86-7469f8ec1fed")
-	)
-	(wire
-		(pts
-			(xy 218.44 91.44) (xy 223.52 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b097edfe-ec20-5592-a928-f5b61db33e5f")
-	)
-	(wire
-		(pts
-			(xy 91.44 144.78) (xy 91.44 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0a9b6f8-a722-5a69-b2ee-c99e7da06931")
-	)
-	(wire
-		(pts
-			(xy 120.65 63.5) (xy 129.54 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c831923a-fef6-5811-8d10-410d31135d0f")
-	)
-	(wire
-		(pts
-			(xy 27.94 139.7) (xy 33.02 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dfe51e75-9afb-568e-bd5a-10817f89e6f2")
+		(uuid "0b320e0a-6a3d-5066-8b1a-81c592be0220")
 	)
 	(wire
 		(pts
@@ -1681,21 +1683,201 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ef309840-6344-52f9-aba6-51b33b7bf460")
+		(uuid "13934294-7652-511f-9b08-1b4ec5be6d5f")
+	)
+	(wire
+		(pts
+			(xy 114.3 60.96) (xy 114.3 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15da390d-8be4-5dae-97f2-af7b2b279a0c")
+	)
+	(wire
+		(pts
+			(xy 91.44 144.78) (xy 91.44 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d37a671-fa3e-5708-ab0f-42369e5b22ec")
+	)
+	(wire
+		(pts
+			(xy 91.44 121.92) (xy 91.44 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c9e9ffb-2735-5914-8acc-3296628cebce")
+	)
+	(wire
+		(pts
+			(xy 205.74 91.44) (xy 210.82 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e726dda-fffe-5de5-9d51-6f90b0eb4bae")
+	)
+	(wire
+		(pts
+			(xy 63.5 198.12) (xy 68.58 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54e0ab64-8897-5a1d-9b00-bc362e5446f9")
+	)
+	(wire
+		(pts
+			(xy 205.74 106.68) (xy 205.74 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67bd0b1f-ff21-5910-b8c2-fcd6ff986897")
+	)
+	(wire
+		(pts
+			(xy 114.3 63.5) (xy 120.65 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a80da97-acbf-5478-b310-d80d96209999")
+	)
+	(wire
+		(pts
+			(xy 120.65 63.5) (xy 129.54 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6ab5c12e-c8ba-5a77-b40d-9ce18c1db31c")
+	)
+	(wire
+		(pts
+			(xy 193.04 91.44) (xy 205.74 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "73e5c313-957d-5e4b-807f-c34f668a5165")
+	)
+	(wire
+		(pts
+			(xy 78.74 139.7) (xy 83.82 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7e726ecc-ec31-5ec6-a88b-b9e1a48b1f19")
+	)
+	(wire
+		(pts
+			(xy 101.6 55.88) (xy 106.68 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91a9493b-3620-558d-b385-e61e1d5513b0")
+	)
+	(wire
+		(pts
+			(xy 205.74 91.44) (xy 205.74 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e7f729b-a9f1-5ddf-9c52-4224e7d6141d")
+	)
+	(wire
+		(pts
+			(xy 40.64 144.78) (xy 40.64 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1ce1056-c1f7-5380-97c6-890b49bfdfb0")
+	)
+	(wire
+		(pts
+			(xy 121.92 55.88) (xy 127 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4a5f278-4218-51c4-a46a-a899c527c1b4")
+	)
+	(wire
+		(pts
+			(xy 38.1 58.42) (xy 43.18 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2aea8b1-1e49-521f-8250-e958a66b7f4e")
+	)
+	(wire
+		(pts
+			(xy 38.1 198.12) (xy 43.18 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d33f8ec6-8469-50cf-a7e3-adfa1f9926e6")
+	)
+	(wire
+		(pts
+			(xy 27.94 139.7) (xy 33.02 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb576727-c8e5-55cd-a468-b561885e2844")
+	)
+	(wire
+		(pts
+			(xy 218.44 91.44) (xy 223.52 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed7890bb-0c56-5e8d-8598-0bdb2708420b")
 	)
 	(global_label "PGN_15V"
 		(shape bidirectional)
-		(at 78.74 139.7 180)
+		(at 127 55.88 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "050fc48f-e19f-5a8e-9ae6-730cdf9f27f1")
+		(uuid "37aedba3-431a-580f-becd-050b4e08e755")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 78.74 139.7 0)
+			(at 127 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1703,23 +1885,23 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 27.94 139.7 180)
+	(global_label "PG_15V_N"
+		(shape output)
+		(at 223.52 91.44 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "492a3bd0-bd6d-5374-afd8-655492c6c2f8")
+		(uuid "57b11a10-132f-52fc-9be1-68e32229636d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 27.94 139.7 0)
+			(at 223.52 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1727,7 +1909,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 	)
@@ -1741,57 +1923,9 @@
 			)
 			(justify left)
 		)
-		(uuid "4ce67c5f-2152-54a8-b709-9d453569269d")
+		(uuid "6362a2b2-e028-543d-a8cd-53b844fdb13e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 68.58 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PG_15V"
-		(shape bidirectional)
-		(at 193.04 101.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4d146c45-4fa8-51d3-b2b3-9410d318cbde")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.04 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 43.18 58.42 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5482d9d6-afe0-5a99-9815-ab385c639668")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 43.18 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1813,7 +1947,7 @@
 			)
 			(justify left)
 		)
-		(uuid "5c10cfe6-83a1-5aeb-a2ac-fb6c003e1fee")
+		(uuid "6faff377-a87b-5a1a-bffb-79847e30a029")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 129.54 63.5 0)
 			(hide yes)
@@ -1827,9 +1961,9 @@
 			)
 		)
 	)
-	(global_label "PGN_15V"
+	(global_label "PGP_16V5"
 		(shape bidirectional)
-		(at 127 55.88 0)
+		(at 43.18 198.12 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1837,9 +1971,9 @@
 			)
 			(justify left)
 		)
-		(uuid "601b5c58-1380-501e-8d50-f0872467a902")
+		(uuid "76e6f2c6-7040-5ed1-9151-43d14b25835d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 127 55.88 0)
+			(at 43.18 198.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1853,6 +1987,102 @@
 	)
 	(global_label "PGP_15V"
 		(shape bidirectional)
+		(at 27.94 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "91a4150d-068a-5fd9-b730-ed8658e9fc44")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 27.94 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "PGN_16V5"
+		(shape bidirectional)
+		(at 68.58 198.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a5b53bcf-d8f3-5804-9fdc-385eeb277488")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 68.58 198.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PGN_15V"
+		(shape bidirectional)
+		(at 78.74 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "a8d7c1fc-affc-5c7a-8b3f-e893846c57c8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 78.74 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "PG_15V"
+		(shape bidirectional)
+		(at 193.04 101.6 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b88e5ba2-2386-54de-b690-916e9e7fe239")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 193.04 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "PGP_15V"
+		(shape bidirectional)
 		(at 101.6 55.88 180)
 		(fields_autoplaced yes)
 		(effects
@@ -1861,7 +2091,7 @@
 			)
 			(justify right)
 		)
-		(uuid "820bc5db-511b-574d-a7e4-206f8269a908")
+		(uuid "c4fc931f-afcc-5811-b6a9-6df8d5c2bd65")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 101.6 55.88 0)
 			(hide yes)
@@ -1875,9 +2105,9 @@
 			)
 		)
 	)
-	(global_label "PG_15V_N"
-		(shape output)
-		(at 223.52 91.44 0)
+	(global_label "PGP_15V"
+		(shape bidirectional)
+		(at 43.18 58.42 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1885,9 +2115,9 @@
 			)
 			(justify left)
 		)
-		(uuid "fafe7418-5d85-54c5-85a0-d38675e9e6ac")
+		(uuid "cd8b6ad7-d26d-5664-be41-aadb8c971c02")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 223.52 91.44 0)
+			(at 43.18 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1900,8 +2130,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 40.64 147.32 0)
+		(lib_id "power:+5V")
+		(at 63.5 190.5 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1910,8 +2140,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "096a916d-7a98-5283-ab4a-ac11f6054c4a")
-		(property "Reference" "#PWR214"
-			(at 40.64 147.32 0)
+		(property "Reference" "#PWR218"
+			(at 63.5 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1921,9 +2151,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 40.64 147.32 0)
-			(hide yes)
+		(property "Value" "+5V_PS15"
+			(at 63.5 186.944 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1933,7 +2162,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 147.32 0)
+			(at 63.5 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1944,7 +2173,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 147.32 0)
+			(at 63.5 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1954,86 +2183,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 40.64 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f98c7237-aab9-5eca-bcab-28ae79e213f4")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR214")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 38.1 66.04 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "0c2a7a10-4c2b-56cd-9ddb-10b1848d81bb")
-		(property "Reference" "#PWR208"
-			(at 38.1 66.04 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 38.1 66.04 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 38.1 66.04 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 38.1 66.04 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 38.1 66.04 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+5V\\\""
+			(at 63.5 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2044,965 +2195,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c7ec7a74-891a-57c1-86a6-d002de151c45")
+			(uuid "d41a550b-c5bd-5c32-a4df-397ae1a92958")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR208")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 38.1 62.23 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "285fd626-abc4-50e8-80c9-461114b23fb3")
-		(property "Reference" "R104"
-			(at 41.316 61.18 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "62k"
-			(at 41.316 63.28 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 38.1 62.23 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0762KL"
-			(at 38.1 62.23 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 38.1 62.23 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0762KL"
-			(at 38.1 62.23 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "2b5b7cf3-2ce0-554b-96c0-ecb320fb1ee2")
-		)
-		(pin "2"
-			(uuid "41842798-d6c6-5de5-a496-c00da311d5c3")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R104")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 40.64 118.11 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2ead8fa2-cac5-5393-ab41-f574f502ebdd")
-		(property "Reference" "D24"
-			(at 52.578 109.2 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "PG +15V (green)"
-			(at 52.578 111.3 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
-			(at 40.64 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=APG1005SGC-F01"
-			(at 40.64 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 40.64 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=APG1005SGC-F01"
-			(at 40.64 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7aae6ed8-cae8-5366-b5a8-0ae6af2926db")
-		)
-		(pin "2"
-			(uuid "8584dfc7-214c-5fd2-bda7-1d08f3c92839")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "D24")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 63.5 54.61 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3eb9ccc4-a012-5d5f-b7ee-f066f8becb49")
-		(property "Reference" "R105"
-			(at 66.716 52.29 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "220k"
-			(at 66.716 54.39 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 63.5 54.61 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07220KL"
-			(at 63.5 54.61 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 63.5 54.61 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07220KL"
-			(at 63.5 54.61 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e3adc7f2-72dc-52b7-bd48-1b32cae62903")
-		)
-		(pin "2"
-			(uuid "baa22a86-7080-5815-b412-3352e47a3249")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R105")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 91.44 147.32 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4ce33368-eba8-5e89-ba89-b9eae5afb47b")
-		(property "Reference" "#PWR216"
-			(at 91.44 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 91.44 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 91.44 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 91.44 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 91.44 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6ad385e7-b630-5040-b8e3-1362e61d54ea")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR216")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 40.64 110.49 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4fa22d1f-8f93-5a21-b542-be582c0b3b91")
-		(property "Reference" "R110"
-			(at 43.856 106.9 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1k"
-			(at 43.856 109 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 40.64 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 40.64 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 40.64 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 40.64 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0d047ca1-c384-5b59-82df-fc391e7d47a0")
-		)
-		(pin "2"
-			(uuid "1e6a24da-564e-5b10-b4a3-f3f900d2552e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R110")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 38.1 50.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4fdbdb90-0d54-59ba-824f-b224080a0438")
-		(property "Reference" "#PWR207"
-			(at 38.1 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+15V"
-			(at 38.1 47.244 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 38.1 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 38.1 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 38.1 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "b209436a-d81b-542a-a47d-3910e9aa549d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR207")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 40.64 106.68 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "507f05b4-ef9c-5777-9ba6-c03c26c3492c")
-		(property "Reference" "#PWR215"
-			(at 40.64 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 40.64 103.124 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 40.64 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "408f78e8-993b-56da-9cb7-37837a4e1e04")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR215")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 205.74 109.22 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5e49bede-0e72-549f-9764-98ba12f78252")
-		(property "Reference" "#PWR212"
-			(at 205.74 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 205.74 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 205.74 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 205.74 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 205.74 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "48189593-c058-5799-a5af-a885a26f191d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR212")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 91.44 118.11 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "63c55ebe-1bb7-5421-b4a4-5ce9187967e3")
-		(property "Reference" "D25"
-			(at 103.378 109.2 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "PG -15V (green)"
-			(at 103.378 111.3 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
-			(at 91.44 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=APG1005SGC-F01"
-			(at 91.44 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 91.44 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=APG1005SGC-F01"
-			(at 91.44 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ee2c5cae-1482-54ca-bcc7-463b5ea3df2d")
-		)
-		(pin "2"
-			(uuid "d2aea8b1-1e49-521f-8250-e958a66b7f4e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "D25")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 91.44 110.49 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "6b0d40e0-77cc-542a-bfce-94492d60b80a")
-		(property "Reference" "R111"
-			(at 94.656 106.9 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1k"
-			(at 94.656 109 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 91.44 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 91.44 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 91.44 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 91.44 110.49 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5cf719be-323d-5899-a579-145a5c8ca913")
-		)
-		(pin "2"
-			(uuid "2fb2781a-9a69-51ee-9506-a72bca2bbad4")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R111")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:BSS138")
-		(at 38.1 139.7 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "71f3e884-f72b-5548-810f-338162f5d5ea")
-		(property "Reference" "Q11"
-			(at 44.745 138.65 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "BSS138"
-			(at 44.745 140.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-323_SC-70"
-			(at 38.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 38.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
-			(at 38.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 38.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "632729d1-82c5-50cb-870a-c68437e1b5d1")
-		)
-		(pin "2"
-			(uuid "71239436-c176-5b61-b51f-11e89910a33b")
-		)
-		(pin "3"
-			(uuid "66ea4333-aeeb-5e62-870c-bbd6972fdb8b")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "Q11")
+					(reference "#PWR218")
 					(unit 1)
 				)
 			)
@@ -3018,8 +2216,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7e9aba90-773f-5aaf-a3b2-b5884b0bca90")
-		(property "Reference" "#PWR213"
+		(uuid "1a1caca7-91d9-5b0f-bc61-76a228d4ca39")
+		(property "Reference" "#PWR222"
 			(at 193.04 83.82 0)
 			(hide yes)
 			(show_name no)
@@ -3074,51 +2272,52 @@
 			)
 		)
 		(pin "1"
-			(uuid "0443cd79-8390-502a-a291-8c03692611b6")
+			(uuid "e0bb407b-4ae8-5af7-afc1-be44d9da98ff")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR213")
+					(reference "#PWR222")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:+15V")
-		(at 63.5 50.8 0)
+		(lib_id "Device:R_US")
+		(at 193.04 87.63 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7eab92b0-5f10-5c1f-8722-d151f80951f2")
-		(property "Reference" "#PWR209"
-			(at 63.5 50.8 0)
-			(hide yes)
+		(uuid "2c01a0f1-d431-5931-b7b2-4d8a77f70e19")
+		(property "Reference" "R162"
+			(at 196.256 86.58 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "+15V"
-			(at 63.5 47.244 0)
+		(property "Value" "10k"
+			(at 196.256 88.68 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 63.5 50.8 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 193.04 87.63 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3129,7 +2328,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 63.5 50.8 0)
+			(at 193.04 87.63 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3139,8 +2338,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 63.5 50.8 0)
+		(property "Description" "Resistor, US symbol"
+			(at 193.04 87.63 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3151,52 +2350,33 @@
 			)
 		)
 		(pin "1"
-			(uuid "dffe84b1-ab2e-5e12-861f-47b806a98b54")
+			(uuid "777afdc0-4704-5968-b77a-e159e9aca91a")
+		)
+		(pin "2"
+			(uuid "701c950c-f7d6-53fa-8e05-a62627226a7e")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR209")
+					(reference "R162")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Transistor_FET:BSS138")
-		(at 88.9 139.7 0)
+		(lib_id "power:GND")
+		(at 63.5 205.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9dbdba8e-35a4-52a2-8615-5599f431b4df")
-		(property "Reference" "Q12"
-			(at 95.545 138.65 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "BSS138"
-			(at 95.545 140.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-323_SC-70"
-			(at 88.9 139.7 0)
+		(uuid "2ead8fa2-cac5-5393-ab41-f574f502ebdd")
+		(property "Reference" "#PWR219"
+			(at 63.5 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3206,8 +2386,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 88.9 139.7 0)
+		(property "Value" "GND"
+			(at 63.5 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3217,8 +2397,8 @@
 				)
 			)
 		)
-		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
-			(at 88.9 139.7 0)
+		(property "Footprint" ""
+			(at 63.5 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3228,8 +2408,19 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 88.9 139.7 0)
+		(property "Datasheet" ""
+			(at 63.5 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 63.5 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3240,18 +2431,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "99cb7b00-1426-56da-a23c-e6477ae11490")
-		)
-		(pin "2"
-			(uuid "a45a3f7c-5659-5673-8008-ba27bc1cbb37")
-		)
-		(pin "3"
-			(uuid "f9768434-1d4d-565f-b038-fc96d285c2d0")
+			(uuid "97525193-fd67-54f5-9e59-d71c7ca93d13")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "Q12")
+					(reference "#PWR219")
 					(unit 1)
 				)
 			)
@@ -3267,8 +2452,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9f997da5-0ad4-5a40-95bc-19fc46de8936")
-		(property "Reference" "#PWR217"
+		(uuid "3225b745-3f26-5e32-a61f-1a4d423fe184")
+		(property "Reference" "#PWR226"
 			(at 91.44 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -3323,50 +2508,30 @@
 			)
 		)
 		(pin "1"
-			(uuid "87decf6f-93a4-5812-b625-21d39503dcce")
+			(uuid "33e999f3-dd53-5753-8966-6f69ab1bb4fe")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR217")
+					(reference "#PWR226")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 214.63 91.44 90)
+		(lib_id "power:+15V")
+		(at 38.1 50.8 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a4d02cc9-b3df-58e2-a1c0-5f55c3808228")
-		(property "Reference" "R109"
-			(at 214.63 85.324 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1k"
-			(at 214.63 87.424 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 214.63 91.44 0)
+		(uuid "3eb9ccc4-a012-5d5f-b7ee-f066f8becb49")
+		(property "Reference" "#PWR212"
+			(at 38.1 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3376,8 +2541,18 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 214.63 91.44 0)
+		(property "Value" "+15V"
+			(at 38.1 47.244 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 38.1 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3387,8 +2562,8 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
-			(at 214.63 91.44 0)
+		(property "Datasheet" ""
+			(at 38.1 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3398,8 +2573,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 214.63 91.44 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
+			(at 38.1 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3410,15 +2585,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a5aaf2ce-8a3b-55b7-a3ec-3ef0f775c782")
-		)
-		(pin "2"
-			(uuid "346369cf-0040-558e-80af-2a4e31ae69cb")
+			(uuid "19fdc268-d272-5dc8-bd25-c3ba9604ce97")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R109")
+					(reference "#PWR212")
 					(unit 1)
 				)
 			)
@@ -3426,7 +2598,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_FET:BSS138")
-		(at 203.2 101.6 0)
+		(at 88.9 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3434,9 +2606,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d4df9ae7-77ff-5d9d-8b57-c6f06cc3ec45")
-		(property "Reference" "Q10"
-			(at 209.845 100.55 0)
+		(uuid "45e7008d-e53e-5555-a802-485b18a44ec4")
+		(property "Reference" "Q24"
+			(at 95.545 138.65 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3447,7 +2619,7 @@
 			)
 		)
 		(property "Value" "BSS138"
-			(at 209.845 102.65 0)
+			(at 95.545 140.75 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3458,7 +2630,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-323_SC-70"
-			(at 203.2 101.6 0)
+			(at 88.9 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3468,8 +2640,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 203.2 101.6 0)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/BSS138-D.PDF"
+			(at 88.9 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3480,18 +2652,7 @@
 			)
 		)
 		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
-			(at 203.2 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=BSS138W-7-F"
-			(at 203.2 101.6 0)
+			(at 88.9 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3502,18 +2663,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "46064990-3368-5a0c-a6a6-54efe34d2e00")
+			(uuid "46633a50-ab09-5049-88aa-ddfb64f514af")
 		)
 		(pin "2"
-			(uuid "d0e1185c-445f-5b7a-abd6-f6fd142267d1")
+			(uuid "bc1e4fe0-6af0-5188-b643-e6e0daf07275")
 		)
 		(pin "3"
-			(uuid "9698f0db-dc8b-5823-93b8-dae6cf900ac3")
+			(uuid "d7300c38-8752-5ead-ab68-b835556fa1da")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "Q10")
+					(reference "Q24")
 					(unit 1)
 				)
 			)
@@ -3529,8 +2690,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d4f80c1f-011d-5320-87d9-2bebe707f048")
-		(property "Reference" "R107"
+		(uuid "4ce33368-eba8-5e89-ba89-b9eae5afb47b")
+		(property "Reference" "R161"
 			(at 123.866 66.26 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3563,7 +2724,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
+		(property "Datasheet" ""
 			(at 120.65 67.31 0)
 			(hide yes)
 			(show_name no)
@@ -3585,8 +2746,78 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 120.65 67.31 0)
+		(pin "1"
+			(uuid "c9da8f23-ffe0-5839-af5b-7ee1dcbd3723")
+		)
+		(pin "2"
+			(uuid "037c6636-e00f-5edf-9e52-3cb978ee8777")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R161")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 63.5 194.31 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4fa22d1f-8f93-5a21-b542-be582c0b3b91")
+		(property "Reference" "R159"
+			(at 66.716 191.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k"
+			(at 66.716 194.09 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 63.5 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 63.5 194.31 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3597,15 +2828,331 @@
 			)
 		)
 		(pin "1"
-			(uuid "da338aa5-6cf2-556c-828d-0c1f719a3169")
+			(uuid "7dd39024-648d-5bb5-bf86-e114d73699fe")
 		)
 		(pin "2"
-			(uuid "6d85cd2b-9d6b-5dc8-b3c6-c670d9f19a21")
+			(uuid "8caed0a9-aaab-5b51-a841-928ff57e94c5")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R107")
+					(reference "R159")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 63.5 201.93 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "507f05b4-ef9c-5777-9ba6-c03c26c3492c")
+		(property "Reference" "R160"
+			(at 66.716 200.88 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "39k"
+			(at 66.716 202.98 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 63.5 201.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 201.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 63.5 201.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "26fd2430-b727-5d04-b197-d98658ebdf18")
+		)
+		(pin "2"
+			(uuid "071aaaab-28f4-5dd7-891f-db92c21d2c24")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R160")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 63.5 66.04 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5e49bede-0e72-549f-9764-98ba12f78252")
+		(property "Reference" "#PWR215"
+			(at 63.5 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 63.5 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 63.5 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a57f0624-0ee1-5546-8253-9d26ee11e1c0")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR215")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 214.63 91.44 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "614dc34c-ec3c-5d4e-b1b5-b54e7db54094")
+		(property "Reference" "R163"
+			(at 214.63 85.324 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1k"
+			(at 214.63 87.424 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 214.63 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 214.63 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 214.63 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a45edd37-fe36-5875-b2c8-862f295323b4")
+		)
+		(pin "2"
+			(uuid "05f2d5f3-9d82-5b6c-b18a-d38de56edd12")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R163")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 205.74 109.22 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "63c55ebe-1bb7-5421-b4a4-5ce9187967e3")
+		(property "Reference" "#PWR221"
+			(at 205.74 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 205.74 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 205.74 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 205.74 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 205.74 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "486d6917-f296-535f-9435-0bbef8617127")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR221")
 					(unit 1)
 				)
 			)
@@ -3621,8 +3168,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d57ffb9a-37bd-5da9-add7-a91246ffc007")
-		(property "Reference" "#PWR211"
+		(uuid "6b0d40e0-77cc-542a-bfce-94492d60b80a")
+		(property "Reference" "#PWR220"
 			(at 120.65 71.12 0)
 			(hide yes)
 			(show_name no)
@@ -3678,12 +3225,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "da0f28c5-6a40-549f-8d0d-c8f78017a590")
+			(uuid "f046eb03-3522-54cb-a2f6-6a1e48835d58")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR211")
+					(reference "#PWR220")
 					(unit 1)
 				)
 			)
@@ -3691,7 +3238,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 63.5 66.04 0)
+		(at 38.1 205.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3699,9 +3246,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "dcb64452-385d-53c9-8972-1b4f9ac6132a")
-		(property "Reference" "#PWR210"
-			(at 63.5 66.04 0)
+		(uuid "71f3e884-f72b-5548-810f-338162f5d5ea")
+		(property "Reference" "#PWR217"
+			(at 38.1 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3712,7 +3259,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 63.5 66.04 0)
+			(at 38.1 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3723,7 +3270,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 63.5 66.04 0)
+			(at 38.1 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3734,7 +3281,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 63.5 66.04 0)
+			(at 38.1 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3745,7 +3292,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 63.5 66.04 0)
+			(at 38.1 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3756,12 +3303,328 @@
 			)
 		)
 		(pin "1"
-			(uuid "054ef650-c418-572b-8409-baf9bf1064e8")
+			(uuid "71c74a77-c37a-5ca8-9b23-fb1eb8147e2a")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "#PWR210")
+					(reference "#PWR217")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 38.1 194.31 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7e9aba90-773f-5aaf-a3b2-b5884b0bca90")
+		(property "Reference" "R157"
+			(at 41.316 191.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k"
+			(at 41.316 194.09 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 38.1 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 38.1 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e1f352d7-3874-50be-9943-0a603bc0da99")
+		)
+		(pin "2"
+			(uuid "457a5cd9-530c-5cbc-a248-55c415b1f5a8")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R157")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 91.44 147.32 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "82c07bbb-b407-5d0b-b30c-95b7b86300ad")
+		(property "Reference" "#PWR225"
+			(at 91.44 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 91.44 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 91.44 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 91.44 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 91.44 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9cd2e09c-9d58-5778-98b7-8cf3e7e10dfd")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR225")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 91.44 118.11 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8cca4bb8-ceed-5e61-a075-7b79b91ab05f")
+		(property "Reference" "D43"
+			(at 103.378 109.2 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PG -15V (green)"
+			(at 103.378 111.3 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
+			(at 91.44 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 91.44 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 91.44 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4aa613a9-3829-5013-a0e4-aedb100eae97")
+		)
+		(pin "2"
+			(uuid "7f4edcf9-9e80-52cf-bfde-117460e056f1")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "D43")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 40.64 147.32 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "967848b1-c8b6-504e-9230-5c8fa3a4945e")
+		(property "Reference" "#PWR223"
+			(at 40.64 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 40.64 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 40.64 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 40.64 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "da27d01c-d4db-53b7-9731-06736e568a6c")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR223")
 					(unit 1)
 				)
 			)
@@ -3777,8 +3640,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e2022141-a7b6-5114-a434-9fc9aaa77386")
-		(property "Reference" "D23"
+		(uuid "9dbdba8e-35a4-52a2-8615-5599f431b4df")
+		(property "Reference" "D41"
 			(at 124.12 58.005 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3811,7 +3674,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=BAT54AW-7-F"
+		(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/BAT54W_SER.pdf"
 			(at 114.3 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -3833,38 +3696,27 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=BAT54AW-7-F"
-			(at 114.3 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
-			(uuid "381f86d3-c30c-5fa3-ab8e-0c26ccdf3a6a")
+			(uuid "b38914e3-0b51-5440-a64a-584ff8f672af")
 		)
 		(pin "2"
-			(uuid "fa674ec3-0ae6-5142-8af4-5375365b36ee")
+			(uuid "5c22c85f-1db9-529b-9dd6-bc57b46f9700")
 		)
 		(pin "3"
-			(uuid "6b40477d-131e-54ee-acf4-471267248882")
+			(uuid "c7a45e4c-8e7e-53e0-bd7c-a9ce29989b7e")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "D23")
+					(reference "D41")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 38.1 54.61 0)
+		(lib_id "Transistor_FET:BSS138")
+		(at 203.2 101.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3872,9 +3724,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e3434a1f-5ed7-57cf-bad6-137ae3435164")
-		(property "Reference" "R103"
-			(at 41.316 52.29 0)
+		(uuid "9f997da5-0ad4-5a40-95bc-19fc46de8936")
+		(property "Reference" "Q22"
+			(at 209.845 100.55 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3884,8 +3736,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "220k"
-			(at 41.316 54.39 0)
+		(property "Value" "BSS138"
+			(at 209.845 102.65 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3895,8 +3747,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 38.1 54.61 0)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-323_SC-70"
+			(at 203.2 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3906,8 +3758,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07220KL"
-			(at 38.1 54.61 0)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/BSS138-D.PDF"
+			(at 203.2 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3917,19 +3769,8 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
-			(at 38.1 54.61 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07220KL"
-			(at 38.1 54.61 0)
+		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
+			(at 203.2 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3940,15 +3781,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "86b08869-a462-5ddb-a9ab-b77f323ec2a5")
+			(uuid "1b95e1c5-cf82-51f1-a36c-999775fe14b0")
 		)
 		(pin "2"
-			(uuid "653466a9-9ccd-5d0f-9a96-af17cb6b54ec")
+			(uuid "17632c1f-c733-5020-8e8d-57ca9559e2b5")
+		)
+		(pin "3"
+			(uuid "92fa849a-0ba0-55cc-95ed-f90f1b0ad4b4")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R103")
+					(reference "Q22")
 					(unit 1)
 				)
 			)
@@ -3956,7 +3800,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 193.04 87.63 0)
+		(at 38.1 201.93 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3964,9 +3808,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e52248e4-a6b3-5296-8b8a-bd7363ce6927")
-		(property "Reference" "R108"
-			(at 196.256 86.58 0)
+		(uuid "a4d02cc9-b3df-58e2-a1c0-5f55c3808228")
+		(property "Reference" "R158"
+			(at 41.316 200.88 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3976,8 +3820,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
-			(at 196.256 88.68 0)
+		(property "Value" "39k"
+			(at 41.316 202.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3988,7 +3832,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 193.04 87.63 0)
+			(at 38.1 201.93 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3998,8 +3842,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 193.04 87.63 0)
+		(property "Datasheet" ""
+			(at 38.1 201.93 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4010,18 +3854,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 193.04 87.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 193.04 87.63 0)
+			(at 38.1 201.93 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4032,15 +3865,178 @@
 			)
 		)
 		(pin "1"
-			(uuid "010370eb-67d1-5657-b817-073eacd57b88")
+			(uuid "f46cdf53-7400-5ab3-8193-e4ed90960b15")
 		)
 		(pin "2"
-			(uuid "83dd8b6a-a90c-512c-beeb-f179007b1dfb")
+			(uuid "a0ea38d8-f526-52f7-bf44-e43ce8694dfe")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R108")
+					(reference "R158")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 40.64 118.11 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a9e9fe8d-9d25-51b6-8c5a-047b760faf77")
+		(property "Reference" "D42"
+			(at 52.578 109.2 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PG +15V (green)"
+			(at 52.578 111.3 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
+			(at 40.64 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 40.64 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e2abcfd3-3156-538a-9665-ab8a46052427")
+		)
+		(pin "2"
+			(uuid "1ba31af0-4a20-5157-82d0-826ab652727c")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "D42")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:BSS138")
+		(at 38.1 139.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c14c1090-dbd1-5aeb-acd7-657dbfbf6a04")
+		(property "Reference" "Q23"
+			(at 44.745 138.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BSS138"
+			(at 44.745 140.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-323_SC-70"
+			(at 38.1 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/BSS138-D.PDF"
+			(at 38.1 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
+			(at 38.1 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e818f788-7bef-5e23-bd8f-94391c0b8f9c")
+		)
+		(pin "2"
+			(uuid "a439298c-6367-5cf8-84dc-290969f0ae5c")
+		)
+		(pin "3"
+			(uuid "75545a51-8846-5df2-aa62-7e906642d2c0")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "Q23")
 					(unit 1)
 				)
 			)
@@ -4056,8 +4052,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e8ba3e91-10ae-5eab-8b9d-ab24ad66ba02")
-		(property "Reference" "R106"
+		(uuid "d4df9ae7-77ff-5d9d-8b57-c6f06cc3ec45")
+		(property "Reference" "R156"
 			(at 66.716 61.18 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4090,7 +4086,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0762KL"
+		(property "Datasheet" ""
 			(at 63.5 62.23 0)
 			(hide yes)
 			(show_name no)
@@ -4112,8 +4108,77 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0762KL"
-			(at 63.5 62.23 0)
+		(pin "1"
+			(uuid "eb84c519-9d56-5c8d-88a9-e2f0fc623f73")
+		)
+		(pin "2"
+			(uuid "d772e8f0-7caa-5171-9673-aa493ebf82fd")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R156")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+15V")
+		(at 63.5 50.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d4f80c1f-011d-5320-87d9-2bebe707f048")
+		(property "Reference" "#PWR214"
+			(at 63.5 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+15V"
+			(at 63.5 47.244 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
+			(at 63.5 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4124,15 +4189,649 @@
 			)
 		)
 		(pin "1"
-			(uuid "cdf9c2e8-69ef-5f9d-bccb-86bac1efb664")
-		)
-		(pin "2"
-			(uuid "32366862-b52e-5cdd-94ab-92832f73c54e")
+			(uuid "50f7a544-ca07-5520-817a-1b707ce11564")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
-					(reference "R106")
+					(reference "#PWR214")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 63.5 54.61 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d57ffb9a-37bd-5da9-add7-a91246ffc007")
+		(property "Reference" "R155"
+			(at 66.716 52.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "220k"
+			(at 66.716 54.39 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 63.5 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 63.5 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9040dfe3-d5b3-5d9a-9c3c-c2eabcb46d3e")
+		)
+		(pin "2"
+			(uuid "c12e22cd-1609-5af7-a0f2-5c1f079e3b5a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R155")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 38.1 62.23 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dcb64452-385d-53c9-8972-1b4f9ac6132a")
+		(property "Reference" "R154"
+			(at 41.316 61.18 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "62k"
+			(at 41.316 63.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 38.1 62.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 62.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 38.1 62.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a086da08-c33b-5e4f-b8da-ad45f5fbeca8")
+		)
+		(pin "2"
+			(uuid "ecd15b31-7dac-54ff-9ea1-a2c9c61c483e")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R154")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 38.1 66.04 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e2022141-a7b6-5114-a434-9fc9aaa77386")
+		(property "Reference" "#PWR213"
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7fe47a0c-d118-51e2-9145-779242aa2a52")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR213")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 40.64 110.49 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e4906e0f-264c-5ce7-af5e-dc20a99851d6")
+		(property "Reference" "R164"
+			(at 43.856 106.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1.5k"
+			(at 43.856 109 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 40.64 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 40.64 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4d70cf4c-6498-5252-891b-4fe29d1c36d8")
+		)
+		(pin "2"
+			(uuid "905f8b3d-375e-5326-9c7e-c14c813d6564")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R164")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 38.1 190.5 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e52248e4-a6b3-5296-8b8a-bd7363ce6927")
+		(property "Reference" "#PWR216"
+			(at 38.1 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V_PS15"
+			(at 38.1 186.944 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 38.1 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+5V\\\""
+			(at 38.1 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "93faf6ac-3f29-5d1c-ae09-7f9fad2a5157")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR216")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 38.1 54.61 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e8ba3e91-10ae-5eab-8b9d-ab24ad66ba02")
+		(property "Reference" "R153"
+			(at 41.316 52.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "220k"
+			(at 41.316 54.39 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 38.1 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 38.1 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "224d0b66-0778-5f6a-a294-9b8f15bd21a6")
+		)
+		(pin "2"
+			(uuid "0703462b-03ac-564d-8d09-2085bcefebbd")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R153")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 40.64 106.68 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ed71d371-d763-5b09-b465-cba06b823a04")
+		(property "Reference" "#PWR224"
+			(at 40.64 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 40.64 103.124 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 40.64 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 40.64 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "041711fd-e29a-541a-bcfe-b1206ea1816a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "#PWR224")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 91.44 110.49 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f89856a1-20f9-5eb8-8558-bdeda85e8f65")
+		(property "Reference" "R165"
+			(at 94.656 106.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1.5k"
+			(at 94.656 109 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 91.44 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 91.44 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 91.44 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "69030941-a839-528c-b6d0-a5117d0ee1e0")
+		)
+		(pin "2"
+			(uuid "c63ff396-7f42-539e-8235-2adfa7a2397d")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/76f0855a-f763-53c4-bae1-f4998ef2ad89"
+					(reference "R165")
 					(unit 1)
 				)
 			)

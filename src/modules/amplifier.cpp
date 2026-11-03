@@ -31,6 +31,10 @@
 #include "tick.h"
 #include "logger.h"
 #include "power_good.h"
+#include "i2c_bridge.h"
+
+/// How often the four bridge-read rail flags are sampled (ms).
+static constexpr uint32_t RAIL_FLAG_POLL_MS = 250;
 
 // ---------------------------------------------------------------------------
 // Module-private state
@@ -142,6 +146,45 @@ static void pollPowerGood() {
         default:
             break;
     }
+}
+
+/// Individual rail flags read through the SC18IS604 GPIOs (polled).
+static RailFlags sRailFlags{};
+static bool      sRailFlagsValid = false;
+static uint32_t  sLastRailPollMs = 0;
+
+/** Log one rail flag that changed. */
+static void logRailChange(const char* rail, bool good) {
+    _Log.printf("%s%s power good %s\n", good ? "" : "WARNING: ", rail, good ? "restored" : "lost");
+}
+
+/**
+ * Read the four +-15 V power-good flags through the bridge every
+ * RAIL_FLAG_POLL_MS and log each one that changed, so a fault names the rail.
+ */
+static void pollRailFlags() {
+    const uint32_t now = tick::nowMs();
+    if (sRailFlagsValid && static_cast<uint32_t>(now - sLastRailPollMs) < RAIL_FLAG_POLL_MS) {
+        return;
+    }
+    sLastRailPollMs = now;
+    const int16_t state = i2c_bridge::readGpio();
+    if (state < 0) return;
+    const RailFlags flags = decodeRailFlags(static_cast<uint8_t>(state), BRIDGE_GPIO_PGP_15V,
+                                            BRIDGE_GPIO_PGN_15V, BRIDGE_GPIO_PGP_16V5,
+                                            BRIDGE_GPIO_PGN_16V5);
+    if (sRailFlagsValid) {
+        if (flags.posLdo != sRailFlags.posLdo) logRailChange("+15 V (LT3097)", flags.posLdo);
+        if (flags.negLdo != sRailFlags.negLdo) logRailChange("-15 V (LT3097)", flags.negLdo);
+        if (flags.posBoost != sRailFlags.posBoost) logRailChange("+16.4 V (LT8582)", flags.posBoost);
+        if (flags.negInvert != sRailFlags.negInvert) logRailChange("-16.5 V (LT8582)", flags.negInvert);
+    } else {
+        _Log.printf("Rail flags: +15V %s, -15V %s, +16.4V %s, -16.5V %s\n",
+                    flags.posLdo ? "ok" : "BAD", flags.negLdo ? "ok" : "BAD",
+                    flags.posBoost ? "ok" : "BAD", flags.negInvert ? "ok" : "BAD");
+    }
+    sRailFlags      = flags;
+    sRailFlagsValid = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -352,6 +395,11 @@ bool isPowerGood() {
     return sPowerGood.isGood();
 }
 
+bool railFlags(RailFlags& flags) {
+    flags = sRailFlags;
+    return sRailFlagsValid;
+}
+
 bool checkDependencies() {
     return true;
 }
@@ -501,6 +549,7 @@ module::ServiceStatus service() {
     }
 
     pollPowerGood();
+    pollRailFlags();
 
     // -- DEBUG: dump raw ACS37800 register contents periodically -------------
     // Runs regardless of sAcsAvailable so we can see what SPI reads return
