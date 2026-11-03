@@ -145,6 +145,42 @@ Add these to the `right` dict in `build_mcu` and remove pins 16/24/25/26 from it
 - Routing at 0.2 mm where the 0.3 mm power class didn't fit: `-15V` (one leg) and `VIN` to U11 (LTC2954) and R27 (82k), microamp loads only. `-15V` is fine at 0.2 mm for the op-amp load, but widen it by hand if there is room.
 - The fab files and renders in `fabrication/` were regenerated from this state on request. **Don't upload the zip until the three PG nets are routed.**
 
+### State at end of 2026-11-02 — board NOT updated, NOT READY TO ORDER
+
+`cryocooler.kicad_pcb` is still the 4cad7d4 board. Its fab files in `fabrication/` match that board.
+
+**Problems with the committed board:**
+- `PGP_16V5` (U20 pin 3) is unrouted.
+- Both LT8582 switch nodes are long, thin, multi-layer traces:
+  - `Net-(D5-A)`: 26.6 mm at 0.2 mm.
+  - `Net-(U20-SWA2)`: 15 mm at 0.25 mm.
+- The grid router can't fix this: every pin-3 escape broke a feedback or compensation net.
+
+**LT8582 stage re-placement (in `tools/gen_pcb.py` `PLACEMENT`, not yet applied to the board):**
+- U20 is turned 270° so SW1 (pins 1, 24) faces west and SW2 (pins 12, 13) faces east.
+- West end: D5, C58 and L2's pad 2.
+- East end: C59, D6, C60 and L3's pads 3/4.
+- Control passives sit north of U20; RT/SS parts sit south, with C61/C62 on top.
+- `RAILS ±15V@bottom` grows into the empty strip y 24.2–28.8; DISPLAY's matching rect is dropped (`tools/pcbfloorplan.py`).
+
+**Scripts:**
+
+| Script | What it does |
+|---|---|
+| `tools/lt8582_place.py` | applies the re-placement to a board |
+| `tools/lt8582_power.py` | rips the stage and draws the power copper as straight tracks: 0.8 mm SW buses, inductor vias, D6-A link, EP vias, south-row ties |
+| `tools/clear_collisions.py` | removes other-net copper the new parts hit |
+| `tools/r40_to_ch.py` | moves R40's pad 1 to +3V3_CH |
+
+**Next step:** route the remaining small nets **by hand in KiCad** (interactive router).
+- My grid router's diagonal, wandering tracks were rejected for this board.
+- The router-filled try is in `routing_wip/p3.kicad_pcb`, for reference only. `routing_wip/` is untracked scratch.
+
+**R40 (ADS1220 CS pull-up) → +3V3_CH:**
+- Done in the schematic: rev 1 bench finding, the cold-head LED glowed dim with JP5 out.
+- Still to do on the PCB, with `tools/r40_to_ch.py`.
+- Open question: R81 / R82 (bridge CS / RESET pull-ups) go to +3V3 while the bridge runs on +3V3_COOL (JP4), which could back-feed the same way.
+
 ## Remaining work, in order (items 1-7 done)
 
 1. Fix the 5 SC18IS604 rules. Write `build_display` (a new `display` sheet in `SHEETS`) and the GPIO map changes. Add datasheet rules for the TSC2046 and FPC.

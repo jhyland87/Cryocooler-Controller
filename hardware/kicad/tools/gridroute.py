@@ -26,6 +26,7 @@ VIA_D, VIA_DRILL = 0.45, 0.2
 HOLE_GAP = 0.25
 VIA_COST = float(os.environ.get('VIA_COST', '30'))
 VIA_IN_PAD_COST = 120.0
+SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
@@ -59,12 +60,16 @@ def layer_by_name(board, name):
 class Grid:
     """Blocked cells for one net: one bytearray per copper layer plus vias."""
 
-    def __init__(self, board, net, width, region):
+    def __init__(self, board, net, width, region, soft_nets=()):
         self.board, self.net, self.width = board, net, width
         self.x0, self.y0, self.x1, self.y1 = region
         self.blocked = {layer: bytearray(N) for layer in ALL_LAYERS}
         self.via_blocked = bytearray(N)
         self.pad_via = bytearray(N)
+        # tracks of soft_nets are passable at a cost (rip-up candidates)
+        self.soft_nets = set(soft_nets)
+        self.soft = {layer: bytearray(N) for layer in ALL_LAYERS} if soft_nets else None
+        self.soft_via = bytearray(N) if soft_nets else None
         self.build()
 
     def cells(self, minx, miny, maxx, maxy):
@@ -110,6 +115,12 @@ class Grid:
                         pcbnew.VECTOR2I(nm(cx * CELL), nm(cy * CELL))):
                     grid[row + cx] = 1
 
+    def targets(self, track):
+        """The (per-layer, via) grids a foreign track or via is marked in."""
+        if track.GetNetCode() in self.soft_nets:
+            return self.soft, self.soft_via
+        return self.blocked, self.via_blocked
+
     def near(self, minx, miny, maxx, maxy, margin):
         return not (maxx + margin < self.x0 or minx - margin > self.x1
                     or maxy + margin < self.y0 or miny - margin > self.y1)
@@ -131,22 +142,24 @@ class Grid:
                                   drill + VIA_DRILL / 2 + HOLE_GAP)
                 if track.GetNetCode() == self.net:
                     continue
+                layers, vias = self.targets(track)
                 for layer in ALL_LAYERS:
-                    self.mark_capsule(self.blocked[layer], ax, ay, ax, ay, radius + track_infl)
-                self.mark_capsule(self.via_blocked, ax, ay, ax, ay, radius + via_infl)
+                    self.mark_capsule(layers[layer], ax, ay, ax, ay, radius + track_infl)
+                self.mark_capsule(vias, ax, ay, ax, ay, radius + via_infl)
                 continue
             if track.GetNetCode() == self.net:
                 continue
             layer = track.GetLayer()
             if layer not in self.blocked:
                 continue
+            layers, vias = self.targets(track)
             radius = mm(track.GetWidth()) / 2
             if track.GetClass() == 'PCB_ARC':
-                self.mark_poly(self.blocked[layer], track, layer, track_infl)
-                self.mark_poly(self.via_blocked, track, layer, via_infl)
+                self.mark_poly(layers[layer], track, layer, track_infl)
+                self.mark_poly(vias, track, layer, via_infl)
                 continue
-            self.mark_capsule(self.blocked[layer], ax, ay, bx, by, radius + track_infl)
-            self.mark_capsule(self.via_blocked, ax, ay, bx, by, radius + via_infl)
+            self.mark_capsule(layers[layer], ax, ay, bx, by, radius + track_infl)
+            self.mark_capsule(vias, ax, ay, bx, by, radius + via_infl)
         for pad in board.GetPads():
             bbox = pad.GetBoundingBox()
             if not self.near(mm(bbox.GetLeft()), mm(bbox.GetTop()),
@@ -278,6 +291,7 @@ def astar(grid, starts, goals):
         layer, index = state
         cx, cy = index % NX, index // NX
         blocked = grid.blocked[layer]
+        soft, soft_via = grid.soft, grid.soft_via
         for dx, dy, step in NEIGHBOURS:
             nx, ny = cx + dx, cy + dy
             if not (0 <= nx < NX and 0 <= ny < NY):
@@ -289,6 +303,8 @@ def astar(grid, starts, goals):
                 continue
             nstate = (layer, nindex)
             ncost = cost + step * LAYER_COST.get(layer, 1.0)
+            if soft is not None and soft[layer][nindex]:
+                ncost += SOFT_COST
             if ncost < best.get(nstate, 1e18):
                 best[nstate] = ncost
                 parent[nstate] = state
@@ -299,6 +315,8 @@ def astar(grid, starts, goals):
                     continue
                 nstate = (other, index)
                 ncost = cost + (VIA_IN_PAD_COST if grid.pad_via[index] else VIA_COST)
+                if soft is not None and (soft_via[index] or soft[other][index]):
+                    ncost += SOFT_COST * 4
                 if ncost < best.get(nstate, 1e18):
                     best[nstate] = ncost
                     parent[nstate] = state
@@ -361,6 +379,9 @@ def parse_item(board, item):
 
 
 def width_for(board, net):
+    # WIDTH forces a width, e.g. for a power net's low-current feedback tap
+    if os.environ.get('WIDTH'):
+        return float(os.environ['WIDTH'])
     netinfo = board.FindNet(net)
     name = netinfo.GetNetClassName() if netinfo else 'Default'
     for key, value in WIDTHS.items():
@@ -378,7 +399,7 @@ def add_route(board, net, runs, start_pos, end_pos, width):
         if number == len(runs) - 1:
             coords[-1] = end_pos
         for a, b in zip(coords, coords[1:]):
-            if math.dist(a, b) < 1e-6:
+            if math.dist(a, b) < 0.01:
                 continue
             track = pcbnew.PCB_TRACK(board)
             track.SetStart(pcbnew.VECTOR2I(nm(a[0]), nm(a[1])))

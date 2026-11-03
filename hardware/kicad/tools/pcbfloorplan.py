@@ -88,13 +88,13 @@ MODULE_REGIONS = {
     'IMU CABLE@bottom': [Rect(14.2, 8.0, 17.3, 22.2), Rect(10.2, 15.8, 17.3, 22.2)],
     'WATER COOLING@bottom': [Rect(-3, 30.8, 21.0, 65), Rect(18.1, 23.3, 21.0, 31.4)],
     'SIGNAL GENERATOR@bottom': [Rect(18.1, -3, 47.0, 22.5)],
-    'DISPLAY@bottom': [Rect(47.8, 9.8, 59.6, 27.2), Rect(55.0, 23.8, 80.3, 27.2)],
+    'DISPLAY@bottom': [Rect(47.8, 9.8, 59.6, 27.2)],
     'MCU & USB@bottom': [Rect(60.4, 6.6, 80.3, 23.0)],
     'INDICATORS@bottom': [Rect(81.1, -3, 103, 16.0)],
     'COMPRESSOR RELAY@bottom': [Rect(81.1, 16.8, 103, 27.2)],
     'POWER INPUT & RAILS@bottom': [Rect(21.8, 23.3, 47.0, 65)],
     'AMP CONTROL@bottom': [Rect(47.8, 28.0, 59.4, 40.4)],
-    'RAILS ±15V@bottom': [Rect(60.2, 28.0, 103, 40.4)],
+    'RAILS ±15V@bottom': [Rect(60.2, 28.0, 103, 40.4), Rect(60.2, 24.2, 76.6, 28.8)],
     'AMP CURRENT (ISOLATED)@bottom': [Rect(47.8, 41.2, 103, 65)],
 }
 

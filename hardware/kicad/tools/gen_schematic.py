@@ -2585,7 +2585,9 @@ def build_cold_head(sh):
         net_label(sh, net, spur(sh, adc, pin, 12), 180, is_global=True)
     cs = pin_cell(adc, '2')
     vres(sh, '10k', cs[0] - 6, cs[1] - 6)
-    rail_symbol(sh, '+3V3', (cs[0] - 6, cs[1] - 6))
+    # switched rail: a +3V3 pull-up back-feeds the ADC through its CS clamp
+    # diode when JP5 is out (rev 1 bench finding)
+    rail_symbol(sh, '+3V3_CH', (cs[0] - 6, cs[1] - 6))
     drdy_end = spur(sh, adc, '14', 4)
     drdy = (drdy_end[0], drdy_end[1] + 4)
     wire(sh, drdy_end, drdy, (drdy[0], drdy[1] + 4))

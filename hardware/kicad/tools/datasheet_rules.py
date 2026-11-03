@@ -204,7 +204,7 @@ RULES = [
     ('net', 'ADS1220IPW', '1', 'SPI_SCK'),
     ('net', 'ADS1220IPW', '16', 'SPI_MOSI'),
     ('net', 'ADS1220IPW', '15', 'SPI_MISO'),
-    ('res', 'ADS1220IPW', '2', '10k', '+3V3'),
+    ('res', 'ADS1220IPW', '2', '10k', '+3V3_CH'),  # switched: no back-feed
     ('res', 'ADS1220IPW', '14', '10k', '+3V3_CH'),
     # SC18IS604 (SPI to I2C bridge, NXP rev 1.0 TSSOP16): VDD and VREFP on
     # 3.3 V, VSS on GND, CS/RESET/INT# pulled up, I2C pull-ups, MISO gated by

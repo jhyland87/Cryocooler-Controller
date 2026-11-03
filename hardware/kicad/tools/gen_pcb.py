@@ -101,8 +101,8 @@ PLACEMENT = {
     'SW3': (25.5, 14.2, 0),
     'J7': (34.0, 13.6, 0),
     'D3': (24.5, 20.0, 0),
-    'L2': (58.0, 32.6, 0),
-    'L3': (71.0, 32.4, 0),
+    'L2': (60.98, 32.6, 0),
+    'L3': (72.0, 31.9, 0),
     'U18': (75.96, 44.5, 90),
     'PS1': (59.0, 46.0, 180),
     # ─── top: right column: indicators, compressor relay ───
@@ -150,12 +150,14 @@ PLACEMENT = {
     # LT3097 -15 V output capacitor (1210), over the regulator in the free
     # corner of the top +-15 V box
     'C69': (78.0, 30.5, 90),
-    # LT8582 outputs and the LT3097 +15 V output (1210, 2.5 mm tall): the
-    # bottom +-15 V box is full
-    'C58': (50.8, 30.5, 90),
-    'C60': (64.1, 30.5, 90),
+    # LT3097 +15 V output (1210, 2.5 mm tall): the bottom +-15 V box is full
     'C67': (82.0, 30.5, 90),
-    'C57': (64.0, 35.0, 0),
+    # LT8582 input caps over U20's exposed pad (GND pads sit on its vias);
+    # C56's VIN pad lands on pin 22's via, C61 / C62 on the SS pin vias
+    'C57': (66.1, 30.0, 90),
+    'C56': (65.6, 33.6, 90),
+    'C61': (67.15, 34.9, 270),
+    'C62': (66.0, 36.4, 180),
     'TP8': (44.5, 25.5, 0),
     # fan / pump +12 V bulk capacitors (1210): the bottom cooling box is full
     'C27': (3.6, 46.6, 0),
@@ -172,9 +174,25 @@ PLACEMENT = {
     'Q8': (91.0, 20.0, 0, 'bottom'),
     'D13': (96.0, 20.0, 0, 'bottom'),
     # ─── bottom: +-15 V rails ───
-    'U20': (66.5, 33.0, 0, 'bottom'),
-    'D5': (62.1, 31.1, 90, 'bottom'),
-    'D6': (73.5, 35.0, 0, 'bottom'),
+    # LT8582 turned so SW1 (pins 1, 24) faces west to D5 / L2 and SW2 (pins
+    # 12, 13) faces east to C59 / D6 / L3: both switch nodes stay a few mm of
+    # wide copper. Control pins face north to their passives, RT / SS south.
+    'U20': (67.5, 32.4, 270, 'bottom'),
+    'D5': (61.85, 32.6, 270, 'bottom'),
+    'C58': (61.9, 27.35, 90, 'bottom'),
+    'C59': (72.7, 32.4, 270, 'bottom'),
+    'D6': (75.3, 32.4, 270, 'bottom'),
+    'C60': (73.5, 27.4, 0, 'bottom'),
+    'C64': (64.45, 28.0, 90, 'bottom'),
+    'R59': (65.55, 28.0, 90, 'bottom'),
+    'R55': (66.65, 28.0, 90, 'bottom'),
+    'R56': (67.75, 28.0, 90, 'bottom'),
+    'R60': (68.85, 28.0, 90, 'bottom'),
+    'C66': (69.95, 28.0, 90, 'bottom'),
+    'C63': (65.55, 25.7, 90, 'bottom'),
+    'C65': (68.85, 25.7, 90, 'bottom'),
+    'R57': (66.7, 35.9, 0, 'bottom'),
+    'R58': (69.25, 35.9, 0, 'bottom'),
     'U21': (79.0, 33.0, 0, 'bottom'),
     # ─── bottom: isolated amplifier current ───
     'U17': (58.5, 47.2, 0, 'bottom'),

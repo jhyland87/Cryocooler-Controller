@@ -10,21 +10,8 @@ def mm(value):
     return value / 1e6
 
 
-def main():
-    board = pcbnew.LoadBoard(sys.argv[1])
-    x0, y0, x1, y1 = (float(v) for v in sys.argv[3].split(','))
-    nets = set(sys.argv[4].split(','))
-
-    def inside(point):
-        return x0 <= mm(point.x) <= x1 and y0 <= mm(point.y) <= y1
-
-    doomed = [t for t in board.GetTracks() if t.GetNetname() in nets
-              and (inside(t.GetStart()) or inside(t.GetEnd()))]
-    print('ripped', len(doomed))
-    for item in doomed:
-        board.Delete(item)
-
-    # prune stubs: track ends / vias touching nothing else of their net
+def prune(board, nets):
+    """Deletes track ends and vias of nets that no longer touch anything."""
     while True:
         tracks = [t for t in board.GetTracks() if t.GetNetname() in nets]
         pads = [p for p in board.GetPads() if p.GetNetname() in nets]
@@ -71,6 +58,23 @@ def main():
         print('pruned', len(dangling))
         for item in dangling:
             board.Delete(item)
+
+
+def main():
+    board = pcbnew.LoadBoard(sys.argv[1])
+    x0, y0, x1, y1 = (float(v) for v in sys.argv[3].split(','))
+    nets = set(sys.argv[4].split(','))
+
+    def inside(point):
+        return x0 <= mm(point.x) <= x1 and y0 <= mm(point.y) <= y1
+
+    doomed = [t for t in board.GetTracks() if t.GetNetname() in nets
+              and (inside(t.GetStart()) or inside(t.GetEnd()))]
+    print('ripped', len(doomed))
+    for item in doomed:
+        board.Delete(item)
+
+    prune(board, nets)
     board.Save(sys.argv[2])
 
 
