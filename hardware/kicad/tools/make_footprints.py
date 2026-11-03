@@ -135,14 +135,15 @@ def rjsse5380():
     """Amphenol RJSSE-5380 SMT RJ45, 8P8C, shielded, no magnetics (drawing
     P-RJSSE-5380 rev E, component side). Origin midway between the two
     2.69 mm locating holes; +y points out of the jack mouth (board edge).
-    Pin 8 is 1.63 mm right of the left hole, pitch 1.27, 0.56 x 2.54 mm
+    Pins centred between the holes at 1.27 pitch (the drawing's 1.63 mm runs
+    from the left hole to pin 8's pad edge, not its centre); 0.56 x 2.54 mm
     pads 14.31 mm behind the hole line; shield pads 6.22 x 3.18 mm, 3.00 mm
     behind it, outer edges 1.92 mm outside the holes.
     """
     hole_x = 6.35
     pad_y = -14.31 + 2.54 / 2
     pads = [
-        smd_pad(str(number), round(1.63 + (8 - number) * 1.27 - hole_x, 3),
+        smd_pad(str(number), round((4.5 - number) * 1.27, 3),
                 round(pad_y, 3), 0.56, 2.54)
         for number in range(1, 9)
     ]

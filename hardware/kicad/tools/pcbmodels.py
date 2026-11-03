@@ -51,7 +51,6 @@ CONNECTOR_COLOURS = {
     'J7': 'white',
     'J13': 'white',
     'J10': 'white',
-    'J14': 'white',
 }
 
 # housing RGB in the stock STEP files: Phoenix terminal block (green), JST / Molex (cream)
@@ -108,11 +107,24 @@ ENVELOPES = {
         [(7.5, 7.5, 4.6, 0.0, 0.0, GRAY)],
     ),
     # Amphenol RJSSE-5380 (drawing P-RJSSE-5380 rev E): shield 16.51 wide,
-    # 13.58 high, 15.75 deep; mouth 2.54 in front of the hole line, so the
-    # body spans footprint y -13.21 .. 2.54
+    # 13.58 high, 15.75 deep; mouth 4.37 in front of the hole line, so the
+    # body spans footprint y -11.38 .. 4.37. Fallback for LOCAL_STEP_MODELS.
     'RJ45_Amphenol_RJSSE-5380_Horizontal': (
         'RJSSE5380_envelope',
-        [(16.51, 15.75, 13.58, 0.0, 5.335, SILVER)],
+        [(16.51, 15.75, 13.58, 0.0, 3.505, SILVER)],
+    ),
+}
+
+# footprint name -> (STEP file in MODEL_DIR, offset mm, rotation deg). These
+# vendor models are licensed for design use only, so they are gitignored and
+# used when present; without the file the footprint gets its envelope.
+# RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
+# pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
+LOCAL_STEP_MODELS = {
+    'RJ45_Amphenol_RJSSE-5380_Horizontal': (
+        'RJSSE5380.step',
+        (-7.874, -4.13, 0.762),
+        (-90.0, 0.0, 0.0),
     ),
 }
 
@@ -138,29 +150,40 @@ def write_model(name, boxes):
 
 
 def library_model_exists(model_path):
-    """True if a footprint's 3D model file is present in the KiCad install."""
-    prefix = '${KICAD10_3DMODEL_DIR}/'
-    if not model_path.startswith(prefix):
-        return Path(model_path).exists()
-    return (STOCK_MODELS / model_path[len(prefix) :]).exists()
+    """True if a footprint's 3D model file is present in the KiCad install
+    or the project library."""
+    for prefix, root in (('${KICAD10_3DMODEL_DIR}/', STOCK_MODELS), ('${KIPRJMOD}/', KICAD_DIR)):
+        if model_path.startswith(prefix):
+            return (root / model_path[len(prefix) :]).exists()
+    return Path(model_path).exists()
 
 
 def attach_missing_models(footprint):
-    """Gives a footprint an envelope model if it has none or its model file
-    is missing; returns True if it did.
+    """Gives a footprint its local vendor STEP (LOCAL_STEP_MODELS) when the
+    file is present, otherwise an envelope model if it has none or its model
+    file is missing; returns True if it changed the model.
     """
     name = str(footprint.GetFPID().GetLibItemName())
-    if name not in ENVELOPES:
-        return False
-    if any(library_model_exists(m.m_Filename) for m in footprint.Models()):
-        return False
-    model_name, boxes = ENVELOPES[name]
-    path = write_model(model_name, boxes)
+    local_step = LOCAL_STEP_MODELS.get(name)
+    if local_step is not None and (MODEL_DIR / local_step[0]).exists():
+        wanted = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{local_step[0]}'
+        if [m.m_Filename for m in footprint.Models()] == [wanted]:
+            return False
+        model = pcbnew.FP_3DMODEL()
+        model.m_Filename = wanted
+        model.m_Offset = pcbnew.VECTOR3D(*local_step[1])
+        model.m_Rotation = pcbnew.VECTOR3D(*local_step[2])
+    else:
+        if name not in ENVELOPES:
+            return False
+        if any(library_model_exists(m.m_Filename) for m in footprint.Models()):
+            return False
+        path = write_model(*ENVELOPES[name])
+        model = pcbnew.FP_3DMODEL()
+        model.m_Filename = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{path.name}'
+        model.m_Scale = pcbnew.VECTOR3D(VRML_SCALE, VRML_SCALE, VRML_SCALE)
     while footprint.Models().size():
         footprint.Models().pop_back()
-    model = pcbnew.FP_3DMODEL()
-    model.m_Filename = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{path.name}'
-    model.m_Scale = pcbnew.VECTOR3D(VRML_SCALE, VRML_SCALE, VRML_SCALE)
     model.m_Show = True
     footprint.Models().push_back(model)
     return True

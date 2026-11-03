@@ -25,7 +25,7 @@ done.
 | J10 PT1000 | Adafruit 4392, JST PH 4-pin horizontal SMD (CW2001-04T) | replaces the M12; footprint from the maker's drawing |
 | J11 amp out | Phoenix MSTBA 2,5 2-pin | + / − to U18 (ACS37800) |
 | J12 cryocooler | Phoenix MSTBA 2,5 3-pin (1757255) | + / − from U18; pin 3 on board GND, outside the ISO island |
-| J14 IMU | Amphenol RJSSE-5380 | plain 8P8C; the three parts in the TODO have magnetics |
+| J14 IMU | Amphenol RJSSE-5380 | plain 8P8C; the three parts in the TODO have magnetics. Signal pads centred between the holes (fixed 0.28 mm offset) |
 | J15 display | Hirose FH12-14S-0.5SH | top edge, top side |
 | J6 / J7 / J13 | Adafruit 1769 JST PH 2-pin SMD | unchanged |
 | J8 / J9 | Phoenix MC 1,5 | moved to the left wall |
@@ -53,6 +53,12 @@ done.
   is a ~1 mm strip from pin 13 to L3 plus a B.Cu pour to C59. Pin 12's link under the
   exposed pad stays narrow (~0.28 mm): the pad and a +5V_PS15 track bound it.
 - **U20 exposed pad:** 15 GND vias now (was 1), capped via-in-pad.
+- **J14 mouth past the edge:** the jack face is 4.37 mm in front of its locating holes, so as
+  placed (x 116.65) it sits ~1.0 mm past the 120 mm board edge. Amphenol's drawing shows a
+  1.65 mm overhang for panel mounting; check it against the UCS 145-125 wall cutout.
+- **J14 3D model:** Amphenol's STEP (via SnapMagic, `dev/RJSSE5380`) is licensed for design
+  use only, so `lib/cryocooler.3dshapes/RJSSE5380.step` is gitignored. Copy it there to render
+  the real jack; without it `pcbmodels.py` falls back to a box envelope.
 - **Board ID:** the board ID prints the commit the board was generated from (`7f4c0ac`), not
   the commit that holds the files.
 - **Labels left out (no room):**
