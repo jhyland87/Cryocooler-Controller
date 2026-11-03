@@ -125,7 +125,7 @@ PLACEMENT = {
     'L2': (72.5, 44.5, 270),
     'L3': (70.9, 62.3, 180),
     'D6': (63.5, 62.3, 0),
-    'U21': (63.0, 56.0, 180),
+    'U21': (80.0, 55.0, 180),
     # ─── top: indicators ───
     'D11': (68.0, 35.0, 0),
     'U24': (76.0, 35.0, 0),
@@ -193,6 +193,11 @@ FINE_PITCH_GROUND_PADS = {
     'U20': {'25'},
     'U25': {'13'},
     'U11': {'4'},
+}
+# signal pads of the 0.5 mm pitch regulators boxed in by their own passives:
+# a locked via-in-pad lets them escape on the inner layers
+SIGNAL_VIA_PADS = {
+    'U20': {'3', '8', '10', '18', '23'},  # PGP, VC2, PGN, CLKOUT1 pair
 }
 # GND pads of placed passives that are boxed in by their own signal track and
 # would otherwise get a via-in-pad after routing, on top of an inner track
@@ -281,8 +286,8 @@ PIN_LABELS = {
     'J11': ['+', '-'],
     'J12': ['+', '-', 'GND'],
     'J13': ['+12V', 'GND'],
-    # RJ45 pins 1-8 (T568B pairs) by the module pad they reach
-    'J14': ['SCL', 'GND', 'SDA', 'VIN', 'CS', 'DO', 'I1', 'I2'],
+    # J14 (RJ45) has none: 1.0 mm text cannot fit its 1.02 mm pin pitch; its
+    # pinout is in the schematic
 }
 # what each supply jumper switches (JP1 ... JP5, in schematic order)
 JUMPER_LABELS = ('SG 3V3', '±15V EN', 'ISO PS', 'WATER EN', 'HEAD EN')
@@ -391,8 +396,8 @@ def link_to_symbol(footprint, part):
     library, name = part['footprint'].split(':')
     footprint.SetFPID(pcbnew.LIB_ID(library, name))
     # match the symbol's attributes (the stock test points exclude
-    # themselves from the BOM; gen_bom.py leaves them out anyway)
-    footprint.SetExcludedFromBOM(False)
+    # themselves from the BOM)
+    footprint.SetExcludedFromBOM(part.get('exclude_from_bom', False))
     for field, value in part.get('fields', {}).items():
         footprint.SetField(field, value)
         footprint.GetField(field).SetVisible(False)
@@ -1766,7 +1771,7 @@ class PcbBuilder:
                         grid_x, grid_y, via_radius + clearance, obstacle
                     )
                     for obstacle in obstacles
-                ):
+                ) or self.in_via_keepout(grid_x, grid_y, via_radius + clearance):
                     continue
                 via = pcbnew.PCB_VIA(self.board)
                 via.SetPosition(point)
@@ -1787,6 +1792,18 @@ class PcbBuilder:
                 added += 1
             grid_y += pitch
         return added
+
+    def in_via_keepout(self, x, y, margin):
+        """True if a via at (x, y) would reach within `margin` mm of a rule
+        area that forbids vias (antenna and corner keep-outs).
+        """
+        point = pcbnew.VECTOR2I(to_internal(x), to_internal(y))
+        return any(
+            zone.GetIsRuleArea()
+            and zone.GetDoNotAllowVias()
+            and zone.Outline().Collide(point, to_internal(margin))
+            for zone in self.board.Zones()
+        )
 
     def obstacle_list(self):
         obstacles = []
@@ -1877,6 +1894,8 @@ class PcbBuilder:
                                 obstacle,
                             )
                             for obstacle in obstacles
+                        ) and not self.in_via_keepout(
+                            position_x, position_y, via_diameter / 2 + clearance
                         ):
                             via = pcbnew.PCB_VIA(self.board)
                             via.SetPosition(point)
@@ -2742,6 +2761,7 @@ class PcbBuilder:
         self.module_walls = {}
         self._removed_shapes = []
         self.box_labels = {}
+        self.label_items = {}
         for module in pcbfloorplan.MODULE_REGIONS:
             spot = self.early_labels.get(module)
             if spot is None:
@@ -2756,7 +2776,7 @@ class PcbBuilder:
             width = pcbfloorplan.label_width(text)
             side = pcbfloorplan.split_key(module)[1]
             # mirrored (bottom) text grows to the left of its anchor
-            self.add_text(
+            self.label_items[module] = self.add_text(
                 text,
                 left_x + width - 0.4 if side == 'bottom' else left_x,
                 line_y,
@@ -2789,6 +2809,55 @@ class PcbBuilder:
             'module outlines bulged around labels:',
             {m: len(r) for m, r in self.bumps.items()},
         )
+
+    def cut_lines_at_labels(self, gap=0.3):
+        """Breaks every section line where it crosses a section label on the
+        same side; a wall drawn by the neighbouring section has no gap for it.
+        Returns the number of lines cut.
+        """
+        cut = 0
+        for module, label in self.label_items.items():
+            side = pcbfloorplan.split_key(module)[1]
+            box = self.text_box(label).inflated(gap)
+            for owner, shapes in self.box_lines.items():
+                if pcbfloorplan.split_key(owner)[1] != side:
+                    continue
+                for shape in list(shapes):
+                    start, end = shape.GetStart(), shape.GetEnd()
+                    x1, y1, x2, y2 = (start.x / 1e6, start.y / 1e6, end.x / 1e6, end.y / 1e6)
+                    horizontal = abs(y1 - y2) < 1e-3
+                    if horizontal and box.min_y <= y1 <= box.max_y:
+                        low, high, pieces = min(x1, x2), max(x1, x2), []
+                        if high <= box.min_x or low >= box.max_x:
+                            continue
+                        if low < box.min_x:
+                            pieces.append(((low, y1), (box.min_x, y1)))
+                        if high > box.max_x:
+                            pieces.append(((box.max_x, y1), (high, y1)))
+                    elif not horizontal and box.min_x <= x1 <= box.max_x:
+                        low, high, pieces = min(y1, y2), max(y1, y2), []
+                        if high <= box.min_y or low >= box.max_y:
+                            continue
+                        if low < box.min_y:
+                            pieces.append(((x1, low), (x1, box.min_y)))
+                        if high > box.max_y:
+                            pieces.append(((x1, box.max_y), (x1, high)))
+                    else:
+                        continue
+                    shapes.remove(shape)
+                    self.board.Remove(shape)
+                    self._removed_shapes.append(shape)
+                    for piece_start, piece_end in pieces:
+                        line = pcbnew.PCB_SHAPE(self.board)
+                        line.SetShape(pcbnew.SHAPE_T_SEGMENT)
+                        line.SetLayer(shape.GetLayer())
+                        line.SetWidth(shape.GetWidth())
+                        line.SetStart(pcbnew.VECTOR2I(to_internal(piece_start[0]), to_internal(piece_start[1])))
+                        line.SetEnd(pcbnew.VECTOR2I(to_internal(piece_end[0]), to_internal(piece_end[1])))
+                        self.board.Add(line)
+                        shapes.append(line)
+                    cut += 1
+        return cut
 
     def text_box(self, item):
         box = item.GetBoundingBox()
@@ -3285,11 +3354,14 @@ class PcbBuilder:
 
     def free_mark_spot(self, rect, obstacles):
         """True if a pin-1 dot or pin name fits there: on the board, off the
-        keep-outs and clear of every silk obstacle on its side.
+        keep-outs, the visible footprint texts (test point net names) and
+        every silk obstacle on its side.
         """
         if not rect.inside(self.occupancy.board_rect):
             return False
         if any(rect.overlaps(keepout) for keepout in self.occupancy.keepouts):
+            return False
+        if any(rect.overlaps(text.inflated(0.1)) for text in self.footprint_texts()):
             return False
         return not any(rect.overlaps(other) for other in obstacles)
 
@@ -3477,6 +3549,7 @@ class PcbBuilder:
         placed, skipped = self.add_ic_labels()
         print('IC part numbers placed:', placed, 'skipped:', skipped)
         self.bulge_module_boxes()
+        print('section lines cut at labels:', self.cut_lines_at_labels())
         self.add_board_id()
 
     def build(self):
@@ -3487,6 +3560,7 @@ class PcbBuilder:
         self.reserve_anchor_pockets()
         self.pre_route_current_path()
         self.pre_place_fine_pitch_ground_vias()
+        self.pre_place_fine_pitch_ground_vias(SIGNAL_VIA_PADS)
         self.pre_place_pad_bridges()
         unplaced = self.place_passives()
         self.pre_place_fine_pitch_ground_vias(LATE_GROUND_PADS)
@@ -3668,6 +3742,10 @@ def main():
 
 
 if __name__ == '__main__':
+    # set iteration order follows the string hash seed: pin it so a placement
+    # run repeats exactly
+    if os.environ.get('PYTHONHASHSEED') != '0':
+        os.execve(sys.executable, [sys.executable, *sys.argv], {**os.environ, 'PYTHONHASHSEED': '0'})
     exit_code = main()
     # Gerbers, zip and renders follow every board write
     export_fab.export_fabrication()

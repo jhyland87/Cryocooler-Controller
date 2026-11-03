@@ -66,7 +66,18 @@ def load_netlist():
                 for field, key in (('Description', 'description'), ('Datasheet', 'datasheet'))
                 if find_all(comp, key)
             },
+            'exclude_from_bom': any(
+                sval(find_all(prop, 'name')[0][1]) == 'exclude_from_bom'
+                for prop in find_all(comp, 'property')
+            ),
         }
+        # the symbol's own extra fields (Product, ...)
+        for block in find_all(comp, 'fields'):
+            for field in find_all(block, 'field'):
+                name = sval(find_all(field, 'name')[0][1])
+                if name in ('Footprint', 'Datasheet', 'Description') or len(field) < 3:
+                    continue
+                parts[ref]['fields'][name] = sval(field[2])
     nets = {}
     for net in find_all(find_all(root, 'nets')[0], 'net'):
         name = sval(find_all(net, 'name')[0][1])

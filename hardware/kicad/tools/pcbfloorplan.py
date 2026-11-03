@@ -80,8 +80,8 @@ FLOORPLAN = {
     'MCU & USB': [Rect(60, -3, 100, 30), Rect(100, -3, 123, 21.5)],
     'IMU CABLE': [Rect(100, 21.5, 123, 42)],
     'INDICATORS': [Rect(60, 30, 100, 40)],
-    'RAILS ±15V': [Rect(60, 40, 80, 72)],
-    'POWER GOOD': [Rect(80, 40, 100, 72)],
+    'RAILS ±15V': [Rect(60, 40, 88, 72)],
+    'POWER GOOD': [Rect(88, 40, 100, 72)],
     'COLD HEAD TEMP': [Rect(100, 42, 123, 64)],
     'AMP CONTROL': [Rect(-3, 62.5, 22, 85)],
     'POWER INPUT & RAILS': [
