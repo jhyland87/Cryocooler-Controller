@@ -90,6 +90,18 @@ ENVELOPES = {
         'LT3097_envelope',
         [(3.0, 6.0, 0.75, 0.0, 0.0, BLACK)],
     ),
+    # Adafruit 1769 (4UCON 17311): body 7.9 x 6.0 mm, 5.5 mm high, mating
+    # face at footprint y 4.4 (model y is footprint -y)
+    'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': (
+        'Adafruit_1769_envelope',
+        [(7.9, 6.0, 5.5, 0.0, -1.4, BLACK)],
+    ),
+    # Adafruit 4392 (CW2001-04T): body 12.0 x 6.0 mm, 5.5 mm high, mating
+    # face at footprint y 4.6
+    'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': (
+        'Adafruit_4392_envelope',
+        [(12.0, 6.0, 5.5, 0.0, -1.6, BLACK)],
+    ),
 }
 
 

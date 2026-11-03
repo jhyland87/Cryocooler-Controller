@@ -298,9 +298,11 @@ RULES = [
     ('net', 'TSC2046EIPW', '15', 'TOUCH_CS'),
     ('nc', 'TSC2046EIPW', '9'),
     ('res', 'TSC2046EIPW', '15', '10k', 'GND'),
-    # J11 / J12 pin 3: protective earth passed straight through, nothing else
-    ('join', 'AMP OUT (+ / - / EARTH)', '3', 'CRYOCOOLER (+ / - / EARTH)', '3'),
-    ('same', 'AMP OUT (+ / - / EARTH)', '2', '2'),
+    # J12 pin 3 (cryocooler protective ground) on board GND; J11 / J12 minus
+    # on the isolated side
+    ('net', 'CRYOCOOLER (+ / - / GND)', '3', 'GND'),
+    ('net', 'CRYOCOOLER (+ / - / GND)', '2', 'ISO_GND'),
+    ('net', 'AMP OUT (+ / -)', '2', 'ISO_GND'),
 ]
 
 

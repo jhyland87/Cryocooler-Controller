@@ -5,7 +5,6 @@
 - Some extra test points could have been of use:
   - The ±15v test points should be in the ±15v rails section, ideally close to the regulators
   - The sine wave coming out of the DDS IC
- -
 - The 1.27mm pitch jumpers were a mistake, they should have been 2.54mm pitch
   - For future boards, instead of using through-hole headers for the jumpers, use the 0R jumpers found here: https://www.keyelco.com/userAssets/file/K75p60.pdf (Digikey items 36-5110CT-ND (for 0603), 36-5106CT-ND (for 0805), 36-5108CT-ND (for 1206))
 - The white LEDs are way too bright. Switch them with something dimmer. Maybe green for when they're in a good state.
@@ -15,11 +14,14 @@
   - Switch to LT3097
   - Switch to the LT8582 instead of the ADP5071AREZ so we can use the power good pin as an indicator.
   - Tie the power good pins of the LT3097 and LT8582 to GPIO pins on the ESP32 so we can programatically handle the faults.
-- Add a 0.5mm pitch 14 pin FPC connector horizontally to the top side of the PCB near the back of the PCB. This will be used to connect it to the touchscreen on the "UCS 125-87-F-GD-D2,4-TRG 9005" enclosure by Phoenix Contact.  This uses a 4-wire SPI half duplex interface. Do wire this up to the ESP32 and have it output just very basic text for now. We can spice up the UI later.
-- Lets try the 125x87 enclosure again since were now ok using 0402 components. A refresher for the PCB size can be found at: dev/UCS_125-87_PCB_Dimensions.png
+- Add a 0.5mm pitch 14 pin FPC connector horizontally to the top side of the PCB near the back of the PCB. This will be used to connect it to the touchscreen same one as whats found on the "UCS 125-87-F-GD-D2,4-TRG 9005" enclosure by Phoenix Contact.)  This uses a 4-wire SPI half duplex interface. Do wire this up to the ESP32 and have it output just very basic text for now. We can spice up the UI later.
+- Lets try the 145x125 enclosure again since were now ok using 0402 components. A refresher for the PCB size can be found at: dev/pxc_2203448_01_00_UCS-145-125-F-CCD-9005_PCB2D_UCS-PCB-145-125.pdf
 - If you're running low on space when making this, then you can start to forfeit some LED's and/or test points. Even omitting some of the SMD component labels is ok if necessary.
 - Be sure to use both sides of the board adiquately. Your last attempt on this PCB had all but a few components on one side, which made for a difficult time.
 - For the connection to the IMU, use surface mount RJ45 that has 8 leads, since the IMU also just uses 8 positions, this should help free up some room. Pick something like one of the following:
   - https://www.digikey.com/en/products/detail/kycon-inc/GLPLX-SMT-188S7-QQ-Y-G/9990208
   - https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/7498111120AR/17737783
   - https://www.digikey.com/en/products/detail/ease-electronics/AAOE-8P8C-10610/21736317
+- The plug the cryocooler uses has 3 pins since its normally connected to a 3 pin socket that outputs AC voltage from a variac. Hot, Live and Ground. The amplifier output only has the + and - pins, so we need a 2 pin connector for the amplifier to connect to, then the + and - get ran through the ACS37800, and then it needs to connect to a three pin connector for the cryocooler. The 3rd pin should connect to ground. 
+- The PCB should be blue.
+- Again, the board in this branch needs to be optimized to use both sides of the PCB, its pretty crowded on one side and baren on the other.

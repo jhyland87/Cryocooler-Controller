@@ -194,27 +194,42 @@ PARTS = {
     ('USB_C', 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal'): (
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
-    ('', 'TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'): (
-        'Phoenix Contact', '1729128', 'TERM BLOCK 2POS 5.08MM, MKDS 1,5/ 2-5,08',
-        'suggested', 'screw terminals, 5.08 mm side entry, black; 12 V in'),
-    ('', 'TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal'): (
-        'Phoenix Contact', '1729131', 'TERM BLOCK 3POS 5.08MM, MKDS 1,5/ 3-5,08',
-        'suggested', 'amp out and cryocooler: + / - / earth (pin 3 passes '
-        'straight through between J11 and J12)'),
-    ('', 'TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50mm_Horizontal'): (
-        'Phoenix Contact', '1984617', 'TERM BLOCK 2POS 3.5MM PUSH-IN, PT 1,5/ 2-3,5-H',
-        'suggested', 'amplifier REM and amplifier signal (low current)'),
-    ('', 'Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical'): (
-        'Molex', '0022232041', 'CONN HEADER KK 254 VERT 4POS', 'suggested', 'fan and pump (4-pin PWM); housings black'),
-    ('', 'Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical'): (
-        'Molex', '0022232031', 'CONN HEADER KK 254 VERT 3POS', 'suggested',
-        'J5 fan tach; housing red'),
-    ('', 'JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical'): (
-        'JST', 'B2B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 2POS 2.5MM',
-        'suggested', 'NTC, panel button, compressor relay; housing white'),
-    ('', 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical'): (
-        'JST', 'B4B-XH-A(LF)(SN)', 'CONN HEADER XH VERT 4POS 2.5MM',
-        'suggested', 'J10 cold head temp; housing white'),
+    # Right-angle connectors for the UCS 145-125 housing (plugs enter through
+    # the side walls). Ratings from each maker's datasheet.
+    ('', 'PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'): (
+        'Phoenix Contact', '1757242', 'PCB HEADER MSTBA 2,5/ 2-G-5,08, 12 A',
+        'suggested', 'right-angle pluggable header; J2 12 V in, J11 amp out. '
+        'Mating plug MSTB 2,5/ 2-ST-5,08 (confirm the plug item number '
+        'before ordering)'),
+    ('', 'PhoenixContact_MSTBA_2,5_3-G-5,08_1x03_P5.08mm_Horizontal'): (
+        'Phoenix Contact', '1757255', 'PCB HEADER MSTBA 2,5/ 3-G-5,08, 12 A',
+        'suggested', 'J12 cryocooler: + / - / GND (pin 3 is the plug\'s '
+        'protective ground, tied to board GND). Mating plug MSTB 2,5/ '
+        '3-ST-5,08 (confirm both item numbers before ordering)'),
+    ('', 'PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal'): (
+        'Phoenix Contact', '1803277', 'PCB HEADER MC 1,5/ 2-G-3,81, 8 A',
+        'suggested', 'right-angle pluggable header; amplifier REM and amplifier '
+        'signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number '
+        'before ordering)'),
+    ('', 'JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal'): (
+        'JST', 'S4B-XH-A(LF)(SN)', 'CONN HEADER XH SIDE ENTRY 4POS 2.5MM, 3 A',
+        'suggested', 'fan and pump (4-pin PWM); needs XHP-4 cable housings, '
+        'not PC-fan plugs'),
+    ('', 'JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal'): (
+        'JST', 'S3B-XH-A(LF)(SN)', 'CONN HEADER XH SIDE ENTRY 3POS 2.5MM, 3 A',
+        'suggested', 'J5 flow sensor tach; XHP-3 cable housing'),
+    ('', 'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'): (
+        'Adafruit', '1769', 'CONN HEADER JST PH COMPATIBLE R/A SMT 2POS 2MM, 2 A',
+        'design', 'J6 NTC, J7 panel button, J13 relay 12 V out; 4UCON 17311; '
+        'mates with a JST PHR-2 housing or JST PH 2-pin pigtail'),
+    ('', 'TestPoint_Keystone_5000-5004_Miniature'): (
+        'Keystone Electronics', '5001', 'TEST POINT PC MINIATURE BLACK',
+        'design', 'ground loops; 1.02 mm hole'),
+    ('', 'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'): (
+        'Adafruit', '4392', 'CONN HEADER JST PH COMPATIBLE R/A SMT 4POS 2MM, 2 A',
+        'design', 'J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei '
+        'CW2001-04T-H01-BD-A; mates with a JST PHR-4 housing or JST PH '
+        '4-pin pigtail'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
@@ -337,8 +352,6 @@ SUBSTITUTES = {
     'EEE-FK1E101P': ('EEE-FK1E101AP', 'Panasonic'),
     'CL32A226KAJNNNE': ('C1210C226K3PACTU', 'Kemet'),
     'CL31A106KAHNNNE': ('C3216X5R1E106K085AC', 'TDK'),
-    'B2B-XH-A(LF)(SN)': ('B2B-XH-A', 'JST'),
-    'B4B-XH-A(LF)(SN)': ('B4B-XH-A', 'JST'),
     'BSS84-7-F': ('BSS84', 'onsemi'),
     'RC0603FR-0710KL': ('AR0603FR-0710KL', 'Yageo'),
     'RC0603FR-075K1L': ('CR0603-FX-5101ELF', 'Bourns'),
@@ -510,13 +523,12 @@ def classify(value, footprint):
                 'suggested' if mpn else 'none', note)
     if footprint == 'LED_0402_1005Metric':
         if value == 'red':
-            return ('', '', 'LED RED CLEAR 0402 SMD', 'none',
-                    'fault indicators at ~1 mA: pick an AlInGaP red 0402 '
-                    '(Vf ~1.9 V)')
-        return ('Kingbright', 'APG1005SGC-F01', 'LED GREEN CLEAR 0402 SMD',
+            return ('Kingbright', 'APHHS1005SURCK', 'LED RED (630 NM) CLEAR 0402 SMD',
+                'suggested', 'fault indicators at ~1 mA; AlGaInP hyper red, '
+                'Vf 1.95 V typ')
+        return ('Kingbright', 'APHHS1005CGCK', 'LED GREEN (570 NM) CLEAR 0402 SMD',
                 'suggested', 'indicators sized for ~1 mA (1.5k on 3.3 V, '
-                '3.3k on 5 V, 13k on 15 V); verify the part number and pick '
-                'an AlInGaP green (Vf ~1.9 V) before ordering')
+                '3.3k on 5 V, 13k on 15 V); AlGaInP green, Vf 2.1 V typ')
     if footprint.startswith('LED_0603'):
         color = re.search(r'\((\w+)\)', value)
         color = color.group(1) if color else 'red'
@@ -539,29 +551,49 @@ def classify(value, footprint):
     return entry
 
 
+CONNECTOR_FOOTPRINTS = (
+    'PhoenixContact', 'JST_XH', 'Adafruit_', 'TestPoint_Keystone',
+)
+
+
+def bom_value(ref, value, footprint):
+    """The value a part is grouped and looked up by in the BOM."""
+    if footprint == 'LED_0402_1005Metric':
+        return 'red' if '(red)' in value or 'FAULT' in value else 'green'
+    if footprint.startswith(CONNECTOR_FOOTPRINTS):
+        return ''  # connectors group by footprint, not by label
+    if footprint.startswith('SW_SPST'):
+        return 'TACTILE'
+    if footprint == 'LED_1206_3216Metric':
+        return 'RED/GREEN'
+    return value
+
+
+def resolve(value, footprint):
+    """classify() with the ordered substitutes applied: (manufacturer, mpn,
+    description, basis, note).
+    """
+    maker, mpn, description, basis, note = classify(value, footprint)
+    if mpn in SUBSTITUTES:
+        note = '; '.join(filter(None, [note, f'substitute for {mpn}']))
+        mpn, maker = SUBSTITUTES[mpn]
+        basis = 'ordered'
+    return maker, mpn, description, basis, note
+
+
 def main():
-    parts = [p for p in load_netlist() if not p[0].startswith('TP')]
+    # pad test points are bare copper; the through-hole ground loops are parts
+    parts = [
+        p for p in load_netlist()
+        if not (p[0].startswith('TP') and 'TestPoint_Pad' in p[2])
+    ]
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
-        if footprint == 'LED_0402_1005Metric':
-            value = 'red' if '(red)' in value or 'FAULT' in value else 'green'
-        if footprint.startswith(
-            ('TerminalBlock', 'Molex_KK', 'JST_XH')
-        ):
-            value = ''  # connectors group by footprint, not by label
-        if footprint.startswith('SW_SPST'):
-            value = 'TACTILE'
-        if footprint == 'LED_1206_3216Metric':
-            value = 'RED/GREEN'
-        groups[(value, footprint)].append(ref)
+        groups[(bom_value(ref, value, footprint), footprint)].append(ref)
     rows = []
     for (value, footprint), refs in groups.items():
         refs.sort(key=sort_key)
-        maker, mpn, description, basis, note = classify(value, footprint)
-        if mpn in SUBSTITUTES:
-            note = '; '.join(filter(None, [note, f'substitute for {mpn}']))
-            mpn, maker = SUBSTITUTES[mpn]
-            basis = 'ordered'
+        maker, mpn, description, basis, note = resolve(value, footprint)
         rows.append(
             {
                 'sort': sort_key(refs[0]),

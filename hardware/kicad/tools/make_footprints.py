@@ -196,9 +196,96 @@ def rjsse5380():
     )
 
 
+def box(x1, y1, x2, y2, layer, width):
+    """Closed rectangle from corner (x1, y1) to (x2, y2)."""
+    corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
+    return ''.join(
+        line(*corners[index], *corners[(index + 1) % 4], layer, width)
+        for index in range(4)
+    )
+
+
+# ─── JST PH compatible 2.0 mm right-angle SMT headers ─────────────────────
+# Signal pads 1.0 x 3.5 on 2.0 mm pitch, fitting nails 1.5 x 3.4 with their
+# inner edge 1.6 past the outer pin centre, mating face at +y on the nail
+# bottoms, pin 1 on the left.
+PH_PITCH = 2.0
+PH_PAD = (1.0, 3.5)
+PH_PAD_Y = -2.85
+PH_NAIL = (1.5, 3.4)
+PH_BODY_DEPTH = 6.0
+
+
+def jst_ph_smt(name, pins, nail_top, body_width, description):
+    """nail_top: distance from the signal pad tops down to the nail tops."""
+    pad_top = PH_PAD_Y - PH_PAD[1] / 2
+    first_x = -PH_PITCH * (pins - 1) / 2
+    pads = [
+        smd_pad(str(pin + 1), round(first_x + pin * PH_PITCH, 3), PH_PAD_Y, *PH_PAD)
+        for pin in range(pins)
+    ]
+    nail_x = round(-first_x + 1.6 + PH_NAIL[0] / 2, 3)
+    nail_y = round(pad_top + nail_top + PH_NAIL[1] / 2, 3)
+    pads += [smd_pad('MP', side * nail_x, nail_y, *PH_NAIL) for side in (-1, 1)]
+    front = round(pad_top + nail_top + PH_NAIL[1], 3)
+    back = round(front - PH_BODY_DEPTH, 3)
+    half_w = body_width / 2
+    court_x = round(max(half_w, nail_x + PH_NAIL[0] / 2) + 0.25, 3)
+    court_top = round(pad_top - 0.25, 3)
+    court_bottom = round(front + 0.25, 3)
+    mark_x = round(first_x - PH_PAD[0] / 2 - 0.4, 3)
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        f'\t(descr "{description}")\n'
+        + text('Reference', 'REF**', 0, round(court_top - 0.9, 3), 'F.SilkS')
+        + text('Value', name, 0, round(court_bottom + 0.9, 3), 'F.Fab')
+        + '\t(attr smd)\n'
+        + box(-half_w, back, half_w, front, 'F.Fab', 0.1)
+        # pin-1 mark on silk, left of pad 1
+        + line(mark_x, PH_PAD_Y - 1.0, mark_x, PH_PAD_Y + 1.0, 'F.SilkS', 0.15)
+        + box(-court_x, court_top, court_x, court_bottom, 'F.CrtYd', 0.05)
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def adafruit_1769():
+    """Adafruit 1769 (4UCON 17311): nails 5.6 below the pad tops, body 7.9."""
+    return jst_ph_smt(
+        'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD',
+        2,
+        5.6,
+        7.9,
+        'Adafruit 1769 (4UCON 17311) JST PH compatible 2-pin, 2.0 mm pitch, '
+        'right angle, SMT, 2 A; land pattern from '
+        'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
+    )
+
+
+def adafruit_4392():
+    """Adafruit 4392 (Kaweei CW2001-04T-H01-BD-A): nail bottoms 9.2 below the
+    pad tops (so tops at 5.8), body B = 12.0 for 4 circuits.
+    """
+    return jst_ph_smt(
+        'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD',
+        4,
+        9.2 - PH_NAIL[1],
+        12.0,
+        'Adafruit 4392 (Kaweei CW2001-04T-H01-BD-A) JST PH compatible 4-pin, '
+        '2.0 mm pitch, right angle, SMT, 2 A; land pattern from '
+        'https://cdn-shop.adafruit.com/product-files/4392/'
+        '4392_C13927-001_CW2001-04T-H01-BD-A.PDF',
+    )
+
+
 FOOTPRINTS = {
     'L_Coilcraft_MSD7342': msd7342,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
+    'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,
+    'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': adafruit_4392,
 }
 
 

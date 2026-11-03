@@ -60,13 +60,14 @@ DATASHEETS = {
     'T491': 'https://content.kemet.com/datasheets/KEM_T2005_T491.pdf',
     'SG-8002CA': 'https://www.digikey.com/en/products/result?keywords='
     'SG-8002CA',
-    '5054480871': 'https://www.molex.com/content/dam/molex/molex-dot-com/'
-    'products/automated/en-us/salesdrawingpdf/505/505448/5054480871_sd.pdf',
     '1769': 'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
     '5001': 'https://www.keyelco.com/product-pdf.cfm?p=1310',
-    'T4145035041-001': 'https://www.te.com/commerce/DocumentDelivery/'
-    'DDEController?Action=srchrtrv&DocNm=T41450350X1001&DocType=Customer%20Drawing'
-    '&DocLang=English&DocFormat=pdf&PartCntxt=T4145035041-001',
+    '4392': 'https://cdn-shop.adafruit.com/product-files/4392/'
+    '4392_C13927-001_CW2001-04T-H01-BD-A.PDF',
+    'LT8582': 'https://www.analog.com/media/en/technical-documentation/'
+    'data-sheets/8582f.pdf',
+    'TSC2046': 'https://www.ti.com/lit/ds/symlink/tsc2046.pdf',
+    '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
     'S4B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
 }
@@ -77,10 +78,11 @@ PRODUCT_PAGES = {
     'pcb-header-mstba-25-2-g-508-1757242',
     '1803277': 'https://www.phoenixcontact.com/en-us/products/'
     'pcb-header-mc-15-2-g-381-1803277',
-    '5054480871': 'https://www.molex.com/en-us/products/part-detail/5054480871',
+    '1757255': 'https://www.phoenixcontact.com/en-us/products/'
+    'pcb-header-mstba-25-3-g-508-1757255',
     '1769': 'https://www.adafruit.com/product/1769',
     '5001': 'https://www.keyelco.com/product.cfm/product_id/1310',
-    'T4145035041-001': 'https://www.te.com/en/product-T4145035041-001.html',
+    '4392': 'https://www.adafruit.com/product/4392',
 }
 
 
