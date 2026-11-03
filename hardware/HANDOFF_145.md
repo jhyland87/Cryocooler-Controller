@@ -35,7 +35,8 @@ done.
 1. Place: `gen_pcb.py place`. Re-runs with the same inputs give the same placement, because
    the generator pins `PYTHONHASHSEED`.
 2. Route: `gen_pcb.py route <freerouting jar>`.
-3. Hand routes: `tools/hand_route.py` adds U4 pin 5 and U20 pins 2, 17 and 22.
+3. Hand routes: `tools/hand_route.py` adds U4 pin 5 and U20 pins 2, 17 and 22, the
+   LT8582 switch-node pours (`sw_nodes`) and the U20 exposed-pad GND vias (`u20_ep_vias`).
    - Its coordinates fit the committed route only.
    - A new autoroute needs new hand routes, checked with DRC.
 4. Silk: `tools/silk_fix.py` clears the DRC silk overlaps.
@@ -47,8 +48,11 @@ done.
 
 - **Via-in-pad:** U20 has via-in-pad on its signal pads (`SIGNAL_VIA_PADS`). Order filled /
   capped vias; see `kicad/fabrication/README.md`.
-- **Switch-node tracks:** the LT8582 switch nodes are 0.25 mm router tracks, not the wide
-  copper rev 2 planned (`tools/lt8582_power.py`). Widen them before ordering.
+- **Switch nodes:** SW1, SW2 and the inverting node X are priority-3 copper pours
+  (`hand_route.py sw_nodes`). SW1 is one solid pour from U20 pins 1 / 24 to D5 and L2; SW2
+  is a ~1 mm strip from pin 13 to L3 plus a B.Cu pour to C59. Pin 12's link under the
+  exposed pad stays narrow (~0.28 mm): the pad and a +5V_PS15 track bound it.
+- **U20 exposed pad:** 15 GND vias now (was 1), capped via-in-pad.
 - **Board ID:** the board ID prints the commit the board was generated from (`7f4c0ac`), not
   the commit that holds the files.
 - **Labels left out (no room):**

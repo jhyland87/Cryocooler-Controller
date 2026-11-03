@@ -102,6 +102,18 @@ ENVELOPES = {
         'Adafruit_4392_envelope',
         [(12.0, 6.0, 5.5, 0.0, -1.6, BLACK)],
     ),
+    # Coilcraft MSD7342: 7.5 x 7.5 mm, 4.6 mm max (Document 621-1)
+    'L_Coilcraft_MSD7342': (
+        'MSD7342_envelope',
+        [(7.5, 7.5, 4.6, 0.0, 0.0, GRAY)],
+    ),
+    # Amphenol RJSSE-5380 (drawing P-RJSSE-5380 rev E): shield 16.51 wide,
+    # 13.58 high, 15.75 deep; mouth 2.54 in front of the hole line, so the
+    # body spans footprint y -13.21 .. 2.54
+    'RJ45_Amphenol_RJSSE-5380_Horizontal': (
+        'RJSSE5380_envelope',
+        [(16.51, 15.75, 13.58, 0.0, 5.335, SILVER)],
+    ),
 }
 
 

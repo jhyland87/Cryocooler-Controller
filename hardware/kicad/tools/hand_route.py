@@ -1,5 +1,6 @@
 """Hand routes for the connections Freerouting left open on the UCS 145-125
-board: U4 pin 5 (DDS clock), U20 pins 2 / 22 (VIN) and 17 (SS2).
+board: U4 pin 5 (DDS clock), U20 pins 2 / 22 (VIN) and 17 (SS2), plus the
+LT8582 switch-node pours and exposed-pad GND vias.
 
 The coordinates fit the route committed with this file; a new autoroute
 leaves different copper, so check them (DRC) before reusing them. Run after
@@ -54,6 +55,25 @@ def via(board, name, x, y, diameter=0.45, drill=0.2):
     board.Add(item)
 
 
+def zone(board, name, points, layer, clearance=0.2):
+    """Solid copper pour of one net over a polygon. Priority 3 beats the
+    GND / ISO_GND pours; the filler keeps clearance to everything else, so
+    the polygon can be drawn loose."""
+    item = pcbnew.ZONE(board)
+    item.SetLayer(layer)
+    item.SetNet(net(board, name))
+    outline = item.Outline()
+    outline.NewOutline()
+    for x, y in points:
+        outline.Append(MM(x), MM(y))
+    item.SetAssignedPriority(3)
+    item.SetLocalClearance(MM(clearance))
+    item.SetMinThickness(MM(0.2))
+    item.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+    item.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+    board.Add(item)
+
+
 ROUTES = {
     # U4 pin 5 (DDS clock in) to the U3 oscillator via, on In2 west of the
     # +5V / CAP vias (B.Cu is taken by C15)
@@ -87,6 +107,30 @@ ROUTES = {
         ('via', '/Rails +-15V/SS2', 73.05, 54.5),
         ('track', '/Rails +-15V/SS2', [(73.05, 54.5), (73.45, 54.9), (73.45, 57.0), (72.92, 57.47)], 0.2, pcbnew.In2_Cu),
     ],
+    # LT8582 switch nodes as pours instead of 0.25 mm router tracks: SW1
+    # (pins 1 / 24, D5 anode, L2 pad 2), SW2 (pins 12 / 13, L3 pad 3 and
+    # C59 pad 1 below) and the inverting node X (L3 pad 4, C59 pad 2, D6)
+    'sw_nodes': [
+        ('zone', 'Net-(D5-A)', [(66.95, 47.5), (69.6, 47.5), (69.6, 45.7), (75.4, 45.7),
+                                (75.4, 47.45), (73.2, 49.5), (73.2, 50.2), (72.45, 50.95),
+                                (72.45, 51.45), (67.6, 51.45), (66.95, 50.8)], pcbnew.F_Cu),
+        ('zone', 'Net-(U20-SWA2)', [(67.6, 56.55), (68.6, 56.55), (68.6, 57.3), (71.45, 57.3),
+                                    (71.45, 56.55), (72.45, 56.55), (72.45, 60.75),
+                                    (71.1, 60.75), (71.1, 57.9), (67.6, 57.9)], pcbnew.F_Cu),
+        ('zone', 'Net-(U20-SWA2)', [(71.0, 56.2), (73.0, 56.2), (73.0, 60.6), (71.0, 60.6)], pcbnew.B_Cu),
+        ('zone', 'Net-(D6-A)', [(64.45, 63.1), (64.45, 61.45), (66.6, 59.15), (69.4, 59.15),
+                                (69.4, 58.5), (70.65, 58.5), (70.65, 61.6), (66.9, 61.6),
+                                (65.6, 63.1)], pcbnew.F_Cu),
+        ('zone', 'Net-(D6-A)', [(67.2, 58.6), (69.45, 58.6), (69.45, 60.6), (67.2, 60.6)], pcbnew.B_Cu),
+    ],
+    # U20 exposed pad: one GND via is not enough heat path (rev 2 had 12);
+    # a 3 x 5 grid of capped via-in-pad, clear of the In2 / B.Cu tracks
+    'u20_ep_vias': [
+        ('via', 'GND', x, y)
+        for y in (52.2, 53.1, 54.0, 54.9, 55.8)
+        for x in (69.3, 70.0, 70.7)
+        if (x, y) != (70.0, 54.0)
+    ],
 }
 
 
@@ -99,6 +143,8 @@ def main():
                 track(board, *step[1:])
             elif step[0] == 'delete':
                 delete(board, *step[1:])
+            elif step[0] == 'zone':
+                zone(board, *step[1:])
             else:
                 via(board, *step[1:])
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
