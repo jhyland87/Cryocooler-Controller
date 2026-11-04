@@ -277,6 +277,9 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `fault history` | Print fault log with reason and clear method |
 | `board` | Print compile-time board/platform info |
 | `reinit` | Re-initialise all or named modules |
+| `wifi status` | Print WiFi link, signal, TX power and last disconnect reason |
+| `wifi retry` | Start a new WiFi connection attempt now |
+| `wifi txpower <dBm>` | Set max WiFi TX power until reboot; retries if not connected |
 | `cooling on/off` | Enable / disable cooling system |
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
 | `cooling pump <N>` | Set pump: raw duty (0–255) or percent (0–100%) |

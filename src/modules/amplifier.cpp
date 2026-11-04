@@ -555,8 +555,11 @@ module::ServiceStatus service() {
     // Runs regardless of sAcsAvailable so we can see what SPI reads return
     // even when the init probe failed.  Remove once SPI is confirmed working.
     {
-        static uint32_t debugCounter = 0;
-        if (++debugCounter % 10 == 0) {  // log roughly every 2 s at 200 ms tick
+        static constexpr uint32_t ACS_RAW_LOG_INTERVAL_MS = 10000;
+        static uint32_t lastAcsRawLogMs = 0;
+        const uint32_t now = tick::nowMs();
+        if (static_cast<uint32_t>(now - lastAcsRawLogMs) >= ACS_RAW_LOG_INTERVAL_MS) {
+            lastAcsRawLogMs = now;
             uint32_t reg1F = acs_.readReg(0x1F);  // shadow config (probed at init)
             uint32_t reg20 = acs_.readReg(0x20);  // RMS V/I codes
             uint32_t reg2A = acs_.readReg(0x2A);  // instantaneous V/I codes

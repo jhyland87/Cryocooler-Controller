@@ -69,7 +69,29 @@ static constexpr UBaseType_t taskPriority       = 1;     // low; yields freely
 static constexpr uint8_t    wsCleanupEveryN     = 5;
 #endif
 
+// A failed authentication leaves WiFi.status() unchanged, so attempts need their own timeout.
+static constexpr uint32_t   wifiAttemptTimeoutMs = 8000;
+static constexpr uint32_t   wifiRetryMinDelayMs  = 5000;
+static constexpr uint32_t   wifiRetryMaxDelayMs  = 60000;
+static constexpr uint32_t   wifiScanDwellMs      = 100;  // per channel; about 1.3 s for a full scan
+
 // ─── Module state ─────────────────────────────────────────────────────────────
+
+static bool             runtimeStarted_ = false;  // HTTP server and task are running
+
+// Written by other tasks; consumed by serviceWifiLink().
+static volatile uint8_t wifiDisconnectReason_ = 0;
+static volatile bool    wifiRetryRequested_   = false;
+static volatile int8_t  wifiPendingTxPower_   = 0;  // wifi_power_t value; 0 = none pending
+
+// Owned by whichever task runs the connection: init(), then the dashboard task.
+static bool             wifiLinkUp_          = false;
+static bool             wifiAttemptActive_   = false;
+static bool             networkServicesUp_   = false;
+static uint32_t         wifiAttemptCount_    = 0;
+static uint32_t         wifiAttemptStartMs_  = 0;
+static uint32_t         wifiNextAttemptMs_   = 0;
+static uint32_t         wifiRetryDelayMs_    = wifiRetryMinDelayMs;
 
 static volatile bool    enabled_ = true;
 static AsyncWebServer   httpServer(HTTP_API_PORT);
@@ -140,6 +162,195 @@ static void fillFaultHistoryJson(JsonDocument& doc) {
     }
 }
 
+// ─── WiFi link management ─────────────────────────────────────────────────────
+
+static const char* wifiReasonName(uint8_t reason) {
+    switch (reason) {
+        case 0:                                 return "none yet";
+        case WIFI_REASON_AUTH_EXPIRE:           return "AUTH_EXPIRE";
+        case WIFI_REASON_ASSOC_TOOMANY:         return "ASSOC_TOOMANY";
+        case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT: return "4WAY_HANDSHAKE_TIMEOUT";
+        case WIFI_REASON_BEACON_TIMEOUT:        return "BEACON_TIMEOUT";
+        case WIFI_REASON_NO_AP_FOUND:           return "NO_AP_FOUND";
+        case WIFI_REASON_AUTH_FAIL:             return "AUTH_FAIL";
+        case WIFI_REASON_ASSOC_FAIL:            return "ASSOC_FAIL";
+        case WIFI_REASON_HANDSHAKE_TIMEOUT:     return "HANDSHAKE_TIMEOUT";
+        case WIFI_REASON_CONNECTION_FAIL:       return "CONNECTION_FAIL";
+        default:                                return "other";
+    }
+}
+
+static const char* wifiSecurityName(wifi_auth_mode_t mode) {
+    switch (mode) {
+        case WIFI_AUTH_OPEN:            return "open";
+        case WIFI_AUTH_WEP:             return "WEP";
+        case WIFI_AUTH_WPA_PSK:         return "WPA";
+        case WIFI_AUTH_WPA2_PSK:        return "WPA2";
+        case WIFI_AUTH_WPA_WPA2_PSK:    return "WPA/WPA2";
+        case WIFI_AUTH_WPA2_ENTERPRISE: return "WPA2-Enterprise";
+        case WIFI_AUTH_WPA3_PSK:        return "WPA3";
+        case WIFI_AUTH_WPA2_WPA3_PSK:   return "WPA2/WPA3";
+        default:                        return "other";
+    }
+}
+
+/** Log every access point advertising the configured network. The name itself stays out of the log. */
+static void logWifiScan() {
+    const int16_t foundCount = WiFi.scanNetworks(false, false, false, wifiScanDwellMs, 0, WIFI_SSID);
+    if (foundCount < 0) {
+        _Log.printf("WiFi scan failed (%d)\n", foundCount);
+        return;
+    }
+    if (foundCount == 0) {
+        _Log.println(F("WiFi scan: configured network not visible"));
+    }
+    for (int16_t index = 0; index < foundCount; ++index) {
+        _Log.printf("  AP %s  RSSI %d dBm  channel %d  security %s\n",
+                    WiFi.BSSIDstr(index).c_str(), WiFi.RSSI(index), WiFi.channel(index),
+                    wifiSecurityName(WiFi.encryptionType(index)));
+    }
+    WiFi.scanDelete();
+}
+
+static void beginWifiAttempt() {
+    if (wifiAttemptCount_ > 0) {
+        WiFi.disconnect();
+        delay(100);
+    }
+    ++wifiAttemptCount_;
+    _Log.printf("WiFi attempt %u  MAC %s  TX power %.1f dBm\n",
+                static_cast<unsigned>(wifiAttemptCount_), WiFi.macAddress().c_str(),
+                static_cast<float>(WiFi.getTxPower()) / 4.0f);
+    logWifiScan();
+
+    wifiDisconnectReason_ = 0;
+    wifiAttemptStartMs_   = millis();
+    wifiAttemptActive_    = true;
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+}
+
+/** Start mDNS and SNTP. Both survive a reconnect, so this runs only once. */
+static void startNetworkServices() {
+    if (networkServicesUp_) {
+        return;
+    }
+    networkServicesUp_ = true;
+
+    if (!MDNS.begin(HOSTNAME)) {
+        _Log.println(F("Error setting up MDNS responder!"));
+    } else {
+        _Log.printf("mDNS responder started: %s.local\n", HOSTNAME);
+    }
+
+    MDNS.addService("http", "tcp", HTTP_API_PORT);
+    MDNS.addService("ws", "tcp", HTTP_API_PORT);
+
+    // time(nullptr) returns 0 until the first sync completes, then the Unix epoch.
+    // "MST7" is Phoenix: UTC−7, no daylight saving.
+    configTzTime("MST7", "pool.ntp.org", "time.nist.gov");
+    _Log.println(F("SNTP sync started (MST / Phoenix)"));
+}
+
+void serviceWifiLink() {
+    const int8_t pendingPower = wifiPendingTxPower_;
+    if (pendingPower != 0) {
+        wifiPendingTxPower_ = 0;
+        const bool applied = WiFi.setTxPower(static_cast<wifi_power_t>(pendingPower));
+        _Log.printf("WiFi TX power %s: %.1f dBm\n", applied ? "set" : "NOT set",
+                    static_cast<float>(WiFi.getTxPower()) / 4.0f);
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+        wifiAttemptActive_ = false;
+        if (wifiLinkUp_) {
+            return;
+        }
+        wifiLinkUp_       = true;
+        wifiRetryDelayMs_ = wifiRetryMinDelayMs;
+        _Log.printf("Connected — IP: %s  RSSI %d dBm  channel %d\n",
+                    WiFi.localIP().toString().c_str(), WiFi.RSSI(), WiFi.channel());
+        startNetworkServices();
+        Module::overrideInitStatus(module::MODULE_INIT_SUCCESS);
+        return;
+    }
+
+    const uint32_t nowMs = millis();
+
+    if (wifiLinkUp_) {
+        wifiLinkUp_        = false;
+        wifiAttemptActive_ = false;
+        wifiNextAttemptMs_ = nowMs;
+        _Log.printf("WiFi connection lost (reason %u, %s)\n",
+                    wifiDisconnectReason_, wifiReasonName(wifiDisconnectReason_));
+    }
+
+    if (wifiAttemptActive_) {
+        if (nowMs - wifiAttemptStartMs_ < wifiAttemptTimeoutMs && !wifiRetryRequested_) {
+            return;
+        }
+        wifiAttemptActive_ = false;
+        wifiNextAttemptMs_ = nowMs + wifiRetryDelayMs_;
+        _Log.printf("WiFi attempt %u failed (reason %u, %s); next try in %u s\n",
+                    static_cast<unsigned>(wifiAttemptCount_), wifiDisconnectReason_,
+                    wifiReasonName(wifiDisconnectReason_),
+                    static_cast<unsigned>(wifiRetryDelayMs_ / 1000));
+        wifiRetryDelayMs_ = min(wifiRetryDelayMs_ * 2, wifiRetryMaxDelayMs);
+    }
+
+    if (wifiRetryRequested_) {
+        wifiRetryRequested_ = false;
+        wifiRetryDelayMs_   = wifiRetryMinDelayMs;
+    } else if (static_cast<int32_t>(nowMs - wifiNextAttemptMs_) < 0) {
+        return;
+    }
+    beginWifiAttempt();
+}
+
+void requestWifiRetry() {
+    wifiRetryRequested_ = true;
+}
+
+bool setWifiTxPower(float powerDbm) {
+    struct TxPowerLevel {
+        float dbm;
+        wifi_power_t level;
+    };
+    static constexpr TxPowerLevel levels[] = {
+        {19.5f, WIFI_POWER_19_5dBm}, {19.0f, WIFI_POWER_19dBm}, {18.5f, WIFI_POWER_18_5dBm},
+        {17.0f, WIFI_POWER_17dBm},   {15.0f, WIFI_POWER_15dBm}, {13.0f, WIFI_POWER_13dBm},
+        {11.0f, WIFI_POWER_11dBm},   {8.5f, WIFI_POWER_8_5dBm}, {7.0f, WIFI_POWER_7dBm},
+        {5.0f, WIFI_POWER_5dBm},     {2.0f, WIFI_POWER_2dBm},   {-1.0f, WIFI_POWER_MINUS_1dBm},
+    };
+    for (const TxPowerLevel& candidate : levels) {
+        if (candidate.dbm != powerDbm) {
+            continue;
+        }
+        wifiPendingTxPower_ = static_cast<int8_t>(candidate.level);
+        // Retest straight away unless the link is already up.
+        wifiRetryRequested_ = (WiFi.status() != WL_CONNECTED);
+        return true;
+    }
+    return false;
+}
+
+void printWifiStatus(Print& out) {
+    char line[96];
+    const bool connected = (WiFi.status() == WL_CONNECTED);
+    out.println(connected ? F("WiFi: connected") : F("WiFi: not connected"));
+    if (connected) {
+        snprintf(line, sizeof(line), "  IP %s  RSSI %d dBm  channel %d",
+                 WiFi.localIP().toString().c_str(), WiFi.RSSI(), WiFi.channel());
+        out.println(line);
+    }
+    snprintf(line, sizeof(line), "  MAC %s  TX power %.1f dBm",
+             WiFi.macAddress().c_str(), static_cast<float>(WiFi.getTxPower()) / 4.0f);
+    out.println(line);
+    snprintf(line, sizeof(line), "  Attempts %u  last disconnect reason %u (%s)",
+             static_cast<unsigned>(wifiAttemptCount_), wifiDisconnectReason_,
+             wifiReasonName(wifiDisconnectReason_));
+    out.println(line);
+}
+
 // ─── Dashboard FreeRTOS task ──────────────────────────────────────────────────
 
 static void dashboardTask(void* /*arg*/) {
@@ -152,6 +363,9 @@ static void dashboardTask(void* /*arg*/) {
     for (;;) {
         // Accurate 1 Hz period regardless of send duration.
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(broadcastIntervalMs));
+
+        // Runs even with broadcasts disabled, and may block here for a scan.
+        serviceWifiLink();
 
         if (!enabled_) continue;
 
@@ -204,16 +418,27 @@ module::ServiceStatus service() { return module::MODULE_SERVICE_SKIPPED; }
 // ─── init() ──────────────────────────────────────────────────────────────────
 
 module::InitStatus init() {
-    if (!setupWifi()) {
+    // A repeat init (`reinit dashboard`) hands off to the task: it doesn't block
+    // loop(), and the routes and task can't be registered twice.
+    if (runtimeStarted_) {
+        if (WiFi.status() == WL_CONNECTED) {
+            return module::MODULE_INIT_SUCCESS;
+        }
+        requestWifiRetry();
+        _Log.println(F("WiFi not connected; retrying in the background"));
         return module::MODULE_INIT_CONFIG_ERROR;
     }
 
+    const bool wifiConnected = setupWifi();
+
+    // Start these without WiFi too, so the task can keep retrying and the
+    // server is ready as soon as the link comes up.
     if (!setupServer()) {
         return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
     // Pin the dashboard task to Core 0 (the WiFi/TCPIP core) so that
     // tcpip_api_call() round-trips never block the Arduino loop on Core 1.
-    xTaskCreatePinnedToCore(
+    const BaseType_t taskCreated = xTaskCreatePinnedToCore(
         dashboardTask,
         "dashboard",
         taskStackBytes,
@@ -222,50 +447,43 @@ module::InitStatus init() {
         nullptr,
         0  // Core 0
     );
+    if (taskCreated != pdPASS) {
+        _Log.println(F("Failed to start dashboard task"));
+        return module::MODULE_INIT_DEPENDENCY_ERROR;
+    }
+    runtimeStarted_ = true;
+
+    if (!wifiConnected) {
+        _Log.println(F("WiFi not connected; retrying in the background"));
+        return module::MODULE_INIT_CONFIG_ERROR;
+    }
     return module::MODULE_INIT_SUCCESS;
 }
 
 // ─── WiFi setup ──────────────────────────────────────────────────────────────
 
 bool setupWifi() {
-    // Tear down any stale auth state from a previous session.
-    // Without this the ESP32 can present an expired auth context to the AP,
-    // which responds with deauth reason 2 (AUTH_EXPIRE) every ~1 s until
-    // waitForConnectResult() times out.
-    //WiFi.disconnectAsync(true, true);
+    // serviceWifiLink() owns retries, so the core's tight 1 s auto-reconnect stays off.
     WiFi.setAutoReconnect(false);
     WiFi.mode(WIFI_OFF);
     delay(100);  // let the WiFi stack fully idle before re-arming
 
+    WiFi.onEvent([](WiFiEvent_t, WiFiEventInfo_t info) {
+        // ASSOC_LEAVE is our own disconnect before a retry; keep the real cause.
+        if (info.wifi_sta_disconnected.reason != WIFI_REASON_ASSOC_LEAVE) {
+            wifiDisconnectReason_ = info.wifi_sta_disconnected.reason;
+        }
+    }, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
-        _Log.println(F("Failed to connect to WiFi"));
 
-        return false;
-    }
-
-    _Log.printf("Connected — IP: %s\n", WiFi.localIP().toString().c_str());
-
-    if (!MDNS.begin(HOSTNAME)) { // Set hostname
-        _Log.println(F("Error setting up MDNS responder!"));
-    } else {
-        _Log.printf("mDNS responder started: %s.local\n", HOSTNAME);
-    }
-
-    MDNS.addService("http", "tcp", HTTP_API_PORT);
-    MDNS.addService("ws", "tcp", HTTP_API_PORT);
-
-    // Kick off SNTP sync in the background.  time(nullptr) returns 0 until
-    // the first sync completes (typically a few seconds after WiFi connects),
-    // then switches to the real Unix epoch — no explicit wait needed.
-    // "MST7" is the POSIX TZ string for Phoenix / Mountain Standard Time:
-    // UTC−7, no daylight-saving transition (Arizona does not observe DST).
-    configTzTime("MST7", "pool.ntp.org", "time.nist.gov");
-    _Log.println(F("SNTP sync started (MST / Phoenix)"));
-
-    return true;
+    // One bounded attempt: control hardware, including the relay safe state,
+    // initialises after this, so further retries belong to the dashboard task.
+    beginWifiAttempt();
+    WiFi.waitForConnectResult(wifiAttemptTimeoutMs);
+    serviceWifiLink();
+    return WiFi.status() == WL_CONNECTED;
 }
 
 // ─── HTTP server setup ────────────────────────────────────────────────────────

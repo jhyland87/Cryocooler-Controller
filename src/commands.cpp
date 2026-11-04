@@ -317,6 +317,31 @@ static void handleTelemetryOn(const char* /*args*/, Print& out) {
     out.println(F("[OK] Telemetry enabled"));
 }
 
+#ifdef ARDUINO
+static void handleWifiStatus(const char* /*args*/, Print& out) {
+    dashboard::printWifiStatus(out);
+}
+
+static void handleWifiRetry(const char* /*args*/, Print& out) {
+    if (WiFi.status() == WL_CONNECTED) {
+        out.println(F("[OK] WiFi already connected"));
+        return;
+    }
+    dashboard::requestWifiRetry();
+    out.println(F("[OK] WiFi retry requested"));
+}
+
+static void handleWifiTxPower(const char* args, Print& out) {
+    char* parseEnd = nullptr;
+    const float powerDbm = strtof(args, &parseEnd);
+    if (parseEnd == args || *parseEnd != '\0' || !dashboard::setWifiTxPower(powerDbm)) {
+        out.println(F("[ERR] Usage: wifi txpower <19.5|19|18.5|17|15|13|11|8.5|7|5|2|-1> (dBm)"));
+        return;
+    }
+    out.println(F("[OK] WiFi TX power change requested"));
+}
+#endif
+
 static void handleTelemetryDeltaOff(const char* /*args*/, Print& out) {
     telemetry::disableDelta();
     out.println(F("[OK] Telemetry delta mode disabled (full frame each emit)"));
@@ -1181,6 +1206,9 @@ static const Command commandMap[] = {
 #ifdef ARDUINO
     {"dashboard off",       handleDashboardOff, "Disable dashboard WebSocket broadcasts"},
     {"dashboard on",        handleDashboardOn,  "Enable dashboard WebSocket broadcasts"},
+    {"wifi status",         handleWifiStatus,   "Print WiFi link, signal, TX power and last disconnect reason"},
+    {"wifi retry",          handleWifiRetry,    "Start a new WiFi connection attempt now"},
+    {"wifi txpower",        handleWifiTxPower,  "Set max WiFi TX power in dBm until reboot; retries if not connected"},
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
