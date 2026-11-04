@@ -176,7 +176,8 @@ module::ServiceStatus service() {
 
     voltage = rawV;
     current = ina239.getCurrent();  // A
-    power   = ina239.getPower();    // W
+    // Library 0.4.0 getPower() scales wrongly: setMaxCurrentShunt() doesn't update its LSB.
+    power   = voltage * current;    // W
     return module::MODULE_SERVICE_OK;
 }
 
