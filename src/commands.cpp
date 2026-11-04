@@ -37,7 +37,6 @@
 #include "sensor_mock.h"
 #include "ota.h"
 #include "compressor.h"
-#include "utils.h"
 #include "hardware.h"
 #include "imu.h"
 #include "sysinfo.h"
@@ -785,11 +784,6 @@ static void handleBoard(const char* /*args*/, Print& out) {
 #endif
 }
 
-#ifdef ARDUINO
-static void handleI2cScan(const char* /*args*/, Print& out) {
-    utils::i2cScan(out);
-}
-#endif
 
 static void handleFsmState(const char* /*args*/, Print& out) {
     const auto    s         = state_machine::getState();
@@ -1168,9 +1162,6 @@ static const Command commandMap[] = {
     {"fault clear",   handleFaultClear,   "Clear an active fault and return to Idle"},
     {"board",         handleBoard,        "Print compile-time board/platform info"},
     {"help",          handleHelp,         "Show available commands"},
-#ifdef ARDUINO
-    {"i2c scan",      handleI2cScan,      "Scan I2C bus and print all responding device addresses"},
-#endif
 #ifdef ARDUINO
     {"reinit",        handleReinit,       "Re-initialize modules: 'reinit' (all) or 'reinit <name> [name...]'"},
 #endif

@@ -106,7 +106,7 @@ private:
 };
 
 /**
- * The four +-15 V power-good flags the SC18IS604 bridge reads (LT3097 PGP /
+ * The four +-15 V power-good flags the MCP23S08 GPIO expander reads (LT3097 PGP /
  * PGN and LT8582 PG1 / PG2). Each node is high (true) when its rail is good.
  */
 struct RailFlags {
@@ -120,13 +120,13 @@ struct RailFlags {
 };
 
 /**
- * Decode the bridge IOState byte into rail flags.
- * @param ioState  Bit n = level of bridge GPIOn.
+ * Decode the GPIO expander port byte into rail flags.
+ * @param ioState  Bit n = level of expander pin n.
  * @param bitPosLdo, bitNegLdo, bitPosBoost, bitNegInvert  GPIO numbers of
- *                 the four flags (BRIDGE_GPIO_* in pin_config.h).
+ *                 the four flags (EXPANDER_PIN_* in pin_config.h).
  * @return The decoded flags.
  * @code
- * RailFlags flags = decodeRailFlags(0b11110, 1, 2, 3, 4);  // all good
+ * RailFlags flags = decodeRailFlags(0b01111, 0, 1, 2, 3);  // all good
  * @endcode
  */
 inline RailFlags decodeRailFlags(uint8_t ioState, uint8_t bitPosLdo, uint8_t bitNegLdo,

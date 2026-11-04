@@ -113,7 +113,20 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * The isolated SPI lines now run as straight wires from the ISO7741 outputs to the ACS37800 (its MOSI/SCLK/CS/MISO symbol pins were reordered to match); the `ISO_*` net labels are gone. Datasheet rules check that each ISO7741 output reaches the matching ACS37800 pin.
 * USB VBUS (connector, 4.7 uF cap and the USBLC6 clamp) is one wire with a single label that names the net, instead of two labels.
 
-## SC18IS604 I2C bridge (2026-10-14)
+## EMC2303 and SC18IS604 replaced (2026-11-04)
+
+Schematic and firmware only; the PCB still has the old parts. The board now has no I2C. Fan and pump run from ESP32 LEDC and PCNT, and an MCP23S08 takes over the bridge's GPIO job plus the two status LEDs. Every GPIO was in use, so this is what freed the pins.
+
+* **PWM:** GPIO9 (fan) and GPIO14 (pump) -> 1 kΩ -> BSS138 gate, drain to connector pin 4. The Intel 4-wire spec allows 5.25 V open circuit on PWM and the ESP32-S3 limit is VDD + 0.3 V, so a GPIO must not connect directly. 25 kHz sits in the spec's 21-28 kHz range.
+* **Inverted:** GPIO high = FET on = 0% drive, and firmware writes `255 - duty`. 10 kΩ gate pull-ups to +3V3 keep 0% drive while the GPIO floats at boot, which matters because the pump stalls above about 4400 RPM.
+* **Tach:** connector pin 3 -> 4.7 kΩ to +3V3_COOL -> 1 kΩ -> GPIO15 (fan), GPIO21 (pump).
+* **MCP23S08:** on +3V3 so a jumper cannot take down the power-good flags or LEDs. The 74LVC1G125 is gone because the datasheet gives SO a disable time (Fig. 2-6, parameter 14: 100 ns max). VIH is 0.8 VDD = 2.64 V; the power-good nodes are 3.3 V when good.
+* **Status LEDs:** READY and FAULT now need SPI and the expander. The WS2812B on GPIO38 still shows status if they fail. `PG_15V_N` stays on GPIO43 and the amplifier interlock stays in hardware.
+* **Not specified:** the BSS138 datasheet gives RDS(on) at 4.5 V and 10 V only. The load is under 5 mA, so 3.3 V gate drive is not expected to matter; check the PWM low level (0.8 V max) on the bench. The MCP23S08 pin table does not mention the exposed pad; it is tied to VSS, as Microchip's sibling MCP23S09 allows.
+* **Footprint:** KiCad's QFN-20 2.7 mm pad version has pad centres at ±1.95 mm against the datasheet's ±2.00 mm land pattern, with the same 0.2 mm pad-to-centre gap. Thermal vias, if used, must be filled or tented.
+* Reference numbers of removed parts stay unused; U25 is now the MCP23S08.
+
+## SC18IS604 I2C bridge (2026-10-14, superseded above)
 
 Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, bridges the other way (I2C host to SPI devices); the SPI-to-I2C part is the **SC18IS604** (NXP rev. 1.0, 22 Sept 2021, TSSOP16; replaces the discontinued SC18IS600/601).
 

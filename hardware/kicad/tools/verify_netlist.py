@@ -12,8 +12,10 @@ from pathlib import Path
 from sexpr import find_all, parse, sval
 
 EXPECTED = {
-    'BRIDGE_CS': 8,
-    'BRIDGE_RESET': 9,
+    'EXPANDER_CS': 8,
+    'FAN_PWM': 9,
+    'PUMP_PWM': 14,
+    'FAN_TACH': 15,
     'SPI_SCK': 42,
     'SPI_MOSI': 41,
     'SPI_MISO': 40,
@@ -31,10 +33,8 @@ EXPECTED = {
     'AMP_REM_EN': 6,
     'COMP_RELAY_EN': 16,
     'PWR_KILL': 10,
-    'LED_FAULT': 14,
-    'LED_READY': 15,
     'FLOW_TACH': 18,
-    'FAN_ALERT': 21,
+    'PUMP_TACH': 21,
     'NTC_ADC': 4,
     'STATUS_RGB': 38,
     'PG_15V_N': 43,

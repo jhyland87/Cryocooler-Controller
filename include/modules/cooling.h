@@ -50,15 +50,14 @@ void disable();
 bool isEnabled();
 
 /**
- * Return true while the EMC2303 ALERT# pin is asserted (active LOW).
- * Indicates a stall, spin-up failure, or drive failure on one or both
- * fan/pump channels.  Self-clears once the EMC2303 status registers
- * are read and the fault condition resolves.
+ * Return true while the fan or pump has drive applied but no tach pulses for
+ * COOLING_TACH_STALL_MS.  Self-clears when pulses return or drive stops.
+ * Reported in telemetry and logs only; it does not fault the state machine.
  */
 bool hasFanFault();
 
 /**
- * Duration in milliseconds that ALERT# has been continuously asserted.
+ * Duration in milliseconds since the current stall began.
  * Returns 0 when no fault is active.
  */
 uint32_t getFanFaultDurationMs();

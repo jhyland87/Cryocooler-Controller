@@ -30,7 +30,7 @@ Gerber package in `fabrication/` is still valid.
 |---|---|
 | INA239 | pins, SPI mode 1, MISO Hi-Z with CS high, VS/VBUS limits |
 | ADS1220 | pins, SPI mode 1, DOUT Hi-Z with CS high, reference and IDAC wiring |
-| SC18IS604 | pins, VREFP to VDD, INT#/RESET# rules, SPI mode 3. MISO Hi-Z is **not** stated, so a 74LVC1G125 gates it |
+| MCP23S08 | QFN-20 pins (Table 1-1), RESET/A0/A1 biased, SPI modes 0,0 and 1,1, 10 MHz from 2.7 V, SO disable 100 ns (Fig. 2-6, parameter 14), VIH 0.8 VDD, 25 mA per pin. Exposed pad is not in the pin table; tied to VSS |
 | LT3097 (DFN-22, datasheet Rev. 0, 3/2023) | pins 1-22 plus exposed pads 23 (GND) and 24 (INN), PGP / PGN open-collector, SET current 100 µA, output range 0-15 V / 0 to -19.5 V (added 2026-10-20) |
 | AD633JR (SOIC) | Y1 1, Y2 2, -VS 3, Z 4, W 5, +VS 6, X1 7, X2 8 (rotated vs the PDIP, matches the schematic) |
 | AP63205 | 1 FB, 2 EN, 3 VIN, 4 GND, 5 SW, 6 BST; EN may be tied to VIN (abs max 35 V) |
@@ -49,8 +49,7 @@ Gerber package in `fabrication/` is still valid.
 
 **C: from earlier-session datasheet audits only (see DESIGN_REVIEW.md), not re-fetched**
 
-ESP32-S3-WROOM-2 (pin map also matches the footprint), EMC2303 (KiCad's official symbol, QFN-12 +
-EP), ISO7741, ACS37800, ADP5071, AD9833, MCP4921, OPA1656, OPA188, LD1117S33, IRF4905S,
+ESP32-S3-WROOM-2 (pin map also matches the footprint), ISO7741, ACS37800, ADP5071, AD9833, MCP4921, OPA1656, OPA188, LD1117S33, IRF4905S,
 BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C receptacle.
 
 ## Findings
@@ -73,9 +72,9 @@ BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C recepta
 ## Bench checks (cannot be settled on paper)
 
 * LSM6DSOX SDO is Hi-Z with CS high (the Adafruit module also adds a 10 k pull-down on DO): scope MISO with the IMU idle, or read the IMU, INA239,
-  ADS1220 and SC18IS604 IDs in turn and confirm each answers alone.
-* SC18IS604 version string ("SC18IS604 1.0.0") and I2CStat polling; its datasheet disagrees with
-  itself about the I2CTO and I2CStat register addresses.
+  ADS1220 and MCP23S08 (register read-back) in turn and confirm each answers alone.
+* MCP23S08 SO is off MISO with CS high: scope MISO with the expander idle. Fan and pump: scope PWM at the
+  connector at low duty, and confirm RPM rises with commanded duty and tach counts match each fan.
 * INA239 manufacturer ID 0x5449 and a current reading against a meter.
 * ADS1220 reading with a known resistor in place of the RTD.
 
@@ -86,6 +85,6 @@ BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C recepta
 2. Watch the current: it should settle at tens of mA (the standby LED draws about 25 mA by design).
 3. Press the panel button. Check +5 V, +3.3 V, +16.5 V / -16.5 V, +15 V / -15 V and ISO 3V3 (against
    ISO_GND) with a meter before anything else; raise the current limit to about 300 mA.
-4. Connect USB and flash the firmware; confirm the serial log finds the INA239, ADS1220, SC18IS604
+4. Connect USB and flash the firmware; confirm the serial log finds the INA239, ADS1220, MCP23S08
    and IMU.
 5. Then the RTD, fans and pump, and last the amplifier REM line and the amplifier output.

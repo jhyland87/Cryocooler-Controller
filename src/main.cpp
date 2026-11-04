@@ -190,9 +190,8 @@ void setup() {
     _Log.println(F("====================================="));
 
     // Initialise shared buses before any module that needs them.
-    // hardware::init() owns the single GuardedWire and SPIClass instances;
-    // modules access them via hardware::i2c() / hardware::spi() rather than
-    // the global Wire / SPI singletons.
+    // hardware::init() owns the SPIClass instances; modules access them via
+    // hardware::spi() / hardware::acsSpi() rather than the global SPI singleton.
     // hardware is fatal — halt if it fails (marked fatal in its ModuleEntry).
     {
         static const module::ModuleEntry hwEntry = MODULE_ENTRY(hardware, true);
@@ -294,10 +293,6 @@ void loop() {
     }
 
     const uint32_t nowMs = tick::nowMs();
-
-    // I2C health monitor — Wire ESP_LOGE messages are suppressed; we count
-    // errors via module service return codes and log periodic summaries.
-    hardware::serviceI2c();
 
     if ((nowMs - previousIndicatorUpdateMs) < INDICATOR_UPDATE_INTERVAL_MS) {
         indicator::update();

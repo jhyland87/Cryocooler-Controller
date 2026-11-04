@@ -3,7 +3,7 @@
  * @brief FAULT and READY indicator control
  *
  * Drives the on-board WS2812 RGB LED (and optionally discrete digital LEDs
- * on FAULT_IND_PIN / READY_IND_PIN) according to the system state table:
+ * on EXPANDER_PIN_FAULT_IND / EXPANDER_PIN_READY_IND) according to the system state table:
  *
  *   State  | FAULT IND          | READY IND
  *   -------|--------------------|-----------------------

@@ -22,18 +22,30 @@ from verify_netlist import load
 # auto-named)
 # ('resjoin', value, pin, ohms, value2, pin2)  pin's net has a resistor whose
 # far end is on value2.pin2's net
+# ('fetdrive', value, pin, ohms, net)  pin is the drain of a BSS138 with source
+# on GND and its gate through `ohms` to `net`
 RULES = [
-    # EMC2303: ADDR_SEL decoded from a pull-up (33k -> 0x4D), CLK pull-up sets
-    # default drive, PWM open-drain pull-ups
-    ('res', 'EMC2303-x-KP', '4', '33k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '9', '4.7k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '5', '10k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '7', '10k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '6', '4.7k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '8', '4.7k', '+3V3_COOL'),
-    ('res', 'EMC2303-x-KP', '10', '10k', '+3V3_COOL'),
-    ('net', 'EMC2303-x-KP', '3', '+3V3_COOL'),
-    ('net', 'EMC2303-x-KP', '13', 'GND'),
+    # 4-pin fans (Intel 4-wire spec): PWM open drain through a BSS138 with the
+    # gate pulled to +3V3 (0% drive at reset), tach open collector with a
+    # pull-up at the connector and 1k to the GPIO
+    ('fetdrive', 'FAN (4-pin PWM)', '4', '1k', 'FAN_PWM'),
+    ('res', 'FAN (4-pin PWM)', '4', '10k', '+3V3_COOL'),
+    ('res', 'FAN (4-pin PWM)', '3', '4.7k', '+3V3_COOL'),
+    ('between', '1k', ('FAN (4-pin PWM)', '3'), ('NET', 'FAN_TACH')),
+    ('net', 'FAN (4-pin PWM)', '2', '+12V'),
+    ('net', 'FAN (4-pin PWM)', '1', 'GND'),
+    ('fetdrive', 'PUMP (4-pin PWM)', '4', '1k', 'PUMP_PWM'),
+    ('res', 'PUMP (4-pin PWM)', '4', '10k', '+3V3_COOL'),
+    ('res', 'PUMP (4-pin PWM)', '3', '4.7k', '+3V3_COOL'),
+    ('between', '1k', ('PUMP (4-pin PWM)', '3'), ('NET', 'PUMP_TACH')),
+    ('net', 'PUMP (4-pin PWM)', '2', '+12V'),
+    ('net', 'PUMP (4-pin PWM)', '1', 'GND'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '17', 'FAN_PWM'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '22', 'PUMP_PWM'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '8', 'FAN_TACH'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '23', 'PUMP_TACH'),
+    ('res', 'ESP32-S3-WROOM-2-N32R16V', '17', '10k', '+3V3'),
+    ('res', 'ESP32-S3-WROOM-2-N32R16V', '22', '10k', '+3V3'),
     # MIE1W0505: VSEL to GND2 selects 3.3 V; EN must be driven high
     ('net', 'MIE1W0505BGLVH-3R-Z', '7', 'ISO_GND'),
     ('net', 'MIE1W0505BGLVH-3R-Z', '5_6', 'ISO_3V3'),
@@ -206,37 +218,29 @@ RULES = [
     ('net', 'ADS1220IPW', '15', 'SPI_MISO'),
     ('res', 'ADS1220IPW', '2', '10k', '+3V3_CH'),  # switched: no back-feed
     ('res', 'ADS1220IPW', '14', '10k', '+3V3_CH'),
-    # SC18IS604 (SPI to I2C bridge, NXP rev 1.0 TSSOP16): VDD and VREFP on
-    # 3.3 V, VSS on GND, CS/RESET/INT# pulled up, I2C pull-ups, MISO gated by
-    # a 74LVC1G125 whose OE# follows CS
-    ('net', 'SC18IS604PW', '12', '+3V3_COOL'),
-    ('net', 'SC18IS604PW', '15', '+3V3_COOL'),
-    ('net', 'SC18IS604PW', '13', 'GND'),
-    ('net', 'SC18IS604PW', '8', 'BRIDGE_CS'),
-    ('net', 'SC18IS604PW', '11', 'SPI_SCK'),
-    ('net', 'SC18IS604PW', '10', 'SPI_MOSI'),
-    ('net', 'SC18IS604PW', '4', 'BRIDGE_RESET'),
-    ('res', 'SC18IS604PW', '8', '10k', '+3V3'),
-    ('res', 'SC18IS604PW', '4', '10k', '+3V3'),
-    ('res', 'SC18IS604PW', '3', '10k', '+3V3_COOL'),
-    ('net', 'SC18IS604PW', '1', 'SDA'),
-    ('net', 'SC18IS604PW', '2', 'SCL'),
-    ('res', 'SC18IS604PW', '1', '4.7k', '+3V3_COOL'),
-    ('res', 'SC18IS604PW', '2', '4.7k', '+3V3_COOL'),
-    ('join', 'SC18IS604PW', '1', 'EMC2303-x-KP', '1'),
-    ('join', 'SC18IS604PW', '2', 'EMC2303-x-KP', '2'),
-    ('join', 'SC18IS604PW', '14', '74LVC1G125', '2'),
-    ('net', '74LVC1G125', '1', 'BRIDGE_CS'),
-    ('net', '74LVC1G125', '4', 'SPI_MISO'),
-    ('net', '74LVC1G125', '5', '+3V3_COOL'),
-    ('net', '74LVC1G125', '3', 'GND'),
-    # GPIO0-3 (pins 9, 16, 7, 6) are configurable, GPIO4 (pin 5) is
-    # input-only; all start as inputs after reset
-    ('net', 'SC18IS604PW', '9', 'DISP_BL_EN'),
-    ('net', 'SC18IS604PW', '16', 'PGP_15V'),
-    ('net', 'SC18IS604PW', '7', 'PGN_15V'),
-    ('net', 'SC18IS604PW', '6', 'PGP_16V5'),
-    ('net', 'SC18IS604PW', '5', 'PGN_16V5'),
+    # MCP23S08 (Microchip DS20001919F, QFN-20): supply on the unswitched rail,
+    # exposed pad and VSS on GND, RESET and address pins biased (Table 1-1),
+    # SO on the shared MISO, power-good flags in, backlight and LEDs out
+    ('net', 'MCP23S08-E/ML', '18', '+3V3'),
+    ('net', 'MCP23S08-E/ML', '17', 'GND'),
+    ('net', 'MCP23S08-E/ML', '21', 'GND'),
+    ('net', 'MCP23S08-E/ML', '2', 'GND'),
+    ('net', 'MCP23S08-E/ML', '3', 'GND'),
+    ('net', 'MCP23S08-E/ML', '1', 'SPI_MISO'),
+    ('net', 'MCP23S08-E/ML', '19', 'SPI_SCK'),
+    ('net', 'MCP23S08-E/ML', '20', 'SPI_MOSI'),
+    ('net', 'MCP23S08-E/ML', '5', 'EXPANDER_CS'),
+    ('res', 'MCP23S08-E/ML', '5', '10k', '+3V3'),
+    ('res', 'MCP23S08-E/ML', '4', '10k', '+3V3'),
+    ('net', 'MCP23S08-E/ML', '9', 'PGP_15V'),
+    ('net', 'MCP23S08-E/ML', '10', 'PGN_15V'),
+    ('net', 'MCP23S08-E/ML', '11', 'PGP_16V5'),
+    ('net', 'MCP23S08-E/ML', '12', 'PGN_16V5'),
+    ('net', 'MCP23S08-E/ML', '13', 'DISP_BL_EN'),
+    ('net', 'MCP23S08-E/ML', '14', 'LED_READY'),
+    ('net', 'MCP23S08-E/ML', '15', 'LED_FAULT'),
+    ('nc', 'MCP23S08-E/ML', '16'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '12', 'EXPANDER_CS'),
     # compressor relay driver (same stage as the amplifier REM switch)
     ('net', 'BSS138', '2', 'GND'),
     ('net', 'BSS84', '2', '+12V'),
@@ -415,6 +419,29 @@ def run(path):
             check(
                 found,
                 f'{value}.{rule[2]} has {rule[3]} to {rule[4]}.{rule[5]}',
+            )
+        elif kind == 'fetdrive':
+            drain = pin_net.get((ref, rule[2]))
+            found = False
+            for fet in refs_by_value.get('BSS138', []):
+                if (
+                    pin_net.get((fet, '3')) != drain
+                    or pin_net.get((fet, '2')) != 'GND'
+                ):
+                    continue
+                for other_ref, other_pin, _ in members.get(
+                    pin_net.get((fet, '1')), []
+                ):
+                    if value_of[other_ref] != rule[3] or not other_ref.startswith(
+                        'R'
+                    ):
+                        continue
+                    far_pin = '2' if other_pin == '1' else '1'
+                    found = found or pin_net.get((other_ref, far_pin)) == rule[4]
+            check(
+                found,
+                f'{value}.{rule[2]} driven by BSS138, gate {rule[3]} to '
+                f'{rule[4]}',
             )
         elif kind == 'res':
             net = pin_net.get((ref, rule[2]))

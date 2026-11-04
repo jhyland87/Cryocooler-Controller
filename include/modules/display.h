@@ -5,7 +5,7 @@
  * The display sits in the lid of the UCS 125-87-F-GD-D2,4 housing and hangs
  * off the shared SPI bus (CS GPIO47, D/C GPIO48, RESET GPIO46; 4-wire SPI
  * half duplex, so it never drives MISO). Its backlight is switched by the
- * SC18IS604 bridge GPIO0. This first version only prints a few status lines;
+ * MCP23S08 expander pin GP4. This first version only prints a few status lines;
  * the TSC2046 touch controller is wired but not read yet.
  */
 
@@ -32,7 +32,7 @@ module::InitStatus init();
 module::ServiceStatus service();
 
 /**
- * Switch the backlight (bridge GPIO0) on or off.
+ * Switch the backlight (expander pin GP4) on or off.
  * @param on True to light the panel.
  */
 void setBacklight(bool on);

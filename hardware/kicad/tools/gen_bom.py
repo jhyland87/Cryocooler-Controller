@@ -334,6 +334,9 @@ PARTS = {
         'design', 'the schematic value is OPA188ID; the orderable SOIC part is '
         'OPA188AID (tube) or OPA188AIDR (reel). Digi-Key offers OPA180ID as a '
         'substitute: it is a different part, do not take it'),
+    ('MCP23S08-E/ML', 'QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm'): (
+        'Microchip', 'MCP23S08-E/ML', 'IC I/O EXPANDER SPI 8B 20QFN', 'suggested',
+        'stock not checked; MCP23S08T-E/ML is the reel'),
     ('SC18IS604PW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
         'NXP', 'SC18IS604PWJ', 'IC SPI TO I2C BRIDGE 16TSSOP', 'suggested',
         'PWJ is the reel'),

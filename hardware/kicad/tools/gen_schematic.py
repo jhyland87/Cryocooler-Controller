@@ -281,21 +281,21 @@ def build_mcu(sh):
         '5': 'MCP4921_CS',
         '6': 'AMP_REM_EN',
         '7': 'AD9833_FSYNC',
-        '12': 'BRIDGE_CS',
-        '17': 'BRIDGE_RESET',
+        '12': 'EXPANDER_CS',
+        '17': 'FAN_PWM',
         '18': 'PWR_KILL',
         '19': 'ACS_SCK',
         '20': 'ACS_MOSI',
         '21': 'ACS_MISO',
-        '22': 'LED_FAULT',
-        '8': 'LED_READY',
+        '22': 'PUMP_PWM',
+        '8': 'FAN_TACH',
         '9': 'COMP_RELAY_EN',
         '15': 'INA239_CS',
     }
     right = {
         '10': 'ACS_CS',
         '11': 'FLOW_TACH',
-        '23': 'FAN_ALERT',
+        '23': 'PUMP_TACH',
         '31': 'STATUS_RGB',
         '32': 'IMU_INT2',
         '33': 'SPI_MISO',
@@ -817,12 +817,14 @@ TP_LOOP = 'TestPoint:TestPoint_Keystone_5000-5004_Miniature'
 TP_NAMES = {
     'LTC2954_INT': 'PB_INT',
     'ADS1220_DRDY': 'DRDY',
-    'BRIDGE_INT': 'BR_INT',
+    'EXPANDER_INT': 'EXPINT',
     'TOUCH_IRQ': 'T_IRQ',
     'ISO_3V3': 'ISO3V3',
     'ISO_GND': 'ISOGND',
-    'BRIDGE_RESET': 'BR_RST',
-    'FAN_ALERT': 'FAN_AL',
+    'FAN_PWM': 'FANPWM',
+    'PUMP_PWM': 'PMPPWM',
+    'FAN_TACH': 'FANTCH',
+    'PUMP_TACH': 'PMPTCH',
     'PWR_KILL': 'KILL',
     'COMP_RELAY_EN': 'RLY_EN',
     'AMP_REM_EN': 'REM_EN',
@@ -1322,7 +1324,7 @@ def build_power_good(sh):
     power_good_led(sh, 'PGP_15V', 'PG +15V (green)', 30, 110)
     power_good_led(sh, 'PGN_15V', 'PG -15V (green)', 70, 110)
     sh.note(
-        'LT8582 POWER GOOD (to SC18IS604 GPIO3 / GPIO4)', 20 * 1.27, 140 * 1.27,
+        'LT8582 POWER GOOD (to MCP23S08 GP2 / GP3)', 20 * 1.27, 140 * 1.27,
         1.8,
     )
 
@@ -2182,14 +2184,14 @@ DEBUG_RAILS = (
 )
 DEBUG_GROUNDS = ('GND', 'GND', 'GND', 'ISO_GND')
 # TP18-TP28 (SPI clock, MOSI, MISO and chip selects) were removed; later points keep
-# their numbers. A None entry in a group retires one number the same way (SCL, TP31).
+# their numbers. A None entry in a group retires one number the same way.
 RETIRED_SPI_TEST_POINTS = 11
 DEBUG_SIGNALS = (
-    ('I2C, interrupts and control', (
-        'BRIDGE_RESET',
-        'SDA',
-        None,
-        'FAN_ALERT',
+    ('Fan, pump, interrupts and control', (
+        'FAN_PWM',
+        'PUMP_PWM',
+        'PUMP_TACH',
+        'FAN_TACH',
         'PWR_KILL',
         'COMP_RELAY_EN',
         'AMP_REM_EN',
@@ -2256,8 +2258,8 @@ def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
 
 
 def build_debug(sh):
-    """Hand-laid: one test point per useful net (rails, grounds, SDA,
-    control lines) and a power LED on each rail that has no
+    """Hand-laid: one test point per useful net (rails, grounds, fan
+    and pump lines, control lines) and a power LED on each rail that has no
     indicator yet. Placement on the board follows the net's own pads.
     """
     sh.handwired = True
@@ -2298,108 +2300,87 @@ def build_debug(sh):
         column += 50
 
 
-def build_i2c_bridge(sh):
-    """Hand-laid: SC18IS604 SPI-to-I2C bridge for the EMC2303 (SDA/SCL), with
-    a tri-state buffer that keeps its MISO off the shared SPI bus while CS is
-    high.
+def build_gpio_expander(sh):
+    """Hand-laid: MCP23S08 SPI GPIO expander for the signals that have no ESP32
+    pin of their own: power-good flags, backlight enable and status LEDs. Runs
+    from +3V3, not a switched rail, so pulling a jumper does not take it down.
     """
     sh.handwired = True
     sh.note(
-        'SC18IS604: SPI mode 3 slave on the main bus (CS GPIO8, RESET GPIO9), '
-        'I2C controller at ~100 kHz for the EMC2303 (0x4D). INT# is polled '
-        'through the I2CStat register and only has a pull-up and a test '
-        'point. GPIO0 enables the display backlight; GPIO1-4 read the four '
-        '+/-15 V power-good flags.',
+        'MCP23S08: SPI mode 0 slave on the main bus (CS GPIO8). SO releases '
+        'within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it '
+        'shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41.',
         20,
         15,
     )
     sh.note(
-        'The datasheet does not say MISO is high-impedance with CS high, so '
-        'a 74LVC1G125 (OE# = CS) gates it onto SPI_MISO.',
+        'All pins power up as inputs. RESET, A1 and A0 must be biased '
+        '(datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. '
+        'GP7 is unused: firmware enables its weak pull-up.',
         20,
         21,
     )
-    bridge = place_ic(
+    expander = place_ic(
         sh,
-        'cryocooler:SC18IS604PW',
-        'SC18IS604PW',
+        'cryocooler:MCP23S08',
+        'MCP23S08-E/ML',
         80,
         70,
-        'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+        'Package_DFN_QFN:QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm',
     )
-    # supplies: VDD and VREFP (must connect to VDD) on top, VSS below
-    vdd, vref = pin_cell(bridge, '12'), pin_cell(bridge, '15')
-    wire(sh, vdd, (vdd[0], 46))
-    wire(sh, vref, (vref[0], 46))
-    wire(sh, (vdd[0], 46), (vref[0], 46))
-    rail_symbol(sh, '+3V3_COOL', ((vdd[0] + vref[0]) // 2, 46))
-    drop_ground(sh, pin_cell(bridge, '13'), 2)
+    vdd = pin_cell(expander, '18')
+    wire(sh, vdd, (vdd[0], vdd[1] - 6))
+    rail_symbol(sh, '+3V3', (vdd[0], vdd[1] - 6))
+    drop_ground(sh, pin_cell(expander, '17'), 2)
+    drop_ground(sh, pin_cell(expander, '21'), 2)
     place_blocks(
         sh,
-        [
-            ('SC18IS604 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF', '1uF')),
-            ('74LVC1G125 DECOUPLING CAPACITORS', '+3V3_COOL', ('100nF',)),
-        ],
+        [('MCP23S08 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
         150,
         100,
     )
-    # left side: SPI inputs, reset and interrupt (pull-ups drawn as a block)
+    # the removed SC18IS604 and 74LVC1G125 capacitors keep their numbers free
+    kicadgen.retire_refs('C', 2)
     for pin, net in (
-        ('8', 'BRIDGE_CS'),
-        ('11', 'SPI_SCK'),
-        ('10', 'SPI_MOSI'),
-        ('4', 'BRIDGE_RESET'),
+        ('5', 'EXPANDER_CS'),
+        ('19', 'SPI_SCK'),
+        ('20', 'SPI_MOSI'),
     ):
-        net_label(sh, net, spur(sh, bridge, pin, 12), 180, is_global=True)
-    int_end = spur(sh, bridge, '3', 8)
-    net_label(sh, 'BRIDGE_INT', int_end, 180)
+        net_label(sh, net, spur(sh, expander, pin, 12), 180, is_global=True)
+    # past the global labels above it, so the two label texts do not touch
+    net_label(sh, 'EXPANDER_RESET', spur(sh, expander, '4', 28), 180)
+    # A1 and A0 share one ground symbol
+    address_low, address_high = spur(sh, expander, '3', 3), spur(sh, expander, '2', 3)
+    wire(sh, address_low, address_high)
+    ground(sh, address_high)
+    net_label(sh, 'SPI_MISO', spur(sh, expander, '1', 6), 0, is_global=True)
+    for pin, net in (
+        ('9', 'PGP_15V'),
+        ('10', 'PGN_15V'),
+        ('11', 'PGP_16V5'),
+        ('12', 'PGN_16V5'),
+        ('13', 'DISP_BL_EN'),
+        ('14', 'LED_READY'),
+        ('15', 'LED_FAULT'),
+    ):
+        net_label(sh, net, spur(sh, expander, pin, 6), 0, is_global=True)
+    sh.nc(expander, '16')
+    int_end = spur(sh, expander, '7', 8)
+    net_label(sh, 'EXPANDER_INT', int_end, 0)
     wire(sh, int_end, (int_end[0], int_end[1] + 4))
-    test_point(sh, 'BRIDGE_INT', (int_end[0], int_end[1] + 4), rot=180)
+    test_point(sh, 'EXPANDER_INT', (int_end[0], int_end[1] + 4), rot=180)
     sh.note('PULL-UPS', 20 * 1.27, 92 * 1.27, 1.8)
-    for index, (net, ohms, is_global) in enumerate(
-        (
-            ('BRIDGE_CS', '10k', True),
-            ('BRIDGE_RESET', '10k', True),
-            ('BRIDGE_INT', '10k', False),
-            ('SDA', '4.7k', True),
-            ('SCL', '4.7k', True),
-        )
+    for index, (net, is_global) in enumerate(
+        (('EXPANDER_CS', True), ('EXPANDER_RESET', False))
     ):
         row = 100 + index * 6
-        # CS and RESET hold the MCU-side lines when the section is off
-        rail = '+3V3' if net in ('BRIDGE_CS', 'BRIDGE_RESET') else '+3V3_COOL'
-        rail_symbol(sh, rail, (28, row))
-        hres(sh, ohms, 31, row)
+        rail_symbol(sh, '+3V3', (28, row))
+        hres(sh, '10k', 31, row)
         wire(sh, (34, row), (36, row))
         net_label(sh, net, (36, row), 0, is_global=is_global)
-    # right side: MISO through the buffer, then SDA/SCL
-    buf = place_ic(
-        sh,
-        'cryocooler:74LVC1G125',
-        '74LVC1G125',
-        132,
-        62,
-        'Package_TO_SOT_SMD:SOT-23-5',
-    )
-    wire(sh, pin_cell(bridge, '14'), pin_cell(buf, '2'))
-    net_label(sh, 'BRIDGE_CS', spur(sh, buf, '1', 4), 180, is_global=True)
-    net_label(sh, 'SPI_MISO', spur(sh, buf, '4', 4), 0, is_global=True)
-    vcc = pin_cell(buf, '5')
-    wire(sh, vcc, (vcc[0], vcc[1] - 4))
-    rail_symbol(sh, '+3V3_COOL', (vcc[0], vcc[1] - 4))
-    drop_ground(sh, pin_cell(buf, '3'), 2)
-    for pin, net in (('1', 'SDA'), ('2', 'SCL')):
-        net_label(sh, net, spur(sh, bridge, pin, 6), 0, is_global=True)
-    # GPIOs: display backlight enable out, the four power-good flags in
-    # (read over SPI; GPIO4 is input-only)
-    for pin, net in (
-        ('9', 'DISP_BL_EN'),
-        ('16', 'PGP_15V'),
-        ('7', 'PGN_15V'),
-        ('6', 'PGP_16V5'),
-        ('5', 'PGN_16V5'),
-    ):
-        net_label(sh, net, spur(sh, bridge, pin, 6), 0, is_global=True)
+    # the removed bridge's other pull-ups and 74LVC1G125 keep their numbers free
+    kicadgen.retire_refs('R', 3)
+    kicadgen.retire_refs('U', 1)
 
 
 def pullup(sh, value, cell):
@@ -2412,139 +2393,95 @@ def pullup(sh, value, cell):
     rail_symbol(sh, '+3V3', (column - 6, row))
 
 
+# Last reference numbers used on the board before the direct fan and pump
+# drivers were added; the new parts take the numbers above them.
+LAST_RESISTOR_BEFORE_FAN_DRIVERS, LAST_FET_BEFORE_FAN_DRIVERS = 171, 25
+
+
+def fan_channel(sh, title, pwm_net, tach_net, row, index):
+    """One 4-pin fan channel, drawn left to right from `row`: GPIO -> BSS138
+    open-drain PWM driver -> connector, and connector -> tach pull-up -> 1k ->
+    GPIO. The gate pull-up to +3V3 holds the PWM line low (0% drive) while the
+    GPIO floats during boot and reset.
+    """
+    first_resistor = LAST_RESISTOR_BEFORE_FAN_DRIVERS + index * 3
+    net_label(sh, pwm_net, (28, row), 180, is_global=True)
+    with kicadgen.pinned_refs('R', first_resistor):
+        vres(sh, '10k', 34, row - 6)
+    rail_symbol(sh, '+3V3', (34, row - 6))
+    wire(sh, (28, row), (38, row))
+    with kicadgen.pinned_refs('R', first_resistor + 1):
+        hres(sh, '1k', 41, row)
+    wire(sh, (44, row), (46, row))
+    with kicadgen.pinned_refs('Q', LAST_FET_BEFORE_FAN_DRIVERS + index):
+        driver = nfet(sh, 'BSS138', '', '', pose=at(50, row))
+    ground(sh, spur(sh, driver, '2', 2))
+    connector = sh.add(
+        'Connector_Generic:Conn_01x04',
+        next_ref('J'),
+        title,
+        150 * 1.27,
+        (row + 8) * 1.27,
+        rot=180,
+        mirror=True,
+        auto=False,
+        footprint=FAN4_RIGHT_ANGLE,
+    )
+    pwm_pin, tach_pin = pin_cell(connector, '4'), pin_cell(connector, '3')
+    drain = pin_cell(driver, '3')
+    wire(
+        sh,
+        drain,
+        (drain[0], pwm_pin[1] - 10),
+        (138, pwm_pin[1] - 10),
+        (138, pwm_pin[1]),
+        pwm_pin,
+    )
+    vres(sh, '10k', 100, pwm_pin[1] - 16)
+    rail_symbol(sh, '+3V3_COOL', (100, pwm_pin[1] - 16))
+    # the pull-up stays on the connector side so the 1k does not form a
+    # divider with it when the open-collector tach output pulls low
+    wire(sh, tach_pin, (120, tach_pin[1]))
+    vres(sh, '4.7k', 126, tach_pin[1] - 6)
+    rail_symbol(sh, '+3V3_COOL', (126, tach_pin[1] - 6))
+    with kicadgen.pinned_refs('R', first_resistor + 2):
+        hres(sh, '1k', 117, tach_pin[1])
+    wire(sh, (114, tach_pin[1]), (70, tach_pin[1]))
+    net_label(sh, tach_net, (70, tach_pin[1]), 180, is_global=True)
+    # +12V points left so it does not cross the tach and PWM lines
+    plus = pin_cell(connector, '2')
+    wire(sh, plus, (plus[0] - 24, plus[1]))
+    rail_symbol(sh, '+12V', (plus[0] - 24, plus[1]), rot=90)
+    vcap(sh, '22uF/25V', plus[0] - 18, plus[1], fp=C1210)
+    drop_ground(sh, (plus[0] - 18, plus[1] + 6), 0)
+    ground(sh, spur(sh, connector, '1', 2))
+
+
 def build_cooling(sh):
-    """Hand-laid: EMC2303 centre, pull-ups and I2C on the left, fan and pump
-    connectors on the right.
+    """Hand-laid: BSS138 PWM drivers on the left, fan and pump connectors on
+    the right, flow sensor and NTC below.
     """
     sh.handwired = True
     sh.note(
-        'EMC2303: ADDR_SEL 33k pull-up -> SMBus 0x4D (datasheet Table 5-1); '
-        'CLK 4.7k pull-up -> default fan drive 0%. ch1 fans, ch2 pump. '
-        'Alphacool ES: tach -> GPIO18, NTC -> GPIO4.',
+        'Fan and pump: LEDC PWM at 25 kHz through a BSS138, because the PWM '
+        'input can sit at 5.25 V (Intel 4-wire spec) and GPIOs are not 5 V '
+        'tolerant. GPIO high = FET on = 0% drive; firmware inverts the duty.',
         20,
         15,
     )
-    emc = place_ic(
-        sh,
-        'Driver_Motor:EMC2303-x-KP',
-        'EMC2303-x-KP',
-        60,
-        70,
-        'Package_DFN_QFN:VQFN-12-1EP_4x4mm_P0.8mm_EP2.1x2.1mm_ThermalVias',
+    sh.note(
+        'Tach: open collector, 2 pulses/rev, counted with PCNT. Alphacool ES: '
+        'tach -> GPIO18, NTC -> GPIO4.',
+        20,
+        21,
     )
-    # supply and ground
-    vdd = pin_cell(emc, '3')
-    wire(sh, vdd, (vdd[0], 50))
-    rail_symbol(sh, '+3V3_COOL', (vdd[0], 50))
-    place_blocks(
-        sh,
-        [('EMC2303 DECOUPLING CAPACITORS', '+3V3_COOL', ('1uF', '100nF'))],
-        190,
-        45,
-    )
-    drop_ground(sh, pin_cell(emc, '13'), 2)
-    # left side: I2C, address strap, clock strap, alert with LED
-    for pin, net in (('1', 'SDA'), ('2', 'SCL')):
-        net_label(sh, net, spur(sh, emc, pin, 3), 180, is_global=True)
-    for pin, value in (('4', '33k'), ('9', '4.7k')):
-        end = spur(sh, emc, pin, 5)
-        hres(sh, value, end[0] - 3, end[1])
-        rail_symbol(sh, '+3V3_COOL', (end[0] - 6, end[1]))
-    alert = spur(sh, emc, '10', 4)
-    hres(sh, '10k', alert[0] - 3, alert[1])
-    rail_symbol(sh, '+3V3_COOL', (alert[0] - 6, alert[1]))
-    wire(sh, alert, (alert[0], alert[1] + 6), (alert[0] - 1, alert[1] + 6))
-    d_fault = sh.add(
-        'Device:LED',
-        next_ref('D'),
-        'FAN FAULT',
-        (alert[0] - 4) * 1.27,
-        (alert[1] + 6) * 1.27,
-        rot=180,
-        auto=False,
-        footprint=LED0402,
-    )
-    k_cell, a_cell = pin_cell(d_fault, '1'), pin_cell(d_fault, '2')
-    wire(sh, (alert[0] - 1, alert[1] + 6), k_cell)
-    wire(sh, a_cell, (a_cell[0] - 1, a_cell[1]))
-    hres(sh, '1.5k', a_cell[0] - 4, a_cell[1])
-    rail_symbol(sh, '+3V3_COOL', (a_cell[0] - 7, a_cell[1]))
-    wire(sh, (alert[0], alert[1] + 6), (alert[0], alert[1] + 10))
-    net_label(sh, 'FAN_ALERT', (alert[0], alert[1] + 10), 180, is_global=True)
-    # right side: fan on channel 1
-    pwm1, tach1 = pin_cell(emc, '5'), pin_cell(emc, '6')
-    j_fan = sh.add(
-        'Connector_Generic:Conn_01x04',
-        next_ref('J'),
-        'FAN (4-pin PWM)',
-        150 * 1.27,
-        68 * 1.27,
-        rot=180,
-        mirror=True,
-        auto=False,
-        footprint=FAN4_RIGHT_ANGLE,
-    )
-    wire(
-        sh,
-        pwm1,
-        (74, pwm1[1]),
-        (74, 52),
-        (110, 52),
-        (110, pin_cell(j_fan, '4')[1]),
-        pin_cell(j_fan, '4'),
-    )
-    wire(sh, tach1, pin_cell(j_fan, '3'))
-    vres(sh, '10k', 84, 46)
-    rail_symbol(sh, '+3V3_COOL', (84, 46))
-    vres(sh, '4.7k', 92, tach1[1] - 6)
-    rail_symbol(sh, '+3V3_COOL', (92, tach1[1] - 6))
-    plus = pin_cell(j_fan, '2')
-    wire(sh, plus, (plus[0] - 10, plus[1]))
-    rail_symbol(sh, '+12V', (plus[0] - 6, plus[1]))
-    vcap(sh, '22uF/25V', plus[0] - 10, plus[1], fp=C1210)
-    drop_ground(sh, (plus[0] - 10, plus[1] + 6), 0)
-    ground(sh, spur(sh, j_fan, '1', 2))
-    # pump on channel 2
-    pwm2, tach2 = pin_cell(emc, '7'), pin_cell(emc, '8')
-    j_pump = sh.add(
-        'Connector_Generic:Conn_01x04',
-        next_ref('J'),
-        'PUMP (4-pin PWM)',
-        150 * 1.27,
-        94 * 1.27,
-        rot=180,
-        mirror=True,
-        auto=False,
-        footprint=FAN4_RIGHT_ANGLE,
-    )
-    wire(
-        sh,
-        pwm2,
-        (76, pwm2[1]),
-        (76, 84),
-        (120, 84),
-        (120, pin_cell(j_pump, '4')[1]),
-        pin_cell(j_pump, '4'),
-    )
-    wire(
-        sh,
-        tach2,
-        (74, tach2[1]),
-        (74, pin_cell(j_pump, '3')[1]),
-        pin_cell(j_pump, '3'),
-    )
-    vres(sh, '10k', 90, 78)
-    rail_symbol(sh, '+3V3_COOL', (90, 78))
-    vres(sh, '4.7k', 104, pin_cell(j_pump, '3')[1] - 6)
-    rail_symbol(sh, '+3V3_COOL', (104, pin_cell(j_pump, '3')[1] - 6))
-    plus = pin_cell(j_pump, '2')
-    wire(sh, plus, (plus[0] - 10, plus[1]))
-    rail_symbol(sh, '+12V', (plus[0] - 6, plus[1]))
-    vcap(sh, '22uF/25V', plus[0] - 10, plus[1], fp=C1210)
-    drop_ground(sh, (plus[0] - 10, plus[1] + 6), 0)
-    ground(sh, spur(sh, j_pump, '1', 2))
-    sh.nc(emc, '11')
-    ground(sh, spur(sh, emc, '12', 2))
+    # numbers of the removed EMC2303 and its straps, decoupling and alert LED
+    kicadgen.retire_refs('U', 1)
+    kicadgen.retire_refs('C', 2)
+    kicadgen.retire_refs('R', 4)
+    kicadgen.retire_refs('D', 1)
+    fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0)
+    fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 86, 1)
     # Alphacool ES flow sensor and NTC
     j_flow = conn(
         sh,
@@ -2960,7 +2897,7 @@ def build_indicators(sh):
     """
     sh.handwired = True
     sh.note(
-        'READY (GPIO15) and FAULT (GPIO14) LEDs, active high; WS2812B status '
+        'READY (MCP23S08 GP5) and FAULT (GP6) LEDs, active high; WS2812B status '
         'LED on GPIO38 via a 74AHCT1G125 3.3 V -> 5 V level shifter (WS2812B '
         'VIH = 0.7 x VDD).',
         20,
@@ -3036,7 +2973,7 @@ SWITCHES = (
     ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1.5k'),
     ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '3.3k'),
     ('ISO5', '+5V_OR', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '3.3k'),
-    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (EMC2303, I2C BRIDGE, NTC)', '1.5k'),
+    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (FAN, PUMP, FLOW, NTC)', '1.5k'),
     ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1.5k'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
@@ -3125,7 +3062,7 @@ SHEETS = [
         build_compressor_relay,
         'A3',
     ),
-    ('Water Cooling I2C Bridge', 'i2c_bridge', build_i2c_bridge, 'A3'),
+    ('GPIO Expander', 'gpio_expander', build_gpio_expander, 'A3'),
     ('Debug', 'debug', build_debug, 'A3'),
     ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
     ('Display', 'display', build_display, 'A3'),

@@ -12,7 +12,6 @@
 #include <Arduino.h>
 #include <unity.h>
 #include <SPI.h>
-#include <Wire.h>
 #include <ADS1220_WE.h>
 #include <MD_AD9833.h>
 

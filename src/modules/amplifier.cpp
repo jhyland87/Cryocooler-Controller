@@ -31,9 +31,9 @@
 #include "tick.h"
 #include "logger.h"
 #include "power_good.h"
-#include "i2c_bridge.h"
+#include "gpio_expander.h"
 
-/// How often the four bridge-read rail flags are sampled (ms).
+/// How often the four expander-read rail flags are sampled (ms).
 static constexpr uint32_t RAIL_FLAG_POLL_MS = 250;
 
 // ---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ static void pollPowerGood() {
     }
 }
 
-/// Individual rail flags read through the SC18IS604 GPIOs (polled).
+/// Individual rail flags read through the GPIO expander (polled).
 static RailFlags sRailFlags{};
 static bool      sRailFlagsValid = false;
 static uint32_t  sLastRailPollMs = 0;
@@ -159,7 +159,7 @@ static void logRailChange(const char* rail, bool good) {
 }
 
 /**
- * Read the four +-15 V power-good flags through the bridge every
+ * Read the four +-15 V power-good flags through the expander every
  * RAIL_FLAG_POLL_MS and log each one that changed, so a fault names the rail.
  */
 static void pollRailFlags() {
@@ -168,11 +168,11 @@ static void pollRailFlags() {
         return;
     }
     sLastRailPollMs = now;
-    const int16_t state = i2c_bridge::readGpio();
+    const int16_t state = gpio_expander::readPins();
     if (state < 0) return;
-    const RailFlags flags = decodeRailFlags(static_cast<uint8_t>(state), BRIDGE_GPIO_PGP_15V,
-                                            BRIDGE_GPIO_PGN_15V, BRIDGE_GPIO_PGP_16V5,
-                                            BRIDGE_GPIO_PGN_16V5);
+    const RailFlags flags = decodeRailFlags(static_cast<uint8_t>(state), EXPANDER_PIN_PGP_15V,
+                                            EXPANDER_PIN_PGN_15V, EXPANDER_PIN_PGP_16V5,
+                                            EXPANDER_PIN_PGN_16V5);
     if (sRailFlagsValid) {
         if (flags.posLdo != sRailFlags.posLdo) logRailChange("+15 V (LT3097)", flags.posLdo);
         if (flags.negLdo != sRailFlags.negLdo) logRailChange("-15 V (LT3097)", flags.negLdo);

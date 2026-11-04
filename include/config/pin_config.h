@@ -15,11 +15,9 @@
 
 #define RGB_LED_PIN 38
 
-// SC18IS604 SPI-to-I2C bridge (EMC2303 fan controller) — SPI mode 3 on the shared
-// SPI bus. A 74LVC1G125 gates its MISO (OE# = CS). INT# is not wired to the MCU.
-// GPIO8/9 were the I2C pins before the bridge was added.
-#define BRIDGE_CS_PIN      8
-#define BRIDGE_RESET_PIN   9
+// MCP23S08 SPI GPIO expander — SPI mode 0 on the shared SPI bus. See the
+// EXPANDER_PIN_* map below. RESET is tied high; INT is not wired to the MCU.
+#define EXPANDER_CS_PIN    8
 
 // MCP4921 SPI DAC — amplitude control (shares SPI bus with AD9833)
 #define MCP4921_CS         5
@@ -48,20 +46,9 @@
 // =============================================================================
 // Discrete Indicator Outputs
 // =============================================================================
-// Optional digital outputs for separate FAULT and READY LEDs.
-// If not wired, the on-board WS2812 (STATUS_LED_PIN) acts as the sole indicator.
-
-// FAULT indicator (active HIGH).
-// TODO: assign to actual wired GPIO before deployment.
-#define FAULT_IND_PIN      14
-
-// READY indicator (active HIGH).
-// TODO: assign to actual wired GPIO before deployment.
-// WARNING: do NOT use LED_BUILTIN here. On this board LED_BUILTIN resolves to
-// RGB_BUILTIN (GPIO 48), and the ESP32 Arduino core's io_pin_remap.h silently
-// redirects any digitalWrite() on RGB_BUILTIN to rgbLedWrite(), which fires
-// the RMT peripheral and interferes with the real status LED on GPIO 38.
-#define READY_IND_PIN      15
+// The FAULT and READY LEDs are on the GPIO expander (EXPANDER_PIN_FAULT_IND and
+// EXPANDER_PIN_READY_IND, active HIGH).  The WS2812 (STATUS_LED_PIN) still
+// works if the expander or SPI bus is down.
 
 // Compressor relay driver (active HIGH): BSS138 + BSS84 high-side switch puts
 // +12 V on the compressor relay terminal (130 mA max).  GPIO16 used to carry
@@ -72,7 +59,7 @@
 #define PWR_KILL_PIN      10
 
 // =============================================================================
-// SPI Bus (AD9833, MCP4921, LSM6DSOX, INA239, ADS1220, SC18IS604)
+// SPI Bus (AD9833, MCP4921, LSM6DSOX, INA239, ADS1220, MCP23S08)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
@@ -97,7 +84,16 @@
 // is used as a backup but an external resistor is strongly recommended.
 #define COOLING_FLOW_PIN         18
 
-#define COOLING_FAN_FAULT_INDICATOR_PIN      21
+// Fan and pump 4-pin PWM outputs, each through a BSS138: GPIO high pulls the
+// PWM line low (0 % drive).  The line can sit at up to 5.25 V, so it must not
+// connect to a GPIO directly.  A 10 kΩ gate pull-up holds 0 % drive during boot.
+#define COOLING_FAN_PWM_PIN      9
+#define COOLING_PUMP_PWM_PIN     14
+
+// Fan and pump tach inputs (open collector, 2 pulses per revolution), pulled up
+// to 3.3 V at the connector, with a 1 kΩ series resistor to the GPIO.
+#define COOLING_FAN_TACH_PIN     15
+#define COOLING_PUMP_TACH_PIN    21
 
 // ADC input for the NTC coolant temperature sensor.
 // Wiring: 3.3 V → 10 kΩ (ref) → GPIO → NTC sensor → GND
@@ -137,13 +133,16 @@
 #define TOUCH_CS_PIN                 45
 
 // =============================================================================
-// SC18IS604 bridge GPIOs (read / written over SPI, see i2c_bridge.h)
+// MCP23S08 expander pins (read / written over SPI, see gpio_expander.h)
 // =============================================================================
-#define BRIDGE_GPIO_DISP_BL          0   // output: display backlight enable
-#define BRIDGE_GPIO_PGP_15V          1   // input: LT3097 +15 V power good
-#define BRIDGE_GPIO_PGN_15V          2   // input: LT3097 -15 V power good
-#define BRIDGE_GPIO_PGP_16V5         3   // input: LT8582 +16.4 V power good (PG1)
-#define BRIDGE_GPIO_PGN_16V5         4   // input: LT8582 -16.5 V power good (PG2)
+#define EXPANDER_PIN_PGP_15V         0   // input: LT3097 +15 V power good
+#define EXPANDER_PIN_PGN_15V         1   // input: LT3097 -15 V power good
+#define EXPANDER_PIN_PGP_16V5        2   // input: LT8582 +16.4 V power good (PG1)
+#define EXPANDER_PIN_PGN_16V5        3   // input: LT8582 -16.5 V power good (PG2)
+#define EXPANDER_PIN_DISP_BL         4   // output: display backlight enable
+#define EXPANDER_PIN_READY_IND       5   // output: READY LED (active HIGH)
+#define EXPANDER_PIN_FAULT_IND       6   // output: FAULT LED (active HIGH)
+#define EXPANDER_PIN_SPARE           7   // input with weak pull-up, not wired
 
 // =============================================================================
 

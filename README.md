@@ -14,8 +14,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | DAC | MCP4921 12-bit | SPI (main bus) | CS: GPIO 5 | Amplifier amplitude control |
 | Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: GPIO 3 | 12 V rail voltage, current and power |
 | IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: GPIO 1, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
-| I2C bridge | NXP SC18IS604 | SPI mode 3 (main bus) | CS: GPIO 8, RESET: GPIO 9 | Gives the SPI-only ESP32 access to the EMC2303; INT# polled, not wired |
-| Fan / pump controller | EMC2303 three-channel PWM | I2C (behind the bridge) | 0x4D, ALERT#: GPIO 21 | Cooling fan (ch 0) + pump (ch 1) |
+| Fan / pump | 4-pin PWM through BSS138 drivers | LEDC PWM + PCNT tach | PWM: GPIO 9 / 14, tach: GPIO 15 / 21 | Cooling fan + pump |
 | Current sensor | ACS37800 behind an ISO7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
 | Compressor relay | BSS138 → BSS84 high-side +12 V switch (130 mA max) | GPIO | GPIO 16 | Compressor relay on/off |
 | Amplifier relay | BSS138 → BSS84 high-side switch | GPIO | GPIO 6 | Amplifier REM line on/off |
@@ -25,13 +24,13 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | FAULT / READY LEDs | Discrete LEDs | GPIO | GPIO 14 / GPIO 15 | Fault / Ready indication |
 | Power kill | LTC2954 KILL input | GPIO | GPIO 10 | Cuts system power |
 
-**I2C bus:** the ESP32 has no I2C pins in use. The only I2C device, the EMC2303, sits behind the SC18IS604 bridge (about 100 kHz, 4.7 kΩ pull-ups on the bridge side). The bridge is an SPI mode 3 slave on the main bus with CS on GPIO 8 and RESET on GPIO 9; a 74LVC1G125 gates its MISO because its datasheet does not state that MISO is high-impedance while CS is high.
+**I2C:** none. Every peripheral is on SPI or a GPIO.
 
-**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, the LSM6DSOX (on a cable, header J14), INA239, ADS1220 and the SC18IS604, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, the LSM6DSOX (on a cable, header J14), INA239 and ADS1220, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
 
 **ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
 
-**Fan fault alert:** EMC2303 ALERT# → GPIO 21 (active-low, external pull-up).
+**Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 1 kΩ series resistor and a 4.7 kΩ pull-up to 3.3 V.
 
 **INA239 ALERT:** drives its red LED only; it is not wired to the MCU, and the firmware does not read it.
 
@@ -50,7 +49,7 @@ All subsystem modules follow a standardised lifecycle pattern built on a CRTP ba
 ```mermaid
 flowchart TD
     subgraph Persistent ["Persistent Modules (init once at startup)"]
-        HW[hardware<br/>SPI buses + SC18IS604 I2C bridge]
+        HW[hardware<br/>SPI buses]
         IMU[imu<br/>LSM6DSOX accelerometer]
         CMD[commands<br/>Serial console]
         DASH[dashboard<br/>WiFi + Preact SPA + WebSocket]
@@ -60,7 +59,7 @@ flowchart TD
     end
 
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
-        COOL[cooling<br/>EMC2303 fan + pump<br/>software LUT]
+        COOL[cooling<br/>PWM fan + pump<br/>software LUT]
         CH[cold_head<br/>ADS1220 PT1000 RTD]
         AMP[amplifier<br/>AD9833 + MCP4921 DAC + ACS37800]
         COMP[compressor<br/>relay GPIO]
@@ -103,7 +102,7 @@ flowchart TD
 
 ### hardware
 
-Initialises the main SPI bus (`SPI.begin(...)`) and the ACS37800's dedicated SPI bus and the SC18IS604 I2C bridge (`src/i2c_bridge.cpp`) once at startup, driving every SPI chip select high first. Modules access the buses via `hardware::i2c()` (an `EMC230xBus`), `hardware::spi()` and `hardware::acsSpi()`. Provides `recoverI2c()` to reset the I2C bus to a clean idle state after a failed transaction, and an error monitor (`reportI2cError()` / `serviceI2c()`) that triggers automatic bus recovery when error counts exceed a threshold.
+Initialises the main SPI bus (`SPI.begin(...)`) and the ACS37800's dedicated SPI bus.
 
 ---
 
@@ -197,15 +196,11 @@ Reads the 12 V rail voltage, current and power from the INA239 power monitor ove
 
 ### cooling
 
-Controls the cooling fan and pump via a single EMC2303 three-channel PWM controller over I2C through the SC18IS604 bridge (address 0x4D, set by the ADDR_SEL pull-up). Uses a custom `EMC230x` Arduino library (in `lib/EMC230x/`).
+Controls the cooling fan and pump directly from the ESP32: LEDC generates 25 kHz PWM and PCNT counts the tach pulses. Also samples the Alphacool ES flow sensor and NTC coolant temperature.
 
-**Software LUT:** Replaces the previous EMC2101 hardware LUT. Each channel has an independently-configured temperature-to-duty lookup table with hysteresis, evaluated once per second from coolant temperature. Entries are sorted ascending by temperature; the evaluator only writes to the chip when the active row changes.
+**Software LUT:** Each channel has an independently-configured temperature-to-duty lookup table with hysteresis, evaluated once per second from coolant temperature. Entries are sorted ascending by temperature; the evaluator only writes to the chip when the active row changes.
 
-**Deferred init:** The EMC2303 is powered from a 3.3 V regulator derived from the 12 V rail. If 12 V is absent at boot, `init()` fails gracefully and `service()` retries once per second until the chip appears, then promotes itself to `MODULE_INIT_SUCCESS`.
-
-**Fault detection:** The EMC2303's open-drain ALERT# pin (GPIO 21, external pull-up) is sampled every service tick. When asserted (LOW), all four status registers (fan, stall, spin-up, drive-fail) are read and decoded. Faults are exposed via `hasFanFault()` / `getFanFaultDurationMs()` and included in the telemetry frame.
-
-**I2C bus recovery:** When the EMC2303 loses power mid-operation, its I2C transactions fail. The service function calls `hardware::recoverI2c()` on detecting a failure, which pulses the SC18IS604 RESET pin and reconfigures the bridge. A bridge reset cannot release an EMC2303 that is holding SDA low; that clears when the chip is power-cycled.
+**Fault detection:** A channel with drive applied and no tach pulses for `COOLING_TACH_STALL_MS` raises `hasFanFault()`. It is reported in telemetry and logs and does not fault the state machine.
 
 **Pump normalisation:** User-facing pump speeds are 0–100 % normalised, mapped to 0–`COOLING_PUMP_MAX_DUTY_PCT` (raw 0–255) at the hardware boundary. The pump stalls above ~16 % effective duty (~4400 RPM).
 
@@ -219,7 +214,7 @@ Controls the cooling fan and pump via a single EMC2303 three-channel PWM control
 | `getFanRPM()` | Fan tachometer RPM |
 | `getPumpSpeed()` | Pump speed (normalised 0–100 %) |
 | `getPumpRPM()` | Pump tachometer RPM |
-| `hasFanFault()` | True while ALERT# is asserted |
+| `hasFanFault()` | True while a driven channel has no tach pulses |
 | `getFanFaultDurationMs()` | Duration of current fault episode |
 
 ---
@@ -281,7 +276,6 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `fault push` | Push a fault record |
 | `fault history` | Print fault log with reason and clear method |
 | `board` | Print compile-time board/platform info |
-| `i2c scan` | Scan I2C bus and print responding addresses |
 | `reinit` | Re-initialise all or named modules |
 | `cooling on/off` | Enable / disable cooling system |
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
@@ -513,7 +507,6 @@ SKIP_DASHBOARD_BUILD=1 pio run -t upload  # build + flash
 | Library | Purpose |
 |---------|---------|
 | `ACS37800` | Pololu-based ACS37800 driver with an SPI transport |
-| `EMC230x` | EMC2301/02/03/05 PWM fan/pump controller |
 
 ### Dashboard (dashboard/package.json)
 

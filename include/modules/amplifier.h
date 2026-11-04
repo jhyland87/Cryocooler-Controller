@@ -91,9 +91,9 @@ bool isPowerGood();
 
 /**
  * Latest individual +-15 V rail flags (LT3097 PGP / PGN, LT8582 PG1 / PG2),
- * read through the SC18IS604 GPIOs every 250 ms.
+ * read through the MCP23S08 GPIO expander every 250 ms.
  * @param flags Receives the flags.
- * @return false until the bridge has been read once (or if it is absent).
+ * @return false until the expander has been read once (or if it is absent).
  * @code
  * RailFlags flags;
  * if (amplifier::railFlags(flags) && !flags.allGood()) { ... }

@@ -4,7 +4,7 @@
  *
  * Uses the on-board WS2812 LED (STATUS_LED_PIN) to display a combined
  * FAULT + READY colour, and optional discrete digital outputs on
- * FAULT_IND_PIN / READY_IND_PIN.
+ * EXPANDER_PIN_FAULT_IND / EXPANDER_PIN_READY_IND.
  *
  * Flash timing is non-blocking (state-machine style).
  * LED output uses rgbLedWrite() from the ESP32 Arduino core — no external
@@ -16,6 +16,7 @@
 #include "pin_config.h"
 #include "config.h"
 #include "indicator.h"
+#include "gpio_expander.h"
 #include "tick.h"
 
 // rgbLedWrite() was introduced in Arduino Core 3.x.  Core 2.x provides the
@@ -165,10 +166,8 @@ module::InitStatus init()
     // setup required beyond the call itself.
     writeLed(COLOR_OFF);
 
-    pinMode(FAULT_IND_PIN, OUTPUT);
-    pinMode(READY_IND_PIN, OUTPUT);
-    digitalWrite(FAULT_IND_PIN, LOW);
-    digitalWrite(READY_IND_PIN, LOW);
+    gpio_expander::writePin(EXPANDER_PIN_FAULT_IND, false);
+    gpio_expander::writePin(EXPANDER_PIN_READY_IND, false);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -200,8 +199,8 @@ void update()
     readyOnCached = readyOn;
 
     // Discrete LEDs (active HIGH)
-    digitalWrite(FAULT_IND_PIN, faultOn ? HIGH : LOW);
-    digitalWrite(READY_IND_PIN, readyOn ? HIGH : LOW);
+    gpio_expander::writePin(EXPANDER_PIN_FAULT_IND, faultOn);
+    gpio_expander::writePin(EXPANDER_PIN_READY_IND, readyOn);
 
     // WS2812 — fault takes priority; both active simultaneously shows amber
     RgbColor colour = COLOR_OFF;

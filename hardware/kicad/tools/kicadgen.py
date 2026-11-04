@@ -392,8 +392,9 @@ LABEL_DIRECTION = {
     'SPI_SCK': 'out',
     'IMU_CS': 'out',
     'INA239_CS': 'out',
-    'BRIDGE_CS': 'out',
-    'BRIDGE_RESET': 'out',
+    'EXPANDER_CS': 'out',
+    'FAN_PWM': 'out',
+    'PUMP_PWM': 'out',
     'ADS1220_CS': 'out',
     'PG_15V_N': 'in',
     'MCP4921_CS': 'out',
@@ -411,7 +412,8 @@ LABEL_DIRECTION = {
     'IMU_INT1': 'in',
     'IMU_INT2': 'in',
     'FLOW_TACH': 'in',
-    'FAN_ALERT': 'in',
+    'FAN_TACH': 'in',
+    'PUMP_TACH': 'in',
     'COMP_RELAY_EN': 'out',
     'NTC_ADC': 'in',
 }
@@ -1016,8 +1018,6 @@ POWER_SYMBOLS = {
 }
 
 GLOBAL_NETS = {
-    'SDA',
-    'SCL',
     'SPI_SCK',
     'SPI_MOSI',
     'SPI_MISO',
@@ -1035,12 +1035,14 @@ GLOBAL_NETS = {
     'LED_FAULT',
     'LED_READY',
     'FLOW_TACH',
-    'FAN_ALERT',
+    'FAN_TACH',
+    'PUMP_TACH',
     'NTC_ADC',
     'STATUS_RGB',
     'COMP_RELAY_EN',
-    'BRIDGE_CS',
-    'BRIDGE_RESET',
+    'EXPANDER_CS',
+    'FAN_PWM',
+    'PUMP_PWM',
     'SIG_SINE',
     'AMP_REM',
 }

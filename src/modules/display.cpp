@@ -16,7 +16,7 @@
 #include "display.h"
 #include "amplifier.h"
 #include "cold_head.h"
-#include "i2c_bridge.h"
+#include "gpio_expander.h"
 #include "logger.h"
 #include "pin_config.h"
 #include "state_machine.h"
@@ -71,7 +71,7 @@ static void applyPanelSettings() {
 }
 
 void setBacklight(bool on) {
-    i2c_bridge::writeGpio(BRIDGE_GPIO_DISP_BL, on);
+    gpio_expander::writePin(EXPANDER_PIN_DISP_BL, on);
 }
 
 /** Fills @p lines with the current status text. */

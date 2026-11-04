@@ -587,6 +587,37 @@ SYMBOLS = [
         keywords='touch screen controller resistive spi',
     ),
     symbol(
+        'MCP23S08',
+        'U',
+        'Microchip 8-bit I/O expander, SPI (modes 0,0 and 1,1), 10 MHz at '
+        '2.7-5.5 V, QFN-20 4 x 4 mm with exposed pad',
+        'https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf',
+        'Package_DFN_QFN:QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm',
+        left=[
+            ('5', '~{CS}', 'input'),
+            ('19', 'SCK', 'input'),
+            ('20', 'SI', 'input'),
+            ('4', '~{RESET}', 'input'),
+            ('3', 'A0', 'input'),
+            ('2', 'A1', 'input'),
+        ],
+        right=[
+            ('1', 'SO', 'tri_state'),
+            ('9', 'GP0', 'bidirectional'),
+            ('10', 'GP1', 'bidirectional'),
+            ('11', 'GP2', 'bidirectional'),
+            ('12', 'GP3', 'bidirectional'),
+            ('13', 'GP4', 'bidirectional'),
+            ('14', 'GP5', 'bidirectional'),
+            ('15', 'GP6', 'bidirectional'),
+            ('16', 'GP7', 'bidirectional'),
+            ('7', 'INT', 'output'),
+        ],
+        top=[('18', 'VDD', 'power_in')],
+        bottom=[('17', 'VSS', 'power_in'), ('21', 'EP', 'passive')],
+        keywords='spi gpio expander',
+    ),
+    symbol(
         'SC18IS604PW',
         'U',
         'NXP SPI (slave, mode 3) to I2C-bus (controller) bridge, 255-byte '

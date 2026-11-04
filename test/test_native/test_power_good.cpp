@@ -92,7 +92,7 @@ void test_pg_millis_wraparound(void) {
 }
 
 void test_rail_flags_all_good(void) {
-    // bridge GPIO1-4 high, GPIO0 (backlight output) don't care
+    // bits 1-4 high, bit 0 (not a flag here) don't care
     const RailFlags flags = decodeRailFlags(0b11110, 1, 2, 3, 4);
     TEST_ASSERT_TRUE(flags.allGood());
 }

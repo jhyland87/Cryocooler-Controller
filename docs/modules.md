@@ -91,7 +91,7 @@ namespace mymodule {
 
 module::InitStatus init() {
     // Hardware setup, calibration, etc.
-    if (!hardware::i2c().probe(0x42)) {
+    if (!sensorResponds()) {
         return module::MODULE_INIT_HARDWARE_ERROR;
     }
     _Log.println("Sensor detected");
@@ -301,9 +301,7 @@ flowchart TD
     sysinfo → imu → amplifier → cooling
     serviceWithLog — logs only health transitions"]
 
-    TICK --> I2C["hardware::serviceI2c(nowMs)
-    I2C error monitor + bus recovery"]
-    I2C --> LED["indicator::update()
+    TICK --> LED["indicator::update()
     at INDICATOR_UPDATE_INTERVAL_MS cadence"]
 
     LED --> GATE{LOOP_INTERVAL_MS
@@ -360,14 +358,11 @@ flowchart TD
 
 ## Deferred (Hot-Plug) Initialisation
 
-Some hardware (e.g. the EMC2303 fan controller) may not be powered at boot. The pattern for handling this:
+Some hardware may not be powered at boot. The pattern for handling this:
 
 1. `init()` returns `MODULE_INIT_HARDWARE_ERROR` when the device is absent.
 2. `service()` checks `Module::getInitStatus() != SUCCESS` and periodically retries.
 3. On success, call `Module::overrideInitStatus(MODULE_INIT_SUCCESS)` to promote the module.
-4. On I2C failure, call `hardware::reportI2cError()` and `hardware::recoverI2c()` to reset the I2C bridge.
-
-See `src/cooling.cpp` for a complete example.
 
 ---
 
@@ -395,6 +390,6 @@ error: static assertion failed: Module does not satisfy the Module interface:
 - **One `.cpp` + one `.h` per module.** The header declares the public API; the implementation file is self-contained.
 - **Static state.** Module state is file-scope `static` variables in the `.cpp` file. No globals, no singletons.
 - **Child loggers.** Each module creates `static LogStream _Log = Log.createChildLogger("name");` for prefixed log output.
-- **Bus access via `hardware::`** — never use the global `SPI` directly (there is no `Wire`: I2C is behind the SC18IS604 bridge).
+- **Bus access via `hardware::`** — never use the global `SPI` directly. The firmware uses no I2C.
 - **Mock support.** When `sensor_mock::isActive()`, skip hardware reads and pull values from `sensor_mock::get()` instead.
 - **Non-blocking.** `service()` must return promptly. Use state machines or time-gating for multi-step operations.
