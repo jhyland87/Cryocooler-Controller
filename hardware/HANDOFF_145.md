@@ -72,6 +72,20 @@ done.
 
 R6 (47k) + R170 (2.4k) in series replace the 22k, both 0402 on B.Cu beside U5; C121 (1 nF) stays across both. Done on the routed board with `tools/split_r6.py`, so re-running `gen_pcb.py route` needs that edit redone. Reference text for both is hidden (no silk room): R170 is the vertical one west of R6.
 
+## Silk text width (2026-11-03)
+
+All silk text is 0.9 mm wide by 1.0 mm high with unchanged stroke widths (`tools/narrow_silk.py`, and `SILK_WIDTH_RATIO` in `gen_pcb.py` for new boards). Height stays at JLCPCB's standard 1.0 mm minimum. Width stops at 0.9 because narrower text loses letter gap: pairs under JLCPCB's 0.15 mm gap go from 54 at full width to 63 at 0.9, 201 at 0.85 and 246 at 0.8. Some of those 63 are tight already (the "LA" in RELAY is 0.024 mm, and was 0.043 mm at full width).
+
+The script also showed the hidden references that now fit beside their parts: D18, D21, J3, J4, J5, J6, J13 and R6. 40 others stay hidden (plus U1, which the script skips), and test points still print net names instead.
+
+## Label placement (2026-11-03)
+
+`tools/label_owners.py` moves any reference, test point name or LED / jumper name whose nearest part is another part, so its own part is clearly the nearest. The +15V and -15V LED names are gone: the test point beside each LED prints the same name, for both. Where a reference has no such spot it is hidden, and a test point or LED name may take a reference's place. Its printed lists give the current result. It runs after `narrow_silk.py` and before `silk_fix.py`.
+
+## SPI and clock test points removed (2026-11-03)
+
+The SCK, MOSI, MISO, A_MISO and chip-select test points (TP18-TP28) and SCL (TP31) are gone from the schematic and board. Their numbers stay unused so the other test points keep theirs; SDA (TP30) stays. Done on the routed board with `tools/remove_test_points.py`. This departs from the AGENTS.md test point rule, so those signals now have to be probed on the part pins.
+
 ## Bottom and right wall headers (2026-11-03)
 
 J3, J4, J5, J6, J7 and J13 are right-angle through-hole headers on the routed board, pulled in so their tabs stop at the board edge (J3, J5 holes at y 86.6; J6, J7, J13 at y 86.7; J4 at x 106.6). Applied in order to the routed board, so a full `gen_pcb.py route` needs them redone:

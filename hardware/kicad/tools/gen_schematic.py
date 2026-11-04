@@ -822,15 +822,6 @@ TP_NAMES = {
     'TOUCH_IRQ': 'T_IRQ',
     'ISO_3V3': 'ISO3V3',
     'ISO_GND': 'ISOGND',
-    'SPI_SCK': 'SCK',
-    'SPI_MOSI': 'MOSI',
-    'SPI_MISO': 'MISO',
-    'MCP4921_CS': 'DAC_CS',
-    'AD9833_FSYNC': 'DDS_CS',
-    'INA239_CS': 'INA_CS',
-    'ADS1220_CS': 'ADC_CS',
-    'BRIDGE_CS': 'BR_CS',
-    'ACS_MISO': 'A_MISO',
     'BRIDGE_RESET': 'BR_RST',
     'FAN_ALERT': 'FAN_AL',
     'PWR_KILL': 'KILL',
@@ -2128,24 +2119,14 @@ DEBUG_RAILS = (
     'ISO_3V3',
 )
 DEBUG_GROUNDS = ('GND', 'GND', 'GND', 'ISO_GND')
+# TP18-TP28 (SPI clock, MOSI, MISO and chip selects) were removed; later points keep
+# their numbers. A None entry in a group retires one number the same way (SCL, TP31).
+RETIRED_SPI_TEST_POINTS = 11
 DEBUG_SIGNALS = (
-    ('SPI buses and chip selects', (
-        'SPI_SCK',
-        'SPI_MOSI',
-        'SPI_MISO',
-        'MCP4921_CS',
-        'AD9833_FSYNC',
-        'IMU_CS',
-        'INA239_CS',
-        'ADS1220_CS',
-        'BRIDGE_CS',
-        'ACS_CS',
-        'ACS_MISO',
-    )),
     ('I2C, interrupts and control', (
         'BRIDGE_RESET',
         'SDA',
-        'SCL',
+        None,
         'FAN_ALERT',
         'PWR_KILL',
         'COMP_RELAY_EN',
@@ -2213,8 +2194,8 @@ def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
 
 
 def build_debug(sh):
-    """Hand-laid: one test point per useful net (rails, grounds, buses,
-    chip selects, control lines) and a power LED on each rail that has no
+    """Hand-laid: one test point per useful net (rails, grounds, SDA,
+    control lines) and a power LED on each rail that has no
     indicator yet. Placement on the board follows the net's own pads.
     """
     sh.handwired = True
@@ -2236,11 +2217,15 @@ def build_debug(sh):
     for net in DEBUG_GROUNDS:
         debug_unit(sh, 'ground', net, column, row)
         column += 22
+    kicadgen.retire_refs('TP', RETIRED_SPI_TEST_POINTS)
     for title, nets in DEBUG_SIGNALS:
         column = 36
         row += 24
         sh.note(title.upper(), 20 * 1.27, (row - 8) * 1.27, 1.8)
         for net in nets:
+            if net is None:
+                kicadgen.retire_refs('TP', 1)
+                continue
             debug_unit(sh, 'signal', net, column, row)
             column += 28
     column = 24

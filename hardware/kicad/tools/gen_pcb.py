@@ -265,8 +265,6 @@ SILK_LABELS = {
     'D11': 'STATUS',
     'D12': 'COMP RLY',
     'D14': '5V',
-    'D15': '+15V',
-    'D16': '-15V',
     'D17': 'ISO 3V3',
     'D24': '+15V PG',
     'D25': '-15V PG',
@@ -297,6 +295,8 @@ SILK_LABELS.update(
 # JLCPCB minimums: 1.0 mm text height, 0.15 mm silk line / stroke
 SILK_MIN_TEXT = 1.0
 SILK_MIN_LINE = 0.15
+# letters narrower than this drop under JLCPCB's 0.15 mm letter gap
+SILK_WIDTH_RATIO = 0.9
 SILK_TEXT_SIZE = SILK_MIN_TEXT
 TP_TEXT_SIZE = SILK_MIN_TEXT
 # silk keeps JLCPCB's 0.15 mm off pads, plus 0.05 mm for the mask margin
@@ -366,6 +366,11 @@ def set_courtyard(footprint, rect):
     footprint.Add(shape)
 
 
+def silk_text_size(height):
+    """Silk text size in KiCad units for a text height in mm."""
+    return pcbnew.VECTOR2I(to_internal(height * SILK_WIDTH_RATIO), to_internal(height))
+
+
 def widen_silk(footprint):
     """Raises footprint silkscreen strokes to JLCPCB's 0.15 mm minimum (the
     stock KiCad libraries draw 0.12 mm); filled shapes are left alone.
@@ -376,9 +381,7 @@ def widen_silk(footprint):
         if item.Type() == pcbnew.PCB_TEXT_T:
             # e.g. a pin-1 marker digit: up to the 1.0 mm minimum
             if item.GetTextHeight() < to_internal(SILK_MIN_TEXT):
-                item.SetTextSize(
-                    pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
-                )
+                item.SetTextSize(silk_text_size(SILK_MIN_TEXT))
             if item.GetTextThickness() < to_internal(SILK_MIN_LINE):
                 item.SetTextThickness(to_internal(SILK_MIN_LINE))
             continue
@@ -601,16 +604,12 @@ class PcbBuilder:
             link_to_symbol(footprint, part)
             pcbmodels.apply_connector_colour(footprint)
             footprint.SetValue(part['value'])
-            footprint.Reference().SetTextSize(
-                pcbnew.VECTOR2I(to_internal(SILK_MIN_TEXT), to_internal(SILK_MIN_TEXT))
-            )
+            footprint.Reference().SetTextSize(silk_text_size(SILK_MIN_TEXT))
             footprint.Reference().SetTextThickness(to_internal(0.15))
             if ref.startswith('TP'):
                 # test points print what they probe (their value is the net
                 # name) instead of TP#
-                footprint.Value().SetTextSize(
-                    pcbnew.VECTOR2I(to_internal(TP_TEXT_SIZE), to_internal(TP_TEXT_SIZE))
-                )
+                footprint.Value().SetTextSize(silk_text_size(TP_TEXT_SIZE))
                 footprint.Value().SetTextThickness(to_internal(SILK_MIN_LINE))
             text_box = self.display_text(footprint, ref).GetBoundingBox()
             self.text_dims[ref] = (
@@ -2410,7 +2409,7 @@ class PcbBuilder:
         item.SetText(text)
         item.SetLayer(layer if layer is not None else pcbnew.F_SilkS)
         item.SetPosition(pcbnew.VECTOR2I(to_internal(x), to_internal(y)))
-        item.SetTextSize(pcbnew.VECTOR2I(to_internal(size), to_internal(size)))
+        item.SetTextSize(silk_text_size(size))
         item.SetTextThickness(
             to_internal(max(SILK_MIN_LINE, thickness or size * 0.15))
         )
@@ -3264,9 +3263,7 @@ class PcbBuilder:
                     probe = pcbnew.PCB_TEXT(self.board)
                     probe.SetText(variant)
                     probe.SetLayer(pcbnew.F_SilkS)
-                    probe.SetTextSize(
-                        pcbnew.VECTOR2I(to_internal(size), to_internal(size))
-                    )
+                    probe.SetTextSize(silk_text_size(size))
                     probe.SetTextThickness(to_internal(SILK_TEXT_THICKNESS))
                     probe.SetTextAngleDegrees(angle)
                     extent = self.text_box(probe)
@@ -3584,7 +3581,7 @@ def patch_project_rules():
     defaults = project['board']['design_settings']['defaults']
     defaults['silk_line_width'] = SILK_MIN_LINE
     defaults['silk_text_thickness'] = SILK_MIN_LINE
-    defaults['silk_text_size_h'] = SILK_MIN_TEXT
+    defaults['silk_text_size_h'] = SILK_MIN_TEXT * SILK_WIDTH_RATIO
     defaults['silk_text_size_v'] = SILK_MIN_TEXT
     rules['min_via_annular_width'] = 0.1
     rules['min_hole_clearance'] = 0.2
