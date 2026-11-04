@@ -196,7 +196,7 @@ module::InitStatus init() {
     const module::InitStatus rtdStatus = initRTD();
     if (rtdStatus != module::MODULE_INIT_SUCCESS) {
         ESP_LOGE(TAG, "ADS1220 initialization failed! Status: %s", module::initStatusName(rtdStatus));
-        _Log.printf("ADS1220 initialization failed! Status: %s", module::initStatusName(rtdStatus));
+        _Log.printf("ADS1220 initialization failed! Status: %s\n", module::initStatusName(rtdStatus));
         return rtdStatus;
     }
     _Log.println(F("ADS1220 initialization successful!"));
@@ -213,7 +213,7 @@ module::InitStatus initACS() {
 module::InitStatus initRTD() {
     // Local mock: skip all hardware access entirely.
     if (sLocalMockEnabled) {
-        _Log.printf("Local RTD mock active (%.2f C) — skipping ADS1220 hardware init",
+        _Log.printf("Local RTD mock active (%.2f C) — skipping ADS1220 hardware init\n",
                  sLocalMockTempC);
         return module::MODULE_INIT_SUCCESS;
     }
@@ -533,7 +533,7 @@ TrackingMonitor<float>::State getTemperatureTrackingState() {
 void enableMock(float tempC) {
     sLocalMockEnabled = true;
     sLocalMockTempC   = tempC;
-    _Log.printf("Local RTD mock enabled at %.2f C", tempC);
+    _Log.printf("Local RTD mock enabled at %.2f C\n", tempC);
 #ifdef ARDUINO
     // If the module hasn't initialised successfully yet (e.g. ADS1220 absent),
     // run init() now — it will short-circuit through initRTD()'s mock branch and

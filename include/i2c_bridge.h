@@ -24,10 +24,18 @@ namespace i2c_bridge {
  */
 bool begin(SPIClass& spi);
 
-/** Pulse RESET and reconfigure the bridge (bus recovery). */
+/**
+ * Check for the bridge again without pulsing RESET, so it can be called from
+ * service().  Sets the I2C clock when found, which also covers a bridge that
+ * lost power after boot.
+ * @return true if the bridge answered the version command.
+ */
+bool redetect();
+
+/** Pulse RESET and reconfigure the bridge (bus recovery).  Blocks about 6 ms; no-op if absent. */
 void recover();
 
-/** @return true if begin() found the bridge. */
+/** @return true if the last begin() or redetect() found the bridge. */
 bool isPresent();
 
 /** The EMC230xBus view of the I2C bus behind the bridge. */

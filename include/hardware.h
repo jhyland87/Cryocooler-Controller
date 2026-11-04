@@ -63,6 +63,13 @@ namespace hardware {
      */
     void recoverI2c();
 
+    /**
+     * Check for the SC18IS604 bridge again without resetting it, so a bridge
+     * that was unpowered at boot can be picked up later.  Safe from service().
+     * @return true if the bridge answered.
+     */
+    bool redetectI2cBridge();
+
     // ── I2C error monitor ────────────────────────────────────────────────────
     //
     // The bridge driver reports failed transactions via reportI2cError();

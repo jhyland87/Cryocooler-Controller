@@ -557,10 +557,10 @@ module::InitStatus init() {
 // ---------------------------------------------------------------------------
 module::ServiceStatus service() {
     // ── Deferred init recovery ───────────────────────────────────────────
-    // The EMC2303 is powered from a 3.3 V regulator stepped down from the
-    // 12 V rail.  If 12 V is absent at boot, init() fails and service()
-    // would permanently bail out.  Retry controllerInit() once per second
-    // until the chip appears, then promote the module to INIT_SUCCESS.
+    // The EMC2303 and its SPI-to-I2C bridge run from +3V3_COOL (jumper JP4).
+    // If that rail is absent at boot, init() fails and service() would
+    // permanently bail out.  Retry once per second until both answer, then
+    // promote the module to INIT_SUCCESS.
     //
     // UNDERVOLTAGE is an intentional shutdown — do not attempt recovery.
     // The operator must reinit once system voltage is restored.
@@ -568,14 +568,29 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_NOT_STARTED;
     }
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
+        enum class RetryBlocker { NONE, BRIDGE, CONTROLLER };
+        static RetryBlocker lastBlocker = RetryBlocker::NONE;
         static uint32_t lastRetryMs = 0;
         const uint32_t now = millis();
         if ((now - lastRetryMs) >= 1000u) {
             lastRetryMs = now;
-            // Recover the bus before retrying — a previous failed transaction
-            // may have left SDA stuck low, blocking all other I2C devices.
-            hardware::recoverI2c();
-            if (controllerInit() == module::MODULE_INIT_SUCCESS) {
+            // No bridge reset here: it blocks, and init(), the demotion path
+            // and hardware::serviceI2c() already reset it on failure.
+            if (!hardware::redetectI2cBridge()) {
+                if (lastBlocker != RetryBlocker::BRIDGE) {
+                    lastBlocker = RetryBlocker::BRIDGE;
+                    _Log.println(F("Cooling waiting: SC18IS604 not responding — check JP4 / +3V3_COOL"));
+                }
+                return module::MODULE_SERVICE_NOT_STARTED;
+            }
+            if (controllerInit() != module::MODULE_INIT_SUCCESS) {
+                if (lastBlocker != RetryBlocker::CONTROLLER) {
+                    lastBlocker = RetryBlocker::CONTROLLER;
+                    _Log.printf("Cooling waiting: SC18IS604 OK, no EMC2303 at 0x%02X\n",
+                                EMC2303_I2C_ADDRESS);
+                }
+            } else {
+                lastBlocker = RetryBlocker::NONE;
                 _Log.println(F("EMC2303 appeared — deferred init succeeded"));
 
                 // Complete the rest of init that was skipped on first attempt

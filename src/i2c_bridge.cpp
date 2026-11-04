@@ -94,6 +94,19 @@ static void pulseReset() {
     delay(5);   // internal oscillator start-up
 }
 
+/** Checks the version string, sets the I2C clock if it matches, updates sPresent. */
+static bool detect() {
+    // The version command fills the read buffer with "SC18IS604 1.0.0".
+    const uint8_t versionTx[] = {CMD_VERSION};
+    transfer(versionTx, nullptr, sizeof(versionTx));
+    delayMicroseconds(100);
+    uint8_t version[16] = {};
+    readBuffer(version, sizeof(version));
+    sPresent = (memcmp(version, "SC18IS604", 9) == 0);
+    if (sPresent) writeRegister(REG_I2C_CLOCK, I2C_CLOCK_100KHZ);
+    return sPresent;
+}
+
 bool begin(SPIClass& spi) {
     sSpi = &spi;
     pinMode(BRIDGE_CS_PIN, OUTPUT);
@@ -102,27 +115,24 @@ bool begin(SPIClass& spi) {
     digitalWrite(BRIDGE_RESET_PIN, HIGH);
     pulseReset();
 
-    // The version command fills the read buffer with "SC18IS604 1.0.0".
-    const uint8_t versionTx[] = {CMD_VERSION};
-    transfer(versionTx, nullptr, sizeof(versionTx));
-    delayMicroseconds(100);
-    uint8_t version[16] = {};
-    readBuffer(version, sizeof(version));
-    sPresent = (memcmp(version, "SC18IS604", 9) == 0);
-    if (!sPresent) {
+    if (!detect()) {
         ESP_LOGW(TAG, "SC18IS604 not found (CS GPIO%d)", BRIDGE_CS_PIN);
         return false;
     }
-    writeRegister(REG_I2C_CLOCK, I2C_CLOCK_100KHZ);
-    ESP_LOGI(TAG, "SC18IS604 found: %s", reinterpret_cast<const char*>(version));
+    ESP_LOGI(TAG, "SC18IS604 found");
     return true;
 }
 
+bool redetect() {
+    if (sSpi == nullptr) return false;
+    return detect();
+}
+
 void recover() {
-    if (sSpi == nullptr) return;
+    if (sSpi == nullptr || !sPresent) return;
     pulseReset();
     writeRegister(REG_I2C_CLOCK, I2C_CLOCK_100KHZ);
-    ESP_LOGI(TAG, "SC18IS604 reset");
+    ESP_LOGD(TAG, "SC18IS604 reset");
 }
 
 bool isPresent() { return sPresent; }

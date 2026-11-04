@@ -102,6 +102,10 @@ namespace hardware {
         i2c_bridge::recover();
     }
 
+    bool redetectI2cBridge() {
+        return i2c_bridge::redetect();
+    }
+
     EMC230xBus& i2c() { return i2c_bridge::bus(); }
     SPIClass& spi()    { return SPI;   }
     SPIClass& acsSpi() { return sAcsSpi; }
