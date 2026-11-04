@@ -1,5 +1,6 @@
 # [11/01/2026] Board testing results
 - [x] R6 needed to be changed from 55k to 22k in parallel with a 1nF ceramic capacitor — done (22k ∥ 1 nF)
+  - Superseded: 51k on the rev 1 board measured 10.3 Vpp at 10 V in, so R6 is now 47k + R170 2.4k in series, trimmable by swapping R170 (1 nF kept across both)
   - More details on this can be found in chat: https://claude.ai/chat/9b111fed-44a9-41c4-91a6-cf42005338c9
 - [x] Labeling the test points with names that describe what the point is testing, instead of just TP# would have helped. — done (test points print their net name)
 - Some extra test points could have been of use:

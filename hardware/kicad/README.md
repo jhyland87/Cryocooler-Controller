@@ -25,7 +25,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `cooling` ("Water Cooling") | EMC2303 (0x4D via 33 kΩ ADDR_SEL pull-up; fan + pump), Alphacool ES flow tach and NTC; its pull-ups sit on the switched `+3V3_COOL` rail |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
 | `imu` | J14, a plain shielded SMT RJ45 (Amphenol RJSSE-5380, no magnetics) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND on T568B pairs, 100 Ω series resistors, 10 kΩ CS pull-up, shield to GND |
-| `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin JST XH output |
+| `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin right-angle Sullins SWR25X output |
 | `indicators` | READY / FAULT LEDs, WS2812B status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds, buses, chip selects and control lines; LEDs on +5V, ±15V and ISO 3V3 |
 | `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
@@ -147,7 +147,7 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
   their PWM lines float (many 4-pin fans then run at full speed). An unpowered ADS1220 can still clamp the shared
   SPI MISO line through its ESD diodes while other devices are being read, so leave JP5 fitted during normal operation.
 
-* **IMU cable (J14, JST XH 8-pin):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
+* **IMU cable (J14, RJ45):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
   cryocooler. J14 pins 1-8 run top to bottom on the board as VIN, GND, SCL, SDA, DO, CS, I1, I2, the same order
   as the breakout's SPI-side pads (minus its 3Vo pad), so an 8-wire cable maps pin for pin. Power the breakout's
   `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad open. Keep the cable short (it hangs on the
@@ -167,7 +167,7 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 SIG/GND, J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11/J12 +/-, J13 +12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
+  J11/J12 +/-, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
 * **Current path:** J11 -> ACS37800 pins 1-4 / 5-8 -> J12 is pre-routed with locked 2 mm traces.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board

@@ -1,6 +1,6 @@
 """Hand routes for the connections Freerouting left open on the UCS 145-125
-board: U4 pin 5 (DDS clock), U20 pins 2 / 22 (VIN) and 17 (SS2), plus the
-LT8582 switch-node pours and exposed-pad GND vias.
+board: U4 pin 5 (DDS clock), U20 pins 2 / 22 (VIN) and 17 (SS2), the LT8582
+switch-node pours and exposed-pad GND vias, and the bottom-wall header gaps.
 
 The coordinates fit the route committed with this file; a new autoroute
 leaves different copper, so check them (DRC) before reusing them. Run after
@@ -130,6 +130,26 @@ ROUTES = {
         for y in (52.2, 53.1, 54.0, 54.9, 55.8)
         for x in (69.3, 70.0, 70.7)
         if (x, y) != (70.0, 54.0)
+    ],
+    # after the bottom-wall headers moved in (fan_headers.py, two_pin_headers.py):
+    # NTC_ADC from U1 down In2 to J6, +5V down In2 to R80, R81's +3V3 to JP4 on
+    # In2, and a leftover +12V stub cut back
+    'bottom_wall_headers': [
+        ('track', 'NTC_ADC', [(75.25, 11.3), (74.22, 11.3), (72.38, 13.15), (72.38, 13.3)], 0.25, pcbnew.F_Cu),
+        ('via', 'NTC_ADC', 72.38, 13.3),
+        ('track', 'NTC_ADC', [(72.38, 13.3), (74.62, 15.54), (74.62, 21.71), (67.39, 28.94), (67.39, 34.89),
+                              (65.3, 32.8), (60.75, 37.35), (60.75, 86.55), (60.6, 86.7)], 0.25, pcbnew.In2_Cu),
+        ('track', '+5V', [(65.94, 65.72), (65.25, 65.72), (65.25, 86.5), (59.75, 92.0), (54.75, 92.0)],
+         0.3, pcbnew.In2_Cu),
+        ('via', '+5V', 54.75, 92.0),
+        ('track', '+5V', [(54.75, 92.0), (54.85, 91.1)], 0.3, pcbnew.B_Cu),
+        ('track', '+3V3', [(86.86, 81.96), (87.1, 82.85)], 0.3, pcbnew.B_Cu),
+        ('via', '+3V3', 87.1, 82.85),
+        ('track', '+3V3', [(87.1, 82.85), (86.85, 82.7), (84.85, 80.7), (84.85, 75.1), (85.75, 74.2),
+                           (86.69, 74.2)], 0.2, pcbnew.In2_Cu),
+        ('via', '+3V3', 86.69, 74.2),
+        ('delete', '+12V', [(56.13, 89.27), (56.13, 88.5), (54.45, 88.5)]),
+        ('track', '+12V', [(54.45, 88.5), (55.08, 88.5)], 0.5408, pcbnew.B_Cu),
     ],
 }
 

@@ -282,7 +282,148 @@ def adafruit_4392():
     )
 
 
+def fan_header_4p():
+    """Right-angle 4-pin (3+1) PC fan header, 2.54 mm pitch, through hole. No
+    maker drawing exists: dimensions come from fan_header_90deg.step (GrabCAD),
+    so check them against the real part. Origin on pin 1; +y points out of the
+    mating side. Pins 1-3 share the key tab, pin 4 (PWM) is the separate one.
+    """
+    pads = [
+        f'''\t(pad "{number}" thru_hole {'roundrect' if number == 1 else 'oval'}
+\t\t(at {round((number - 1) * 2.54, 2)} 0)
+\t\t(size 1.8 1.8)
+\t\t(drill 1.1)
+\t\t(layers "*.Cu" "*.Mask")
+{'''\t\t(roundrect_rratio 0.25)
+''' if number == 1 else ''}\t)
+'''
+        for number in range(1, 5)
+    ]
+    body_left, body_right = -1.594, 9.214
+    body_back, body_front = 1.804, 7.092
+    tab_end = 13.346
+    outline = (
+        box(body_left, body_back, body_right, body_front, 'F.Fab', 0.1)
+        + box(-0.02, body_front, 7.6, tab_end, 'F.Fab', 0.1)
+        + box(body_left - 0.12, body_back - 0.12, body_right + 0.12,
+              body_front + 0.12, 'F.SilkS', 0.12)
+        + box(body_left - 0.25, -1.4, body_right + 0.25, tab_end + 0.25,
+              'F.CrtYd', 0.05)
+        # pin 1 mark, behind the tail
+        + line(-1.3, -1.25, -0.7, -1.25, 'F.SilkS', 0.12)
+    )
+    return (
+        '(footprint "FanHeader_4P_P2.54mm_Horizontal"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Right-angle 3+1 pin PC fan header, 2.54 mm pitch (MODDIY '
+        'FC-3+1P-MA); dimensions from a CAD model, no maker drawing")\n'
+        + text('Reference', 'REF**', 3.81, -2.4, 'F.SilkS')
+        + text('Value', 'FanHeader_4P', 3.81, 4.4, 'F.Fab')
+        + '\t(attr through_hole)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def wurth_61900311021():
+    """Wurth WR-WTB 61900311021, 3-pin right-angle locking header (datasheet
+    rev 002.000). Origin on pin 1; +y points out of the mating side. 1.0 mm
+    holes at 2.54 mm; 7.62 wide, 3.3 deep, 5.8 high; plate ends 11.5 mm in
+    front of the body back. The drawing gives no tail-to-body distance: 1.69 mm
+    is scaled from it and agrees with the 12.47 mm tail-to-tip figure.
+    """
+    pads = [
+        f'''\t(pad "{number}" thru_hole {'roundrect' if number == 1 else 'oval'}
+\t\t(at {round((number - 1) * 2.54, 2)} 0)
+\t\t(size 1.7 1.7)
+\t\t(drill 1.0)
+\t\t(layers "*.Cu" "*.Mask")
+{'''\t\t(roundrect_rratio 0.25)
+''' if number == 1 else ''}\t)
+'''
+        for number in range(1, 4)
+    ]
+    body_left, body_right = -1.27, 6.35
+    body_back, body_front = 1.69, 4.99
+    plate_end = 13.19
+    outline = (
+        box(body_left, body_back, body_right, body_front, 'F.Fab', 0.1)
+        + box(-0.3, body_front, 5.38, plate_end, 'F.Fab', 0.1)
+        + box(body_left - 0.12, body_back - 0.12, body_right + 0.12,
+              body_front + 0.12, 'F.SilkS', 0.12)
+        + box(body_left - 0.25, -1.3, body_right + 0.25, plate_end + 0.25,
+              'F.CrtYd', 0.05)
+        + line(-1.2, -1.2, -0.6, -1.2, 'F.SilkS', 0.12)
+    )
+    return (
+        '(footprint "Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Wurth WR-WTB 61900311021 right-angle locking header, 3 pins, '
+        '2.54 mm (datasheet rev 002.000)")\n'
+        + text('Reference', 'REF**', 2.54, -2.3, 'F.SilkS')
+        + text('Value', '61900311021', 2.54, 3.3, 'F.Fab')
+        + '\t(attr through_hole)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def sullins_swr25x_s02_rb():
+    """Sullins SWR25X-NRTC-S02-RB-BA, 2-pin right-angle wafer (Type 1). Origin
+    on pin 1; +y points out of the mating side. Catalog p.136-137: 1.00 mm holes
+    at 2.54 mm; 5.12 wide (B), 3.2 deep, 5.8 high; tail 1.9 behind the body;
+    plate ends 11.4 in front of the body back. The drawing shows 6-20 positions,
+    so the plate width here is an estimate.
+    """
+    pads = [
+        f'''\t(pad "{number}" thru_hole {'roundrect' if number == 1 else 'oval'}
+\t\t(at {round((number - 1) * 2.54, 2)} 0)
+\t\t(size 1.7 1.7)
+\t\t(drill 1.0)
+\t\t(layers "*.Cu" "*.Mask")
+{'''\t\t(roundrect_rratio 0.25)
+''' if number == 1 else ''}\t)
+'''
+        for number in range(1, 3)
+    ]
+    body_left, body_right = -1.29, 3.83
+    body_back, body_front = 1.9, 5.1
+    plate_end = 13.3
+    outline = (
+        box(body_left, body_back, body_right, body_front, 'F.Fab', 0.1)
+        + box(-0.3, body_front, 2.84, plate_end, 'F.Fab', 0.1)
+        + box(body_left - 0.12, body_back - 0.12, body_right + 0.12,
+              body_front + 0.12, 'F.SilkS', 0.12)
+        + box(body_left - 0.25, -1.3, body_right + 0.25, plate_end + 0.25,
+              'F.CrtYd', 0.05)
+        + line(-1.2, -1.2, -0.6, -1.2, 'F.SilkS', 0.12)
+    )
+    return (
+        '(footprint "Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Sullins SWR25X-NRTC-S02-RB-BA right-angle wafer, 2 pins, 2.54 mm '
+        '(catalog p.136-137)")\n'
+        + text('Reference', 'REF**', 1.27, -2.3, 'F.SilkS')
+        + text('Value', 'SWR25X-S02', 1.27, 3.5, 'F.Fab')
+        + '\t(attr through_hole)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
+    'Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal': sullins_swr25x_s02_rb,
+    'FanHeader_4P_P2.54mm_Horizontal': fan_header_4p,
+    'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': wurth_61900311021,
     'L_Coilcraft_MSD7342': msd7342,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
     'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,

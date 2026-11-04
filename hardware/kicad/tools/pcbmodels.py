@@ -44,12 +44,6 @@ CONNECTOR_COLOURS = {
     'J9': 'black',
     'J11': 'black',
     'J12': 'black',
-    'J3': 'black',  # fan / pump
-    'J4': 'black',
-    'J5': 'red',  # fan tach
-    'J6': 'white',
-    'J7': 'white',
-    'J13': 'white',
     'J10': 'white',
 }
 
@@ -106,6 +100,31 @@ ENVELOPES = {
         'MSD7342_envelope',
         [(7.5, 7.5, 4.6, 0.0, 0.0, GRAY)],
     ),
+    # Sullins SWR25X S02 RB (catalog): body and locking plate, pins left out
+    'Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal': (
+        'Sullins_SWR25X_S02_RB_envelope',
+        [
+            (5.12, 3.2, 5.8, 1.27, -3.5, TAN),
+            (3.14, 8.2, 0.5, 1.27, -9.2, TAN),
+        ],
+    ),
+    # Wurth 61900311021 (datasheet): body and locking plate, pins left out
+    'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': (
+        'Wurth_61900311021_envelope',
+        [
+            (7.62, 3.3, 5.8, 2.54, -3.34, TAN),
+            (5.68, 8.2, 0.5, 2.54, -9.09, TAN),
+        ],
+    ),
+    # fan_header_90deg.step envelope: housing and key tab (pins left out).
+    # Fallback for LOCAL_STEP_MODELS.
+    'FanHeader_4P_P2.54mm_Horizontal': (
+        'FanHeader_4P_envelope',
+        [
+            (10.81, 5.29, 6.35, 3.81, -4.448, BLACK),
+            (7.62, 6.25, 1.59, 3.79, -10.22, BLACK),
+        ],
+    ),
     # Amphenol RJSSE-5380 (drawing P-RJSSE-5380 rev E): shield 16.51 wide,
     # 13.58 high, 15.75 deep; mouth 4.37 in front of the hole line, so the
     # body spans footprint y -11.38 .. 4.37. Fallback for LOCAL_STEP_MODELS.
@@ -121,6 +140,13 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # fan_header_90deg.step (GrabCAD) has its board plane at z 3.175, tails
+    # towards +z at y -3.655 and pin 1 at x -3.81
+    'FanHeader_4P_P2.54mm_Horizontal': (
+        'fan_header_90deg.step',
+        (3.81, -3.655, 3.175),
+        (180.0, 0.0, 0.0),
+    ),
     'RJ45_Amphenol_RJSSE-5380_Horizontal': (
         'RJSSE5380.step',
         (-7.874, -4.13, 0.762),

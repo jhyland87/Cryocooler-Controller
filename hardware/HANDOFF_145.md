@@ -10,8 +10,8 @@ done.
 - **Schematic:** ERC 0, all datasheet rules pass, BOM regenerated.
 - **PCB:** 4 layers, blue mask, parts on both sides.
   - KiCad DRC with schematic parity: 0 errors, 0 unconnected, 0 parity, 0 silk overlaps.
-  - 45 warnings remain:
-    - 44 `silk_edge_clearance`: the wall connectors' body outlines run past the board edge,
+  - 33 warnings remain:
+    - 32 `silk_edge_clearance`: the wall connectors' body outlines run past the board edge,
       and the fab clips them there;
     - 1 `lib_footprint_mismatch` on U1, from the generator's local edits to the WROOM footprint.
 - **Fab files and renders:** in `kicad/fabrication/`.
@@ -27,8 +27,10 @@ done.
 | J12 cryocooler | Phoenix MSTBA 2,5 3-pin (1757255) | + / − from U18; pin 3 on board GND, outside the ISO island |
 | J14 IMU | Amphenol RJSSE-5380 | plain 8P8C; the three parts in the TODO have magnetics. Signal pads centred between the holes (fixed 0.28 mm offset) |
 | J15 display | Hirose FH12-14S-0.5SH | top edge, top side |
-| J6 / J7 / J13 | Adafruit 1769 JST PH 2-pin SMD | unchanged |
+| J6 / J7 / J13 | Sullins SWR25X-NRTC-S02-RB-BA, right-angle 2-pin, 2.54 mm | 3 A; mates with SWH25X housings, so JST PH pigtails no longer fit. Catalog drawing shows 6-20 positions; the 2-pin plate width is an estimate |
 | J8 / J9 | Phoenix MC 1,5 | moved to the left wall |
+| J3 fan / J4 pump | MODDIY CO975 (FC-3+1P-MA) right-angle 3+1 fan header | takes PC fan plugs; footprint from `fan_header_90deg.step`, no maker drawing |
+| J5 flow | Wurth 61900311021, right-angle 3-pin locking, 2.54 mm | 3 A; footprint from datasheet rev 002.000; check the locking plate clears the sensor plug |
 
 ## How the board was made
 
@@ -62,6 +64,29 @@ done.
 - **Board ID:** the board ID prints the commit the board was generated from (`7f4c0ac`), not
   the commit that holds the files.
 - **Labels left out (no room):**
-  - silk labels for J9, J13, D4, D7 and D17;
+  - silk labels for J9, D4, D7 and D17;
   - some ESP32 pin names;
   - the reference designators that silk_fix hid.
+
+## Sine gain feedback (2026-11-03)
+
+R6 (47k) + R170 (2.4k) in series replace the 22k, both 0402 on B.Cu beside U5; C121 (1 nF) stays across both. Done on the routed board with `tools/split_r6.py`, so re-running `gen_pcb.py route` needs that edit redone. Reference text for both is hidden (no silk room): R170 is the vertical one west of R6.
+
+## Bottom and right wall headers (2026-11-03)
+
+J3, J4, J5, J6, J7 and J13 are right-angle through-hole headers on the routed board, pulled in so their tabs stop at the board edge (J3, J5 holes at y 86.6; J6, J7, J13 at y 86.7; J4 at x 106.6). Applied in order to the routed board, so a full `gen_pcb.py route` needs them redone:
+
+1. `tools/fan_headers.py`, `tools/two_pin_headers.py` (headers, bottom-side parts behind them, rip-up).
+2. `gen_pcb.py link`, `reroute` (three rounds) and `finish`, after `tools/ripup.py` on the eight nets left open.
+3. `tools/hand_route.py cryocooler.kicad_pcb bottom_wall_headers` (NTC_ADC, +5V, +3V3).
+4. `tools/bottom_wall_silk.py`, `tools/silk_fix.py`.
+
+Open points:
+
+- **Plugs past the edge:** tabs stop at the edge, so the plug and wires sit outside the board. Check the openings in the housing wall.
+- **J7 / J13 spacing:** bodies are 0.68 mm apart (moved west to clear D12 and Q7), so check two plugs fit side by side.
+- **CO975 not verified:** no maker drawing, pin material or current rating; check a real part's hole fit and the fan and pump current before ordering boards. Pins 1-3 share the key tab and pin 4 (PWM) is the separate pin.
+- **Plug fit:** J5's locking plate has not been tried with the Alphacool plug, and J6 / J7 / J13 need SWH25X housings on the cables.
+- **Plate width:** the J5 and J6 / J7 / J13 drawings show other position counts, so these plates are estimated. PANEL sits beside J7's estimated plate but within its body width, so a full-width plate would cover it.
+- **J4 GND label:** printed at y 88, below TP16's pad, instead of level with pin 1.
+- **3D models:** `fan_header_90deg.step` (GrabCAD, licence not read) is gitignored and copied from `dev/`; without it the footprint gets a box envelope. J5, J6, J7 and J13 use box envelopes.

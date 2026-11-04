@@ -41,9 +41,9 @@ LED1206 = 'LED_SMD:LED_1206_3216Metric'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 # Right-angle connectors: every plug enters parallel to the board, through the
 # housing side walls. Ratings are from each maker's datasheet.
-XH3_SIDE = 'Connector_JST:JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal'  # 3 A
-XH4_SIDE = 'Connector_JST:JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal'  # 3 A
-PH_2P = 'cryocooler:Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'  # 2 A
+WURTH3_RIGHT_ANGLE = 'cryocooler:Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal'  # 3 A
+FAN4_RIGHT_ANGLE = 'cryocooler:FanHeader_4P_P2.54mm_Horizontal'  # takes PC fan plugs
+RIGHT_ANGLE_2P = 'cryocooler:Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal'  # 3 A
 PH_4P = 'cryocooler:Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'  # 2 A
 # pluggable Phoenix headers: MSTBA 2,5 (12 A) for power, MC 1,5 (8 A) for
 # the amp control lines
@@ -572,7 +572,7 @@ def build_power_button(sh):
         rot=0,
         mirror=True,
         auto=False,
-        footprint=PH_2P,
+        footprint=RIGHT_ANGLE_2P,
     )
     wire(sh, pin_cell(j_panel, '1'), (36, 66), (36, pb[1]))
     wire(
@@ -1475,21 +1475,24 @@ def build_signal_gen(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground(sh, (86, 68), 0)
-    # OPA1656 unit A: non-inverting gain of 7.67 (1 + 22k/3.3k): 0.3 V pk
-    # AD9833 -> 2.3 V pk. 1 nF across the 22k rolls off above ~7 kHz
-    # (bench fix on the rev 1 board: 51k alone was too hot and noisy).
+    # OPA1656 unit A: non-inverting gain of 15.97 (1 + 49.4k/3.3k): 0.3 V pk
+    # AD9833 -> about 10 Vpp at Vctl = 10 V. The feedback is two series
+    # resistors so the amplitude can be trimmed by swapping one (51k measured
+    # 10.3 Vpp on the rev 1 board). 1 nF across both rolls off above ~3 kHz.
     opa_a = opamp_unit(sh, next_ref('U'), 1, 110, 60)
     opa_ref = opa_a.ref
     wire(sh, pin_cell(opa_a, '2'), (100, 62), (100, 70))
-    hres(sh, '22k', 110, 70)
+    hres(sh, '47k', 105, 70)
+    with kicadgen.pinned_refs('R', 169):
+        hres(sh, '2.4k', 111, 70)
     with high_refs('C'):
-        hcap(sh, '1nF/C0G', 110, 74)
-    wire(sh, (107, 70), (107, 74))
-    wire(sh, (113, 70), (113, 74))
-    wire(sh, (107, 70), (100, 70))
+        hcap(sh, '1nF/C0G', 108, 74)
+    wire(sh, (102, 70), (102, 74), (105, 74))
+    wire(sh, (114, 70), (114, 74), (111, 74))
+    wire(sh, (102, 70), (100, 70))
     vres(sh, '3.3k', 100, 70)
     drop_ground(sh, (100, 76), 0)
-    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (113, 70))
+    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (114, 70))
     wire(sh, (120, 60), (124, 60))
     hres(sh, '100', 127, 60)
     wire(sh, (130, 60), (192, 60))
@@ -1792,7 +1795,7 @@ def build_compressor_relay(sh):
         'COMP_RELAY',
         'COMPRESSOR RELAY / GND',
         True,
-        PH_2P,
+        RIGHT_ANGLE_2P,
         '+12V',
     )
 
@@ -2432,7 +2435,7 @@ def build_cooling(sh):
         rot=180,
         mirror=True,
         auto=False,
-        footprint=XH4_SIDE,
+        footprint=FAN4_RIGHT_ANGLE,
     )
     wire(
         sh,
@@ -2465,7 +2468,7 @@ def build_cooling(sh):
         rot=180,
         mirror=True,
         auto=False,
-        footprint=XH4_SIDE,
+        footprint=FAN4_RIGHT_ANGLE,
     )
     wire(
         sh,
@@ -2503,7 +2506,7 @@ def build_cooling(sh):
         110 * 1.27,
         124 * 1.27,
         {},
-        XH3_SIDE,
+        WURTH3_RIGHT_ANGLE,
     )
     raw = pin_cell(j_flow, '3')
     wire(sh, raw, (raw[0] - 6, raw[1]))
@@ -2524,7 +2527,7 @@ def build_cooling(sh):
         110 * 1.27,
         150 * 1.27,
         {},
-        PH_2P,
+        RIGHT_ANGLE_2P,
     )
     ntc = pin_cell(j_ntc, '1')
     wire(sh, ntc, (ntc[0] - 30, ntc[1]))

@@ -66,7 +66,7 @@ CAPS = {
         'LT8582 VC2 compensation'),
     ('1nF/C0G', 'C_0402_1005Metric'): (
         'CL05C102JB5NNNC', 'CAP CER 1000PF 50V C0G 0402',
-        'across R6 (22k) in the sine gain stage'),
+        'across R6 + R170 (49.4k) in the sine gain stage'),
     ('47pF', 'C_0402_1005Metric'): (
         'CL05C470JB5NNNC', 'CAP CER 47PF 50V C0G 0402',
         'LT8582 VC high-frequency poles'),
@@ -211,17 +211,20 @@ PARTS = {
         'suggested', 'right-angle pluggable header; amplifier REM and amplifier '
         'signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number '
         'before ordering)'),
-    ('', 'JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal'): (
-        'JST', 'S4B-XH-A(LF)(SN)', 'CONN HEADER XH SIDE ENTRY 4POS 2.5MM, 3 A',
-        'suggested', 'fan and pump (4-pin PWM); needs XHP-4 cable housings, '
-        'not PC-fan plugs'),
-    ('', 'JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal'): (
-        'JST', 'S3B-XH-A(LF)(SN)', 'CONN HEADER XH SIDE ENTRY 3POS 2.5MM, 3 A',
-        'suggested', 'J5 flow sensor tach; XHP-3 cable housing'),
-    ('', 'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD'): (
-        'Adafruit', '1769', 'CONN HEADER JST PH COMPATIBLE R/A SMT 2POS 2MM, 2 A',
-        'design', 'J6 NTC, J7 panel button, J13 relay 12 V out; 4UCON 17311; '
-        'mates with a JST PHR-2 housing or JST PH 2-pin pigtail'),
+    ('', 'FanHeader_4P_P2.54mm_Horizontal'): (
+        'MODDIY', 'CO975', 'CONN HEADER 3+1 FAN R/A 4POS 2.54MM',
+        'design', 'J3 fan, J4 pump: takes standard 3-pin and 4-pin PC fan '
+        'plugs. FC-3+1P-MA; no maker drawing or current rating, so check the '
+        'pins and hole fit on a real part before ordering boards'),
+    ('', 'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal'): (
+        'Wurth Elektronik', '61900311021',
+        'CONN HEADER WR-WTB R/A LOCKING 3POS 2.54MM, 3 A', 'design',
+        'J5 flow sensor: check the bottom locking plate clears the sensor plug'),
+    ('', 'Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal'): (
+        'Sullins Connector Solutions', 'SWR25X-NRTC-S02-RB-BA',
+        'CONN HEADER R/A WAFER 2POS 2.54MM, 3 A', 'design',
+        'J6 NTC, J7 panel button, J13 relay 12 V out; mates with SWH25X '
+        'housings, so JST PH pigtails no longer fit'),
     ('', 'TestPoint_Keystone_5000-5004_Miniature'): (
         'Keystone Electronics', '5001', 'TEST POINT PC MINIATURE BLACK',
         'design', 'ground loops; 1.02 mm hole'),
@@ -552,7 +555,7 @@ def classify(value, footprint):
 
 
 CONNECTOR_FOOTPRINTS = (
-    'PhoenixContact', 'JST_XH', 'Adafruit_', 'TestPoint_Keystone',
+    'PhoenixContact', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'TestPoint_Keystone',
 )
 
 

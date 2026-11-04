@@ -15,6 +15,8 @@ DATASHEETS = {
     'ESP32-S3-WROOM-2': 'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
     'OPA1656': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
+    '61900311021': 'https://www.we-online.com/components/products/datasheet/61900311021.pdf',
+    'SWR25X': 'https://static.datasheets.com/doc/20841721-sullins-swr25x-nrtc-s20-st-ba-ds.pdf',
     'OPA188': 'https://www.ti.com/lit/ds/symlink/opa188.pdf',
     'LM4040': 'https://www.ti.com/lit/ds/symlink/lm4040.pdf',
     'INA239': 'https://www.ti.com/lit/ds/symlink/ina239.pdf',
@@ -69,11 +71,13 @@ DATASHEETS = {
     'TSC2046': 'https://www.ti.com/lit/ds/symlink/tsc2046.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
-    'S4B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
 }
 
 # Phoenix item number -> product page (datasheet and drawings are on it)
 PRODUCT_PAGES = {
+    'SWR25X-NRTC-S02-RB-BA': 'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
+    '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
+    'CO975': 'https://www.moddiy.com/products/5408/4-Pin-3-Pin-2.54mm-Pitch-2510-Fan-Male-Angled-Connector-Black.html',
     '1757242': 'https://www.phoenixcontact.com/en-us/products/'
     'pcb-header-mstba-25-2-g-508-1757242',
     '1803277': 'https://www.phoenixcontact.com/en-us/products/'

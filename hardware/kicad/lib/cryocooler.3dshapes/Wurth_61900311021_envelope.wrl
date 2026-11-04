@@ -1,0 +1,18 @@
+#VRML V2.0 utf8
+# Wurth_61900311021_envelope: box envelope, units are mm
+Transform {
+  translation 2.54 -3.34 2.9
+  children Shape {
+    appearance Appearance { material Material {
+      diffuseColor 0.82 0.72 0.5 } }
+    geometry Box { size 7.62 3.3 5.8 }
+  }
+}
+Transform {
+  translation 2.54 -9.09 0.25
+  children Shape {
+    appearance Appearance { material Material {
+      diffuseColor 0.82 0.72 0.5 } }
+    geometry Box { size 5.68 8.2 0.5 }
+  }
+}

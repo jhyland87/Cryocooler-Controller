@@ -19,7 +19,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,CL05B222KB5NNNC,Samsung Electro-Mechanics,CAP CER 2200PF 50V X7R 0402,C65,2.2nF,C_0402_1005Metric,suggested,LT8582 VC2 compensation
 2,CL31B105KBHNNNE,Samsung Electro-Mechanics,CAP CER 1UF 50V X7R 1206,C68 C70,1uF/50V,C_1206_3216Metric,suggested,LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)
 1,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C74,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-
-1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C121,1nF/C0G,C_0402_1005Metric,suggested,across R6 (22k) in the sine gain stage
+1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C121,1nF/C0G,C_0402_1005Metric,suggested,across R6 + R170 (49.4k) in the sine gain stage
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
 3,APHHS1005SURCK,Kingbright,LED RED (630 NM) CLEAR 0402 SMD,D2 D7 D10,red,LED_0402_1005Metric,suggested,"fault indicators at ~1 mA; AlGaInP hyper red, Vf 1.95 V typ"
 3,XZMDKVG55W-4,SunLED,"LED RED/GREEN BICOLOR 1206 SMD, 2 pin anti-parallel",D3 D4 D12,RED/GREEN,LED_1206_3216Metric,suggested,"AlGaInP red and green, 30 mA max each; XZMDKVG55W-7 is the same with a domed lens. Avoid XZMDKDGK55W-4 (green is InGaN, 25 mA max)"
@@ -31,9 +31,9 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
 2,1757242,Phoenix Contact,"PCB HEADER MSTBA 2,5/ 2-G-5,08, 12 A",J2 J11,,"PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",suggested,"right-angle pluggable header; J2 12 V in, J11 amp out. Mating plug MSTB 2,5/ 2-ST-5,08 (confirm the plug item number before ordering)"
-2,S4B-XH-A(LF)(SN),JST,"CONN HEADER XH SIDE ENTRY 4POS 2.5MM, 3 A",J3 J4,,JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal,suggested,"fan and pump (4-pin PWM); needs XHP-4 cable housings, not PC-fan plugs"
-1,S3B-XH-A(LF)(SN),JST,"CONN HEADER XH SIDE ENTRY 3POS 2.5MM, 3 A",J5,,JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal,suggested,J5 flow sensor tach; XHP-3 cable housing
-3,1769,Adafruit,"CONN HEADER JST PH COMPATIBLE R/A SMT 2POS 2MM, 2 A",J6 J7 J13,,Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD,design,"J6 NTC, J7 panel button, J13 relay 12 V out; 4UCON 17311; mates with a JST PHR-2 housing or JST PH 2-pin pigtail"
+2,CO975,MODDIY,CONN HEADER 3+1 FAN R/A 4POS 2.54MM,J3 J4,,FanHeader_4P_P2.54mm_Horizontal,design,"J3 fan, J4 pump: takes standard 3-pin and 4-pin PC fan plugs. FC-3+1P-MA; no maker drawing or current rating, so check the pins and hole fit on a real part before ordering boards"
+1,61900311021,Wurth Elektronik,"CONN HEADER WR-WTB R/A LOCKING 3POS 2.54MM, 3 A",J5,,Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal,design,J5 flow sensor: check the bottom locking plate clears the sensor plug
+3,SWR25X-NRTC-S02-RB-BA,Sullins Connector Solutions,"CONN HEADER R/A WAFER 2POS 2.54MM, 3 A",J6 J7 J13,,Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal,design,"J6 NTC, J7 panel button, J13 relay 12 V out; mates with SWH25X housings, so JST PH pigtails no longer fit"
 2,1803277,Phoenix Contact,"PCB HEADER MC 1,5/ 2-G-3,81, 8 A",J8 J9,,"PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal",suggested,"right-angle pluggable header; amplifier REM and amplifier signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number before ordering)"
 1,4392,Adafruit,"CONN HEADER JST PH COMPATIBLE R/A SMT 4POS 2MM, 2 A",J10,,Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD,design,J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei CW2001-04T-H01-BD-A; mates with a JST PHR-4 housing or JST PH 4-pin pigtail
 1,1757255,Phoenix Contact,"PCB HEADER MSTBA 2,5/ 3-G-5,08, 12 A",J12,,"PhoenixContact_MSTBA_2,5_3-G-5,08_1x03_P5.08mm_Horizontal",suggested,"J12 cryocooler: + / - / GND (pin 3 is the plug's protective ground, tied to board GND). Mating plug MSTB 2,5/ 3-ST-5,08 (confirm both item numbers before ordering)"
@@ -55,7 +55,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 29,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R16 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R83 R151 R152 R161 R162 R168 R169,10k,R_0402_1005Metric,suggested,
 2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R3 R4,5.1k,R_0402_1005Metric,suggested,
 11,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78 R167,100k,R_0402_1005Metric,suggested,
-1,RC0402FR-0722KL,Yageo,RES 22K OHM 1% 1/16W 0402,R6,22k,R_0402_1005Metric,suggested,
+1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R6,47k,R_0402_1005Metric,suggested,
 4,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R7 R86 R97 R98,3.3k,R_0402_1005Metric,suggested,
 8,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R8 R9 R90 R91 R92 R93 R94 R95,100,R_0402_1005Metric,suggested,
 1,RC0402FR-076K8L,Yageo,RES 6.8K OHM 1% 1/16W 0402,R11,6.8k,R_0402_1005Metric,suggested,
@@ -86,6 +86,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,RC0402FR-0720KL,Yageo,RES 20K OHM 1% 1/16W 0402,R157 R159,20k,R_0402_1005Metric,suggested,
 2,RC0402FR-0739KL,Yageo,RES 39K OHM 1% 1/16W 0402,R158 R160,39k,R_0402_1005Metric,suggested,
 1,RC0805FR-0739RL,Yageo,RES 39 OHM 1% 1/8W 0805,R166,39,R_0805_2012Metric,suggested,
+1,RC0402FR-072K4L,Yageo,RES 2.4K OHM 1% 1/16W 0402,R170,2.4k,R_0402_1005Metric,suggested,
 3,TL3342F160QG/TR,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,ordered,footprint is the TL3342 family (3.5 x 6 mm); substitute for TL3342F160QG
 4,5001,Keystone Electronics,TEST POINT PC MINIATURE BLACK,TP14 TP15 TP16 TP17,,TestPoint_Keystone_5000-5004_Miniature,design,ground loops; 1.02 mm hole
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,

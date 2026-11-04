@@ -143,8 +143,8 @@ def build_signal_sim(sh):
         22,
     )
     sh.note(
-        'R6 = 22k || 1 nF (gain 7.67, pole ~7 kHz) so CTL = 10 V gives '
-        '~2.3 V pk (4.6 Vpp, 1.6 Vrms), as on the rev 2 signal_gen sheet.',
+        'R6 + R170 = 47k + 2.4k || 1 nF (gain 15.97, pole ~3 kHz) so CTL = 10 V '
+        'gives ~4.8 V pk (9.6 Vpp), as on the signal_gen sheet.',
         20,
         24.5,
     )
@@ -174,7 +174,7 @@ def build_signal_sim(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground_sim(sh, (86, 68))
-    # OPA1656 unit A: non-inverting gain of 7.67 (1 + 22k/3.3k)
+    # OPA1656 unit A: non-inverting gain of 15.97 (1 + 49.4k/3.3k)
     opa_ref = next_ref('U')
     opa_a = sh.add(
         'Amplifier_Operational:OPA1656ID',
@@ -188,14 +188,15 @@ def build_signal_sim(sh):
         props=OPA1656_SIM,
     )
     wire(sh, pin_cell(opa_a, '2'), (100, 62), (100, 70))
-    hres(sh, '22k', 110, 70)
-    hcap(sh, '1nF', 110, 74)
-    wire(sh, (107, 70), (107, 74))
-    wire(sh, (113, 70), (113, 74))
-    wire(sh, (107, 70), (100, 70))
+    hres(sh, '47k', 105, 70)
+    hres(sh, '2.4k', 111, 70)
+    hcap(sh, '1nF', 108, 74)
+    wire(sh, (102, 70), (102, 74), (105, 74))
+    wire(sh, (114, 70), (114, 74), (111, 74))
+    wire(sh, (102, 70), (100, 70))
     vres(sh, '3.3k', 100, 70)
     drop_ground_sim(sh, (100, 76))
-    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (113, 70))
+    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (114, 70))
     wire(sh, (120, 60), (124, 60))
     hres(sh, '100', 127, 60)
     wire(sh, (130, 60), (192, 60))
