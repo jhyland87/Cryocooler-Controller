@@ -63,8 +63,9 @@ done.
 - **J14 3D model:** Amphenol's STEP (via SnapMagic, `dev/RJSSE5380`) is licensed for design
   use only, so `lib/cryocooler.3dshapes/RJSSE5380.step` is gitignored. Copy it there to render
   the real jack; without it `pcbmodels.py` falls back to a box envelope.
-- **Board ID:** the board ID prints the commit the board was generated from (`7f4c0ac`), not
-  the commit that holds the files.
+- **Board ID:** the silk prints `3939aa8`, the commit holding this design. The stamp and the
+  fab files re-exported with it are in the next commit, because a commit can't contain its own hash.
+  Restamp it after any later board change.
 - **Labels left out (no room):**
   - silk labels for J9, D4, D7 and D17;
   - some ESP32 pin names;
