@@ -82,10 +82,15 @@ extern "C" {
 
 uint8_t  digitalRead(uint8_t /*pin*/);
 void     delayMicroseconds(unsigned int /*us*/);
+void     delay(uint32_t /*ms*/);
 
 #ifdef __cplusplus
 }
 #endif
+
+// SPI bit order and mode constants (values match the ESP32 Arduino core)
+static constexpr uint8_t MSBFIRST  = 1;
+static constexpr uint8_t SPI_MODE0 = 0;
 
 // SPI stub class (minimal C++ interface)
 class SPISettings {
@@ -99,6 +104,8 @@ public:
 
 class SPIClass {
 public:
+    void begin(int8_t sck = -1, int8_t miso = -1, int8_t mosi = -1, int8_t ss = -1);
+    void end(void);
     void beginTransaction(SPISettings settings);
     void endTransaction(void);
     uint16_t transfer16(uint16_t data);

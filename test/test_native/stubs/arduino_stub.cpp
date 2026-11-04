@@ -44,9 +44,23 @@ void delayMicroseconds(unsigned int us) {
     (void)us;
 }
 
+void delay(uint32_t ms) {
+    (void)ms;
+}
+
 } // extern "C"
 
 // SPI stub implementation
+void SPIClass::begin(int8_t sck, int8_t miso, int8_t mosi, int8_t ss) {
+    (void)sck;
+    (void)miso;
+    (void)mosi;
+    (void)ss;
+}
+
+void SPIClass::end(void) {
+}
+
 void SPIClass::beginTransaction(SPISettings settings) {
     (void)settings;
 }
