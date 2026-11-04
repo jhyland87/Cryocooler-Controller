@@ -1338,6 +1338,152 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "cryocooler:MJ-3523-SMT-TR"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 7.62 10.16 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "MJ-3523-SMT-TR"
+				(at -7.62 10.16 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" "https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Same Sky 3.5 mm mono jack with tip switch, right angle, SMT"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "audio jack 3.5mm"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "MJ-3523-SMT-TR_0_1"
+				(rectangle
+					(start -7.62 7.62)
+					(end 7.62 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "MJ-3523-SMT-TR_1_1"
+				(pin passive line
+					(at -10.16 2.54 0)
+					(length 2.54)
+					(name "SLEEVE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 5.08 0)
+					(length 2.54)
+					(name "TIP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 0 0)
+					(length 2.54)
+					(name "SWITCH"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:+12V"
 			(power global)
 			(pin_numbers
@@ -1741,7 +1887,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "2ca751fb-f876-5281-a5fd-2ea60403313f")
+		(uuid "117eac03-58b3-56a0-8ef1-4ba1082ff519")
 	)
 	(text "GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side switch), but only while PG_15V is high (both +-15 V rails good: Q9 in series with the level shifter). LED: green = on, red = off."
 		(exclude_from_sim no)
@@ -1752,131 +1898,45 @@
 			)
 			(justify left top)
 		)
-		(uuid "6fb493ba-2d26-5991-ab80-108f549c4500")
-	)
-	(junction
-		(at 78.74 63.5)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3b5df5f3-ab04-5f7f-a9ce-3bdeab6f22db")
+		(uuid "8063329c-3858-5f1c-a669-c41965a933f4")
 	)
 	(junction
 		(at 114.3 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "bf635b10-93ac-56da-94cc-041bc9a86a25")
-	)
-	(junction
-		(at 121.92 73.66)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c25a9cc2-350d-54de-b2ce-1713a07e33b4")
+		(uuid "0cc8c705-5481-52cf-8e21-7ed6798079bd")
 	)
 	(junction
 		(at 50.8 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f4c85eec-faf3-57fb-b416-89e97e7401d6")
+		(uuid "73ed4951-f32c-5b68-8ac4-865bfde81c27")
+	)
+	(junction
+		(at 78.74 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ebe06378-9bdb-5929-86c2-d88ee2f7b48a")
+	)
+	(junction
+		(at 121.92 73.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f4fe6528-749c-5fc7-8277-d98ced16e6aa")
+	)
+	(no_connect
+		(at 167.64 114.3)
+		(uuid "d93bd73c-23fa-5b94-983b-a07274c24152")
 	)
 	(wire
 		(pts
-			(xy 170.18 116.84) (xy 172.72 116.84)
+			(xy 165.1 111.76) (xy 167.64 111.76)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0ecc4dd4-ab2d-5786-90e4-97329f47447d")
-	)
-	(wire
-		(pts
-			(xy 43.18 76.2) (xy 50.8 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "144a4fe7-909f-5db8-a5a6-d080258219a2")
-	)
-	(wire
-		(pts
-			(xy 66.04 63.5) (xy 78.74 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "31662223-2b40-551a-b180-48d7083c2df2")
-	)
-	(wire
-		(pts
-			(xy 104.14 68.58) (xy 104.14 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b9b14cc-4b67-5a11-82b5-e9c98bade1ec")
-	)
-	(wire
-		(pts
-			(xy 66.04 96.52) (xy 66.04 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "456792d5-55cc-59e7-b47d-57a72448d4c9")
-	)
-	(wire
-		(pts
-			(xy 104.14 53.34) (xy 104.14 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "48fd78f2-b3f3-53d0-8195-47582ccdac30")
-	)
-	(wire
-		(pts
-			(xy 78.74 63.5) (xy 96.52 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "58201f3b-5f12-586a-8be6-87cbf0a3b26b")
-	)
-	(wire
-		(pts
-			(xy 30.48 76.2) (xy 35.56 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b1f6ece-b362-5c2d-9d76-df3f731b6819")
-	)
-	(wire
-		(pts
-			(xy 50.8 76.2) (xy 58.42 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7bceda0f-b00a-58bc-a6cf-2e8a3f682d28")
-	)
-	(wire
-		(pts
-			(xy 53.34 91.44) (xy 58.42 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7e78c208-e807-5788-bfa6-5682ba7d7c85")
+		(uuid "03244cc3-13a5-55f3-8329-6a5b61f57f0c")
 	)
 	(wire
 		(pts
@@ -1886,47 +1946,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9937c0ed-420d-5f56-a0ab-a99b4debc1a3")
+		(uuid "0d47b0bd-99b7-57bb-a63f-26602d28cbf4")
 	)
 	(wire
 		(pts
-			(xy 104.14 73.66) (xy 114.3 73.66)
+			(xy 53.34 91.44) (xy 58.42 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "a813cb8d-3ac3-568d-8467-7413d71c88db")
-	)
-	(wire
-		(pts
-			(xy 165.1 114.3) (xy 172.72 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ae6980a2-203d-53bb-b85a-a975f59c9b36")
-	)
-	(wire
-		(pts
-			(xy 170.18 76.2) (xy 172.72 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b970a273-1933-5d68-b96f-fd1ced814bec")
-	)
-	(wire
-		(pts
-			(xy 66.04 63.5) (xy 66.04 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cba19b82-48c5-5aca-b94a-fb974d540d3e")
+		(uuid "11073948-0d77-5e8a-b3ce-2388fe1dc686")
 	)
 	(wire
 		(pts
@@ -1936,7 +1966,107 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ceb3cbc9-d364-5329-9714-5b6592b0d9f4")
+		(uuid "2ca751fb-f876-5281-a5fd-2ea60403313f")
+	)
+	(wire
+		(pts
+			(xy 30.48 76.2) (xy 35.56 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b5df5f3-ab04-5f7f-a9ce-3bdeab6f22db")
+	)
+	(wire
+		(pts
+			(xy 104.14 53.34) (xy 104.14 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45536b95-f42f-5ac6-9b06-0b372e494120")
+	)
+	(wire
+		(pts
+			(xy 160.02 109.22) (xy 167.64 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "605be14a-7d5c-5afd-83de-df8c76d05458")
+	)
+	(wire
+		(pts
+			(xy 66.04 63.5) (xy 66.04 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65f4ab22-14ff-5891-9114-8a4e50c29f40")
+	)
+	(wire
+		(pts
+			(xy 104.14 73.66) (xy 114.3 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fb493ba-2d26-5991-ab80-108f549c4500")
+	)
+	(wire
+		(pts
+			(xy 104.14 68.58) (xy 104.14 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e38bace-bcde-5b01-9067-1a25caba0d1d")
+	)
+	(wire
+		(pts
+			(xy 170.18 76.2) (xy 172.72 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3e1f46c-f034-5ab2-8fec-fa3efda5f853")
+	)
+	(wire
+		(pts
+			(xy 43.18 76.2) (xy 50.8 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf635b10-93ac-56da-94cc-041bc9a86a25")
+	)
+	(wire
+		(pts
+			(xy 50.8 76.2) (xy 58.42 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c25a9cc2-350d-54de-b2ce-1713a07e33b4")
+	)
+	(wire
+		(pts
+			(xy 66.04 96.52) (xy 66.04 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c62e561f-b3c8-5222-8c83-719439b5f2fb")
 	)
 	(wire
 		(pts
@@ -1946,7 +2076,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "db97b607-02ba-5eec-8c4c-fe10a7fe9fac")
+		(uuid "d24a212d-96b7-5ca1-b2ad-ee41cdf402a5")
+	)
+	(wire
+		(pts
+			(xy 66.04 63.5) (xy 78.74 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d46b9c6a-203d-5224-b35e-a02910ca83f1")
+	)
+	(wire
+		(pts
+			(xy 78.74 63.5) (xy 96.52 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa0fd159-7bbd-523a-96eb-9b499f2e7228")
 	)
 	(label "AMP_REM"
 		(at 132.08 73.66 0)
@@ -1956,31 +2106,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "d46b9c6a-203d-5224-b35e-a02910ca83f1")
-	)
-	(global_label "PG_15V"
-		(shape bidirectional)
-		(at 53.34 91.44 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "11073948-0d77-5e8a-b3ce-2388fe1dc686")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 53.34 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "563b255b-e24e-5749-84b5-be810be02700")
 	)
 	(global_label "AMP_REM_EN"
 		(shape input)
@@ -1992,7 +2118,7 @@
 			)
 			(justify right)
 		)
-		(uuid "b3e1f46c-f034-5ab2-8fec-fa3efda5f853")
+		(uuid "4f73d6a8-dc35-541e-abdc-763812aee69a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 30.48 76.2 0)
 			(hide yes)
@@ -2006,9 +2132,9 @@
 			)
 		)
 	)
-	(global_label "SIG_SINE"
-		(shape input)
-		(at 165.1 114.3 180)
+	(global_label "PG_15V"
+		(shape bidirectional)
+		(at 53.34 91.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2016,9 +2142,33 @@
 			)
 			(justify right)
 		)
-		(uuid "fa0fd159-7bbd-523a-96eb-9b499f2e7228")
+		(uuid "74be783d-fcab-54d4-9748-83c782a4ba0a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 165.1 114.3 0)
+			(at 53.34 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "SIG_SINE"
+		(shape input)
+		(at 160.02 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b197f94d-4860-53c4-83cc-7a154ef4428a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 160.02 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2108,10 +2258,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "bff58e3d-6ef5-5c83-aaf8-0c5db811b5ae")
+			(uuid "31f4b87d-4018-5ccc-b60c-55665760ba65")
 		)
 		(pin "2"
-			(uuid "e339147d-f132-5c4e-93b0-e024d2c4ca6a")
+			(uuid "c9c93a74-ad62-53a9-8a3d-8eb765bad0b6")
 		)
 		(instances
 			(project "cryocooler"
@@ -2155,7 +2305,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal"
+		(property "Footprint" "cryocooler:PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal"
 			(at 177.8 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -2166,7 +2316,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.phoenixcontact.com/en-us/products/pcb-header-mc-15-2-g-381-1803277"
+		(property "Datasheet" "https://www.phoenixcontact.com/en-us/products/pcb-header-mc-05-2-g-254-smd-r24-1821698?type=pdf"
 			(at 177.8 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -2188,7 +2338,7 @@
 				)
 			)
 		)
-		(property "Product" "https://www.phoenixcontact.com/en-us/products/pcb-header-mc-15-2-g-381-1803277"
+		(property "Product" "https://www.digikey.com/en/products/detail/phoenix-contact/1821698/7558295"
 			(at 177.8 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -2200,10 +2350,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "480224f9-edda-5638-a2eb-7ea8570a5d7a")
+			(uuid "049eb01f-8bc2-5ef8-b7ab-9dfd65e39937")
 		)
 		(pin "2"
-			(uuid "cd6a1106-afdb-5a58-918b-462b2961768f")
+			(uuid "4ec58b60-70bf-5245-b236-3e97b7f6f7d4")
 		)
 		(instances
 			(project "cryocooler"
@@ -2292,10 +2442,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2bd2c7b5-f8eb-5ce3-955c-12f637e5babb")
+			(uuid "400c6296-4e0b-5b58-b7bc-c3d39cca25ef")
 		)
 		(pin "2"
-			(uuid "5fcda06c-ba11-571e-a1a1-5d12f9d3832e")
+			(uuid "e58537ae-1378-5ec2-be7e-6ac0e23b5237")
 		)
 		(instances
 			(project "cryocooler"
@@ -2382,10 +2532,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "cfaa7bb4-7141-5e65-90c0-f352a60289b2")
+			(uuid "7de479b9-db4b-5a80-9c2b-66b29c0f7209")
 		)
 		(pin "2"
-			(uuid "054dca06-d093-53dd-b44a-5c731c0480b4")
+			(uuid "a60273e4-af60-51da-b404-67681ebac6a0")
 		)
 		(instances
 			(project "cryocooler"
@@ -2474,10 +2624,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "03244cc3-13a5-55f3-8329-6a5b61f57f0c")
+			(uuid "ed75b850-a0f1-508c-8948-8f8f63389d42")
 		)
 		(pin "2"
-			(uuid "65f4ab22-14ff-5891-9114-8a4e50c29f40")
+			(uuid "bff58e3d-6ef5-5c83-aaf8-0c5db811b5ae")
 		)
 		(instances
 			(project "cryocooler"
@@ -2567,13 +2717,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "563b255b-e24e-5749-84b5-be810be02700")
+			(uuid "2f97f9ce-1bec-5cd5-af74-98179dcbcced")
 		)
 		(pin "2"
-			(uuid "b197f94d-4860-53c4-83cc-7a154ef4428a")
+			(uuid "ef14e608-7a42-56da-9145-3aca44c07873")
 		)
 		(pin "3"
-			(uuid "8063329c-3858-5f1c-a669-c41965a933f4")
+			(uuid "b1a5d97d-2d7c-5ee7-8d9c-3eedd74dbb25")
 		)
 		(instances
 			(project "cryocooler"
@@ -2651,7 +2801,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ed75b850-a0f1-508c-8948-8f8f63389d42")
+			(uuid "0e8bb927-0790-507a-94b4-46152467d161")
 		)
 		(instances
 			(project "cryocooler"
@@ -2728,7 +2878,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "68333952-4db7-5767-a0c6-cc35bfc4afe3")
+			(uuid "2ef3f870-fd38-53fc-9674-34ab8eacdf99")
 		)
 		(instances
 			(project "cryocooler"
@@ -2805,7 +2955,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "74be783d-fcab-54d4-9748-83c782a4ba0a")
+			(uuid "00caf5bf-d458-51b6-b093-902d5f348d08")
 		)
 		(instances
 			(project "cryocooler"
@@ -2883,7 +3033,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f4fe6528-749c-5fc7-8277-d98ced16e6aa")
+			(uuid "c08f6a10-eaed-5f82-a767-1e21ae63815b")
 		)
 		(instances
 			(project "cryocooler"
@@ -2961,7 +3111,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0d47b0bd-99b7-57bb-a63f-26602d28cbf4")
+			(uuid "e339147d-f132-5c4e-93b0-e024d2c4ca6a")
 		)
 		(instances
 			(project "cryocooler"
@@ -3050,13 +3200,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "73ed4951-f32c-5b68-8ac4-865bfde81c27")
+			(uuid "480224f9-edda-5638-a2eb-7ea8570a5d7a")
 		)
 		(pin "2"
-			(uuid "ebe06378-9bdb-5929-86c2-d88ee2f7b48a")
+			(uuid "cd6a1106-afdb-5a58-918b-462b2961768f")
 		)
 		(pin "3"
-			(uuid "0cc8c705-5481-52cf-8e21-7ed6798079bd")
+			(uuid "022dcd94-abb0-5eaa-aba3-054d4863a481")
 		)
 		(instances
 			(project "cryocooler"
@@ -3134,7 +3284,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "022dcd94-abb0-5eaa-aba3-054d4863a481")
+			(uuid "ea741f19-c085-5cb8-95a7-185685530ff1")
 		)
 		(instances
 			(project "cryocooler"
@@ -3221,10 +3371,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d24a212d-96b7-5ca1-b2ad-ee41cdf402a5")
+			(uuid "2bd2c7b5-f8eb-5ce3-955c-12f637e5babb")
 		)
 		(pin "2"
-			(uuid "605be14a-7d5c-5afd-83de-df8c76d05458")
+			(uuid "5fcda06c-ba11-571e-a1a1-5d12f9d3832e")
 		)
 		(instances
 			(project "cryocooler"
@@ -3313,10 +3463,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d93bd73c-23fa-5b94-983b-a07274c24152")
+			(uuid "ae7fdac4-3f91-5a59-b288-229860c68be7")
 		)
 		(pin "2"
-			(uuid "4f73d6a8-dc35-541e-abdc-763812aee69a")
+			(uuid "1de3f7bc-f08a-52eb-b3eb-2e6a63fca378")
 		)
 		(instances
 			(project "cryocooler"
@@ -3329,7 +3479,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 170.18 116.84 0)
+		(at 165.1 111.76 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3339,7 +3489,7 @@
 		(dnp no)
 		(uuid "c4b6146c-6c9d-5a44-b6ef-c90c86ff1bf8")
 		(property "Reference" "#PWR120"
-			(at 170.18 116.84 0)
+			(at 165.1 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3350,7 +3500,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 170.18 116.84 0)
+			(at 165.1 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3361,7 +3511,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 116.84 0)
+			(at 165.1 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3372,7 +3522,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 116.84 0)
+			(at 165.1 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3383,7 +3533,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 170.18 116.84 0)
+			(at 165.1 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3394,7 +3544,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1de3f7bc-f08a-52eb-b3eb-2e6a63fca378")
+			(uuid "b5dc5f7a-edae-5deb-8f91-9006fade1f16")
 		)
 		(instances
 			(project "cryocooler"
@@ -3471,7 +3621,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "117eac03-58b3-56a0-8ef1-4ba1082ff519")
+			(uuid "1f3f3857-87f5-5bfe-ac3c-687a5010373a")
 		)
 		(instances
 			(project "cryocooler"
@@ -3560,13 +3710,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "c62e561f-b3c8-5222-8c83-719439b5f2fb")
+			(uuid "68333952-4db7-5767-a0c6-cc35bfc4afe3")
 		)
 		(pin "2"
-			(uuid "45536b95-f42f-5ac6-9b06-0b372e494120")
+			(uuid "cfaa7bb4-7141-5e65-90c0-f352a60289b2")
 		)
 		(pin "3"
-			(uuid "9e38bace-bcde-5b01-9067-1a25caba0d1d")
+			(uuid "054dca06-d093-53dd-b44a-5c731c0480b4")
 		)
 		(instances
 			(project "cryocooler"
@@ -3578,7 +3728,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:Screw_Terminal_01x02")
+		(lib_id "cryocooler:MJ-3523-SMT-TR")
 		(at 177.8 114.3 0)
 		(unit 1)
 		(body_style 1)
@@ -3589,7 +3739,7 @@
 		(dnp no)
 		(uuid "f3bcf3f0-cf1e-5674-accb-70ae48bec3ab")
 		(property "Reference" "J9"
-			(at 181.27 114.52 0)
+			(at 187.62 113.25 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3600,7 +3750,7 @@
 			)
 		)
 		(property "Value" "AMP SIGNAL IN / GND"
-			(at 181.27 116.62 0)
+			(at 187.62 115.35 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3610,7 +3760,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal"
+		(property "Footprint" "cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD"
 			(at 177.8 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -3621,7 +3771,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.phoenixcontact.com/en-us/products/pcb-header-mc-15-2-g-381-1803277"
+		(property "Datasheet" "https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf"
 			(at 177.8 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -3632,7 +3782,7 @@
 				)
 			)
 		)
-		(property "Description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "Same Sky 3.5 mm mono jack with tip switch, right angle, SMT"
 			(at 177.8 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -3643,7 +3793,7 @@
 				)
 			)
 		)
-		(property "Product" "https://www.phoenixcontact.com/en-us/products/pcb-header-mc-15-2-g-381-1803277"
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=MJ-3523-SMT-TR"
 			(at 177.8 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -3653,12 +3803,15 @@
 					(size 1.27 1.27)
 				)
 			)
-		)
-		(pin "1"
-			(uuid "c08f6a10-eaed-5f82-a767-1e21ae63815b")
 		)
 		(pin "2"
-			(uuid "ae7fdac4-3f91-5a59-b288-229860c68be7")
+			(uuid "f471248a-6724-5c57-8b6e-fa4e94ab59d8")
+		)
+		(pin "1"
+			(uuid "1e49dab5-66d9-52f3-9ee3-6c21ad456028")
+		)
+		(pin "10"
+			(uuid "16cf557a-b007-5b3d-988c-7c378a479e6e")
 		)
 		(instances
 			(project "cryocooler"

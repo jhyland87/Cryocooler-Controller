@@ -12,9 +12,9 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | Sheet | Contents |
 |---|---|
 | `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, USB-C + ESD |
-| `power_input` | 12 V screw terminal, 5 A fuse, SMBJ16A TVS, bulk caps |
+| `power_input` | 12 V DC jack (5.5 x 2.1 mm), 5 A fuse, SMBJ16A TVS, bulk caps |
 | `power_button` | LTC2954CTS8-2, IRF4905S high-side P-FET, KILL# bias, CL25N8-G (SOT-89) + red/green LED |
-| `rails_logic` | AP63205 buck (12→5 V) → LD1117S33 (5→3.3 V) |
+| `rails_logic` | AP63205 buck (12→5 V); LM66100 pair ORs +5V and USB VBUS into +5V_OR → LD1117S33 (→3.3 V) |
 | `rails_15v` | LT8582 dual converter at 1.5 MHz (datasheet p.30 circuit): boost to +16.4 V, coupled-inductor (MSD7342-103) inverter to −16.5 V → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); PG1 / PG2 and the LT3097 PGP / PGN go to the `power_good` sheet (see below) |
 | `power_good` | One node and green LED per LT3097 PG pin, a BAT54AW AND of the two nodes into `PG_15V`, the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good), and 20k / 39k nodes for the LT8582 PG1 / PG2; all four flags are also read by the SC18IS604 GPIOs |
 | `signal_gen` | 25 MHz osc, AD9833, OPA1656, MCP4921 + LM4040-2.5 + OPA188, AD633 |
@@ -166,9 +166,9 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
-  GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 SIG/GND, J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
+  GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
   J11/J12 +/-, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
-* **Current path:** J11 -> ACS37800 pins 1-4 / 5-8 -> J12 is pre-routed with locked 2 mm traces.
+* **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 2305908-3) on 2 mm traces. J11 - and J12 - share a 2 mm F.Cu link at x 7, stitched by five vias to ISO_GND.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
   and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.

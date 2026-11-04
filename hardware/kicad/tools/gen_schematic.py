@@ -37,6 +37,7 @@ R0402 = 'Resistor_SMD:R_0402_1005Metric'
 R0805 = 'Resistor_SMD:R_0805_2012Metric'
 LED0402 = 'LED_SMD:LED_0402_1005Metric'
 SOT323 = 'Package_TO_SOT_SMD:SOT-323_SC-70'
+SC70_6 = 'Package_TO_SOT_SMD:SOT-363_SC-70-6'
 LED1206 = 'LED_SMD:LED_1206_3216Metric'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 # Right-angle connectors: every plug enters parallel to the board, through the
@@ -45,19 +46,13 @@ WURTH3_RIGHT_ANGLE = 'cryocooler:Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizonta
 FAN4_RIGHT_ANGLE = 'cryocooler:FanHeader_4P_P2.54mm_Horizontal'  # takes PC fan plugs
 RIGHT_ANGLE_2P = 'cryocooler:Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal'  # 3 A
 PH_4P = 'cryocooler:Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'  # 2 A
-# pluggable Phoenix headers: MSTBA 2,5 (12 A) for power, MC 1,5 (8 A) for
-# the amp control lines
-TERM_POWER = (
-    'Connector_Phoenix_MSTB:'
-    'PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'
-)
-TERM_POWER3 = (
-    'Connector_Phoenix_MSTB:'
-    'PhoenixContact_MSTBA_2,5_3-G-5,08_1x03_P5.08mm_Horizontal'
-)
-TERM_SIGNAL = (
-    'Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal'
-)
+POWER_JACK = 'cryocooler:Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'
+SIGNAL_JACK = 'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'
+# pluggable SMT headers: TE 2305908 (15 A) for the amp current, Phoenix MC 0,5
+# (6 A) for the amp control line
+TERM_POWER = 'cryocooler:TE_2305908-2_1x02_P5.00mm_Horizontal_SMD'
+TERM_POWER3 = 'cryocooler:TE_2305908-3_1x03_P5.00mm_Horizontal_SMD'
+TERM_SIGNAL = 'cryocooler:PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal'
 INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 
 PITCH = 12.7
@@ -373,7 +368,7 @@ def build_mcu(sh):
     )
     wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
-    # USB-C: data only, VBUS does not power the board
+    # USB-C: VBUS can power the logic rail on its own (rails_logic sheet)
     esd = sh.add(
         'cryocooler:USBLC6-2SC6',
         next_ref('U'),
@@ -424,7 +419,7 @@ def build_mcu(sh):
     vbus_esd = pin_cell(esd, '5')
     vbus = pin_cell(usb, 'A4')
     wire(sh, vbus_esd, (vbus_esd[0], 84), (226, 84), (226, vbus[1]), vbus)
-    net_label(sh, 'USB_VBUS', (205, 84), 180)  # names the net for the PCB rules
+    net_label(sh, 'USB_VBUS', (205, 84), 180, is_global=True)
     vcap(sh, '4.7uF', 210, 84, fp=C0805)
     drop_ground(sh, (210, 90), 0)
     rail_flag(sh, (218, 84))
@@ -449,7 +444,7 @@ def build_mcu(sh):
 
 
 def build_power_input(sh):
-    """Hand-laid: screw terminal -> fuse -> VIN rail with TVS and bulk/bypass
+    """Hand-laid: DC jack -> fuse -> VIN rail with TVS and bulk/bypass
     caps.
     """
     sh.handwired = True
@@ -466,16 +461,17 @@ def build_power_input(sh):
         20,
         21,
     )
+    # Tensility 54-00164: centre pin positive; the switch contact is tied to the
+    # sleeve so a plug can never open the ground return
     j_in = sh.add(
-        'Connector:Screw_Terminal_01x02',
+        'Connector:Barrel_Jack_Switch',
         next_ref('J'),
         '12V IN',
-        30 * 1.27,
-        60 * 1.27,
+        28 * 1.27,
+        62 * 1.27,
         rot=0,
-        mirror=True,
         auto=False,
-        footprint=TERM_POWER,
+        footprint=POWER_JACK,
     )
     raw = pin_cell(j_in, '1')
     fuse = aux(
@@ -490,6 +486,9 @@ def build_power_input(sh):
     wire(sh, raw, pin_cell(fuse, '1'))
     rail_flag(sh, (raw[0] + 5, raw[1]))
     gnd = spur(sh, j_in, '2', 2)
+    switch = pin_cell(j_in, '3')
+    wire(sh, switch, (gnd[0] - 1, switch[1]))
+    wire(sh, (gnd[0] - 1, switch[1]), (gnd[0] - 1, gnd[1]))
     ground(sh, gnd)
     rail_flag(sh, (gnd[0] + 3, gnd[1]))
     wire(sh, gnd, (gnd[0] + 3, gnd[1]))
@@ -833,6 +832,8 @@ TP_NAMES = {
     'NTC_ADC': 'NTC',
     'FLOW_TACH': 'FLOW',
     'STATUS_RGB': 'RGB',
+    'USB_VBUS': 'VBUS',
+    '+5V_OR': '5V_OR',
 }
 
 
@@ -971,9 +972,10 @@ def build_rails_logic(sh):
     wire(sh, (111, 73), (121, 73), (127, 73), (142, 73), (154, 73))
     wire(sh, (95, 81), (119, 81), (119, 73))
     rail_symbol(sh, '+5V', (121, 73))
-    for column in (127, 142):
-        cap(sh, '22uF/10V', '', '', pose=at(column, 76), fp=C1206)
-        rail_symbol(sh, 'GND', (column, 79))
+    cap(sh, '22uF/10V', '', '', pose=at(127, 76), fp=C1206)
+    rail_symbol(sh, 'GND', (127, 79))
+    cap(sh, '22uF/10V', '', '', pose=at(72, 114), fp=C1206)  # LDO input, on +5V_OR
+    rail_symbol(sh, 'GND', (72, 117))
     rail_flag(sh, (154, 73))
     # 3.3 V linear stage
     u3 = ic(
@@ -986,18 +988,77 @@ def build_rails_logic(sh):
         fp='Package_TO_SOT_SMD:SOT-223-3_TabPin2',
     )
     wire(sh, (64, 111), (72, 111), (81, 111))
-    rail_symbol(sh, '+5V', (64, 111))
+    rail_symbol(sh, '+5V_OR', (64, 111))
     wire(sh, (87, 117), (87, 119))
     rail_symbol(sh, 'GND', (87, 119))
-    cap(sh, '10uF', '', '', pose=at(72, 114))
-    rail_symbol(sh, 'GND', (72, 117))
+    cap(sh, '22uF/10V', '', '', pose=at(142, 76), fp=C1206)
+    rail_symbol(sh, 'GND', (142, 79))
     wire(sh, (93, 111), (102, 111), (114, 111), (126, 111))
     rail_symbol(sh, '+3V3', (126, 111))
     cap_pol(sh, '22uF', '', '', pose=at(102, 114))
     cap(sh, '100nF', '', '', pose=at(114, 114))
     for column in (102, 114):
         rail_symbol(sh, 'GND', (column, 117))
+    usb_power_path(sh)
     return u5, u3, inductor
+
+
+def usb_power_path(sh):
+    """LM66100 pair (datasheet Fig. 17) feeding +5V_OR from +5V or USB VBUS.
+    U28's ST holds U29 off while +5V feeds the rail, so the two inputs never
+    conduct into each other; with +5V absent the pull-up lets U29 turn on.
+    """
+    sh.note(
+        '+5V_OR: USB alone powers +3V3 and the DDS, not the +5V rail or the +-15 V stage. '
+        'LM66100 SLVSEZ8A Fig. 17 (CE to the other input, ST + pull-up to the second CE).',
+        20,
+        158,
+    )
+    with kicadgen.pinned_refs('U', 27):
+        main_diode = ic(sh, 'cryocooler:LM66100', 'LM66100', 110.49, 215.9, {},
+                        fp=SC70_6)
+        usb_diode = ic(sh, 'cryocooler:LM66100', 'LM66100', 110.49, 254.0, {},
+                       fp=SC70_6)
+    for part in (main_diode, usb_diode):
+        drop_ground(sh, pin_cell(part, '2'), 2)
+        sh.nc(part, '4')
+    # main input: +5V, disabled by a higher VBUS on CE
+    vin = pin_cell(main_diode, '1')
+    wire(sh, vin, (64, vin[1]))
+    rail_symbol(sh, '+5V', (64, vin[1]))
+    enable = pin_cell(main_diode, '3')
+    wire(sh, enable, (64, enable[1]))
+    net_label(sh, 'USB_VBUS', (64, enable[1]), 180, is_global=True)
+    # priority signal: ST pulled up to +5V, drives the USB diode's CE
+    status = pin_cell(main_diode, '5')
+    wire(sh, status, (126, status[1]), (136, status[1]))
+    with kicadgen.pinned_refs('R', 170):
+        vres(sh, '10k', 126, status[1])
+    rail_symbol(sh, '+5V', (126, status[1] + 6), rot=180)
+    net_label(sh, 'USB_SEL', (136, status[1]), 0)
+    # USB input with its own 1 uF and test point
+    usb_in = pin_cell(usb_diode, '1')
+    wire(sh, usb_in, (68, usb_in[1]), (60, usb_in[1]), (52, usb_in[1]))
+    net_label(sh, 'USB_VBUS', (52, usb_in[1]), 180, is_global=True)
+    with kicadgen.pinned_refs('C', 125):
+        vcap(sh, '1uF', 60, usb_in[1])
+    drop_ground(sh, (60, usb_in[1] + 6), 0)
+    with kicadgen.pinned_refs('TP', 42):
+        test_point(sh, 'USB_VBUS', (68, usb_in[1]), rot=0)
+    usb_enable = pin_cell(usb_diode, '3')
+    wire(sh, usb_enable, (72, usb_enable[1]))
+    net_label(sh, 'USB_SEL', (72, usb_enable[1]), 180)
+    usb_status = pin_cell(usb_diode, '5')
+    wire(sh, usb_status, (usb_status[0] + 4, usb_status[1]))
+    ground(sh, (usb_status[0] + 4, usb_status[1]))
+    # common output
+    out_main, out_usb = pin_cell(main_diode, '6'), pin_cell(usb_diode, '6')
+    wire(sh, out_main, (150, out_main[1]), (150, out_usb[1]), out_usb)
+    rail_symbol(sh, '+5V_OR', (150, out_main[1]))
+    rail_flag(sh, (142, out_main[1]))
+    with kicadgen.pinned_refs('TP', 43):
+        test_point(sh, '+5V_OR', (156, out_usb[1]), rot=0)
+    wire(sh, (150, out_usb[1]), (156, out_usb[1]))
 
 
 def place_ic(
@@ -1424,7 +1485,7 @@ def build_signal_gen(sh):
     wire(sh, oe, (oe[0], 56))
     wire(sh, vcc_osc, (vcc_osc[0], 56))
     wire(sh, (oe[0], 56), (vcc_osc[0], 56))
-    rail_symbol(sh, '+5V', (vcc_osc[0], 56))
+    rail_symbol(sh, '+5V_OR', (vcc_osc[0], 56))
     drop_ground(sh, pin_cell(osc, '2'), 2)
     # AD9833
     dds = place_ic(
@@ -1448,7 +1509,7 @@ def build_signal_gen(sh):
     drop_ground(sh, (60, 72), 2)
     vdd = pin_cell(dds, '2')
     wire(sh, vdd, (vdd[0], 48), (75, 48))
-    rail_symbol(sh, '+5V', (vdd[0], 48))
+    rail_symbol(sh, '+5V_OR', (vdd[0], 48))
     comp = pin_cell(dds, '1')
     wire(sh, comp, (75, comp[1]), (75, 54))
     vcap(sh, '10nF', 75, 48)
@@ -1601,8 +1662,8 @@ def build_signal_gen(sh):
     place_blocks(
         sh,
         [
-            ('SG-8002CA DECOUPLING CAPACITORS', '+5V', ('100nF',)),
-            ('AD9833 DECOUPLING CAPACITORS', '+5V', ('100nF', '10uF')),
+            ('SG-8002CA DECOUPLING CAPACITORS', '+5V_OR', ('100nF',)),
+            ('AD9833 DECOUPLING CAPACITORS', '+5V_OR', ('100nF', '10uF')),
             ('OPA1656 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('OPA1656 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
             ('AD633 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
@@ -1751,20 +1812,21 @@ def build_amp_control(sh):
         interlock_net='PG_15V',
         footprint=TERM_SIGNAL,
     )
+    # Same Sky MJ-3523-SMT-TR: tip = signal, sleeve = GND, tip switch unused
     j_sig = conn(
         sh,
-        'Connector:Screw_Terminal_01x02',
+        'cryocooler:MJ-3523-SMT-TR',
         'AMP SIGNAL IN / GND',
         140 * 1.27,
         90 * 1.27,
-        {},
-        TERM_SIGNAL,
+        {'10': None},
+        SIGNAL_JACK,
     )
-    sig = pin_cell(j_sig, '1')
+    sig = pin_cell(j_sig, '2')
     wire(sh, sig, (sig[0] - 6, sig[1]))
     net_label(sh, 'SIG_SINE', (sig[0] - 6, sig[1]), 180, is_global=True)
-    spur(sh, j_sig, '2', 2)
-    ground(sh, (pin_cell(j_sig, '2')[0] - 2, pin_cell(j_sig, '2')[1]))
+    spur(sh, j_sig, '1', 2)
+    ground(sh, (pin_cell(j_sig, '1')[0] - 2, pin_cell(j_sig, '1')[1]))
 
 
 def build_compressor_relay(sh):
@@ -2846,10 +2908,10 @@ def display_parts(sh):
         150,
         130,
     )
-    # backlight: +5V -> 39R -> anode; cathode switched to ground by a
+    # backlight: +5V_OR -> 39R -> anode; cathode switched to ground by a
     # BSS138 that a bridge GPIO turns on (pulled off at reset)
     sh.note('BACKLIGHT', 20 * 1.27, 112 * 1.27, 1.8)
-    rail_symbol(sh, '+5V', (24, 120))
+    rail_symbol(sh, '+5V_OR', (24, 120))
     wire(sh, (24, 120), (28, 120))
     hres(sh, '39', 31, 120, fp=R0805)
     wire(sh, (34, 120), (38, 120))
@@ -2973,11 +3035,12 @@ SWITCH_HEADER = 'Resistor_SMD:R_0603_1608Metric'
 SWITCHES = (
     ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1.5k'),
     ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '3.3k'),
-    ('ISO5', '+5V', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '3.3k'),
+    ('ISO5', '+5V_OR', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '3.3k'),
     ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (EMC2303, I2C BRIDGE, NTC)', '1.5k'),
     ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1.5k'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
+kicadgen.POWER_SYMBOLS['+5V_ISO'] = '+5V'
 # highest reference numbers used elsewhere: the LED chains continue from them
 LAST_LED_REF, LAST_RESISTOR_REF = 17, 95
 

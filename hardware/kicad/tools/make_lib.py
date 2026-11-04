@@ -239,6 +239,37 @@ def from_stock(
 
 SYMBOLS = [
     symbol(
+        'MJ-3523-SMT-TR',
+        'J',
+        'Same Sky 3.5 mm mono jack with tip switch, right angle, SMT',
+        'https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf',
+        'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD',
+        left=[
+            ('2', 'TIP', 'passive'),
+            ('1', 'SLEEVE', 'passive'),
+            ('10', 'SWITCH', 'passive'),
+        ],
+        keywords='audio jack 3.5mm',
+    ),
+    symbol(
+        'LM66100',
+        'U',
+        'TI 5.5 V, 1.5 A ideal diode with comparator chip enable, SC-70-6',
+        'https://www.ti.com/lit/ds/symlink/lm66100.pdf',
+        'Package_TO_SOT_SMD:SOT-363_SC-70-6',
+        left=[
+            ('1', 'VIN', 'power_in'),
+            ('3', '~{CE}', 'input'),
+            ('2', 'GND', 'power_in'),
+        ],
+        right=[
+            ('6', 'VOUT', 'passive'),
+            ('5', '~{ST}', 'passive'),
+            ('4', 'NC', 'no_connect'),
+        ],
+        keywords='ideal diode power mux oring',
+    ),
+    symbol(
         'AD633JRZ-R7',
         'U',
         'Analog Devices low-cost 4-quadrant analog multiplier, '

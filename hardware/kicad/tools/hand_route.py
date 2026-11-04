@@ -55,6 +55,14 @@ def via(board, name, x, y, diameter=0.45, drill=0.2):
     board.Add(item)
 
 
+def delete_via(board, name, x, y, tolerance=0.02):
+    for item in list(board.GetTracks()):
+        if item.Type() == pcbnew.PCB_VIA_T and item.GetNetname() == name:
+            where = item.GetPosition()
+            if abs(where.x / 1e6 - x) < tolerance and abs(where.y / 1e6 - y) < tolerance:
+                board.Delete(item)
+
+
 def zone(board, name, points, layer, clearance=0.2):
     """Solid copper pour of one net over a polygon. Priority 3 beats the
     GND / ISO_GND pours; the filler keeps clearance to everything else, so
@@ -131,6 +139,45 @@ ROUTES = {
         for x in (69.3, 70.0, 70.7)
         if (x, y) != (70.0, 54.0)
     ],
+    # after wall_jacks.py: TP36's moved pad back onto Q21's PG_15V pad, the J9 gate
+    # stage clear of R37's +12V stub and a leftover drain stub
+    'wall_jacks': [
+        ('delete', 'Net-(Q5-D)', [(16.938, 67.49), (16.35, 68.15), (16.3, 69.6)]),
+        ('track', 'Net-(Q5-D)', [(16.9375, 67.49), (16.2, 68.0), (16.2, 69.5), (16.3, 69.6)], 0.2, pcbnew.B_Cu),
+        ('delete', 'Net-(Q21-D)', [(17.637, 78.8), (17.637, 78.697)]),
+    ],
+    # after usb_power_path.py and gridroute: clears the old +5V leftovers, keeps vias
+    # out of the LM66100 pads and takes +5V round U28 on F.Cu, so its GND pad can
+    # reach a via under the body. Both GND pads need those vias: the tracks box them in.
+    'usb_power_path': [
+        ('delete', '+5V', [(31.07, 73.01), (29.2, 74.88)]),
+        ('delete_via', '+5V', 29.2, 74.88),
+        ('delete', '+5V', [(30.0, 76.99), (28.45, 76.35), (27.25, 76.35), (27.1, 76.45), (27.0, 76.6),
+                           (27.0, 77.75), (26.9, 77.9), (26.6, 78.1), (26.16, 78.15)]),
+        ('track', '+5V', [(30.05, 75.3), (28.5, 76.8), (26.0, 76.85), (25.85, 78.65)], 0.3, pcbnew.F_Cu),
+        ('via', '+5V', 25.85, 78.65),
+        ('track', '+5V', [(25.85, 78.65), (26.16, 78.15)], 0.3, pcbnew.B_Cu),
+        ('delete', '+5V_OR', [(23.0, 79.37), (23.0, 80.95), (24.35, 82.3)]),
+        ('delete', '+5V_OR', [(24.43, 45.18), (24.43, 60.87)]),
+        ('delete', '+5V_OR', [(28.3, 79.5), (27.95, 78.35), (27.84, 78.15), (27.3, 78.2),
+                              (27.05, 83.9), (27.3, 82.6), (27.84, 82.65)]),
+        ('delete_via', '+5V_OR', 27.95, 78.35),
+        ('delete_via', '+5V_OR', 27.3, 78.2),
+        ('delete_via', '+5V_OR', 27.3, 82.6),
+        ('track', '+5V_OR', [(27.84, 78.15), (27.3, 79.0)], 0.3, pcbnew.B_Cu),
+        ('via', '+5V_OR', 27.3, 79.0),
+        ('track', '+5V_OR', [(27.3, 79.0), (28.3, 79.5)], 0.3, pcbnew.F_Cu),
+        ('delete', '+5V_OR', [(24.4, 69.75), (27.3, 78.2)]),
+        ('track', '+5V_OR', [(24.4, 69.75), (26.03, 74.5), (26.4, 77.9), (27.3, 79.0)], 0.3, pcbnew.In2_Cu),
+        ('track', '+5V_OR', [(28.65, 82.3), (28.8, 82.4)], 0.3, pcbnew.B_Cu),
+        ('track', '+5V_OR', [(27.84, 82.65), (28.45, 82.5)], 0.3, pcbnew.B_Cu),
+        ('via', '+5V_OR', 28.8, 82.4),
+        ('track', '+5V_OR', [(28.8, 82.4), (27.05, 83.9)], 0.3, pcbnew.F_Cu),
+        ('via', 'GND', 27.0, 77.5),
+        ('track', 'GND', [(26.16, 77.5), (27.0, 77.5)], 0.25, pcbnew.B_Cu),
+        ('via', 'GND', 27.0, 82.0),
+        ('track', 'GND', [(26.16, 82.0), (27.84, 82.0)], 0.25, pcbnew.B_Cu),
+    ],
     # after the bottom-wall headers moved in (fan_headers.py, two_pin_headers.py):
     # NTC_ADC from U1 down In2 to J6, +5V down In2 to R80, R81's +3V3 to JP4 on
     # In2, and a leftover +12V stub cut back
@@ -163,6 +210,8 @@ def main():
                 track(board, *step[1:])
             elif step[0] == 'delete':
                 delete(board, *step[1:])
+            elif step[0] == 'delete_via':
+                delete_via(board, *step[1:])
             elif step[0] == 'zone':
                 zone(board, *step[1:])
             else:

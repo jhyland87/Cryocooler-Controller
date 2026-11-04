@@ -48,9 +48,9 @@ RULES = [
     ('net', 'CL25N8-G', '1', 'VIN'),
     ('nc', 'CL25N8-G', '3'),
     # SG-8002CA-PH (5 V CMOS): 1 OE (high/open = enabled), 2 GND, 3 OUT, 4 VCC
-    ('net', 'SG-8002CA-PH 25MHz', '4', '+5V'),
+    ('net', 'SG-8002CA-PH 25MHz', '4', '+5V_OR'),
     ('net', 'SG-8002CA-PH 25MHz', '2', 'GND'),
-    ('net', 'SG-8002CA-PH 25MHz', '1', '+5V'),
+    ('net', 'SG-8002CA-PH 25MHz', '1', '+5V_OR'),
     # LT3097: both regulators from the ADP5071 rails, enables tied to their
     # inputs, VOUT = 100 uA x RSET (147k = 14.7 V, the +15 V side is limited
     # to 15 V), pad 23 = GND and pad 24 = INN, ILIM pins grounded
@@ -134,7 +134,7 @@ RULES = [
     ('net', 'EN SG3', '2', '+3V3_SG'),
     ('net', 'EN PS15', '1', '+5V'),
     ('net', 'EN PS15', '2', '+5V_PS15'),
-    ('net', 'EN ISO5', '1', '+5V'),
+    ('net', 'EN ISO5', '1', '+5V_OR'),
     ('net', 'EN ISO5', '2', '+5V_ISO'),
     ('net', 'EN COOL', '1', '+3V3'),
     ('net', 'EN COOL', '2', '+3V3_COOL'),
@@ -249,8 +249,15 @@ RULES = [
     ('net', 'AP63205WU-7', '1', '+5V'),
     ('between', 'SRN6045TA-4R7M', ('AP63205WU-7', '5'), ('NET', '+5V')),
     ('between', '100nF', ('AP63205WU-7', '6'), ('AP63205WU-7', '5')),
-    ('net', 'LD1117S33TR', '3', '+5V'),
+    ('net', 'LD1117S33TR', '3', '+5V_OR'),
     ('net', 'LD1117S33TR', '2', '+3V3'),
+    # LM66100 pair (SLVSEZ8A pin table, Fig. 17): 1 VIN, 2 GND, 3 CE, 5 ST, 6 VOUT
+    ('net', 'LM66100', '1', ('+5V', 'USB_VBUS')),
+    ('net', 'LM66100', '2', ('GND',)),
+    ('net', 'LM66100', '3', ('USB_VBUS', 'USB_SEL')),
+    ('net', 'LM66100', '5', ('USB_SEL', 'GND')),
+    ('net', 'LM66100', '6', ('+5V_OR',)),
+    ('net', 'AD9833BRMZ', '2', '+5V_OR'),
     ('net', 'LD1117S33TR', '1', 'GND'),
     # Power path
     ('net', 'IRF4905S', '2', 'VSW'),
@@ -284,7 +291,7 @@ RULES = [
     ('net', 'FH12-14S-0.5SH(55)', '10', 'SPI_SCK'),
     ('net', 'FH12-14S-0.5SH(55)', '11', 'SPI_MOSI'),
     ('nc', 'FH12-14S-0.5SH(55)', '12'),
-    ('res', 'FH12-14S-0.5SH(55)', '13', '39', '+5V'),
+    ('res', 'FH12-14S-0.5SH(55)', '13', '39', '+5V_OR'),
     ('join', 'FH12-14S-0.5SH(55)', '4', 'TSC2046EIPW', '2'),
     ('join', 'FH12-14S-0.5SH(55)', '1', 'TSC2046EIPW', '3'),
     ('join', 'FH12-14S-0.5SH(55)', '2', 'TSC2046EIPW', '4'),

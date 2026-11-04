@@ -15,6 +15,8 @@ DATASHEETS = {
     'ESP32-S3-WROOM-2': 'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
     'OPA1656': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
+    '54-00164': 'https://www.digikey.com/en/products/detail/tensility/54-00164/10459298',
+    'MJ-3523': 'https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf',
     '61900311021': 'https://www.we-online.com/components/products/datasheet/61900311021.pdf',
     'SWR25X': 'https://static.datasheets.com/doc/20841721-sullins-swr25x-nrtc-s20-st-ba-ds.pdf',
     'OPA188': 'https://www.ti.com/lit/ds/symlink/opa188.pdf',
@@ -41,6 +43,7 @@ DATASHEETS = {
     'EMC2301-2-3-5-Data-Sheet-DS20006532A.pdf',
     'USBLC6-2': 'https://www.st.com/resource/en/datasheet/usblc6-2.pdf',
     'LD1117': 'https://www.st.com/resource/en/datasheet/ld1117.pdf',
+    'LM66100': 'https://www.ti.com/lit/ds/symlink/lm66100.pdf',
     'AP63205': 'https://www.diodes.com/assets/Datasheets/'
     'AP63200-AP63201-AP63203-AP63205.pdf',
     'BSS138-7': 'https://www.diodes.com/assets/Datasheets/BSS138.pdf',
@@ -71,6 +74,8 @@ DATASHEETS = {
     'TSC2046': 'https://www.ti.com/lit/ds/symlink/tsc2046.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
+    '2305908': 'https://www.farnell.com/cad/2571341.pdf',
+    '1821698': 'https://www.phoenixcontact.com/en-us/products/pcb-header-mc-05-2-g-254-smd-r24-1821698?type=pdf',
 }
 
 # Phoenix item number -> product page (datasheet and drawings are on it)
@@ -78,12 +83,9 @@ PRODUCT_PAGES = {
     'SWR25X-NRTC-S02-RB-BA': 'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
     'CO975': 'https://www.moddiy.com/products/5408/4-Pin-3-Pin-2.54mm-Pitch-2510-Fan-Male-Angled-Connector-Black.html',
-    '1757242': 'https://www.phoenixcontact.com/en-us/products/'
-    'pcb-header-mstba-25-2-g-508-1757242',
-    '1803277': 'https://www.phoenixcontact.com/en-us/products/'
-    'pcb-header-mc-15-2-g-381-1803277',
-    '1757255': 'https://www.phoenixcontact.com/en-us/products/'
-    'pcb-header-mstba-25-3-g-508-1757255',
+    '2305908-2': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-2/9744703',
+    '2305908-3': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-3/7561707',
+    '1821698': 'https://www.digikey.com/en/products/detail/phoenix-contact/1821698/7558295',
     '1769': 'https://www.adafruit.com/product/1769',
     '5001': 'https://www.keyelco.com/product.cfm/product_id/1310',
     '4392': 'https://www.adafruit.com/product/4392',

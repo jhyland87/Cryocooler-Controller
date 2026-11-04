@@ -16,7 +16,7 @@ import sys
 import pcbnew
 
 CELL = 0.05
-W_MM, H_MM = 100.0, 62.0
+W_MM, H_MM = 120.0, 100.0
 NX, NY = int(W_MM / CELL) + 1, int(H_MM / CELL) + 1
 N = NX * NY
 FINE = os.environ.get('FINE') == '1'

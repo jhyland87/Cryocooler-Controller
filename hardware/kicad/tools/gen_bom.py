@@ -196,21 +196,28 @@ PARTS = {
         'suggested', 'footprint is the GCT USB4105-xx-A'),
     # Right-angle connectors for the UCS 145-125 housing (plugs enter through
     # the side walls). Ratings from each maker's datasheet.
-    ('', 'PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'): (
-        'Phoenix Contact', '1757242', 'PCB HEADER MSTBA 2,5/ 2-G-5,08, 12 A',
-        'suggested', 'right-angle pluggable header; J2 12 V in, J11 amp out. '
-        'Mating plug MSTB 2,5/ 2-ST-5,08 (confirm the plug item number '
+    ('', 'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD'): (
+        'TE Connectivity', '2305908-2', 'CONN HEADER R/A SMT 2POS 5MM, 15 A',
+        'design', 'J11 amp out. SMT pads carry all plugging force. Mates with '
+        'TE 2213934 / 2213935 / 2305909 series plugs (confirm the plug item number '
         'before ordering)'),
-    ('', 'PhoenixContact_MSTBA_2,5_3-G-5,08_1x03_P5.08mm_Horizontal'): (
-        'Phoenix Contact', '1757255', 'PCB HEADER MSTBA 2,5/ 3-G-5,08, 12 A',
-        'suggested', 'J12 cryocooler: + / - / GND (pin 3 is the plug\'s '
-        'protective ground, tied to board GND). Mating plug MSTB 2,5/ '
-        '3-ST-5,08 (confirm both item numbers before ordering)'),
-    ('', 'PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal'): (
-        'Phoenix Contact', '1803277', 'PCB HEADER MC 1,5/ 2-G-3,81, 8 A',
-        'suggested', 'right-angle pluggable header; amplifier REM and amplifier '
-        'signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number '
-        'before ordering)'),
+    ('', 'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD'): (
+        'TE Connectivity', '2305908-3', 'CONN HEADER R/A SMT 3POS 5MM, 15 A',
+        'design', 'J12 cryocooler: + / - / GND (pin 3 is the plug\'s protective '
+        'ground, tied to board GND). SMT pads carry all plugging force. Reported as '
+        'last time buy: check stock. Mates with TE 2213934 / 2213935 / 2305909 '
+        'series plugs (confirm the plug item number before ordering)'),
+    ('', 'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'): (
+        'Tensility', '54-00164', 'CONN JACK R/A SMT 5.5X2.1MM',
+        'design', 'J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates '
+        'to 0 at 70 C; do not mate under load'),
+    ('', 'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'): (
+        'Same Sky', 'MJ-3523-SMT-TR', 'CONN JACK MONO 3.5MM SMD',
+        'design', 'J9 amplifier signal: tip = signal, sleeve = GND'),
+    ('', 'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal'): (
+        'Phoenix Contact', '1821698', 'PCB HEADER MC 0,5/ 2-G-2,54 SMD R24, 6 A',
+        'design', 'J8 amplifier REM. Mating plug FMC 0,5/ 2-ST-2,54 (confirm the '
+        'plug item number before ordering)'),
     ('', 'FanHeader_4P_P2.54mm_Horizontal'): (
         'MODDIY', 'CO975', 'CONN HEADER 3+1 FAN R/A 4POS 2.54MM',
         'design', 'J3 fan, J4 pump: takes standard 3-pin and 4-pin PC fan '
@@ -299,6 +306,9 @@ PARTS = {
     ('ISO7741DW', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
         'Texas Instruments', 'ISO7741DWR', 'DIGITAL ISOLATOR 4CH 16SOIC',
         'suggested', 'DWR is the reel; DW is the tube'),
+    ('LM66100', 'SOT-363_SC-70-6'): (
+        'Texas Instruments', 'LM66100DCKR', 'IC IDEAL DIODE 5.5V 1.5A SC70-6',
+        'design', '+5V / USB VBUS OR into +5V_OR'),
     ('LD1117S33TR', 'SOT-223-3_TabPin2'): (
         'STMicroelectronics', 'LD1117S33TR', 'IC REG LINEAR 3.3V 800MA SOT223',
         'design', ''),
@@ -555,7 +565,7 @@ def classify(value, footprint):
 
 
 CONNECTOR_FOOTPRINTS = (
-    'PhoenixContact', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'TestPoint_Keystone',
+    'PhoenixContact', 'TE_', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'Tensility_', 'SameSky_', 'TestPoint_Keystone',
 )
 
 

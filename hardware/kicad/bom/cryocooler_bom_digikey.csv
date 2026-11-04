@@ -1,14 +1,14 @@
 Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Value,Package,MPN basis,Notes
-6,CL21A106KACLRNC,Samsung Electro-Mechanics,CAP CER 10UF 25V X5R 0805,C1 C11 C15 C21 C42 C45,10uF,C_0805_2012Metric,ordered,substitute for CL21A106KAYNNNE
+5,CL21A106KACLRNC,Samsung Electro-Mechanics,CAP CER 10UF 25V X5R 0805,C1 C11 C15 C21 C45,10uF,C_0805_2012Metric,ordered,substitute for CL21A106KAYNNNE
 37,CL05B104KB54PNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0402,C2 C4 C9 C12 C13 C14 C16 C17 C18 C19 C20 C22 C23 C25 C28 C29 C30 C31 C34 C36 C38 C39 C44 C46 C48 C49 C50 C52 C61 C62 C75 C77 C78 C79 C81 C122 C124,100nF,C_0402_1005Metric,suggested,
-8,CL10A105KB8NNNC,Samsung Electro-Mechanics,CAP CER 1UF 50V X5R 0603,C3 C10 C24 C32 C51 C76 C80 C123,1uF,C_0603_1608Metric,suggested,
+9,CL10A105KB8NNNC,Samsung Electro-Mechanics,CAP CER 1UF 50V X5R 0603,C3 C10 C24 C32 C51 C76 C80 C123 C126,1uF,C_0603_1608Metric,suggested,
 2,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C5 C125,4.7uF,C_0805_2012Metric,ordered,USB VBUS filter; substitute for CL21A475KAQNNNE
 2,EEE-FK1E101AP,Panasonic,CAP ALUM 100UF 20% 25V SMD 8x10.2,C6 C73,100uF/25V,CP_Elec_8x10,ordered,C6 sits on the input rail behind a 26 V TVS clamp; prefer 35 V (EEE-FK1V101P); substitute for EEE-FK1E101P
 2,CL21B104KBCNNNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0805,C7 C72,100nF,C_0805_2012Metric,suggested,
 3,CL05B103KB5NNNC,Samsung Electro-Mechanics,CAP CER 10000PF 50V X7R 0402,C8 C33 C35,10nF,C_0402_1005Metric,suggested,
 2,C1210C226K3PACTU,Kemet,CAP CER 22UF 25V X5R 1210,C26 C27,22uF/25V,C_1210_3225Metric,ordered,12 V rail; substitute for CL32A226KAJNNNE
 1,C3216X5R1E106K085AC,TDK,CAP CER 10UF 25V X5R 1206,C37,10uF/25V,C_1206_3216Metric,ordered,12 V rail; substitute for CL31A106KAHNNNE
-2,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C40 C41,22uF/10V,C_1206_3216Metric,suggested,5 V buck output
+3,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C40 C41 C42,22uF/10V,C_1206_3216Metric,suggested,5 V buck output
 1,T491B226K016AT,Kemet,CAP TANT 22UF 10% 16V 3528-21 (B case),C43,22uF,CP_EIA-3528-21_Kemet-B,suggested,3.3 V rail; pin 1 is the + side
 1,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C47,22uF,C_1206_3216Metric,suggested,isolated 3.3 V output (needs 10 V or more)
 2,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C56 C57,4.7uF/25V,C_0805_2012Metric,ordered,LT8582 VIN1 / VIN2 input caps; substitute for CL21A475KAQNNNE
@@ -30,13 +30,15 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,BAT54AW-7-F,Diodes Incorporated,DIODE ARR SCHOTTKY 30V 200MA SOT323,D41,BAT54AW,SOT-323_SC-70,design,"common anode on PG_15V (pin 3), cathodes on pins 1 and 2"
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
-2,1757242,Phoenix Contact,"PCB HEADER MSTBA 2,5/ 2-G-5,08, 12 A",J2 J11,,"PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",suggested,"right-angle pluggable header; J2 12 V in, J11 amp out. Mating plug MSTB 2,5/ 2-ST-5,08 (confirm the plug item number before ordering)"
+1,54-00164,Tensility,CONN JACK R/A SMT 5.5X2.1MM,J2,,Tensility_54-00164_5.5x2.1mm_Horizontal_SMD,design,"J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates to 0 at 70 C; do not mate under load"
 2,CO975,MODDIY,CONN HEADER 3+1 FAN R/A 4POS 2.54MM,J3 J4,,FanHeader_4P_P2.54mm_Horizontal,design,"J3 fan, J4 pump: takes standard 3-pin and 4-pin PC fan plugs. FC-3+1P-MA; no maker drawing or current rating, so check the pins and hole fit on a real part before ordering boards"
 1,61900311021,Wurth Elektronik,"CONN HEADER WR-WTB R/A LOCKING 3POS 2.54MM, 3 A",J5,,Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal,design,J5 flow sensor: check the bottom locking plate clears the sensor plug
 3,SWR25X-NRTC-S02-RB-BA,Sullins Connector Solutions,"CONN HEADER R/A WAFER 2POS 2.54MM, 3 A",J6 J7 J13,,Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal,design,"J6 NTC, J7 panel button, J13 relay 12 V out; mates with SWH25X housings, so JST PH pigtails no longer fit"
-2,1803277,Phoenix Contact,"PCB HEADER MC 1,5/ 2-G-3,81, 8 A",J8 J9,,"PhoenixContact_MC_1,5_2-G-3.81_1x02_P3.81mm_Horizontal",suggested,"right-angle pluggable header; amplifier REM and amplifier signal. Mating plug MC 1,5/ 2-ST-3,81 (confirm the plug item number before ordering)"
+1,1821698,Phoenix Contact,"PCB HEADER MC 0,5/ 2-G-2,54 SMD R24, 6 A",J8,,"PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal",design,"J8 amplifier REM. Mating plug FMC 0,5/ 2-ST-2,54 (confirm the plug item number before ordering)"
+1,MJ-3523-SMT-TR,Same Sky,CONN JACK MONO 3.5MM SMD,J9,,SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD,design,"J9 amplifier signal: tip = signal, sleeve = GND"
 1,4392,Adafruit,"CONN HEADER JST PH COMPATIBLE R/A SMT 4POS 2MM, 2 A",J10,,Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD,design,J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei CW2001-04T-H01-BD-A; mates with a JST PHR-4 housing or JST PH 4-pin pigtail
-1,1757255,Phoenix Contact,"PCB HEADER MSTBA 2,5/ 3-G-5,08, 12 A",J12,,"PhoenixContact_MSTBA_2,5_3-G-5,08_1x03_P5.08mm_Horizontal",suggested,"J12 cryocooler: + / - / GND (pin 3 is the plug's protective ground, tied to board GND). Mating plug MSTB 2,5/ 3-ST-5,08 (confirm both item numbers before ordering)"
+1,2305908-2,TE Connectivity,"CONN HEADER R/A SMT 2POS 5MM, 15 A",J11,,TE_2305908-2_1x02_P5.00mm_Horizontal_SMD,design,J11 amp out. SMT pads carry all plugging force. Mates with TE 2213934 / 2213935 / 2305909 series plugs (confirm the plug item number before ordering)
+1,2305908-3,TE Connectivity,"CONN HEADER R/A SMT 3POS 5MM, 15 A",J12,,TE_2305908-3_1x03_P5.00mm_Horizontal_SMD,design,"J12 cryocooler: + / - / GND (pin 3 is the plug's protective ground, tied to board GND). SMT pads carry all plugging force. Reported as last time buy: check stock. Mates with TE 2213934 / 2213935 / 2305909 series plugs (confirm the plug item number before ordering)"
 1,RJSSE-5380,Amphenol,CONN MOD JACK 8P8C R/A SHIELDED SMD,J14,RJSSE-5380,RJ45_Amphenol_RJSSE-5380_Horizontal,design,"J14 IMU cable; plain jack, no magnetics (drawing P-RJSSE-5380 rev E)"
 1,FH12-14S-0.5SH(55),Hirose,CONN FFC BOTTOM 14POS 0.50MM R/A,J15,FH12-14S-0.5SH(55),Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal,design,display FPC (Phoenix datasheet 109921); check the FFC contact side so pin 1 lands on pin 1
 1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP1,EN SG3,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
@@ -52,7 +54,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 7,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2 Q3 Q4 Q5 Q7 Q21 Q25,BSS138,SOT-23,suggested,
 2,BSS84,onsemi,MOSFET P-CH 50V 130MA SOT23-3,Q6 Q8,BSS84,SOT-23,ordered,output stage is limited to about 130 mA; substitute for BSS84-7-F
 3,BSS138W-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT323,Q22 Q23 Q24,BSS138,SOT-323_SC-70,suggested,"power-good stage: same pinout as the SOT-23 BSS138 (1 gate, 2 source, 3 drain)"
-29,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R16 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R83 R151 R152 R161 R162 R168 R169,10k,R_0402_1005Metric,suggested,
+30,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R16 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R83 R151 R152 R161 R162 R168 R169 R171,10k,R_0402_1005Metric,suggested,
 2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R3 R4,5.1k,R_0402_1005Metric,suggested,
 11,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78 R167,100k,R_0402_1005Metric,suggested,
 1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R6,47k,R_0402_1005Metric,suggested,
@@ -114,3 +116,4 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,SC18IS604PWJ,NXP,IC SPI TO I2C BRIDGE 16TSSOP,U25,SC18IS604PW,TSSOP-16_4.4x5mm_P0.65mm,suggested,PWJ is the reel
 1,74LVC1G125DBVTG4,Texas Instruments,IC BUF NON-INVERT 5.5V SOT23-5,U26,74LVC1G125,SOT-23-5,ordered,gates the SC18IS604 MISO; substitute for SN74LVC1G125DBVR
 1,TSC2046EIPWR,Texas Instruments,IC TOUCH SCREEN CTRLR 4-WIRE 16TSSOP,U27,TSC2046EIPW,TSSOP-16_4.4x5mm_P0.65mm,design,
+2,LM66100DCKR,Texas Instruments,IC IDEAL DIODE 5.5V 1.5A SC70-6,U28 U29,LM66100,SOT-363_SC-70-6,design,+5V / USB VBUS OR into +5V_OR

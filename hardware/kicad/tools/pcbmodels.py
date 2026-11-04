@@ -39,11 +39,6 @@ HOUSING_COLOURS = {
 # reference -> housing colour: terminal blocks black, Molex KK red / black,
 # JST XH white
 CONNECTOR_COLOURS = {
-    'J2': 'black',
-    'J8': 'black',
-    'J9': 'black',
-    'J11': 'black',
-    'J12': 'black',
     'J10': 'white',
 }
 
@@ -89,6 +84,7 @@ ENVELOPES = {
         'Adafruit_1769_envelope',
         [(7.9, 6.0, 5.5, 0.0, -1.4, BLACK)],
     ),
+    # Adafruit_CAD_Parts' '4392 STEMMA QT Horizontal' is a 1 mm JST SH, so it can't be used.
     # Adafruit 4392 (CW2001-04T): body 12.0 x 6.0 mm, 5.5 mm high, mating
     # face at footprint y 4.6
     'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': (
@@ -125,6 +121,33 @@ ENVELOPES = {
             (7.62, 6.25, 1.59, 3.79, -10.22, BLACK),
         ],
     ),
+    # Fallbacks for LOCAL_STEP_MODELS, sized from the maker drawings
+    'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD': (
+        'Tensility_54-00164_envelope',
+        [(9.0, 14.7, 11.0, 0.0, 7.35, BLACK)],
+    ),
+    'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD': (
+        'SameSky_MJ-3523_envelope',
+        [(6.0, 14.5, 5.0, 0.0, 9.75, BLACK), (5.0, 2.5, 5.0, 0.0, 1.25, BLACK)],
+    ),
+    # TE 2305908 fallback (drawing C-2305908 rev A1): body 9.8 deep, 8.9
+    # high, 3.5 past each end pin; tails on the pads
+    'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': (
+        'TE_2305908-2_envelope',
+        [(12.0, 9.8, 8.9, 2.5, -6.85, BLACK),
+         (1.0, 4.2, 0.4, 0.0, 0.15, SILVER), (1.0, 4.2, 0.4, 5.0, 0.15, SILVER)],
+    ),
+    'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': (
+        'TE_2305908-3_envelope',
+        [(17.0, 9.8, 8.9, 5.0, -6.85, BLACK),
+         (1.0, 4.2, 0.4, 0.0, 0.15, SILVER), (1.0, 4.2, 0.4, 5.0, 0.15, SILVER),
+         (1.0, 4.2, 0.4, 10.0, 0.15, SILVER)],
+    ),
+    # Phoenix 1821698 fallback (drawing 00783144 rev 02)
+    'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal': (
+        'MC05_2_SMD_envelope',
+        [(9.66, 4.0, 4.85, 1.27, 1.2, BLACK), (5.58, 3.1, 4.85, 1.27, -4.8, BLACK)],
+    ),
     # Amphenol RJSSE-5380 (drawing P-RJSSE-5380 rev E): shield 16.51 wide,
     # 13.58 high, 15.75 deep; mouth 4.37 in front of the hole line, so the
     # body spans footprint y -11.38 .. 4.37. Fallback for LOCAL_STEP_MODELS.
@@ -146,6 +169,53 @@ LOCAL_STEP_MODELS = {
         'fan_header_90deg.step',
         (3.81, -3.655, 3.175),
         (180.0, 0.0, 0.0),
+    ),
+    # SWR25X-NRTC-S02-RB-BA.step (the user's own model) is Y-up: board plane at y 0,
+    # pins at z -1.9 and x -1.27 / 1.27
+    'Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal': (
+        'SWR25X-NRTC-S02-RB-BA.step',
+        (1.27, -1.9, 0.0),
+        (-90.0, 0.0, 0.0),
+    ),
+    # SWR25X-NRTC-S03-RB-BA.step (the user's own model of the Sullins part, on J5's
+    # Wurth footprint) is Y-up: board plane at y 0, pins at z -1.9, pin 2 at x 0
+    'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': (
+        'SWR25X-NRTC-S03-RB-BA.step',
+        (2.54, -1.9, 0.0),
+        (-90.0, 0.0, 0.0),
+    ),
+    # 54-00164.step (Tensility) is Y-up: mouth at z 21.217, body underside at
+    # y 4.887, jack axis at x -9.717
+    'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD': (
+        '54-00164.step',
+        (9.717, 21.217, -4.887),
+        (-90.0, 0.0, 0.0),
+    ),
+    # MJ-3523-SMT-TR.step (Same Sky) is Y-up: nose towards +z, shoulder at z 0,
+    # body underside at y -2.5
+    'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD': (
+        'MJ-3523-SMT-TR.step',
+        (0.0, 2.5, 2.5),
+        (-90.0, 0.0, 0.0),
+    ),
+    # TE STEPs (C-2305908-2 / -3): pins centred on x, tail bottoms at y -4.975,
+    # mating face at z 0, 11.75 mm in front of the pads
+    'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': (
+        '2305908-2.step',
+        (2.5, -11.75, 4.975),
+        (-90.0, 0.0, 0.0),
+    ),
+    'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': (
+        '2305908-3.step',
+        (5.0, -11.75, 4.975),
+        (-90.0, 0.0, 0.0),
+    ),
+    # 1821698.step (Phoenix, via TraceParts) has z up, board plane at z 0, mating
+    # face at y 0, pins at x 1.52 / 4.06 and y 6.35
+    'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal': (
+        '1821698.step',
+        (-1.52, -6.35, 0.0),
+        (0.0, 0.0, 0.0),
     ),
     'RJ45_Amphenol_RJSSE-5380_Horizontal': (
         'RJSSE5380.step',

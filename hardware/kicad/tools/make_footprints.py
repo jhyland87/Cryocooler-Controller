@@ -420,7 +420,200 @@ def sullins_swr25x_s02_rb():
     )
 
 
+def tensility_54_00164():
+    """Tensility 54-00164, 5.5 x 2.1 mm right-angle SMT DC jack (drawing rev A,
+    07/03/2019). Origin at the mouth on the jack axis; +y points out of the
+    mouth. Pads 2 x 2 at 13 across; pegs 1.6 and 1.8. Pads: 1 = A (centre pin,
+    both pads), 2 = B (sleeve contact), 3 = C (normally closed switch).
+    """
+    pads = [smd_pad(number, x_mm, y_mm, 2, 2) for number, x_mm, y_mm in (
+        (1, -5.5, -5.0), (1, -5.5, -11.2), (2, 5.5, -5.0), (3, 5.5, -11.2))]
+    pads += [npth(0, -5.0, 1.6), npth(0, -9.5, 1.8)]
+    outline = (
+        box(-4.5, -14.7, 4.5, 0, 'F.Fab', 0.1)
+        + line(-3.9, -0.5, -3.9, -3.7, 'F.SilkS', 0.12)
+        + line(3.9, -0.5, 3.9, -3.7, 'F.SilkS', 0.12)
+        + line(-3.9, -6.3, -3.9, -9.9, 'F.SilkS', 0.12)
+        + line(3.9, -6.3, 3.9, -9.9, 'F.SilkS', 0.12)
+        + line(-3.9, -14.8, 3.9, -14.8, 'F.SilkS', 0.12)
+        + box(-6.75, -15.0, 6.75, 0.25, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Tensility_54-00164_5.5x2.1mm_Horizontal_SMD"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Tensility 54-00164 DC jack 5.5 x 2.1 mm, right angle, SMT '
+        '(drawing rev A)")\n'
+        + text('Reference', 'REF**', 0, -16.2, 'F.SilkS')
+        + text('Value', '54-00164', 0, -7.0, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def same_sky_mj_3523():
+    """Same Sky MJ-3523-SMT-TR, 3.5 mm mono right-angle SMT jack (datasheet rev
+    1.06). Origin at the nose tip on the jack axis; +y points out of the nose.
+    Nose 2.5, body 14.5, pads as the recommended layout. Pads: 1 = sleeve,
+    2 = tip, 10 = tip switch.
+    """
+    shoulder = -2.5
+    pads = [
+        smd_pad(1, 3.7, round(shoulder - 2.4, 2), 2.8, 2.2),
+        smd_pad(2, 3.7, round(shoulder - 11.8, 2), 2.8, 2.8),
+        smd_pad(10, -0.75, round(shoulder - 14.5 - 1.3, 2), 2.8, 2.6),
+        npth(0, shoulder - 3.5, 1.7),
+        npth(0, shoulder - 10.5, 1.7),
+    ]
+    # stepped to follow the pads, so parts can sit beside the rear pad
+    corners = ((-3.25, 0.25), (3.25, 0.25), (3.25, -3.55), (5.35, -3.55), (5.35, -16.0),
+               (3.25, -16.0), (3.25, -17.25), (0.9, -17.25), (0.9, -19.85), (-2.4, -19.85),
+               (-2.4, -17.25), (-3.25, -17.25), (-3.25, 0.25))
+    courtyard = ''.join(line(*start, *end, 'F.CrtYd', 0.05)
+                        for start, end in zip(corners, corners[1:]))
+    outline = (
+        box(-3.0, -17.0, 3.0, shoulder, 'F.Fab', 0.1)
+        + box(-2.5, shoulder, 2.5, 0, 'F.Fab', 0.1)
+        + line(-3.1, -16.8, -3.1, -13.2, 'F.SilkS', 0.12)
+        + line(-3.1, shoulder, -2.6, shoulder, 'F.SilkS', 0.12)
+        + line(-2.6, shoulder, -2.6, -0.5, 'F.SilkS', 0.12)
+        + line(2.6, shoulder, 2.6, -0.5, 'F.SilkS', 0.12)
+        + line(2.6, shoulder, 3.1, shoulder, 'F.SilkS', 0.12)
+        + line(3.1, -6.3, 3.1, -12.6, 'F.SilkS', 0.12)
+        + courtyard
+    )
+    return (
+        '(footprint "SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Same Sky MJ-3523-SMT-TR 3.5 mm mono jack, right angle, SMT '
+        '(datasheet rev 1.06)")\n'
+        + text('Reference', 'REF**', -4.5, -9.0, 'F.SilkS')
+        + text('Value', 'MJ-3523', 0, -9.0, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def polygon(points, layer, width):
+    """Closed outline through the given (x, y) points."""
+    return ''.join(
+        line(*points[index], *points[(index + 1) % len(points)], layer, width)
+        for index in range(len(points))
+    )
+
+
+def te_2305908(positions):
+    """TE 2305908-x right-angle SMT terminal block header, 5.00 mm pitch (customer
+    drawing C-2305908 rev A1). Origin on pin 1's pad; +y points out of the mating
+    side. Pads 2.00 x 5.50 with their inner edge 9.0 behind the body front; body
+    9.8 deep, 8.9 high; L2 = 5(n-1) + 7.0 wide, 3.5 from its edge to pin 1; tails
+    end 4.2 behind the body. Solder pads only: no locating pegs.
+    """
+    name = f'TE_2305908-{positions}_1x{positions:02d}_P5.00mm_Horizontal_SMD'
+    span = 5.0 * (positions - 1)
+    left, right = -3.5, span + 3.5
+    body_back, body_front = 1.95, 11.75
+    silk_back = round(body_back + 1.0, 2)  # clear of the pads
+    pads = [smd_pad(number + 1, round(number * 5.0, 2), 0, 2.0, 5.5)
+            for number in range(positions)]
+    silk = ''.join(
+        line(round(number * 5.0 + 1.3, 2), silk_back,
+             round((number + 1) * 5.0 - 1.3, 2), silk_back, 'F.SilkS', 0.12)
+        for number in range(positions - 1)
+    )
+    outline = (
+        box(left, body_back, right, body_front, 'F.Fab', 0.1)
+        + silk
+        + line(left, silk_back, -1.3, silk_back, 'F.SilkS', 0.12)
+        + line(span + 1.3, silk_back, right, silk_back, 'F.SilkS', 0.12)
+        + line(left, silk_back, left, body_front, 'F.SilkS', 0.12)
+        + line(right, silk_back, right, body_front, 'F.SilkS', 0.12)
+        + polygon(((left - 0.25, 1.7), (-1.25, 1.7), (-1.25, -3.0), (span + 1.25, -3.0),
+                   (span + 1.25, 1.7), (right + 0.25, 1.7), (right + 0.25, body_front + 0.25),
+                   (left - 0.25, body_front + 0.25)), 'F.CrtYd', 0.05)
+        + circle(-1.9, -2.4, 0.2, 'F.SilkS', 0.12, fill=True)
+    )
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        f'\t(descr "TE Connectivity 2305908-{positions} right-angle SMT terminal block '
+        'header, 5.00 mm (drawing C-2305908 rev A1)")\n'
+        + text('Reference', 'REF**', span / 2, -4.0, 'F.SilkS')
+        + text('Value', f'2305908-{positions}', span / 2, 7.0, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def te_2305908_2():
+    return te_2305908(2)
+
+
+def te_2305908_3():
+    return te_2305908(3)
+
+
+def phoenix_mc05_2_smd():
+    """Phoenix MC 0,5/ 2-G-2,54 SMD R24 (1821698), drawing 00783144 rev 02. Origin
+    on pin 1's pad; +y points out of the mating side. Pads 1.2 x 2.06 at 2.54, their
+    outer edge 7.38 behind the mating face; peg holes 1.2, 2.54 outside the end pins
+    and 4.24 behind the mating face; body 9.66 wide (3.56 to pin 1), 7.1 deep, 4.85
+    high; end flanges stop 3.1 short of the face, the centre starts 1.52 from pin 1.
+    """
+    face = 6.35  # 7.38 - 2.06 / 2
+    back = round(face - 7.1, 2)
+    hole_y = round(face - 4.24, 2)
+    left, right = -3.56, 6.10
+    flange_end = round(face - 3.1, 2)
+    pads = [smd_pad(1, 0, 0, 1.2, 2.06), smd_pad(2, 2.54, 0, 1.2, 2.06),
+            npth(-2.54, hole_y, 1.2), npth(5.08, hole_y, 1.2)]
+    outline = (
+        line(left, back, right, back, 'F.Fab', 0.1)
+        + line(right, back, right, flange_end, 'F.Fab', 0.1)
+        + line(right, flange_end, 4.06, flange_end, 'F.Fab', 0.1)
+        + line(4.06, flange_end, 4.06, face, 'F.Fab', 0.1)
+        + line(4.06, face, -1.52, face, 'F.Fab', 0.1)
+        + line(-1.52, face, -1.52, flange_end, 'F.Fab', 0.1)
+        + line(-1.52, flange_end, left, flange_end, 'F.Fab', 0.1)
+        + line(left, flange_end, left, back, 'F.Fab', 0.1)
+        + line(left - 0.12, -0.8, left - 0.12, flange_end + 0.12, 'F.SilkS', 0.12)
+        + line(right + 0.12, -0.8, right + 0.12, flange_end + 0.12, 'F.SilkS', 0.12)
+        + box(left - 0.25, -1.3, right + 0.25, face + 0.25, 'F.CrtYd', 0.05)
+        + circle(-1.1, -0.9, 0.2, 'F.SilkS', 0.12, fill=True)
+    )
+    return (
+        '(footprint "PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Phoenix Contact 1821698 MC 0,5/ 2-G-2,54 SMD R24, right angle, '
+        '2.54 mm (drawing 00783144 rev 02)")\n'
+        + text('Reference', 'REF**', 1.27, -2.4, 'F.SilkS')
+        + text('Value', '1821698', 1.27, 3.0, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
+    'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': te_2305908_2,
+    'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': te_2305908_3,
+    'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal': phoenix_mc05_2_smd,
+    'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD': tensility_54_00164,
+    'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD': same_sky_mj_3523,
     'Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal': sullins_swr25x_s02_rb,
     'FanHeader_4P_P2.54mm_Horizontal': fan_header_4p,
     'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': wurth_61900311021,

@@ -49,6 +49,7 @@ These were wrong in my first version (several were also wrong in the original dr
 | ISO7741 | TI SLLSEP4K | Pinout and channel directions, 0.1 µF decoupling, default output high |
 | ACS37800 | Allegro datasheet | Pinout, 3.3 V variant, 0.1 µF, 4 × 1 MΩ + RSENSE divider (Fig. 1), SPI VIH 2.8 V |
 | LD1117S33 | ST Rev 26 | Pinout (tab = VOUT), ≥ 10 µF output cap, 5 V input within the 15 V limit |
+| LM66100 (added 2026-11-04) | TI SLVSEZ8A | Pinout (1 VIN, 2 GND, 3 CE, 4 NC, 5 ST, 6 VOUT); two wired as Fig. 17, because Fig. 15's plain cross-tied CE turns both off when the inputs are equal; VIN 1.5-5.5 V, 1.5 A, 79 mΩ typ at 5 V; ST sinks 0.5 mA through the 10k pull-up (1 mA abs max); unused ST tied to GND, N/C left open |
 | AP63205 | Diodes DS41326 Rev 3-2 | Pinout 1 FB, 2 EN, 3 VIN, 4 GND, 5 SW, 6 BST; component values from Fig. 1 / Table 3; VIN ≤ 32 V |
 | IRF4905S, BSS84, BSS138 | Infineon / Diodes / onsemi | Ratings and VGS(th); ±20 V gate limit not exceeded |
 | USBLC6-2SC6 | ST Rev 7 | Pinout; drawn as a pass-through (ESP32 side on pins 4/6, connector side on 3/1) so each data line crosses the protection device instead of being tied across it |
@@ -75,6 +76,7 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * **Fault current:** the supply can deliver about 160 A, so the 5 A SMD fuse (F1) is a backup only; confirm its
   DC breaking capacity in the chosen part's datasheet (F1 is now the Littelfuse 0453005.MR, 125 V AC/DC, 50 A breaking capacity). Add an **inline high-breaking-capacity fuse (7.5-10 A, for example an
   automotive blade fuse) at the PSU end** of the cable.
+  J2 is now a 5.5 x 2.1 mm jack (Tensility 54-00164): 5.5 A up to 40 C and derating above, so that inline fuse no longer protects the jack; F1 does.
 * **Standby LED current** (about 25 mA, 0.3 W) is not a concern on a mains-powered supply.
 * The 12.2 V level is inside every regulator's limits (AP63205 3.8-32 V, LTC2954 2.7-26.4 V, IRF4905 55 V).
 
@@ -92,7 +94,7 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * CS is on **GPIO3** (module pin 15). It is a JTAG-source strapping pin, but an idle-high CS with a 10 kΩ pull-up reads 1 at reset, which is the default USB-JTAG selection. IO47/48 are 1.8 V on the N32R16V and IO0/45/46 are boot straps, so IO3 was the only safe free pin.
 * ALERT drives only the red LED (10 kΩ pull-up + 1 kΩ + LED, same pattern as the EMC2303 ALERT#); it is not wired to an MCU pin.
 * Footprint is unchanged (`TSSOP-10_3x3mm_P0.5mm`); the datasheet's DGS VSSOP-10 is also a 3 x 3 mm, 0.5 mm pitch part, but the land pattern was not compared against the package drawing.
-* The INA239 runs from the same 3V3 rail as the ESP32 (derived from the 12 V input; USB VBUS powers nothing on this board), so the chip and the MCU lose power together and the SPI lines cannot drive an unpowered INA239 for more than the brief rail fall time. Firmware reports the chip offline after 3 failed ID reads.
+* The INA239 runs from the same 3V3 rail as the ESP32 (derived from the 12 V input or, since 2026-11-04, USB VBUS through the LM66100 pair), so the chip and the MCU lose power together and the SPI lines cannot drive an unpowered INA239 for more than the brief rail fall time. Firmware reports the chip offline after 3 failed ID reads.
 * ERC: the LSM6DSOX SDO pin type was changed to tri-state, matching the INA239 SDO, because both now share MISO. **The LSM6DSOX SDO behaviour with CS high is not confirmed from its datasheet text**; confirm it is high-impedance before relying on the shared bus (bench check: scope MISO with the IMU idle).
 
 ## ADS1220 swap and debug aids (2026-10-14)
@@ -137,7 +139,7 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 
 ## PCB layout open items (first pass, 2026-10-05)
 
-1. **Screw-terminal rating:** J11/J12 are Phoenix MKDS 1.5 (about 8-12 A) while the ACS37800 path is a 30 A part; the
+1. **Terminal rating:** J11/J12 are now SMT TE 2305908-2 / -3 (check their rating against the drawing; first pass used Phoenix MKDS 1.5, about 8-12 A) while the ACS37800 path is a 30 A part; the
    pre-routed copper is a single 2 mm F.Cu trace per side (about 4-5 A at 1 oz). Confirm the real cryocooler current and widen / double-side the copper or use heavier terminals.
 2. **12 V copper:** VIN / +12 V / VSW are 0.8 mm traces; fine for the fan and pump loads, check against the actual draw.
 3. **Via-in-pad:** U11 pin 4 and U2 pin 2 (GND) use 0.45 / 0.2 mm via-in-pad; order filled/capped vias or move the neighbours.
@@ -174,3 +176,4 @@ Driven by the rev 1 bench results in `hardware/TODO.md`.
 * **J11 / J12:** 3-way MKDS 1,5/3-5,08; pin 3 of each is a protective earth passed straight through (`EARTH`, 1.5 mm net class), nothing else on the board touches it. J8 / J9 (amp REM and signal) became 3.5 mm Phoenix PT 1,5/2-3,5-H.
 * **Jumpers / LEDs / passives:** JP1-JP5 are Keystone 5110 "true zero ohm" 0603 jumpers on standard 0603 pads (catalog p.60). Single-colour LEDs are 0402 at about 1 mA (1.5k on 3.3 V, 3.3k on 5 V, 13k on 15 V; green for good, red for faults); the 5 V (yellow) and ±15 V (white) indicators are now green. Resistors default to 0402 (the CL25 LED resistors keep 0603, see the standby-LED open item), caps ≤ 100 nF are 0402 50 V, 1 µF 0603.
 * **Test points:** labelled with their net names on the silkscreen; new ones on DDS_SINE (raw AD9833 output). IMU INT1/2, ESP_EN and ESP_BOOT test points were dropped for space (the last two are reachable on the RESET / BOOT buttons). The SCK, MOSI, MISO, A_MISO, chip-select (TP18-TP28) and SCL (TP31) test points were removed on 2026-11-03; those numbers stay unused and SDA (TP30) stays.
+* **J11 / J12 / J8 (2026-11-04):** TE 2305908-2 and 2305908-3 (SMT, drawing C-2305908 rev A1) and Phoenix 1821698 (MC 0,5/2-G-2,54 SMD, drawing 00783144 rev 02). The SMT joints take the plugging force; J11 and J12 have no pegs. 3D: maker STEP files for all three.
