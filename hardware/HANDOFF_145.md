@@ -63,7 +63,7 @@ done.
 - **J14 3D model:** Amphenol's STEP (via SnapMagic, `dev/RJSSE5380`) is licensed for design
   use only, so `lib/cryocooler.3dshapes/RJSSE5380.step` is gitignored. Copy it there to render
   the real jack; without it `pcbmodels.py` falls back to a box envelope.
-- **Board ID:** the silk prints `3939aa8`, the commit holding this design. The stamp and the
+- **Board ID:** the silk prints `5e8fc30`, the commit holding this design. The stamp and the
   fab files re-exported with it are in the next commit, because a commit can't contain its own hash.
   Restamp it after any later board change.
 - **Labels left out (no room):**
@@ -180,7 +180,7 @@ Open points:
 
 ## MCP23S08 board (2026-11-04)
 
-Brings the routed board to the MCP23S08 schematic. Uncommitted when written; the board ID still reads `3939aa8` and needs restamping once committed.
+Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the stamp and fab files are in `191cead`.
 
 - **Parts:** EMC2303, SC18IS604 and their parts are gone. U25 is the MCP23S08 QFN. Q26, Q27 and their resistors drive the fan and pump from the ESP32.
 - **Display level shift:** GPIO47/48 are 1.8 V on this module, so U30 / U31 (SN74LV1T34 on `+3V3`) buffer `DISP_CS` and `DISP_DC` up to the panel. Firmware pins don't change.
