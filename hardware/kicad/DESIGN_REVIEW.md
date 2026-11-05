@@ -154,7 +154,7 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 
 1. **Terminal rating:** J11/J12 are now SMT TE 2305908-2 / -3 (check their rating against the drawing; first pass used Phoenix MKDS 1.5, about 8-12 A) while the ACS37800 path is a 30 A part; the
    pre-routed copper is a single 2 mm F.Cu trace per side (about 4-5 A at 1 oz). Confirm the real cryocooler current and widen / double-side the copper or use heavier terminals.
-2. **12 V copper:** VIN / +12 V / VSW are 0.8 mm traces; fine for the fan and pump loads, check against the actual draw.
+2. **12 V copper:** VIN / +12 V / VSW reworked for 4 A total (see `hardware/HANDOFF_145.md`); check with a thermal camera at full load.
 3. **Via-in-pad:** U11 pin 4 and U2 pin 2 (GND) use 0.45 / 0.2 mm via-in-pad; order filled/capped vias or move the neighbours.
 4. **Isolation:** the ISO_GND island has 1.5 mm keep-out bands, which is a pour/copper gap, not a certified creepage figure; the isolator packages set the real barrier.
 5. **USB:** D+/D- are 0.2 mm tracks; impedance (90 ohm) is not verified against the fab stackup.

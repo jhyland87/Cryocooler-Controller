@@ -202,7 +202,19 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 - **U16:** a 21 mm2 +3V3 pour east of the tab, six vias to the In2 pour.
 - **Rail caps:** GRM32ER71E226KE15L (25 V X7R), since no 22 uF / 50 V X7R 1210 could be sourced. C129, C130, C131 double +15V, -15V and -16V5. +16V5 stays single (no nearby room; LT3097 INP needs 4.7 uF). DC bias not confirmed against the maker's curve; check the LT8582 loops on the bench.
 - **R44:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
-- **Still open before ordering:** J15 contact side, fan and pump current against the 0.8 mm In2 trunks, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
+- **Still open before ordering:** J15 contact side, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
+
+## 12 V copper for 4 A (2026-11-05)
+
+Planning load: 3 PWM fans 0.45-0.9 A, D5 pump 1.3-1.8 A (rarely 2 A), U15 up to about 0.9 A, so 4 A total and about 3 A east of U15. `tools/power_12v_rework.py` added:
+
+- **VIN, F1 to Q1:** 1.2 mm on F.Cu / B.Cu with 3-via groups, in parallel with the old In2 run, which stays and feeds the VIN branches.
+- **VSW, Q1 to R65:** 1.4 mm F.Cu strip from pin 2 to the tab, three 0.35 mm drill vias in R65 pad 1 (filled / capped).
+- **+12V, R65 to the U15 junction:** 1.2 mm on B.Cu / F.Cu with a 3-via group. The old In2 run here is removed; it stayed at 0.8 mm and would have taken about half the current. R66's sense tap stays on In2 north of (40.16, 60.72).
+- **U15 junction and (56.48, 85.52):** 3 vias each.
+- **J5 to J3 to J4:** 1.0 mm on F.Cu in parallel with the In2 runs.
+
+Resistor-network solve of the copper with IPC-2221 rises at 4 A total (U15 0.9, J3 0.9, J4 2.05, Q8 0.1, J5 0.05 A): 1.2 mm outer routes about 24 C, VIN's In2 about 16 C (1.25 A), east 0.8 mm outer copper about 26 C (3.1 A), hottest via about 1.9 A. Before the rework the In2 runs were about 225 C on the same basis. Estimates only; check with a thermal camera at full load. J4's CO975 still has no current rating, and F1 (5 A) has little headroom at 4 A.
 
 ## USB / display connector swap (2026-11-04)
 

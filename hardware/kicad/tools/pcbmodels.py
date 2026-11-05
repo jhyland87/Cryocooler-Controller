@@ -239,6 +239,13 @@ LOCAL_STEP_MODELS = {
         (0.0, 0.0, 0.35),
         (-90.0, 0.0, 0.0),
     ),
+    # QFN20_4x4MC_MCH.step (Microchip MCP23S08-E/ML, via the user's library download)
+    # is Z-up: leads at z 0, pin 1 dot at x -1.6, y +1, matching the footprint's pin 1
+    'QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm': (
+        'QFN20_4x4MC_MCH.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
     # Keystone 5015 is Y-up, in inches: feet at y 0, centred on the pad
     'TestPoint_Keystone_5015_Micro_Mini': (
         'Keystone_5015.step',
