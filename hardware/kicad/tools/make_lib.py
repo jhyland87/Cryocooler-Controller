@@ -553,6 +553,17 @@ SYMBOLS = [
         bottom=['1', '3'],
         keywords='buffer level shifter',
     ),
+    from_stock(
+        '74xGxx',
+        '74LVC1G34',
+        'SN74LV1T34',
+        'U',
+        left=['2'],
+        right=['4'],
+        top=['5'],
+        bottom=['3'],
+        keywords='buffer level shifter',
+    ),
     symbol(
         'TSC2046EIPW',
         'U',

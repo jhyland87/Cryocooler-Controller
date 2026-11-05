@@ -18,7 +18,7 @@ DUPLICATE_NAMES = {'+15V': 'D15', '-15V': 'D16'}  # owner LED of each name to re
 # board text -> the part it names (the instance nearest that part)
 NAMED_PARTS = {
     'STATUS': 'D11', '5V': 'D14', 'READY': 'D9', 'FAULT': 'D10', 'COMP RLY': 'D12',
-    'FAN FAULT': 'D2', 'POWER': 'D3', '3V3': 'D8', 'SG 3V3': 'JP1', '±15V EN': 'JP2',
+    'POWER': 'D3', '3V3': 'D8', 'SG 3V3': 'JP1', '±15V EN': 'JP2',
     'ISO PS': 'JP3', 'WATER EN': 'JP4', 'HEAD EN': 'JP5',
 }
 CLEARANCE = 0.2
@@ -157,7 +157,8 @@ def main():
     board = pcbnew.LoadBoard(path)
     for name, owner in DUPLICATE_NAMES.items():
         text = named_text(board, name, owner)
-        board.Remove(text)
+        if text is not None:
+            board.Remove(text)
         KEEP.append(text)
     labels = []  # (text, owner, may hide)
     for footprint in board.GetFootprints():

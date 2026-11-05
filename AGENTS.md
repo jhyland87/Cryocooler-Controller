@@ -183,3 +183,4 @@ Standing rules for any schematic or PCB work in `hardware/kicad/` (or a new boar
     (`git rev-parse --short HEAD`, e.g. `rev 4693823`).
   - Keep this block in the same place and format across revisions of the same
     board, so any two copies can be compared at a glance.
+- **Trace Angles** - Stick to 0°, 45°, 90° angle traces unless absolutely necessary.

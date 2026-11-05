@@ -305,8 +305,8 @@ def build_mcu(sh):
         '37': 'PG_15V_N',
         '26': 'TOUCH_CS',
         '16': 'DISP_RST',
-        '24': 'DISP_CS',
-        '25': 'DISP_DC',
+        '24': 'DISP_CS_1V8',
+        '25': 'DISP_DC_1V8',
     }
     for pin, net in left.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
@@ -808,7 +808,7 @@ def hcap(sh, value, column, row, fp=None):
 
 
 TP_PAD = 'TestPoint:TestPoint_Pad_D1.0mm'
-TP_LOOP = 'TestPoint:TestPoint_Keystone_5000-5004_Miniature'
+TP_LOOP = 'TestPoint:TestPoint_Keystone_5015_Micro_Mini'
 
 
 # Short test point names: the value is what the PCB silkscreen prints beside
@@ -965,10 +965,10 @@ def build_rails_logic(sh):
         sh,
         'Device:L',
         'L',
-        'SRN6045TA-4R7M',
+        'SRP6050CA-4R7M',
         {},
         pose=at(108, 73, 90),
-        fp='Inductor_SMD:L_Bourns_SRN6045TA',
+        fp='cryocooler:L_Bourns_SRP6050CA',
     )
     # output rail with FB feedback and two 22 uF caps
     wire(sh, (111, 73), (121, 73), (127, 73), (142, 73), (154, 73))
@@ -1140,10 +1140,10 @@ def build_rails_15v(sh):
         sh,
         'Device:L',
         'L',
-        'XAL6060-472MEB',
+        'SRP7050TA-4R7M',
         {},
         pose=at(130, 77),
-        fp='Inductor_SMD:L_Coilcraft_XAL6060-XXX',
+        fp=INDUCTOR,
     )
     wire(sh, (130, 80), (130, 88))
     wire(sh, (124, 88), (130, 88), (134, 88))
@@ -2869,6 +2869,55 @@ def display_parts(sh):
         wire(sh, (column, 116), (column, 120))
         vres(sh, '10k', column, 120)
         drop_ground(sh, (column, 126), 0)
+    display_buffers(sh)
+
+
+# Last-used numbers: the buffers take U30-31, R178-179, C127-128.
+DISPLAY_BUFFER_REFS = ((29, 177), (30, 178))
+DISPLAY_BUFFER_LAST_CAP = 126
+
+
+def display_buffers(sh):
+    """GPIO47/48 swing 1.8 V on the R16V module, too low for the display's 3.3 V
+    logic. SN74LV1T34: VIH 1.36 V at 3.3 V supply, input to 5.5 V. Pull-downs hold
+    the inputs defined while the GPIOs float during boot.
+    """
+    sh.note('DISPLAY LOGIC BUFFERS', 20 * 1.27, 148 * 1.27, 1.8)
+    sh.note(
+        'GPIO47/48 are 1.8 V on N32R16V. SN74LV1T34: VIH 1.36 V at 3.3 V.',
+        20 * 1.27,
+        152 * 1.27,
+    )
+    for (column, in_net, out_net), (buffer_ref, resistor_ref) in zip(
+        ((60, 'DISP_CS_1V8', 'DISP_CS'), (120, 'DISP_DC_1V8', 'DISP_DC')),
+        DISPLAY_BUFFER_REFS,
+    ):
+        with kicadgen.pinned_refs('U', buffer_ref):
+            buffer_part = place_ic(
+                sh,
+                'cryocooler:SN74LV1T34',
+                'SN74LV1T34',
+                column,
+                168,
+                'Package_TO_SOT_SMD:SOT-23-5',
+            )
+        supply = pin_cell(buffer_part, '5')
+        wire(sh, supply, (supply[0], supply[1] - 4))
+        rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+        drop_ground(sh, pin_cell(buffer_part, '3'), 2)
+        in_end = spur(sh, buffer_part, '2', 12)
+        net_label(sh, in_net, in_end, 180, is_global=True)
+        with kicadgen.pinned_refs('R', resistor_ref):
+            vres(sh, '100k', in_end[0] + 6, in_end[1])
+        drop_ground(sh, (in_end[0] + 6, in_end[1] + 6), 0)
+        net_label(sh, out_net, spur(sh, buffer_part, '4', 6), 0, is_global=True)
+    with kicadgen.pinned_refs('C', DISPLAY_BUFFER_LAST_CAP):
+        place_blocks(
+            sh,
+            [('SN74LV1T34 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))],
+            180,
+            160,
+        )
 
 
 def led_chain(sh, net, value, row):

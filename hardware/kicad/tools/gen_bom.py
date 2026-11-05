@@ -154,18 +154,12 @@ PARTS = {
         'suggested',
         'NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup '
         'only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
-    ('SRN6045TA-4R7M', 'L_Bourns_SRN6045TA'): (
-        'Bourns', 'SRP6050CA-4R7M', 'FIXED IND 4.7UH 8.5A 18.4MOHM SMD',
-        'suggested',
-        'shielded replacement for the SRN6045TA-4R7M the board footprint '
-        'was drawn for; terminals land inside the 2.35 x 5.1 mm pads, '
-        'check the first one by hand'),
-    ('SRP7050TA-3R3M', 'L_Bourns_SRP7050TA'): (
-        'Bourns', 'SRP7050TA-3R3M', 'FIXED IND 3.3UH 12A 20.9MOHM SMD',
-        'design', 'ADP5071 boost inductor, fully shielded'),
-    ('SRP7050TA-6R8M', 'L_Bourns_SRP7050TA'): (
-        'Bourns', 'SRP7050TA-6R8M', 'FIXED IND 6.8UH 8.5A 51.5MOHM SMD',
-        'design', 'ADP5071 inverting inductor, fully shielded'),
+    ('SRP6050CA-4R7M', 'L_Bourns_SRP6050CA'): (
+        'Bourns', 'SRP6050CA-4R7M', 'FIXED IND 4.7UH 10.5A 18.4MOHM SMD',
+        'design', 'AP63205 buck inductor, shielded'),
+    ('SRP7050TA-4R7M', 'L_Bourns_SRP7050TA'): (
+        'Bourns', 'SRP7050TA-4R7M', 'FIXED IND 4.7UH 10A 30.8MOHM SMD',
+        'design', 'LT8582 boost inductor, shielded; L_MIN about 2.9 uH'),
     ('MIE1W0505BGLVH-3R-Z', 'CONV_MIE1W0505BGLVH-3R-Z'): (
         'Monolithic Power Systems', 'MIE1W0505BGLVH-3R-Z',
         'ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12', 'design', ''),
@@ -232,9 +226,9 @@ PARTS = {
         'CONN HEADER R/A WAFER 2POS 2.54MM, 3 A', 'design',
         'J6 NTC, J7 panel button, J13 relay 12 V out; mates with SWH25X '
         'housings, so JST PH pigtails no longer fit'),
-    ('', 'TestPoint_Keystone_5000-5004_Miniature'): (
-        'Keystone Electronics', '5001', 'TEST POINT PC MINIATURE BLACK',
-        'design', 'ground loops; 1.02 mm hole'),
+    ('', 'TestPoint_Keystone_5015_Micro_Mini'): (
+        'Keystone Electronics', '5015', 'PC TEST POINT MINIATURE SMT',
+        'design', 'ground test points; needs a via to its ground plane'),
     ('', 'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'): (
         'Adafruit', '4392', 'CONN HEADER JST PH COMPATIBLE R/A SMT 4POS 2MM, 2 A',
         'design', 'J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei '
@@ -243,6 +237,9 @@ PARTS = {
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
+    ('SN74LV1T34', 'SOT-23-5'): (
+        'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
+        'suggested', '1.8 V to 3.3 V buffers for DISP_CS and DISP_DC'),
     ('74LVC1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LVC1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', 'gates the SC18IS604 MISO'),
@@ -259,9 +256,6 @@ PARTS = {
         'Analog Devices', 'LT8582EDKD#PBF',
         'IC REG BOOST/INVERTING DUAL 3A 24DFN', 'design',
         '#TRPBF is the reel; exposed pad 25 is GND'),
-    ('XAL6060-472MEB', 'L_Coilcraft_XAL6060-XXX'): (
-        'Coilcraft', 'XAL6060-472MEB', 'FIXED IND 4.7UH SHIELDED SMD',
-        'design', 'LT8582 boost inductor (datasheet p.30 part)'),
     ('MSD7342-103MLC', 'L_Coilcraft_MSD7342'): (
         'Coilcraft', 'MSD7342-103MLC', 'COUPLED INDUCTOR 10UH 1:1 SMD',
         'design', 'LT8582 inverting channel: 10 uH needed at duty ~0.80 '

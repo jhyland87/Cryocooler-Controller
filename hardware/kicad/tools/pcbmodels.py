@@ -57,6 +57,10 @@ ENVELOPES = {
         'SG8002CA_envelope',
         [(7.0, 5.0, 1.4, 0.0, 0.0, BLACK)],
     ),
+    'L_Bourns_SRP6050CA': (
+        'SRP6050CA_envelope',
+        [(6.4, 6.6, 4.8, 0.0, 0.0, GRAY)],
+    ),
     'L_Bourns_SRP7050TA': (
         'SRP7050TA_envelope',
         [(7.3, 6.6, 5.0, 0.0, 0.0, GRAY)],
@@ -220,6 +224,25 @@ LOCAL_STEP_MODELS = {
     'RJ45_Amphenol_RJSSE-5380_Horizontal': (
         'RJSSE5380.step',
         (-7.874, -4.13, 0.762),
+        (-90.0, 0.0, 0.0),
+    ),
+    # Bourns SRP6050CA-4R7M is Z-up: terminal undersides at z -0.2
+    'L_Bourns_SRP6050CA': (
+        'SRP6050CA-4R7M.step',
+        (0.0, 0.0, 0.2),
+        (0.0, 0.0, 0.0),
+    ),
+    # Bourns SRP7050TA (the 3R3M file, same package as the 4R7M) is Y-up: terminal
+    # undersides at y -0.35
+    'L_Bourns_SRP7050TA': (
+        'SRP7050TA-3R3M.step',
+        (0.0, 0.0, 0.35),
+        (-90.0, 0.0, 0.0),
+    ),
+    # Keystone 5015 is Y-up, in inches: feet at y 0, centred on the pad
+    'TestPoint_Keystone_5015_Micro_Mini': (
+        'Keystone_5015.step',
+        (0.0, 0.0, 0.0),
         (-90.0, 0.0, 0.0),
     ),
 }

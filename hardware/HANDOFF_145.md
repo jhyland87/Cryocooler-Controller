@@ -177,3 +177,17 @@ Open points:
   - DigiKey and te.com block scripted access, so 2305908-3 stock is unconfirmed. Other sellers list it as last-time-buy or discontinued.
   - J11, J12 and J8 carry plugging force on their SMT joints; only J8 has pegs.
   - Mating plugs are not ordered or test-fitted: TE 2213934 / 2213935 / 2305909 series, Phoenix FMC 0,5/2-ST-2,54.
+
+## MCP23S08 board (2026-11-04)
+
+Brings the routed board to the MCP23S08 schematic. Uncommitted when written; the board ID still reads `3939aa8` and needs restamping once committed.
+
+- **Parts:** EMC2303, SC18IS604 and their parts are gone. U25 is the MCP23S08 QFN. Q26, Q27 and their resistors drive the fan and pump from the ESP32.
+- **Display level shift:** GPIO47/48 are 1.8 V on this module, so U30 / U31 (SN74LV1T34 on `+3V3`) buffer `DISP_CS` and `DISP_DC` up to the panel. Firmware pins don't change.
+- **Connectors:** J15 moved 8 mm left to (34, 5). J1 stays on the top edge, now in the MCU box, with a section wall at x 47.5 between them. The housing cut-out for J15 must move too.
+- **Inductors:** L1 SRP6050CA-4R7M, L2 SRP7050TA-4R7M. L3 stays MSD7342-103: a single winding on SEPIC/Cuk needs L >= about 5.5 uH per L1||L2 when uncoupled, so SRP7050TA-6R8M can't work. The SRP parts use carbonyl powder cores, unproven at 1.5 MHz: bench-check heat and ripple. L2 uses the 3R3M STEP (same package).
+- **Ground test points:** TP14-17 are Keystone 5015, SMT on the top side, joined to ground through the pour. All four kept by the user's choice.
+- **Trace angles:** `tools/octilinear.py` converts off-angle segments to 45 / 90 degree doglegs, and `gridroute.py` now routes octilinear. What remains is short pad tie-ins and part of the USB pair.
+- **`gridroute.py`:** the stale `ISO` region was removed. It came from an old floorplan and blocked routes into the lower right; keep-outs fence the real ISO island.
+- **Route:** `tools/spi_expander_board.py`, then `gridroute.py`, then one-off fan-out edits around J15 pins 4-10 and U25 pin 14 that aren't scripted, so the committed board is the source. U27 sits directly under J15: check both sides before adding vias there.
+- **Checks:** DRC 0 errors, 0 unconnected, 0 parity; warnings left are 6 connector silk at the board edge and the U1 library mismatch, as before.

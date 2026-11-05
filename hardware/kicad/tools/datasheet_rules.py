@@ -118,7 +118,7 @@ RULES = [
     ('res', 'LT8582EDKD#PBF', '7', '198k', '-16V5'),
     ('net', 'LT8582EDKD#PBF', '3', 'PGP_16V5'),
     ('net', 'LT8582EDKD#PBF', '10', 'PGN_16V5'),
-    ('between', 'XAL6060-472MEB', ('NET', '+5V_PS15'), ('LT8582EDKD#PBF', '1')),
+    ('between', 'SRP7050TA-4R7M', ('NET', '+5V_PS15'), ('LT8582EDKD#PBF', '1')),
     # MSD7342: winding 1-3 (dot 1) from VIN to SW2, winding 2-4 (dot 2) from
     # node X to VOUT; C1 couples SW2 to node X
     ('net', 'MSD7342-103MLC', '1', '+5V_PS15'),
@@ -251,7 +251,7 @@ RULES = [
     ('net', 'AP63205WU-7', '2', '+12V'),
     ('net', 'AP63205WU-7', '4', 'GND'),
     ('net', 'AP63205WU-7', '1', '+5V'),
-    ('between', 'SRN6045TA-4R7M', ('AP63205WU-7', '5'), ('NET', '+5V')),
+    ('between', 'SRP6050CA-4R7M', ('AP63205WU-7', '5'), ('NET', '+5V')),
     ('between', '100nF', ('AP63205WU-7', '6'), ('AP63205WU-7', '5')),
     ('net', 'LD1117S33TR', '3', '+5V_OR'),
     ('net', 'LD1117S33TR', '2', '+3V3'),
@@ -279,8 +279,11 @@ RULES = [
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '28'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '29'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '30'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '24', 'DISP_CS'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '25', 'DISP_DC'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '24', 'DISP_CS_1V8'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '25', 'DISP_DC_1V8'),
+    # SN74LV1T34 (TI, DBV): 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.36 V at VCC 3.3 V
+    ('net', 'SN74LV1T34', '5', '+3V3'),
+    ('net', 'SN74LV1T34', '3', 'GND'),
     # ACS_CS is on GPIO17 (module pin 10), not GPIO43 / U0TXD (pin 37), which
     # toggles with ROM boot messages; it carries the power-good flag (active
     # low) behind a 1k series resistor

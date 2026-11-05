@@ -131,6 +131,21 @@ def msd7342():
     )
 
 
+def srp6050ca():
+    """Bourns SRP6050CA, 6.6 x 6.4 x 4.8 mm. Recommended layout (datasheet p.1):
+    5.6 mm pad width, 5.6 mm overall, 2.5 mm gap, so 1.55 mm pads. Turned 90
+    degrees from the drawing so the terminals sit on the x axis.
+    """
+    pads = [smd_pad('1', -2.025, 0, 1.55, 5.6), smd_pad('2', 2.025, 0, 1.55, 5.6)]
+    return footprint(
+        'L_Bourns_SRP6050CA',
+        'Bourns SRP6050CA shielded power inductor, 6.6 x 6.4 x 4.8 mm; land pattern '
+        'from https://www.bourns.com/docs/product-datasheets/srp6050ca.pdf',
+        (3.2, 3.3),
+        pads,
+    )
+
+
 def rjsse5380():
     """Amphenol RJSSE-5380 SMT RJ45, 8P8C, shielded, no magnetics (drawing
     P-RJSSE-5380 rev E, component side). Origin midway between the two
@@ -618,6 +633,7 @@ FOOTPRINTS = {
     'FanHeader_4P_P2.54mm_Horizontal': fan_header_4p,
     'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': wurth_61900311021,
     'L_Coilcraft_MSD7342': msd7342,
+    'L_Bourns_SRP6050CA': srp6050ca,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
     'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,
     'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': adafruit_4392,

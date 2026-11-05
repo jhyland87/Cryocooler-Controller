@@ -258,7 +258,6 @@ SILK_LABELS = {
     'J13': 'RELAY 12V OUT',
     'J14': 'IMU',
     'J15': 'DISPLAY',
-    'D2': 'FAN FAULT',
     'D3': 'POWER',
     'D4': 'AMP REM',
     'D7': 'ALERT',

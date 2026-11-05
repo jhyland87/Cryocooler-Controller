@@ -30,7 +30,6 @@ SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
-ISO = (59.0, 38.3, 100.0, 62.0)
 NOTCH = (60.0, 0.0, 80.0, 6.6)
 ROUTE_LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
 if os.environ.get('IN1') == '1':
@@ -239,22 +238,6 @@ class Grid:
                     self.via_blocked[index] = 1
 
 
-def apply_iso(grid, inside):
-    """Keeps an ISO-side net inside ISO_REGION and every other net out of it."""
-    for cy in range(NY):
-        y = cy * CELL
-        for cx in range(NX):
-            x = cx * CELL
-            in_iso = ISO[0] - 0.6 <= x and ISO[1] - 0.6 <= y
-            core = ISO[0] + 0.3 <= x and ISO[1] + 0.3 <= y
-            bad = (not core) if inside else in_iso
-            if bad:
-                index = cy * NX + cx
-                for layer in ALL_LAYERS:
-                    grid.blocked[layer][index] = 1
-                grid.via_blocked[index] = 1
-
-
 NEIGHBOURS = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
               (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
 
@@ -324,6 +307,12 @@ def astar(grid, starts, goals):
     return None
 
 
+def octilinear(a, b):
+    """True if the line between two cells runs at a multiple of 45 degrees."""
+    dx, dy = abs(b % NX - a % NX), abs(b // NX - a // NX)
+    return dx == 0 or dy == 0 or dx == dy
+
+
 def clear_line(grid, layer, a, b):
     ax, ay = a % NX, a // NX
     bx, by = b % NX, b // NX
@@ -356,7 +345,8 @@ def smooth(grid, path):
         i = 0
         while i < len(run) - 1:
             j = len(run) - 1
-            while j > i + 1 and not clear_line(grid, layer, run[i][1], run[j][1]):
+            while j > i + 1 and not (octilinear(run[i][1], run[j][1])
+                                     and clear_line(grid, layer, run[i][1], run[j][1])):
                 j -= 1
             points.append(run[j][1])
             i = j
@@ -418,10 +408,6 @@ def add_route(board, net, runs, start_pos, end_pos, width):
             board.Add(via)
 
 
-def in_iso(pos):
-    return pos[0] >= ISO[0] and pos[1] >= ISO[1]
-
-
 def route_pair(board, pair, margin):
     net, start_pos, start_layers = parse_item(board, pair[0])
     _, end_pos, end_layers = parse_item(board, pair[1])
@@ -429,12 +415,10 @@ def route_pair(board, pair, margin):
         return 'skip'
     code = board.FindNet(net).GetNetCode()
     base = width_for(board, net)
-    inside = in_iso(start_pos) and in_iso(end_pos)
     for width in sorted({base, min(base, SIGNAL_WIDTH), 0.15}, reverse=True):
         region = (min(start_pos[0], end_pos[0]) - margin, min(start_pos[1], end_pos[1]) - margin,
                   max(start_pos[0], end_pos[0]) + margin, max(start_pos[1], end_pos[1]) + margin)
         grid = Grid(board, code, width, region)
-        apply_iso(grid, inside)
         sc, gc = cell_of(*start_pos), cell_of(*end_pos)
         starts = [(layer, sc[1] * NX + sc[0]) for layer in start_layers]
         goals = [(layer, gc[1] * NX + gc[0]) for layer in end_layers]
