@@ -302,6 +302,7 @@ def cs_decoder(sh):
     for pin, net in (('1', 'CS_ADDR_A'), ('2', 'CS_ADDR_B'), ('3', 'CS_ADDR_C'),
                      ('4', 'CS_EN_N')):
         net_label(sh, net, spur(sh, decoder, pin, 8), 180, is_global=True)
+    # G1 and G2B sit at the ends of the side, so their rails have room
     rail_symbol(sh, '+3V3', spur(sh, decoder, '6', 3))
     ground(sh, spur(sh, decoder, '5', 3))
     for pin, net in CS_DECODER_OUTPUTS:
@@ -329,7 +330,7 @@ def cs_decoder(sh):
             (('CS_ADDR_A', '+3V3'), ('CS_EN_N', '+3V3'), ('CS_ADDR_C', 'GND'))
         ):
             bias_row = 124 + index * 8
-            rail_symbol(sh, rail, (28, bias_row), rot=270 if rail == 'GND' else 0)
+            rail_symbol(sh, rail, (28, bias_row))
             hres(sh, '10k', 31, bias_row)
             wire(sh, (34, bias_row), (36, bias_row))
             net_label(sh, net, (36, bias_row), 0, is_global=True)
@@ -503,9 +504,10 @@ def build_mcu(sh):
     drop_ground(sh, (210, 90), 0)
     rail_flag(sh, (218, 84))
     cc1, cc2 = pin_cell(usb, 'A5'), pin_cell(usb, 'B5')
-    wire(sh, cc1, (225, cc1[1]))
-    hres(sh, '5.1k', 222, cc1[1])
-    ground(sh, (219, cc1[1]))
+    # up one step, so its ground symbol clears the CC2 wire below
+    wire(sh, cc1, (225, cc1[1]), (225, cc1[1] - 2))
+    hres(sh, '5.1k', 222, cc1[1] - 2)
+    ground(sh, (219, cc1[1] - 2))
     wire(sh, cc2, (215, cc2[1]))
     hres(sh, '5.1k', 212, cc2[1])
     ground(sh, (209, cc2[1]))
@@ -568,9 +570,11 @@ def build_power_input(sh):
     switch = pin_cell(j_in, '3')
     wire(sh, switch, (gnd[0] - 1, switch[1]))
     wire(sh, (gnd[0] - 1, switch[1]), (gnd[0] - 1, gnd[1]))
-    ground(sh, gnd)
-    rail_flag(sh, (gnd[0] + 3, gnd[1]))
-    wire(sh, gnd, (gnd[0] + 3, gnd[1]))
+    # two cells right, so the symbol clears the switch pin's wire
+    wire(sh, gnd, (gnd[0] + 2, gnd[1]))
+    ground(sh, (gnd[0] + 2, gnd[1]))
+    wire(sh, (gnd[0] + 2, gnd[1]), (gnd[0] + 5, gnd[1]))
+    rail_flag(sh, (gnd[0] + 5, gnd[1]))
     out = pin_cell(fuse, '2')
     wire(sh, out, (92, out[1]))
     rail_symbol(sh, 'VIN', (92, out[1]))
@@ -1114,7 +1118,9 @@ def usb_power_path(sh):
     wire(sh, status, (126, status[1]), (136, status[1]))
     with kicadgen.pinned_refs('R', 170):
         vres(sh, '10k', 126, status[1])
-    rail_symbol(sh, '+5V', (126, status[1] + 6), rot=180)
+    # the wire above leaves no room for +5V over the signal, so it steps sideways
+    wire(sh, (126, status[1] + 6), (130, status[1] + 6))
+    rail_symbol(sh, '+5V', (130, status[1] + 6))
     net_label(sh, 'USB_SEL', (136, status[1]), 0)
     # USB input with its own 1 uF and test point
     usb_in = pin_cell(usb_diode, '1')
@@ -1458,10 +1464,11 @@ def power_good_and(sh, column, row):
     wire(sh, anode, node)
     wire(sh, node, (node[0] + 12, node[1]))
     net_label(sh, 'PG_15V', (node[0] + 12, node[1]), 0, is_global=True)
-    # pull-up hangs below the output wire, +3V3 symbol turned downwards
+    # pull-up hangs below the output wire; +3V3 steps sideways to stay upright
     with high_refs('R'):
         vres(sh, '470k', node[0] + 5, node[1], fp=R0402)
-    rail_symbol(sh, '+3V3', (node[0] + 5, node[1] + 6), rot=180)
+    wire(sh, (node[0] + 5, node[1] + 6), (node[0] + 9, node[1] + 6))
+    rail_symbol(sh, '+3V3', (node[0] + 9, node[1] + 6))
 
 
 def power_good_flag(sh, column, row):
@@ -1642,7 +1649,8 @@ def build_signal_gen(sh):
     wire(sh, (130, 60), (192, 60))
     # OPA1656 unit B: spare half as a grounded follower, unit C: power pins
     opa_b = opamp_unit(sh, opa_ref, 2, 230, 110)
-    wire(sh, pin_cell(opa_b, '5'), (222, 108 + 0))
+    # ground out at column 219, clear of the feedback wire at column 222
+    wire(sh, pin_cell(opa_b, '5'), (219, 108))
     wire(
         sh,
         pin_cell(opa_b, '6'),
@@ -1652,7 +1660,7 @@ def build_signal_gen(sh):
         (240, 110),
         pin_cell(opa_b, '7'),
     )
-    drop_ground(sh, (222, 108), 2)
+    drop_ground(sh, (219, 108), 2)
     opa_p = opamp_unit(
         sh, opa_ref, 3, 260, 90, 'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm'
     )
@@ -1717,7 +1725,7 @@ def build_signal_gen(sh):
         pose=at(84, 103, 90),
         fp=SOT23,
     )
-    drop_ground(sh, (84, 106), 2)
+    ground(sh, (84, 106))  # directly on the anode, clear of the DAC output below
     vcap(sh, '100nF', 92, 100)
     drop_ground(sh, (92, 106), 0)
     rail_flag(sh, (88, 100))
@@ -2037,8 +2045,9 @@ def build_amp_current(sh):
         (vsel[0] + 2, gnd2[1] + 2),
         (gnd2[0], gnd2[1] + 2),
     )
-    wire(sh, (vsel[0] + 2, vsel[1]), (vsel[0] + 4, vsel[1]))
-    rail_flag(sh, (vsel[0] + 4, vsel[1]))
+    # the flag goes on the lower wire, clear of VOUT on the row above VSEL
+    wire(sh, (vsel[0] + 2, gnd2[1] + 2), (vsel[0] + 4, gnd2[1] + 2))
+    rail_flag(sh, (vsel[0] + 4, gnd2[1] + 2))
     # ACS37800
     acs = place_ic(
         sh,
@@ -2073,7 +2082,7 @@ def build_amp_current(sh):
     rail_symbol(sh, 'ISO_GND', (130, 52))
     # four 1M divider resistors from the load side up to VSENSE
     ip_minus, ip_plus = pin_cell(acs, '5'), pin_cell(acs, '1')
-    wire(sh, ip_minus, (160, ip_minus[1]), (160, 58), (166, 58))
+    wire(sh, ip_minus, (159, ip_minus[1]), (159, 58), (174, 58))
     for index in range(4):
         vres(sh, '1M', 150, 38 + index * 6, fp=R1206)
     # the amplifier output is 2-way; the cryocooler plug is 3-way, its pin 3
@@ -2091,23 +2100,17 @@ def build_amp_current(sh):
         sh,
         'Connector:Screw_Terminal_01x03',
         'CRYOCOOLER (+ / - / GND)',
-        170 * 1.27,
+        178 * 1.27,
         60 * 1.27,
         {},
         TERM_POWER3,
     )
     out_plus = pin_cell(j_out, '1')
-    wire(sh, ip_plus, (162, ip_plus[1]), (162, out_plus[1]), out_plus)
-    rail_symbol(sh, 'GND', spur(sh, j_load, '3', 2))
-    for connector in (j_out, j_load):
-        spur(sh, connector, '2', 2)
-        # turned sideways so it clears the GND symbol on J12 pin 3 below
-        rail_symbol(
-            sh,
-            'ISO_GND',
-            (pin_cell(connector, '2')[0] - 2, pin_cell(connector, '2')[1]),
-            270,
-        )
+    wire(sh, ip_plus, (159, ip_plus[1]), (159, out_plus[1]), out_plus)
+    drop_ground(sh, pin_cell(j_load, '3'), 1)
+    # J12's longer spur keeps ISO_GND and its name clear of the GND symbol on pin 3
+    for connector, length in ((j_out, 2), (j_load, 7)):
+        rail_symbol(sh, 'ISO_GND', spur(sh, connector, '2', length))
     place_blocks(
         sh,
         [
@@ -2535,10 +2538,11 @@ def fan_channel(sh, title, pwm_net, tach_net, row, index):
         hres(sh, '1k', 117, tach_pin[1])
     wire(sh, (114, tach_pin[1]), (70, tach_pin[1]))
     net_label(sh, tach_net, (70, tach_pin[1]), 180, is_global=True)
-    # +12V points left so it does not cross the tach and PWM lines
     plus = pin_cell(connector, '2')
-    wire(sh, plus, (plus[0] - 24, plus[1]))
-    rail_symbol(sh, '+12V', (plus[0] - 24, plus[1]), rot=90)
+    # jogs down so the +12V symbol stays clear of the tach wire above it
+    jog = (plus[0] - 28, plus[1] + 5)
+    wire(sh, plus, (plus[0] - 24, plus[1]), (plus[0] - 24, jog[1]), jog)
+    rail_symbol(sh, '+12V', jog)
     vcap(sh, '22uF/25V', plus[0] - 18, plus[1], fp=C1210)
     drop_ground(sh, (plus[0] - 18, plus[1] + 6), 0)
     ground(sh, spur(sh, connector, '1', 2))
@@ -2570,14 +2574,17 @@ def build_cooling(sh):
     fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0)
     fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 86, 1)
     # Alphacool ES flow sensor and NTC
-    j_flow = conn(
-        sh,
+    # pin 1 at the bottom, like the fan and pump headers, so GND has room
+    j_flow = sh.add(
         'Connector_Generic:Conn_01x03',
+        next_ref('J'),
         'ALPHACOOL ES FLOW (3-pin)',
         110 * 1.27,
         124 * 1.27,
-        {},
-        WURTH3_RIGHT_ANGLE,
+        rot=180,
+        mirror=True,
+        auto=False,
+        footprint=WURTH3_RIGHT_ANGLE,
     )
     raw = pin_cell(j_flow, '3')
     wire(sh, raw, (raw[0] - 6, raw[1]))
@@ -2587,10 +2594,11 @@ def build_cooling(sh):
     vres(sh, '10k', raw[0] - 20, raw[1] - 6)
     rail_symbol(sh, '+3V3_COOL', (raw[0] - 20, raw[1] - 6))
     plus_pin, gnd_pin = pin_cell(j_flow, '2'), pin_cell(j_flow, '1')
-    wire(sh, plus_pin, (plus_pin[0] - 4, plus_pin[1]))
-    rail_symbol(sh, '+12V', (plus_pin[0] - 4, plus_pin[1]))
-    wire(sh, gnd_pin, (gnd_pin[0] - 8, gnd_pin[1]))
-    ground(sh, (gnd_pin[0] - 8, gnd_pin[1]))
+    # jogs down so the +12V symbol stays clear of the tach wire above it
+    plus_jog = (plus_pin[0] - 12, plus_pin[1] + 5)
+    wire(sh, plus_pin, (plus_pin[0] - 8, plus_pin[1]), (plus_pin[0] - 8, plus_jog[1]), plus_jog)
+    rail_symbol(sh, '+12V', plus_jog)
+    ground(sh, spur(sh, j_flow, '1', 2))
     j_ntc = conn(
         sh,
         'Connector_Generic:Conn_01x02',
@@ -2760,7 +2768,7 @@ def build_imu(sh):
     kicadgen.retire_refs('C', 3)
     with kicadgen.pinned_refs('J', 13):
         header = sh.add(
-            'Connector:8P8C_Shielded',
+            'cryocooler:8P8C_Shielded_Rails_At_Ends',
             next_ref('J'),
             'RJSSE-5380',
             200 * 1.27,
@@ -2774,12 +2782,12 @@ def build_imu(sh):
         for number in [str(n) for n in range(1, 9)] + ['SH']
     }
     column = tips['1'][0]
-    # +3V3 and the cable ground: two cells out, symbol turned sideways so it
-    # clears the neighbouring signal rows; the shield drops to ground
+    # +3V3 and the cable ground sit at the ends of the side, so their rails have
+    # room; the shield drops to ground
     wire(sh, tips['4'], (column - 2, tips['4'][1]))
-    rail_symbol(sh, '+3V3', (column - 2, tips['4'][1]), 90)
+    rail_symbol(sh, '+3V3', (column - 2, tips['4'][1]))
     wire(sh, tips['2'], (column - 2, tips['2'][1]))
-    rail_symbol(sh, 'GND', (column - 2, tips['2'][1]), 270)
+    rail_symbol(sh, 'GND', (column - 2, tips['2'][1]))
     drop_ground(sh, tips['SH'], 2)
     signals = sorted(
         (
@@ -2866,14 +2874,14 @@ def display_parts(sh):
         number: pin_cell(fpc, number)
         for number in [str(n) for n in range(1, 15)] + ['MP']
     }
-    # supply pins: short spur, symbol turned sideways to clear the neighbours
-    wire(sh, tips['6'], (tips['6'][0] - 8, tips['6'][1]))
-    rail_symbol(sh, '+3V3', (tips['6'][0] - 8, tips['6'][1]), 90)
-    wire(sh, tips['5'], (tips['5'][0] - 8, tips['5'][1]))
-    rail_symbol(sh, 'GND', (tips['5'][0] - 8, tips['5'][1]), 270)
+    # supply pins run out past the signal labels, where nothing is above or below
+    for pin, net in (('6', '+3V3'), ('5', 'GND')):
+        end = (tips[pin][0] - 26, tips[pin][1])
+        wire(sh, tips[pin], end)
+        rail_symbol(sh, net, end)
     mount = tips['MP']
     wire(sh, mount, (mount[0], mount[1] - 2), (mount[0] + 3, mount[1] - 2))
-    rail_symbol(sh, 'GND', (mount[0] + 3, mount[1] - 2), 90)
+    rail_symbol(sh, 'GND', (mount[0] + 3, mount[1] - 2))
     sh.nc(fpc, '12')
     for number, net, is_global in (
         ('1', 'TOUCH_YP', False),

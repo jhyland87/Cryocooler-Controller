@@ -104,7 +104,8 @@ python3 hardware/kicad/tools/gen_schematic.py   # root + sheets/
 `tools/verify_netlist.py` checks the GPIO map against `pin_config.h`, missing footprints and
 single-pin nets on a `kicad-cli sch export netlist` output; `tools/compare_netlists.py` compares the
 connectivity of two netlists (useful after changing layout, which must not change connections; two-pin
-passives may be flipped), and `tools/datasheet_rules.py` checks datasheet-critical connections.
+passives may be flipped), `tools/check_symbols.py` reports overlapping symbols and turned power symbols on
+the generated sheets, and `tools/datasheet_rules.py` checks datasheet-critical connections.
 
 ## Review status
 

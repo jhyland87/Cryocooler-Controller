@@ -275,17 +275,22 @@ class TextLayout:
             for reach in (2.0, 3.5, 5.0):
                 candidates.append((part.x, graphic[1] - reach, 'center'))
                 candidates.append((part.x, graphic[3] + reach, 'center'))
-            for x, y, justify in candidates:
-                box = field_box(x, y, width, justify)
-                if not self.hard_free(box):
+            # prefer a spot off every wire; fall back to any free spot
+            for avoid_wires in (True, False):
+                for x, y, justify in candidates:
+                    box = field_box(x, y, width, justify)
+                    if not self.hard_free(box) or (avoid_wires and self.wire_hits(box)):
+                        continue
+                    part.fields['Value'] = {
+                        'x': x,
+                        'y': y,
+                        'justify': None if justify == 'center' else justify,
+                        'hide': False,
+                    }
+                    self.placed.append(box)
+                    break
+                else:
                     continue
-                part.fields['Value'] = {
-                    'x': x,
-                    'y': y,
-                    'justify': None if justify == 'center' else justify,
-                    'hide': False,
-                }
-                self.placed.append(box)
                 break
 
     def run(self):

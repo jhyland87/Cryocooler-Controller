@@ -297,8 +297,9 @@ SYMBOLS = [
         'acs37800-datasheet.pdf',
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
         left=[
-            ('15', 'VINN', 'input'),
             ('16', 'VINP', 'input'),
+            ('15', 'VINN', 'input'),
+            None,  # room for VINN's ground symbol
             (['5', '6', '7', '8'], 'IP-', 'passive'),
             (['1', '2', '3', '4'], 'IP+', 'passive'),
         ],
@@ -572,12 +573,12 @@ SYMBOLS = [
         'https://www.ti.com/lit/ds/symlink/sn74lvc138a.pdf',
         'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
         left=[
+            ('6', 'G1', 'input'),
             ('1', 'A', 'input'),
             ('2', 'B', 'input'),
             ('3', 'C', 'input'),
             ('4', '~{G2A}', 'input'),
             ('5', '~{G2B}', 'input'),
-            ('6', 'G1', 'input'),
         ],
         right=[
             ('15', '~{Y0}', 'output'),
@@ -708,6 +709,15 @@ SYMBOLS = [
         keywords='esd usb',
         half_height_min=7.62,
         y_map={'4': 2.54, '3': 2.54, '6': 0.0, '1': 0.0},
+    ),
+    from_stock(
+        'Connector',
+        '8P8C_Shielded',
+        '8P8C_Shielded_Rails_At_Ends',
+        'J',
+        right=['4', '8', '7', '6', '5', '3', '1', '2'],
+        bottom=['SH'],
+        keywords='rj45 8p8c',
     ),
     from_stock(
         'Oscillator',
