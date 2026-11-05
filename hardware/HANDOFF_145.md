@@ -194,7 +194,7 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 
 ## Pre-order audit fixes (2026-11-04)
 
-`tools/audit_fixes_board.py` on the routed board, then `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`.
+`tools/audit_fixes_board.py` on the routed board, then `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`. Design commit `caa5c7b`, stamped on the board in the commit after it.
 
 - **PG_15V:** R161 is 470k. At 10k it lifted dead PGP / PGN nodes to about 2.2 V, so REM unblocked and GPIO43 read good with no rails. Not yet measured on a board. If the negative side alone dies and PGN floats, R155 still feeds that node from +15V, so the hardware interlock may pass.
 - **USB_VBUS:** R180 (100k to GND) stops U28 CE floating with USB unplugged.
