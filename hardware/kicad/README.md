@@ -36,8 +36,8 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 The LT8582 makes +16.4 V / −16.5 V (RFBX1 182k, RFBX2 198k; the inverter needs at least 5.6 µH at its ~0.80 duty,
 hence the 10 µH coupled MSD7342), and one LT3097 post-regulates them to **±14.7 V** (V = 100 µA × R_SET, 147 kΩ;
 +15 V would sit at the top of the LT3097's 0–15 V positive range, so the nets keep their `+15V` / `-15V` names
-but run about 0.3 V low). The two LT8582 output capacitors (22 µF / 50 V) also serve as the LT3097 input
-capacitors, and each LT3097 output has a 22 µF / 50 V capacitor. The compensation values are the datasheet's
+but run about 0.3 V low). The LT8582 output capacitors (22 µF / 25 V X7R, two on -16V5) also serve as the LT3097
+input capacitors, and each LT3097 output has two 22 µF / 25 V X7R capacitors. The compensation values are the datasheet's
 ±12 V ones; check the loops on the bench.
 
 The LT8582 PG1 / PG2 pins (open drain, high = within 4 % of regulation, 0.5 mA max) each pull a 20k / 39k node from

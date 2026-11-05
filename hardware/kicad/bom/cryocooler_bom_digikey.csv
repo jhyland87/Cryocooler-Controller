@@ -12,7 +12,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,T491B226K016AT,Kemet,CAP TANT 22UF 10% 16V 3528-21 (B case),C43,22uF,CP_EIA-3528-21_Kemet-B,suggested,3.3 V rail; pin 1 is the + side
 1,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C47,22uF,C_1206_3216Metric,suggested,isolated 3.3 V output (needs 10 V or more)
 2,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C56 C57,4.7uF/25V,C_0805_2012Metric,ordered,LT8582 VIN1 / VIN2 input caps; substitute for CL21A475KAQNNNE
-4,CL32B226KBJNNNE,Samsung Electro-Mechanics,CAP CER 22UF 50V X7R 1210,C58 C60 C67 C69,22uF/50V,C_1210_3225Metric,suggested,"ADP5071 outputs / LT3097 inputs (C62, C63) and LT3097 outputs (C65, C67); >= 10 uF effective at 15 V DC bias, so check the maker's DC-bias curve (ADI suggests the Murata GCM series)"
+7,GRM32ER71E226KE15L,Murata,CAP CER 22UF 25V X7R 1210,C58 C60 C67 C69 C129 C130 C131,22uF/25V X7R,C_1210_3225Metric,suggested,"LT8582 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs >= 10 uF effective at 15 V DC bias (INN and both outputs have two in parallel; INP needs 4.7 uF), so check the DC-bias curve"
 1,CL31B225KBHNNNE,Samsung Electro-Mechanics,CAP CER 2.2UF 50V X7R 1206,C59,2.2uF/50V,C_1206_3216Metric,suggested,LT8582 inverting coupling cap C1 (sees VIN + |VOUT| = 21.5 V)
 1,CL05B472KB5NNNC,Samsung Electro-Mechanics,CAP CER 4700PF 50V X7R 0402,C63,4.7nF,C_0402_1005Metric,suggested,LT8582 VC1 compensation
 2,CL05C470JB5NNNC,Samsung Electro-Mechanics,CAP CER 47PF 50V C0G 0402,C64 C66,47pF,C_0402_1005Metric,suggested,LT8582 VC high-frequency poles
@@ -54,9 +54,9 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 9,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2 Q3 Q4 Q5 Q7 Q21 Q25 Q26 Q27,BSS138,SOT-23,suggested,
 2,BSS84,onsemi,MOSFET P-CH 50V 130MA SOT23-3,Q6 Q8,BSS84,SOT-23,ordered,output stage is limited to about 130 mA; substitute for BSS84-7-F
 3,BSS138W-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT323,Q22 Q23 Q24,BSS138,SOT-323_SC-70,suggested,"power-good stage: same pinout as the SOT-23 BSS138 (1 gate, 2 source, 3 drain)"
-30,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R151 R152 R161 R162 R168 R169 R171 R172 R175,10k,R_0402_1005Metric,suggested,
+29,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R68 R69 R74 R81 R82 R151 R152 R162 R168 R169 R171 R172 R175,10k,R_0402_1005Metric,suggested,
 2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R3 R4,5.1k,R_0402_1005Metric,suggested,
-13,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78 R167 R178 R179,100k,R_0402_1005Metric,suggested,
+14,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78 R167 R178 R179 R180,100k,R_0402_1005Metric,suggested,
 1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R6,47k,R_0402_1005Metric,suggested,
 4,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R7 R86 R97 R98,3.3k,R_0402_1005Metric,suggested,
 8,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R8 R9 R90 R91 R92 R93 R94 R95,100,R_0402_1005Metric,suggested,
@@ -68,7 +68,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0402FR-0782KL,Yageo,RES 82K OHM 1% 1/16W 0402,R27,82k,R_0402_1005Metric,suggested,
 2,RC0603FR-07330RL,Yageo,RES 330 OHM 1% 1/10W 0603,R30 R31,330,R_0603_1608Metric,suggested,
 2,RC0402FR-072K2L,Yageo,RES 2.2K OHM 1% 1/16W 0402,R39 R80,2.2k,R_0402_1005Metric,suggested,
-1,RC0402FR-073K9L,Yageo,RES 3.9K OHM 1% 1/16W 0402,R44,3.9k,R_0402_1005Metric,suggested,"Rref for the ADS1220: use 0.1 % 25 ppm (for example Yageo RT0603BRD073K9L); the firmware assumes 3854 ohm, so measure it"
+1,RT0402BRD073K9L,Yageo,RES 3.9K OHM 0.1% 25PPM 1/16W 0402,R44,3.9k,R_0402_1005Metric,suggested,"Rref for the ADS1220; the firmware assumes 3854 ohm (PT1000_REF_R), so measure it and update the constant"
 1,RC0603FR-074K02L,Yageo,RES 4.02K OHM 1% 1/10W 0603,R49,4.02k,R_0603_1608Metric,suggested,ACS37800 voltage divider tap
 4,RC1206FR-071ML,Yageo,RES 1M OHM 1% 1/4W 1206,R50 R51 R52 R53,1M,R_1206_3216Metric,suggested,
 1,RC0402FR-07182KL,Yageo,RES 182K OHM 1% 1/16W 0402,R55,182k,R_0402_1005Metric,suggested,
@@ -86,6 +86,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,RC0402FR-0762KL,Yageo,RES 62K OHM 1% 1/16W 0402,R154 R156,62k,R_0402_1005Metric,suggested,
 2,RC0402FR-0720KL,Yageo,RES 20K OHM 1% 1/16W 0402,R157 R159,20k,R_0402_1005Metric,suggested,
 2,RC0402FR-0739KL,Yageo,RES 39K OHM 1% 1/16W 0402,R158 R160,39k,R_0402_1005Metric,suggested,
+1,RC0402FR-07470KL,Yageo,RES 470K OHM 1% 1/16W 0402,R161,470k,R_0402_1005Metric,suggested,
 1,RC0805FR-0739RL,Yageo,RES 39 OHM 1% 1/8W 0805,R166,39,R_0805_2012Metric,suggested,
 1,RC0402FR-072K4L,Yageo,RES 2.4K OHM 1% 1/16W 0402,R170,2.4k,R_0402_1005Metric,suggested,
 3,TL3342F160QG/TR,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,ordered,footprint is the TL3342 family (3.5 x 6 mm); substitute for TL3342F160QG

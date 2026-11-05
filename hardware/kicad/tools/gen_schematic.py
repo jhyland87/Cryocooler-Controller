@@ -62,9 +62,10 @@ PITCH = 12.7
 # more parts than the ADP5071 stage it replaced).
 NEW_REFS = {'R': 150, 'C': 120, 'D': 40, 'Q': 20}
 
-# The ADP5071 output capacitors also serve as the LT3097 input capacitors
-# (they sit beside its inputs; the module box has no room for a second pair).
-RAIL_CAP = '22uF/50V'
+# The LT8582 output capacitors also serve as the LT3097 inputs. No 22 uF / 50 V
+# X7R 1210 could be sourced, so the rails use 25 V parts, doubled on -16V5 and
+# both LT3097 outputs to hold the required 10 uF effective at 15 V DC.
+RAIL_CAP = '22uF/25V X7R'
 
 
 @contextmanager
@@ -1045,6 +1046,10 @@ def usb_power_path(sh):
     with kicadgen.pinned_refs('C', 125):
         vcap(sh, '1uF', 60, usb_in[1])
     drop_ground(sh, (60, usb_in[1] + 6), 0)
+    # bleed: U28 CE sits on this net and must not float with USB unplugged
+    with kicadgen.pinned_refs('R', 179):
+        vres(sh, '100k', 56, usb_in[1])
+    drop_ground(sh, (56, usb_in[1] + 6), 0)
     with kicadgen.pinned_refs('TP', 42):
         test_point(sh, 'USB_VBUS', (68, usb_in[1]), rot=0)
     usb_enable = pin_cell(usb_diode, '3')
@@ -1207,6 +1212,9 @@ def build_rails_15v(sh):
     rail_flag(sh, (180, out_end[1]))
     vcap(sh, RAIL_CAP, 174, out_end[1], fp=C1210)
     drop_ground(sh, (174, out_end[1] + 6), 0)
+    with kicadgen.pinned_refs('C', 130):
+        vcap(sh, RAIL_CAP, 180, out_end[1], fp=C1210)
+    drop_ground(sh, (180, out_end[1] + 6), 0)
     # FBX2: 198k to the -16V5 output, routed under the inverting stage
     fbx2 = pin_cell(u, '7')
     wire(sh, fbx2, (124, fbx2[1]), (124, 122), (157, 122))
@@ -1264,14 +1272,18 @@ def build_rails_15v(sh):
         ('21', '20', '17', '4', '18', '+15V', 'PGP_15V'),
         ('15', '14', '10', '9', '12', '-15V', 'PGN_15V'),
     )
-    for out, sense, feedback, good, setpoint, rail, good_net in channels:
+    for index, channel in enumerate(channels):
+        out, sense, feedback, good, setpoint, rail, good_net = channel
         o, s = pin_cell(reg, out), pin_cell(reg, sense)
-        # output rail: Kelvin sense joins the output wire, 22 uF at the end
+        # output rail: Kelvin sense joins the output wire, 2 x 22 uF at the end
         wire(sh, o, (o[0] + 46, o[1]))
         rail_symbol(sh, rail, (o[0] + 46, o[1]))
         wire(sh, s, (s[0] + 4, s[1]), (s[0] + 4, o[1]))
-        vcap(sh, '22uF/50V', o[0] + 40, o[1], fp=C1210)
+        vcap(sh, RAIL_CAP, o[0] + 40, o[1], fp=C1210)
         drop_ground(sh, (o[0] + 40, o[1] + 6), 0)
+        with kicadgen.pinned_refs('C', 128 + index):
+            vcap(sh, RAIL_CAP, o[0] + 34, o[1], fp=C1210)
+        drop_ground(sh, (o[0] + 34, o[1] + 6), 0)
         # power-good threshold divider from the output (tap = PGFB pin)
         pgfb = pin_cell(reg, feedback)
         divider = o[0] + 14
@@ -1301,14 +1313,14 @@ def build_power_good(sh):
     sh.handwired = True
     sh.note(
         'PGP and PGN pull their own node low when bad. Each node is the +15 V '
-        'rail through 220k/62k (about 3.2 V when good, 0 V if its pin pulls '
-        'low or the rail is missing) and lights its green LED.',
+        'rail through 220k/62k (about 3.2 V when good, under 0.3 V if its pin '
+        'pulls low or the rail is missing) and lights its green LED.',
         20,
         15,
     )
     sh.note(
-        'PG_15V = the two nodes ANDed by a BAT54AW with a 10k pull-up '
-        'to +3V3 (3.3 V only when both are good); it gates the amplifier REM '
+        'PG_15V = the two nodes ANDed by a BAT54AW with a 470k pull-up to +3V3 '
+        '(weak so it cannot lift dead nodes; 3.3 V only when both are good); it gates the amplifier REM '
         'switch and reads LOW on GPIO43 (PG_15V_N) when both rails are good.',
         20,
         21,
@@ -1346,8 +1358,9 @@ def power_good_node(
 
 def power_good_and(sh, column, row):
     """BAT54AW (two Schottky diodes, common anode on PG_15V, cathodes on
-    PGP_15V / PGN_15V) with a 10k pull-up to +3V3: PG_15V is high only while
-    both nodes are.
+    PGP_15V / PGN_15V) with a 470k pull-up to +3V3: PG_15V is high only while
+    both nodes are. A stiffer pull-up lifts the dead nodes through their 62k
+    dividers and turns the BSS138s on with no rail present.
     """
     with high_refs('D'):
         pair = sh.add(
@@ -1368,9 +1381,9 @@ def power_good_and(sh, column, row):
     wire(sh, anode, node)
     wire(sh, node, (node[0] + 12, node[1]))
     net_label(sh, 'PG_15V', (node[0] + 12, node[1]), 0, is_global=True)
-    # 10k pull-up hangs below the output wire, +3V3 symbol turned downwards
+    # pull-up hangs below the output wire, +3V3 symbol turned downwards
     with high_refs('R'):
-        vres(sh, '10k', node[0] + 5, node[1], fp=R0402)
+        vres(sh, '470k', node[0] + 5, node[1], fp=R0402)
     rail_symbol(sh, '+3V3', (node[0] + 5, node[1] + 6), rot=180)
 
 

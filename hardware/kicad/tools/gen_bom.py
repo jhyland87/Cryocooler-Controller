@@ -93,11 +93,11 @@ CAPS = {
         'INA239 input filter across IN+/IN-'),
     ('10uF/25V', 'C_1206_3216Metric'): (
         'CL31A106KAHNNNE', 'CAP CER 10UF 25V X5R 1206', '12 V rail'),
-    ('22uF/50V', 'C_1210_3225Metric'): (
-        'CL32B226KBJNNNE', 'CAP CER 22UF 50V X7R 1210',
-        'ADP5071 outputs / LT3097 inputs (C62, C63) and LT3097 outputs (C65, '
-        'C67); >= 10 uF effective at 15 V DC bias, so check the maker\'s '
-        'DC-bias curve (ADI suggests the Murata GCM series)'),
+    ('22uF/25V X7R', 'C_1210_3225Metric'): (
+        'GRM32ER71E226KE15L', 'CAP CER 22UF 25V X7R 1210',
+        'LT8582 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs '
+        '>= 10 uF effective at 15 V DC bias (INN and both outputs have two in '
+        'parallel; INP needs 4.7 uF), so check the DC-bias curve'),
     ('1uF/50V', 'C_1206_3216Metric'): (
         'CL31B105KBHNNNE', 'CAP CER 1UF 50V X7R 1206',
         'LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)'),
@@ -119,6 +119,7 @@ CAPS = {
 CAP_MAKERS = {
     'C1206C473K5RACTU': 'Kemet',
     'CC1206KRX7R9BB683': 'Yageo',
+    'GRM32ER71E226KE15L': 'Murata',
 }
 
 # ── everything else, keyed by (value, footprint) ────────────────────────────
@@ -515,9 +516,10 @@ def classify(value, footprint):
         }.get(footprint, '1/10W')
         note = ''
         if value == '3.9k':
-            note = ('Rref for the ADS1220: use 0.1 % 25 ppm (for example Yageo '
-                    'RT0603BRD073K9L); the firmware assumes 3854 ohm, so '
-                    'measure it')
+            return ('Yageo', 'RT0402BRD073K9L',
+                    'RES 3.9K OHM 0.1% 25PPM 1/16W 0402', 'suggested',
+                    'Rref for the ADS1220; the firmware assumes 3854 ohm '
+                    '(PT1000_REF_R), so measure it and update the constant')
         if value == '4.02k':
             note = 'ACS37800 voltage divider tap'
         return (

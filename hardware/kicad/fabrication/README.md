@@ -28,13 +28,14 @@ creation date, so the files differ in git after every export even if the board d
 * **Via-in-pad:** the fine-pitch ground pads (U4, U11, U20, U21, U23, U25), the
   U20 / U21 signal pads in `SIGNAL_VIA_PADS`, the 15 GND vias in U20's exposed pad and
   C30 / C74 / C127 pad 2 carry 0.45 mm vias with 0.2 mm drills, some inside 0.5 mm pitch
-  pads (0.1 mm to the neighbouring pad). Check JLCPCB's current via limits and order
+  pads (0.1 mm to the neighbouring pad). L1 pad 1, C60 / C131 and C130 pad 1 carry
+  0.3 mm drill vias in their pads. Check JLCPCB's current via limits and order
   filled / capped vias; if they are too small the vias need enlarging and the pad
   connections reworking.
 * Parts on both sides: the back carries a few passives and small transistors.
 * The back silkscreen carries the board ID (name and git revision); check the viewer
   shows it mirrored correctly from the back.
 
-The drill report lists every hole size: plated 0.2 mm (35), 0.3 mm (411 vias),
-0.35 mm (8), component holes 0.6 to 1.4 mm; unplated 0.65 mm (2, USB-C pegs) and
+The drill report lists every hole size: plated 0.2 mm (233), 0.3 mm (490),
+0.35 mm (10), component holes 0.6 to 1.4 mm; unplated 0.65 mm (2, USB-C pegs) and
 3.2 mm (4 mounting holes).

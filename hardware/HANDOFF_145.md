@@ -191,3 +191,16 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 - **`gridroute.py`:** the stale `ISO` region was removed. It came from an old floorplan and blocked routes into the lower right; keep-outs fence the real ISO island.
 - **Route:** `tools/spi_expander_board.py`, then `gridroute.py`, then one-off fan-out edits around J15 pins 4-10 and U25 pin 14 that aren't scripted, so the committed board is the source. U27 sits directly under J15: check both sides before adding vias there.
 - **Checks:** DRC 0 errors, 0 unconnected, 0 parity; warnings left are 6 connector silk at the board edge and the U1 library mismatch, as before.
+
+## Pre-order audit fixes (2026-11-04)
+
+`tools/audit_fixes_board.py` on the routed board, then `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`.
+
+- **PG_15V:** R161 is 470k. At 10k it lifted dead PGP / PGN nodes to about 2.2 V, so REM unblocked and GPIO43 read good with no rails. Not yet measured on a board. If the negative side alone dies and PGN floats, R155 still feeds that node from +15V, so the hardware interlock may pass.
+- **USB_VBUS:** R180 (100k to GND) stops U28 CE floating with USB unplugged.
+- **U15 switch node:** 0.4 mm on F.Cu, the existing 0.6 mm via, 1 mm on In2, two vias in L1 pad 1. The BST via and In2 USB_VBUS limit the width.
+- **U16:** a 21 mm2 +3V3 pour east of the tab, six vias to the In2 pour.
+- **Rail caps:** GRM32ER71E226KE15L (25 V X7R), since no 22 uF / 50 V X7R 1210 could be sourced. C129, C130, C131 double +15V, -15V and -16V5. +16V5 stays single (no nearby room; LT3097 INP needs 4.7 uF). DC bias not confirmed against the maker's curve; check the LT8582 loops on the bench.
+- **R44:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
+- **Still open before ordering:** J15 cable direction and contact side, fan and pump current against the 0.8 mm In2 trunks, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
+
