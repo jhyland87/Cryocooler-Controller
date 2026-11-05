@@ -26,7 +26,7 @@ done.
 | J11 amp out | TE 2305908-2, right-angle SMT, 5 mm | + / − to U18 (ACS37800); 15 A; SMT pads only |
 | J12 cryocooler | TE 2305908-3, right-angle SMT, 5 mm | + / − from U18; pin 3 on board GND, outside the ISO island; 15 A; SMT pads only |
 | J14 IMU | Amphenol RJSSE-5380 | plain 8P8C; the three parts in the TODO have magnetics. Signal pads centred between the holes (fixed 0.28 mm offset) |
-| J15 display | Hirose FH12-14S-0.5SH | top edge, top side |
+| J15 display | Hirose FH12-14S-0.5SH | top edge at (53.2, 4), top side, opening faces into the board |
 | J6 / J7 / J13 | Sullins SWR25X-NRTC-S02-RB-BA, right-angle 2-pin, 2.54 mm | 3 A; mates with SWH25X housings, so JST PH pigtails no longer fit. Catalog drawing shows 6-20 positions; the 2-pin plate width is an estimate |
 | J2 12 V in | Tensility 54-00164, 5.5 x 2.1 mm right-angle SMT jack | centre pin positive; sleeve and switch contacts both on GND. 5.5 A up to 40 C, derating to 0 at 70 C; not rated for mating under load |
 | J8 amp REM | Phoenix 1821698, MC 0,5/ 2-G-2,54 SMD R24 | left wall; 6 A; drawing 00783144 rev 02; two 1.2 mm peg holes |
@@ -149,7 +149,7 @@ Open points:
 
 `tools/connector_moves.py` and `tools/connector_silk.py`, on the routed board:
 
-- **J1 USB:** top edge at x 54.3, mouth up, between J15 and the antenna keep-out. USB4105 stays,
+- **J1 USB:** top edge, mouth up; at x 54.3 here, since moved to x 32.5 (see Connector swap below). USB4105 stays,
   because the USB4205 in `dev/USB4205_GF_A` is not needed for the fit. U2 sits on the bottom side
   behind the connector; the D+/D- fan-out is the old one turned 90 degrees. `USB_VBUS` gets shorter.
 - **J2 12 V in:** bottom of the left wall, axis y 85.5. Raw 12 V runs up the wall on F.Cu at 2 mm
@@ -202,5 +202,16 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 - **U16:** a 21 mm2 +3V3 pour east of the tab, six vias to the In2 pour.
 - **Rail caps:** GRM32ER71E226KE15L (25 V X7R), since no 22 uF / 50 V X7R 1210 could be sourced. C129, C130, C131 double +15V, -15V and -16V5. +16V5 stays single (no nearby room; LT3097 INP needs 4.7 uF). DC bias not confirmed against the maker's curve; check the LT8582 loops on the bench.
 - **R44:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
-- **Still open before ordering:** J15 cable direction and contact side, fan and pump current against the 0.8 mm In2 trunks, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
+- **Still open before ordering:** J15 contact side, fan and pump current against the 0.8 mm In2 trunks, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
+
+## USB / display connector swap (2026-11-04)
+
+The panel's ribbon leaves its lower edge heading toward the top of the board, so J15's opening now faces into the board and J15 and J1 have swapped places.
+
+- **J15:** (53.2, 4), rotation 0. Pin 1 is now on the west side. Cable width takes x 49-57 and has about 6.8 mm of runway before U7.
+- **J1:** x 32.5 (was 54.3), with U2, R3, R4, C5. U27, C123, C124, R168, TP42 moved 20 mm east with J15. Display resistors and Q25 stayed at x 39-47.
+- **Sections:** the wall moved from x 47.5 to x 38. `DISPLAY` is x 38-60; J1's box is a separate piece of `MCU & USB` (`pcbfloorplan.py`).
+- **Route:** `tools/swap_usb_display.py`, `gridroute.py`, `swap_usb_display.py ... finish`, silk steps, `swap_usb_display.py ... silk`. An F.Cu +3V3 bridge at (49.9-52, 7.6-8.7) rejoins the In2 pour split by the new routes.
+- **Housing:** J1's wall cut-out moves 21.8 mm left, and any J15 cable slot needs re-checking.
+- **Still to confirm against the panel:** the ribbon's exposed contacts must face FH12's contact side (rotating J15 doesn't change this), and J15's x position must line up with the ribbon in the lid.
 
