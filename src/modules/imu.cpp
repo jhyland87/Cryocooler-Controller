@@ -531,7 +531,7 @@ module::InitStatus init() {
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
     if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
-        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS=GPIO" + String(LSM6DSOX_CS) + ")");
+        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS decoder Y" + String(LSM6DSOX_CS - CS_ID_BASE) + ")");
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }

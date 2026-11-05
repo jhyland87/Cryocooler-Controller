@@ -204,6 +204,16 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 - **R44:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
 - **Still open before ordering:** J15 contact side, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
 
+## SPI chip-select decoder (2026-11-05)
+
+Branch `spi-cs-decoder`. U32 (SN74LVC138A) at (92, 33) replaces the eight CS GPIOs; design notes are in `kicad/DESIGN_REVIEW.md`. Not bench-tested.
+
+- **Pipeline on the committed board:** `cs_decoder_board.py`, `gen_pcb.py link`, `gridroute.py`, `cs_decoder_finish.py` (no flag), `octilinear.py`, `cs_decoder_finish.py --ground` (ground ties, TP41 out), `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`, `cs_decoder_silk.py`. Later edits were small one-off moves whose final values are recorded in the scripts, so a replay may need touch-up.
+- **Via-in-pad:** U32 pad 5 and D10 pad 1. Inner traces 0.9 mm apart leave no room beside D10.
+- **+3V3 loop:** the feed to R182 and R181 runs out to x 99.6 so R183 pad 1 can reach a via at (98.71, 34.4).
+- **Silk:** hand-placed around U32; re-running `silk_fix.py` may hide those labels, so run `cs_decoder_silk.py` again afterwards.
+- **Part stock:** Digi-Key's SN74LVC138APWR listing looked stocked from cached pages. Check live before ordering.
+
 ## 12 V copper for 4 A (2026-11-05)
 
 Planning load: 3 PWM fans 0.45-0.9 A, D5 pump 1.3-1.8 A (rarely 2 A), U15 up to about 0.9 A, so 4 A total and about 3 A east of U15. `tools/power_12v_rework.py` added:

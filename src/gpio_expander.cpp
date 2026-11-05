@@ -71,7 +71,7 @@ bool begin(SPIClass& spi) {
     // A missing device leaves MISO all ones or all zeros, never this pattern.
     sPresent = (readRegister(REG_IODIR) == direction);
     if (!sPresent) {
-        ESP_LOGW(TAG, "MCP23S08 not found (CS GPIO%d)", EXPANDER_CS_PIN);
+        ESP_LOGW(TAG, "MCP23S08 not found (CS decoder Y%d)", EXPANDER_CS_PIN - CS_ID_BASE);
         return false;
     }
     ESP_LOGI(TAG, "MCP23S08 found");

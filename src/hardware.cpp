@@ -46,8 +46,8 @@ namespace hardware {
     module::InitStatus initSPI() {
         static bool sInitDone = false;
 
-        // Drive all SPI CS pins HIGH before bus init to prevent
-        // accidental device selection during power-up.
+        // Deselect every SPI device before bus init. These are decoder outputs
+        // (spi_select.cpp), and the first call also sets up the decoder pins.
         for (uint8_t cs : { MCP4921_CS, AD9833_CS, LSM6DSOX_CS, INA239_CS, ADS1220_CS,
                             EXPANDER_CS_PIN, DISP_CS_PIN, TOUCH_CS_PIN }) {
             pinMode(cs, OUTPUT);

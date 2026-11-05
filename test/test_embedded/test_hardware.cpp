@@ -16,6 +16,7 @@
 #include <MD_AD9833.h>
 
 #include "pin_config.h"
+#include "../../src/spi_select.cpp"  // test_build_src = no, and CS IDs need its overrides
 #include "config.h"
 #include "conversions.h"
 

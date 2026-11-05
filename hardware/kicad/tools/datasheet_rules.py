@@ -152,7 +152,7 @@ RULES = [
     ('net', 'EN COOL', '2', '+3V3_COOL'),
     ('net', 'EN CH', '1', '+3V3'),
     ('net', 'EN CH', '2', '+3V3_CH'),
-    ('res', 'ESP32-S3-WROOM-2-N32R16V', '39', '10k', '+3V3'),
+    ('res', 'SN74LVC138A', '7', '10k', '+3V3'),  # IMU_CS held high with the cable unplugged
     # ISO7741 input idle levels while the ESP32 GPIOs float (CS, SCLK, MOSI
     # pulled to 3V3)
     ('res', 'ISO7741DW', '5', '10k', '+3V3'),
@@ -201,7 +201,6 @@ RULES = [
     ('net', 'INA239AIDGSR', '2', 'SPI_MOSI'),
     ('net', 'INA239AIDGSR', '4', 'SPI_MISO'),
     ('net', 'INA239AIDGSR', '5', 'SPI_SCK'),
-    ('res', 'INA239AIDGSR', '1', '10k', '+3V3'),
     ('res', 'INA239AIDGSR', '3', '10k', '+3V3'),
     # ADS1220 (SPI, SBAS501D TSSOP-16): AVDD/DVDD 3.3 V, AVSS/DGND/REFN0 on
     # GND, internal oscillator (CLK to GND), AIN2 unused, CS and DRDY pulled up
@@ -230,7 +229,6 @@ RULES = [
     ('net', 'MCP23S08-E/ML', '19', 'SPI_SCK'),
     ('net', 'MCP23S08-E/ML', '20', 'SPI_MOSI'),
     ('net', 'MCP23S08-E/ML', '5', 'EXPANDER_CS'),
-    ('res', 'MCP23S08-E/ML', '5', '10k', '+3V3'),
     ('res', 'MCP23S08-E/ML', '4', '10k', '+3V3'),
     ('net', 'MCP23S08-E/ML', '9', 'PGP_15V'),
     ('net', 'MCP23S08-E/ML', '10', 'PGN_15V'),
@@ -240,7 +238,7 @@ RULES = [
     ('net', 'MCP23S08-E/ML', '14', 'LED_READY'),
     ('net', 'MCP23S08-E/ML', '15', 'LED_FAULT'),
     ('nc', 'MCP23S08-E/ML', '16'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '12', 'EXPANDER_CS'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '12', 'CS_EN_N'),
     # compressor relay driver (same stage as the amplifier REM switch)
     ('net', 'BSS138', '2', 'GND'),
     ('net', 'BSS84', '2', '+12V'),
@@ -279,8 +277,36 @@ RULES = [
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '28'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '29'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '30'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '24', 'DISP_CS_1V8'),
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '24'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '25', 'DISP_DC_1V8'),
+    # SN74LVC138A (TI SCAS291, PW): 1 A, 2 B, 3 C, 4 G2A, 5 G2B, 6 G1, 7 Y7, 8 GND,
+    # 9-15 Y6-Y0, 16 VCC. The enable pull-up holds all outputs high at reset;
+    # GPIO3 and GPIO45 keep their strap resistors, now on the address lines
+    ('net', 'SN74LVC138A', '16', '+3V3'),
+    ('net', 'SN74LVC138A', '8', 'GND'),
+    ('net', 'SN74LVC138A', '6', '+3V3'),
+    ('net', 'SN74LVC138A', '5', 'GND'),
+    ('net', 'SN74LVC138A', '1', 'CS_ADDR_A'),
+    ('net', 'SN74LVC138A', '2', 'CS_ADDR_B'),
+    ('net', 'SN74LVC138A', '3', 'CS_ADDR_C'),
+    ('net', 'SN74LVC138A', '4', 'CS_EN_N'),
+    ('res', 'SN74LVC138A', '4', '10k', '+3V3'),
+    ('res', 'SN74LVC138A', '1', '10k', '+3V3'),
+    ('res', 'SN74LVC138A', '3', '10k', 'GND'),
+    ('net', 'SN74LVC138A', '15', 'AD9833_FSYNC'),
+    ('net', 'SN74LVC138A', '14', 'MCP4921_CS'),
+    ('net', 'SN74LVC138A', '13', 'INA239_CS'),
+    ('net', 'SN74LVC138A', '12', 'EXPANDER_CS'),
+    ('net', 'SN74LVC138A', '11', 'DISP_CS'),
+    ('net', 'SN74LVC138A', '10', 'TOUCH_CS'),
+    ('net', 'SN74LVC138A', '9', 'ADS1220_CS'),
+    ('net', 'SN74LVC138A', '7', 'IMU_CS'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '15', 'CS_ADDR_A'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '36', 'CS_ADDR_B'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '26', 'CS_ADDR_C'),
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '39'),
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '5'),
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '7'),
     # SN74LV1T34 (TI, DBV): 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.36 V at VCC 3.3 V
     ('net', 'SN74LV1T34', '5', '+3V3'),
     ('net', 'SN74LV1T34', '3', 'GND'),
@@ -311,7 +337,6 @@ RULES = [
     ('net', 'TSC2046EIPW', '12', 'SPI_MISO'),
     ('net', 'TSC2046EIPW', '15', 'TOUCH_CS'),
     ('nc', 'TSC2046EIPW', '9'),
-    ('res', 'TSC2046EIPW', '15', '10k', 'GND'),
     # J12 pin 3 (cryocooler protective ground) on board GND; J11 / J12 minus
     # on the isolated side
     ('net', 'CRYOCOOLER (+ / - / GND)', '3', 'GND'),

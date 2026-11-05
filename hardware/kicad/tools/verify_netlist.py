@@ -12,18 +12,15 @@ from pathlib import Path
 from sexpr import find_all, parse, sval
 
 EXPECTED = {
-    'EXPANDER_CS': 8,
+    'CS_EN_N': 8,
     'FAN_PWM': 9,
     'PUMP_PWM': 14,
     'FAN_TACH': 15,
     'SPI_SCK': 42,
     'SPI_MOSI': 41,
     'SPI_MISO': 40,
-    'AD9833_FSYNC': 7,
-    'MCP4921_CS': 5,
-    'IMU_CS': 1,
-    'INA239_CS': 3,
-    'ADS1220_CS': 44,
+    'CS_ADDR_A': 3,
+    'CS_ADDR_B': 44,
     'IMU_INT1': 2,
     'IMU_INT2': 39,
     'ACS_CS': 17,

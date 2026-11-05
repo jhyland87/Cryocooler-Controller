@@ -113,6 +113,18 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 * The isolated SPI lines now run as straight wires from the ISO7741 outputs to the ACS37800 (its MOSI/SCLK/CS/MISO symbol pins were reordered to match); the `ISO_*` net labels are gone. Datasheet rules check that each ISO7741 output reaches the matching ACS37800 pin.
 * USB VBUS (connector, 4.7 uF cap and the USBLC6 clamp) is one wire with a single label that names the net, instead of two labels.
 
+## SN74LVC138A chip-select decoder (2026-11-05)
+
+The eight shared-bus chip selects now come from U32, freeing GPIO1, 5, 7 and 47. Moving them to the MCP23S08 was rejected: U25 shares the bus, so its deselect write would clock into the still-selected device (`0x40` is a valid ADS1220 WREG).
+
+* **Part:** SN74LVC138APWR (TI SCAS291), on unswitched +3V3. At 3.3 V: VIH 2 V, tpd max 6.7 ns from A/B/C and 6.5 ns from G2A, well under the GPIO write time.
+* **Control:** A/B/C = GPIO3/44/45, G2A = GPIO8, G1 +3V3, G2B GND. R182 holds G2A high until firmware runs; R181 and R183 keep the GPIO3 and GPIO45 strap levels.
+* **Removed:** U30, R178, C127, net `DISP_CS_1V8` (the 1.8 V GPIO47 display CS problem goes away), and the now-redundant pull-ups R68, R81, R168. U31 stays for `DISP_DC`. TP41 (STATUS_RGB) was removed at the user's request, for silk room.
+* **Firmware:** chip selects are IDs 100-107, handled by strong `pinMode` / `digitalWrite` overrides in `src/spi_select.cpp`. The ceiling is `int8_t`, Adafruit BusIO's CS type.
+* **Open, back-feed:** Y outputs drive high from power-on, while the ADS1220, IMU, AD9833 and MCP4921 can sit on jumpered rails. With JP5 (+3V3_CH) or the +3V3_SG jumper out, the line can back-feed through a CS clamp diode, the rev 1 bench finding on ADS1220 CS. Firmware already drove these lines high after boot, so what is new is the time before firmware runs. No series resistors added.
+* **Decoupling:** C132 is about 4 mm of 0.3 mm track from VCC pin 16, because the fan-out left no room closer. Check it on the scope.
+* **Not verified on hardware:** clean selects during boot and traffic, all 8 devices responding, normal boot with the straps. AD9833, LSM6DSOX and ST7789 chip-select timing was not checked against a datasheet; GPIO writes take far longer than the decoder delay.
+
 ## EMC2303 and SC18IS604 replaced (2026-11-04)
 
 Schematic and firmware only; the PCB still has the old parts. The board now has no I2C. Fan and pump run from ESP32 LEDC and PCNT, and an MCP23S08 takes over the bridge's GPIO job plus the two status LEDs. Every GPIO was in use, so this is what freed the pins.

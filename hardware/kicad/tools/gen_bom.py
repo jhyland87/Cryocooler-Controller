@@ -240,7 +240,10 @@ PARTS = {
         'suggested', '5 V level shifter for the WS2812B'),
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
-        'suggested', '1.8 V to 3.3 V buffers for DISP_CS and DISP_DC'),
+        'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
+    ('SN74LVC138A', 'TSSOP-16_4.4x5mm_P0.65mm'): (
+        'Texas Instruments', 'SN74LVC138APWR', 'IC DECODER/DEMUX 1X3:8 16TSSOP',
+        'suggested', 'decodes the shared SPI bus chip selects'),
     ('74LVC1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LVC1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', 'gates the SC18IS604 MISO'),

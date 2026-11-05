@@ -15,33 +15,49 @@
 
 #define RGB_LED_PIN 38
 
+// =============================================================================
+// Shared SPI bus chip selects: SN74LVC138A decoder (U32)
+// =============================================================================
+// A/B/C pick the output and G2A enables it (10 kOhm pull-up holds it off at boot).
+// GPIO3 and GPIO45 are strapping pins: 10 kOhm resistors hold GPIO3 high (default
+// USB-JTAG) and GPIO45 low at reset. GPIO44 is U0RXD; the console is native USB
+// CDC, so UART0 is unused. GPIO1, 5, 7 and 47 are free.
+#define CS_ADDR_A_PIN      3
+#define CS_ADDR_B_PIN      44
+#define CS_ADDR_C_PIN      45
+#define CS_ENABLE_PIN      8
+
+// *_CS values below are not GPIOs: src/spi_select.cpp catches these IDs in
+// pinMode() and digitalWrite() and drives the decoder. ID - CS_ID_BASE is the
+// output number. They must stay above RGB_BUILTIN (97) and fit an int8_t, which
+// is how Adafruit BusIO stores CS.
+#define CS_ID_BASE         100
+#define CS_OUTPUT_COUNT    8
+
 // MCP23S08 SPI GPIO expander — SPI mode 0 on the shared SPI bus. See the
 // EXPANDER_PIN_* map below. RESET is tied high; INT is not wired to the MCU.
-#define EXPANDER_CS_PIN    8
+#define EXPANDER_CS_PIN    (CS_ID_BASE + 3)
 
 // MCP4921 SPI DAC — amplitude control (shares SPI bus with AD9833)
-#define MCP4921_CS         5
+#define MCP4921_CS         (CS_ID_BASE + 1)
 
 // INA239 power monitor — SPI mode 1 on the shared SPI bus (MISO is Hi-Z when CS is high).
-// GPIO3 is a strapping pin (JTAG source); the 10 kΩ CS pull-up keeps it high at reset,
-// which selects the default USB-JTAG.
-#define INA239_CS          3
+#define INA239_CS          (CS_ID_BASE + 2)
 
 // ADS1220 RTD ADC — SPI mode 1 on the shared SPI bus (DOUT is Hi-Z when CS is high).
-// GPIO44 is U0RXD; the console is native USB CDC, so UART0 is unused.
 // DRDY is not wired to the MCU.
-#define ADS1220_CS         44
+#define ADS1220_CS         (CS_ID_BASE + 6)
 
 // LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
 // cabled to header J14; SPI on the shared bus (AD9833, MCP4921, ...).
-#define LSM6DSOX_CS        1    // J14 pin 6
+#define LSM6DSOX_CS        (CS_ID_BASE + 7)    // J14 pin 6
 #define LSM6DSOX_INT1_PIN  2    // J14 pin 7
 #define LSM6DSOX_INT2_PIN  39   // J14 pin 8
 
 // =============================================================================
 // AD9833 Waveform Generator
 // =============================================================================
-#define AD9833_CS          7    // Chip Select for AD9833
+#define AD9833_CS          (CS_ID_BASE + 0)    // Chip Select for AD9833
 
 // =============================================================================
 // Discrete Indicator Outputs
@@ -124,13 +140,12 @@
 // Display (Phoenix 2.4" touch display in the UCS 125-87 lid: ST7789V, 4-wire
 // SPI half duplex on the shared bus) and its TSC2046 touch controller
 // =============================================================================
-// GPIO45 and GPIO46 are strapping pins; 10 kOhm pull-downs hold their default
-// (low) levels at reset, so TOUCH_CS must be driven HIGH before any SPI
-// traffic and the display stays in reset until the firmware releases it.
-#define DISP_CS_PIN                  47
+// GPIO46 is a strapping pin; a 10 kOhm pull-down holds its default (low) level at
+// reset, so the display stays in reset until the firmware releases it.
+#define DISP_CS_PIN                  (CS_ID_BASE + 4)
 #define DISP_DC_PIN                  48
 #define DISP_RST_PIN                 46
-#define TOUCH_CS_PIN                 45
+#define TOUCH_CS_PIN                 (CS_ID_BASE + 5)
 
 // =============================================================================
 // MCP23S08 expander pins (read / written over SPI, see gpio_expander.h)

@@ -565,6 +565,35 @@ SYMBOLS = [
         keywords='buffer level shifter',
     ),
     symbol(
+        'SN74LVC138A',
+        'U',
+        'TI 3-line to 8-line decoder, 1.65-3.6 V, inputs tolerate 5.5 V, '
+        'active-low outputs, TSSOP-16',
+        'https://www.ti.com/lit/ds/symlink/sn74lvc138a.pdf',
+        'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+        left=[
+            ('1', 'A', 'input'),
+            ('2', 'B', 'input'),
+            ('3', 'C', 'input'),
+            ('4', '~{G2A}', 'input'),
+            ('5', '~{G2B}', 'input'),
+            ('6', 'G1', 'input'),
+        ],
+        right=[
+            ('15', '~{Y0}', 'output'),
+            ('14', '~{Y1}', 'output'),
+            ('13', '~{Y2}', 'output'),
+            ('12', '~{Y3}', 'output'),
+            ('11', '~{Y4}', 'output'),
+            ('10', '~{Y5}', 'output'),
+            ('9', '~{Y6}', 'output'),
+            ('7', '~{Y7}', 'output'),
+        ],
+        top=[('16', 'VCC', 'power_in')],
+        bottom=[('8', 'GND', 'power_in')],
+        keywords='decoder demultiplexer chip select',
+    ),
+    symbol(
         'TSC2046EIPW',
         'U',
         'TI 4-wire resistive touch-screen controller, 12-bit SPI ADC, DOUT '

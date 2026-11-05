@@ -255,6 +255,86 @@ def decouple(sh, near, rail, values=('100nF',), gnd='GND'):
     return [cap(sh, value, rail, gnd, near=near) for value in values]
 
 
+# Decoder output pin -> chip select net. The output number is the firmware's CS
+# index (include/config/pin_config.h). The order follows the routed board.
+CS_DECODER_OUTPUTS = (
+    ('15', 'AD9833_FSYNC'),
+    ('14', 'MCP4921_CS'),
+    ('13', 'INA239_CS'),
+    ('12', 'EXPANDER_CS'),
+    ('11', 'DISP_CS'),
+    ('10', 'TOUCH_CS'),
+    ('9', 'ADS1220_CS'),
+    ('7', 'IMU_CS'),
+)
+# Last-used numbers: the decoder takes U32, C132, R181-183 and TP45-46.
+CS_DECODER_LAST = {'U': 31, 'C': 131, 'R': 180, 'TP': 44}
+
+
+def cs_decoder(sh):
+    """SN74LVC138A: the shared SPI bus chip selects, one low at a time. The enable
+    pull-up holds every output high until firmware takes over. The address lines
+    are strapping GPIOs, so their strap resistors live here too.
+    """
+    column, row = 56, 100
+    sh.note('SPI CHIP SELECT DECODER', 20 * 1.27, 50 * 1.27, 1.8)
+    sh.note(
+        'One output low at a time. G2A pull-up: all outputs high at reset.',
+        20 * 1.27,
+        54 * 1.27,
+        1.8,
+    )
+    sh.note(
+        'GPIO3 pull-up and GPIO45 pull-down are strap defaults.',
+        20 * 1.27,
+        58 * 1.27,
+        1.8,
+    )
+    with kicadgen.pinned_refs('U', CS_DECODER_LAST['U']):
+        decoder = place_ic(
+            sh,
+            'cryocooler:SN74LVC138A',
+            'SN74LVC138A',
+            column,
+            row,
+            'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+        )
+    for pin, net in (('1', 'CS_ADDR_A'), ('2', 'CS_ADDR_B'), ('3', 'CS_ADDR_C'),
+                     ('4', 'CS_EN_N')):
+        net_label(sh, net, spur(sh, decoder, pin, 8), 180, is_global=True)
+    rail_symbol(sh, '+3V3', spur(sh, decoder, '6', 3))
+    ground(sh, spur(sh, decoder, '5', 3))
+    for pin, net in CS_DECODER_OUTPUTS:
+        net_label(sh, net, spur(sh, decoder, pin, 4), 0, is_global=True)
+    supply = pin_cell(decoder, '16')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    drop_ground(sh, pin_cell(decoder, '8'), 2)
+    with kicadgen.pinned_refs('C', CS_DECODER_LAST['C']):
+        place_blocks(
+            sh,
+            [('SN74LVC138A DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
+            76,
+            70,
+        )
+    with kicadgen.pinned_refs('TP', CS_DECODER_LAST['TP']):
+        wire(sh, (supply[0], supply[1] - 4), (supply[0] + 4, supply[1] - 4))
+        test_point(sh, '+3V3', (supply[0] + 4, supply[1] - 4))
+        gnd_cell = pin_cell(decoder, '8')
+        wire(sh, (gnd_cell[0], gnd_cell[1] + 2), (gnd_cell[0] + 4, gnd_cell[1] + 2))
+        test_point(sh, 'GND', (gnd_cell[0] + 4, gnd_cell[1] + 2), rot=180)
+    sh.note('BIAS', 20 * 1.27, 118 * 1.27, 1.8)
+    with kicadgen.pinned_refs('R', CS_DECODER_LAST['R']):
+        for index, (net, rail) in enumerate(
+            (('CS_ADDR_A', '+3V3'), ('CS_EN_N', '+3V3'), ('CS_ADDR_C', 'GND'))
+        ):
+            bias_row = 124 + index * 8
+            rail_symbol(sh, rail, (28, bias_row), rot=270 if rail == 'GND' else 0)
+            hres(sh, '10k', 31, bias_row)
+            wire(sh, (34, bias_row), (36, bias_row))
+            net_label(sh, net, (36, bias_row), 0, is_global=True)
+
+
 def build_mcu(sh):
     """Hand-laid root sheet: ESP32 in the middle, boot/reset circuits left,
     USB-C right, I2C pull-ups below.
@@ -276,13 +356,10 @@ def build_mcu(sh):
         None,
     )
     left = {
-        '39': 'IMU_CS',
         '38': 'IMU_INT1',
         '4': 'NTC_ADC',
-        '5': 'MCP4921_CS',
         '6': 'AMP_REM_EN',
-        '7': 'AD9833_FSYNC',
-        '12': 'EXPANDER_CS',
+        '12': 'CS_EN_N',
         '17': 'FAN_PWM',
         '18': 'PWR_KILL',
         '19': 'ACS_SCK',
@@ -291,7 +368,7 @@ def build_mcu(sh):
         '22': 'PUMP_PWM',
         '8': 'FAN_TACH',
         '9': 'COMP_RELAY_EN',
-        '15': 'INA239_CS',
+        '15': 'CS_ADDR_A',
     }
     right = {
         '10': 'ACS_CS',
@@ -302,19 +379,20 @@ def build_mcu(sh):
         '33': 'SPI_MISO',
         '34': 'SPI_MOSI',
         '35': 'SPI_SCK',
-        '36': 'ADS1220_CS',
+        '36': 'CS_ADDR_B',
         '37': 'PG_15V_N',
-        '26': 'TOUCH_CS',
+        '26': 'CS_ADDR_C',
         '16': 'DISP_RST',
-        '24': 'DISP_CS_1V8',
         '25': 'DISP_DC_1V8',
     }
     for pin, net in left.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
     for pin, net in right.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 0, is_global=True)
-    for pin in ('28', '29', '30'):
+    # 28-30 are NC on the module; GPIO1, 5, 7 and 47 are spare
+    for pin in ('28', '29', '30', '39', '5', '7', '24'):
         sh.nc(esp, pin)
+    cs_decoder(sh)
     # supplies
     vdd = pin_cell(esp, '2')
     wire(sh, vdd, (vdd[0], 72))
@@ -834,7 +912,6 @@ TP_NAMES = {
     'SIG_SINE': 'SINE',
     'NTC_ADC': 'NTC',
     'FLOW_TACH': 'FLOW',
-    'STATUS_RGB': 'RGB',
     'USB_VBUS': 'VBUS',
     '+5V_OR': '5V_OR',
 }
@@ -2061,7 +2138,7 @@ def build_system_current(sh):
     sh.handwired = True
     sh.note(
         'INA239 monitors the switched 12 V rail: 15 mOhm shunt, SPI mode 1 '
-        'on the main bus (CS GPIO3), +/-163.84 mV range (~10.9 A). ALERT '
+        'on the main bus (CS from the decoder), +/-163.84 mV range (~10.9 A). ALERT '
         'only drives its LED.',
         20,
         15,
@@ -2128,9 +2205,8 @@ def build_system_current(sh):
         ('4', 'SPI_MISO'),
     ):
         net_label(sh, net, spur(sh, ina, pin, 12), 0, is_global=True)
-    cs = pin_cell(ina, '1')
-    vres(sh, '10k', cs[0] + 6, cs[1] - 6)
-    rail_symbol(sh, '+3V3', (cs[0] + 6, cs[1] - 6))
+    # the decoder drives CS push-pull; R68 stays retired
+    kicadgen.retire_refs('R', 1)
     alert = spur(sh, ina, '3', 4)
     pull = (alert[0], alert[1] + 6)
     wire(sh, alert, pull, (pull[0], pull[1] + 6))
@@ -2215,7 +2291,7 @@ DEBUG_SIGNALS = (
         'SIG_SINE',
         'NTC_ADC',
         'FLOW_TACH',
-        'STATUS_RGB',
+        None,  # TP41 (STATUS_RGB) removed for silk room
     )),
 )
 # (rail, resistor, LED description[, return net]): LEDs on rails that have no
@@ -2320,7 +2396,7 @@ def build_gpio_expander(sh):
     """
     sh.handwired = True
     sh.note(
-        'MCP23S08: SPI mode 0 slave on the main bus (CS GPIO8). SO releases '
+        'MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases '
         'within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it '
         'shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41.',
         20,
@@ -2383,14 +2459,12 @@ def build_gpio_expander(sh):
     wire(sh, int_end, (int_end[0], int_end[1] + 4))
     test_point(sh, 'EXPANDER_INT', (int_end[0], int_end[1] + 4), rot=180)
     sh.note('PULL-UPS', 20 * 1.27, 92 * 1.27, 1.8)
-    for index, (net, is_global) in enumerate(
-        (('EXPANDER_CS', True), ('EXPANDER_RESET', False))
-    ):
-        row = 100 + index * 6
-        rail_symbol(sh, '+3V3', (28, row))
-        hres(sh, '10k', 31, row)
-        wire(sh, (34, row), (36, row))
-        net_label(sh, net, (36, row), 0, is_global=is_global)
+    # the decoder drives CS push-pull; R81 stays retired
+    kicadgen.retire_refs('R', 1)
+    rail_symbol(sh, '+3V3', (28, 106))
+    hres(sh, '10k', 31, 106)
+    wire(sh, (34, 106), (36, 106))
+    net_label(sh, 'EXPANDER_RESET', (36, 106), 0)
     # the removed bridge's other pull-ups and 74LVC1G125 keep their numbers free
     kicadgen.retire_refs('R', 3)
     kicadgen.retire_refs('U', 1)
@@ -2543,7 +2617,7 @@ def build_cold_head(sh):
     sh.handwired = True
     sh.note(
         'PT1000 4-wire ratiometric: IDAC1 (AIN3) excites, AIN1/AIN0 sense, '
-        'Rref (3.9k) on REFP0/REFN0. SPI mode 1 on the main bus (CS GPIO44), '
+        'Rref (3.9k) on REFP0/REFN0. SPI mode 1 on the main bus (CS from the decoder), '
         'internal oscillator (CLK tied low). DRDY is not wired to the MCU.',
         20,
         15,
@@ -2662,7 +2736,7 @@ def build_imu(sh):
     sh.note(
         'LSM6DSOX is the off-board Adafruit module (product 4438) on the '
         'cooler, cabled to J14 (RJ45, straight Cat5e cable) over the main SPI '
-        'bus (CS GPIO1, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up).',
+        'bus (CS from the decoder, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up).',
         20,
         15,
     )
@@ -2769,9 +2843,9 @@ def display_parts(sh):
         21,
     )
     sh.note(
-        'GPIO45 (TOUCH_CS) and GPIO46 (DISP_RST) are strapping pins: 10k '
-        'pull-downs hold their default (low) levels at reset; firmware drives '
-        'TOUCH_CS high before any SPI traffic.',
+        'GPIO46 (DISP_RST) is a strapping pin: a 10k pull-down holds its '
+        'default (low) level at reset. DISP_CS and TOUCH_CS come from the CS '
+        'decoder on the root sheet.',
         20,
         27,
     )
@@ -2877,17 +2951,19 @@ def display_parts(sh):
     drop_ground(sh, (gate[0] - 5, gate[1] + 6), 0)
     # strap pull-downs
     sh.note('STRAP PULL-DOWNS', 90 * 1.27, 104 * 1.27, 1.8)
-    for column, net in ((96, 'TOUCH_CS'), (116, 'DISP_RST')):
-        net_label(sh, net, (column, 116), 90, is_global=True)
-        wire(sh, (column, 116), (column, 120))
-        vres(sh, '10k', column, 120)
-        drop_ground(sh, (column, 126), 0)
+    # the GPIO45 pull-down moved to the decoder's address line; R168 stays retired
+    kicadgen.retire_refs('R', 1)
+    net_label(sh, 'DISP_RST', (116, 116), 90, is_global=True)
+    wire(sh, (116, 116), (116, 120))
+    vres(sh, '10k', 116, 120)
+    drop_ground(sh, (116, 126), 0)
     display_buffers(sh)
 
 
-# Last-used numbers: the buffers take U30-31, R178-179, C127-128.
-DISPLAY_BUFFER_REFS = ((29, 177), (30, 178))
-DISPLAY_BUFFER_LAST_CAP = 126
+# Last-used numbers: the DISP_DC buffer takes U31, R179, C128 (U30, R178, C127
+# went with the DISP_CS buffer).
+DISPLAY_BUFFER_REFS = ((30, 178),)
+DISPLAY_BUFFER_LAST_CAP = 127
 
 
 def display_buffers(sh):
@@ -2902,7 +2978,7 @@ def display_buffers(sh):
         152 * 1.27,
     )
     for (column, in_net, out_net), (buffer_ref, resistor_ref) in zip(
-        ((60, 'DISP_CS_1V8', 'DISP_CS'), (120, 'DISP_DC_1V8', 'DISP_DC')),
+        ((120, 'DISP_DC_1V8', 'DISP_DC'),),
         DISPLAY_BUFFER_REFS,
     ):
         with kicadgen.pinned_refs('U', buffer_ref):
@@ -2927,7 +3003,7 @@ def display_buffers(sh):
     with kicadgen.pinned_refs('C', DISPLAY_BUFFER_LAST_CAP):
         place_blocks(
             sh,
-            [('SN74LV1T34 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))],
+            [('SN74LV1T34 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
             180,
             160,
         )

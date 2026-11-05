@@ -319,8 +319,8 @@ module::InitStatus initDac() {
     // (SPI has no ACK mechanism, so we trust the write).
     setOutput(0.0f);
 
-    ESP_LOGI(TAG, "MCP4921 SPI DAC initialised (CS=GPIO%d, 12-bit, %u full-scale)",
-             MCP4921_CS, AMPLIFIER_RESOLUTION);
+    ESP_LOGI(TAG, "MCP4921 SPI DAC initialised (CS decoder Y%d, 12-bit, %u full-scale)",
+             MCP4921_CS - CS_ID_BASE, AMPLIFIER_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }
 

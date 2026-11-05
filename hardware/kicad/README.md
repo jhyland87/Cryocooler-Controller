@@ -56,18 +56,19 @@ console); the firmware should still check it before starting the signal generato
 
 | Signal | GPIO | Signal | GPIO |
 |---|---|---|---|
-| Expander CS / fan PWM | 8 / 9 | AD9833 FSYNC | 7 |
-| SPI SCK / MOSI / MISO | 42 / 41 / 40 | MCP4921 CS | 5 |
-| LSM6DSOX CS / INT1 / INT2 | 1 / 2 / 39 | ACS37800 SCK / MOSI / MISO / CS | 11 / 12 / 13 / 17 |
+| CS decoder enable / fan PWM | 8 / 9 | CS decoder A / B / C | 3 / 44 (RXD0) / 45 |
+| SPI SCK / MOSI / MISO | 42 / 41 / 40 | Free | 1, 5, 7 (3.3 V, ADC1), 47 (1.8 V) |
+| LSM6DSOX INT1 / INT2 | 2 / 39 | ACS37800 SCK / MOSI / MISO / CS | 11 / 12 / 13 / 17 |
 | Amp REM enable | 6 | PWR_KILL (LTC2954 KILL#) | 10 |
 | FAULT / READY LED | 14 / 15 | Flow tach | 18 |
 | Pump PWM / fan tach | 14 / 15 | NTC ADC | 4 |
 | Pump tach | 21 | | |
 | Status RGB (WS2812B) | 38 | Compressor relay enable | 16 |
-| INA239 CS (shared SPI bus) | 3 | ADS1220 CS (shared SPI bus) | 44 (RXD0) |
-| Display CS / D/C | 47 / 48 | Display RESET / touch CS | 46 / 45 (straps, 10 kΩ pull-downs) |
+| Display D/C | 48 | Display RESET | 46 (strap, 10 kΩ pull-down) |
 
-GPIO3 is a strapping pin (JTAG source); the 10 kΩ pull-up on INA239_CS keeps it high at reset, which selects the default USB-JTAG. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
+The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9833, Y1 MCP4921, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
+
+GPIO3 is a strapping pin (JTAG source); R181 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R183 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R182 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.
 
 ## Drawing conventions

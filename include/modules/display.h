@@ -3,7 +3,7 @@
  * @brief Status screen on the Phoenix 2.4" touch display (ST7789V, 320 x 240).
  *
  * The display sits in the lid of the UCS 125-87-F-GD-D2,4 housing and hangs
- * off the shared SPI bus (CS GPIO47, D/C GPIO48, RESET GPIO46; 4-wire SPI
+ * off the shared SPI bus (CS from the decoder, D/C GPIO48, RESET GPIO46; 4-wire SPI
  * half duplex, so it never drives MISO). Its backlight is switched by the
  * MCP23S08 expander pin GP4. This first version only prints a few status lines;
  * the TSC2046 touch controller is wired but not read yet.
