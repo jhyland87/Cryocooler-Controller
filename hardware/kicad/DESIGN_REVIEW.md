@@ -117,7 +117,7 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 
 The eight shared-bus chip selects now come from U32, freeing GPIO1, 5, 7 and 47. Moving them to the MCP23S08 was rejected: U25 shares the bus, so its deselect write would clock into the still-selected device (`0x40` is a valid ADS1220 WREG).
 
-* **Part:** SN74LVC138APWR (TI SCAS291), on unswitched +3V3. At 3.3 V: VIH 2 V, tpd max 6.7 ns from A/B/C and 6.5 ns from G2A, well under the GPIO write time.
+* **Part:** SN74LVC138A (TI SCAS291), on unswitched +3V3; first SN74LVC138APWR, now SN74LVC138ARGYR (see "U32 in VQFN"). At 3.3 V: VIH 2 V, tpd max 6.7 ns from A/B/C and 6.5 ns from G2A, well under the GPIO write time.
 * **Control:** A/B/C = GPIO3/44/45, G2A = GPIO8, G1 +3V3, G2B GND. R182 holds G2A high until firmware runs; R181 and R183 keep the GPIO3 and GPIO45 strap levels.
 * **Removed:** U30, R178, C127, net `DISP_CS_1V8` (the 1.8 V GPIO47 display CS problem goes away), and the now-redundant pull-ups R68, R81, R168. U31 stays for `DISP_DC`. TP41 (STATUS_RGB) was removed at the user's request, for silk room.
 * **Firmware:** chip selects are IDs 100-107, handled by strong `pinMode` / `digitalWrite` overrides in `src/spi_select.cpp`. The ceiling is `int8_t`, Adafruit BusIO's CS type.

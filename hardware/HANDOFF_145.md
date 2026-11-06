@@ -212,7 +212,8 @@ Branch `spi-cs-decoder`. U32 (SN74LVC138A) at (92, 33) replaces the eight CS GPI
 - **Via-in-pad:** U32 exposed pad (RGY package) and D10 pad 1. Inner traces 0.9 mm apart leave no room beside D10.
 - **+3V3 loop:** the feed to R182 and R181 runs out to x 99.6 so R183 pad 1 can reach a via at (98.71, 34.4).
 - **Silk:** hand-placed around U32; re-running `silk_fix.py` may hide those labels, so run `cs_decoder_silk.py` again afterwards.
-- **Part stock:** Digi-Key's SN74LVC138APWR listing looked stocked from cached pages. Check live before ordering.
+- **Part stock:** U32 is now SN74LVC138ARGYR, and its stock has not been checked (the earlier look at cached pages was for the TSSOP SN74LVC138APWR). Check live before ordering.
+- **U32 / U27 3D models:** TI's `RGY0016A.stp` (`dev/SN74LVC138ARGYR`) and `RGV0016B.stp` (`dev/TSC2046EIRGVT`), no licence terms in the downloads, gitignored as `lib/cryocooler.3dshapes/RGY0016A.step` and `RGV0016B.step`. Copy them there to render; without them the parts have no 3D body. Neither needs an offset or rotation.
 
 ## 12 V copper for 4 A (2026-11-05)
 

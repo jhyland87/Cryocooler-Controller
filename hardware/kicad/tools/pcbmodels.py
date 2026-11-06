@@ -167,6 +167,18 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # RGY0016A.step (TI, U32) and RGV0016B.step (TI, U27) are already placed:
+    # Z-up, seated at z 0, centred, pin 1 chamfer on the exposed pad at -x +y
+    'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm': (
+        'RGY0016A.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm': (
+        'RGV0016B.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
     # fan_header_90deg.step (GrabCAD) has its board plane at z 3.175, tails
     # towards +z at y -3.655 and pin 1 at x -3.81
     'FanHeader_4P_P2.54mm_Horizontal': (
