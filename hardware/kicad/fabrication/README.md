@@ -5,8 +5,8 @@ attributes) and Excellon drill files (PTH and NPTH separate, mm, absolute origin
 made from `cryocooler.kicad_pcb` (4 layers, 120 x 100 mm, Phoenix UCS 145-125 housing). `gerbers/` holds the same
 files plus the drill maps and report; nothing in it is hand-edited.
 
-These files, the zip and the front / back renders (`circuit-board-render-front.png`,
-`circuit-board-render-back.png`) are regenerated automatically by `tools/export_fab.py`,
+These files, the zip and the front / back / angled renders (`circuit-board-render-front.png`,
+`circuit-board-render-back.png`, `circuit-board-render-angle.png`) are regenerated automatically by `tools/export_fab.py`,
 which `gen_pcb.py` (every mode) and `link_usb_vbus.py` run after they write the board. After a
 manual edit of `cryocooler.kicad_pcb` (for example a hand-routed fix), run it yourself:
 
@@ -17,6 +17,14 @@ SKIP_FAB_EXPORT=1 ...                          # set this to skip the export whi
 
 Zones must already be filled (the generators leave them filled). The Gerber headers carry a
 creation date, so the files differ in git after every export even if the board did not change.
+
+## Board renders
+
+![Front of the board](circuit-board-render-front.png)
+
+![Back of the board](circuit-board-render-back.png)
+
+![Board at an angle](circuit-board-render-angle.png)
 
 ## Order settings to check
 

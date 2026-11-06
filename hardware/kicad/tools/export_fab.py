@@ -1,6 +1,7 @@
 """Exports the fabrication files and board renders from cryocooler.kicad_pcb
 with kicad-cli: Gerbers and drill files (fabrication/gerbers/), the JLCPCB
-upload zip, and front / back 3D renders (fabrication/circuit-board-render-*.png).
+upload zip, and front / back / angled 3D renders
+(fabrication/circuit-board-render-*.png).
 
 gen_pcb.py and link_usb_vbus.py run this after they write the board, so the
 files never lag the PCB. Run it by hand after any manual board edit:
@@ -39,11 +40,18 @@ ZIP_FILES = (
     'cryocooler-PTH.drl',
     'cryocooler-NPTH.drl',
 )
-RENDERS = (
-    ('top', 'circuit-board-render-front.png', ('--perspective',)),
-    ('bottom', 'circuit-board-render-back.png', ()),
-)
 RENDER_SIZE = ('2400', '2100')
+ANGLE_RENDER_SIZE = ('2400', '1700')
+# Lower lighting keeps the blue solder mask from washing out to purple at this angle.
+ANGLE_RENDER_OPTIONS = (
+    '--perspective', '--rotate', '-35,-24,2', '--zoom', '0.92', '--pan', '-0.85,0.5,0',
+    '--light-camera', '0.2', '--light-top', '0.3', '--light-side', '0.15',
+)
+RENDERS = (
+    ('top', 'circuit-board-render-front.png', RENDER_SIZE, ('--perspective',)),
+    ('bottom', 'circuit-board-render-back.png', RENDER_SIZE, ()),
+    ('top', 'circuit-board-render-angle.png', ANGLE_RENDER_SIZE, ANGLE_RENDER_OPTIONS),
+)
 
 
 def run_cli(arguments):
@@ -90,12 +98,12 @@ def build_zip():
 
 
 def render_board():
-    """3D renders of the top (perspective) and bottom of the board."""
-    for side, name, extra in RENDERS:
+    """3D renders of the top (perspective), bottom and an angled view of the board."""
+    for side, name, size, extra in RENDERS:
         run_cli(
             [
-                'pcb', 'render', '--side', side, '--width', RENDER_SIZE[0],
-                '--height', RENDER_SIZE[1], '--quality', 'high',
+                'pcb', 'render', '--side', side, '--width', size[0],
+                '--height', size[1], '--quality', 'high',
                 '--background', 'opaque', '--use-board-stackup-colors', *extra,
                 '-o', str(FAB_DIR / name), str(BOARD),
             ]
