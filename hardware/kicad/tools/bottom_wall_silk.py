@@ -1,6 +1,6 @@
 """Silk clean-up after the bottom-wall header moves: removes the old pin-1 dots
 of J6, J7 and J13, moves the PANEL / RELAY section divider to run between J7 and
-J13, sets their pin labels clear of the C73 body, moves the connector names off
+J13, sets their pin labels clear of the C55 body, moves the connector names off
 the header plates and redraws the section line above them. Run before `silk_fix.py`.
 
 Usage: bottom_wall_silk.py board.kicad_pcb (edits in place)

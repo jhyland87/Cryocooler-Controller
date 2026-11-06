@@ -1,5 +1,7 @@
 # Design review: datasheet audit
 
+R, C and D references here use the 2026-11-05 numbering, where parts with the same MPN are consecutive (`tools/ref_map.py`).
+
 Every IC and active discrete in the schematic was checked against its manufacturer datasheet
 (pinout, supply range, required external parts, unused-pin rules, absolute maximums). The
 connection-level findings are encoded as regression tests in
@@ -33,7 +35,7 @@ These were wrong in my first version (several were also wrong in the original dr
 | MCP4921 | Only 100 nF on VDD; Vref bias marginal | 0.1 µF + 10 µF on VDD; LM4040 needs ≥ 60-65 µA | + 10 µF; 8.2 k → 6.8 k |
 | WS2812B | 3.3 V data into a 5 V part | VIH = 0.7 × VDD = 3.5 V | 74AHCT1G125 level shifter |
 | AD633 | Output offset up to ±50 mV reached the amplifier | AD633 spec: output offset ±5 to ±50 mV | 10 µF DC-blocking cap + 100 kΩ |
-| OPA1656 (sine gain stage) | R8 33 k gave 3.3 V pk (6.6 Vpp) full scale, under-using the amplifier's input range | ZE500.1 RCA input 0.2-6 V (unverified, from retailer listings); user wants Vctl 10 V = 10 Vpp (5 V pk, 3.5 Vrms) | R8 33 k → 51 k (gain 16.45, ~4.9 V pk with the AD9833's assumed 0.3 V pk; calibrate in firmware) |
+| OPA1656 (sine gain stage) | R50 33 k gave 3.3 V pk (6.6 Vpp) full scale, under-using the amplifier's input range | ZE500.1 RCA input 0.2-6 V (unverified, from retailer listings); user wants Vctl 10 V = 10 Vpp (5 V pk, 3.5 Vrms) | R50 33 k → 51 k (gain 16.45, ~4.9 V pk with the AD9833's assumed 0.3 V pk; calibrate in firmware) |
 
 ## Verified as correct (no change needed)
 
@@ -118,11 +120,11 @@ the Delta DPS-2000EB datasheet for the exact figures and the PS_ON pinout (I cou
 The eight shared-bus chip selects now come from U32, freeing GPIO1, 5, 7 and 47. Moving them to the MCP23S08 was rejected: U25 shares the bus, so its deselect write would clock into the still-selected device (`0x40` is a valid ADS1220 WREG).
 
 * **Part:** SN74LVC138A (TI SCAS291), on unswitched +3V3; first SN74LVC138APWR, now SN74LVC138ARGYR (see "U32 in VQFN"). At 3.3 V: VIH 2 V, tpd max 6.7 ns from A/B/C and 6.5 ns from G2A, well under the GPIO write time.
-* **Control:** A/B/C = GPIO3/44/45, G2A = GPIO8, G1 +3V3, G2B GND. R182 holds G2A high until firmware runs; R181 and R183 keep the GPIO3 and GPIO45 strap levels.
-* **Removed:** U30, R178, C127, net `DISP_CS_1V8` (the 1.8 V GPIO47 display CS problem goes away), and the now-redundant pull-ups R68, R81, R168. U31 stays for `DISP_DC`. TP41 (STATUS_RGB) was removed at the user's request, for silk room.
+* **Control:** A/B/C = GPIO3/44/45, G2A = GPIO8, G1 +3V3, G2B GND. R28 holds G2A high until firmware runs; R27 and R29 keep the GPIO3 and GPIO45 strap levels.
+* **Removed:** U30, R178, C127, net `DISP_CS_1V8` (the 1.8 V GPIO47 display CS problem goes away), and the now-redundant pull-ups (old numbers R68, R81, R168). U31 stays for `DISP_DC`. TP41 (STATUS_RGB) was removed at the user's request, for silk room.
 * **Firmware:** chip selects are IDs 100-107, handled by strong `pinMode` / `digitalWrite` overrides in `src/spi_select.cpp`. The ceiling is `int8_t`, Adafruit BusIO's CS type.
 * **Open, back-feed:** Y outputs drive high from power-on, while the ADS1220, IMU, AD9833 and MCP4921 can sit on jumpered rails. With JP5 (+3V3_CH) or the +3V3_SG jumper out, the line can back-feed through a CS clamp diode, the rev 1 bench finding on ADS1220 CS. Firmware already drove these lines high after boot, so what is new is the time before firmware runs. No series resistors added.
-* **Decoupling:** C132 is about 4 mm of 0.3 mm track from VCC pin 16, because the fan-out left no room closer. Check it on the scope.
+* **Decoupling:** C42 is about 4 mm of 0.3 mm track from VCC pin 16, because the fan-out left no room closer. Check it on the scope.
 * **Not verified on hardware:** clean selects during boot and traffic, all 8 devices responding, normal boot with the straps. AD9833, LSM6DSOX and ST7789 chip-select timing was not checked against a datasheet; GPIO writes take far longer than the decoder delay.
 
 ## EMC2303 and SC18IS604 replaced (2026-11-04)
@@ -179,9 +181,9 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 * **Capacitors:** the datasheet asks for at least 4.7 µF (INP) / 10 µF (INN) on the inputs and 10 µF *effective* on each output, and its Fig. 129 shows X7R parts losing a large share of their capacitance at 15 V DC. The outputs and the -16V5 input each have two 22 µF / 25 V X7R 1210 in parallel and the +16V5 input has one (no 22 µF / 50 V X7R 1210 could be sourced); they double as the LT8582 outputs. **Not verified:** the ADP5071 loop with the larger output capacitance (RC1 5.6 kΩ / CC1 47 nF, RC2 12 kΩ / CC2 68 nF were set for 10 µF) and the effective capacitance from the maker's DC-bias curve.
 * **Start-up:** SETP / SETN get 1 µF / 50 V bypass capacitors; with fast start-up disabled the ramp would take about 2.3 × R × C = 0.3 s, and the PGFB dividers (which also set the power-good threshold) keep fast start-up enabled.
 * **Power good:** PGP and PGN are open-collector and pull *low* when bad. A plain pull-up to +3V3 would read "good" with no power, so each pin gets its own node fed from +15 V (`PGP_15V`, `PGN_15V`: 220 kΩ / 62 kΩ, about 3.2 V); with its rail missing a node reads under 0.3 V, which relies on the weak PG_15V pull-up below. PGFBP / PGFBN dividers (432 kΩ / 10 kΩ) trip at about 13.3 V (90 %).
-* **One LED per PG pin:** each node gates a BSS138W (SOT-323) that pulls a green 0402 LED (1 kΩ to +3V3) low: D24 = +15 V, D25 = −15 V. A BAT54AW (common anode, SOT-323) with a 470 kΩ pull-up to +3V3 (10 kΩ lifted dead nodes to 2.2 V through their 62 kΩ dividers and read good) ANDs the two nodes into `PG_15V`, so the interlock and flag are unchanged: Schottky forward drop plus the pin's saturation voltage keeps PG_15V well under the BSS138's 0.8 V minimum threshold whenever either node is low.
+* **One LED per PG pin:** each node gates a BSS138W (SOT-323) that pulls a green 0402 LED (1 kΩ to +3V3) low: D20 = +15 V, D21 = −15 V. A BAT54AW (common anode, SOT-323) with a 470 kΩ pull-up to +3V3 (10 kΩ lifted dead nodes to 2.2 V through their 62 kΩ dividers and read good) ANDs the two nodes into `PG_15V`, so the interlock and flag are unchanged: Schottky forward drop plus the pin's saturation voltage keeps PG_15V well under the BSS138's 0.8 V minimum threshold whenever either node is low.
 * **Interlock:** Q9, a second BSS138 in series with the amplifier REM level shifter's source, is gated by `PG_15V`; REM cannot turn on without both rails. Q10 (BSS138W) buffers `PG_15V` into the active-low `PG_15V_N` flag on GPIO43 (1 kΩ series resistor; GPIO47/48 are 1.8 V on this module). The amplifier module logs every change of `PG_15V_N`.
-* **Reference numbers:** U21 is the LT3097 and U22 is retired; new parts take numbers above the old highest (R101-R111, Q9-Q12, D23-D25) so no other reference changed.
+* **Reference numbers:** U21 is the LT3097 and U22 is retired; new parts took numbers above the old highest, so no other reference changed at that time.
 * **PCB (done 2026-10-20):** regenerated and routed with Freerouting 2.5.0, then cleaned with `tools/fix_route.py` (see README). Module boxes changed: ±15 V +2 mm down, COLD HEAD TEMP 0.3 mm wider, U16 2 mm lower; the new `power_good` sheet lives in the RAILS ±15V box, in its free bottom-left corner next to the LT3097 it indicates (0402 resistors, SOT-323 FETs and one BAT54AW keep it small; its parts are placed last, and the box's own passives and debug LEDs are frozen at their previous positions in `PLACEMENT`, so adding it moved nothing else), Q9 beside the REM FETs. The LT3097's same-net 0.5 mm-pitch pads are joined by 0.2 mm `PAD_BRIDGES` stubs and its GND pad vias are pre-placed. DRC: 0 unconnected, 0 schematic-parity issues, no copper violations (remaining: the old TP24 / U1 courtyard overlap, silkscreen warnings, one dangling 0.2 mm stub). Gerbers, the JLCPCB zip, renders, BOM and CPL were regenerated. **Not checked:** pad 24 (INN, -16.5 V) clearance to ground copper beyond what DRC covers, and the 22 µF / 50 V parts' real capacitance at 15 V.
 * **Other open items:** LT3097 availability and price, and the 1 µF / 50 V part number, are unchecked. Bench: rails read about ±14.7 V, PG rises only after both are good, pulling JP2 drops it and REM cannot be switched on.
 
@@ -189,11 +191,11 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 
 Driven by the rev 1 bench results in `hardware/TODO.md`.
 
-* **R6 (sine gain stage):** 51k → 22k ∥ 1 nF C0G (the bench fix): gain 7.67, about 2.3 V pk at Vctl = 10 V, pole near 7 kHz. The sim project mirrors it.
+* **R45 (sine gain stage):** 51k → 22k ∥ 1 nF C0G (the bench fix): gain 7.67, about 2.3 V pk at Vctl = 10 V, pole near 7 kHz. The sim project mirrors it.
 * **J3 / J4 (2026-11-03):** right-angle 2.54 mm 3+1 PC fan headers replace JST XH, so standard fan plugs fit. Same pinout (GND, +12V, TACH, PWM). No maker drawing or current rating exists for the part; dimensions come from a CAD model.
 * **J5 (2026-11-03):** Wurth 61900311021, right-angle 3-pin locking header, 3 A, replaces JST XH (datasheet rev 002.000).
 * **J6 / J7 / J13 (2026-11-03):** Sullins SWR25X-NRTC-S02-RB-BA, right-angle 2-pin, 3 A, replaces the Adafruit 1769 JST PH. Cables need SWH25X housings.
-* **R6 (superseded 2026-11-03):** feedback is now R6 47k + R170 2.4k in series (49.4k), with the 1 nF across both: gain 15.97, pole near 3.2 kHz. Bench: 51k gave 10.3 Vpp at Vctl = 10 V, so 49.4k should give about 10.0 Vpp (scaled, not yet measured). Swap R170 to trim.
+* **R45 (superseded 2026-11-03):** feedback is now R45 47k + R122 2.4k in series (49.4k), with the 1 nF across both: gain 15.97, pole near 3.2 kHz. Bench: 51k gave 10.3 Vpp at Vctl = 10 V, so 49.4k should give about 10.0 Vpp (scaled, not yet measured). Swap R122 to trim.
 * **LT8582 replaces the ADP5071** (datasheet `dev/8582f.pdf`, the p.30 "5V to ±12V" circuit at 1.5 MHz, RT 53.6k). VIN1/2 and SHDN1/2 tie to `+5V_PS15` (as on p.32), SYNC1 grounded, CLKOUT1 → SYNC2, GATE1/2 unused (no output-disconnect PMOS). RFBX1 = (16.4 − 1.204) / 83.3 µA = 182k, RFBX2 = (16.5 + 0.007) / 83.3 µA = 198k. Boost L 4.7 µH (XAL6060-472, L_MIN about 2.8 µH at duty 0.72). Inverting: the datasheet's subharmonic limit at duty ≈ 0.80 is L ≥ 5.6 µH (L_MAX about 14 µH), so the coupled inductor is a 10 µH **MSD7342-103** (windings 1-3 / 2-4, dots at VIN and VOUT as in the datasheet), C1 2.2 µF / 50 V (sees VIN + |VOUT|), DFLS240 clamp with its anode on node X. **Not verified:** the VC compensation (datasheet ±12 V values) at ±16.5 V; check both loops' transient response on the bench.
 * **Power-good flags:** LT8582 PG1 / PG2 (open drain, 0.5 mA max) pull 20k / 39k nodes from `+5V_PS15` (0.25 mA sink, 3.3 V when good, 0 V when unpowered). The four flags (LT3097 PGP / PGN, LT8582 PG1 / PG2) go to SC18IS604 GPIO1-4 (GPIO4 is input-only; all GPIOs power up as inputs, datasheet Table 4/5). The bridge runs from `+3V3_COOL`, so with JP4 removed the flags cannot be read. The `PG_15V` interlock and `PG_15V_N` on GPIO43 are unchanged.
 * **Display:** Phoenix DCT T 2,4 QVGA S RTOUCH (datasheet 109921): ST7789V, 4-wire SPI half duplex, VCC 2.6-3.3 V (3.6 V abs max), FH12-14S-0.5SH, pins 1-4 raw resistive touch (YU, XL, YD, XR). The backlight is 4 parallel LEDs at 3.0 V / 60 mA: +5 V through 39 Ω (0805), low-side BSS138 switched by bridge GPIO0 with a 100k pull-down (off until the firmware enables it). Touch: TSC2046E (TI SBAS417B) on the shared bus; DOUT and BUSY are high-Z with CS high, internal VREF needs no bypass, VBAT / AUX grounded. GPIO45 (touch CS) and GPIO46 (display RESET) are strapping pins: 10k pull-downs keep their default levels. **Open:** whether pin 1 of the display's FFC lands on pin 1 here depends on the cable's contact sides (same-side vs opposite); check against the cable before ordering.
@@ -218,7 +220,7 @@ Three SOIC-8 parts move to smaller packages at the same board centres, front sid
 * **U32:** SN74LVC138APWR (TSSOP-16) → SN74LVC138ARGYR (RGY VQFN-16, 3.5x4 mm), same centre and rotation. Pins 1-16 keep their functions (TI SCAS291). KiCad's stock RGY footprint covers TI's RGY0016A land pattern: EP 2.05x2.55, pads extend 0.2 mm further out.
 * **Exposed pad:** tied to GND with one 0.2 mm drill via. TI requires it soldered but this datasheet doesn't name a net; G2B (pin 5) and GND (pin 8) join it on F.Cu.
 * **Silk:** the `138` part name is gone, because the exposed pad leaves no room for it.
-* **Board:** `tools/u32_rgy_board.py`. The chip-select nets total 50 vias and 514 mm, was 49 and 510. C132 is 4.4 mm from pin 16, was 3.1.
+* **Board:** `tools/u32_rgy_board.py`. The chip-select nets total 50 vias and 514 mm, was 49 and 510. C42 is 4.4 mm from pin 16, was 3.1.
 
 ## U27 in VQFN (2026-11-05)
 
@@ -226,5 +228,19 @@ Three SOIC-8 parts move to smaller packages at the same board centres, front sid
 * **ESD:** the part rates X+, X-, Y+ and Y- to ±15 kV IEC contact, so no TVS is added. TSC2046IRGVR is the active fallback: same pins and footprint, but no IEC rating.
 * **Exposed pad:** tied to GND with one via, joined to pins 10-12 on B.Cu. TI says analog ground or floating, kept off digital ground if possible; this board has one GND.
 * **Footprint:** stock Texas_RGV0016A covers TI's RGV0016A land pattern (drawing in the INA3221 datasheet; the TSC2046E sheet only shows the outline). EP 2.1 vs (2.16), pads extend further out.
-* **Decoupling:** C122 (100 nF) moves to (52.7, 11.6) with `tools/c122_move.py`, 3.2 mm from pin 14 and 7.1 mm from pin 5, was 9.1 and 8.2. C123's reference is hidden because there is no room for it.
+* **Decoupling:** C39 (100 nF) moves to (52.7, 11.6) with `tools/c122_move.py`, 3.2 mm from pin 14 and 7.1 mm from pin 5, was 9.1 and 8.2. C48's reference is hidden because there is no room for it.
 * **Board:** `tools/u27_rgv_board.py`. Pads 2, 3, 7 and 15 are via-in-pad. Rotation stays 0, so SPI moves to the west side and the panel lines to the north, and SPI_SCK / SPI_MOSI gain 4 and 2 vias.
+
+## TL6800AF260QJ power button (2026-11-05)
+
+* **SW3:** TL3342F160QG → E-Switch TL6800AF260QJ. SPST, 50 mA / 12 VDC (same rating), 260 gf, 500,000 cycles, IP67, 3.1 mm high.
+* **Land pattern:** datasheet Recommended PCB Layout, 9.5 x 5.4 mm overall with a 4.0 x 2.6 mm inner gap, so four 2.75 x 1.4 mm pads at (±3.375, ±2.0). The footprint is our own, `SW_E-Switch_TL6800AF`.
+* **Pins:** the datasheet joins 1-2 and 3-4. As on the stock TL3342 footprint, pads "1" are pins 1 and 2 and pads "2" are pins 3 and 4, to match `Switch:SW_Push`.
+* **Circuit:** unchanged, contact from LTC2954 PB and J7 pin 1 to GND.
+
+## PTS810SJM250SMTR LFS reset and boot buttons (2026-11-05)
+
+* **SW1, SW2:** TL3342F160QG → C&K PTS810SJM250SMTR LFS (Littelfuse datasheet rev 02/02/26). SPST NO, 50 mA / 16 VDC, ≤ 500 mΩ, 1.6 N ± 0.5, 150,000 cycles, grey actuator, 2.5 mm high, listed as available for ordering.
+* **Land pattern:** datasheet Recommended PCB Layout, 5.2 x 2.8 mm overall with a 3.1 x 1.5 mm inner gap, so four 1.05 x 0.65 mm pads at (±2.075, ±1.075). The footprint is our own, `SW_CK_PTS810`.
+* **Pins:** the datasheet joins 1-2 and 3-4. Pads "1" are pins 1 and 2, pads "2" are pins 3 and 4, as on SW3.
+* **Circuit:** unchanged, contact from ESP_EN (SW1) or ESP_BOOT (SW2) to GND.

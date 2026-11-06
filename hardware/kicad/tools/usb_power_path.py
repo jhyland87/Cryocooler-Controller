@@ -1,6 +1,6 @@
-"""Adds the USB power path to the routed board: U28 / U29 (LM66100 pair), R171,
-C126 and TP43 / TP44 on the bottom below U16, and splits +5V so U16, the DDS,
-JP3 and the backlight sit on +5V_OR. C41 moves to +5V_OR, so C42 grows to 22 uF.
+"""Adds the USB power path to the routed board: U28 / U29 (LM66100 pair), R24,
+C49 and TP43 / TP44 on the bottom below U16, and splits +5V so U16, the DDS,
+JP3 and the backlight sit on +5V_OR. C65 moves to +5V_OR, so C66 grows to 22 uF.
 
 Leaves the new connections open: run `gen_pcb.py link`, then `gridroute.py` on
 the DRC report. The coordinates fit the route committed with this file.
@@ -18,9 +18,9 @@ SELECT = '/Rails 5V 3V3/USB_SEL'
 VBUS = 'USB_VBUS'
 # ref -> pad -> net, for parts already on the board
 MOVED_PADS = {
-    'U16': {'3': FEED}, 'C41': {'1': FEED}, 'U3': {'1': FEED, '4': FEED},
-    'U4': {'2': FEED}, 'C13': {'1': FEED}, 'C14': {'1': FEED}, 'C15': {'1': FEED},
-    'C8': {'1': FEED}, 'R166': {'1': FEED}, 'JP3': {'1': FEED},
+    'U16': {'3': FEED}, 'C65': {'1': FEED}, 'U3': {'1': FEED, '4': FEED},
+    'U4': {'2': FEED}, 'C10': {'1': FEED}, 'C11': {'1': FEED}, 'C3': {'1': FEED},
+    'C58': {'1': FEED}, 'R121': {'1': FEED}, 'JP3': {'1': FEED},
 }
 # (ref, value, source footprint or (library, name), x, y, rotation, pad nets)
 NEW_PARTS = (
@@ -28,9 +28,9 @@ NEW_PARTS = (
      {'1': '+5V', '2': 'GND', '3': VBUS, '4': 'unconnected-(U28-NC-Pad4)', '5': SELECT, '6': FEED}),
     ('U29', 'LM66100', ('Package_TO_SOT_SMD', 'SOT-363_SC-70-6'), 27.0, 82.0, 0,
      {'1': VBUS, '2': 'GND', '3': SELECT, '4': 'unconnected-(U29-NC-Pad4)', '5': 'GND', '6': FEED}),
-    ('R171', '10k', ('Resistor_SMD', 'R_0402_1005Metric'), 30.0, 77.5, 90,
+    ('R24', '10k', ('Resistor_SMD', 'R_0402_1005Metric'), 30.0, 77.5, 90,
      {'1': SELECT, '2': '+5V'}),
-    ('C126', '1uF', ('Capacitor_SMD', 'C_0603_1608Metric'), 30.0, 82.0, 90,
+    ('C49', '1uF', ('Capacitor_SMD', 'C_0603_1608Metric'), 30.0, 82.0, 90,
      {'1': VBUS, '2': 'GND'}),
     ('TP43', 'VBUS', 'TP42', 30.5, 85.2, 0, {'1': VBUS}),
     ('TP44', '5V_OR', 'TP42', 27.0, 85.6, 0, {'1': FEED}),
@@ -135,12 +135,12 @@ def main():
     drop.SetNet(five)
     board.Add(drop)
 
-    # C42 becomes the second 22 uF buck output cap: 1206, pad 1 stays on the +5V track
-    old = board.FindFootprintByReference('C42')
+    # C66 becomes the second 22 uF buck output cap: 1206, pad 1 stays on the +5V track
+    old = board.FindFootprintByReference('C66')
     grounded = old.FindPadByNumber('2').GetNetname()
     board.Delete(old)
     big = add_part(('Capacitor_SMD', 'C_1206_3216Metric'), board)
-    big.SetReference('C42')
+    big.SetReference('C66')
     big.SetValue('22uF/10V')
     big.SetOrientationDegrees(90)
     big.SetPosition(pcbnew.VECTOR2I(MM(29.575), MM(65.0)))
@@ -155,7 +155,7 @@ def main():
         set_pad_nets(footprint, nets, board)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(path)
-    for ref in ('C42', 'U28', 'U29', 'R171', 'C126'):
+    for ref in ('C66', 'U28', 'U29', 'R24', 'C49'):
         print(ref, [(pad.GetNumber(), spot(pad.GetPosition()), pad.GetNetname())
                     for pad in board.FindFootprintByReference(ref).Pads()])
 

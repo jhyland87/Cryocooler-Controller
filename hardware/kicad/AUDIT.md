@@ -18,7 +18,7 @@ Gerber package in `fabrication/` is still valid.
 | Netlist vs PCB pad nets | 807 / 807 match |
 | ERC / DRC | 0 / 0 errors, 0 unconnected |
 | Rails distinct (VIN, VSW, +12V, +5V, +3V3, ±15V, ±16V5, ISO_3V3, GND, ISO_GND, USB_VBUS) | all present as separate nets, none merged |
-| Polarized caps (C6, C43, C71) | pin 1 (+) on the positive rail |
+| Polarized caps (C54, C68) | pin 1 (+) on the positive rail |
 | Isolation spacing | ISO_GND vs GND zones 1.5 mm on every layer; ISO-domain copper at least 2 mm from logic copper on F.Cu and B.Cu |
 | LED and diode orientation, FET pin order (BSS138/BSS84 SOT-23, IRF4905S D2PAK) | correct |
 
@@ -57,11 +57,11 @@ BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C recepta
 1. **Documentation error (fixed):** `DESIGN_REVIEW.md` claimed the ESP32 could drive the INA239 while
    12 V was absent because it is "USB-powered". It is not: USB VBUS feeds only the ESD clamp and a
    4.7 uF cap, and the ESP32 runs from the 3V3 rail, so the MCU and the INA239 lose power together.
-2. **BOM: shunt power.** R65, the 15 mOhm shunt in an R2512 footprint, dissipates about 1.5 W at
+2. **BOM: shunt power.** R98, the 15 mOhm shunt in an R2512 footprint, dissipates about 1.5 W at
    10 A. Order a 2 W or 3 W part (a 1 W part is fine up to about 8 A).
 3. **BOM: voltage ratings.** Many capacitor values carry no voltage rating. Order at least 25 V parts
    on the 12 V and +/-15 V rails, 50 V where the schematic says so (+/-16.5 V), and 10 V or more on
-   5 V and 3.3 V. Consider 35 V for C6 (100 uF on VIN): the TVS clamps at about 26 V, above its 25 V.
+   5 V and 3.3 V. Consider 35 V for C54 (100 uF on VIN): the TVS clamps at about 26 V, above its 25 V.
 4. **Missing pull-ups (low risk):** MCP4921_CS and AD9833_FSYNC have none, so they float while the
    ESP32 resets. No clock runs then, so nothing is written, but 10 kOhm pull-ups would be cleaner on
    the next board revision.

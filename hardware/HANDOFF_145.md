@@ -5,6 +5,16 @@ LT3097 rails, the display, the RJ45 IMU jack, 0402 parts and named test points. 
 is on the 120 x 100 mm PCB for the Phoenix UCS 145-125 housing. All items in `TODO.md` are
 done.
 
+## Reference renumbering (2026-11-05)
+
+R, C and D references are renumbered so parts with the same MPN are consecutive, which keeps order customer references short (`C6-C42`). No part, position, track or connection changed.
+
+- **Map:** `tools/ref_map.py` has old to new. `gen_schematic.py` still allocates its old numbers internally and applies the map when it writes the sheets, so its comments use old numbers. New parts keep their allocated number, above the mapped range.
+- **Board:** `tools/renumber_refs.py board` renamed the footprints and auto-named nets; `tools/renumber_silk.py` moved the references of R45, R44 and C41 off part outlines.
+- **Tools and docs:** board scripts and this file use the new numbers. Old R, C and D numbers remain in `HANDOFF_rev2.md`, the `gen_schematic.py` comments and any commit before this change.
+- **BOM:** `gen_bom.py` now has one line per MPN, and Customer Reference shortens runs of three or more to a range. The JLCPCB files still list every designator.
+- **Rev 1 boards:** a built board keeps its old silk, so use the map when reading one.
+
 ## State (2026-11-04)
 
 - **Schematic:** ERC 0, all datasheet rules pass, BOM regenerated.
@@ -54,7 +64,7 @@ done.
   capped vias; see `kicad/fabrication/README.md`.
 - **Switch nodes:** SW1, SW2 and the inverting node X are priority-3 copper pours
   (`hand_route.py sw_nodes`). SW1 is one solid pour from U20 pins 1 / 24 to D5 and L2; SW2
-  is a ~1 mm strip from pin 13 to L3 plus a B.Cu pour to C59. Pin 12's link under the
+  is a ~1 mm strip from pin 13 to L3 plus a B.Cu pour to C76. Pin 12's link under the
   exposed pad stays narrow (~0.28 mm): the pad and a +5V_PS15 track bound it.
 - **U20 exposed pad:** 15 GND vias now (was 1), capped via-in-pad.
 - **J14 mouth past the edge:** the jack face is 4.37 mm in front of its locating holes, so as
@@ -67,19 +77,19 @@ done.
   fab files re-exported with it are in the next commit, because a commit can't contain its own hash.
   Restamp it after any later board change.
 - **Labels left out (no room):**
-  - silk labels for J9, D4, D7 and D17;
+  - silk labels for J9, D3, D7 and D14;
   - some ESP32 pin names;
   - the reference designators that silk_fix hid.
 
 ## Sine gain feedback (2026-11-03)
 
-R6 (47k) + R170 (2.4k) in series replace the 22k, both 0402 on B.Cu beside U5; C121 (1 nF) stays across both. Done on the routed board with `tools/split_r6.py`, so re-running `gen_pcb.py route` needs that edit redone. Reference text for both is hidden (no silk room): R170 is the vertical one west of R6.
+R45 (47k) + R122 (2.4k) in series replace the 22k, both 0402 on B.Cu beside U5; C84 (1 nF) stays across both. Done on the routed board with `tools/split_r6.py`, so re-running `gen_pcb.py route` needs that edit redone. Reference text for both is hidden (no silk room): R122 is the vertical one west of R45.
 
 ## Silk text width (2026-11-03)
 
 All silk text is 0.9 mm wide by 1.0 mm high with unchanged stroke widths (`tools/narrow_silk.py`, and `SILK_WIDTH_RATIO` in `gen_pcb.py` for new boards). Height stays at JLCPCB's standard 1.0 mm minimum. Width stops at 0.9 because narrower text loses letter gap: pairs under JLCPCB's 0.15 mm gap go from 54 at full width to 63 at 0.9, 201 at 0.85 and 246 at 0.8. Some of those 63 are tight already (the "LA" in RELAY is 0.024 mm, and was 0.043 mm at full width).
 
-The script also showed the hidden references that now fit beside their parts: D18, D21, J3, J4, J5, J6, J13 and R6. 40 others stay hidden (plus U1, which the script skips), and test points still print net names instead.
+The script also showed the hidden references that now fit beside their parts: D15, D18, J3, J4, J5, J6, J13 and R45. 40 others stay hidden (plus U1, which the script skips), and test points still print net names instead.
 
 ## Label placement (2026-11-03)
 
@@ -101,7 +111,7 @@ J3, J4, J5, J6, J7 and J13 are right-angle through-hole headers on the routed bo
 Open points:
 
 - **Plugs past the edge:** tabs stop at the edge, so the plug and wires sit outside the board. Check the openings in the housing wall.
-- **J7 / J13 spacing:** bodies are 0.68 mm apart (moved west to clear D12 and Q7), so check two plugs fit side by side.
+- **J7 / J13 spacing:** bodies are 0.68 mm apart (moved west to clear D4 and Q7), so check two plugs fit side by side.
 - **CO975 not verified:** no maker drawing, pin material or current rating; check a real part's hole fit and the fan and pump current before ordering boards. Pins 1-3 share the key tab and pin 4 (PWM) is the separate pin.
 - **Plug fit:** J5's locking plate has not been tried with the Alphacool plug, and J6 / J7 / J13 need SWH25X housings on the cables.
 - **Plate width:** the J5 and J6 / J7 / J13 drawings show other position counts, so these plates are estimated. PANEL sits beside J7's estimated plate but within its body width, so a full-width plate would cover it.
@@ -124,13 +134,13 @@ Open points:
 
 ## USB-only power (2026-11-04)
 
-USB VBUS can now run the logic side with no 12 V. U28 / U29 (LM66100, SLVSEZ8A Fig. 17) feed a new rail, `+5V_OR`, from `+5V` or `USB_VBUS`; U28's ST with R171 holds U29 off while `+5V` feeds it, and the inputs cannot back-feed each other.
+USB VBUS can now run the logic side with no 12 V. U28 / U29 (LM66100, SLVSEZ8A Fig. 17) feed a new rail, `+5V_OR`, from `+5V` or `USB_VBUS`; U28's ST with R24 holds U29 off while `+5V` feeds it, and the inputs cannot back-feed each other.
 
-- **On `+5V_OR`:** U16 (so all of +3V3), the DDS (U3, U4), the display backlight (R166) and JP3 (isolated supply).
-- **Stays off on USB alone:** `+5V` and what hangs on it: the +-15 V stage (JP2), U24 / D11 (status LED), R39, R80, R86.
+- **On `+5V_OR`:** U16 (so all of +3V3), the DDS (U3, U4), the display backlight (R121) and JP3 (isolated supply).
+- **Stays off on USB alone:** `+5V` and what hangs on it: the +-15 V stage (JP2), U24 / D22 (status LED), R80, R81, R47.
 - **Why the DDS moved:** U4 shares SPI with +3V3 parts, so it would otherwise be driven while unpowered.
-- **C41 / C42:** C41 (22 uF) is now U16's input cap. C42 grew from 10 uF 0805 to 22 uF 1206 to stay the buck's second output cap.
-- **Parts:** U28, U29, R171, C126, TP43 (VBUS), TP44 (5V_OR), all on the bottom below U16. R171's and some other references are hidden.
+- **C65 / C66:** C65 (22 uF) is now U16's input cap. C66 grew from 10 uF 0805 to 22 uF 1206 to stay the buck's second output cap.
+- **Parts:** U28, U29, R24, C49, TP43 (VBUS), TP44 (5V_OR), all on the bottom below U16. R24's and some other references are hidden.
 
 Applied to the routed board in this order, so a full `gen_pcb.py route` needs them redone:
 
@@ -156,7 +166,7 @@ Open points:
   (x 9.5) to F1, which did not move.
 - **J9 / J8:** J9 up 3.3 mm to y 63.0; J8 between J9 and J2 at y 72.4 / 74.94. Q21 moved 2 mm east.
 - **J3 / J4:** side by side on the bottom wall, pin 1 at x 80.5 and x 92.2. U10 moved up 2.5 mm so
-  J4's pins clear it, with R14, C24 and TP30; D2 is now above J4, and R20, R21, C27 are behind it.
+  J4's pins clear it, with TP30 and parts since removed (old R14, C24, D2), and R5, R61, C62 are behind it.
 - **J11 / J12:** TE 2305908-2 at y 21 and 2305908-3 at y 33.5. The 5.5 mm pads would hit U18 pins
   5-8 at J11's old height, so J11 moved below U18. J11 + runs up the wall to pins 1-4; J12 + rises at
   x 15.4 to pins 5-8. J11 - and J12 - have a 2 mm F.Cu link at x 7, because SMT pads no longer tie the
@@ -196,12 +206,12 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 
 `tools/audit_fixes_board.py` on the routed board, then `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`. Design commit `caa5c7b`, stamped on the board in the commit after it.
 
-- **PG_15V:** R161 is 470k. At 10k it lifted dead PGP / PGN nodes to about 2.2 V, so REM unblocked and GPIO43 read good with no rails. Not yet measured on a board. If the negative side alone dies and PGN floats, R155 still feeds that node from +15V, so the hardware interlock may pass.
-- **USB_VBUS:** R180 (100k to GND) stops U28 CE floating with USB unplugged.
+- **PG_15V:** R120 is 470k. At 10k it lifted dead PGP / PGN nodes to about 2.2 V, so REM unblocked and GPIO43 read good with no rails. Not yet measured on a board. If the negative side alone dies and PGN floats, R76 still feeds that node from +15V, so the hardware interlock may pass.
+- **USB_VBUS:** R44 (100k to GND) stops U28 CE floating with USB unplugged.
 - **U15 switch node:** 0.4 mm on F.Cu, the existing 0.6 mm via, 1 mm on In2, two vias in L1 pad 1. The BST via and In2 USB_VBUS limit the width.
 - **U16:** a 21 mm2 +3V3 pour east of the tab, six vias to the In2 pour.
-- **Rail caps:** GRM32ER71E226KE15L (25 V X7R), since no 22 uF / 50 V X7R 1210 could be sourced. C129, C130, C131 double +15V, -15V and -16V5. +16V5 stays single (no nearby room; LT3097 INP needs 4.7 uF). DC bias not confirmed against the maker's curve; check the LT8582 loops on the bench.
-- **R44:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
+- **Rail caps:** GRM32ER71E226KE15L (25 V X7R), since no 22 uF / 50 V X7R 1210 could be sourced. C73, C74, C75 double +15V, -15V and -16V5. +16V5 stays single (no nearby room; LT3097 INP needs 4.7 uF). DC bias not confirmed against the maker's curve; check the LT8582 loops on the bench.
+- **R82:** RT0402BRD073K9L (0.1 %). `PT1000_REF_R` is still 3854; set it to the measured value.
 - **Still open before ordering:** J15 contact side, J11 / J12 terminal block stock (distributors list 2305908-3 obsolete).
 
 ## SPI chip-select decoder (2026-11-05)
@@ -209,19 +219,29 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 Branch `spi-cs-decoder`. U32 (SN74LVC138A) at (92, 33) replaces the eight CS GPIOs; design notes are in `kicad/DESIGN_REVIEW.md`. Not bench-tested.
 
 - **Pipeline on the committed board:** `cs_decoder_board.py`, `gen_pcb.py link`, `gridroute.py`, `cs_decoder_finish.py` (no flag), `octilinear.py`, `cs_decoder_finish.py --ground` (ground ties, TP41 out), `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`, `cs_decoder_silk.py`. Later edits were small one-off moves whose final values are recorded in the scripts, so a replay may need touch-up.
-- **Via-in-pad:** U32 exposed pad (RGY package) and D10 pad 1. Inner traces 0.9 mm apart leave no room beside D10.
-- **+3V3 loop:** the feed to R182 and R181 runs out to x 99.6 so R183 pad 1 can reach a via at (98.71, 34.4).
+- **Via-in-pad:** U32 exposed pad (RGY package) and D8 pad 1. Inner traces 0.9 mm apart leave no room beside D8.
+- **+3V3 loop:** the feed to R28 and R27 runs out to x 99.6 so R29 pad 1 can reach a via at (98.71, 34.4).
 - **Silk:** hand-placed around U32; re-running `silk_fix.py` may hide those labels, so run `cs_decoder_silk.py` again afterwards.
 - **Part stock:** U32 is now SN74LVC138ARGYR, and its stock has not been checked (the earlier look at cached pages was for the TSSOP SN74LVC138APWR). Check live before ordering.
 - **U32 / U27 3D models:** TI's `RGY0016A.stp` (`dev/SN74LVC138ARGYR`) and `RGV0016B.stp` (`dev/TSC2046EIRGVT`), no licence terms in the downloads, gitignored as `lib/cryocooler.3dshapes/RGY0016A.step` and `RGV0016B.step`. Copy them there to render; without them the parts have no 3D body. Neither needs an offset or rotation.
+
+## Tact switches: TL6800 and PTS810 (2026-11-05)
+
+SW3 is now the E-Switch TL6800AF260QJ; SW1 and SW2 are the C&K PTS810SJM250SMTR LFS. Pipeline: `tools/sw3_tl6800_board.py`, `tools/sw1_sw2_pts810_board.py`, `gen_pcb.py link`.
+
+- **SW3:** same centre (27, 95.8). No track or via changed, because the new pads cover the old pad centres. `SW3` moved to (24.4, 91.7) and J7's `POWER` label to (32.45, 94.85).
+- **SW1:** centre (66.5, 10.425), was y 11. DISP_RST (y 10.9) runs between the pad rows, under the body, with 0.175 mm to the bottom row. TOUCH_CS moved down to y 12.35, where the old GND track was. The bottom row reaches GND through a new via at (69.55, 11.6).
+- **SW2:** centre (66.5, 17.675), was y 18.5. The top row sits on the ESP_BOOT track and the existing via is clear under the body; the bottom row drops to the GND track at y 20.4.
+- **3D models:** gitignored in `lib/cryocooler.3dshapes/`, copied from `dev/`: `TL6800AFxxxQJ.step` and `PTS810SJM250SMTR-LFS.step`. Without them the parts have no 3D body. The PTS810 file is C&K's `PTS810SJS250` model: same shape per the datasheet, but it renders white and the SJM actuator is grey.
+- **Force and height:** RESET and BOOT are 1.6 N, power is 260 gf (about 2.5 N). Check the PTS810's 2.5 mm height and the TL6800's 3.1 mm height against any panel or enclosure access; neither was checked.
 
 ## 12 V copper for 4 A (2026-11-05)
 
 Planning load: 3 PWM fans 0.45-0.9 A, D5 pump 1.3-1.8 A (rarely 2 A), U15 up to about 0.9 A, so 4 A total and about 3 A east of U15. `tools/power_12v_rework.py` added:
 
 - **VIN, F1 to Q1:** 1.2 mm on F.Cu / B.Cu with 3-via groups, in parallel with the old In2 run, which stays and feeds the VIN branches.
-- **VSW, Q1 to R65:** 1.4 mm F.Cu strip from pin 2 to the tab, three 0.35 mm drill vias in R65 pad 1 (filled / capped).
-- **+12V, R65 to the U15 junction:** 1.2 mm on B.Cu / F.Cu with a 3-via group. The old In2 run here is removed; it stayed at 0.8 mm and would have taken about half the current. R66's sense tap stays on In2 north of (40.16, 60.72).
+- **VSW, Q1 to R98:** 1.4 mm F.Cu strip from pin 2 to the tab, three 0.35 mm drill vias in R98 pad 1 (filled / capped).
+- **+12V, R98 to the U15 junction:** 1.2 mm on B.Cu / F.Cu with a 3-via group. The old In2 run here is removed; it stayed at 0.8 mm and would have taken about half the current. R99's sense tap stays on In2 north of (40.16, 60.72).
 - **U15 junction and (56.48, 85.52):** 3 vias each.
 - **J5 to J3 to J4:** 1.0 mm on F.Cu in parallel with the In2 runs.
 
@@ -232,7 +252,7 @@ Resistor-network solve of the copper with IPC-2221 rises at 4 A total (U15 0.9, 
 The panel's ribbon leaves its lower edge heading toward the top of the board, so J15's opening now faces into the board and J15 and J1 have swapped places.
 
 - **J15:** (53.2, 4), rotation 0. Pin 1 is now on the west side. Cable width takes x 49-57 and has about 6.8 mm of runway before U7.
-- **J1:** x 32.5 (was 54.3), with U2, R3, R4, C5. U27, C123, C124, R168, TP42 moved 20 mm east with J15. Display resistors and Q25 stayed at x 39-47.
+- **J1:** x 32.5 (was 54.3), with U2, R30, R31, C50. U27, C48, C40, R168, TP42 moved 20 mm east with J15. Display resistors and Q25 stayed at x 39-47.
 - **Sections:** the wall moved from x 47.5 to x 38. `DISPLAY` is x 38-60; J1's box is a separate piece of `MCU & USB` (`pcbfloorplan.py`).
 - **Route:** `tools/swap_usb_display.py`, `gridroute.py`, `swap_usb_display.py ... finish`, silk steps, `swap_usb_display.py ... silk`. An F.Cu +3V3 bridge at (49.9-52, 7.6-8.7) rejoins the In2 pour split by the new routes.
 - **Housing:** J1's wall cut-out moves 21.8 mm left, and any J15 cable slot needs re-checking.

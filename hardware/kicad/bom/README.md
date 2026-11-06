@@ -53,20 +53,20 @@ preview on the order page and put any fixes in `ROTATION_OFFSETS` (footprint -> 
 
 ## Notes that affect what you order
 
-* R65, the 15 mOhm shunt, dissipates about 1.5 W at 10 A: use 2 W or more (WSL2512R0150FEA18 is 2 W).
+* R98, the 15 mOhm shunt, dissipates about 1.5 W at 10 A: use 2 W or more (WSL2512R0150FEA18 is 2 W).
 * U3 (SG-8002CA) is listed as not for new designs at Digi-Key; it is the part the schematic uses.
 * L1 is ordered as the shielded Bourns SRP6050CA-4R7M (4.7 uH, 18.4 mOhm max, Isat 10.5 A) instead of the
   SRN6045TA-4R7M the footprint was drawn for. Its terminals (about 1.25-2.65 mm from centre) land inside the
   2.35 x 5.1 mm pads and the 6.6 x 6.4 mm body fits the courtyard, but the footprint is unchanged: solder the
   first one by hand and check it. The schematic value and `cryocooler_bom_full.csv` still say SRN6045TA.
-* D11 uses Adafruit 1655 because Digi-Key has no WorldSemi WS2812B; Adafruit says it is hand-solder only.
-* C68 (100 pF C0G): Digi-Key marks the Samsung CL31C101JBCNNNC obsolete; use Kemet C1206C101J5GACTU or similar.
-* D3, D4, D12 (bicolor): SunLED XZMDKVG55W-4, a 2-pin anti-parallel 1206 part; check the standby LED's current stays under 30 mA.
+* D22 uses Adafruit 1655 because Digi-Key has no WorldSemi WS2812B; Adafruit says it is hand-solder only.
+* C81 (100 pF C0G): Digi-Key marks the Samsung CL31C101JBCNNNC obsolete; use Kemet C1206C101J5GACTU or similar.
+* D2, D3, D4 (bicolor): SunLED XZMDKVG55W-4, a 2-pin anti-parallel 1206 part; check the standby LED's current stays under 30 mA.
 * F1 is the Littelfuse NANO2 453 5 A fast-acting fuse (2410 footprint); no 5 A fast-acting fuse exists in 1812.
-* R44 (3.9 k, the ADS1220 reference resistor) is a 0.1 % 25 ppm part; measure it and set
+* R82 (3.9 k, the ADS1220 reference resistor) is a 0.1 % 25 ppm part; measure it and set
   `PT1000_REF_R` in `include/config/config.h` (it is 3854 now).
 * Capacitor voltage ratings: 25 V parts on the 12 V, +/-15 V and +/-16.5 V rails (no 22 uF / 50 V X7R 1210 could be sourced; check the DC-bias curve of GRM32ER71E226KE15L: the LT3097 needs 10 uF effective at 15 V), and
-  consider 35 V for C6 on the input rail.
+  consider 35 V for C54 on the input rail.
 * U10: check the EMC2303 suffix gives the 0x4D address with the 33 k ADDR_SEL resistor.
 
 ## Mouser (the lines Digi-Key could not supply)

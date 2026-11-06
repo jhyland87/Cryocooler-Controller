@@ -19,8 +19,8 @@ WURTH = 'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal'
 SHIFT = 4.2
 HEADERS = {'J3': (FAN, 80.5, 86.6), 'J4': (FAN, 106.6, 85.0), 'J5': (WURTH, 68.5, 86.6)}
 # bottom-side parts move onto the old hole line: (dx, dy)
-BOTTOM_PARTS = {'C26': (0, SHIFT), 'R18': (0, SHIFT), 'R19': (0, SHIFT), 'R22': (0, SHIFT),
-                'R23': (0, SHIFT), 'C27': (SHIFT, 0), 'R20': (SHIFT, 0), 'R21': (SHIFT, 0)}
+BOTTOM_PARTS = {'C61': (0, SHIFT), 'R4': (0, SHIFT), 'R60': (0, SHIFT), 'R62': (0, SHIFT),
+                'R6': (0, SHIFT), 'C62': (SHIFT, 0), 'R5': (SHIFT, 0), 'R61': (SHIFT, 0)}
 # (x1, y1, x2, y2, dx, dy) for pin and name labels
 LABEL_WINDOWS = ((66, 83, 90, 90, 0, -SHIFT), (103, 75, 110, 87, -SHIFT, 0))
 # copper in these areas is ripped up, apart from pour stitching

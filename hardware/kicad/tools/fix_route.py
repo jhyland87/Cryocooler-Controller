@@ -11,7 +11,7 @@ Fixes the leftovers Freerouting 2.5.0 produced on the LT3097 revision:
     signal vias that touch copper on one layer only are removed;
   * pads whose thermal relief leads into an isolated pour island get their
     pour connection switched off (DRC "starved thermal");
-  * the R53 pad 2 to J12 current-path link is closed with a short F.Cu track;
+  * the R87 pad 2 to J12 current-path link is closed with a short F.Cu track;
   * the Q2 gate track is pulled 0.25 mm away from Q4 pad 2.
 The track edits match one routing result (coordinates below), so they only
 apply when the expected segments are found; a re-route needs them re-checked.
@@ -173,11 +173,11 @@ def add_track(board, net_name, points, width, layer=pcbnew.F_Cu):
 
 
 def close_current_path_link(board):
-    """R53 pad 2 up to the locked 2 mm J12 -> ACS37800 path."""
+    """R87 pad 2 up to the locked 2 mm J12 -> ACS37800 path."""
     pad = next(
         pad
         for footprint in board.GetFootprints()
-        if footprint.GetReference() == 'R53'
+        if footprint.GetReference() == 'R87'
         for pad in footprint.Pads()
         if pad.GetNumber() == '2'
     )
@@ -378,7 +378,7 @@ def main():
     board = pcbnew.LoadBoard(str(path))
     print('vias removed:', remove_crowding_vias(board))
     close_current_path_link(board)
-    print('J12 / R53 link added')
+    print('J12 / R87 link added')
     print('Q2 gate track moved:', move_q2_gate_track(board))
     print('dangling vias removed:', remove_dangling_vias(board))
     filler = pcbnew.ZONE_FILLER(board)

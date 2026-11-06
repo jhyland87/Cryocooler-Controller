@@ -9,7 +9,7 @@ import pcbnew
 
 MM = pcbnew.FromMM
 KEEP = []  # SWIG frees removed items when their wrappers die
-# Dropped below the labels, with C132 still feeding straight into TP45
+# Dropped below the labels, with C42 still feeding straight into TP45
 TEST_POINT_SPOTS = (('TP45', 90.0, 38.3), ('TP46', 96.0, 38.4))
 C132_SPOT = (87.8, 38.3)
 FEED_CORNER = (90.0, 37.6)  # where the rail arrives from U32
@@ -17,10 +17,10 @@ FEED_WIDTH = 0.3
 # (part, Reference or Value, x, y, angle)
 LABELS = (
     ('U32', 'Reference', 92.6, 36.7, 0),
-    ('C132', 'Reference', 88.9, 36.7, 0),
-    ('R182', 'Reference', 97.6, 31.75, 0),
-    ('R183', 'Reference', 99.14, 34.4, 90),  # east of its via, inside the section line
-    ('R181', 'Reference', 97.6, 36.85, 0),
+    ('C42', 'Reference', 88.9, 36.7, 0),
+    ('R28', 'Reference', 97.6, 31.75, 0),
+    ('R29', 'Reference', 99.14, 34.4, 90),  # east of its via, inside the section line
+    ('R27', 'Reference', 97.6, 36.85, 0),
     ('TP45', 'Value', 92.6, 38.3, 0),
     ('TP46', 'Value', 98.2, 38.4, 0),
 )
@@ -41,8 +41,8 @@ def add_feed(board, net, start, end):
 
 
 def move_c132(board):
-    """Replaces the C132 to TP45 track at its new height."""
-    footprint = board.FindFootprintByReference('C132')
+    """Replaces the C42 to TP45 track at its new height."""
+    footprint = board.FindFootprintByReference('C42')
     supply = next(p for p in footprint.Pads() if p.GetNumber() == '1')
     corner = pcbnew.VECTOR2I(MM(FEED_CORNER[0]), MM(FEED_CORNER[1]))
     for item in list(board.GetTracks()):
@@ -68,7 +68,7 @@ def place_label(board, template, ref, field, x, y, angle):
 
 
 def restore_section_line(board):
-    """silk_fix.py stops the line short where C132's label used to sit."""
+    """silk_fix.py stops the line short where C42's label used to sit."""
     for drawing in board.GetDrawings():
         if drawing.GetClass() != 'PCB_SHAPE' or drawing.GetLayer() != pcbnew.F_SilkS:
             continue
@@ -84,9 +84,9 @@ def main():
     for ref, x, y in TEST_POINT_SPOTS:
         board.FindFootprintByReference(ref).SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
     # Safe to re-run after silk_fix.py: the feed only moves once
-    if board.FindFootprintByReference('C132').GetPosition().y != MM(C132_SPOT[1]):
+    if board.FindFootprintByReference('C42').GetPosition().y != MM(C132_SPOT[1]):
         move_c132(board)
-    template = board.FindFootprintByReference('D10').Reference()
+    template = board.FindFootprintByReference('D8').Reference()
     for ref, field, x, y, angle in LABELS:
         place_label(board, template, ref, field, x, y, angle)
     for ref, x, y in BACK_LABELS:

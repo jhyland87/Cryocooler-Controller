@@ -1,5 +1,5 @@
 """Swaps the USB and display connectors on the top edge and turns J15 so its
-opening faces into the board. J1 takes U2, R3, R4, C5 with it; J15 takes U27 and
+opening faces into the board. J1 takes U2, R30, R31, C50 with it; J15 takes U27 and
 its local parts. Local copper moves rigidly; the rest is ripped for gridroute.py.
 
 Usage: swap_usb_display.py board.kicad_pcb (edits in place), then gridroute.py,
@@ -13,8 +13,8 @@ import pcbnew
 MM = pcbnew.FromMM
 USB_SHIFT = -21.8
 TOUCH_SHIFT = 20.0
-USB_PARTS = ('J1', 'U2', 'R3', 'R4', 'C5')
-TOUCH_PARTS = ('U27', 'C123', 'C124', 'R168', 'TP42')
+USB_PARTS = ('J1', 'U2', 'R30', 'R31', 'C50')
+TOUCH_PARTS = ('U27', 'C48', 'C40', 'R168', 'TP42')
 J15_SPOT = (53.2, 4.0, 0)
 
 USB_BOX = (48.5, -1.0, 59.7, 11.0)
@@ -36,7 +36,7 @@ RIP_NETS = {
 }
 # these run through the new J1 spot, so whole segments go
 OVERLAP_BOX = {'SPI_MISO': RIP_BOX, 'USB_VBUS': (48.0, 10.0, 58.0, 41.0)}
-# R169 and the y 10.9 run stay; only the old west link goes
+# R23 and the y 10.9 run stay; only the old west link goes
 RST_RIP_BOX = (26.0, -1.0, 41.72, 12.0)
 # west stub of the y 12.15 run
 TOUCH_CS_RIP_BOX = (26.0, -1.0, 56.5, 12.4)

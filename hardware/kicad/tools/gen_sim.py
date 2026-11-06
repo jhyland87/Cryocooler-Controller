@@ -130,7 +130,7 @@ def build_signal_sim(sh):
         12,
     )
     sh.note(
-        'VSIN stands in for AD9833 + C10 input (0.3 V pk about 0.35 V); VDC '
+        'VSIN stands in for AD9833 + C44 input (0.3 V pk about 0.35 V); VDC '
         '"DAC_OUT" stands in for MCP4921 '
         '(0..2.5 V, x4 = 0..10 V control).',
         20,
@@ -143,7 +143,7 @@ def build_signal_sim(sh):
         22,
     )
     sh.note(
-        'R6 + R170 = 47k + 2.4k || 1 nF (gain 15.97, pole ~3 kHz) so CTL = 10 V '
+        'R45 + R122 = 47k + 2.4k || 1 nF (gain 15.97, pole ~3 kHz) so CTL = 10 V '
         'gives ~4.8 V pk (9.6 Vpp), as on the signal_gen sheet.',
         20,
         24.5,

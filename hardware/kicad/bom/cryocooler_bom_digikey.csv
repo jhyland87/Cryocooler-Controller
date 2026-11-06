@@ -1,33 +1,31 @@
 Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Value,Package,MPN basis,Notes
-5,CL21A106KACLRNC,Samsung Electro-Mechanics,CAP CER 10UF 25V X5R 0805,C1 C11 C15 C21 C45,10uF,C_0805_2012Metric,ordered,substitute for CL21A106KAYNNNE
-37,CL05B104KB54PNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0402,C2 C4 C9 C12 C13 C14 C16 C17 C18 C19 C20 C22 C23 C28 C29 C30 C31 C34 C36 C38 C39 C44 C46 C48 C49 C50 C52 C61 C62 C75 C77 C78 C79 C122 C124 C128 C132,100nF,C_0402_1005Metric,suggested,
-7,CL10A105KB8NNNC,Samsung Electro-Mechanics,CAP CER 1UF 50V X5R 0603,C3 C10 C32 C51 C76 C123 C126,1uF,C_0603_1608Metric,suggested,
-2,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C5 C125,4.7uF,C_0805_2012Metric,ordered,USB VBUS filter; substitute for CL21A475KAQNNNE
-2,EEE-FK1E101AP,Panasonic,CAP ALUM 100UF 20% 25V SMD 8x10.2,C6 C73,100uF/25V,CP_Elec_8x10,ordered,C6 sits on the input rail behind a 26 V TVS clamp; prefer 35 V (EEE-FK1V101P); substitute for EEE-FK1E101P
-2,CL21B104KBCNNNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0805,C7 C72,100nF,C_0805_2012Metric,suggested,
-3,CL05B103KB5NNNC,Samsung Electro-Mechanics,CAP CER 10000PF 50V X7R 0402,C8 C33 C35,10nF,C_0402_1005Metric,suggested,
-2,C1210C226K3PACTU,Kemet,CAP CER 22UF 25V X5R 1210,C26 C27,22uF/25V,C_1210_3225Metric,ordered,12 V rail; substitute for CL32A226KAJNNNE
-1,C3216X5R1E106K085AC,TDK,CAP CER 10UF 25V X5R 1206,C37,10uF/25V,C_1206_3216Metric,ordered,12 V rail; substitute for CL31A106KAHNNNE
-3,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C40 C41 C42,22uF/10V,C_1206_3216Metric,suggested,5 V buck output
-1,T491B226K016AT,Kemet,CAP TANT 22UF 10% 16V 3528-21 (B case),C43,22uF,CP_EIA-3528-21_Kemet-B,suggested,3.3 V rail; pin 1 is the + side
-1,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C47,22uF,C_1206_3216Metric,suggested,isolated 3.3 V output (needs 10 V or more)
-2,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C56 C57,4.7uF/25V,C_0805_2012Metric,ordered,LT8582 VIN1 / VIN2 input caps; substitute for CL21A475KAQNNNE
-7,GRM32ER71E226KE15L,Murata,CAP CER 22UF 25V X7R 1210,C58 C60 C67 C69 C129 C130 C131,22uF/25V X7R,C_1210_3225Metric,suggested,"LT8582 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs >= 10 uF effective at 15 V DC bias (INN and both outputs have two in parallel; INP needs 4.7 uF), so check the DC-bias curve"
-1,CL31B225KBHNNNE,Samsung Electro-Mechanics,CAP CER 2.2UF 50V X7R 1206,C59,2.2uF/50V,C_1206_3216Metric,suggested,LT8582 inverting coupling cap C1 (sees VIN + |VOUT| = 21.5 V)
-1,CL05B472KB5NNNC,Samsung Electro-Mechanics,CAP CER 4700PF 50V X7R 0402,C63,4.7nF,C_0402_1005Metric,suggested,LT8582 VC1 compensation
-2,CL05C470JB5NNNC,Samsung Electro-Mechanics,CAP CER 47PF 50V C0G 0402,C64 C66,47pF,C_0402_1005Metric,suggested,LT8582 VC high-frequency poles
-1,CL05B222KB5NNNC,Samsung Electro-Mechanics,CAP CER 2200PF 50V X7R 0402,C65,2.2nF,C_0402_1005Metric,suggested,LT8582 VC2 compensation
-2,CL31B105KBHNNNE,Samsung Electro-Mechanics,CAP CER 1UF 50V X7R 1206,C68 C70,1uF/50V,C_1206_3216Metric,suggested,LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)
-1,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C74,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-
-1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C121,1nF/C0G,C_0402_1005Metric,suggested,across R6 + R170 (49.4k) in the sine gain stage
+5,CL21A106KACLRNC,Samsung Electro-Mechanics,CAP CER 10UF 25V X5R 0805,C1-C5,10uF,C_0805_2012Metric,ordered,substitute for CL21A106KAYNNNE
+37,CL05B104KB54PNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0402,C6-C42,100nF,C_0402_1005Metric,suggested,
+7,CL10A105KB8NNNC,Samsung Electro-Mechanics,CAP CER 1UF 50V X5R 0603,C43-C49,1uF,C_0603_1608Metric,suggested,
+4,C2012X5R1E475K085AC,TDK,CAP CER 4.7UF 25V X5R 0805,C50-C53,4.7uF,C_0805_2012Metric,ordered,USB VBUS filter; substitute for CL21A475KAQNNNE; LT8582 VIN1 / VIN2 input caps; substitute for CL21A475KAQNNNE
+2,EEE-FK1E101AP,Panasonic,CAP ALUM 100UF 20% 25V SMD 8x10.2,C54 C55,100uF/25V,CP_Elec_8x10,ordered,C54 sits on the input rail behind a 26 V TVS clamp; prefer 35 V (EEE-FK1V101P); substitute for EEE-FK1E101P
+2,CL21B104KBCNNNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0805,C56 C57,100nF,C_0805_2012Metric,suggested,
+3,CL05B103KB5NNNC,Samsung Electro-Mechanics,CAP CER 10000PF 50V X7R 0402,C58-C60,10nF,C_0402_1005Metric,suggested,
+2,C1210C226K3PACTU,Kemet,CAP CER 22UF 25V X5R 1210,C61 C62,22uF/25V,C_1210_3225Metric,ordered,12 V rail; substitute for CL32A226KAJNNNE
+1,C3216X5R1E106K085AC,TDK,CAP CER 10UF 25V X5R 1206,C63,10uF/25V,C_1206_3216Metric,ordered,12 V rail; substitute for CL31A106KAHNNNE
+4,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C64-C67,22uF/10V,C_1206_3216Metric,suggested,5 V buck output; isolated 3.3 V output (needs 10 V or more)
+1,T491B226K016AT,Kemet,CAP TANT 22UF 10% 16V 3528-21 (B case),C68,22uF,CP_EIA-3528-21_Kemet-B,suggested,3.3 V rail; pin 1 is the + side
+7,GRM32ER71E226KE15L,Murata,CAP CER 22UF 25V X7R 1210,C69-C75,22uF/25V X7R,C_1210_3225Metric,suggested,"LT8582 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs >= 10 uF effective at 15 V DC bias (INN and both outputs have two in parallel; INP needs 4.7 uF), so check the DC-bias curve"
+1,CL31B225KBHNNNE,Samsung Electro-Mechanics,CAP CER 2.2UF 50V X7R 1206,C76,2.2uF/50V,C_1206_3216Metric,suggested,LT8582 inverting coupling cap C1 (sees VIN + |VOUT| = 21.5 V)
+1,CL05B472KB5NNNC,Samsung Electro-Mechanics,CAP CER 4700PF 50V X7R 0402,C77,4.7nF,C_0402_1005Metric,suggested,LT8582 VC1 compensation
+2,CL05C470JB5NNNC,Samsung Electro-Mechanics,CAP CER 47PF 50V C0G 0402,C78 C79,47pF,C_0402_1005Metric,suggested,LT8582 VC high-frequency poles
+1,CL05B222KB5NNNC,Samsung Electro-Mechanics,CAP CER 2200PF 50V X7R 0402,C80,2.2nF,C_0402_1005Metric,suggested,LT8582 VC2 compensation
+2,CL31B105KBHNNNE,Samsung Electro-Mechanics,CAP CER 1UF 50V X7R 1206,C81 C82,1uF/50V,C_1206_3216Metric,suggested,LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)
+1,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C83,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-
+1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C84,1nF/C0G,C_0402_1005Metric,suggested,across R45 + R122 (49.4k) in the sine gain stage
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
-3,XZMDKVG55W-4,SunLED,"LED RED/GREEN BICOLOR 1206 SMD, 2 pin anti-parallel",D3 D4 D12,RED/GREEN,LED_1206_3216Metric,suggested,"AlGaInP red and green, 30 mA max each; XZMDKVG55W-7 is the same with a domed lens. Avoid XZMDKDGK55W-4 (green is InGaN, 25 mA max)"
+3,XZMDKVG55W-4,SunLED,"LED RED/GREEN BICOLOR 1206 SMD, 2 pin anti-parallel",D2-D4,RED/GREEN,LED_1206_3216Metric,suggested,"AlGaInP red and green, 30 mA max each; XZMDKVG55W-7 is the same with a domed lens. Avoid XZMDKDGK55W-4 (green is InGaN, 25 mA max)"
 2,DFLS240-7,Diodes Incorporated,DIODE SCHOTTKY 40V 2A POWERDI123,D5 D6,DFLS240,D_PowerDI-123,design,
-2,APHHS1005SURCK,Kingbright,LED RED (630 NM) CLEAR 0402 SMD,D7 D10,red,LED_0402_1005Metric,suggested,"fault indicators at ~1 mA; AlGaInP hyper red, Vf 1.95 V typ"
-13,APHHS1005CGCK,Kingbright,LED GREEN (570 NM) CLEAR 0402 SMD,D8 D9 D14 D15 D16 D17 D18 D19 D20 D21 D22 D42 D43,green,LED_0402_1005Metric,suggested,"indicators sized for ~1 mA (1.5k on 3.3 V, 3.3k on 5 V, 13k on 15 V); AlGaInP green, Vf 2.1 V typ"
-1,1655,Adafruit,"LED RGB NEOPIXEL 5050 (WS2812/SK6812, 10 pack)",D11,WS2812B,LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm,suggested,"Digi-Key has no WorldSemi WS2812B; this is the same pinout and protocol. Adafruit says hand-solder only, not for reflow, so check JLCPCB/LCSC for a WS2812B-compatible part if you assemble there"
-1,1N4148W-7-F,Diodes Incorporated,DIODE GEN PURP 75V 150MA SOD123,D13,1N4148W,D_SOD-123,design,
-1,BAT54AW-7-F,Diodes Incorporated,DIODE ARR SCHOTTKY 30V 200MA SOT323,D41,BAT54AW,SOT-323_SC-70,design,"common anode on PG_15V (pin 3), cathodes on pins 1 and 2"
+2,APHHS1005SURCK,Kingbright,LED RED (630 NM) CLEAR 0402 SMD,D7 D8,red,LED_0402_1005Metric,suggested,"fault indicators at ~1 mA; AlGaInP hyper red, Vf 1.95 V typ"
+13,APHHS1005CGCK,Kingbright,LED GREEN (570 NM) CLEAR 0402 SMD,D9-D21,green,LED_0402_1005Metric,suggested,"indicators sized for ~1 mA (1.5k on 3.3 V, 3.3k on 5 V, 13k on 15 V); AlGaInP green, Vf 2.1 V typ"
+1,1655,Adafruit,"LED RGB NEOPIXEL 5050 (WS2812/SK6812, 10 pack)",D22,WS2812B,LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm,suggested,"Digi-Key has no WorldSemi WS2812B; this is the same pinout and protocol. Adafruit says hand-solder only, not for reflow, so check JLCPCB/LCSC for a WS2812B-compatible part if you assemble there"
+1,1N4148W-7-F,Diodes Incorporated,DIODE GEN PURP 75V 150MA SOD123,D23,1N4148W,D_SOD-123,design,
+1,BAT54AW-7-F,Diodes Incorporated,DIODE ARR SCHOTTKY 30V 200MA SOT323,D24,BAT54AW,SOT-323_SC-70,design,"common anode on PG_15V (pin 3), cathodes on pins 1 and 2"
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
 1,54-00164,Tensility,CONN JACK R/A SMT 5.5X2.1MM,J2,,Tensility_54-00164_5.5x2.1mm_Horizontal_SMD,design,"J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates to 0 at 70 C; do not mate under load"
@@ -41,56 +39,53 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,2305908-3,TE Connectivity,"CONN HEADER R/A SMT 3POS 5MM, 15 A",J12,,TE_2305908-3_1x03_P5.00mm_Horizontal_SMD,design,"J12 cryocooler: + / - / GND (pin 3 is the plug's protective ground, tied to board GND). SMT pads carry all plugging force. Reported as last time buy: check stock. Mates with TE 2213934 / 2213935 / 2305909 series plugs (confirm the plug item number before ordering)"
 1,RJSSE-5380,Amphenol,CONN MOD JACK 8P8C R/A SHIELDED SMD,J14,RJSSE-5380,RJ45_Amphenol_RJSSE-5380_Horizontal,design,"J14 IMU cable; plain jack, no magnetics (drawing P-RJSSE-5380 rev E)"
 1,FH12-14S-0.5SH(55),Hirose,CONN FFC BOTTOM 14POS 0.50MM R/A,J15,FH12-14S-0.5SH(55),Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal,design,display FPC (Phoenix datasheet 109921); check the FFC contact side so pin 1 lands on pin 1
-1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP1,EN SG3,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
-1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP2,EN PS15,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
-1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP3,EN ISO5,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
-1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP4,EN COOL,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
-1,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP5,EN CH,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
+5,5110,Keystone,JUMPER SMT 0603 ZERO OHM,JP1-JP5,EN SG3,R_0603_1608Metric,design,"supply disable jumpers JP1-JP5 (""true zero ohm"", 0603 resistor land pattern); desolder to cut a section"
 1,SRP6050CA-4R7M,Bourns,FIXED IND 4.7UH 10.5A 18.4MOHM SMD,L1,SRP6050CA-4R7M,L_Bourns_SRP6050CA,design,"AP63205 buck inductor, shielded"
 1,SRP7050TA-4R7M,Bourns,FIXED IND 4.7UH 10A 30.8MOHM SMD,L2,SRP7050TA-4R7M,L_Bourns_SRP7050TA,design,"LT8582 boost inductor, shielded; L_MIN about 2.9 uH"
 1,MSD7342-103MLC,Coilcraft,COUPLED INDUCTOR 10UH 1:1 SMD,L3,MSD7342-103MLC,L_Coilcraft_MSD7342,design,LT8582 inverting channel: 10 uH needed at duty ~0.80 (datasheet L_MIN ~5.6 uH)
 1,MIE1W0505BGLVH-3R-Z,Monolithic Power Systems,"ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12",PS1,MIE1W0505BGLVH-3R-Z,CONV_MIE1W0505BGLVH-3R-Z,design,
 1,IRF4905STRLPBF,Infineon,MOSFET P-CH 55V 74A D2PAK,Q1,IRF4905S,TO-263-3_TabPin2,design,
-9,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2 Q3 Q4 Q5 Q7 Q21 Q25 Q26 Q27,BSS138,SOT-23,suggested,
+9,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q2-Q5 Q7 Q21 Q25-Q27,BSS138,SOT-23,suggested,
 2,BSS84,onsemi,MOSFET P-CH 50V 130MA SOT23-3,Q6 Q8,BSS84,SOT-23,ordered,output stage is limited to about 130 mA; substitute for BSS84-7-F
-3,BSS138W-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT323,Q22 Q23 Q24,BSS138,SOT-323_SC-70,suggested,"power-good stage: same pinout as the SOT-23 BSS138 (1 gate, 2 source, 3 drain)"
-29,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R13 R18 R20 R23 R24 R26 R28 R32 R40 R41 R45 R46 R47 R54 R69 R74 R82 R151 R152 R162 R169 R171 R172 R175 R181 R182 R183,10k,R_0402_1005Metric,suggested,
-2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R3 R4,5.1k,R_0402_1005Metric,suggested,
-13,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R5 R10 R29 R33 R34 R36 R37 R48 R77 R78 R167 R179 R180,100k,R_0402_1005Metric,suggested,
-1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R6,47k,R_0402_1005Metric,suggested,
-4,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R7 R86 R97 R98,3.3k,R_0402_1005Metric,suggested,
-8,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R8 R9 R90 R91 R92 R93 R94 R95,100,R_0402_1005Metric,suggested,
-1,RC0402FR-076K8L,Yageo,RES 6.8K OHM 1% 1/16W 0402,R11,6.8k,R_0402_1005Metric,suggested,
-1,RC0402FR-0730KL,Yageo,RES 30K OHM 1% 1/16W 0402,R12,30k,R_0402_1005Metric,suggested,
-2,RC0402FR-074K7L,Yageo,RES 4.7K OHM 1% 1/16W 0402,R19 R21,4.7k,R_0402_1005Metric,suggested,
-12,RC0402FR-071KL,Yageo,RES 1K OHM 1% 1/16W 0402,R22 R35 R38 R42 R43 R76 R79 R163 R173 R174 R176 R177,1k,R_0402_1005Metric,suggested,
-3,RC0402FR-07220KL,Yageo,RES 220K OHM 1% 1/16W 0402,R25 R153 R155,220k,R_0402_1005Metric,suggested,
-1,RC0402FR-0782KL,Yageo,RES 82K OHM 1% 1/16W 0402,R27,82k,R_0402_1005Metric,suggested,
-2,RC0603FR-07330RL,Yageo,RES 330 OHM 1% 1/10W 0603,R30 R31,330,R_0603_1608Metric,suggested,
-2,RC0402FR-072K2L,Yageo,RES 2.2K OHM 1% 1/16W 0402,R39 R80,2.2k,R_0402_1005Metric,suggested,
-1,RT0402BRD073K9L,Yageo,RES 3.9K OHM 0.1% 25PPM 1/16W 0402,R44,3.9k,R_0402_1005Metric,suggested,"Rref for the ADS1220; the firmware assumes 3854 ohm (PT1000_REF_R), so measure it and update the constant"
-1,RC0603FR-074K02L,Yageo,RES 4.02K OHM 1% 1/10W 0603,R49,4.02k,R_0603_1608Metric,suggested,ACS37800 voltage divider tap
-4,RC1206FR-071ML,Yageo,RES 1M OHM 1% 1/4W 1206,R50 R51 R52 R53,1M,R_1206_3216Metric,suggested,
-1,RC0402FR-07182KL,Yageo,RES 182K OHM 1% 1/16W 0402,R55,182k,R_0402_1005Metric,suggested,
-1,RC0402FR-07198KL,Yageo,RES 198K OHM 1% 1/16W 0402,R56,198k,R_0402_1005Metric,suggested,
-2,RC0402FR-0753K6L,Yageo,RES 53.6K OHM 1% 1/16W 0402,R57 R58,53.6k,R_0402_1005Metric,suggested,
-1,RC0402FR-076K49L,Yageo,RES 6.49K OHM 1% 1/16W 0402,R59,6.49k,R_0402_1005Metric,suggested,
-1,RC0402FR-0714K7L,Yageo,RES 14.7K OHM 1% 1/16W 0402,R60,14.7k,R_0402_1005Metric,suggested,
-2,RC0402FR-07432KL,Yageo,RES 432K OHM 1% 1/16W 0402,R61 R63,432k,R_0402_1005Metric,suggested,
-2,RC0402FR-07147KL,Yageo,RES 147K OHM 1% 1/16W 0402,R62 R64,147k,R_0402_1005Metric,suggested,
-1,WSL2512R0150FEA18,Vishay Dale,RES 0.015 OHM 1% 2W 2512,R65,15m,R_2512_6332Metric,suggested,"INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the ""18"" suffix is the 2 W part (WSL2512R0150FEA is 1 W)"
-2,RC0402FR-0749R9L,Yageo,RES 49.9 OHM 1% 1/16W 0402,R66 R67,49.9,R_0402_1005Metric,suggested,
-10,RC0402FR-071K5L,Yageo,RES 1.5K OHM 1% 1/16W 0402,R70 R71 R72 R73 R89 R96 R99 R100 R164 R165,1.5k,R_0402_1005Metric,suggested,
-1,RC0402FR-07330RL,Yageo,RES 330 OHM 1% 1/16W 0402,R75,330,R_0402_1005Metric,suggested,
-2,RC0402FR-0713KL,Yageo,RES 13K OHM 1% 1/16W 0402,R87 R88,13k,R_0402_1005Metric,suggested,
-2,RC0402FR-0762KL,Yageo,RES 62K OHM 1% 1/16W 0402,R154 R156,62k,R_0402_1005Metric,suggested,
-2,RC0402FR-0720KL,Yageo,RES 20K OHM 1% 1/16W 0402,R157 R159,20k,R_0402_1005Metric,suggested,
-2,RC0402FR-0739KL,Yageo,RES 39K OHM 1% 1/16W 0402,R158 R160,39k,R_0402_1005Metric,suggested,
-1,RC0402FR-07470KL,Yageo,RES 470K OHM 1% 1/16W 0402,R161,470k,R_0402_1005Metric,suggested,
-1,RC0805FR-0739RL,Yageo,RES 39 OHM 1% 1/8W 0805,R166,39,R_0805_2012Metric,suggested,
-1,RC0402FR-072K4L,Yageo,RES 2.4K OHM 1% 1/16W 0402,R170,2.4k,R_0402_1005Metric,suggested,
-3,TL3342F160QG/TR,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD,SW1 SW2 SW3,TACTILE,SW_SPST_TL3342,ordered,footprint is the TL3342 family (3.5 x 6 mm); substitute for TL3342F160QG
-4,5015,Keystone Electronics,PC TEST POINT MINIATURE SMT,TP14 TP15 TP16 TP17,,TestPoint_Keystone_5015_Micro_Mini,design,ground test points; needs a via to its ground plane
+3,BSS138W-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT323,Q22-Q24,BSS138,SOT-323_SC-70,suggested,"power-good stage: same pinout as the SOT-23 BSS138 (1 gate, 2 source, 3 drain)"
+29,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1-R29,10k,R_0402_1005Metric,suggested,
+2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R30 R31,5.1k,R_0402_1005Metric,suggested,
+13,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R32-R44,100k,R_0402_1005Metric,suggested,
+1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R45,47k,R_0402_1005Metric,suggested,
+4,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R46-R49,3.3k,R_0402_1005Metric,suggested,
+8,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R50-R57,100,R_0402_1005Metric,suggested,
+1,RC0402FR-076K8L,Yageo,RES 6.8K OHM 1% 1/16W 0402,R58,6.8k,R_0402_1005Metric,suggested,
+1,RC0402FR-0730KL,Yageo,RES 30K OHM 1% 1/16W 0402,R59,30k,R_0402_1005Metric,suggested,
+2,RC0402FR-074K7L,Yageo,RES 4.7K OHM 1% 1/16W 0402,R60 R61,4.7k,R_0402_1005Metric,suggested,
+12,RC0402FR-071KL,Yageo,RES 1K OHM 1% 1/16W 0402,R62-R73,1k,R_0402_1005Metric,suggested,
+3,RC0402FR-07220KL,Yageo,RES 220K OHM 1% 1/16W 0402,R74-R76,220k,R_0402_1005Metric,suggested,
+1,RC0402FR-0782KL,Yageo,RES 82K OHM 1% 1/16W 0402,R77,82k,R_0402_1005Metric,suggested,
+2,RC0603FR-07330RL,Yageo,RES 330 OHM 1% 1/10W 0603,R78 R79,330,R_0603_1608Metric,suggested,
+2,RC0402FR-072K2L,Yageo,RES 2.2K OHM 1% 1/16W 0402,R80 R81,2.2k,R_0402_1005Metric,suggested,
+1,RT0402BRD073K9L,Yageo,RES 3.9K OHM 0.1% 25PPM 1/16W 0402,R82,3.9k,R_0402_1005Metric,suggested,"Rref for the ADS1220; the firmware assumes 3854 ohm (PT1000_REF_R), so measure it and update the constant"
+1,RC0603FR-074K02L,Yageo,RES 4.02K OHM 1% 1/10W 0603,R83,4.02k,R_0603_1608Metric,suggested,ACS37800 voltage divider tap
+4,RC1206FR-071ML,Yageo,RES 1M OHM 1% 1/4W 1206,R84-R87,1M,R_1206_3216Metric,suggested,
+1,RC0402FR-07182KL,Yageo,RES 182K OHM 1% 1/16W 0402,R88,182k,R_0402_1005Metric,suggested,
+1,RC0402FR-07198KL,Yageo,RES 198K OHM 1% 1/16W 0402,R89,198k,R_0402_1005Metric,suggested,
+2,RC0402FR-0753K6L,Yageo,RES 53.6K OHM 1% 1/16W 0402,R90 R91,53.6k,R_0402_1005Metric,suggested,
+1,RC0402FR-076K49L,Yageo,RES 6.49K OHM 1% 1/16W 0402,R92,6.49k,R_0402_1005Metric,suggested,
+1,RC0402FR-0714K7L,Yageo,RES 14.7K OHM 1% 1/16W 0402,R93,14.7k,R_0402_1005Metric,suggested,
+2,RC0402FR-07432KL,Yageo,RES 432K OHM 1% 1/16W 0402,R94 R95,432k,R_0402_1005Metric,suggested,
+2,RC0402FR-07147KL,Yageo,RES 147K OHM 1% 1/16W 0402,R96 R97,147k,R_0402_1005Metric,suggested,
+1,WSL2512R0150FEA18,Vishay Dale,RES 0.015 OHM 1% 2W 2512,R98,15m,R_2512_6332Metric,suggested,"INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the ""18"" suffix is the 2 W part (WSL2512R0150FEA is 1 W)"
+2,RC0402FR-0749R9L,Yageo,RES 49.9 OHM 1% 1/16W 0402,R99 R100,49.9,R_0402_1005Metric,suggested,
+10,RC0402FR-071K5L,Yageo,RES 1.5K OHM 1% 1/16W 0402,R101-R110,1.5k,R_0402_1005Metric,suggested,
+1,RC0402FR-07330RL,Yageo,RES 330 OHM 1% 1/16W 0402,R111,330,R_0402_1005Metric,suggested,
+2,RC0402FR-0713KL,Yageo,RES 13K OHM 1% 1/16W 0402,R112 R113,13k,R_0402_1005Metric,suggested,
+2,RC0402FR-0762KL,Yageo,RES 62K OHM 1% 1/16W 0402,R114 R115,62k,R_0402_1005Metric,suggested,
+2,RC0402FR-0720KL,Yageo,RES 20K OHM 1% 1/16W 0402,R116 R117,20k,R_0402_1005Metric,suggested,
+2,RC0402FR-0739KL,Yageo,RES 39K OHM 1% 1/16W 0402,R118 R119,39k,R_0402_1005Metric,suggested,
+1,RC0402FR-07470KL,Yageo,RES 470K OHM 1% 1/16W 0402,R120,470k,R_0402_1005Metric,suggested,
+1,RC0805FR-0739RL,Yageo,RES 39 OHM 1% 1/8W 0805,R121,39,R_0805_2012Metric,suggested,
+1,RC0402FR-072K4L,Yageo,RES 2.4K OHM 1% 1/16W 0402,R122,2.4k,R_0402_1005Metric,suggested,
+2,PTS810SJM250SMTR LFS,C&K,SWITCH TACTILE SPST-NO 0.05A 16V SMD,SW1 SW2,TACTILE,SW_CK_PTS810,design,"SW1 reset, SW2 boot; 1.6 N, grey actuator, 150,000 cycles"
+1,TL6800AF260QJ,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD IP67,SW3,TACTILE,SW_E-Switch_TL6800AF,design,"SW3 power button; 260 gf, 500,000 cycles, IP67"
+4,5015,Keystone Electronics,PC TEST POINT MINIATURE SMT,TP14-TP17,,TestPoint_Keystone_5015_Micro_Mini,design,ground test points; needs a via to its ground plane
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,
 1,USBLC6-2SC6,STMicroelectronics,TVS DIODE 5.25V 17V SOT23-6,U2,USBLC6-2SC6,SOT-23-6,design,
 1,SG-8002CA 25.0000M-PHCLX,Epson,OSC 25.000MHZ CMOS 5V SMD 7x5,U3,SG-8002CA-PH 25MHz,Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm,suggested,"PH = 5 V CMOS with output enable; the PHBB variant is discontinued, PHCLX is +/-100 ppm which is plenty for the AD9833 clock"

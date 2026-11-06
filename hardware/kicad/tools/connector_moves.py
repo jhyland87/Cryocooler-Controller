@@ -38,22 +38,19 @@ MOVES = {
     'TP17': (18.45, 31.355, None),
     'J4': (92.2, 86.6, 0.0),
     'U10': (96.0, 82.5, None),
-    'R14': (95.2, 78.11, None),
-    'C24': (97.61, 78.7, None),
-    'D2': (96.3, 77.5, None),
     'TP30': (91.7, 84.0, None),
     'TP16': (104.2, 85.8, None),
-    'R20': (100.5, 92.5, 90.0),
-    'R21': (98.0, 92.5, 90.0),
-    'C27': (95.24, 93.5, 90.0),
+    'R5': (100.5, 92.5, 90.0),
+    'R61': (98.0, 92.5, 90.0),
+    'C62': (95.24, 93.5, 90.0),
     'TP15': (45.0, 10.6, None),
-    'R167': (47.85, 10.95, None),
-    'C5': (55.2, 9.9, 180.0),
+    'R42': (47.85, 10.95, None),
+    'C50': (55.2, 9.9, 180.0),
     'Q25': (50.9, 10.65, None),
 }
 OLD_J1 = (116.325, 14.0)
 NEW_J1 = (54.3, 3.675)
-USB_RIGID = ('J1', 'R3', 'R4')  # turned with J1
+USB_RIGID = ('J1', 'R30', 'R31')  # turned with J1
 U2_SPOT = (54.3, 4.0)
 U2_PIN1 = (53.16, 4.95)
 
@@ -62,7 +59,7 @@ WINDOWS = (
     ((0.0, 47.5, 22.5, 92.5), {RAW_NET, 'SIG_SINE', '/Amp Control/AMP_REM', 'Net-(Q21-D)', 'PG_15V'}),
     ((90.5, 72.0, 120.0, 100.0), {
         '+12V', '+3V3_COOL', 'SDA', 'SCL', 'Net-(J4-Pin_3)', 'Net-(J4-Pin_4)', 'Net-(J3-Pin_3)',
-        'Net-(J3-Pin_4)', 'Net-(U10-ADDR_SEL)', 'Net-(U10-CLK)', 'FAN_ALERT', 'Net-(D2-A)'}),
+        'Net-(J3-Pin_4)', 'Net-(U10-ADDR_SEL)', 'Net-(U10-CLK)', 'FAN_ALERT'}),
     ((45.0, 0.0, 60.0, 12.0), {'/Display/DISP_BL_K', 'DISP_BL_EN', 'GND'}),
 )
 FAN_GROUND_BOX = (92.5, 82.0, 99.0, 88.0)  # old U10 pad vias
@@ -172,7 +169,7 @@ def move_parts(board):
         footprint.SetPosition(pcbnew.VECTOR2I(*[MM(v) for v in turned(point_mm(footprint.GetPosition()))]))
         footprint.SetOrientationDegrees(old_angle + 90)
     # clear of Q25, and nearer the CC2 via
-    board.FindFootprintByReference('R4').SetPosition(pcbnew.VECTOR2I(MM(52.55), MM(8.0)))
+    board.FindFootprintByReference('R31').SetPosition(pcbnew.VECTOR2I(MM(52.55), MM(8.0)))
     protector = board.FindFootprintByReference('U2')
     protector.SetPosition(pcbnew.VECTOR2I(MM(U2_SPOT[0]), MM(U2_SPOT[1])))
     for angle in (0, 90, 180, 270):

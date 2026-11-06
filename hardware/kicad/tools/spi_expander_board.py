@@ -23,20 +23,20 @@ KEEP = []
 # ref -> (x, y, rotation, bottom side)
 NEW_PARTS = {
     'Q26': (83.5, 83.8, 0, True),
-    'R173': (86.0, 83.8, 90, True),
-    'R172': (87.5, 83.8, 90, True),
-    'R174': (89.0, 83.8, 90, True),
+    'R70': (86.0, 83.8, 90, True),
+    'R25': (87.5, 83.8, 90, True),
+    'R71': (89.0, 83.8, 90, True),
     'TP31': (100.5, 88.5, 0, True),
     'Q27': (96.0, 82.5, 0, True),
-    'R176': (98.5, 82.5, 90, True),
-    'R175': (100.0, 82.5, 90, True),
-    'R177': (93.1, 81.5, 90, True),
+    'R72': (98.5, 82.5, 90, True),
+    'R26': (100.0, 82.5, 90, True),
+    'R73': (93.1, 81.5, 90, True),
     'U30': (87.5, 28.5, 0, True),
     'U31': (92.5, 28.5, 0, True),
     'R178': (87.5, 31.8, 0, True),
-    'R179': (92.5, 31.8, 0, True),
+    'R43': (92.5, 31.8, 0, True),
     'C127': (84.6, 28.5, 90, True),
-    'C128': (95.4, 28.5, 90, True),
+    'C41': (95.4, 28.5, 90, True),
 }
 # parts that change footprint in place; None keeps the rotation
 REPLACED = {
@@ -52,7 +52,7 @@ REPLACED = {
 MOVED = {
     'J15': (34.0, 5.0),
     'Q25': (42.7, 11.6),
-    'R167': (45.6, 11.2),
+    'R42': (45.6, 11.2),
 }
 # all copper of these nets goes: both ends changed
 RIP_WHOLE = {

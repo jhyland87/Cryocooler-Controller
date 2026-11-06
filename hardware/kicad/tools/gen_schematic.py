@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import kicadgen
+from ref_map import REF_MAP
 from kicadgen import (
     Sheet,
     next_ref,
@@ -424,7 +425,7 @@ def build_mcu(sh):
         74 * 1.27,
         rot=270,
         auto=False,
-        footprint='Button_Switch_SMD:SW_SPST_TL3342',
+        footprint='cryocooler:SW_CK_PTS810',
     )
     wire(sh, (108, 70), pin_cell(sw_reset, '1'))
     ground(sh, pin_cell(sw_reset, '2'))
@@ -445,7 +446,7 @@ def build_mcu(sh):
         (boot[1] + 4) * 1.27,
         rot=270,
         auto=False,
-        footprint='Button_Switch_SMD:SW_SPST_TL3342',
+        footprint='cryocooler:SW_CK_PTS810',
     )
     wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
@@ -641,7 +642,7 @@ def build_power_button(sh):
         pb[1] * 1.27,
         mirror=True,
         auto=False,
-        footprint='Button_Switch_SMD:SW_SPST_TL3342',
+        footprint='cryocooler:SW_E-Switch_TL6800AF',
     )
     wire(sh, (36, pb[1]), pin_cell(sw, '1'))
     wire(sh, pin_cell(sw, '2'), (24, pb[1]))
@@ -3234,6 +3235,11 @@ def main():
                 root_uuid, child, index, 20 + column * 70, 190 + row * 25
             )
         )
+    # final references; the builders keep allocating their own numbers
+    for sheet in [root] + children:
+        for part in sheet.parts:
+            part.ref = REF_MAP.get(part.ref, part.ref)
+
     import textlayout
     import part_links
 

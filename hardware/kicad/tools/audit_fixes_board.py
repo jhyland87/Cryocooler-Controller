@@ -21,10 +21,10 @@ SWITCH_NODE = 'Net-(U15-SW)'
 TAB_VIAS = tuple((x, y) for x in (32.4, 33.2) for y in (79.0, 80.0, 81.0))
 # ref -> (x, y, bottom side, point pin 1 must face)
 NEW_PARTS = {
-    'C129': (84.0, 66.5, False, (82.5, 66.5)),
-    'C130': (83.5, 44.5, True, (83.5, 46.0)),
-    'C131': (85.0, 49.5, True, (83.5, 49.5)),
-    'R180': (31.4, 82.0, True, (31.4, 82.5)),
+    'C73': (84.0, 66.5, False, (82.5, 66.5)),
+    'C74': (83.5, 44.5, True, (83.5, 46.0)),
+    'C75': (85.0, 49.5, True, (83.5, 49.5)),
+    'R44': (31.4, 82.0, True, (31.4, 82.5)),
 }
 
 
@@ -42,7 +42,7 @@ def place_new_part(board, ref, part, spot):
 
 def reroute_switch_node(board):
     """U15 SW to L1 pad 1: 0.4 mm on F.Cu, then 1 mm on In2 (between the BST via
-    and +5V_OR) to two vias in the L1 pad. The via west of L1 stays: it feeds C39
+    and +5V_OR) to two vias in the L1 pad. The via west of L1 stays: it feeds C26
     on the back.
     """
     for item in list(board.GetTracks()):
@@ -69,18 +69,18 @@ def add_tab_copper(board):
 
 
 def connect_new_parts(board):
-    # +15 V second output cap: off the C67 track, under the F.Cu signals on In2
+    # +15 V second output cap: off the C71 track, under the F.Cu signals on In2
     hand_route.track(board, '+15V', [(80.9, 61.38), (80.9, 62.0)], 0.3, F)
     hand_route.via(board, '+15V', 80.9, 62.0, 0.6, 0.3)
     hand_route.track(board, '+15V', [(80.9, 62.0), (80.9, 65.15), (81.6, 65.85)], 0.3, IN2)
     hand_route.via(board, '+15V', 81.6, 65.85, 0.6, 0.3)
     hand_route.track(board, '+15V', [(81.6, 65.85), (82.25, 66.5), (82.52, 66.5)], 0.3, F)
-    # -15 V: via between the C69 pads, through the back cap's pad
+    # -15 V: via between the C72 pads, through the back cap's pad
     hand_route.via(board, '-15V', 83.5, 46.0, 0.6, 0.3)
     hand_route.track(board, '-15V', [(83.5, 46.0), (83.5, 47.2)], 0.3, F)
     # -16V5: via through both capacitor pads
     hand_route.via(board, '-16V5', 83.53, 49.7, 0.6, 0.3)
-    # USB_VBUS bleed joins the C126 / TP43 track
+    # USB_VBUS bleed joins the C49 / TP43 track
     hand_route.track(board, 'USB_VBUS', [(31.4, 82.51), (30.63, 83.28), (30.5, 83.28)], 0.3, B)
 
 

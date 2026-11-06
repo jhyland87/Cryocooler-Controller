@@ -84,7 +84,7 @@ def zone(board, name, points, layer, clearance=0.2):
 
 ROUTES = {
     # U4 pin 5 (DDS clock in) to the U3 oscillator via, on In2 west of the
-    # +5V / CAP vias (B.Cu is taken by C15)
+    # +5V / CAP vias (B.Cu is taken by C3)
     'u4': [
         ('track', 'Net-(U3-OUT)', [(44.4, 19.5), (43.65, 19.5), (43.45, 19.7), (43.45, 20.1)], 0.2, pcbnew.F_Cu),
         ('via', 'Net-(U3-OUT)', 43.45, 20.1),
@@ -96,7 +96,7 @@ ROUTES = {
         ('via', '+5V_PS15', 72.6, 52.25),
     ],
     # U20 pin 2 (VIN): pin 1's switch-node stub goes straight north to free
-    # the way; then a via between R59 and C63, In2 between the +5V and
+    # the way; then a via between R92 and C77, In2 between the +5V and
     # NTC_ADC tracks, and up onto the F.Cu VIN track at pin 11
     'u20_vin2': [
         ('delete', 'Net-(D5-A)', [(68.1, 51.25), (67.47, 51.25), (67.47, 50.54), (67.53, 50.49)]),
@@ -106,8 +106,8 @@ ROUTES = {
         ('track', '+5V_PS15', [(66.08, 51.62), (66.08, 55.0), (65.6, 55.48), (65.6, 58.75)], 0.25, pcbnew.In2_Cu),
         ('via', '+5V_PS15', 65.6, 58.75),
     ],
-    # U20 pin 17 (SS2) east to a via, then In2 down to C62's via; RT2's
-    # jog to R58 is straightened first to make room
+    # U20 pin 17 (SS2) east to a via, then In2 down to C34's via; RT2's
+    # jog to R91 is straightened first to make room
     'u20_ss2': [
         ('delete', '/Rails +-15V/RT2', [(73.39, 55.25), (73.06, 55.25), (72.78, 54.97), (72.5, 55.25)]),
         ('track', '/Rails +-15V/RT2', [(72.5, 55.25), (73.39, 55.25)], 0.1874, pcbnew.F_Cu),
@@ -117,7 +117,7 @@ ROUTES = {
     ],
     # LT8582 switch nodes as pours instead of 0.25 mm router tracks: SW1
     # (pins 1 / 24, D5 anode, L2 pad 2), SW2 (pins 12 / 13, L3 pad 3 and
-    # C59 pad 1 below) and the inverting node X (L3 pad 4, C59 pad 2, D6)
+    # C76 pad 1 below) and the inverting node X (L3 pad 4, C76 pad 2, D6)
     'sw_nodes': [
         ('zone', 'Net-(D5-A)', [(66.95, 47.5), (69.6, 47.5), (69.6, 45.7), (75.4, 45.7),
                                 (75.4, 47.45), (73.2, 49.5), (73.2, 50.2), (72.45, 50.95),
@@ -140,7 +140,7 @@ ROUTES = {
         if (x, y) != (70.0, 54.0)
     ],
     # after wall_jacks.py: TP36's moved pad back onto Q21's PG_15V pad, the J9 gate
-    # stage clear of R37's +12V stub and a leftover drain stub
+    # stage clear of R38's +12V stub and a leftover drain stub
     'wall_jacks': [
         ('delete', 'Net-(Q5-D)', [(16.938, 67.49), (16.35, 68.15), (16.3, 69.6)]),
         ('track', 'Net-(Q5-D)', [(16.9375, 67.49), (16.2, 68.0), (16.2, 69.5), (16.3, 69.6)], 0.2, pcbnew.B_Cu),
@@ -179,7 +179,7 @@ ROUTES = {
         ('track', 'GND', [(26.16, 82.0), (27.84, 82.0)], 0.25, pcbnew.B_Cu),
     ],
     # after the bottom-wall headers moved in (fan_headers.py, two_pin_headers.py):
-    # NTC_ADC from U1 down In2 to J6, +5V down In2 to R80, R81's +3V3 to JP4 on
+    # NTC_ADC from U1 down In2 to J6, +5V down In2 to R81, a pull-up's +3V3 to JP4 on
     # In2, and a leftover +12V stub cut back
     'bottom_wall_headers': [
         ('track', 'NTC_ADC', [(75.25, 11.3), (74.22, 11.3), (72.38, 13.15), (72.38, 13.3)], 0.25, pcbnew.F_Cu),

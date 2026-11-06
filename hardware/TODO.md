@@ -1,6 +1,6 @@
 # [11/01/2026] Board testing results
-- [x] R6 needed to be changed from 55k to 22k in parallel with a 1nF ceramic capacitor — done (22k ∥ 1 nF)
-  - Superseded: 51k on the rev 1 board measured 10.3 Vpp at 10 V in, so R6 is now 47k + R170 2.4k in series, trimmable by swapping R170 (1 nF kept across both)
+- [x] R45 needed to be changed from 55k to 22k in parallel with a 1nF ceramic capacitor — done (22k ∥ 1 nF)
+  - Superseded: 51k on the rev 1 board measured 10.3 Vpp at 10 V in, so R45 is now 47k + R122 2.4k in series, trimmable by swapping R122 (1 nF kept across both)
   - More details on this can be found in chat: https://claude.ai/chat/9b111fed-44a9-41c4-91a6-cf42005338c9
 - [x] Labeling the test points with names that describe what the point is testing, instead of just TP# would have helped. — done (test points print their net name)
 - Some extra test points could have been of use:
@@ -9,7 +9,7 @@
 - [x] The 1.27mm pitch jumpers were a mistake, they should have been 2.54mm pitch — done (Keystone 5110 0603 jumpers JP1–JP5)
   - For future boards, instead of using through-hole headers for the jumpers, use the 0R jumpers found here: https://www.keyelco.com/userAssets/file/K75p60.pdf (Digikey items 36-5110CT-ND (for 0603), 36-5106CT-ND (for 0805), 36-5108CT-ND (for 1206))
 - [x] The white LEDs are way too bright. Switch them with something dimmer. Maybe green for when they're in a good state. — done (0402 Kingbright, green = good, red = fault)
-- [x] The +15V LED is labeled, there is no -15V next to the other LED. — done (D16 `-15V`)
+- [x] The +15V LED is labeled, there is no -15V next to the other LED. — done (D13 `-15V`)
 - [x] Feel free to use discrete components as small as 0402 to save space. — done
 - [x] Incorporate the improvements we made in the lt3097_power_good branch, as well as other changes: — done (LT3097, LT8582, PG pins to the SC18IS604 GPIOs)
   - Switch to LT3097

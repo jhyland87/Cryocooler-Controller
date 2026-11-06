@@ -1,5 +1,5 @@
 """Adds outer-layer copper in parallel with the 0.8 mm In2 12 V runs for a 4 A
-total: VIN from F1 to Q1, Q1 to R65, R65 to U15's junction, J5 to J3 to J4, plus
+total: VIN from F1 to Q1, Q1 to R98, R98 to U15's junction, J5 to J3 to J4, plus
 via groups at each layer change. Existing copper stays and shares the current.
 Run with the fill and silk steps afterwards.
 
@@ -28,11 +28,11 @@ LEGS = (
 )
 # existing single vias that carry shared current: (net, spot, extra vias wanted)
 VIA_GROUPS = (('+12V', (38.02, 76.72), 2), ('+12V', (56.48, 85.52), 2))
-# In2 from R65 to the junction would still take about half the current and run
-# hot, so it goes; the outer route replaces it. North of this box is R66's sense.
+# In2 from R98 to the junction would still take about half the current and run
+# hot, so it goes; the outer route replaces it. North of this box is R99's sense.
 IN2_RIP_NET = '+12V'
 IN2_RIP_BOX = (37.4, 60.1, 42.0, 77.3)
-# Q1's pin 2 to its tab on F.Cu, then through R65 pad 1 to B.Cu
+# Q1's pin 2 to its tab on F.Cu, then through R98 pad 1 to B.Cu
 VSW_STRIP = ((40.0, 65.3), (43.4, 65.3))
 VSW_STRIP_WIDTH = 1.4
 # either side of the In2 +12V run at x 41.21

@@ -1,6 +1,6 @@
 """Replaces the 2-pin headers J6 (NTC), J7 (panel) and J13 (relay out) with
 right-angle Sullins wafers on the routed board, on the bottom-wall hole line, and
-moves their labels. J7 and J13 shift west to clear D12 and Q7. Copper in the way
+moves their labels. J7 and J13 shift west to clear D4 and Q7. Copper in the way
 is removed for `gen_pcb.py reroute`; then run `gen_pcb.py link` and `silk_fix.py`.
 
 Usage: two_pin_headers.py board.kicad_pcb (edits in place)

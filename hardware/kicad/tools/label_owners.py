@@ -14,11 +14,11 @@ import pcbnew
 
 from silk_fix import Box, obstacles
 
-DUPLICATE_NAMES = {'+15V': 'D15', '-15V': 'D16'}  # owner LED of each name to remove
+DUPLICATE_NAMES = {'+15V': 'D12', '-15V': 'D13'}  # owner LED of each name to remove
 # board text -> the part it names (the instance nearest that part)
 NAMED_PARTS = {
-    'STATUS': 'D11', '5V': 'D14', 'READY': 'D9', 'FAULT': 'D10', 'COMP RLY': 'D12',
-    'POWER': 'D3', '3V3': 'D8', 'SG 3V3': 'JP1', '±15V EN': 'JP2',
+    'STATUS': 'D22', '5V': 'D11', 'READY': 'D10', 'FAULT': 'D8', 'COMP RLY': 'D4',
+    'POWER': 'D2', '3V3': 'D9', 'SG 3V3': 'JP1', '±15V EN': 'JP2',
     'ISO PS': 'JP3', 'WATER EN': 'JP4', 'HEAD EN': 'JP5',
 }
 CLEARANCE = 0.2

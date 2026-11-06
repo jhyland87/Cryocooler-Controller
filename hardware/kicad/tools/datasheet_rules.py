@@ -319,6 +319,14 @@ RULES = [
     # low) behind a 1k series resistor
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '37', 'PG_15V_N'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '10', '10k', '+3V3'),
+    # TL6800AF260QJ power button (E-Switch datasheet p.2): contact from LTC2954 PB to GND
+    ('join', 'POWER', '1', 'LTC2954CTS8-2', '2'),
+    ('net', 'POWER', '2', 'GND'),
+    # PTS810 reset and boot buttons (C&K datasheet p.1): contact from the strap net to GND
+    ('net', 'RESET', '1', 'ESP_EN'),
+    ('net', 'RESET', '2', 'GND'),
+    ('net', 'BOOT', '1', 'ESP_BOOT'),
+    ('net', 'BOOT', '2', 'GND'),
     # Phoenix 2.4" display FPC (datasheet 109921 p.7) and TSC2046E (TI SBAS417, QFN pins)
     ('net', 'FH12-14S-0.5SH(55)', '5', 'GND'),
     ('net', 'FH12-14S-0.5SH(55)', '6', '+3V3'),

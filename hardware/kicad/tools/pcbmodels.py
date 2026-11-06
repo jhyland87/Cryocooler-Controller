@@ -167,6 +167,20 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # 141_TL6800AFxxxQJ.stp (E-Switch) is off-origin and turned 90 degrees from the
+    # drawing: actuator axis at x -2.3865, y 2.4738, lowest point at z -0.935
+    'SW_E-Switch_TL6800AF': (
+        'TL6800AFxxxQJ.step',
+        (-2.4738, -2.3865, 0.935),
+        (0.0, 0.0, 90.0),
+    ),
+    # PTS810SJM250SMTR-LFS.step (C&K; named PTS810SJS250 inside, same shape) is Y-up:
+    # board plane at y 0, centred, terminals at z +-1.075
+    'SW_CK_PTS810': (
+        'PTS810SJM250SMTR-LFS.step',
+        (0.0, 0.0, 0.0),
+        (-90.0, 0.0, 0.0),
+    ),
     # RGY0016A.step (TI, U32) and RGV0016B.step (TI, U27) are already placed:
     # Z-up, seated at z 0, centred, pin 1 chamfer on the exposed pad at -x +y
     'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm': (

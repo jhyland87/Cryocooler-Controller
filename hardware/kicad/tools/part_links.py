@@ -12,7 +12,9 @@ import gen_bom
 
 # MPN prefix -> datasheet URL (longest prefix wins)
 DATASHEETS = {
-    'ESP32-S3-WROOM-2': 'https://www.espressif.com/sites/default/files/'
+    'TL6800': 'https://www.mouser.com/datasheet/3/315/1/TL6800AF260QJ.pdf',
+    'PTS810': 'https://ckswitches.com/media/1476/pts810.pdf',
+    'ESP32-S3-WROOM-2':'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
     'OPA1655': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
     '54-00164': 'https://www.digikey.com/en/products/detail/tensility/54-00164/10459298',
@@ -83,7 +85,9 @@ DATASHEETS = {
 
 # Phoenix item number -> product page (datasheet and drawings are on it)
 PRODUCT_PAGES = {
-    'SWR25X-NRTC-S02-RB-BA': 'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
+    'TL6800AF260QJ': 'https://www.mouser.com/en/ProductDetail/E-Switch/TL6800AF260QJ',
+    'PTS810SJM250SMTR LFS': 'https://www.mouser.com/en/ProductDetail/CK/PTS810SJM250SMTR-LFS',
+    'SWR25X-NRTC-S02-RB-BA':'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
     'CO975': 'https://www.moddiy.com/products/5408/4-Pin-3-Pin-2.54mm-Pitch-2510-Fan-Male-Angled-Connector-Black.html',
     '2305908-2': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-2/9744703',

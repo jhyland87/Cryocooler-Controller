@@ -66,7 +66,7 @@ CAPS = {
         'LT8582 VC2 compensation'),
     ('1nF/C0G', 'C_0402_1005Metric'): (
         'CL05C102JB5NNNC', 'CAP CER 1000PF 50V C0G 0402',
-        'across R6 + R170 (49.4k) in the sine gain stage'),
+        'across R45 + R122 (49.4k) in the sine gain stage'),
     ('47pF', 'C_0402_1005Metric'): (
         'CL05C470JB5NNNC', 'CAP CER 47PF 50V C0G 0402',
         'LT8582 VC high-frequency poles'),
@@ -128,7 +128,7 @@ PARTS = {
     ('100uF/25V', 'CP_Elec_8x10'): (
         'Panasonic', 'EEE-FK1E101P',
         'CAP ALUM 100UF 20% 25V SMD 8x10.2', 'suggested',
-        'C6 sits on the input rail behind a 26 V TVS clamp; prefer 35 V '
+        'C54 sits on the input rail behind a 26 V TVS clamp; prefer 35 V '
         '(EEE-FK1V101P)'),
     ('22uF', 'CP_EIA-3528-21_Kemet-B'): (
         'Kemet', 'T491B226K016AT',
@@ -241,6 +241,12 @@ PARTS = {
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
+    ('TACTILE', 'SW_CK_PTS810'): (
+        'C&K', 'PTS810SJM250SMTR LFS', 'SWITCH TACTILE SPST-NO 0.05A 16V SMD',
+        'design', 'SW1 reset, SW2 boot; 1.6 N, grey actuator, 150,000 cycles'),
+    ('TACTILE', 'SW_E-Switch_TL6800AF'): (
+        'E-Switch', 'TL6800AF260QJ', 'SWITCH TACTILE SPST-NO 0.05A 12V SMD IP67',
+        'design', 'SW3 power button; 260 gf, 500,000 cycles, IP67'),
     ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
         'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
         'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
@@ -375,7 +381,6 @@ SUBSTITUTES = {
     'RC0603FR-0751KL': ('CR0603-FX-5102ELF', 'Bourns'),
     'RC0603FR-07100RL': ('AR0603FR-07100RL', 'Yageo'),
     'RC0603FR-072M67L': ('CRCW06032M67FKEA', 'Vishay Dale'),
-    'TL3342F160QG': ('TL3342F160QG/TR', 'E-Switch'),
     'LTC2954CTS8-2#TRMPBF': ('LTC2954CTS8-2#TRPBF', 'Analog Devices'),
     'SN74LVC1G125DBVR': ('74LVC1G125DBVTG4', 'Texas Instruments'),
 }
@@ -474,12 +479,12 @@ def write_jlcpcb_files(rows):
             mpn = row['Manufacturer Part Number']
             writer.writerow([
                 row['Value'] or mpn or row['Description'],
-                ','.join(row['Customer Reference'].split()),
+                ','.join(row['Designators']),
                 jlcpcb_footprint(row['Package']),
                 LCSC_PARTS.get(mpn, ''),
                 '',
             ])
-    bom_refs = {ref for row in rows for ref in row['Customer Reference'].split()}
+    bom_refs = {ref for row in rows for ref in row['Designators']}
     placements = [p for p in load_placements() if p[0] in bom_refs]
     placements.sort(key=lambda placement: sort_key(placement[0]))
     with CPL_OUTPUT.open('w', newline='', encoding='utf-8') as handle:
@@ -557,10 +562,6 @@ def classify(value, footprint):
             'LED RED/GREEN BICOLOR 1206 SMD, 2 pin anti-parallel', 'suggested',
             'AlGaInP red and green, 30 mA max each; XZMDKVG55W-7 is the same '
             'with a domed lens. Avoid XZMDKDGK55W-4 (green is InGaN, 25 mA max)')
-    if footprint == 'SW_SPST_TL3342':
-        return (
-            'E-Switch', 'TL3342F160QG', 'SWITCH TACTILE SPST-NO 0.05A 12V SMD',
-            'suggested', 'footprint is the TL3342 family (3.5 x 6 mm)')
     entry = PARTS.get((value, footprint))
     if entry is None:
         return ('', '', f'{value} {footprint}', 'none', 'no part chosen yet')
@@ -578,7 +579,7 @@ def bom_value(ref, value, footprint):
         return 'red' if '(red)' in value or 'FAULT' in value else 'green'
     if footprint.startswith(CONNECTOR_FOOTPRINTS):
         return ''  # connectors group by footprint, not by label
-    if footprint.startswith('SW_SPST'):
+    if footprint.startswith('SW_'):
         return 'TACTILE'
     if footprint == 'LED_1206_3216Metric':
         return 'RED/GREEN'
@@ -597,6 +598,24 @@ def resolve(value, footprint):
     return maker, mpn, description, basis, note
 
 
+def compact_refs(refs):
+    """Joins sorted references, shortening runs of three or more to first-last."""
+    runs = []
+    for ref in refs:
+        prefix, number = sort_key(ref)
+        if runs and runs[-1][0] == prefix and runs[-1][2] + 1 == number:
+            runs[-1][2] = number
+        else:
+            runs.append([prefix, number, number])
+    pieces = []
+    for prefix, first, last in runs:
+        if last - first >= 2:
+            pieces.append(f'{prefix}{first}-{prefix}{last}')
+        else:
+            pieces.extend(f'{prefix}{number}' for number in range(first, last + 1))
+    return ' '.join(pieces)
+
+
 def main():
     # pad test points are bare copper; the through-hole ground loops are parts
     parts = [
@@ -606,24 +625,30 @@ def main():
     groups = collections.defaultdict(list)
     for ref, value, footprint in parts:
         groups[(bom_value(ref, value, footprint), footprint)].append(ref)
-    rows = []
+    # one line per orderable part, whatever value text its symbols carry
+    by_part = {}
     for (value, footprint), refs in groups.items():
-        refs.sort(key=sort_key)
         maker, mpn, description, basis, note = resolve(value, footprint)
-        rows.append(
-            {
-                'sort': sort_key(refs[0]),
-                'Quantity': len(refs),
-                'Manufacturer Part Number': mpn,
-                'Manufacturer': maker,
-                'Description': description,
-                'Customer Reference': ' '.join(refs),
-                'Value': value,
-                'Package': footprint,
-                'MPN basis': basis,
-                'Notes': note,
-            }
-        )
+        key = (mpn, footprint) if mpn else (value, footprint)
+        row = by_part.setdefault(key, {
+            'Designators': [],
+            'Manufacturer Part Number': mpn,
+            'Manufacturer': maker,
+            'Description': description,
+            'Value': value,
+            'Package': footprint,
+            'MPN basis': basis,
+            'Notes': '',
+        })
+        row['Designators'] += refs
+        if note and note not in row['Notes']:
+            row['Notes'] = '; '.join(filter(None, [row['Notes'], note]))
+    rows = list(by_part.values())
+    for row in rows:
+        row['Designators'].sort(key=sort_key)
+        row['sort'] = sort_key(row['Designators'][0])
+        row['Quantity'] = len(row['Designators'])
+        row['Customer Reference'] = compact_refs(row['Designators'])
     rows.sort(key=lambda row: row['sort'])
     OUTPUT.parent.mkdir(exist_ok=True)
     fields = [
@@ -634,15 +659,14 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
-    mouser = [row for row in rows if set(row['Customer Reference'].split())
-              & set(MOUSER_LINES)]
+    mouser = [row for row in rows if set(row['Designators']) & set(MOUSER_LINES)]
     with MOUSER_OUTPUT.open('w', newline='') as handle:
         writer = csv.writer(handle)
         writer.writerow(['Mouser Part Number', 'Manufacturer Part Number',
                          'Manufacturer', 'Quantity', 'Description',
                          'Customer Reference', 'Notes'])
         for row in mouser:
-            ref = row['Customer Reference'].split()[0]
+            ref = row['Designators'][0]
             mpn = row['Manufacturer Part Number']
             writer.writerow([MOUSER_LINES[ref], MOUSER_MPN.get(mpn, mpn),
                              row['Manufacturer'], row['Quantity'],

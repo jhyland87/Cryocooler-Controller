@@ -24,13 +24,13 @@ TRIM_NETS = {
 R68_RAIL_STUB = (20.0, 50.0, 23.0, 53.2)
 BIAS_RAIL = ((98.11, 33.2), (99.2, 33.2), (99.6, 33.6), (99.6, 35.2), (99.2, 35.6), (98.11, 35.6))
 BIAS_RAIL_WIDTH = 0.3
-GROUND_PADS = (('R183', '1'),)
+GROUND_PADS = (('R29', '1'),)
 REMOVED_PARTS = ('TP41',)  # user: silk room beside U24
 # G2B is boxed in by CS_ADDR_B under the body: capped via in its pad, as on the
 # other fine-pitch ground pads (fabrication/README.md)
-# D10's cathode too: inner traces 0.9 mm apart leave no room beside it
-VIAS_IN_PADS = (('D10', '1', 85.0, 32.26),)
-# C132 leaves the decoder's fan-out: ground pad in open pour, supply pad beside TP45
+# D8's cathode too: inner traces 0.9 mm apart leave no room beside it
+VIAS_IN_PADS = (('D8', '1', 85.0, 32.26),)
+# C42 leaves the decoder's fan-out: ground pad in open pour, supply pad beside TP45
 C132_SPOT = (87.8, 37.6, 180)
 C132_FEED_WIDTH = 0.3
 VIA_DIAMETER, VIA_DRILL, STUB_WIDTH, CLEARANCE = 0.45, 0.2, 0.2, 0.16
@@ -229,7 +229,7 @@ def add_track(board, points, net, layer):
 
 def move_c132(board):
     x, y, rotation = C132_SPOT
-    footprint = board.FindFootprintByReference('C132')
+    footprint = board.FindFootprintByReference('C42')
     footprint.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
     footprint.SetOrientationDegrees(rotation)
     supply = next(p for p in footprint.Pads() if p.GetNumber() == '1')
@@ -244,10 +244,10 @@ def move_c132(board):
 
 
 def move_bias_rail(board):
-    """Moves the +3V3 loop feeding R182 and R181 clear of R183, so its ground pad
+    """Moves the +3V3 loop feeding R28 and R27 clear of R29, so its ground pad
     has room for a via.
     """
-    feed = next(p for p in board.FindFootprintByReference('R182').Pads() if p.GetNumber() == '1')
+    feed = next(p for p in board.FindFootprintByReference('R28').Pads() if p.GetNumber() == '1')
     for item in list(board.GetTracks()):
         if item.Type() == pcbnew.PCB_VIA_T or item.GetNetname() != '+3V3':
             continue
