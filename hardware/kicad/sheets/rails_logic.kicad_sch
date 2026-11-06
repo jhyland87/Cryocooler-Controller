@@ -2097,10 +2097,22 @@
 		(uuid "1ece5b69-5090-57a4-9d0f-0eaab5382a75")
 	)
 	(junction
+		(at 190.5 210.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4205d6bc-d21a-413c-8fb2-0488223cd8fe")
+	)
+	(junction
 		(at 76.2 248.92)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4a90be3e-5a2e-5f4a-9bce-63de47197897")
+	)
+	(junction
+		(at 146.05 210.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5e60944f-4246-4c33-ba1e-f8e4ae33e0c4")
 	)
 	(junction
 		(at 151.13 92.71)
@@ -2292,7 +2304,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 251.46) (xy 97.79 251.46)
+			(xy 93.98 251.46) (xy 97.79 251.46)
 		)
 		(stroke
 			(width 0)
@@ -2472,7 +2484,7 @@
 	)
 	(wire
 		(pts
-			(xy 123.19 210.82) (xy 180.34 210.82)
+			(xy 123.19 210.82) (xy 146.05 210.82)
 		)
 		(stroke
 			(width 0)
@@ -2562,7 +2574,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 210.82) (xy 190.5 210.82)
+			(xy 146.05 210.82) (xy 190.5 210.82)
 		)
 		(stroke
 			(width 0)
@@ -2591,7 +2603,7 @@
 		(uuid "f8bbfef3-c8e6-5d6b-a399-544d738466ea")
 	)
 	(label "USB_SEL"
-		(at 91.44 251.46 180)
+		(at 93.98 251.46 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4584,7 +4596,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 167.5 219.88 0)
+			(at 163.576 217.17 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5865,7 +5877,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 180.34 210.82 0)
+		(at 146.05 210.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5875,7 +5887,7 @@
 		(dnp no)
 		(uuid "eeec5c93-e9c3-52b2-847c-e72cf5169d98")
 		(property "Reference" "#FLG157"
-			(at 180.34 210.82 0)
+			(at 146.05 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5886,7 +5898,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 180.34 210.82 0)
+			(at 146.05 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5897,7 +5909,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 180.34 210.82 0)
+			(at 146.05 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5908,7 +5920,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 180.34 210.82 0)
+			(at 146.05 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5919,7 +5931,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 180.34 210.82 0)
+			(at 146.05 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5953,25 +5965,25 @@
 		(dnp no)
 		(uuid "f023d72c-f515-5db2-b00c-4632fcf24295")
 		(property "Reference" "R171"
-			(at 163.236 214.85 0)
+			(at 158.242 216.408 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "10k"
-			(at 163.236 216.95 0)
+			(at 158.242 218.508 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"

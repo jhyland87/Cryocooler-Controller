@@ -3285,12 +3285,6 @@
 		(uuid "279e7fbb-784e-5dd9-b721-4d0ae1f4f34a")
 	)
 	(junction
-		(at 172.72 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4c86d821-d3da-5dba-b386-7da9e02e1d42")
-	)
-	(junction
 		(at 142.24 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3658,6 +3652,16 @@
 	)
 	(wire
 		(pts
+			(xy 254 106.68) (xy 266.7 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "48e06cfb-4a7f-4395-82b6-108f44527d76")
+	)
+	(wire
+		(pts
 			(xy 172.72 88.9) (xy 172.72 104.14)
 		)
 		(stroke
@@ -3745,16 +3749,6 @@
 			(type default)
 		)
 		(uuid "70eccb73-d862-514a-b80b-024d25623387")
-	)
-	(wire
-		(pts
-			(xy 254 106.68) (xy 266.7 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7362980a-a6d9-5b6f-850f-843db5632024")
 	)
 	(wire
 		(pts
@@ -4108,7 +4102,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 137.16) (xy 254 142.24)
+			(xy 254 137.16) (xy 254 143.51)
 		)
 		(stroke
 			(width 0)
@@ -4228,26 +4222,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 85.09) (xy 172.72 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ea094af5-2931-57c7-91eb-c25b98a7a69f")
-	)
-	(wire
-		(pts
-			(xy 254 142.24) (xy 259.08 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eb0ddfb1-df4b-569e-84b3-ff3e6ff7d803")
-	)
-	(wire
-		(pts
 			(xy 248.92 48.26) (xy 264.16 48.26)
 		)
 		(stroke
@@ -4350,7 +4324,7 @@
 	)
 	(global_label "USB_VBUS"
 		(shape bidirectional)
-		(at 260.35 106.68 180)
+		(at 254 106.68 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4360,7 +4334,7 @@
 		)
 		(uuid "1330bc5f-c544-5d83-a583-db1c14ab9162")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 260.35 106.68 0)
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4854,7 +4828,7 @@
 	)
 	(global_label "ESP_EN"
 		(shape bidirectional)
-		(at 172.72 85.09 0)
+		(at 172.72 88.9 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4864,7 +4838,7 @@
 		)
 		(uuid "852bc207-dad4-5b7d-a3a2-0a6b553cba65")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 85.09 0)
+			(at 172.72 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6720,7 +6694,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 259.08 142.24 0)
+		(at 254 143.51 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6730,7 +6704,7 @@
 		(dnp no)
 		(uuid "757e846d-3ccd-51bd-b111-1f5065eb41dc")
 		(property "Reference" "#PWR020"
-			(at 259.08 142.24 0)
+			(at 254 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6741,7 +6715,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 259.08 142.24 0)
+			(at 254 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6752,7 +6726,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 259.08 142.24 0)
+			(at 254 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6763,7 +6737,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 259.08 142.24 0)
+			(at 254 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6774,7 +6748,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 259.08 142.24 0)
+			(at 254 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8221,25 +8195,25 @@
 		(dnp no)
 		(uuid "d1bb234d-b612-5e6c-bcd3-1977f31174cf")
 		(property "Reference" "U2"
-			(at 240.03 111.74 0)
+			(at 253.238 113.216 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "USBLC6-2SC6"
-			(at 240.03 113.84 0)
+			(at 253.238 115.316 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
