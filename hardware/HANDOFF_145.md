@@ -209,7 +209,7 @@ Brings the routed board to the MCP23S08 schematic. Design commit `5e8fc30`; the 
 Branch `spi-cs-decoder`. U32 (SN74LVC138A) at (92, 33) replaces the eight CS GPIOs; design notes are in `kicad/DESIGN_REVIEW.md`. Not bench-tested.
 
 - **Pipeline on the committed board:** `cs_decoder_board.py`, `gen_pcb.py link`, `gridroute.py`, `cs_decoder_finish.py` (no flag), `octilinear.py`, `cs_decoder_finish.py --ground` (ground ties, TP41 out), `gen_pcb.py link`, `narrow_silk.py`, `label_owners.py`, `silk_fix.py`, `cs_decoder_silk.py`. Later edits were small one-off moves whose final values are recorded in the scripts, so a replay may need touch-up.
-- **Via-in-pad:** U32 pad 5 and D10 pad 1. Inner traces 0.9 mm apart leave no room beside D10.
+- **Via-in-pad:** U32 exposed pad (RGY package) and D10 pad 1. Inner traces 0.9 mm apart leave no room beside D10.
 - **+3V3 loop:** the feed to R182 and R181 runs out to x 99.6 so R183 pad 1 can reach a via at (98.71, 34.4).
 - **Silk:** hand-placed around U32; re-running `silk_fix.py` may hide those labels, so run `cs_decoder_silk.py` again afterwards.
 - **Part stock:** Digi-Key's SN74LVC138APWR listing looked stocked from cached pages. Check live before ordering.
