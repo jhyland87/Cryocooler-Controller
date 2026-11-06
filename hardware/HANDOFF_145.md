@@ -258,3 +258,16 @@ The panel's ribbon leaves its lower edge heading toward the top of the board, so
 - **Housing:** J1's wall cut-out moves 21.8 mm left, and any J15 cable slot needs re-checking.
 - **Still to confirm against the panel:** the ribbon's exposed contacts must face FH12's contact side (rotating J15 doesn't change this), and J15's x position must line up with the ribbon in the lid.
 
+
+## Mask-opening labels (2026-11-06)
+
+Silk can't go under JLCPCB's 1.0 mm, so 327 labels are now solder mask openings over the GND and ISO_GND pours, with the exposed copper forming the letters (`tools/mask_labels.py`, positions in `tools/mask_labels.json`). No copper changed. The stroke is 0.10 mm: R, C and D references are 0.5 mm tall and everything else is 0.7 mm. At 0.5 mm the "8" keeps 0.115 mm of mask against JLCPCB's 0.10 mm blue dam, and thinner strokes leave a sliver in the "9".
+
+- **Placement rule (from the user's hand edits):** center a label on one edge of its part, parallel to that edge, on the open side and the same side as similar parts nearby. A slightly larger gap is fine. `tools/mask_label_plan.py` applies it, keeps the hand placements in `LOCKED`, and only moves a label to a better free spot, so coverage can't drop.
+- **Arrows (29 labels):** 0.15 mm silk leaders at 0/45/90 degrees with at most one bend, the last resort for labels with no room beside their part. They cross traces, but not pads, vias or other silk.
+- **1.0 mm silk:** 21 owned labels are silk centered on an edge (`silk: true` in the JSON), 12 of them mask labels before the rule, including R2, R25, R39, R70, R71, R72, R95 and R101. Another 11 stayed in their silk spots. The 19 ESP32 pin names are also silk.
+- **Left alone on purpose:** section names, box lines, the board ID and part-body names.
+- **Still hidden (13):** C21, C23, C33, C34, D13, R12, R90, R91, R94, R96, R97, R112, U15.
+- **Copper text was rejected:** a 12-label trial gave 8 clearance errors and removed 41.6 mm² of GND pour.
+- **Pipeline:** run after `silk_fix.py`, which could cut the arrows. To replan, run `tools/mask_label_export.py` under KiCad's Python, then `tools/mask_label_plan.py board.json tools/mask_labels.json previous_labels.json` under the system Python, then `tools/mask_labels.py`. Positions don't follow parts, so re-check after any move, reroute or refill.
+- **Before ordering:** order ENIG and note the labels on the order. Readability at 0.5 mm isn't proven on a real board.

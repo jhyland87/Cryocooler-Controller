@@ -40,6 +40,10 @@ creation date, so the files differ in git after every export even if the board d
   0.3 mm drill vias in their pads. Check JLCPCB's current via limits and order
   filled / capped vias; if they are too small the vias need enlarging and the pad
   connections reworking.
+* **ENIG finish and mask-opening labels:** 327 labels (`tools/mask_labels.py`) are 0.5 mm
+  or 0.7 mm text cut into the solder mask over the ground pours, and they are intentional.
+  29 labels have a silk arrow pointing at their part. HASL would blur the text. Tell JLCPCB in
+  the order notes so it isn't removed in review.
 * Parts on both sides: the back carries a few passives and small transistors.
 * The back silkscreen carries the board ID (name and git revision); check the viewer
   shows it mirrored correctly from the back.
