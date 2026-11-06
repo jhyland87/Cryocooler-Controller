@@ -31,6 +31,8 @@
 #ifdef ARDUINO
 #include <WiFi.h>
 #include <esp_ota_ops.h>  // esp_app_desc_t lives here on IDF 5.1.x
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include "dashboard.h"
 #include "mock_commands.h"
 #include "amplifier.h"
@@ -67,6 +69,9 @@ static uint32_t lastCharMs = 0;  ///< millis() of the most recently buffered pri
 // The flag is per-session (not persisted across reboots).
 
 static bool s_awaitingUpdateConfirm = false;
+
+// The loop task, the only one allowed to run commands: they reach the SPI bus.
+static TaskHandle_t s_commandTask = nullptr;
 #endif
 
 // ─── Command handler type and dispatch table ──────────────────────────────────
@@ -1250,6 +1255,13 @@ static void handleHelp(const char* /*args*/, Print& out) {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 void processLine(const char* line, Print& out) {
+#ifdef ARDUINO
+    if (xTaskGetCurrentTaskHandle() != s_commandTask) {
+        out.println(F("[ERR] Commands must run on the loop task"));
+        return;
+    }
+#endif
+
     // Skip leading whitespace.
     while (*line == ' ' || *line == '\t') { ++line; }
     if (*line == '\0') return;
@@ -1315,6 +1327,9 @@ void processLine(const char* line, Print& out) {
 void init() {
     lineLen    = 0;
     lineBuf[0] = '\0';
+#ifdef ARDUINO
+    s_commandTask = xTaskGetCurrentTaskHandle();  // setup() runs on the loop task
+#endif
 }
 
 void service() {

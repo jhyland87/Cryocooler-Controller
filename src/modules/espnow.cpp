@@ -4,9 +4,13 @@
  *
  * Architecture
  * ────────────
- * A dedicated FreeRTOS task (Core 0, alongside the WiFi/TCPIP stack) owns all
- * ESP-NOW I/O.  The Arduino loop task (Core 1) never touches ESP-NOW directly;
- * espnow::service() is a no-op stub that satisfies the ModuleBase interface.
+ * A dedicated FreeRTOS task (Core 0, alongside the WiFi/TCPIP stack) sends the
+ * periodic telemetry packets.
+ *
+ * Received commands run on the Arduino loop task, not in the receive callback:
+ * many of them reach the shared SPI bus, which only loop() may touch.  The
+ * callback copies each line into a queue; espnow::service() runs one per tick
+ * and sends the reply.
  *
  * Why Core 0?
  * ───────────
@@ -55,6 +59,7 @@
 #include <WiFi.h>
 #include <esp_now.h>
 #include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 #include <freertos/task.h>
 #include <time.h>
 
@@ -70,12 +75,27 @@ static constexpr uint32_t    TASK_STACK_BYTES = 4096;
 /** Low priority — yields freely; does not compete with the control loop. */
 static constexpr UBaseType_t TASK_PRIORITY    = 1;
 
+// ─── Command queue ─────────────────────────────────────────────────────────────
+
+/** Longest command accepted: the maximum ESP-NOW payload. */
+static constexpr int      COMMAND_MAX_LEN     = 250;
+
+/** Commands waiting for loop().  Service runs one per tick, so a few is plenty. */
+static constexpr UBaseType_t COMMAND_QUEUE_DEPTH = 4;
+
+/** One received line waiting to run on the loop task. */
+struct PendingCommand {
+    uint8_t senderMac[6];
+    char    line[COMMAND_MAX_LEN + 1];
+};
+
 // ─── Module state ──────────────────────────────────────────────────────────────
 
 static volatile bool     ready_     = false;
 static volatile uint32_t sentCount_ = 0;   ///< Successful packet deliveries
 static volatile uint32_t failCount_ = 0;   ///< Failed packet deliveries
 static uint8_t           peerMac_[6] = ESPNOW_PEER_MAC;
+static QueueHandle_t     commandQueue_ = nullptr;  ///< WiFi task → loop task
 
 // ─── Send-complete callback ────────────────────────────────────────────────────
 
@@ -116,9 +136,6 @@ static void onSent(const uint8_t* /*mac*/, esp_now_send_status_t status) {
  * or when the object is destroyed (end of processLine's scope), the buffered
  * bytes are sent as a single esp_now_send() call.  Each chunk therefore fits
  * inside the 250-byte ESP-NOW frame limit with four bytes of headroom.
- *
- * Calling esp_now_send() from within the recv callback (WiFi-task context) is
- * explicitly supported by ESP-IDF; the maximum payload is 250 bytes.
  *
  * The sender MAC must already be registered as an ESP-NOW peer (peerMac_ is
  * registered during init(), so any packet from that peer can be replied to).
@@ -178,13 +195,11 @@ private:
  * Called by the ESP-NOW driver when a frame arrives from any peer.
  *
  * The payload is treated as a raw command string — identical to a line typed
- * into the serial console.  The bytes are copied into a local null-terminated
- * buffer, any trailing CR/LF is stripped, and the result is forwarded to
- * commands::processLine() with an EspNowPrint sink so the response text is
- * sent back to the sender over the air.
+ * into the serial console.  Trailing CR/LF is stripped and the line is queued
+ * for espnow::service().
  *
- * This callback runs in the WiFi task context (same as the TCP command path),
- * so it is safe to call both commands::processLine() and esp_now_send() here.
+ * This callback runs in the WiFi task (Core 0), so it must not run commands
+ * itself: they reach the SPI bus that loop() is using on Core 1.
  *
  * Callback signature: ESP-IDF 5.x changed esp_now_recv_cb_t so the first
  * argument is const esp_now_recv_info_t* rather than const uint8_t* (MAC).
@@ -200,31 +215,31 @@ static void onReceived(const uint8_t* mac, const uint8_t* data, int len) {
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], len);
     if (len <= 0) return;
 
-    // Clamp to the maximum ESP-NOW payload so the buffer is always sufficient.
-    static constexpr int CMD_BUF_LEN = 250;
-    char buf[CMD_BUF_LEN + 1];
+    PendingCommand command;
+    memcpy(command.senderMac, mac, sizeof(command.senderMac));
 
-    const int copyLen = (len < CMD_BUF_LEN) ? len : CMD_BUF_LEN;
-    memcpy(buf, data, static_cast<size_t>(copyLen));
-    buf[copyLen] = '\0';
+    // Clamp to the maximum ESP-NOW payload so the buffer is always sufficient.
+    const int copyLen = (len < COMMAND_MAX_LEN) ? len : COMMAND_MAX_LEN;
+    memcpy(command.line, data, static_cast<size_t>(copyLen));
+    command.line[copyLen] = '\0';
 
     // Strip trailing CR / LF so processLine() sees a clean token.
     int end = copyLen - 1;
-    while (end >= 0 && (buf[end] == '\r' || buf[end] == '\n')) {
-        buf[end--] = '\0';
+    while (end >= 0 && (command.line[end] == '\r' || command.line[end] == '\n')) {
+        command.line[end--] = '\0';
     }
 
-    if (buf[0] == '\0') return;   // nothing left after stripping
+    if (command.line[0] == '\0') return;   // nothing left after stripping
 
     ESP_LOGI(TAG, "cmd from %02X:%02X:%02X:%02X:%02X:%02X: \"%s\"",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], buf);
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], command.line);
 
-    // Route the response back to the sender over ESP-NOW.
-    // EspNowPrint buffers write() calls and flushes via esp_now_send() on
-    // destruction, so the complete response is transmitted when processLine()
-    // returns and espNowOut goes out of scope.
-    EspNowPrint espNowOut(mac);
-    commands::processLine(buf, espNowOut);
+    // Tell the sender when a command is dropped, so a lost 'stop' isn't silent.
+    if (xQueueSend(commandQueue_, &command, 0) != pdTRUE) {
+        ESP_LOGW(TAG, "Command queue full, dropping \"%s\"", command.line);
+        EspNowPrint reply(mac);
+        reply.println(F("[ERR] Command queue full, command not run"));
+    }
 }
 
 // ─── Packet fill ───────────────────────────────────────────────────────────────
@@ -372,6 +387,15 @@ module::InitStatus init() {
         return module::MODULE_INIT_DEPENDENCY_ERROR;
     }
 
+    // Must exist before the receive callback is registered.  Kept across reinit.
+    if (commandQueue_ == nullptr) {
+        commandQueue_ = xQueueCreate(COMMAND_QUEUE_DEPTH, sizeof(PendingCommand));
+        if (commandQueue_ == nullptr) {
+            ESP_LOGE(TAG, "Failed to allocate command queue");
+            return module::MODULE_INIT_DEPENDENCY_ERROR;
+        }
+    }
+
     if (esp_now_init() != ESP_OK) {
         ESP_LOGE(TAG, "esp_now_init() failed");
         return module::MODULE_INIT_DEPENDENCY_ERROR;
@@ -417,12 +441,18 @@ module::InitStatus init() {
     return module::MODULE_INIT_SUCCESS;
 }
 
-/**
- * No-op: the ESP-NOW task manages its own schedule.
- * Kept so espnow::Module satisfies the ModuleBase interface.
- */
 module::ServiceStatus service() {
-    return module::MODULE_SERVICE_SKIPPED;
+    if (commandQueue_ == nullptr) return module::MODULE_SERVICE_SKIPPED;
+
+    PendingCommand command;
+    if (xQueueReceive(commandQueue_, &command, 0) != pdTRUE) {
+        return module::MODULE_SERVICE_SKIPPED;
+    }
+
+    // EspNowPrint flushes what's left when it goes out of scope.
+    EspNowPrint reply(command.senderMac);
+    commands::processLine(command.line, reply);
+    return module::MODULE_SERVICE_OK;
 }
 
 uint32_t getSentCount() { return sentCount_; }

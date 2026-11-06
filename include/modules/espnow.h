@@ -131,8 +131,12 @@ namespace espnow {
 module::InitStatus init();
 
 /**
- * No-op stub — the ESP-NOW task self-schedules on Core 0.
- * Present so espnow::Module satisfies the ModuleBase interface.
+ * Run at most one queued command received over ESP-NOW and send its reply to
+ * the sender.  Call every loop() tick: commands may use the shared SPI bus, so
+ * they must run on the loop task, never in the WiFi receive callback.
+ *
+ * @return MODULE_SERVICE_OK if a command ran, MODULE_SERVICE_SKIPPED if none
+ *         was waiting.
  */
 module::ServiceStatus service();
 
