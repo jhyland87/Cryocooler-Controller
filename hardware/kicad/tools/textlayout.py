@@ -196,7 +196,8 @@ class TextLayout:
     def place_part(self, part):
         fields = {
             'Reference': text_width(part.ref),
-            'Value': text_width(part.value),
+            # capitals run wider than the estimate; see Part.value_margin users
+            'Value': text_width(part.value) + getattr(part, 'value_margin', 0.0),
         }
         for names in (('Reference', 'Value'), ('Reference',), ('Value',)):
             widths = {name: fields[name] for name in names}

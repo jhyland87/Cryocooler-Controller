@@ -17,7 +17,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `rails_logic` | AP63205 buck (12→5 V); LM66100 pair ORs +5V and USB VBUS into +5V_OR → LD1117S33 (→3.3 V) |
 | `rails_15v` | LT8582 dual converter at 1.5 MHz (datasheet p.30 circuit): boost to +16.4 V, coupled-inductor (MSD7342-103) inverter to −16.5 V → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); PG1 / PG2 and the LT3097 PGP / PGN go to the `power_good` sheet (see below) |
 | `power_good` | One node and green LED per LT3097 PG pin, a BAT54AW AND of the two nodes into `PG_15V`, the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good), and 20k / 39k nodes for the LT8582 PG1 / PG2; all four flags are also read by the SC18IS604 GPIOs |
-| `signal_gen` | 25 MHz osc, AD9833, OPA1656, MCP4921 + LM4040-2.5 + OPA188, AD633 |
+| `signal_gen` | 25 MHz osc, AD9833, OPA1655, MCP4921 + LM4040-2.5 + OPA188, AD633 |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800 (SPI) + ISO7741 + MIE1W0505 (VSEL→GND2 = 3.3 V output), 4×1 MΩ + 4.02 kΩ divider |
 | `system_current` | INA239 (SPI mode 1, CS on GPIO3) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT and 3V3 power LEDs |

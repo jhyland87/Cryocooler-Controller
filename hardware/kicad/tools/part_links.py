@@ -14,7 +14,7 @@ import gen_bom
 DATASHEETS = {
     'ESP32-S3-WROOM-2': 'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
-    'OPA1656': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
+    'OPA1655': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
     '54-00164': 'https://www.digikey.com/en/products/detail/tensility/54-00164/10459298',
     'MJ-3523': 'https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf',
     '61900311021': 'https://www.we-online.com/components/products/datasheet/61900311021.pdf',

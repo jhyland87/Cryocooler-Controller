@@ -203,3 +203,12 @@ Driven by the rev 1 bench results in `hardware/TODO.md`.
 * **Test points:** labelled with their net names on the silkscreen; new ones on DDS_SINE (raw AD9833 output). IMU INT1/2, ESP_EN and ESP_BOOT test points were dropped for space (the last two are reachable on the RESET / BOOT buttons). The SCK, MOSI, MISO, A_MISO, chip-select (TP18-TP28) and SCL (TP31) test points were removed on 2026-11-03; those numbers stay unused and SDA (TP30) stays.
 * **J11 / J12 / J8 (2026-11-04):** TE 2305908-2 and 2305908-3 (SMT, drawing C-2305908 rev A1) and Phoenix 1821698 (MC 0,5/2-G-2,54 SMD, drawing 00783144 rev 02). The SMT joints take the plugging force; J11 and J12 have no pegs. 3D: maker STEP files for all three.
 * **MCP23S08 board (2026-11-04):** U30 / U31 SN74LV1T34 (VIH 1.36 V at 3.3 V) lift the 1.8 V GPIO47/48 for the display. L1 SRP6050CA-4R7M, L2 SRP7050TA-4R7M, L3 MSD7342-103 kept; the SRP powder cores need a bench check at 1.5 MHz. See `hardware/HANDOFF_145.md`.
+
+## Smaller analog packages (2026-11-05)
+
+Three SOIC-8 parts move to smaller packages at the same board centres, front side.
+
+* **U5:** OPA1656ID (dual, unit B spare) → OPA1655DBVR, the single version, SOT-23-5 (TI SBOS901C). Pins 1 OUT, 2 V-, 3 +IN, 4 -IN, 5 V+. The SPICE project still uses TI's OPA1656 model.
+* **U9:** OPA188AID → OPA188AIDBVR, SOT-23-5. Pins 1 OUT, 2 V-, 3 +IN, 4 -IN, 5 V+. It is ordered from Digi-Key, so it leaves the Mouser list; check live stock.
+* **U7:** MCP4921-E/SN → MCP4921-E/MC, 3x2 mm DFN-8. Footprint checked against Microchip land pattern C04-2123A. The exposed pad (pin 9) ties to GND with a via (DS22248 3.8). VOUT and VSS keep their pin numbers.
+* **Board:** `tools/small_packages_board.py` swaps the parts and rips their nets. New routing, plus three new GND stitching vias around U5 and U9. Three short segments near these parts sit about 1-2° off 45° (AD9833_FSYNC, +15V, -15V).

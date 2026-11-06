@@ -71,13 +71,11 @@ preview on the order page and put any fixes in `ROTATION_OFFSETS` (footprint -> 
 
 ## Mouser (the lines Digi-Key could not supply)
 
-`cryocooler_bom_mouser.csv` lists the 8 lines with no Digi-Key stock: L1, PS1, U1, U3, U9, U15, U19, U23.
+`cryocooler_bom_mouser.csv` lists the 7 lines with no Digi-Key stock: L1, PS1, U1, U3, U15, U19, U23.
 Import it in Mouser's BOM tool (MPN and quantity columns) to see live stock. Mouser blocks automated
 lookups, so stock was **not** verified; the Mouser part numbers come from search snapshots and some were
 months old.
 
-* U9: the real part is **OPA188AID** (reel OPA188AIDR); the schematic value "OPA188ID" is not an orderable
-  number, and Digi-Key's substitute OPA180ID is a different op-amp.
 * U3: the PHBB oscillator is discontinued; PHCLX is the same part at +/-100 ppm.
 * PS1: Digi-Key named MIE1W0505BGLVH-3R-P as a direct substitute for -3R-Z if Mouser is out.
 * U23: if the INA239 is unobtainable, the INA229 (20-bit) has the same package but a different register

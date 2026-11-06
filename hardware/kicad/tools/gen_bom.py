@@ -322,16 +322,16 @@ PARTS = {
         'Analog Devices', 'LTC2954CTS8-2#TRMPBF',
         'IC PUSHBUTTON ON/OFF CONTROLLER TSOT8', 'suggested',
         'C grade, -2 version (EN# output)'),
-    ('MCP4921-E/SN', 'SOIC-8_3.9x4.9mm_P1.27mm'): (
-        'Microchip', 'MCP4921-E/SN', 'IC DAC 12BIT SPI 8SOIC', 'design', ''),
-    ('OPA1656ID', 'SOIC-8_3.9x4.9mm_P1.27mm'): (
-        'Texas Instruments', 'OPA1656ID', 'IC OPAMP AUDIO 2CIRC 8SOIC',
-        'design', ''),
-    ('OPA188ID', 'SOIC-8_3.9x4.9mm_P1.27mm'): (
-        'Texas Instruments', 'OPA188AID', 'IC OPAMP ZERO-DRIFT 1CIRC 8SOIC',
-        'design', 'the schematic value is OPA188ID; the orderable SOIC part is '
-        'OPA188AID (tube) or OPA188AIDR (reel). Digi-Key offers OPA180ID as a '
-        'substitute: it is a different part, do not take it'),
+    ('MCP4921-E/MC', 'DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm'): (
+        'Microchip', 'MCP4921-E/MC', 'IC DAC 12BIT SPI 8DFN', 'design',
+        'long lead times seen at Digi-Key; check stock. MCP4921T-E/MC is the reel'),
+    ('OPA1655DBVR', 'SOT-23-5'): (
+        'Texas Instruments', 'OPA1655DBVR', 'IC OPAMP AUDIO 1CIRC SOT23-5',
+        'design', 'single version of the OPA1656'),
+    ('OPA188AIDBVR', 'SOT-23-5'): (
+        'Texas Instruments', 'OPA188AIDBVR', 'IC OPAMP ZERO-DRIFT 1CIRC SOT23-5',
+        'design', 'OPA188AIDBVT is the 250-piece reel. Digi-Key offers OPA180 '
+        'parts as substitutes: they are different parts, do not take them'),
     ('MCP23S08-E/ML', 'QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm'): (
         'Microchip', 'MCP23S08-E/ML', 'IC I/O EXPANDER SPI 8B 20QFN', 'suggested',
         'stock not checked; MCP23S08T-E/ML is the reel'),
@@ -385,11 +385,10 @@ MOUSER_LINES = {
     'PS1': '',
     'U1': '356-SP32S3WM2N32R16V',
     'U3': '732-SG-82CA25M-PHCLX',
-    'U9': '595-OPA188AIDR',
     'U15': '621-AP63205WU-7',
     'U23': '595-INA239AIDGSR',
 }
-MOUSER_MPN = {'OPA188AID': 'OPA188AIDR'}
+MOUSER_MPN = {}
 MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'
 
 # JLCPCB: manufacturer part number -> LCSC part number (C-number). Fill in as

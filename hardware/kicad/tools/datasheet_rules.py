@@ -180,14 +180,17 @@ RULES = [
     ('net', 'AD633JRZ-R7', '4', 'GND'),
     ('net', 'AD633JRZ-R7', '8', 'GND'),
     # Op-amps and DAC
-    ('net', 'OPA188ID', '7', '+15V'),
-    ('net', 'OPA188ID', '4', '-15V'),
-    ('net', 'OPA1656ID', '8', '+15V'),
-    ('net', 'OPA1656ID', '4', '-15V'),
-    ('net', 'MCP4921-E/SN', '1', '+3V3_SG'),
-    ('net', 'MCP4921-E/SN', '5', 'GND'),
-    ('net', 'MCP4921-E/SN', '7', 'GND'),
-    ('res', 'MCP4921-E/SN', '6', '6.8k', '+3V3_SG'),
+    ('net', 'OPA188AIDBVR', '5', '+15V'),
+    ('net', 'OPA188AIDBVR', '2', '-15V'),
+    ('join', 'MCP4921-E/MC', '8', 'OPA188AIDBVR', '3'),
+    ('net', 'OPA1655DBVR', '5', '+15V'),
+    ('net', 'OPA1655DBVR', '2', '-15V'),
+    ('net', 'MCP4921-E/MC', '1', '+3V3_SG'),
+    ('net', 'MCP4921-E/MC', '5', 'GND'),
+    ('net', 'MCP4921-E/MC', '7', 'GND'),
+    # DS22248 3.8: exposed pad tied to VSS on the PCB
+    ('net', 'MCP4921-E/MC', '9', 'GND'),
+    ('res', 'MCP4921-E/MC', '6', '6.8k', '+3V3_SG'),
     # INA239 (SPI, SLYS027A): VS 3.3 V, VBUS on the +12V side, 49.9 ohm /
     # 470 nF input filter on IN+/IN-, ALERT open-drain pulled up, CS idles high
     ('net', 'INA239AIDGSR', '6', '+3V3'),

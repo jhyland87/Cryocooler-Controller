@@ -175,18 +175,21 @@ def from_stock(
     keep_rows=False,
     half_height_min=0.0,
     y_map=None,
+    extra_pins=None,
 ):
     """Re-lays-out a stock-library symbol: each side lists pin numbers (a list
     stacks pins on one spot).
 
     Pin names and electrical types are copied from the stock symbol, so only
-    the positions change.
+    the positions change. extra_pins = {number: (name, type)} adds pins the stock
+    symbol lacks, such as an exposed pad.
     """
     stock = sexpr.stock_symbol(lib, stock_name)
     info = {
         number: (pin_name, ptype)
         for number, pin_name, _x, _y, _a, _l, ptype in sexpr.pins(stock)
     }
+    info.update(extra_pins or {})
 
     stock_y = {
         number: y for number, _n, _x, y, _a, _l, _t in sexpr.pins(stock)
@@ -539,9 +542,10 @@ SYMBOLS = [
         left=['2', '3', '4'],
         right=['8'],
         top=['1', '6'],
-        bottom=['5', '7'],
+        bottom=['5', '7', '9'],
         keywords='dac',
         keep_rows=True,
+        extra_pins={'9': ('EP', 'passive')},
     ),
     from_stock(
         '74xGxx',

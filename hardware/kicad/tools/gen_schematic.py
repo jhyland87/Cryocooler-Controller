@@ -1537,19 +1537,17 @@ def power_good_led(sh, node_net, text, column, row):
     wire(sh, cathode, node)
 
 
-def opamp_unit(
-    sh, ref, unit, column, row, footprint='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm'
-):
-    """One unit of the OPA1656 (same reference for every unit)."""
+def opamp_single(sh, ref, column, row):
+    """OPA1655, the single version of the OPA1656, in SOT-23-5 (TI SBOS901C)."""
     return sh.add(
-        'Amplifier_Operational:OPA1656ID',
+        'Amplifier_Operational:OPA1655DBV',
         ref,
-        'OPA1656ID',
+        'OPA1655DBVR',
         column * 1.27,
         row * 1.27,
-        unit=unit,
+        unit=1,
         auto=False,
-        footprint=footprint,
+        footprint='Package_TO_SOT_SMD:SOT-23-5',
     )
 
 
@@ -1559,7 +1557,7 @@ def build_signal_gen(sh):
     """
     sh.handwired = True
     sh.note(
-        'AD9833 60 Hz sine -> OPA1656 gain stage -> AD633 multiplier; '
+        'AD9833 60 Hz sine -> OPA1655 gain stage -> AD633 multiplier; '
         'MCP4921 + OPA188 give a 0-10 V amplitude control.',
         20,
         15,
@@ -1626,50 +1624,30 @@ def build_signal_gen(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground(sh, (86, 68), 0)
-    # OPA1656 unit A: non-inverting gain of 15.97 (1 + 49.4k/3.3k): 0.3 V pk
+    # OPA1655: non-inverting gain of 15.97 (1 + 49.4k/3.3k): 0.3 V pk
     # AD9833 -> about 10 Vpp at Vctl = 10 V. The feedback is two series
     # resistors so the amplitude can be trimmed by swapping one (51k measured
     # 10.3 Vpp on the rev 1 board). 1 nF across both rolls off above ~3 kHz.
-    opa_a = opamp_unit(sh, next_ref('U'), 1, 110, 60)
-    opa_ref = opa_a.ref
-    wire(sh, pin_cell(opa_a, '2'), (100, 62), (100, 70))
-    hres(sh, '47k', 105, 70)
+    opa_a = opamp_single(sh, next_ref('U'), 110, 60)
+    wire(sh, pin_cell(opa_a, '4'), (100, 62), (100, 76))
+    hres(sh, '47k', 105, 76)
     with kicadgen.pinned_refs('R', 169):
-        hres(sh, '2.4k', 111, 70)
+        hres(sh, '2.4k', 111, 76)
     with high_refs('C'):
-        hcap(sh, '1nF/C0G', 108, 74)
-    wire(sh, (102, 70), (102, 74), (105, 74))
-    wire(sh, (114, 70), (114, 74), (111, 74))
-    wire(sh, (102, 70), (100, 70))
-    vres(sh, '3.3k', 100, 70)
-    drop_ground(sh, (100, 76), 0)
-    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (114, 70))
+        hcap(sh, '1nF/C0G', 108, 80)
+    wire(sh, (102, 76), (102, 80), (105, 80))
+    wire(sh, (114, 76), (114, 80), (111, 80))
+    wire(sh, (102, 76), (100, 76))
+    vres(sh, '3.3k', 100, 76)
+    drop_ground(sh, (100, 82), 0)
+    wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 76), (114, 76))
     wire(sh, (120, 60), (124, 60))
     hres(sh, '100', 127, 60)
     wire(sh, (130, 60), (192, 60))
-    # OPA1656 unit B: spare half as a grounded follower, unit C: power pins
-    opa_b = opamp_unit(sh, opa_ref, 2, 230, 110)
-    # ground out at column 219, clear of the feedback wire at column 222
-    wire(sh, pin_cell(opa_b, '5'), (219, 108))
-    wire(
-        sh,
-        pin_cell(opa_b, '6'),
-        (222, 112),
-        (222, 118),
-        (240, 118),
-        (240, 110),
-        pin_cell(opa_b, '7'),
-    )
-    drop_ground(sh, (219, 108), 2)
-    opa_p = opamp_unit(
-        sh, opa_ref, 3, 260, 90, 'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm'
-    )
-    top, bottom = pin_cell(opa_p, '8'), pin_cell(opa_p, '4')
-    wire(sh, top, (top[0], top[1] - 6))
-    rail_symbol(sh, '+15V', (top[0], top[1] - 6))
-    wire(
-        sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4)
-    )
+    top, bottom = pin_cell(opa_a, '5'), pin_cell(opa_a, '2')
+    wire(sh, top, (top[0], top[1] - 4))
+    rail_symbol(sh, '+15V', (top[0], top[1] - 4))
+    wire(sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4))
     rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 4))
     # AD633 multiplier
     mult = place_ic(
@@ -1703,11 +1681,12 @@ def build_signal_gen(sh):
     dac = place_ic(
         sh,
         'cryocooler:MCP4921',
-        'MCP4921-E/SN',
+        'MCP4921-E/MC',
         60,
         110,
-        'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
+        'Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm',
     )
+    dac.value_margin = 0.6  # keeps the value text off the Vdd wire
     for pin, net in (('2', 'MCP4921_CS'), ('3', 'SPI_SCK'), ('4', 'SPI_MOSI')):
         net_label(sh, net, spur(sh, dac, pin, 5), 180, is_global=True)
     vdd = pin_cell(dac, '1')
@@ -1729,25 +1708,23 @@ def build_signal_gen(sh):
     vcap(sh, '100nF', 92, 100)
     drop_ground(sh, (92, 106), 0)
     rail_flag(sh, (88, 100))
-    gnd_bus(sh, [pin_cell(dac, '5'), pin_cell(dac, '7')])
+    gnd_bus(sh, [pin_cell(dac, '5'), pin_cell(dac, '7'), pin_cell(dac, '9')])
     opa188 = place_ic(
         sh,
-        'Amplifier_Operational:OPA188xxD',
-        'OPA188ID',
+        'Amplifier_Operational:OPA188xxDBV',
+        'OPA188AIDBVR',
         130,
         110,
-        'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
+        'Package_TO_SOT_SMD:SOT-23-5',
     )
     wire(sh, pin_cell(dac, '8'), (110, 110), (110, 108), pin_cell(opa188, '3'))
-    for pin in ('1', '5', '8'):
-        sh.nc(opa188, pin)
-    wire(sh, pin_cell(opa188, '2'), (120, 112), (120, 132))
-    wire(sh, pin_cell(opa188, '6'), (146, 110), (146, 132), (133, 132))
+    wire(sh, pin_cell(opa188, '4'), (120, 112), (120, 132))
+    wire(sh, pin_cell(opa188, '1'), (146, 110), (146, 132), (133, 132))
     hres(sh, '30k', 130, 132)
     wire(sh, (127, 132), (120, 132))
     vres(sh, '10k', 120, 132)
     drop_ground(sh, (120, 138), 0)
-    top, bottom = pin_cell(opa188, '7'), pin_cell(opa188, '4')
+    top, bottom = pin_cell(opa188, '5'), pin_cell(opa188, '2')
     wire(sh, top, (top[0], 98))
     rail_symbol(sh, '+15V', (top[0], 98))
     wire(sh, bottom, (bottom[0], 120), (bottom[0] + 4, 120))
@@ -1764,8 +1741,8 @@ def build_signal_gen(sh):
         [
             ('SG-8002CA DECOUPLING CAPACITORS', '+5V_OR', ('100nF',)),
             ('AD9833 DECOUPLING CAPACITORS', '+5V_OR', ('100nF', '10uF')),
-            ('OPA1656 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
-            ('OPA1656 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
+            ('OPA1655 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
+            ('OPA1655 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
             ('AD633 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('AD633 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
             ('MCP4921 DECOUPLING CAPACITORS', '+3V3_SG', ('100nF', '10uF')),
