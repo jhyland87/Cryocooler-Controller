@@ -235,7 +235,7 @@
 // Observation window for stall detection (milliseconds).
 // If the cold stage has not dropped by STALL_MIN_DROP_C within this window
 // while in a cool-down state, the system transitions to Fault.
-#define STALL_DETECT_WINDOW_MS  static_cast<uint32_t>(600000)  // 10 minutes
+#define STALL_DETECT_WINDOW_MS  static_cast<uint32_t>(6e5)     // 10 minutes
 
 // Minimum temperature drop required within STALL_DETECT_WINDOW_MS.
 #define STALL_MIN_DROP_C        static_cast<float>(2.0f)
@@ -246,11 +246,11 @@
 
 // Temperature must remain within SETPOINT_TOLERANCE_C for this duration
 // before the state machine advances from Settle (5) → Baseline (6).
-#define SETTLE_DURATION_MS    static_cast<uint32_t>(60000)   // 60 s
+#define SETTLE_DURATION_MS    static_cast<uint32_t>(6e4)     // 60 s
 
 // Duration of the Baseline (6) data-collection state before advancing to
 // Operating (7).
-#define BASELINE_DURATION_MS  static_cast<uint32_t>(300000)  // 5 minutes
+#define BASELINE_DURATION_MS  static_cast<uint32_t>(3e5)     // 5 minutes
 
 // =============================================================================
 // Shutdown Sequence
@@ -286,10 +286,10 @@
 
 // Series reference resistor in the voltage divider (Ω).
 // Match to the actual resistor fitted on your board.
-#define COOLING_TEMP_REF_RESISTOR  static_cast<float>(10000.0f)
+#define COOLING_TEMP_REF_RESISTOR  static_cast<float>(1e4f)
 
 // NTC nominal resistance at the reference temperature T0 (Ω).
-#define COOLING_TEMP_R0            static_cast<float>(10000.0f)
+#define COOLING_TEMP_R0            static_cast<float>(1e4f)
 
 // Reference temperature for the Beta equation (K).  25 °C = 298.15 K.
 #define COOLING_TEMP_T0            static_cast<float>(298.15f)

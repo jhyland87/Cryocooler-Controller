@@ -113,7 +113,7 @@ void test_lb_clear_then_push_works(void) {
 void test_lb_count_does_not_exceed_capacity(void) {
     setUp_log();
     // Push more than CAPACITY entries
-    for (uint16_t i = 0; i < static_cast<uint16_t>(logger::CAPACITY) + 10u; ++i) {
+    for (uint16_t messageIndex = 0; messageIndex < static_cast<uint16_t>(logger::CAPACITY) + 10u; ++messageIndex) {
         logger::push("x\n");
     }
     TEST_ASSERT_EQUAL_UINT8(logger::CAPACITY, logger::count());
@@ -123,9 +123,9 @@ void test_lb_oldest_overwritten_when_full(void) {
     setUp_log();
 
     // Fill the buffer completely.
-    for (uint8_t i = 0; i < logger::CAPACITY; ++i) {
+    for (uint8_t messageIndex = 0; messageIndex < logger::CAPACITY; ++messageIndex) {
         char msg[8];
-        snprintf(msg, sizeof(msg), "m%03u\n", static_cast<unsigned>(i));
+        snprintf(msg, sizeof(msg), "m%03u\n", static_cast<unsigned>(messageIndex));
         logger::push(msg);
     }
     // Verify index 0 (oldest) is "m000\n".
@@ -277,7 +277,7 @@ void test_logstream_long_line_truncated(void) {
     setUp_log();
 
     // Write a line that exceeds MAX_MSG_LEN without a '\n' until the end.
-    for (uint16_t i = 0; i < static_cast<uint16_t>(logger::MAX_MSG_LEN) + 20u; ++i) {
+    for (uint16_t characterIndex = 0; characterIndex < static_cast<uint16_t>(logger::MAX_MSG_LEN) + 20u; ++characterIndex) {
         Log.write(static_cast<uint8_t>('B'));
     }
     // Force flush by sending '\n'.

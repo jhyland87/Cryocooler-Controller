@@ -53,16 +53,16 @@ static bool oscillationFaultPending = false;
 // ---------------------------------------------------------------------------
 // Internal ring-buffer accessors.  i = 0 → most recent entry.
 // ---------------------------------------------------------------------------
-static inline const HistoryEntry& ringAt(uint8_t i) {
+static inline const HistoryEntry& ringAt(uint8_t index) {
     const uint8_t idx = static_cast<uint8_t>(
-        (static_cast<uint16_t>(FSM_HISTORY_LIMIT) + historyHead - 1u - i)
+        (static_cast<uint16_t>(FSM_HISTORY_LIMIT) + historyHead - 1u - index)
         % static_cast<uint8_t>(FSM_HISTORY_LIMIT));
     return history[idx];
 }
 
-static inline FaultRecord& faultRingAt(uint8_t i) {
+static inline FaultRecord& faultRingAt(uint8_t index) {
     const uint8_t idx = static_cast<uint8_t>(
-        (static_cast<uint16_t>(FAULT_HISTORY_LIMIT) + faultHistoryHead - 1u - i)
+        (static_cast<uint16_t>(FAULT_HISTORY_LIMIT) + faultHistoryHead - 1u - index)
         % static_cast<uint8_t>(FAULT_HISTORY_LIMIT));
     return faultHistory[idx];
 }
@@ -89,9 +89,9 @@ static void checkOscillation() {
     if (stateEven == State::Fault      || stateOdd == State::Fault)      return;
 
     // All entries in the window must alternate between exactly those two states.
-    for (uint8_t i = 0; i < window; ++i) {
-        const State expected = (i % 2u == 0u) ? stateEven : stateOdd;
-        if (ringAt(i).state != expected) return;
+    for (uint8_t entryIndex = 0; entryIndex < window; ++entryIndex) {
+        const State expected = (entryIndex % 2u == 0u) ? stateEven : stateOdd;
+        if (ringAt(entryIndex).state != expected) return;
     }
 
     // All transitions must have occurred within the configured time window.
@@ -110,8 +110,8 @@ void histSetPendingCause(const char* cause) {
     pendingCause = cause;
 }
 
-void histPushHistory(State s, uint32_t enteredMs) {
-    history[historyHead] = { s, enteredMs, time(nullptr), pendingCause };
+void histPushHistory(State state, uint32_t enteredMs) {
+    history[historyHead] = { state, enteredMs, time(nullptr), pendingCause };
     pendingCause = nullptr;
     historyHead = static_cast<uint8_t>(
         (static_cast<uint16_t>(historyHead) + 1u) % FSM_HISTORY_LIMIT);
@@ -127,9 +127,9 @@ bool histTakeOscillationFaultPending() {
     return val;
 }
 
-void histPushFaultRecord(FaultReason r, uint32_t enteredMs) {
+void histPushFaultRecord(FaultReason reason, uint32_t enteredMs) {
     ++faultHistoryVersion;
-    faultHistory[faultHistoryHead] = { r, enteredMs, time(nullptr), 0, 0, nullptr };
+    faultHistory[faultHistoryHead] = { reason, enteredMs, time(nullptr), 0, 0, nullptr };
     faultHistoryHead = static_cast<uint8_t>(
         (static_cast<uint16_t>(faultHistoryHead) + 1u) % FAULT_HISTORY_LIMIT);
     if (faultHistoryCount < static_cast<uint8_t>(FAULT_HISTORY_LIMIT)) {
@@ -164,9 +164,9 @@ uint8_t getHistoryCount() {
     return historyCount;
 }
 
-HistoryEntry getHistoryEntry(uint8_t i) {
-    if (i >= historyCount) return HistoryEntry{};
-    return ringAt(i);
+HistoryEntry getHistoryEntry(uint8_t index) {
+    if (index >= historyCount) return HistoryEntry{};
+    return ringAt(index);
 }
 
 uint32_t getFaultHistoryVersion() {
@@ -177,9 +177,9 @@ uint8_t getFaultHistoryCount() {
     return faultHistoryCount;
 }
 
-FaultRecord getFaultRecord(uint8_t i) {
-    if (i >= faultHistoryCount) return FaultRecord{};
-    return faultRingAt(i);
+FaultRecord getFaultRecord(uint8_t index) {
+    if (index >= faultHistoryCount) return FaultRecord{};
+    return faultRingAt(index);
 }
 
 // Bit → name mapping shared by formatFaultReasons() and parseFaultReason().
@@ -198,19 +198,19 @@ constexpr FaultReasonName kFaultReasonNames[] = {
 };
 }  // namespace
 
-void formatFaultReasons(FaultReason r, char* buf, size_t len) {
+void formatFaultReasons(FaultReason reason, char* buf, size_t len) {
     if (len == 0) return;
-    const uint8_t mask = static_cast<uint8_t>(r);
+    const uint8_t mask = static_cast<uint8_t>(reason);
     if (mask == 0u) {
         snprintf(buf, len, "None");
         return;
     }
     buf[0] = '\0';
     bool first = true;
-    for (const auto& b : kFaultReasonNames) {
-        if ((mask & static_cast<uint8_t>(b.bit)) == 0u) continue;
+    for (const auto& reasonName : kFaultReasonNames) {
+        if ((mask & static_cast<uint8_t>(reasonName.bit)) == 0u) continue;
         if (!first) strncat(buf, "|", len - strlen(buf) - 1u);
-        strncat(buf, b.name, len - strlen(buf) - 1u);
+        strncat(buf, reasonName.name, len - strlen(buf) - 1u);
         first = false;
     }
 }
@@ -219,13 +219,13 @@ FaultReason parseFaultReason(const char* name) {
     if (name == nullptr) return FaultReason::None;
     while (*name == ' ' || *name == '\t') ++name;
     if (*name == '\0') return FaultReason::None;
-    for (const auto& b : kFaultReasonNames) {
-        const size_t n = strlen(b.name);
-        if (strncasecmp(name, b.name, n) == 0) {
-            const char term = name[n];
+    for (const auto& reasonName : kFaultReasonNames) {
+        const size_t nameLength = strlen(reasonName.name);
+        if (strncasecmp(name, reasonName.name, nameLength) == 0) {
+            const char term = name[nameLength];
             if (term == '\0' || term == ' ' || term == '\t' ||
                 term == '\r' || term == '\n') {
-                return b.bit;
+                return reasonName.bit;
             }
         }
     }
@@ -235,8 +235,8 @@ FaultReason parseFaultReason(const char* name) {
 uint8_t countRecentFaults(uint32_t windowMs) {
     const uint32_t nowMs = tick::nowMs();
     uint8_t count = 0;
-    for (uint8_t i = 0; i < faultHistoryCount; ++i) {
-        const FaultRecord& rec = faultRingAt(i);
+    for (uint8_t recordIndex = 0; recordIndex < faultHistoryCount; ++recordIndex) {
+        const FaultRecord& rec = faultRingAt(recordIndex);
         if ((nowMs - rec.enteredMs) <= windowMs) {
             ++count;
         }

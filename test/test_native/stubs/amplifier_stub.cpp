@@ -40,13 +40,13 @@ void  initCoarseCooldown()          {}
 void  initFineCooldown()            {}
 void  setOutput(float)              {}
 uint16_t getDacCurrent()            { return 0; }
-void  setVoutOverride(float f)      { sVoutOverride = f; }
+void  setVoutOverride(float volts)      { sVoutOverride = volts; }
 void  clearVoutOverride()           { sVoutOverride = -1.0f; }
 bool  hasVoutOverride()             { return sVoutOverride >= 0.0f; }
 float getVoutOverride()             { return sVoutOverride >= 0.0f ? sVoutOverride : 0.0f; }
 float getLastRmsVoltage()           { return sLastRmsVoltage; }
 float getLastRmsCurrent()           { return sLastRmsCurrent; }
-void  setTargetVoltage(float v)     { sTargetVoltage = v; }
+void  setTargetVoltage(float volts)     { sTargetVoltage = volts; }
 
 } // namespace amplifier
 
@@ -54,12 +54,12 @@ void  setTargetVoltage(float v)     { sTargetVoltage = v; }
 
 extern "C" {
 
-void stub_amplifier_setRmsVoltage(float v) {
-    sLastRmsVoltage = v;
+void stub_amplifier_setRmsVoltage(float volts) {
+    sLastRmsVoltage = volts;
 }
 
-void stub_amplifier_setRmsCurrent(float a) {
-    sLastRmsCurrent = a;
+void stub_amplifier_setRmsCurrent(float amps) {
+    sLastRmsCurrent = amps;
 }
 
 void stub_amplifier_reset() {

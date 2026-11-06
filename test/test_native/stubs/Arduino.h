@@ -108,6 +108,7 @@ public:
     void end(void);
     void beginTransaction(SPISettings settings);
     void endTransaction(void);
+    uint8_t transfer(uint8_t data);
     uint16_t transfer16(uint16_t data);
 };
 

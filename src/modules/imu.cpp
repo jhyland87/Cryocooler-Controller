@@ -33,6 +33,7 @@
 #include "hardware.h"
 #include "pin_config.h"
 #include "logger.h"
+#include "spi_device.h"
 
 namespace imu {
 
@@ -84,6 +85,8 @@ static constexpr uint8_t WAKEUP_THS_STEPS = 24u;
 // ---------------------------------------------------------------------------
 
 static Adafruit_LSM6DSOX sensor;
+static const SpiDevice sImuDevice(LSM6DSOX_CS,
+                                  SPISettings(LSM6DSOX_SPI_FREQUENCY_HZ, MSBFIRST, SPI_MODE0));
 
 /// Set true by init() only when sensor.begin_SPI() confirms the LSM6DSOX is
 /// present and responding.  Guards service() and calculateFrequency() so
@@ -163,13 +166,9 @@ static uint16_t fftBufIdx_   = 0u;    // accumulation index into fftZBuf_
  * LSM6DSOX SPI protocol: bit 7 of first byte = 1 for read.
  */
 static uint8_t lsmReadReg(uint8_t reg) {
-    SPI.beginTransaction(SPISettings(LSM6DSOX_SPI_FREQUENCY_HZ, MSBFIRST, SPI_MODE0));
-    digitalWrite(LSM6DSOX_CS, LOW);
-    SPI.transfer(reg | 0x80);             // R/W bit = 1 (read)
-    uint8_t val = SPI.transfer(0x00);
-    digitalWrite(LSM6DSOX_CS, HIGH);
-    SPI.endTransaction();
-    return val;
+    SpiTransaction transaction(sImuDevice);
+    transaction.transfer(reg | 0x80);     // R/W bit = 1 (read)
+    return transaction.transfer(0x00);
 }
 
 /**
@@ -177,12 +176,9 @@ static uint8_t lsmReadReg(uint8_t reg) {
  * LSM6DSOX SPI protocol: bit 7 of first byte = 0 for write.
  */
 static void lsmWriteReg(uint8_t reg, uint8_t val) {
-    SPI.beginTransaction(SPISettings(LSM6DSOX_SPI_FREQUENCY_HZ, MSBFIRST, SPI_MODE0));
-    digitalWrite(LSM6DSOX_CS, LOW);
-    SPI.transfer(reg & 0x7F);             // R/W bit = 0 (write)
-    SPI.transfer(val);
-    digitalWrite(LSM6DSOX_CS, HIGH);
-    SPI.endTransaction();
+    SpiTransaction transaction(sImuDevice);
+    transaction.transfer(reg & 0x7F);     // R/W bit = 0 (write)
+    transaction.transfer(val);
 }
 
 // ---------------------------------------------------------------------------
@@ -398,20 +394,20 @@ static void calculateOrientation(float ax, float ay, float az,
 // FFT helpers (adapted from imu-fft-hz-test.cpp)
 // ---------------------------------------------------------------------------
 
-/** Hann window coefficient for sample index @p i. */
-static inline float fftHann(uint16_t i) {
-    return 0.5f * (1.0f - cosf((2.0f * static_cast<float>(M_PI) * i)
+/** Hann window coefficient for sample index @p sampleIndex. */
+static inline float fftHann(uint16_t sampleIndex) {
+    return 0.5f * (1.0f - cosf((2.0f * static_cast<float>(M_PI) * sampleIndex)
                                / static_cast<float>(FFT_N - 1u)));
 }
 
 /** In-place selection sort; returns median of @p arr[0..len-1]. */
 static float fftMedian(float* arr, uint16_t len) {
-    for (uint16_t i = 0u; i < len; ++i) {
-        uint16_t m = i;
-        for (uint16_t j = i + 1u; j < len; ++j) {
-            if (arr[j] < arr[m]) m = j;
+    for (uint16_t sortedCount = 0u; sortedCount < len; ++sortedCount) {
+        uint16_t minIndex = sortedCount;
+        for (uint16_t candidateIndex = sortedCount + 1u; candidateIndex < len; ++candidateIndex) {
+            if (arr[candidateIndex] < arr[minIndex]) minIndex = candidateIndex;
         }
-        const float t = arr[i]; arr[i] = arr[m]; arr[m] = t;
+        const float swapValue = arr[sortedCount]; arr[sortedCount] = arr[minIndex]; arr[minIndex] = swapValue;
     }
     return arr[len / 2u];
 }
@@ -424,12 +420,12 @@ struct FftResult { float freq; float snr; };
  */
 static FftResult fftDetect(const float* data) {
     float mean = 0.0f;
-    for (uint16_t i = 0u; i < FFT_N; ++i) mean += data[i];
+    for (uint16_t sampleIndex = 0u; sampleIndex < FFT_N; ++sampleIndex) mean += data[sampleIndex];
     mean /= static_cast<float>(FFT_N);
 
-    for (uint16_t i = 0u; i < FFT_N; ++i) {
-        fftVReal_[i] = (data[i] - mean) * fftHann(i);
-        fftVImag_[i] = 0.0f;
+    for (uint16_t sampleIndex = 0u; sampleIndex < FFT_N; ++sampleIndex) {
+        fftVReal_[sampleIndex] = (data[sampleIndex] - mean) * fftHann(sampleIndex);
+        fftVImag_[sampleIndex] = 0.0f;
     }
 
     fft_.compute(FFTDirection::Forward);
@@ -443,15 +439,15 @@ static FftResult fftDetect(const float* data) {
     // Find peak bin
     uint16_t kPeak = kMin;
     float    peak  = fftVReal_[kMin];
-    for (uint16_t k = kMin + 1u; k <= kMax; ++k) {
-        if (fftVReal_[k] > peak) { peak = fftVReal_[k]; kPeak = k; }
+    for (uint16_t binIndex = kMin + 1u; binIndex <= kMax; ++binIndex) {
+        if (fftVReal_[binIndex] > peak) { peak = fftVReal_[binIndex]; kPeak = binIndex; }
     }
 
     // Noise floor via median of search-band magnitudes
     float    mags[64];
     uint16_t cnt = 0u;
-    for (uint16_t k = kMin; k <= kMax && cnt < 64u; ++k) {
-        mags[cnt++] = fftVReal_[k];
+    for (uint16_t binIndex = kMin; binIndex <= kMax && cnt < 64u; ++binIndex) {
+        mags[cnt++] = fftVReal_[binIndex];
     }
     float noise = fftMedian(mags, cnt);
     if (noise < 1e-9f) noise = 1e-9f;
@@ -461,12 +457,12 @@ static FftResult fftDetect(const float* data) {
 
     // Quadratic interpolation for sub-bin precision
     if (kPeak > 1u && kPeak < FFT_N / 2u - 1u) {
-        const float a     = fftVReal_[kPeak - 1u];
-        const float b     = fftVReal_[kPeak];
-        const float c     = fftVReal_[kPeak + 1u];
-        const float denom = a - 2.0f * b + c;
+        const float magnitudeBelow  = fftVReal_[kPeak - 1u];
+        const float magnitudeAtPeak = fftVReal_[kPeak];
+        const float magnitudeAbove  = fftVReal_[kPeak + 1u];
+        const float denom           = magnitudeBelow - 2.0f * magnitudeAtPeak + magnitudeAbove;
         if (fabsf(denom) > 1e-9f) {
-            freq = (static_cast<float>(kPeak) + 0.5f * (a - c) / denom) * binHz;
+            freq = (static_cast<float>(kPeak) + 0.5f * (magnitudeBelow - magnitudeAbove) / denom) * binHz;
         }
     }
 
@@ -498,9 +494,9 @@ static void checkMotion(float accelMag) {
 static void runFft() {
     // Compute min/max for amplitude check
     float zMin =  999.0f, zMax = -999.0f;
-    for (uint16_t i = 0u; i < FFT_N; ++i) {
-        if (fftZBuf_[i] < zMin) zMin = fftZBuf_[i];
-        if (fftZBuf_[i] > zMax) zMax = fftZBuf_[i];
+    for (uint16_t sampleIndex = 0u; sampleIndex < FFT_N; ++sampleIndex) {
+        if (fftZBuf_[sampleIndex] < zMin) zMin = fftZBuf_[sampleIndex];
+        if (fftZBuf_[sampleIndex] > zMax) zMax = fftZBuf_[sampleIndex];
     }
 
     const float     zPeak  = (zMax - zMin) * 0.5f;
@@ -530,8 +526,8 @@ module::InitStatus init() {
     SPI.end();
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
-    if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
-        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS decoder Y" + String(LSM6DSOX_CS - CS_ID_BASE) + ")");
+    if (!sensor.begin_SPI(sImuDevice.chipSelectId(), &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
+        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS decoder Y" + String(sImuDevice.chipSelectId() - CS_ID_BASE) + ")");
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }

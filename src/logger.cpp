@@ -34,15 +34,15 @@ void push(const char* text) {
 }
 
 void push(const char* text, size_t len) {
-    Entry& e  = buf_[head_];
-    e.ms      = millis();
-    e.epoch   = static_cast<int64_t>(time(nullptr));
+    Entry& entry  = buf_[head_];
+    entry.ms      = millis();
+    entry.epoch   = static_cast<int64_t>(time(nullptr));
 
     const size_t copy_len = (len < static_cast<size_t>(MAX_MSG_LEN - 1))
                             ? len
                             : static_cast<size_t>(MAX_MSG_LEN - 1);
-    memcpy(e.text, text, copy_len);
-    e.text[copy_len] = '\0';
+    memcpy(entry.text, text, copy_len);
+    entry.text[copy_len] = '\0';
 
     head_  = static_cast<uint8_t>((head_ + 1u) & (CAPACITY - 1u));
     if (count_ < CAPACITY) { ++count_; }
@@ -75,19 +75,19 @@ int64_t getLastLogEpoch() {
 // ── fillJson ─────────────────────────────────────────────────────────────────
 
 void fillJson(JsonArray arr, uint8_t maxEntries) {
-    const uint8_t n = count_;
-    if (n == 0) return;
+    const uint8_t entryCount = count_;
+    if (entryCount == 0) return;
 
     // Emit only the most-recent `total` entries.
-    const uint8_t total = (maxEntries > 0 && n > maxEntries) ? maxEntries : n;
-    const uint8_t start = n - total;
+    const uint8_t total = (maxEntries > 0 && entryCount > maxEntries) ? maxEntries : entryCount;
+    const uint8_t start = entryCount - total;
 
-    for (uint8_t i = start; i < n; ++i) {
-        const Entry& e   = get(i);
-        JsonObject   obj = arr.add<JsonObject>();
-        obj["ms"]        = e.ms;
-        obj["epoch"]     = e.epoch;
-        obj["text"]      = e.text;
+    for (uint8_t entryIndex = start; entryIndex < entryCount; ++entryIndex) {
+        const Entry& entry = get(entryIndex);
+        JsonObject   obj   = arr.add<JsonObject>();
+        obj["ms"]        = entry.ms;
+        obj["epoch"]     = entry.epoch;
+        obj["text"]      = entry.text;
     }
 }
 
@@ -101,21 +101,21 @@ LogStream LogStream::createChildLogger(const char* name) const {
     return LogStream(name);
 }
 
-size_t LogStream::write(uint8_t c) {
+size_t LogStream::write(uint8_t character) {
 #ifdef ARDUINO
     // Prefixed streams defer their Serial output to flushLine() so that the
     // "[name] " prefix can be prepended to the complete line in one write.
     // Un-prefixed streams mirror each byte immediately for minimal latency.
     if (prefix_ == nullptr) {
-        Serial.write(c);
+        Serial.write(character);
     }
 #endif
 
     if (pos_ < static_cast<uint8_t>(sizeof(line_) - 1u)) {
-        line_[pos_++] = static_cast<char>(c);
+        line_[pos_++] = static_cast<char>(character);
     }
 
-    if (c == '\n') {
+    if (character == '\n') {
         flushLine();
     }
 
@@ -123,8 +123,8 @@ size_t LogStream::write(uint8_t c) {
 }
 
 size_t LogStream::write(const uint8_t* buf, size_t size) {
-    for (size_t i = 0; i < size; ++i) {
-        write(buf[i]);
+    for (size_t byteIndex = 0; byteIndex < size; ++byteIndex) {
+        write(buf[byteIndex]);
     }
     return size;
 }
@@ -137,9 +137,9 @@ void LogStream::flushLine() {
         // ring buffer.  snprintf truncates gracefully if the combined string
         // exceeds MAX_MSG_LEN.
         char prefixed[logger::MAX_MSG_LEN];
-        const int n = snprintf(prefixed, sizeof(prefixed), "[%s] %s", prefix_, line_);
-        const size_t len = (n > 0 && n < static_cast<int>(logger::MAX_MSG_LEN))
-                           ? static_cast<size_t>(n)
+        const int written = snprintf(prefixed, sizeof(prefixed), "[%s] %s", prefix_, line_);
+        const size_t len = (written > 0 && written < static_cast<int>(logger::MAX_MSG_LEN))
+                           ? static_cast<size_t>(written)
                            : static_cast<size_t>(logger::MAX_MSG_LEN - 1u);
 #ifdef ARDUINO
         // prefixed already contains the trailing '\n' (stored in line_ before

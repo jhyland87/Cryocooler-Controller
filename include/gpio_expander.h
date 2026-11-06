@@ -18,13 +18,12 @@ namespace gpio_expander {
 /**
  * Configure the pin directions and confirm the device answers by reading the
  * direction register back.  Outputs start low.
- * @param spi Shared SPI bus (already started).
  * @return true if the expander answered.
  * @code
- * gpio_expander::begin(SPI);
+ * gpio_expander::begin();
  * @endcode
  */
-bool begin(SPIClass& spi);
+bool begin();
 
 /** @return true if begin() found the expander. */
 bool isPresent();

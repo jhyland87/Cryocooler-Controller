@@ -22,6 +22,7 @@
 #include "hardware.h"
 #include "imu.h"
 #include "sensor_mock.h"
+#include "spi_device.h"
 
 // ── INA239 readings ─────────────────────────────────────────────────────────
 static float voltage = 0.0f;
@@ -36,7 +37,7 @@ static uint32_t           prevIdleTotal       = 0;
 static uint32_t           maxIdleDeltaPerSec  = 0;
 static int64_t            lastCpuSampleUs     = 0;
 
-static constexpr int64_t kCpuSampleIntervalUs = 1000000;  // 1 second
+static constexpr int64_t kCpuSampleIntervalUs = 1e6;      // 1 second
 
 static bool IRAM_ATTR onIdleCore0() { ++idleCountCore0; return false; }
 static bool IRAM_ATTR onIdleCore1() { ++idleCountCore1; return false; }
@@ -78,7 +79,8 @@ static constexpr float    SHUNT_OHMS            = 0.015f;   // 15 mΩ
 static constexpr float    SHUNT_MAX_AMPS        = 10.0f;    // ±163.84 mV range
 
 // Shares the main SPI bus; the library applies SPI mode 1 per transaction.
-static INA239 ina239(INA239_CS, &hardware::spi());
+static constexpr SpiChipSelect sMonitorChipSelect(INA239_CS);
+static INA239 ina239(sMonitorChipSelect.chipSelectId(), &hardware::spi());
 
 static constexpr uint8_t MAX_SPI_ERRORS = 3;
 static uint8_t sIna239Errors = 0;
@@ -200,10 +202,10 @@ float getAmbientTemperature() {
     return imu::getTemperature();
 }
 
-void setLastReadings(float v, float a, float w) {
-    voltage = v;
-    current = a;
-    power   = w;
+void setLastReadings(float volts, float amps, float watts) {
+    voltage = volts;
+    current = amps;
+    power   = watts;
 }
 
 // ── CPU ─────────────────────────────────────────────────────────────────────

@@ -132,16 +132,16 @@ static void buildStartupFrame(FrameBuilder& frame)
 {
     frame.reset();
 
-    const auto ready = [](module::InitStatus s) {
-        return s == module::MODULE_INIT_SUCCESS;
+    const auto ready = [](module::InitStatus status) {
+        return status == module::MODULE_INIT_SUCCESS;
     };
 
  /* The above code is defining a lambda function called `readyService` that takes a parameter of type
  `module::ServiceStatus` and returns a boolean value. The lambda function checks if the input
- parameter `s` is equal to `module::MODULE_SERVICE_OK` and returns `true` if it is, indicating that
+ parameter `status` is equal to `module::MODULE_SERVICE_OK` and returns `true` if it is, indicating that
  the service is ready. */
-    // const auto readyService = [](module::ServiceStatus s) {
-    //     return s == module::MODULE_SERVICE_OK;
+    // const auto readyService = [](module::ServiceStatus status) {
+    //     return status == module::MODULE_SERVICE_OK;
     // };
 
     const bool smReady          = ready(state_machine::Module::getInitStatus());
@@ -203,9 +203,9 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("status.on_duration_ms", "%lu", static_cast<unsigned long>(durationMs))
             .field("status.on_duration",    "%s",  hmsBuf)
             .field("status.time_in_state",  "%s",  tisHmsBuf)
-            .field("faults.count_10m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(600000u)))
-            .field("faults.count_30m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(1800000u)))
-            .field("faults.count_60m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(3600000u)));
+            .field("faults.count_10m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(6e5)))
+            .field("faults.count_30m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(1.8e6)))
+            .field("faults.count_60m",      "%u",  static_cast<unsigned>(state_machine::countRecentFaults(3.6e6)));
     } else {
         frame
             .field("state.id",              "%s", "")
@@ -593,9 +593,9 @@ void emit(const state_machine::Output& out)
         .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
-        .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(600000u)))
-        .field("faults.count_30m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(1800000u)))
-        .field("faults.count_60m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(3600000u)))
+        .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(6e5)))
+        .field("faults.count_30m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(1.8e6)))
+        .field("faults.count_60m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(3.6e6)))
         //.field("cold_head.delta_below_ambient_c",   "%.2f", cold_head::getLastTempCBelowAmbient())
         //.field("cold_head.ambient_temp_c",          "%.2f", cold_head::getLastAmbientTempC())
         .field("system.voltage_v",                  "%.2f", sysinfo::getVoltage())

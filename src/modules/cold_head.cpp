@@ -32,6 +32,7 @@
 #include "tracking.h"
 #include "tick.h"
 #include "logger.h"
+#include "spi_device.h"
 
 static LogStream _Log = Log.createChildLogger("cold_head");
 // ---------------------------------------------------------------------------
@@ -48,7 +49,8 @@ struct TempSample {
 };
 
 // Shares the main SPI bus (already started by hardware::init); no DRDY pin.
-static ADS1220_WE ads1220(&hardware::spi(), ADS1220_CS, -1, false, true);
+static constexpr SpiChipSelect sAdcChipSelect(ADS1220_CS);
+static ADS1220_WE ads1220(&hardware::spi(), sAdcChipSelect.chipSelectId(), -1, false, true);
 
 // Single-shot conversion at 20 SPS takes 204850 / 4.096 MHz = 50 ms.
 static constexpr uint32_t ADS1220_CONVERSION_MS = 60;
@@ -153,13 +155,13 @@ static void pushSample(uint32_t nowMs, float tempC, float ambientTempC, float rm
 }
 
 /**
- * Return a reference to the sample at logical index @p i
+ * Return a reference to the sample at logical index @p index
  * (0 = oldest, count-1 = newest).
  */
-static const TempSample& sampleAt(uint8_t i) {
+static const TempSample& sampleAt(uint8_t index) {
     // oldest slot in the ring is (head - count + i) mod SIZE
     auto idx = static_cast<uint8_t>(
-        (sHead + TEMP_HISTORY_SIZE - sCount + i) % TEMP_HISTORY_SIZE);
+        (sHead + TEMP_HISTORY_SIZE - sCount + index) % TEMP_HISTORY_SIZE);
     return sHistory[idx];
 }
 
@@ -362,7 +364,7 @@ module::ServiceStatus service() {
         const uint32_t dtMs = newest.timestampMs - oldest.timestampMs;
         if (dtMs > 0) {
             const float dTempC    = oldest.tempC - newest.tempC;
-            const float dtMinutes = static_cast<float>(dtMs) / 60000.0f;
+            const float dtMinutes = static_cast<float>(dtMs) / 6e4f;
             coolingRateAvg.addValue(dTempC / dtMinutes);
         }
     }
@@ -446,10 +448,10 @@ bool isStalled() {
 
     // Find the oldest sample within the detection window
     float refTempC = newest.tempC;
-    for (uint8_t i = 0; i < sCount; ++i) {
-        const auto& s = sampleAt(i);
-        if (s.timestampMs >= windowStart) {
-            refTempC = s.tempC;
+    for (uint8_t sampleIndex = 0; sampleIndex < sCount; ++sampleIndex) {
+        const auto& sample = sampleAt(sampleIndex);
+        if (sample.timestampMs >= windowStart) {
+            refTempC = sample.tempC;
             break;
         }
     }

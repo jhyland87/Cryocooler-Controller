@@ -45,7 +45,8 @@ then follow these steps and mirror an existing module (e.g.
    Include the new header near the other module includes at the top.
 
 4. **Config** — add pins to `include/config/pin_config.h` and any tunables to
-   `include/config/config.h` if needed.
+   `include/config/config.h` if needed. For an SPI IC, declare a `SpiDevice` or
+   `SpiChipSelect` in the module's `.cpp` (see "SPI ICs" in `docs/modules.md`).
 
 5. **Build** to confirm the interface assertion passes:
    ```bash

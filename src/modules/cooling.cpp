@@ -301,7 +301,8 @@ static uint16_t readTachRpm(uint8_t channel, uint32_t elapsedMs) {
     pcnt_get_counter_value(CHANNELS[channel].pcntUnit, &pulses);
     pcnt_counter_clear(CHANNELS[channel].pcntUnit);
     if (pulses <= 0) return 0u;
-    const uint32_t rpm = (static_cast<uint32_t>(pulses) * 60000u) /
+    static constexpr uint32_t MS_PER_MINUTE = 6e4;
+    const uint32_t rpm = (static_cast<uint32_t>(pulses) * MS_PER_MINUTE) /
                          (TACH_PULSES_PER_REV * elapsedMs);
     return (rpm > UINT16_MAX) ? UINT16_MAX : static_cast<uint16_t>(rpm);
 }
@@ -353,19 +354,19 @@ static uint8_t evaluateLUT(SoftLUT &lut, float tempC, uint8_t channel) {
     int8_t newIndex = -1;
 
     // Walk from highest threshold down
-    for (int8_t i = static_cast<int8_t>(lut.numEntries) - 1; i >= 0; --i) {
-        const int8_t thresh = lut.entries[i].tempC;
+    for (int8_t entryIndex = static_cast<int8_t>(lut.numEntries) - 1; entryIndex >= 0; --entryIndex) {
+        const int8_t thresh = lut.entries[entryIndex].tempC;
 
-        if (i <= lut.activeIndex) {
+        if (entryIndex <= lut.activeIndex) {
             // Falling: stay at current row until temp drops below threshold − hysteresis
             if (tempC >= static_cast<float>(thresh - static_cast<int8_t>(lut.hysteresisC))) {
-                newIndex = i;
+                newIndex = entryIndex;
                 break;
             }
         } else {
             // Rising: switch up immediately on crossing
             if (tempC >= static_cast<float>(thresh)) {
-                newIndex = i;
+                newIndex = entryIndex;
                 break;
             }
         }
@@ -441,7 +442,7 @@ static float rpmToLph(float rpm) {
 // ---------------------------------------------------------------------------
 static float readCoolantTemp() {
     uint32_t adcSum = 0u;
-    for (uint8_t i = 0u; i < COOLING_TEMP_OVERSAMPLE; ++i) {
+    for (uint8_t sampleIndex = 0u; sampleIndex < COOLING_TEMP_OVERSAMPLE; ++sampleIndex) {
         adcSum += static_cast<uint32_t>(analogRead(COOLING_TEMP_ADC_PIN));
     }
     const float adcAvg = static_cast<float>(adcSum) /
@@ -600,7 +601,7 @@ module::ServiceStatus service() {
         const float sampledRpm =
             (static_cast<float>(pulses) /
              static_cast<float>(COOLING_FLOW_PULSES_PER_REV)) /
-            (static_cast<float>(elapsed) / 60000.0f);
+            (static_cast<float>(elapsed) / 6e4f);
 
         rpmAvg_.addValue(sampledRpm);
 
@@ -858,13 +859,13 @@ float getWorstTrackingScore() {
 
 TrackingMonitor<float>::State getWorstTrackingState() {
     // FAULT > WARNING > IN_RANGE
-    using S = TrackingMonitor<float>::State;
-    const auto a = fanTracker_.getState();
-    const auto b = coolantTempTracker_.getState();
-    const auto c = flowTracker_.getState();
-    if (a == S::FAULT || b == S::FAULT || c == S::FAULT) return S::FAULT;
-    if (a == S::WARNING || b == S::WARNING || c == S::WARNING) return S::WARNING;
-    return S::IN_RANGE;
+    using TrackerState = TrackingMonitor<float>::State;
+    const auto fanState = fanTracker_.getState();
+    const auto coolantTempState = coolantTempTracker_.getState();
+    const auto flowState = flowTracker_.getState();
+    if (fanState == TrackerState::FAULT || coolantTempState == TrackerState::FAULT || flowState == TrackerState::FAULT) return TrackerState::FAULT;
+    if (fanState == TrackerState::WARNING || coolantTempState == TrackerState::WARNING || flowState == TrackerState::WARNING) return TrackerState::WARNING;
+    return TrackerState::IN_RANGE;
 }
 
 } // namespace cooling

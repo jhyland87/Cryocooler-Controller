@@ -131,8 +131,8 @@ public:
 
     ~EspNowPrint() { flush(); }
 
-    size_t write(uint8_t c) override {
-        buf_[len_++] = static_cast<char>(c);
+    size_t write(uint8_t character) override {
+        buf_[len_++] = static_cast<char>(character);
         if (len_ >= kChunkSize) { flush(); }
         return 1;
     }
@@ -241,9 +241,9 @@ static void fillPacket(TelemetryPacket& pkt) {
     pkt.state_id               = static_cast<int8_t>(state_machine::getState());
     pkt.status_on_duration_ms  = state_machine::getOnStateDuration();
     pkt.status_time_in_state_ms = state_machine::getTimeInState();
-    pkt.faults_count_10m       = state_machine::countRecentFaults(600000u);
-    pkt.faults_count_30m       = state_machine::countRecentFaults(1800000u);
-    pkt.faults_count_60m       = state_machine::countRecentFaults(3600000u);
+    pkt.faults_count_10m       = state_machine::countRecentFaults(6e5);
+    pkt.faults_count_30m       = state_machine::countRecentFaults(1.8e6);
+    pkt.faults_count_60m       = state_machine::countRecentFaults(3.6e6);
 
     // Cold head
     pkt.cold_head_temp_c                  = cold_head::getLastTempC();

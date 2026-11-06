@@ -21,7 +21,7 @@
 extern "C" void stub_setMillis(uint32_t ms);
 
 // Amplifier stub control (provided by stubs/amplifier_stub.cpp)
-extern "C" void stub_amplifier_setRmsVoltage(float v);
+extern "C" void stub_amplifier_setRmsVoltage(float volts);
 extern "C" void stub_amplifier_reset();
 
 // Serial command tests (defined in test_serial_commands.cpp)
@@ -146,7 +146,7 @@ void test_off_output_is_bypass_indicators_off(void) {
 void test_off_stays_in_off(void) {
     tick::setNowMs(0); state_machine::init();
     // Even after a long time, stays in Off without start()
-    tick::setNowMs(60000);
+    tick::setNowMs(6e4);
     auto out = state_machine::update(295.0f, 0.0f, 0.0f, false);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
                       static_cast<int8_t>(out.state));
@@ -172,7 +172,8 @@ void test_idle_output_is_fault_red_bypass(void) {
 
 void test_idle_does_not_auto_transition(void) {
     const uint32_t tStop = initStartAndStop();
-    tick::setNowMs(tStop + 60000);
+    const uint32_t oneMinuteMs = 6e4;
+    tick::setNowMs(tStop + oneMinuteMs);
     auto out = state_machine::update(295.0f, 0.0f, 0.0f, false);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Idle),
                       static_cast<int8_t>(out.state));
@@ -576,8 +577,8 @@ void test_overstroke_triggers_fault_at_max_count(void) {
     // Fault with reason TooManyBackoffs.
     const uint32_t tStart = initAndStart();
     state_machine::Output out{};
-    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT; ++i) {
-        tick::setNowMs(tStart + 1u + i);
+    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT; ++attempt) {
+        tick::setNowMs(tStart + 1u + attempt);
         out = state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
@@ -600,8 +601,8 @@ void test_backoff_count_resets_on_start(void) {
     // Accumulate backoffs up to (MAX - 1) so we stay just below the fault
     // threshold.  After stop() + start() the count must reset to zero.
     const uint32_t tStart = initAndStart();
-    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT - 1u; ++i) {
-        tick::setNowMs(tStart + 1u + i);
+    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT - 1u; ++attempt) {
+        tick::setNowMs(tStart + 1u + attempt);
         state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
     tick::setNowMs(tStart + 500u); state_machine::stop();
@@ -1122,8 +1123,8 @@ void test_clear_fault_resets_backoff_state(void) {
     // Accumulate backoffs up to (MAX - 1), trigger a fault via RMS, then clear.
     // After clear the backoff count reported by the next update() must be 0.
     const uint32_t tStart = initAndStart();
-    for (uint8_t i = 0; i < BACKOFF_MAX_COUNT - 1u; ++i) {
-        tick::setNowMs(tStart + 1u + i);
+    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT - 1u; ++attempt) {
+        tick::setNowMs(tStart + 1u + attempt);
         state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
     // Now trigger fault via RMS.
@@ -1269,16 +1270,16 @@ static void test_history_wraps_at_limit() {
     // Each stop→shutdown→(wait)→idle cycle adds 3 entries (Shutdown, Idle, Coarse).
     // We just want to confirm the count never exceeds FSM_HISTORY_LIMIT.
     tick::setNowMs(0); state_machine::init();
-    uint32_t t = 10u;
-    for (uint8_t i = 0; i < 30u; ++i, t += 10u) {
-        tick::setNowMs(t); state_machine::start();
-        t += 10u;
-        tick::setNowMs(t); state_machine::stop();
-        t += 10u;
+    uint32_t nowMs = 10u;
+    for (uint8_t attempt = 0; attempt < 30u; ++attempt, nowMs += 10u) {
+        tick::setNowMs(nowMs); state_machine::start();
+        nowMs += 10u;
+        tick::setNowMs(nowMs); state_machine::stop();
+        nowMs += 10u;
         // Advance through Shutdown to Idle so we can start again.
-        tick::setNowMs(t + SHUTDOWN_DURATION_MS + 1u);
+        tick::setNowMs(nowMs + SHUTDOWN_DURATION_MS + 1u);
         state_machine::update(300.0f, 0.0f, 0.0f, false);
-        t += SHUTDOWN_DURATION_MS + 2u;
+        nowMs += SHUTDOWN_DURATION_MS + 2u;
     }
     TEST_ASSERT_LESS_OR_EQUAL(static_cast<uint8_t>(FSM_HISTORY_LIMIT),
                                state_machine::getHistoryCount());
@@ -1291,8 +1292,8 @@ static void test_history_wraps_at_limit() {
 // ---------------------------------------------------------------------------
 
 // Helper: one update() with fixed inputs; returns resulting state.
-static state_machine::State bounceOnce(float tempC, uint32_t t) {
-    tick::setNowMs(t);
+static state_machine::State bounceOnce(float tempC, uint32_t nowMs) {
+    tick::setNowMs(nowMs);
     return state_machine::update(tempC, 0.0f, 0.0f, false).state;
 }
 

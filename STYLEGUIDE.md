@@ -37,6 +37,9 @@ ASSERT_MODULE_INTERFACE(Module);
   `MODULE_INIT_HARDWARE_ERROR`, …). `service()` returns a `ServiceStatus`
   (`MODULE_SERVICE_OK`, `MODULE_SERVICE_SKIPPED`, `MODULE_SERVICE_ERROR`).
   Return the honest status — callers log health transitions from it.
+- Declare each SPI IC in the owning module's `.cpp` file as a `SpiDevice` or
+  `SpiChipSelect` (see "SPI ICs" in [`docs/modules.md`](docs/modules.md)). Use
+  `SpiTransaction` for transfers rather than toggling the chip select by hand.
 
 ### The no-blocking rule
 
@@ -53,11 +56,36 @@ within a tick.
 
 ### Naming
 
-- Descriptive names; **no single-letter or ambiguous variable names.**
+- **No single-character variable names**, including loop counters and iteration
+  variables. Use descriptive names that are easy to understand without reading
+  the surrounding code:
+  ```cpp
+  // Don't
+  const auto s = state_machine::getState();
+  for (const auto& m : selectableModules) { ... }
+
+  // Do
+  const auto currentState = state_machine::getState();
+  for (const auto& selectableModule : selectableModules) { ... }
+  ```
 - `UpperCamelCase` for types/structs/enums; `lowerCamelCase` for functions and
   variables; `CONSTANT_CASE` for compile-time constants and macros.
 - Namespaces are lower_snake or lowercase matching the subsystem (`cold_head`,
   `imu`). Proto message `ColdHead` maps to telemetry prefix `cold_head`.
+
+### Numeric literals
+
+Write round values of 10,000 and up in scientific notation: `5e6`, not `5000000`.
+
+```cpp
+static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
+static constexpr uint32_t MS_PER_MINUTE = 6e4;
+```
+
+These literals are `double`, so assign them to a typed integer constant before
+using them in integer math or passing them to `printf`-style functions. Brace
+initialization (`uint32_t value{5e6}`) doesn't compile; use `=` or parentheses.
+In `float` math, add the suffix (`6e4f`) so the expression stays `float`.
 
 ### Control flow
 

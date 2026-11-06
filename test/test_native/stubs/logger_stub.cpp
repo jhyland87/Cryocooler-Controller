@@ -28,12 +28,12 @@ void push(const char* text) {
 }
 
 void push(const char* text, size_t len) {
-    Entry& e = sEntries[sHead];
-    e.ms    = millis();
-    e.epoch = static_cast<int64_t>(time(nullptr));
+    Entry& entry = sEntries[sHead];
+    entry.ms    = millis();
+    entry.epoch = static_cast<int64_t>(time(nullptr));
     if (len >= MAX_MSG_LEN - 1u) len = MAX_MSG_LEN - 2u;
-    memcpy(e.text, text, len);
-    e.text[len] = '\0';
+    memcpy(entry.text, text, len);
+    entry.text[len] = '\0';
     sHead = static_cast<uint8_t>((sHead + 1u) % CAPACITY);
     if (sCount < CAPACITY) ++sCount;
 }
@@ -62,15 +62,15 @@ void fillJson(JsonArray arr, uint8_t maxEntries) {
     const uint8_t total = sCount;
     if (total == 0) return;
 
-    uint8_t n = (maxEntries == 0u || maxEntries > total) ? total : maxEntries;
+    uint8_t entryCount = (maxEntries == 0u || maxEntries > total) ? total : maxEntries;
     // Start from (total - n) to get the most recent n entries.
-    uint8_t startIdx = static_cast<uint8_t>(total - n);
-    for (uint8_t i = startIdx; i < total; ++i) {
-        const Entry& e = get(i);
+    uint8_t startIdx = static_cast<uint8_t>(total - entryCount);
+    for (uint8_t entryIndex = startIdx; entryIndex < total; ++entryIndex) {
+        const Entry& entry = get(entryIndex);
         JsonObject obj = arr.add<JsonObject>();
-        obj["ms"]    = e.ms;
-        obj["epoch"] = e.epoch;
-        obj["text"]  = e.text;
+        obj["ms"]    = entry.ms;
+        obj["epoch"] = entry.epoch;
+        obj["text"]  = entry.text;
     }
 }
 
@@ -84,19 +84,19 @@ LogStream LogStream::createChildLogger(const char* name) const {
     return LogStream(name);
 }
 
-size_t LogStream::write(uint8_t c) {
+size_t LogStream::write(uint8_t character) {
     if (pos_ < sizeof(line_) - 1u) {
-        line_[pos_++] = static_cast<char>(c);
+        line_[pos_++] = static_cast<char>(character);
     }
-    if (c == '\n') {
+    if (character == '\n') {
         flushLine();
     }
     return 1;
 }
 
 size_t LogStream::write(const uint8_t* buf, size_t size) {
-    for (size_t i = 0; i < size; ++i) {
-        write(buf[i]);
+    for (size_t byteIndex = 0; byteIndex < size; ++byteIndex) {
+        write(buf[byteIndex]);
     }
     return size;
 }

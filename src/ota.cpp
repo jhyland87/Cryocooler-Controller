@@ -57,8 +57,8 @@ static void scheduleReboot(uint32_t delayMs) {
 
     xTaskCreate(
         [](void* arg) {
-            const auto* a = static_cast<RebootArgs*>(arg);
-            vTaskDelay(pdMS_TO_TICKS(a->delayMs));
+            const auto* rebootArgs = static_cast<RebootArgs*>(arg);
+            vTaskDelay(pdMS_TO_TICKS(rebootArgs->delayMs));
             vPortFree(arg);
             esp_restart();
             vTaskDelete(nullptr);
@@ -275,8 +275,8 @@ const char* getFirmwareBuildDate() {
     // Static buffer — safe because this is only read from HTTP callbacks and
     // the telemetry task, both of which run serialised in the TCPIP task.
     static char buf[32];
-    const esp_app_desc_t* d = esp_ota_get_app_description();
-    snprintf(buf, sizeof(buf), "%s %s", d->date, d->time);
+    const esp_app_desc_t* appDescription = esp_ota_get_app_description();
+    snprintf(buf, sizeof(buf), "%s %s", appDescription->date, appDescription->time);
     return buf;
 }
 

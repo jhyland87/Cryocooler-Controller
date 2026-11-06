@@ -30,7 +30,7 @@ void histSetPendingCause(const char* cause);
  * Internally calls checkOscillation(); if an oscillation pattern is
  * detected it sets the deferred oscillationFaultPending flag.
  */
-void histPushHistory(State s, uint32_t enteredMs);
+void histPushHistory(State state, uint32_t enteredMs);
 
 /**
  * Atomically read and clear the oscillation-fault deferred flag.
@@ -45,7 +45,7 @@ bool histTakeOscillationFaultPending();
  * Called from onEnterFault() with the composite fault reason bitmask and
  * the current tick timestamp.
  */
-void histPushFaultRecord(FaultReason r, uint32_t enteredMs);
+void histPushFaultRecord(FaultReason reason, uint32_t enteredMs);
 
 /**
  * Complete the most recent FaultRecord with a clear timestamp.

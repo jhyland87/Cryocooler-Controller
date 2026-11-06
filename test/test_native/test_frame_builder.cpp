@@ -46,8 +46,8 @@ void test_fb_reset_clears_count(void) {
 void test_fb_max_fields_not_exceeded(void) {
     FrameBuilder fb;
     // Add more fields than MAX_FIELDS — count must not exceed MAX_FIELDS.
-    for (uint8_t i = 0; i < FrameBuilder::MAX_FIELDS + 5u; ++i) {
-        fb.field("x", "%d", static_cast<int>(i));
+    for (uint8_t fieldIndex = 0; fieldIndex < FrameBuilder::MAX_FIELDS + 5u; ++fieldIndex) {
+        fb.field("x", "%d", static_cast<int>(fieldIndex));
     }
     TEST_ASSERT_EQUAL_UINT8(FrameBuilder::MAX_FIELDS, fb.fieldCount());
 }
@@ -123,7 +123,7 @@ void test_fb_bool_true_is_unsigned_one(void) {
     fb.field("flag", "%d", true);
     TEST_ASSERT_EQUAL(static_cast<uint8_t>(FrameBuilder::Field::Type::Unsigned),
                       static_cast<uint8_t>(fb.getField(0).type));
-    TEST_ASSERT_EQUAL_UINT64(1u, fb.getField(0).num.u);
+    TEST_ASSERT_EQUAL_UINT64(1u, fb.getField(0).num.unsignedValue);
 }
 
 void test_fb_bool_false_is_unsigned_zero(void) {
@@ -131,7 +131,7 @@ void test_fb_bool_false_is_unsigned_zero(void) {
     fb.field("flag", "%d", false);
     TEST_ASSERT_EQUAL(static_cast<uint8_t>(FrameBuilder::Field::Type::Unsigned),
                       static_cast<uint8_t>(fb.getField(0).type));
-    TEST_ASSERT_EQUAL_UINT64(0u, fb.getField(0).num.u);
+    TEST_ASSERT_EQUAL_UINT64(0u, fb.getField(0).num.unsignedValue);
 }
 
 void test_fb_const_char_ptr_is_string(void) {
@@ -148,25 +148,25 @@ void test_fb_const_char_ptr_is_string(void) {
 void test_fb_float_value_stored(void) {
     FrameBuilder fb;
     fb.field("v", "%f", 1.5f);
-    TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.5f, fb.getField(0).num.f);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.5f, fb.getField(0).num.floatValue);
 }
 
 void test_fb_negative_float_stored(void) {
     FrameBuilder fb;
     fb.field("v", "%f", -273.15f);
-    TEST_ASSERT_FLOAT_WITHIN(0.001f, -273.15f, fb.getField(0).num.f);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, -273.15f, fb.getField(0).num.floatValue);
 }
 
 void test_fb_signed_value_stored(void) {
     FrameBuilder fb;
     fb.field("v", "%d", static_cast<int>(-42));
-    TEST_ASSERT_EQUAL_INT64(-42, fb.getField(0).num.i);
+    TEST_ASSERT_EQUAL_INT64(-42, fb.getField(0).num.signedValue);
 }
 
 void test_fb_unsigned_value_stored(void) {
     FrameBuilder fb;
     fb.field("v", "%u", static_cast<uint32_t>(4095u));
-    TEST_ASSERT_EQUAL_UINT64(4095u, fb.getField(0).num.u);
+    TEST_ASSERT_EQUAL_UINT64(4095u, fb.getField(0).num.unsignedValue);
 }
 
 // ---------------------------------------------------------------------------
@@ -197,55 +197,55 @@ void test_fb_format_string_applied_string(void) {
 
 void test_fb_serial_empty_frame(void) {
     FrameBuilder fb;
-    Print p;
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("\r\n", p.str());
+    Print output;
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL_STRING("\r\n", output.str());
 }
 
 void test_fb_serial_single_field(void) {
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("n", "%d", static_cast<int>(42));
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("42\r\n", p.str());
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL_STRING("42\r\n", output.str());
 }
 
 void test_fb_serial_multiple_fields_tab_separated(void) {
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("a", "%d", static_cast<int>(1))
       .field("b", "%d", static_cast<int>(2))
       .field("c", "%d", static_cast<int>(3));
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("1\t2\t3\r\n", p.str());
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL_STRING("1\t2\t3\r\n", output.str());
 }
 
 void test_fb_serial_ends_with_crlf(void) {
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("x", "%d", static_cast<int>(99));
-    fb.sendSerial(p);
-    TEST_ASSERT_TRUE(p.contains("\r\n"));
+    fb.sendSerial(output);
+    TEST_ASSERT_TRUE(output.contains("\r\n"));
 }
 
 void test_fb_serial_no_leading_tab(void) {
     // First field must not be preceded by a tab
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("x", "%d", static_cast<int>(5));
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL('5', p.str()[0]);
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL('5', output.str()[0]);
 }
 
 void test_fb_serial_after_reset(void) {
     // After reset(), a new frame should emit the correct output.
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("old", "%d", static_cast<int>(9));
     fb.reset();
     fb.field("new_", "%d", static_cast<int>(7));
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("7\r\n", p.str());
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL_STRING("7\r\n", output.str());
 }
 
 // ---------------------------------------------------------------------------
@@ -396,10 +396,10 @@ void test_fb_json_dotted_string_value(void) {
 void test_fb_serial_dotted_name_unaffected(void) {
     // sendSerial emits only the formatted value; dots in the name are irrelevant.
     FrameBuilder fb;
-    Print p;
+    Print output;
     fb.field("foo.bar", "%d", static_cast<int>(7));
-    fb.sendSerial(p);
-    TEST_ASSERT_EQUAL_STRING("7\r\n", p.str());
+    fb.sendSerial(output);
+    TEST_ASSERT_EQUAL_STRING("7\r\n", output.str());
 }
 
 // ---------------------------------------------------------------------------

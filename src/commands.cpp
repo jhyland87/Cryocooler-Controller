@@ -43,6 +43,7 @@
 #include "espnow.h"
 #endif
 #include "logger.h"
+#include "spi_device.h"
 
 namespace commands {
 
@@ -117,13 +118,13 @@ static void handleStart(const char* /*args*/, Print& out) {
  */
 static bool argsContain(const char* args, const char* name) {
     const size_t nameLen = strlen(name);
-    const char* p = args;
-    while (*p) {
-        while (*p == ' ' || *p == '\t') ++p;
-        if (*p == '\0') break;
-        const char* start = p;
-        while (*p && *p != ' ' && *p != '\t') ++p;
-        if (static_cast<size_t>(p - start) == nameLen &&
+    const char* cursor = args;
+    while (*cursor) {
+        while (*cursor == ' ' || *cursor == '\t') ++cursor;
+        if (*cursor == '\0') break;
+        const char* start = cursor;
+        while (*cursor && *cursor != ' ' && *cursor != '\t') ++cursor;
+        if (static_cast<size_t>(cursor - start) == nameLen &&
             strncmp(start, name, nameLen) == 0) {
             return true;
         }
@@ -138,15 +139,15 @@ static void handleReinit(const char* args, Print& out) {
     // Initialize is also allowed so a failed startup (stuck in Initialize
     // because a hardware module was missing) can be retried without having
     // to issue an 'off' command first.
-    const auto s = state_machine::getState();
-    if (s != state_machine::State::Off        &&
-        s != state_machine::State::Idle       &&
-        s != state_machine::State::Initialize &&
-        s != state_machine::State::Fault) {
+    const auto currentState = state_machine::getState();
+    if (currentState != state_machine::State::Off        &&
+        currentState != state_machine::State::Idle       &&
+        currentState != state_machine::State::Initialize &&
+        currentState != state_machine::State::Fault) {
         char buf[80];
         snprintf(buf, sizeof(buf),
                  "[ERR] Cannot reinit while in %s — stop the system first",
-                 state_machine::stateName(s));
+                 state_machine::stateName(currentState));
         out.println(buf);
         return;
     }
@@ -189,22 +190,22 @@ static void handleReinit(const char* args, Print& out) {
     };
 
     uint8_t reinitCount = 0;
-    for (const auto& m : selectableModules) {
-        if (!argsContain(args, m.name)) continue;
+    for (const auto& selectableModule : selectableModules) {
+        if (!argsContain(args, selectableModule.name)) continue;
 
-        const auto status = m.initFn();
+        const auto status = selectableModule.initFn();
         char buf[80];
         snprintf(buf, sizeof(buf), "  %-14s  %s",
-                 m.name, module::initStatusName(status));
+                 selectableModule.name, module::initStatusName(status));
         out.println(buf);
         ++reinitCount;
     }
 
     if (reinitCount == 0) {
         out.println(F("[ERR] No valid module names found. Available:"));
-        for (const auto& m : selectableModules) {
+        for (const auto& selectableModule : selectableModules) {
             char buf[32];
-            snprintf(buf, sizeof(buf), "  %s", m.name);
+            snprintf(buf, sizeof(buf), "  %s", selectableModule.name);
             out.println(buf);
         }
     } else {
@@ -287,12 +288,12 @@ static void handleStatus(const char* /*args*/, Print& out) {
         { "state_machine", state_machine::Module::getInitStatus(), state_machine::Module::getServiceStatus() },
     };
 
-    for (const auto& m : modules) {
+    for (const auto& listedModule : modules) {
         char line[80];
         snprintf(line, sizeof(line), "    %-14s  init: %-16s  svc: %s",
-                 m.name,
-                 module::initStatusName(m.init),
-                 module::serviceStatusName(m.svc));
+                 listedModule.name,
+                 module::initStatusName(listedModule.init),
+                 module::serviceStatusName(listedModule.svc));
         out.println(line);
     }
 #endif
@@ -410,10 +411,10 @@ static void handleVoutSet(const char* args, Print& out) {
     // Parse up to 4 digits (anything ≥ 1000 will fail the range check).
     uint16_t val    = 0;
     uint8_t  digits = 0;
-    const char* p = args;
-    while (*p >= '0' && *p <= '9' && digits < 4u) {
-        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*p - '0'));
-        ++p;
+    const char* cursor = args;
+    while (*cursor >= '0' && *cursor <= '9' && digits < 4u) {
+        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*cursor - '0'));
+        ++cursor;
         ++digits;
     }
 
@@ -427,13 +428,13 @@ static void handleVoutSet(const char* args, Print& out) {
     }
 
     // Check for an optional trailing '%' to select percent mode.
-    const bool isPercent = (*p == '%');
+    const bool isPercent = (*cursor == '%');
     if (isPercent) {
-        ++p;  // advance past '%'
+        ++cursor;  // advance past '%'
     }
 
     // Reject trailing non-whitespace garbage after the value (or after '%').
-    if (*p != '\0' && *p != ' ' && *p != '\t') {
+    if (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
         char buf[64];
         snprintf(buf, sizeof(buf),
                  "[ERR] vout set: invalid argument '%s' (expected 0-120V or 0-100%%)", args);
@@ -491,17 +492,16 @@ static void handleDacRaw(const char* args, Print& out) {
     }
 
     // Exactly replicate the test sketch setup
+    const SpiDevice rawDac(MCP4921_CS, SPISettings(8e6, MSBFIRST, SPI_MODE0));
     SPI.end();
-    pinMode(MCP4921_CS, OUTPUT);
-    digitalWrite(MCP4921_CS, HIGH);
+    rawDac.begin();
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
     const uint16_t cmd = 0x3000 | (val & 0x0FFF);
-    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-    digitalWrite(MCP4921_CS, LOW);
-    SPI.transfer16(cmd);
-    digitalWrite(MCP4921_CS, HIGH);
-    SPI.endTransaction();
+    {
+        SpiTransaction transaction(rawDac);
+        transaction.transfer16(cmd);
+    }
 
     char buf[64];
     snprintf(buf, sizeof(buf), "[OK] Raw SPI write: cmd=0x%04X (val=%u, %.2fV)",
@@ -521,10 +521,10 @@ static void handleCoolingFan(const char* args, Print& out) {
     // Parse up to 4 digits.
     uint16_t val    = 0;
     uint8_t  digits = 0;
-    const char* p = args;
-    while (*p >= '0' && *p <= '9' && digits < 4u) {
-        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*p - '0'));
-        ++p;
+    const char* cursor = args;
+    while (*cursor >= '0' && *cursor <= '9' && digits < 4u) {
+        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*cursor - '0'));
+        ++cursor;
         ++digits;
     }
 
@@ -537,11 +537,11 @@ static void handleCoolingFan(const char* args, Print& out) {
     }
 
     // Check for optional trailing '%' to select percent mode.
-    const bool isPercent = (*p == '%');
-    if (isPercent) { ++p; }
+    const bool isPercent = (*cursor == '%');
+    if (isPercent) { ++cursor; }
 
     // Reject trailing non-whitespace garbage.
-    if (*p != '\0' && *p != ' ' && *p != '\t') {
+    if (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
         char buf[64];
         snprintf(buf, sizeof(buf),
                  "[ERR] cooling fan: invalid argument '%s' (expected <duty> or <%%>)", args);
@@ -584,10 +584,10 @@ static void handleCoolingPump(const char* args, Print& out) {
     // Parse up to 4 digits.
     uint16_t val    = 0;
     uint8_t  digits = 0;
-    const char* p = args;
-    while (*p >= '0' && *p <= '9' && digits < 4u) {
-        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*p - '0'));
-        ++p;
+    const char* cursor = args;
+    while (*cursor >= '0' && *cursor <= '9' && digits < 4u) {
+        val = static_cast<uint16_t>(val * 10u + static_cast<uint16_t>(*cursor - '0'));
+        ++cursor;
         ++digits;
     }
 
@@ -600,11 +600,11 @@ static void handleCoolingPump(const char* args, Print& out) {
     }
 
     // Check for optional trailing '%' to select percent mode.
-    const bool isPercent = (*p == '%');
-    if (isPercent) { ++p; }
+    const bool isPercent = (*cursor == '%');
+    if (isPercent) { ++cursor; }
 
     // Reject trailing non-whitespace garbage.
-    if (*p != '\0' && *p != ' ' && *p != '\t') {
+    if (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
         char buf[96];
         snprintf(buf, sizeof(buf),
                  "[ERR] cooling pump: invalid argument '%s' (expected <duty> or <%%>)", args);
@@ -726,8 +726,8 @@ static void handleFaultHistory(const char* /*args*/, Print& out) {
              static_cast<unsigned>(FAULT_HISTORY_LIMIT));
     out.println(header);
 
-    for (uint8_t i = 0; i < count; ++i) {
-        const auto rec = state_machine::getFaultRecord(i);
+    for (uint8_t recordIndex = 0; recordIndex < count; ++recordIndex) {
+        const auto rec = state_machine::getFaultRecord(recordIndex);
 
         char enteredBuf[20];
         if (rec.enteredEpoch > 0) {
@@ -745,7 +745,7 @@ static void handleFaultHistory(const char* /*args*/, Print& out) {
         if (rec.clearedBy == nullptr) {
             snprintf(line, sizeof(line),
                      "  [%2u] %-s  entered: %-14s  ACTIVE",
-                     static_cast<unsigned>(i),
+                     static_cast<unsigned>(recordIndex),
                      reasonBuf,
                      enteredBuf);
         } else {
@@ -767,7 +767,7 @@ static void handleFaultHistory(const char* /*args*/, Print& out) {
             }
             snprintf(line, sizeof(line),
                      "  [%2u] %s  entered: %-14s  cleared: %-14s  by: %s",
-                     static_cast<unsigned>(i),
+                     static_cast<unsigned>(recordIndex),
                      reasonBuf,
                      enteredBuf,
                      clearedBuf,
@@ -811,13 +811,13 @@ static void handleBoard(const char* /*args*/, Print& out) {
 
 
 static void handleFsmState(const char* /*args*/, Print& out) {
-    const auto    s         = state_machine::getState();
-    const uint32_t inStateMs = state_machine::getTimeInState();
+    const auto     currentState = state_machine::getState();
+    const uint32_t inStateMs    = state_machine::getTimeInState();
     char buf[128];
     snprintf(buf, sizeof(buf),
              "[OK] %s (%d) | running: %s | in state: %lums\n      %s",
-             state_machine::stateName(s),
-             static_cast<int8_t>(s),
+             state_machine::stateName(currentState),
+             static_cast<int8_t>(currentState),
              state_machine::isRunning() ? "yes" : "no",
              static_cast<unsigned long>(inStateMs),
              state_machine::getStatusText());
@@ -838,8 +838,8 @@ static void handleFsmHistory(const char* /*args*/, Print& out) {
              static_cast<unsigned>(count),
              static_cast<unsigned>(FSM_HISTORY_LIMIT));
     out.println(header);
-    for (uint8_t i = 0; i < count; ++i) {
-        const auto entry = state_machine::getHistoryEntry(i);
+    for (uint8_t entryIndex = 0; entryIndex < count; ++entryIndex) {
+        const auto entry = state_machine::getHistoryEntry(entryIndex);
 
         // Format wall-clock time if SNTP has synced, otherwise flag as pre-sync.
         char timeBuf[20];
@@ -852,7 +852,7 @@ static void handleFsmHistory(const char* /*args*/, Print& out) {
 
         char line[112];
         snprintf(line, sizeof(line), "  [%2u] %-16s  %-14s  T+%lu ms  via %s",
-                 static_cast<unsigned>(i),
+                 static_cast<unsigned>(entryIndex),
                  state_machine::stateName(entry.state),
                  timeBuf,
                  static_cast<unsigned long>(entry.enteredMs),
@@ -1136,8 +1136,8 @@ static int parseLogLevel(const char* arg) {
     if (arg[0] >= '0' && arg[0] < ('0' + LOG_LEVEL_COUNT) && arg[1] == '\0') {
         return arg[0] - '0';
     }
-    for (uint8_t i = 0; i < LOG_LEVEL_COUNT; ++i) {
-        if (strcasecmp(arg, logLevelNames[i]) == 0) return i;
+    for (uint8_t levelIndex = 0; levelIndex < LOG_LEVEL_COUNT; ++levelIndex) {
+        if (strcasecmp(arg, logLevelNames[levelIndex]) == 0) return levelIndex;
     }
     return -1;
 }
@@ -1238,10 +1238,10 @@ static const uint8_t commandCount =
 
 static void handleHelp(const char* /*args*/, Print& out) {
     out.println(F("[OK] Available commands:"));
-    for (uint8_t i = 0; i < commandCount; ++i) {
+    for (uint8_t commandIndex = 0; commandIndex < commandCount; ++commandIndex) {
         char line[80];
         snprintf(line, sizeof(line), "  %-16s  %s",
-                 commandMap[i].name, commandMap[i].help);
+                 commandMap[commandIndex].name, commandMap[commandIndex].help);
         out.println(line);
     }
     out.println("");
@@ -1290,14 +1290,14 @@ void processLine(const char* line, Print& out) {
     // Match command names by prefix: the name must exactly fill the start of
     // the line, followed by end-of-string, space, or tab.  Multi-word names
     // like "telemetry off" win over shorter prefixes because of table order.
-    for (uint8_t i = 0; i < commandCount; ++i) {
-        const size_t nameLen = strlen(commandMap[i].name);
-        if (strncmp(commandMap[i].name, line, nameLen) == 0 &&
+    for (uint8_t commandIndex = 0; commandIndex < commandCount; ++commandIndex) {
+        const size_t nameLen = strlen(commandMap[commandIndex].name);
+        if (strncmp(commandMap[commandIndex].name, line, nameLen) == 0 &&
             (line[nameLen] == '\0' || line[nameLen] == ' ' || line[nameLen] == '\t')) {
             // Strip leading whitespace from whatever follows the command name.
             const char* args = line + nameLen;
             while (*args == ' ' || *args == '\t') { ++args; }
-            commandMap[i].handler(args, out);
+            commandMap[commandIndex].handler(args, out);
             return;
         }
     }
@@ -1320,8 +1320,8 @@ void init() {
 void service() {
 #ifdef ARDUINO
     while (Serial.available()) {
-        const char c = static_cast<char>(Serial.read());
-        if (c == '\r' || c == '\n') {
+        const char incomingChar = static_cast<char>(Serial.read());
+        if (incomingChar == '\r' || incomingChar == '\n') {
             // Accept \r, \n, and \r\n line endings.
             // For \r\n: \r processes the line; the following \n sees an empty
             // buffer (lineLen == 0) and is a no-op — no double dispatch.
@@ -1331,7 +1331,7 @@ void service() {
                 lineLen = 0;
             }
         } else if (lineLen < maxLineLen) {
-            lineBuf[lineLen++] = c;
+            lineBuf[lineLen++] = incomingChar;
             lastCharMs = millis();
         }
         // Characters beyond maxLineLen are silently dropped until next newline.

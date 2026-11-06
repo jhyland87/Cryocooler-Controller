@@ -56,31 +56,31 @@ public:
      * The base implementation stores the byte in the capture buffer so tests
      * can inspect all output via str() / contains().
      */
-    virtual size_t write(uint8_t c) {
+    virtual size_t write(uint8_t character) {
         if (_len < kCapacity - 1) {
-            _buf[_len++] = static_cast<char>(c);
+            _buf[_len++] = static_cast<char>(character);
             _buf[_len]   = '\0';
         }
         return 1;
     }
 
     /**
-     * Write @p n bytes.  Delegates to write(uint8_t) so subclass overrides
+     * Write @p length bytes.  Delegates to write(uint8_t) so subclass overrides
      * intercept bulk writes the same way as single-byte writes.
      */
-    virtual size_t write(const uint8_t* buf, size_t n) {
-        for (size_t i = 0; i < n; ++i) { write(buf[i]); }
-        return n;
+    virtual size_t write(const uint8_t* buf, size_t length) {
+        for (size_t byteIndex = 0; byteIndex < length; ++byteIndex) { write(buf[byteIndex]); }
+        return length;
     }
 
-    size_t print(const char* s) {
-        if (!s) { return 0; }
-        return write(reinterpret_cast<const uint8_t*>(s), strlen(s));
+    size_t print(const char* text) {
+        if (!text) { return 0; }
+        return write(reinterpret_cast<const uint8_t*>(text), strlen(text));
     }
 
-    size_t println(const char* s = "") {
-        const size_t n = print(s);
-        return n + print("\n");
+    size_t println(const char* text = "") {
+        const size_t written = print(text);
+        return written + print("\n");
     }
 
     /**
@@ -91,13 +91,13 @@ public:
         char tmp[512];
         va_list ap;
         va_start(ap, fmt);
-        int n = vsnprintf(tmp, sizeof(tmp), fmt, ap);
+        int written = vsnprintf(tmp, sizeof(tmp), fmt, ap);
         va_end(ap);
-        if (n > 0) {
+        if (written > 0) {
             write(reinterpret_cast<const uint8_t*>(tmp),
-                  static_cast<size_t>(n < static_cast<int>(sizeof(tmp)) ? n : static_cast<int>(sizeof(tmp)) - 1));
+                  static_cast<size_t>(written < static_cast<int>(sizeof(tmp)) ? written : static_cast<int>(sizeof(tmp)) - 1));
         }
-        return n;
+        return written;
     }
 
 private:

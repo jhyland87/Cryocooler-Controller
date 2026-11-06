@@ -113,13 +113,13 @@ enum class FaultReason : uint8_t {
 };
 
 /** Bitwise OR — combine two fault reasons into a composite mask. */
-inline FaultReason operator|(FaultReason a, FaultReason b) {
-    return static_cast<FaultReason>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+inline FaultReason operator|(FaultReason left, FaultReason right) {
+    return static_cast<FaultReason>(static_cast<uint8_t>(left) | static_cast<uint8_t>(right));
 }
 /** Bitwise OR-assign — accumulate fault bits in place. */
-inline FaultReason& operator|=(FaultReason& a, FaultReason b) {
-    a = a | b;
-    return a;
+inline FaultReason& operator|=(FaultReason& left, FaultReason right) {
+    left = left | right;
+    return left;
 }
 
 /**
@@ -127,8 +127,8 @@ inline FaultReason& operator|=(FaultReason& a, FaultReason b) {
  * Only meaningful when exactly one bit is set; use formatFaultReasons()
  * for composite (multi-fault) values.
  */
-inline const char* faultReasonName(FaultReason r) {
-    switch (r) {
+inline const char* faultReasonName(FaultReason reason) {
+    switch (reason) {
         case FaultReason::None:             return "None";
         case FaultReason::RmsOvervoltage:   return "RmsOvervoltage";
         case FaultReason::TemperatureStall: return "TemperatureStall";
@@ -148,7 +148,7 @@ inline const char* faultReasonName(FaultReason r) {
  * Example: FaultReason::LowSystemVoltage | FaultReason::TemperatureStall
  *          → "LowSystemVoltage|TemperatureStall"
  */
-void formatFaultReasons(FaultReason r, char* buf, size_t len);
+void formatFaultReasons(FaultReason reason, char* buf, size_t len);
 
 /**
  * Parse a single fault reason bit name (case-insensitive). Returns
@@ -282,8 +282,8 @@ void off();
  * Return a short ASCII name for a state (safe for Serial / telemetry).
  * Generated from STATE_MACHINE_STATES — add or rename states there, not here.
  */
-inline const char* stateName(State s) {
-    switch (s) {
+inline const char* stateName(State state) {
+    switch (state) {
 #define X(name, value, sname, status) case State::name: return sname;
         STATE_MACHINE_STATES(X)
 #undef X
@@ -384,10 +384,10 @@ uint8_t getFaultHistoryCount();
 
 /**
  * Return a single fault record by recency index.
- * @param i  0 = most recent fault, 1 = second most recent, …
+ * @param index  0 = most recent fault, 1 = second most recent, …
  * @return   The requested record, or a zero-initialised record if i >= getFaultHistoryCount().
  */
-FaultRecord getFaultRecord(uint8_t i);
+FaultRecord getFaultRecord(uint8_t index);
 
 /**
  * Count the number of Fault-state entries whose enteredMs falls within
@@ -418,10 +418,10 @@ uint8_t getHistoryCount();
 
 /**
  * Return a single history entry by recency index.
- * @param i  0 = most recent entry, 1 = second most recent, …
+ * @param index  0 = most recent entry, 1 = second most recent, …
  * @return   The requested entry, or a zero-initialised entry if i >= getHistoryCount().
  */
-HistoryEntry getHistoryEntry(uint8_t i);
+HistoryEntry getHistoryEntry(uint8_t index);
 
 /** Return a short ASCII status text for the current state (safe for Serial / telemetry). */
 const char* getStatusText();

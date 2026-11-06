@@ -160,7 +160,7 @@ public:
      */
     LogStream createChildLogger(const char* name) const;
 
-    size_t write(uint8_t c) override;
+    size_t write(uint8_t character) override;
     size_t write(const uint8_t* buf, size_t size) override;
 
 private:

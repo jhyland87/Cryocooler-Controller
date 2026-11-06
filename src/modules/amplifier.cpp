@@ -32,6 +32,7 @@
 #include "logger.h"
 #include "power_good.h"
 #include "gpio_expander.h"
+#include "spi_device.h"
 
 /// How often the four expander-read rail flags are sampled (ms).
 static constexpr uint32_t RAIL_FLAG_POLL_MS = 250;
@@ -56,7 +57,8 @@ static bool sRelayOn = false;
 static PowerGoodMonitor sPowerGood(AMPLIFIER_POWER_GOOD_DEBOUNCE_MS);
 
 // Waveform generator (AD9833 over SPI)
-static MD_AD9833 ad9833_(AD9833_CS);
+static constexpr SpiChipSelect sWaveformChipSelect(AD9833_CS);
+static MD_AD9833 ad9833_(sWaveformChipSelect.chipSelectId());
 
 // RMS power monitor (ACS37800 over SPI — dedicated SPI3 bus)
 static ACS37800 acs_(&hardware::acsSpi(), ACS37800_CS);
@@ -64,7 +66,7 @@ static bool sAcsAvailable = false;
 
 // MCP4921 12-bit SPI DAC — amplitude control
 // SPI settings: Mode 0 (CPOL=0 CPHA=0), MSB first, 4 MHz (MCP4921 supports up to 20 MHz)
-static const SPISettings sMcp4901Spi(4000000, MSBFIRST, SPI_MODE0);
+static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
 uint16_t dacCurrent_ = 0u;
 
 // Manual vout override — set by the "set vout" command to prevent the FSM
@@ -211,11 +213,10 @@ static void dacWrite(uint16_t dacVal) {
     ESP_LOGD(TAG, "Writing DAC value: %u", dacVal);
 
     const uint16_t cmd = 0x3000u | (dacVal & 0x0FFFu);
-    SPI.beginTransaction(sMcp4901Spi);
-    digitalWrite(MCP4921_CS, LOW);
-    SPI.transfer16(cmd);
-    digitalWrite(MCP4921_CS, HIGH);
-    SPI.endTransaction();
+    {
+        SpiTransaction transaction(sDac);
+        transaction.transfer16(cmd);
+    }
 
     dacCurrent_ = dacVal;
 }
@@ -309,8 +310,7 @@ module::InitStatus initDac() {
     // MCP4921 is an SPI device — no address probing needed.  Just configure
     // the CS pin and write zero to ensure the output starts at 0 V.
     // The SPI bus is already initialised by hardware::initSPI().
-    pinMode(MCP4921_CS, OUTPUT);
-    digitalWrite(MCP4921_CS, HIGH);   // CS idle high
+    sDac.begin();
 
     sDacAvailable = true;
     dacCurrent_ = UINT16_MAX;         // invalidate cache to force initial write
@@ -320,7 +320,7 @@ module::InitStatus initDac() {
     setOutput(0.0f);
 
     ESP_LOGI(TAG, "MCP4921 SPI DAC initialised (CS decoder Y%d, 12-bit, %u full-scale)",
-             MCP4921_CS - CS_ID_BASE, AMPLIFIER_RESOLUTION);
+             sDac.chipSelectId() - CS_ID_BASE, AMPLIFIER_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -555,7 +555,7 @@ module::ServiceStatus service() {
     // Runs regardless of sAcsAvailable so we can see what SPI reads return
     // even when the init probe failed.  Remove once SPI is confirmed working.
     {
-        static constexpr uint32_t ACS_RAW_LOG_INTERVAL_MS = 10000;
+        static constexpr uint32_t ACS_RAW_LOG_INTERVAL_MS = 1e4;
         static uint32_t lastAcsRawLogMs = 0;
         const uint32_t now = tick::nowMs();
         if (static_cast<uint32_t>(now - lastAcsRawLogMs) >= ACS_RAW_LOG_INTERVAL_MS) {
@@ -588,7 +588,8 @@ module::ServiceStatus service() {
 
     // Safety net: if the read returned garbage (device gone or SPI error),
     // permanently disable the ACS37800.
-    if (acs_.rmsVoltageMillivolts >= 500000) {  // >500V is impossible
+    static constexpr int32_t ACS_IMPOSSIBLE_MILLIVOLTS = 5e5;  // >500V is impossible
+    if (acs_.rmsVoltageMillivolts >= ACS_IMPOSSIBLE_MILLIVOLTS) {
         ESP_LOGW(TAG, "ACS37800 read returned garbage (%d mV) — permanently disabled",
                  acs_.rmsVoltageMillivolts);
         _Log.println(F("ACS37800 bad read — disabled"));

@@ -26,7 +26,7 @@ namespace hardware {
 
         // A missing expander is not fatal: the WS2812 still shows status and the
         // hardware amplifier interlock does not depend on it.
-        if (!gpio_expander::begin(SPI)) {
+        if (!gpio_expander::begin()) {
             ESP_LOGW("hardware", "GPIO expander not found");
         }
 

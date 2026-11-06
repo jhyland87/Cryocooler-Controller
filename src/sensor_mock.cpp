@@ -29,12 +29,12 @@ void startRamp(RampField field,
 {
     const uint32_t nowMs = tick::nowMs();
     const auto idx = static_cast<uint8_t>(field);
-    RampSpec& r = sRamps[idx];
-    r.active     = true;
-    r.startVal   = startVal;
-    r.endVal     = endVal;
-    r.ratePerMin = ratePerMin;
-    r.startMs    = nowMs;
+    RampSpec& ramp = sRamps[idx];
+    ramp.active     = true;
+    ramp.startVal   = startVal;
+    ramp.endVal     = endVal;
+    ramp.ratePerMin = ratePerMin;
+    ramp.startMs    = nowMs;
 
     // Snap the override to the start value immediately so the FSM doesn't
     // see a stale value on the very first tick.
@@ -53,7 +53,7 @@ void stopRamp(RampField field)
 
 void stopAllRamps()
 {
-    for (auto& r : sRamps) { r.active = false; }
+    for (auto& ramp : sRamps) { ramp.active = false; }
 }
 
 const RampSpec& getRamp(RampField field)
@@ -67,23 +67,23 @@ const RampSpec& getRamp(RampField field)
  * Apply one active ramp, writing the interpolated value to @p current.
  * Returns true if the ramp is still running, false if it completed.
  *
- * @param r        The ramp spec (modified in place when completed).
+ * @param ramp        The ramp spec (modified in place when completed).
  * @param current  [out] Updated value for this tick.
  */
-static bool applyRamp(RampSpec& r, float& current)
+static bool applyRamp(RampSpec& ramp, float& current)
 {
-    if (!r.active) return false;
+    if (!ramp.active) return false;
 
-    const float elapsedMin = static_cast<float>(tick::nowMs() - r.startMs) / 60000.0f;
-    const float direction  = (r.endVal >= r.startVal) ? 1.0f : -1.0f;
-    const float projected  = r.startVal + direction * r.ratePerMin * elapsedMin;
+    const float elapsedMin = static_cast<float>(tick::nowMs() - ramp.startMs) / 6e4f;
+    const float direction  = (ramp.endVal >= ramp.startVal) ? 1.0f : -1.0f;
+    const float projected  = ramp.startVal + direction * ramp.ratePerMin * elapsedMin;
 
     // Check whether the ramp has reached (or overshot) the end value.
-    const bool done = (direction > 0.0f) ? (projected >= r.endVal)
-                                         : (projected <= r.endVal);
+    const bool done = (direction > 0.0f) ? (projected >= ramp.endVal)
+                                         : (projected <= ramp.endVal);
     if (done) {
-        current  = r.endVal;
-        r.active = false;
+        current  = ramp.endVal;
+        ramp.active = false;
         return false;  // ramp completed
     }
 
@@ -97,30 +97,30 @@ void service()
 
     // ── Temp ramp ────────────────────────────────────────────────────────────
     {
-        RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Temp)];
-        if (r.active) {
-            const float direction  = (r.endVal >= r.startVal) ? 1.0f : -1.0f;
-            applyRamp(r, sOverrides.tempC);
+        RampSpec& ramp = sRamps[static_cast<uint8_t>(RampField::Temp)];
+        if (ramp.active) {
+            const float direction  = (ramp.endVal >= ramp.startVal) ? 1.0f : -1.0f;
+            applyRamp(ramp, sOverrides.tempC);
             // Auto-derive coolingRate: positive = temperature dropping.
             // A downward ramp (direction == -1) means the stage is cooling;
             // by convention coolingRate > 0 when temperature is falling.
-            sOverrides.coolingRate = -direction * r.ratePerMin;
+            sOverrides.coolingRate = -direction * ramp.ratePerMin;
         }
     }
 
     // ── RMS voltage ramp ─────────────────────────────────────────────────────
     {
-        RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Rms)];
-        if (r.active) {
-            applyRamp(r, sOverrides.rmsVoltageV);
+        RampSpec& ramp = sRamps[static_cast<uint8_t>(RampField::Rms)];
+        if (ramp.active) {
+            applyRamp(ramp, sOverrides.rmsVoltageV);
         }
     }
 
     // ── Supply voltage ramp ───────────────────────────────────────────────────
     {
-        RampSpec& r = sRamps[static_cast<uint8_t>(RampField::Voltage)];
-        if (r.active) {
-            applyRamp(r, sOverrides.voltage);
+        RampSpec& ramp = sRamps[static_cast<uint8_t>(RampField::Voltage)];
+        if (ramp.active) {
+            applyRamp(ramp, sOverrides.voltage);
         }
     }
 }

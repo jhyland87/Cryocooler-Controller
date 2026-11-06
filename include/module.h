@@ -128,8 +128,8 @@ namespace module {
      * The switch is generated from MODULE_INIT_STATUS — add new values there,
      * not here.
      */
-    inline const char* initStatusName(InitStatus s) {
-        switch (s) {
+    inline const char* initStatusName(InitStatus status) {
+        switch (status) {
 #define X(name, label, doc) case MODULE_INIT_##name: return label;
             MODULE_INIT_STATUS(X)
 #undef X
@@ -145,8 +145,8 @@ namespace module {
      * The switch is generated from MODULE_SERVICE_STATUS — add new values there,
      * not here.
      */
-    inline const char* serviceStatusName(ServiceStatus s) {
-        switch (s) {
+    inline const char* serviceStatusName(ServiceStatus status) {
+        switch (status) {
 #define X(name, label, doc) case MODULE_SERVICE_##name: return label;
             MODULE_SERVICE_STATUS(X)
 #undef X
@@ -223,7 +223,7 @@ struct ModuleBase {
      * deferred (hot-plug) initialisation.  The module's service() can
      * promote itself to MODULE_INIT_SUCCESS once the hardware appears.
      */
-    static void overrideInitStatus(module::InitStatus s) { _initStatus = s; }
+    static void overrideInitStatus(module::InitStatus status) { _initStatus = status; }
 
     /**
      * Return the ServiceStatus produced by the most recent service() call.
@@ -390,22 +390,22 @@ template<typename LogFn>
 inline bool initGroup(const ModuleEntry* entries, size_t count,
                       void (*emitFn)(), LogFn&& logFn,
                       void (*yieldFn)() = nullptr) {
-    for (size_t i = 0; i < count; ++i) {
-        const auto& m = entries[i];
-        logFn("%s --> Initialising ...\n", m.name);
+    for (size_t entryIndex = 0; entryIndex < count; ++entryIndex) {
+        const auto& entry = entries[entryIndex];
+        logFn("%s --> Initialising ...\n", entry.name);
 
         // Yield to the FreeRTOS scheduler to feed the task watchdog.
         // Without this, a long init sequence (WiFi, IMU calibration, etc.)
         // can exceed the 5 s WDT timeout and trigger a software reset.
         if (yieldFn) yieldFn();
 
-        InitStatus status = m.initFn();
+        InitStatus status = entry.initFn();
 
         if (status == MODULE_INIT_SUCCESS) {
-            logFn("%s --> Initialisation complete\n", m.name);
+            logFn("%s --> Initialisation complete\n", entry.name);
         } else {
-            logFn("%s --> FAILED (status: %s)\n", m.name, initStatusName(status));
-            if (m.fatal) {
+            logFn("%s --> FAILED (status: %s)\n", entry.name, initStatusName(status));
+            if (entry.fatal) {
                 if (emitFn) emitFn();
                 return false;
             }
@@ -435,8 +435,8 @@ inline void serviceWithLog(const ModuleEntry& entry,
                            LogFn&& logFn) {
     const ServiceStatus cur = entry.serviceFn();
 
-    const auto isHealthy = [](ServiceStatus s) {
-        return s == MODULE_SERVICE_OK || s == MODULE_SERVICE_SKIPPED;
+    const auto isHealthy = [](ServiceStatus status) {
+        return status == MODULE_SERVICE_OK || status == MODULE_SERVICE_SKIPPED;
     };
 
     if (isHealthy(prevStatus) != isHealthy(cur)) {
@@ -470,19 +470,19 @@ inline bool checkVoltage(const ModuleEntry* entries, size_t count,
     if (!(voltage > 0.0f)) return false;
 
     bool anyShutDown = false;
-    for (size_t i = 0; i < count; ++i) {
-        const auto& m = entries[i];
+    for (size_t entryIndex = 0; entryIndex < count; ++entryIndex) {
+        const auto& entry = entries[entryIndex];
 
         // Only act on modules with a voltage requirement that are currently running.
-        if (m.minSystemVoltage <= 0.0f)                      continue;
-        if (m.getInitStatus() != MODULE_INIT_SUCCESS)        continue;
+        if (entry.minSystemVoltage <= 0.0f)                      continue;
+        if (entry.getInitStatus() != MODULE_INIT_SUCCESS)        continue;
 
-        if (voltage < m.minSystemVoltage) {
+        if (voltage < entry.minSystemVoltage) {
             logFn("[voltage] %s: %.2fV below minimum %.1fV — disabling (reinit required)\n",
-                  m.name, static_cast<double>(voltage),
-                  static_cast<double>(m.minSystemVoltage));
-            m.disableFn();
-            m.overrideInitStatusFn(MODULE_INIT_UNDERVOLTAGE);
+                  entry.name, static_cast<double>(voltage),
+                  static_cast<double>(entry.minSystemVoltage));
+            entry.disableFn();
+            entry.overrideInitStatusFn(MODULE_INIT_UNDERVOLTAGE);
             anyShutDown = true;
         }
     }
@@ -501,8 +501,8 @@ template<typename LogFn>
 inline uint8_t reportStatus(const ModuleEntry* entries, size_t count,
                             LogFn&& logFn) {
     uint8_t failCount = 0;
-    for (size_t i = 0; i < count; ++i) {
-        if (entries[i].getInitStatus() != MODULE_INIT_SUCCESS) {
+    for (size_t entryIndex = 0; entryIndex < count; ++entryIndex) {
+        if (entries[entryIndex].getInitStatus() != MODULE_INIT_SUCCESS) {
             ++failCount;
         }
     }
@@ -510,10 +510,10 @@ inline uint8_t reportStatus(const ModuleEntry* entries, size_t count,
         logFn("    All modules initialized successfully.\n");
     } else {
         logFn("    %u module(s) failed to initialize:\n", failCount);
-        for (size_t i = 0; i < count; ++i) {
-            const auto status = entries[i].getInitStatus();
+        for (size_t entryIndex = 0; entryIndex < count; ++entryIndex) {
+            const auto status = entries[entryIndex].getInitStatus();
             if (status != MODULE_INIT_SUCCESS) {
-                logFn("      - %s: %s\n", entries[i].name, initStatusName(status));
+                logFn("      - %s: %s\n", entries[entryIndex].name, initStatusName(status));
             }
         }
     }

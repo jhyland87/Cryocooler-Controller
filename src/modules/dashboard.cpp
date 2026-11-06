@@ -72,7 +72,7 @@ static constexpr uint8_t    wsCleanupEveryN     = 5;
 // A failed authentication leaves WiFi.status() unchanged, so attempts need their own timeout.
 static constexpr uint32_t   wifiAttemptTimeoutMs = 8000;
 static constexpr uint32_t   wifiRetryMinDelayMs  = 5000;
-static constexpr uint32_t   wifiRetryMaxDelayMs  = 60000;
+static constexpr uint32_t   wifiRetryMaxDelayMs  = 6e4;
 static constexpr uint32_t   wifiScanDwellMs      = 100;  // per channel; about 1.3 s for a full scan
 
 // ─── Module state ─────────────────────────────────────────────────────────────
@@ -146,8 +146,8 @@ static void fillFaultHistoryJson(JsonDocument& doc) {
     const uint8_t count = state_machine::getFaultHistoryCount();
     char reasonBuf[128];
 
-    for (uint8_t i = 0; i < count; ++i) {
-        const state_machine::FaultRecord rec = state_machine::getFaultRecord(i);
+    for (uint8_t recordIndex = 0; recordIndex < count; ++recordIndex) {
+        const state_machine::FaultRecord rec = state_machine::getFaultRecord(recordIndex);
         JsonObject obj = records.add<JsonObject>();
 
         state_machine::formatFaultReasons(rec.reason, reasonBuf, sizeof(reasonBuf));
@@ -491,21 +491,21 @@ bool setupWifi() {
 bool setupServer() {
     // Static files embedded at compile time by scripts/embed_web.py.
     // No LittleFS partition needed — files are served directly from flash.
-    httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/html", index_html);
+    httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/html", index_html);
     });
-    httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/html", index_html);
+    httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/html", index_html);
     });
-    httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* r) {
-        r->send(200, "text/css", style_css);
+    httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/css", style_css);
     });
-    httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* r) {
-        AsyncWebServerResponse* resp = r->beginResponse(
+    httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+        AsyncWebServerResponse* resp = request->beginResponse(
             200, "application/javascript", app_js_gz, app_js_gz_len);
         resp->addHeader("Content-Encoding", "gzip");
         resp->addHeader("Cache-Control", "no-cache");
-        r->send(resp);
+        request->send(resp);
     });
 
     // GET /api/telemetry — latest telemetry snapshot as flat JSON.

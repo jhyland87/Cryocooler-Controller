@@ -68,6 +68,11 @@ void SPIClass::beginTransaction(SPISettings settings) {
 void SPIClass::endTransaction(void) {
 }
 
+uint8_t SPIClass::transfer(uint8_t data) {
+    sLastSpiTransfer = data;
+    return 0;
+}
+
 uint16_t SPIClass::transfer16(uint16_t data) {
     sLastSpiTransfer = data;
     return 0;  // Return value not used in DAC

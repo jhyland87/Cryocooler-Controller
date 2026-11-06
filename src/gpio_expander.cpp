@@ -10,13 +10,14 @@
 
 #include "esp_log.h"
 #include "pin_config.h"
+#include "spi_device.h"
 
 namespace gpio_expander {
 
 static const char* const TAG = "gpio_expander";
 
 // The datasheet allows 10 MHz from 2.7 V; there is no need to run that fast.
-static const SPISettings SPI_SETTINGS(5000000, MSBFIRST, SPI_MODE0);
+static const SpiDevice sExpander(EXPANDER_CS_PIN, SPISettings(5e6, MSBFIRST, SPI_MODE0));
 
 static constexpr uint8_t OPCODE_WRITE = 0x40;
 static constexpr uint8_t OPCODE_READ  = 0x41;
@@ -32,35 +33,25 @@ static constexpr uint8_t OUTPUT_MASK = (1u << EXPANDER_PIN_DISP_BL) |
 // The unused pin is an input, so its weak pull-up stops it floating.
 static constexpr uint8_t PULLUP_MASK = 1u << EXPANDER_PIN_SPARE;
 
-static SPIClass* sSpi = nullptr;
 static bool sPresent = false;
 static uint8_t sOutputLevels = 0;
 
 static void writeRegister(uint8_t reg, uint8_t value) {
-    sSpi->beginTransaction(SPI_SETTINGS);
-    digitalWrite(EXPANDER_CS_PIN, LOW);
-    sSpi->transfer(OPCODE_WRITE);
-    sSpi->transfer(reg);
-    sSpi->transfer(value);
-    digitalWrite(EXPANDER_CS_PIN, HIGH);
-    sSpi->endTransaction();
+    SpiTransaction transaction(sExpander);
+    transaction.transfer(OPCODE_WRITE);
+    transaction.transfer(reg);
+    transaction.transfer(value);
 }
 
 static uint8_t readRegister(uint8_t reg) {
-    sSpi->beginTransaction(SPI_SETTINGS);
-    digitalWrite(EXPANDER_CS_PIN, LOW);
-    sSpi->transfer(OPCODE_READ);
-    sSpi->transfer(reg);
-    const uint8_t value = sSpi->transfer(0x00);
-    digitalWrite(EXPANDER_CS_PIN, HIGH);
-    sSpi->endTransaction();
-    return value;
+    SpiTransaction transaction(sExpander);
+    transaction.transfer(OPCODE_READ);
+    transaction.transfer(reg);
+    return transaction.transfer(0x00);
 }
 
-bool begin(SPIClass& spi) {
-    sSpi = &spi;
-    pinMode(EXPANDER_CS_PIN, OUTPUT);
-    digitalWrite(EXPANDER_CS_PIN, HIGH);
+bool begin() {
+    sExpander.begin();
 
     // Latch the outputs low before enabling their drivers.
     writeRegister(REG_OLAT, sOutputLevels);
@@ -71,7 +62,7 @@ bool begin(SPIClass& spi) {
     // A missing device leaves MISO all ones or all zeros, never this pattern.
     sPresent = (readRegister(REG_IODIR) == direction);
     if (!sPresent) {
-        ESP_LOGW(TAG, "MCP23S08 not found (CS decoder Y%d)", EXPANDER_CS_PIN - CS_ID_BASE);
+        ESP_LOGW(TAG, "MCP23S08 not found (CS decoder Y%d)", sExpander.chipSelectId() - CS_ID_BASE);
         return false;
     }
     ESP_LOGI(TAG, "MCP23S08 found");

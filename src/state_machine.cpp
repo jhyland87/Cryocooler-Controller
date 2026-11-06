@@ -218,8 +218,8 @@ static bool overshot(float tempC) {
  * macro-generated switch, which carries nullptr for the Fault row.
  * All other states are generated from STATE_MACHINE_STATES.
  */
-static const char* statusTextForState(State s) {
-    if (s == State::Fault) {
+static const char* statusTextForState(State state) {
+    if (state == State::Fault) {
         const uint8_t mask = static_cast<uint8_t>(faultReason);
         if (mask == 0u) return "Fault: Unknown reason";
         // More than one bit set — composite fault; direct operator to the log.
@@ -239,7 +239,7 @@ static const char* statusTextForState(State s) {
             default:                            return "Fault: Unknown reason";
         }
     }
-    switch (s) {
+    switch (state) {
 #define X(name, value, sname, status) case State::name: return status;
         STATE_MACHINE_STATES(X)
 #undef X
@@ -251,7 +251,7 @@ static const char* statusTextForState(State s) {
  * Build the Output struct for a given state.
  * Relay and indicator assignments follow the design spec exactly.
  */
-static Output buildOutput(State s, float fraction) {
+static Output buildOutput(State state, float fraction) {
     using Mode = indicator::Mode;
 
     // Convert fraction to DAC counts for the Output struct.
@@ -265,88 +265,88 @@ static Output buildOutput(State s, float fraction) {
                         : static_cast<uint16_t>(dacTarget - backoffDacOffset);
     }
 
-    Output o{};
-    o.state        = s;
-    o.dacTarget    = dacTarget;
+    Output output{};
+    output.state        = state;
+    output.dacTarget    = dacTarget;
     // o.compressorRelay = false;
     // o.amplifierRelay = false;
-    o.statusText   = statusTextForState(s);
-    o.backoffCount = backoffCount;
+    output.statusText   = statusTextForState(state);
+    output.backoffCount = backoffCount;
 
-    switch (s) {
+    switch (state) {
         case State::Off:
             //o.amplifierRelay  = LOW;
-            o.faultIndMode = Mode::Off;
-            o.readyIndMode = Mode::Off;
+            output.faultIndMode = Mode::Off;
+            output.readyIndMode = Mode::Off;
             break;
 
         case State::Initialize:
             //o.amplifierRelay  = LOW;
-            o.faultIndMode = Mode::SolidAmber;
-            o.readyIndMode = Mode::SolidAmber;
+            output.faultIndMode = Mode::SolidAmber;
+            output.readyIndMode = Mode::SolidAmber;
             break;
 
         case State::Idle:
             //o.amplifierRelay  = LOW;
-            o.faultIndMode = Mode::SolidRed;
-            o.readyIndMode = Mode::Off;
+            output.faultIndMode = Mode::SolidRed;
+            output.readyIndMode = Mode::Off;
             break;
 
         case State::CoarseCooldown:
             //o.amplifierRelay  = HIGH;
-            o.faultIndMode = Mode::FlashFastRed;
-            o.readyIndMode = Mode::Off;
+            output.faultIndMode = Mode::FlashFastRed;
+            output.readyIndMode = Mode::Off;
             break;
 
         case State::FineCooldown:
             //o.amplifierRelay  = HIGH;
-            o.faultIndMode = Mode::FlashFastRed;
-            o.readyIndMode = Mode::FlashSlowGreen;
+            output.faultIndMode = Mode::FlashFastRed;
+            output.readyIndMode = Mode::FlashSlowGreen;
             break;
 
         case State::Overshoot:
             //o.amplifierRelay  = HIGH;
-            o.faultIndMode = Mode::FlashFastRed;
-            o.readyIndMode = Mode::FlashFastGreen;
+            output.faultIndMode = Mode::FlashFastRed;
+            output.readyIndMode = Mode::FlashFastGreen;
             break;
 
         case State::Settle:
             //o.amplifierRelay  = HIGH;   // Normal
-            o.faultIndMode = Mode::FlashFastRed;
-            o.readyIndMode = Mode::FlashFastGreen;
+            output.faultIndMode = Mode::FlashFastRed;
+            output.readyIndMode = Mode::FlashFastGreen;
             break;
 
         case State::Baseline:
             //o.amplifierRelay  = HIGH;   // Normal
-            o.faultIndMode = Mode::Off;
-            o.readyIndMode = Mode::SolidGreen;
+            output.faultIndMode = Mode::Off;
+            output.readyIndMode = Mode::SolidGreen;
             break;
 
         case State::Operating:
             //o.amplifierRelay  = HIGH;   // Normal
-            o.faultIndMode = Mode::Off;
-            o.readyIndMode = Mode::SolidGreen;
+            output.faultIndMode = Mode::Off;
+            output.readyIndMode = Mode::SolidGreen;
             break;
 
         case State::Shutdown:
             //o.amplifierRelay  = LOW;
-            o.faultIndMode = Mode::Off;
-            o.readyIndMode = Mode::Off;
+            output.faultIndMode = Mode::Off;
+            output.readyIndMode = Mode::Off;
             break;
 
         case State::Delay:
             //o.amplifierRelay  = HIGH;
-            o.faultIndMode = Mode::SolidAmber;
-            o.readyIndMode = Mode::SolidAmber;
+            output.faultIndMode = Mode::SolidAmber;
+            output.readyIndMode = Mode::SolidAmber;
             break;
 
         case State::Fault:
             //o.amplifierRelay  = LOW;
-            o.faultIndMode = Mode::FlashFastRed;
-            o.readyIndMode = Mode::Off;
+            output.faultIndMode = Mode::FlashFastRed;
+            output.readyIndMode = Mode::Off;
             break;
     }
-    return o;
+    return output;
 }
 
 // ---------------------------------------------------------------------------
@@ -358,21 +358,21 @@ static Output buildOutput(State s, float fraction) {
  * Updates currentState and records the entry timestamp from sNowMs (which must
  * be set by the caller before trigger() is invoked).
  */
-static void setStateEntry(State s) {
-    _Log.printf("-> %s\n", stateName(s));
-    ESP_LOGD(TAG, "Entering state %s", stateName(s));
-    currentState        = s;
+static void setStateEntry(State state) {
+    _Log.printf("-> %s\n", stateName(state));
+    ESP_LOGD(TAG, "Entering state %s", stateName(state));
+    currentState        = state;
     currentStateEntryMs = sNowMs;
     // Clear settle timer for every state except Settle itself.
-    if (s != State::Settle) {
+    if (state != State::Settle) {
         settleTimerActive = false;
         settleStartMs     = 0;
     }
     // Preserve faultReason when entering Fault; clear it for all other states.
-    if (s != State::Fault) {
+    if (state != State::Fault) {
         faultReason = FaultReason::None;
     }
-    histPushHistory(s, sNowMs);
+    histPushHistory(state, sNowMs);
 }
 
 static void onEnterOff(){

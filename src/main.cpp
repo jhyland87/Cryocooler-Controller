@@ -287,8 +287,8 @@ void loop() {
     // access entirely.  No conditional logic is needed here.
     {
         static module::ServiceStatus prevStatus[NUM_TICK_SERVICE] = {};
-        for (size_t i = 0; i < NUM_TICK_SERVICE; ++i) {
-            module::serviceWithLog(tickServiceModules[i], prevStatus[i], logPrintf);
+        for (size_t moduleIndex = 0; moduleIndex < NUM_TICK_SERVICE; ++moduleIndex) {
+            module::serviceWithLog(tickServiceModules[moduleIndex], prevStatus[moduleIndex], logPrintf);
         }
     }
 

@@ -31,9 +31,9 @@
 // ---------------------------------------------------------------------------
 
 struct RgbColor {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
 };
 
 // ---------------------------------------------------------------------------
@@ -82,9 +82,9 @@ static inline uint8_t applyBrightness(uint8_t channel)
 static void writeLed(const RgbColor& color)
 {
     rgbLedWrite(STATUS_LED_PIN,
-                applyBrightness(color.r),
-                applyBrightness(color.g),
-                applyBrightness(color.b));
+                applyBrightness(color.red),
+                applyBrightness(color.green),
+                applyBrightness(color.blue));
 }
 
 /**

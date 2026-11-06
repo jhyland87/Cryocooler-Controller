@@ -229,7 +229,7 @@
 // All cycles must have occurred within this duration.
 // Protects against false positives from identical-state pairs separated by
 // long periods of normal operation.
-#define FSM_OSCILLATION_WINDOW_MS  static_cast<uint32_t>(300000)  // 5 minutes
+#define FSM_OSCILLATION_WINDOW_MS  static_cast<uint32_t>(3e5)     // 5 minutes
 
 // =============================================================================
 // Tracking Monitor — cold_head temperature
@@ -242,10 +242,10 @@
 #define COLD_HEAD_TRACK_FULL_SCALE_C       static_cast<float>(10.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
-#define COLD_HEAD_TRACK_WARNING_MS         static_cast<uint32_t>(60000)   // 60 s
+#define COLD_HEAD_TRACK_WARNING_MS         static_cast<uint32_t>(6e4)     // 60 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define COLD_HEAD_TRACK_FAULT_MS           static_cast<uint32_t>(300000)  // 5 min
+#define COLD_HEAD_TRACK_FAULT_MS           static_cast<uint32_t>(3e5)     // 5 min
 
 // =============================================================================
 // Tracking Monitor — amplifier output frequency
@@ -258,10 +258,10 @@
 #define AMPLIFIER_FREQ_TRACK_FULL_SCALE_HZ  static_cast<float>(5.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
-#define AMPLIFIER_FREQ_TRACK_WARNING_MS    static_cast<uint32_t>(10000)   // 10 s
+#define AMPLIFIER_FREQ_TRACK_WARNING_MS    static_cast<uint32_t>(1e4)     // 10 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define AMPLIFIER_FREQ_TRACK_FAULT_MS      static_cast<uint32_t>(30000)   // 30 s
+#define AMPLIFIER_FREQ_TRACK_FAULT_MS      static_cast<uint32_t>(3e4)     // 30 s
 
 // =============================================================================
 // Tracking Monitor — amplifier output voltage
@@ -277,7 +277,7 @@
 #define AMPLIFIER_VOLT_TRACK_WARNING_MS    static_cast<uint32_t>(15000)   // 15 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define AMPLIFIER_VOLT_TRACK_FAULT_MS      static_cast<uint32_t>(60000)   // 60 s
+#define AMPLIFIER_VOLT_TRACK_FAULT_MS      static_cast<uint32_t>(6e4)     // 60 s
 
 // =============================================================================
 // Tracking Monitor — cooling fan duty cycle (forced/manual mode only)
@@ -290,10 +290,10 @@
 #define COOLING_FAN_TRACK_FULL_SCALE_PCT   static_cast<float>(30.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
-#define COOLING_FAN_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s
+#define COOLING_FAN_TRACK_WARNING_MS       static_cast<uint32_t>(1e4)     // 10 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define COOLING_FAN_TRACK_FAULT_MS         static_cast<uint32_t>(30000)   // 30 s
+#define COOLING_FAN_TRACK_FAULT_MS         static_cast<uint32_t>(3e4)     // 30 s
 
 // =============================================================================
 // Tracking Monitor — coolant temperature (deviation from nominal)
@@ -306,10 +306,10 @@
 #define COOLING_COOLANT_TRACK_FULL_SCALE_C  static_cast<float>(30.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
-#define COOLING_COOLANT_TRACK_WARNING_MS    static_cast<uint32_t>(30000)   // 30 s
+#define COOLING_COOLANT_TRACK_WARNING_MS    static_cast<uint32_t>(3e4)     // 30 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define COOLING_COOLANT_TRACK_FAULT_MS      static_cast<uint32_t>(120000)  // 2 min
+#define COOLING_COOLANT_TRACK_FAULT_MS      static_cast<uint32_t>(1.2e5)   // 2 min
 
 // =============================================================================
 // Tracking Monitor — coolant flow rate (deviation from nominal)
@@ -324,19 +324,19 @@
 #define COOLING_FLOW_TRACK_FULL_SCALE_LPM   static_cast<float>(10.0f)
 
 // Time (ms) continuously outside the band before a WARNING is logged.
-#define COOLING_FLOW_TRACK_WARNING_MS       static_cast<uint32_t>(10000)   // 10 s
+#define COOLING_FLOW_TRACK_WARNING_MS       static_cast<uint32_t>(1e4)     // 10 s
 
 // Time (ms) continuously outside the band before a FAULT is raised.
-#define COOLING_FLOW_TRACK_FAULT_MS         static_cast<uint32_t>(30000)   // 30 s
+#define COOLING_FLOW_TRACK_FAULT_MS         static_cast<uint32_t>(3e4)     // 30 s
 
 
 // ====
 // IMU
 // =============================================================================
 // SPI clock for the off-board Adafruit LSM6DSOX module. Its SCK/MOSI level
-// shifters (BSS138, 10 k pull-ups) slow the edges; drop to 500000 if the
+// shifters (BSS138, 10 k pull-ups) slow the edges; drop to 5e5 if the
 // cable shows errors.
-#define LSM6DSOX_SPI_FREQUENCY_HZ static_cast<uint32_t>(1000000)
+#define LSM6DSOX_SPI_FREQUENCY_HZ static_cast<uint32_t>(1e6)
 
 // =============================================================================
 // Misc stuff

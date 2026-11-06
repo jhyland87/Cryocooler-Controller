@@ -51,9 +51,9 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     // treated as valid because time-gated modules (e.g. cooling's 1 s check
     // cycle) return SKIPPED on ticks where they didn't run but their cached
     // readings are still valid.
-    const auto svcOk = [](module::ServiceStatus s) {
-        return s == module::MODULE_SERVICE_OK
-            || s == module::MODULE_SERVICE_SKIPPED;
+    const auto svcOk = [](module::ServiceStatus status) {
+        return status == module::MODULE_SERVICE_OK
+            || status == module::MODULE_SERVICE_SKIPPED;
     };
 
     const bool coldHeadOk   = svcOk(cold_head::Module::getServiceStatus());
@@ -223,9 +223,9 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
     // ── Faults ───────────────────────────────────────────────────────────────
     frame_.has_faults = true;
-    frame_.faults.count_10m = state_machine::countRecentFaults(600000u);
-    frame_.faults.count_30m = state_machine::countRecentFaults(1800000u);
-    frame_.faults.count_60m = state_machine::countRecentFaults(3600000u);
+    frame_.faults.count_10m = state_machine::countRecentFaults(6e5);
+    frame_.faults.count_30m = state_machine::countRecentFaults(1.8e6);
+    frame_.faults.count_60m = state_machine::countRecentFaults(3.6e6);
 
     // ── Firmware ─────────────────────────────────────────────────────────────
     frame_.has_firmware = true;

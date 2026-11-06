@@ -384,6 +384,37 @@ error: static assertion failed: Module does not satisfy the Module interface:
 
 ---
 
+## SPI ICs
+
+A module declares one object per SPI IC at the top of its `.cpp` file, using [`include/spi_device.h`](../include/spi_device.h). A module with two ICs declares two. The chip select values come from `include/config/pin_config.h`.
+
+When the module writes the transfers itself, use `SpiDevice`. `SpiTransaction` takes the bus and selects the IC, then deselects and releases the bus at the end of its scope:
+
+```cpp
+static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
+
+module::InitStatus init() {
+    sDac.begin();  // output, deselected
+    return module::MODULE_INIT_SUCCESS;
+}
+
+static void writeDac(uint16_t command) {
+    SpiTransaction transaction(sDac);
+    transaction.transfer16(command);
+}
+```
+
+When a library runs the transfers, use `SpiChipSelect` and hand its ID to the library, which toggles the line and applies its own settings:
+
+```cpp
+static constexpr SpiChipSelect sAdcChipSelect(ADS1220_CS);
+static ADS1220_WE ads1220(&hardware::spi(), sAdcChipSelect.chipSelectId(), -1, false, true);
+```
+
+Both end in `digitalWrite()`, which [`src/spi_select.cpp`](../src/spi_select.cpp) turns into decoder writes. Don't call `digitalWrite()` on a chip select directly in a module.
+
+---
+
 ## Conventions
 
 - **Namespace = module name.** The namespace name is used in log output, serial commands, and the boot banner.

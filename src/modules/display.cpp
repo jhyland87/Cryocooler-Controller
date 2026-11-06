@@ -19,6 +19,7 @@
 #include "gpio_expander.h"
 #include "logger.h"
 #include "pin_config.h"
+#include "spi_device.h"
 #include "state_machine.h"
 #include "tick.h"
 
@@ -37,7 +38,10 @@ static constexpr int16_t  LEFT_MARGIN        = 8;
 static constexpr size_t   LINE_COUNT         = 4;
 static constexpr size_t   LINE_LENGTH        = 27;    // 320 px / 12 px per glyph
 
-static Adafruit_ST7789 sPanel(&SPI, DISP_CS_PIN, DISP_DC_PIN, DISP_RST_PIN);
+static constexpr SpiChipSelect sPanelChipSelect(DISP_CS_PIN);
+static constexpr SpiChipSelect sTouchChipSelect(TOUCH_CS_PIN);
+
+static Adafruit_ST7789 sPanel(&SPI, sPanelChipSelect.chipSelectId(), DISP_DC_PIN, DISP_RST_PIN);
 static char     sShown[LINE_COUNT][LINE_LENGTH] = {};
 static uint32_t sLastRefreshMs = 0;
 
@@ -93,8 +97,7 @@ static void formatLines(char lines[LINE_COUNT][LINE_LENGTH]) {
 module::InitStatus init() {
     // the touch controller shares the bus: keep it deselected (strap pin,
     // pulled low at reset)
-    pinMode(TOUCH_CS_PIN, OUTPUT);
-    digitalWrite(TOUCH_CS_PIN, HIGH);
+    sTouchChipSelect.begin();
 
     sPanel.init(PANEL_WIDTH, PANEL_HEIGHT);
     applyPanelSettings();

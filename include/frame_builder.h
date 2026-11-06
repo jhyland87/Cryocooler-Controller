@@ -60,9 +60,9 @@ public:
         char        str[VALUE_BUF_SIZE];///< Pre-formatted value string (for serial)
         enum class  Type : uint8_t { Signed, Unsigned, Float, String } type;
         union {
-            int64_t  i;   ///< Signed integral value   (for JSON)
-            uint64_t u;   ///< Unsigned integral value  (for JSON)
-            float    f;   ///< Floating-point value     (for JSON)
+            int64_t  signedValue;   ///< Signed integral value   (for JSON)
+            uint64_t unsignedValue; ///< Unsigned integral value  (for JSON)
+            float    floatValue;    ///< Floating-point value     (for JSON)
         } num;
     };
 
@@ -91,28 +91,28 @@ public:
     FrameBuilder& field(const char* name, const char* fmt, T value) {
         if (count_ >= MAX_FIELDS) return *this;
 
-        Field& f = fields_[count_++];
-        f.name   = name;
-        snprintf(f.str, VALUE_BUF_SIZE, fmt, value);
+        Field& field = fields_[count_++];
+        field.name   = name;
+        snprintf(field.str, VALUE_BUF_SIZE, fmt, value);
 
         using DT = std::decay_t<T>;
 
         if constexpr (std::is_same_v<DT, bool>) {
             // bool before the general integral check to avoid ambiguity.
-            f.type  = Field::Type::Unsigned;
-            f.num.u = value ? 1u : 0u;
+            field.type  = Field::Type::Unsigned;
+            field.num.unsignedValue = value ? 1u : 0u;
         } else if constexpr (std::is_floating_point_v<DT>) {
-            f.type  = Field::Type::Float;
-            f.num.f = static_cast<float>(value);
+            field.type  = Field::Type::Float;
+            field.num.floatValue = static_cast<float>(value);
         } else if constexpr (std::is_signed_v<DT> && std::is_integral_v<DT>) {
-            f.type  = Field::Type::Signed;
-            f.num.i = static_cast<int64_t>(value);
+            field.type  = Field::Type::Signed;
+            field.num.signedValue = static_cast<int64_t>(value);
         } else if constexpr (std::is_unsigned_v<DT> && std::is_integral_v<DT>) {
-            f.type  = Field::Type::Unsigned;
-            f.num.u = static_cast<uint64_t>(value);
+            field.type  = Field::Type::Unsigned;
+            field.num.unsignedValue = static_cast<uint64_t>(value);
         } else {
             // const char* and other pointer/reference types → string.
-            f.type = Field::Type::String;
+            field.type = Field::Type::String;
         }
 
         return *this;

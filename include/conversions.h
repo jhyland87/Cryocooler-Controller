@@ -22,23 +22,23 @@ namespace conversions {
  * Above 0 °C: R(T) = R0 * (1 + A*T + B*T^2)  → solve quadratic for T.
  * Below 0 °C: polynomial approximation (Analog Devices AN709).
  *
- * @param R  Measured PT1000 resistance in ohms
+ * @param resistanceOhms  Measured PT1000 resistance in ohms
  * @return   Temperature in Celsius (NAN if discriminant < 0)
  */
-inline float resistanceToTemperaturePT1000(float R) {
-    constexpr float R0  = 1000.0f;   // PT1000 nominal at 0 °C
-    constexpr float A   = 3.9083e-3f;
-    constexpr float B   = -5.775e-7f;
+inline float resistanceToTemperaturePT1000(float resistanceOhms) {
+    constexpr float R0            = 1000.0f;   // PT1000 nominal at 0 °C
+    constexpr float COEFFICIENT_A = 3.9083e-3f;
+    constexpr float COEFFICIENT_B = -5.775e-7f;
 
-    if (R >= R0) {
+    if (resistanceOhms >= R0) {
         // Above 0 °C: quadratic  B*T^2 + A*T + (1 - R/R0) = 0
-        const float disc = (A * A) - 4.0f * B * (1.0f - R / R0);
+        const float disc = (COEFFICIENT_A * COEFFICIENT_A) - 4.0f * COEFFICIENT_B * (1.0f - resistanceOhms / R0);
         if (disc < 0.0f) return NAN;
-        return (-A + sqrtf(disc)) / (2.0f * B);
+        return (-COEFFICIENT_A + sqrtf(disc)) / (2.0f * COEFFICIENT_B);
     } else {
         // Below 0 °C: polynomial approximation (AN709, calibrated for PT100).
         // PT1000 resistance is 10× PT100, so normalise before applying.
-        const float Rn = R / 10.0f;
+        const float Rn = resistanceOhms / 10.0f;
         float ret = -242.02f;
         ret += 2.2228f     * Rn;
         float poly = Rn * Rn;
@@ -164,29 +164,32 @@ inline void msToHHMMSS(uint32_t durationMs, char* hmsBuf, size_t len)
  * @return        Total milliseconds, or 0 on parse failure (errOut is set).
  */
 inline uint32_t parseDurationMs(const char* str, char* errOut, size_t errLen) {
+    static constexpr uint32_t MS_PER_HOUR   = 3.6e6;
+    static constexpr uint32_t MS_PER_MINUTE = 6e4;
+
     uint32_t    totalMs = 0u;
     bool        found   = false;
-    const char* p       = str;
+    const char* cursor  = str;
 
-    while (*p != '\0') {
-        while (*p == ' ' || *p == '\t') { ++p; }
-        if (*p == '\0') break;
+    while (*cursor != '\0') {
+        while (*cursor == ' ' || *cursor == '\t') { ++cursor; }
+        if (*cursor == '\0') break;
 
-        if (*p < '0' || *p > '9') {
-            snprintf(errOut, errLen, "unexpected character '%c'", *p);
+        if (*cursor < '0' || *cursor > '9') {
+            snprintf(errOut, errLen, "unexpected character '%c'", *cursor);
             return 0u;
         }
         uint32_t val = 0u;
-        while (*p >= '0' && *p <= '9') {
-            val = val * 10u + static_cast<uint32_t>(*p - '0');
-            ++p;
+        while (*cursor >= '0' && *cursor <= '9') {
+            val = val * 10u + static_cast<uint32_t>(*cursor - '0');
+            ++cursor;
         }
 
-        const char unit = *p;
+        const char unit = *cursor;
         if (unit == 'h' || unit == 'H') {
-            totalMs += val * 3600000u;
+            totalMs += val * MS_PER_HOUR;
         } else if (unit == 'm' || unit == 'M') {
-            totalMs += val * 60000u;
+            totalMs += val * MS_PER_MINUTE;
         } else if (unit == 's' || unit == 'S') {
             totalMs += val * 1000u;
         } else {
@@ -195,7 +198,7 @@ inline uint32_t parseDurationMs(const char* str, char* errOut, size_t errLen) {
             return 0u;
         }
         found = true;
-        ++p;
+        ++cursor;
     }
 
     if (!found) {
@@ -217,18 +220,18 @@ inline uint32_t parseDurationMs(const char* str, char* errOut, size_t errLen) {
  */
 inline void formatDurationMs(uint32_t ms, char* buf, size_t len) {
     const uint32_t totalSec = ms / 1000u;
-    const uint32_t h        = totalSec / 3600u;
-    const uint32_t m        = (totalSec % 3600u) / 60u;
-    const uint32_t s        = totalSec % 60u;
-    if (h > 0u) {
+    const uint32_t hours    = totalSec / 3600u;
+    const uint32_t minutes  = (totalSec % 3600u) / 60u;
+    const uint32_t seconds  = totalSec % 60u;
+    if (hours > 0u) {
         snprintf(buf, len, "%luh %02lum %02lus",
-                 static_cast<unsigned long>(h),
-                 static_cast<unsigned long>(m),
-                 static_cast<unsigned long>(s));
+                 static_cast<unsigned long>(hours),
+                 static_cast<unsigned long>(minutes),
+                 static_cast<unsigned long>(seconds));
     } else {
         snprintf(buf, len, "%lum %02lus",
-                 static_cast<unsigned long>(m),
-                 static_cast<unsigned long>(s));
+                 static_cast<unsigned long>(minutes),
+                 static_cast<unsigned long>(seconds));
     }
 }
 

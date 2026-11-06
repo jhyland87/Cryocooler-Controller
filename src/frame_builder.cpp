@@ -33,16 +33,16 @@ void FrameBuilder::sendSerial(Print& out) const {
     char   buf[BUF_SIZE];
     size_t pos = 0u;
 
-    auto append = [&](const char* s, size_t n) {
-        if (pos + n >= BUF_SIZE) { return; }   // truncate rather than overflow
-        memcpy(buf + pos, s, n);
-        pos += n;
+    auto append = [&](const char* text, size_t length) {
+        if (pos + length >= BUF_SIZE) { return; }   // truncate rather than overflow
+        memcpy(buf + pos, text, length);
+        pos += length;
     };
 
     //append("/*", 2u);
-    for (uint8_t i = 0u; i < count_; ++i) {
-        if (i > 0u) { append("\t", 1u); }
-        append(fields_[i].str, strlen(fields_[i].str));
+    for (uint8_t fieldIndex = 0u; fieldIndex < count_; ++fieldIndex) {
+        if (fieldIndex > 0u) { append("\t", 1u); }
+        append(fields_[fieldIndex].str, strlen(fields_[fieldIndex].str));
     }
     append("\r\n", 2u);
 
@@ -64,8 +64,8 @@ void FrameBuilder::sendSerialDelta(Print& out, const FrameBuilder& prev,
                                    uint8_t            passiveCount) const {
     // Helper: true if field name appears in the passive list.
     auto isPassive = [&](const char* name) -> bool {
-        for (uint8_t j = 0u; j < passiveCount; ++j) {
-            if (passiveFields[j] && strcmp(name, passiveFields[j]) == 0) {
+        for (uint8_t passiveIndex = 0u; passiveIndex < passiveCount; ++passiveIndex) {
+            if (passiveFields[passiveIndex] && strcmp(name, passiveFields[passiveIndex]) == 0) {
                 return true;
             }
         }
@@ -76,10 +76,10 @@ void FrameBuilder::sendSerialDelta(Print& out, const FrameBuilder& prev,
     // At least one *non-passive* field must have changed; otherwise the entire
     // output is suppressed (even changed passive fields are silent on their own).
     bool anyActiveChange = false;
-    for (uint8_t i = 0u; i < count_; ++i) {
-        const bool changed = (i >= prev.count_) ||
-                             (strcmp(fields_[i].str, prev.fields_[i].str) != 0);
-        if (changed && !isPassive(fields_[i].name)) {
+    for (uint8_t fieldIndex = 0u; fieldIndex < count_; ++fieldIndex) {
+        const bool changed = (fieldIndex >= prev.count_) ||
+                             (strcmp(fields_[fieldIndex].str, prev.fields_[fieldIndex].str) != 0);
+        if (changed && !isPassive(fields_[fieldIndex].name)) {
             anyActiveChange = true;
             break;
         }
@@ -94,23 +94,23 @@ void FrameBuilder::sendSerialDelta(Print& out, const FrameBuilder& prev,
     size_t pos        = 0u;
     bool   firstToken = true;
 
-    auto append = [&](const char* s, size_t n) {
-        if (pos + n >= sizeof(buf)) { return; }
-        memcpy(buf + pos, s, n);
-        pos += n;
+    auto append = [&](const char* text, size_t length) {
+        if (pos + length >= sizeof(buf)) { return; }
+        memcpy(buf + pos, text, length);
+        pos += length;
     };
 
-    for (uint8_t i = 0u; i < count_; ++i) {
-        const bool changed = (i >= prev.count_) ||
-                             (strcmp(fields_[i].str, prev.fields_[i].str) != 0);
+    for (uint8_t fieldIndex = 0u; fieldIndex < count_; ++fieldIndex) {
+        const bool changed = (fieldIndex >= prev.count_) ||
+                             (strcmp(fields_[fieldIndex].str, prev.fields_[fieldIndex].str) != 0);
         if (!changed) { continue; }
 
         if (!firstToken) { append("  ", 2u); }
         firstToken = false;
 
-        append(fields_[i].name, strlen(fields_[i].name));
+        append(fields_[fieldIndex].name, strlen(fields_[fieldIndex].name));
         append("=", 1u);
-        append(fields_[i].str,  strlen(fields_[i].str));
+        append(fields_[fieldIndex].str,  strlen(fields_[fieldIndex].str));
     }
 
     append("\r\n", 2u);
@@ -136,10 +136,10 @@ void FrameBuilder::sendSerialDelta(Print& out, const FrameBuilder& prev,
  * @note The field name is copied into a stack buffer capped at
  *       VALUE_BUF_SIZE - 1 characters.
  */
-static void setNestedField(JsonObject root, const FrameBuilder::Field& f)
+static void setNestedField(JsonObject root, const FrameBuilder::Field& field)
 {
     char  buf[FrameBuilder::VALUE_BUF_SIZE];
-    strncpy(buf, f.name, sizeof(buf) - 1);
+    strncpy(buf, field.name, sizeof(buf) - 1);
     buf[sizeof(buf) - 1] = '\0';
 
     JsonObject obj = root;
@@ -155,11 +155,11 @@ static void setNestedField(JsonObject root, const FrameBuilder::Field& f)
         seg = dot + 1;
     }
 
-    switch (f.type) {
-        case FrameBuilder::Field::Type::Signed:   obj[seg] = f.num.i; break;
-        case FrameBuilder::Field::Type::Unsigned: obj[seg] = f.num.u; break;
-        case FrameBuilder::Field::Type::Float:    obj[seg] = f.num.f; break;
-        case FrameBuilder::Field::Type::String:   obj[seg] = f.str;   break;
+    switch (field.type) {
+        case FrameBuilder::Field::Type::Signed:   obj[seg] = field.num.signedValue; break;
+        case FrameBuilder::Field::Type::Unsigned: obj[seg] = field.num.unsignedValue; break;
+        case FrameBuilder::Field::Type::Float:    obj[seg] = field.num.floatValue; break;
+        case FrameBuilder::Field::Type::String:   obj[seg] = field.str;   break;
     }
 }
 
@@ -176,7 +176,7 @@ void FrameBuilder::fillJson(JsonDocument& doc) const {
     // to<JsonObject>() clears the document and roots it as an object so that
     // setNestedField() can safely navigate and create intermediate nodes.
     JsonObject root = doc.to<JsonObject>();
-    for (uint8_t i = 0; i < count_; ++i) {
-        setNestedField(root, fields_[i]);
+    for (uint8_t fieldIndex = 0; fieldIndex < count_; ++fieldIndex) {
+        setNestedField(root, fields_[fieldIndex]);
     }
 }
