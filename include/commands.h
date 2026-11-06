@@ -4,6 +4,7 @@
  *
  * Commands can arrive from:
  *   - Serial (USB CDC): via service(), which accumulates bytes non-blocking.
+ *   - ESP-NOW: queued by the receive callback and run from espnow::service().
  *
  * Available commands:
  *   start                - Begin the cooldown process (from Off or Idle)
@@ -43,7 +44,8 @@
  * Usage:
  *   Call commands::init() once in setup() after Serial.begin().
  *   Call commands::service() every loop() iteration for serial input.
- *   Call commands::processLine() from any context with any Print sink.
+ *   Call commands::processLine() from the loop task only, with any Print sink.
+ *   Commands reach the shared SPI bus, so other tasks must hand lines to loop().
  *
  * Testing:
  *   Call commands::processLine() directly with a stub Print to verify
@@ -71,6 +73,9 @@ void service();
 /**
  * Parse and dispatch one null-terminated command line.
  * Exposed for unit testing: inject any Print to capture the response.
+ *
+ * On target this only runs on the task that called init() (setup() and loop()
+ * share it); a call from any other task gets an [ERR] reply and does nothing.
  *
  * @param line  Null-terminated string (will not be modified).
  * @param out   Output stream for the response (Serial, stub…).

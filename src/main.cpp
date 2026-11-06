@@ -97,6 +97,9 @@ static constexpr size_t NUM_CONTROL = sizeof(controlModules) / sizeof(controlMod
 
 /// Modules serviced every loop() tick with health-transition logging.
 static const module::ModuleEntry tickServiceModules[] = {
+#if ENABLE_ESPNOW
+    MODULE_ENTRY(espnow,    false),  // runs commands queued by the receive callback
+#endif
     MODULE_ENTRY(sysinfo,   false),
     MODULE_ENTRY(imu,       false),
     MODULE_ENTRY(amplifier, false),
