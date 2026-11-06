@@ -294,10 +294,10 @@ def cs_decoder(sh):
         decoder = place_ic(
             sh,
             'cryocooler:SN74LVC138A',
-            'SN74LVC138A',
+            'SN74LVC138ARGYR',
             column,
             row,
-            'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+            'Package_DFN_QFN:Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm',
         )
     for pin, net in (('1', 'CS_ADDR_A'), ('2', 'CS_ADDR_B'), ('3', 'CS_ADDR_C'),
                      ('4', 'CS_EN_N')):
@@ -311,6 +311,7 @@ def cs_decoder(sh):
     wire(sh, supply, (supply[0], supply[1] - 4))
     rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
     drop_ground(sh, pin_cell(decoder, '8'), 2)
+    drop_ground(sh, pin_cell(decoder, '17'), 2)
     with kicadgen.pinned_refs('C', CS_DECODER_LAST['C']):
         place_blocks(
             sh,
@@ -321,7 +322,7 @@ def cs_decoder(sh):
     with kicadgen.pinned_refs('TP', CS_DECODER_LAST['TP']):
         wire(sh, (supply[0], supply[1] - 4), (supply[0] + 4, supply[1] - 4))
         test_point(sh, '+3V3', (supply[0] + 4, supply[1] - 4))
-        gnd_cell = pin_cell(decoder, '8')
+        gnd_cell = pin_cell(decoder, '17')
         wire(sh, (gnd_cell[0], gnd_cell[1] + 2), (gnd_cell[0] + 4, gnd_cell[1] + 2))
         test_point(sh, 'GND', (gnd_cell[0] + 4, gnd_cell[1] + 2), rot=180)
     sh.note('BIAS', 20 * 1.27, 118 * 1.27, 1.8)
@@ -2877,37 +2878,37 @@ def display_parts(sh):
     # touch controller: panel lines on the left, SPI on the right
     touch = place_ic(
         sh,
-        'cryocooler:TSC2046EIPW',
-        'TSC2046EIPW',
+        'cryocooler:TSC2046EIRGVT',
+        'TSC2046EIRGVT',
         80,
         74,
-        'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+        'Package_DFN_QFN:Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm',
     )
     for pin, net in (
-        ('2', 'TOUCH_XP'),
-        ('3', 'TOUCH_YP'),
-        ('4', 'TOUCH_XN'),
-        ('5', 'TOUCH_YN'),
+        ('6', 'TOUCH_XP'),
+        ('7', 'TOUCH_YP'),
+        ('8', 'TOUCH_XN'),
+        ('9', 'TOUCH_YN'),
     ):
         net_label(sh, net, spur(sh, touch, pin, 4), 180)
     for pin, net in (
-        ('16', 'SPI_SCK'),
-        ('15', 'TOUCH_CS'),
-        ('14', 'SPI_MOSI'),
-        ('12', 'SPI_MISO'),
+        ('4', 'SPI_SCK'),
+        ('3', 'TOUCH_CS'),
+        ('2', 'SPI_MOSI'),
+        ('16', 'SPI_MISO'),
     ):
         net_label(sh, net, spur(sh, touch, pin, 4), 0, is_global=True)
-    sh.nc(touch, '13')
-    irq = spur(sh, touch, '11', 4)
+    sh.nc(touch, '1')
+    irq = spur(sh, touch, '15', 4)
     net_label(sh, 'TOUCH_IRQ', irq, 0)
     wire(sh, irq, (irq[0], irq[1] + 4))
     test_point(sh, 'TOUCH_IRQ', (irq[0], irq[1] + 4), rot=180)
-    vcc, iovdd = pin_cell(touch, '1'), pin_cell(touch, '10')
+    vcc, iovdd = pin_cell(touch, '5'), pin_cell(touch, '14')
     wire(sh, vcc, (vcc[0], vcc[1] - 4), (iovdd[0], iovdd[1] - 4), iovdd)
     rail_symbol(sh, '+3V3', (vcc[0], vcc[1] - 4))
-    sh.nc(touch, '9')
-    # VBAT and AUX are unused ADC inputs: grounded with GND
-    gnd_bus(sh, [pin_cell(touch, number) for number in ('6', '7', '8')])
+    sh.nc(touch, '13')
+    # VBAT and AUX are unused ADC inputs: grounded with GND and the exposed pad
+    gnd_bus(sh, [pin_cell(touch, number) for number in ('10', '11', '12', '17')])
     place_blocks(
         sh,
         [

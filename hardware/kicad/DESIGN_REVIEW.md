@@ -212,3 +212,19 @@ Three SOIC-8 parts move to smaller packages at the same board centres, front sid
 * **U9:** OPA188AID → OPA188AIDBVR, SOT-23-5. Pins 1 OUT, 2 V-, 3 +IN, 4 -IN, 5 V+. It is ordered from Digi-Key, so it leaves the Mouser list; check live stock.
 * **U7:** MCP4921-E/SN → MCP4921-E/MC, 3x2 mm DFN-8. Footprint checked against Microchip land pattern C04-2123A. The exposed pad (pin 9) ties to GND with a via (DS22248 3.8). VOUT and VSS keep their pin numbers.
 * **Board:** `tools/small_packages_board.py` swaps the parts and rips their nets. New routing, plus three new GND stitching vias around U5 and U9. Three short segments near these parts sit about 1-2° off 45° (AD9833_FSYNC, +15V, -15V).
+
+## U32 in VQFN (2026-11-05)
+
+* **U32:** SN74LVC138APWR (TSSOP-16) → SN74LVC138ARGYR (RGY VQFN-16, 3.5x4 mm), same centre and rotation. Pins 1-16 keep their functions (TI SCAS291). KiCad's stock RGY footprint covers TI's RGY0016A land pattern: EP 2.05x2.55, pads extend 0.2 mm further out.
+* **Exposed pad:** tied to GND with one 0.2 mm drill via. TI requires it soldered but this datasheet doesn't name a net; G2B (pin 5) and GND (pin 8) join it on F.Cu.
+* **Silk:** the `138` part name is gone, because the exposed pad leaves no room for it.
+* **Board:** `tools/u32_rgy_board.py`. The chip-select nets total 50 vias and 514 mm, was 49 and 510. C132 is 4.4 mm from pin 16, was 3.1.
+
+## U27 in VQFN (2026-11-05)
+
+* **U27:** TSC2046EIPWR (TSSOP-16) → TSC2046EIRGVT (RGV VQFN-16, 4x4 mm, 250-piece reel), same centre, back side. Both are TI Last Time Buy. Pins renumbered from TI SBAS417 (5 +VCC, 6 X+, 7 Y+, 8 X-, 9 Y-, 10 GND, 11 VBAT, 12 AUX, 13 VREF, 14 IOVDD, 15 PENIRQ, 16 DOUT, 1 BUSY, 2 DIN, 3 CS, 4 DCLK, 17 exposed pad).
+* **ESD:** the part rates X+, X-, Y+ and Y- to ±15 kV IEC contact, so no TVS is added. TSC2046IRGVR is the active fallback: same pins and footprint, but no IEC rating.
+* **Exposed pad:** tied to GND with one via, joined to pins 10-12 on B.Cu. TI says analog ground or floating, kept off digital ground if possible; this board has one GND.
+* **Footprint:** stock Texas_RGV0016A covers TI's RGV0016A land pattern (drawing in the INA3221 datasheet; the TSC2046E sheet only shows the outline). EP 2.1 vs (2.16), pads extend further out.
+* **Decoupling:** C122 (100 nF) moves to (52.7, 11.6) with `tools/c122_move.py`, 3.2 mm from pin 14 and 7.1 mm from pin 5, was 9.1 and 8.2. C123's reference is hidden because there is no room for it.
+* **Board:** `tools/u27_rgv_board.py`. Pads 2, 3, 7 and 15 are via-in-pad. Rotation stays 0, so SPI moves to the west side and the panel lines to the north, and SPI_SCK / SPI_MOSI gain 4 and 2 vias.

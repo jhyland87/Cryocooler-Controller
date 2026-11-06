@@ -25,8 +25,8 @@ creation date, so the files differ in git after every export even if the board d
   edge clearance. The board has a routed notch in the top edge under the ESP32
   antenna (74.5-93.5 x 0-6 mm), and the four corner squares around the mounting
   holes have no solder mask (housing requirement).
-* **Via-in-pad:** the fine-pitch ground pads (U4, U7, U11, U20, U21, U23, U25, U32), D10 pad 1, the
-  U20 / U21 signal pads in `SIGNAL_VIA_PADS`, U5 pad 3, U7 pad 2, U9 pad 1, the 15 GND vias in U20's exposed pad and
+* **Via-in-pad:** the fine-pitch ground pads (U4, U7, U11, U20, U21, U23, U25, U27, U32), D10 pad 1, the
+  U20 / U21 signal pads in `SIGNAL_VIA_PADS`, U5 pad 3, U7 pad 2, U9 pad 1, U27 pads 2, 3, 7 and 15, the 15 GND vias in U20's exposed pad and
   C30 / C74 pad 2 carry 0.45 mm vias with 0.2 mm drills, some inside 0.5 mm pitch
   pads (0.1 mm to the neighbouring pad). L1 pad 1, C60 / C131 and C130 pad 1 carry
   0.3 mm drill vias in their pads. Check JLCPCB's current via limits and order

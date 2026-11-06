@@ -15,7 +15,6 @@ MM = pcbnew.FromMM
 SECTION_LINE = ((70.75, 30.0), (100.0, 30.0))
 SECTION_JOG_X = 86.7
 SECTION_JOG_BOTTOM = 40.0
-PART_NAME = ('138', 92.0, 33.0)
 TEXT_HEIGHT, TEXT_WIDTH, TEXT_STROKE = 1.0, 0.9, 0.15
 KEEP = []  # SWIG frees removed items when their wrappers die
 TRIM_NETS = {
@@ -30,7 +29,7 @@ REMOVED_PARTS = ('TP41',)  # user: silk room beside U24
 # G2B is boxed in by CS_ADDR_B under the body: capped via in its pad, as on the
 # other fine-pitch ground pads (fabrication/README.md)
 # D10's cathode too: inner traces 0.9 mm apart leave no room beside it
-VIAS_IN_PADS = (('U32', '5', 94.575, 32.675), ('D10', '1', 85.0, 32.26))
+VIAS_IN_PADS = (('D10', '1', 85.0, 32.26),)
 # C132 leaves the decoder's fan-out: ground pad in open pour, supply pad beside TP45
 C132_SPOT = (87.8, 37.6, 180)
 C132_FEED_WIDTH = 0.3
@@ -356,20 +355,6 @@ def move_section_line(board):
     # already moved on an earlier run
 
 
-def add_part_name(board):
-    text, x, y = PART_NAME
-    if any(d.GetClass() == 'PCB_TEXT' and d.GetText() == text for d in board.GetDrawings()):
-        return
-    label = pcbnew.PCB_TEXT(board)
-    label.SetText(text)
-    label.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
-    label.SetLayer(pcbnew.F_SilkS)
-    label.SetTextSize(pcbnew.VECTOR2I(MM(TEXT_WIDTH), MM(TEXT_HEIGHT)))
-    label.SetTextThickness(MM(TEXT_STROKE))
-    board.Add(label)
-    board.FindFootprintByReference('U32').Value().SetVisible(False)
-
-
 def main():
     path = sys.argv[1]
     board = pcbnew.LoadBoard(path)
@@ -383,7 +368,6 @@ def main():
         for ref, number in GROUND_PADS:
             tie_pad_to_ground(board, ref, number)
     move_section_line(board)
-    add_part_name(board)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(path)
 

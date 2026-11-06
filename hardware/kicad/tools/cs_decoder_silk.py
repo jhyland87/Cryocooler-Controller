@@ -24,6 +24,8 @@ LABELS = (
     ('TP45', 'Value', 92.6, 38.3, 0),
     ('TP46', 'Value', 98.2, 38.4, 0),
 )
+# back side, clear of the fan-out
+BACK_LABELS = (('U27', 56.6, 8.7),)
 SECTION_LINE_X = 86.7
 SECTION_LINE_BOTTOM = 40.0
 
@@ -87,6 +89,13 @@ def main():
     template = board.FindFootprintByReference('D10').Reference()
     for ref, field, x, y, angle in LABELS:
         place_label(board, template, ref, field, x, y, angle)
+    for ref, x, y in BACK_LABELS:
+        back_label = board.FindFootprintByReference(ref).Reference()
+        back_label.SetVisible(True)
+        back_label.SetLayer(pcbnew.B_SilkS)
+        back_label.SetMirrored(True)
+        back_label.SetTextAngleDegrees(0)
+        back_label.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
     restore_section_line(board)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(path)

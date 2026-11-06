@@ -241,9 +241,9 @@ PARTS = {
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
-    ('SN74LVC138A', 'TSSOP-16_4.4x5mm_P0.65mm'): (
-        'Texas Instruments', 'SN74LVC138APWR', 'IC DECODER/DEMUX 1X3:8 16TSSOP',
-        'suggested', 'decodes the shared SPI bus chip selects'),
+    ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
+        'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
+        'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
     ('74LVC1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LVC1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', 'gates the SC18IS604 MISO'),
@@ -264,9 +264,11 @@ PARTS = {
         'Coilcraft', 'MSD7342-103MLC', 'COUPLED INDUCTOR 10UH 1:1 SMD',
         'design', 'LT8582 inverting channel: 10 uH needed at duty ~0.80 '
         '(datasheet L_MIN ~5.6 uH)'),
-    ('TSC2046EIPW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
-        'Texas Instruments', 'TSC2046EIPWR',
-        'IC TOUCH SCREEN CTRLR 4-WIRE 16TSSOP', 'design', ''),
+    ('TSC2046EIRGVT', 'Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm'): (
+        'Texas Instruments', 'TSC2046EIRGVT',
+        'IC TOUCH SCREEN CTRLR 4-WIRE 16VQFN', 'design',
+        'TI lists it as Last Time Buy; TSC2046IRGVR is the active fallback, same '
+        'footprint and pins but no IEC ESD rating'),
     ('FH12-14S-0.5SH(55)',
      'Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal'): (
         'Hirose', 'FH12-14S-0.5SH(55)', 'CONN FFC BOTTOM 14POS 0.50MM R/A',

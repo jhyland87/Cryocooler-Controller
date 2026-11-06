@@ -29,7 +29,7 @@ RIP_BOXES = {
 }
 # DS22248 3.8: the exposed pad and VSS share a potential. The via is filled and
 # capped, like the other fine-pitch ground pads (fabrication/README.md).
-EP_VIA = ('U7', '9')
+EP_VIAS = (('U7', '9'),)
 VIA_DIAMETER, VIA_DRILL = 0.45, 0.2
 JOIN_TOLERANCE = 2000  # nm
 
@@ -49,12 +49,12 @@ def remove(board, item):
     board.Remove(item)
 
 
-def net_map(board, pin_net):
+def net_map(board, pin_net, swapped=SWAPPED):
     """Old net -> new net, read from the pads of the parts that stay."""
     names = {}
     for footprint in board.GetFootprints():
         ref = footprint.GetReference()
-        if ref in SWAPPED:
+        if ref in swapped:
             continue
         for pad in footprint.Pads():
             new = pin_net.get((ref, pad.GetNumber()))
@@ -98,22 +98,25 @@ def trim_dead_ends(board, nets, box):
             return
 
 
-def main():
-    path = sys.argv[1]
+def swap_parts(path, spots, rip_boxes, ep_vias, finish=None, rip_layer=None):
+    """Swaps footprints in place at `spots`, rips nets in `rip_boxes`, adds `ep_vias`,
+    then calls `finish(board)` for part-specific edits. With `rip_layer`, only that
+    layer's tracks are ripped: vias and other layers stay, and GND is not trimmed.
+    """
     parts, nets = pcbnetlist.load_netlist()
     board = pcbnew.LoadBoard(path)
     pin_net = {(ref, pin): name for name, nodes in nets.items() for ref, pin in nodes}
-    renames = net_map(board, pin_net)
+    renames = net_map(board, pin_net, spots)
 
     ripped = {}
-    for ref in SWAPPED:
+    for ref in spots:
         old = board.FindFootprintByReference(ref)
         ripped[ref] = {
             renames.get(pad.GetNetname(), pad.GetNetname())
             for pad in old.Pads()
             if pad.GetNetname() and not pad.GetNetname().startswith('unconnected')
         }
-    swapped = {ref: replace_part(board, ref, parts[ref], spot) for ref, spot in SWAPPED.items()}
+    swapped = {ref: replace_part(board, ref, parts[ref], spot) for ref, spot in spots.items()}
 
     for footprint in board.GetFootprints():
         ref = footprint.GetReference()
@@ -131,27 +134,33 @@ def main():
         else:
             remove(board, item)
 
-    for ref, box in RIP_BOXES.items():
+    for ref, box in rip_boxes.items():
         keep_nets = ripped[ref] & set(nets)
         for item in list(board.GetTracks()):
+            if rip_layer is not None and (
+                item.Type() == pcbnew.PCB_VIA_T or item.GetLayer() != rip_layer
+            ):
+                continue
             if item.GetNetname() in keep_nets and any(inside(p, box) for p in ends(item)):
                 remove(board, item)
-        trim_dead_ends(board, keep_nets, box)
+        trim_dead_ends(board, keep_nets if rip_layer is None else keep_nets - {'GND'}, box)
     for footprint in swapped.values():
         print('other-net copper cleared:', clear_copper_under(board, footprint))
 
-    ref, number = EP_VIA
-    pad = next(p for p in swapped[ref].Pads() if p.GetNumber() == number)
-    via = pcbnew.PCB_VIA(board)
-    via.SetPosition(pad.GetPosition())
-    via.SetWidth(MM(VIA_DIAMETER))
-    via.SetDrill(MM(VIA_DRILL))
-    via.SetNet(pad.GetNet())
-    board.Add(via)
+    for ref, number in ep_vias:
+        pad = next(p for p in swapped[ref].Pads() if p.GetNumber() == number)
+        via = pcbnew.PCB_VIA(board)
+        via.SetPosition(pad.GetPosition())
+        via.SetWidth(MM(VIA_DIAMETER))
+        via.SetDrill(MM(VIA_DRILL))
+        via.SetNet(pad.GetNet())
+        board.Add(via)
 
+    if finish:
+        finish(board)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(path)
 
 
 if __name__ == '__main__':
-    main()
+    swap_parts(sys.argv[1], SWAPPED, RIP_BOXES, EP_VIAS)
