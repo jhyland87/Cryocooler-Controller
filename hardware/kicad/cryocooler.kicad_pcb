@@ -10094,7 +10094,7 @@
 		(at 0 85.5 -90)
 		(descr "Tensility 54-00164 DC jack 5.5 x 2.1 mm, right angle, SMT (drawing rev A)")
 		(property "Reference" "J2"
-			(at -5.5 -2.6 270)
+			(at -5.5 -2.6 90)
 			(layer "F.SilkS")
 			(uuid "6b1d24d9-f0cd-4e49-befc-29c7e9c0e3f1")
 			(effects
@@ -10105,7 +10105,7 @@
 			)
 		)
 		(property "Value" "12V IN"
-			(at 0 -7 270)
+			(at 0 -7 90)
 			(layer "F.Fab")
 			(uuid "e74ef5b8-abf2-4ad8-ae7c-382367387b25")
 			(effects
@@ -10116,7 +10116,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/detail/tensility/54-00164/10459298"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "f9d4e510-763c-4728-b601-a41fd754cebf")
@@ -10127,7 +10127,7 @@
 			)
 		)
 		(property "Description" "DC Barrel Jack with an internal switch"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "d8a5b2b3-6464-4efc-97b0-061367fddf39")
@@ -19913,6 +19913,7 @@
 		)
 		(embedded_fonts no)
 		(model "${KIPRJMOD}/lib/cryocooler.3dshapes/Adafruit_4392_envelope.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -19921,6 +19922,17 @@
 			)
 			(rotate
 				(xyz 0 0 0)
+			)
+		)
+		(model "${KIPRJMOD}/lib/cryocooler.3dshapes/S4B-PH-SM4-TB.step"
+			(offset
+				(xyz -3 1.5 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -0 -0 -0)
 			)
 		)
 	)
