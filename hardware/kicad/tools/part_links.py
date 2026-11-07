@@ -76,6 +76,7 @@ DATASHEETS = {
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
     '2305908': 'https://www.farnell.com/cad/2571341.pdf',
+    '643228-1': 'https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=643228&DocType=Customer+Drawing&DocLang=English',
     '1821698': 'https://www.phoenixcontact.com/en-us/products/pcb-header-mc-05-2-g-254-smd-r24-1821698?type=pdf',
 }
 
@@ -88,7 +89,7 @@ PRODUCT_PAGES = {
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
     'CO975': 'https://www.moddiy.com/products/5408/4-Pin-3-Pin-2.54mm-Pitch-2510-Fan-Male-Angled-Connector-Black.html',
     '2305908-2': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-2/9744703',
-    '2305908-3': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-3/7561707',
+    '643228-1': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/643228-1/297685',
     '1821698': 'https://www.digikey.com/en/products/detail/phoenix-contact/1821698/7558295',
     '1769': 'https://www.adafruit.com/product/1769',
     '5001': 'https://www.keyelco.com/product.cfm/product_id/1310',

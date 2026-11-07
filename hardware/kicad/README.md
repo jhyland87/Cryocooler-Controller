@@ -19,7 +19,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
 | `signal_gen` | ECS-2520MV 25 MHz oscillator, AD9833, OPA1655 (gain 16.3), R39 + MMBZ9V1 clamp into AD5453 VREF, AD5453 (decoder Y1) with OPA188 output stage; all digital parts on `+3V3_SG` |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
-| `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908 SMT pluggable headers J11 / J12 |
+| `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908-2 SMT pluggable header J11, TE 643228-1 through-hole header J12 |
 | `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs |
 | `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3/GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
 | `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through BSS138 open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 1 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail |
@@ -172,8 +172,8 @@ and describe earlier boards where they differ.
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11/J12 +/-, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
-* **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 2305908-3) on 2 mm traces. J11 - and J12 - share a 2 mm F.Cu link at x 7, stitched by five vias to ISO_GND.
+  J11 +/-, J12 +/-/GND, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
+* **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 643228-1) on 2 mm traces, narrowing to 1.6 mm past J12's GND tab. J11 - and J12 - share a F.Cu link inside the ISO_GND island, 2 mm narrowing to 1.2 mm at the same tab. Along the left wall J12 reads GND, -, + from north to south (molded 3, 2, 1). See `hardware/HANDOFF_rev3.md`.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
   and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.

@@ -52,7 +52,7 @@ SIGNAL_JACK = 'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'
 # pluggable SMT headers: TE 2305908 (15 A) for the amp current, Phoenix MC 0,5
 # (6 A) for the amp control line
 TERM_POWER = 'cryocooler:TE_2305908-2_1x02_P5.00mm_Horizontal_SMD'
-TERM_POWER3 = 'cryocooler:TE_2305908-3_1x03_P5.00mm_Horizontal_SMD'
+TERM_POWER3 = 'cryocooler:TE_643228-1_1x03_P6.35mm_Horizontal'
 TERM_SIGNAL = 'cryocooler:PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal'
 INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 

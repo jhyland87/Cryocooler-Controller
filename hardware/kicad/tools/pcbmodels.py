@@ -147,6 +147,12 @@ ENVELOPES = {
          (1.0, 4.2, 0.4, 0.0, 0.15, SILVER), (1.0, 4.2, 0.4, 5.0, 0.15, SILVER),
          (1.0, 4.2, 0.4, 10.0, 0.15, SILVER)],
     ),
+    # TE 643228-1 fallback (drawing C-643228 rev D3): body 20.32 wide, 9.14 high,
+    # face 15.37 ahead of the pins; ears 37.97 wide, 2.54 high, 1.90 behind the pins
+    'TE_643228-1_1x03_P6.35mm_Horizontal': (
+        'TE_643228-1_envelope',
+        [(20.32, 14.73, 9.14, 6.35, 8.005, BLACK), (37.97, 8.0, 2.54, 6.35, 2.1, BLACK)],
+    ),
     # Phoenix 1821698 fallback (drawing 00783144 rev 02)
     'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal': (
         'MC05_2_SMD_envelope',
@@ -251,6 +257,13 @@ LOCAL_STEP_MODELS = {
         '2305908-3.step',
         (5.0, -11.75, 4.975),
         (-90.0, 0.0, 0.0),
+    ),
+    # c-0643228-01-d-3d.stp (TE) is y up, seating plane at y 0, mating face at z 0,
+    # centred on pin 2; seated by its mounting holes (z -12.827, 12.83 on the drawing)
+    'TE_643228-1_1x03_P6.35mm_Horizontal': (
+        '643228-1.step',
+        (6.35, 15.367, 0.0),
+        (-90.0, 0.0, 180.0),
     ),
     # 1821698.step (Phoenix, via TraceParts) has z up, board plane at z 0, mating
     # face at y 0, pins at x 1.52 / 4.06 and y 6.35

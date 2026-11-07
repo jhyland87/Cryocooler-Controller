@@ -573,6 +573,76 @@ def te_2305908(positions):
     )
 
 
+def te_643228_1():
+    """TE 643228-1 right-angle through-hole Universal MATE-N-LOK socket header, 3
+    position, 6.35 mm pitch (customer drawing C-643228 rev D3). Origin on pin 1; -y
+    points out of the mating face, as in the drawing's plan view, so seen from the
+    front with the tails down the cavities read 3, 2, 1 left to right. Mating face
+    15.37 ahead of the pins (12.83 to the Ø3.81 holes + 2.54); ears 37.97 wide, 1.90
+    behind the pins; wings 25.4 wide, 6.60 deep, carried above the board.
+    Silk stops short of the face, because the part is meant to overhang the edge.
+    """
+    name = 'TE_643228-1_1x03_P6.35mm_Horizontal'
+    centre = 6.35
+    face, wing_back, ear_front, body_back, ear_back = -15.37, -8.77, -6.1, -0.64, 1.9
+    silk_front = -11.8
+    drill = 1.52
+    pads = [
+        f'''\t(pad "{number}" thru_hole {'roundrect' if number == 1 else 'circle'}
+\t\t(at {round((number - 1) * centre, 2)} 0)
+\t\t(size 3 3)
+\t\t(drill {drill})
+\t\t(layers "*.Cu" "*.Mask")
+{'''\t\t(roundrect_rratio 0.25)
+''' if number == 1 else ''}\t)
+'''
+        for number in range(1, 4)
+    ]
+    holes = npth(-7.365, -2.54, 3.81) + npth(20.065, -2.54, 3.81)
+
+    def side(sign):
+        """Fab and silk outline of one side of the part, from the centre line."""
+        point = lambda offset, y_pos: (round(centre + sign * offset, 3), y_pos)
+        fab = [point(10.16, face), point(12.7, face), point(12.7, wing_back),
+               point(10.16, wing_back), point(10.16, ear_front), point(18.985, ear_front),
+               point(18.985, ear_back), point(9.14, ear_back), point(9.14, body_back)]
+        silk = [point(12.7, silk_front), *fab[2:8]]
+        return (
+            ''.join(line(*start, *end, 'F.Fab', 0.1) for start, end in zip(fab, fab[1:]))
+            + ''.join(line(*start, *end, 'F.SilkS', 0.12) for start, end in zip(silk, silk[1:]))
+        )
+
+    courtyard = []
+    for sign, order in ((-1, 1), (1, -1)):
+        half = [(12.95, -15.62), (12.95, -8.52), (10.41, -8.52), (10.41, -6.35),
+                (19.235, -6.35), (19.235, 2.05)]
+        courtyard += [(round(centre + sign * offset, 3), y_pos)
+                      for offset, y_pos in half[::order]]
+    outline = (
+        side(-1)
+        + side(1)
+        + line(-3.81, face, 16.51, face, 'F.Fab', 0.1)
+        + line(-2.79, body_back, 15.49, body_back, 'F.Fab', 0.1)
+        + polygon(courtyard, 'F.CrtYd', 0.05)
+        + circle(-1.7, 1.6, 0.2, 'F.SilkS', 0.12, fill=True)
+    )
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "TE Connectivity 643228-1 right-angle through-hole Universal MATE-N-LOK '
+        'socket header, 3 position, 6.35 mm (drawing C-643228 rev D3)")\n'
+        + text('Reference', 'REF**', centre, -4.0, 'F.SilkS')
+        + text('Value', '643228-1', centre, -10.0, 'F.Fab')
+        + '\t(attr through_hole)\n'
+        + outline
+        + ''.join(pads)
+        + holes
+        + ')\n'
+    )
+
+
 def te_2305908_2():
     return te_2305908(2)
 
@@ -759,6 +829,7 @@ def ti_dfm0020a():
 FOOTPRINTS = {
     'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': te_2305908_2,
     'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': te_2305908_3,
+    'TE_643228-1_1x03_P6.35mm_Horizontal': te_643228_1,
     'PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal': phoenix_mc05_2_smd,
     'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD': tensility_54_00164,
     'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD': same_sky_mj_3523,

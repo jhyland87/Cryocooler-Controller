@@ -238,12 +238,13 @@ PARTS = {
         'design', 'J11 amp out. SMT pads carry all plugging force. Mates with '
         'TE 2213934 / 2213935 / 2305909 series plugs (confirm the plug item number '
         'before ordering)'),
-    ('', 'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD'): (
-        'TE Connectivity', '2305908-3', 'CONN HEADER R/A SMT 3POS 5MM, 15 A',
-        'design', 'J12 cryocooler: + / - / GND (pin 3 is the plug\'s protective '
-        'ground, tied to board GND). SMT pads carry all plugging force. Reported as '
-        'last time buy: check stock. Mates with TE 2213934 / 2213935 / 2305909 '
-        'series plugs (confirm the plug item number before ordering)'),
+    ('', 'TE_643228-1_1x03_P6.35mm_Horizontal'): (
+        'TE Connectivity', '643228-1', 'CONN HEADER R/A TH 3POS 6.35MM, UNIVERSAL MATE-N-LOK',
+        'design', 'J12 cryocooler: pin 1 +, pin 2 -, pin 3 GND (the plug\'s protective '
+        'ground, tied to board GND). Through hole, soldered by hand or selectively, plus '
+        '2 screws through the 3.81 mm ear holes. Listed mating plugs: TE 350766-1, '
+        '770018-1; one distributor lists 12 A / 600 V (confirm plug and rating with TE '
+        'before ordering)'),
     ('', 'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'): (
         'Tensility', '54-00164', 'CONN JACK R/A SMT 5.5X2.1MM',
         'design', 'J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates '

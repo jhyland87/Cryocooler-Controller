@@ -52,7 +52,8 @@ UCS 145-125 board, 120 x 100 mm, 4 layers.
 - U20: 9 exposed-pad vias, `+5V_PS15` and SEQ rerouted around them, wider necks on the boost nodes.
 - U16: SW neck, GND via and the `+5V_OR` link. Exposed-pad vias on U14, U6, U25, U36 and U37.
 - C20 moved to the VIN diagonal.
-- J11 / J12: back on the TE 2305908 SMT headers at their rev 2 spots (11.25, 21.0 and 11.25, 33.5), replacing the MSTBA parts `rev3_placement.json` still lists. J12+ can't take its rev 2 F.Cu path at x 15.4, because C7 sits there, so it runs on a 2 mm B.Cu track at x 13 between via groups: 6 at y 29.6-30.6 and 5 beside U18. The ISO_GND link at x 7 and its five vias match rev 2.
+- J11: TE 2305908-2 SMT header, replacing the MSTBA part `rev3_placement.json` still lists. Pins are now at (8.75, 11.42) and (8.75, 16.42), moved for J12.
+- J12: TE 643228-1, also not in `rev3_placement.json`. See "J12: TE 643228-1" below.
 - D13: WS2812B-2020 at the old LED's centre (68, 35), rotation 90, so VDD, DIN and GND face the same way as before. The GND diagonal that crossed the part and the via at (68, 36) are gone. Model `WS2812-2020.step` is the user's file from `dev/ws2812-2020-1.snapshot.4`.
 - SW1 / SW2: EVQ-P2F02K at the PTS810's centres, rotation -90. Moved for it: the +3V3 F.Cu run at y 8.3 is gone and U1 pad 2 has its own via to the In2 plane; DISP_RST runs at y 10.425 between SW1's rows; DISP_DC is on In2 at y 15 past SW2's GND land; ESP_EN, ESP_BOOT and three GND vias shifted off the pads. Each GND land has a via to In1.
 
@@ -71,14 +72,15 @@ UCS 145-125 board, 120 x 100 mm, 4 layers.
 
 `tools/board_edit.py` applies rip, track and via edits from JSON.
 
-**Labels:** every one of the 306 referenced parts has one: 284 mask openings (0.5 mm, or 0.7 mm on large parts and connector pins) and 54 silk at 0.7 mm / 0.1 mm stroke, in `tools/mask_labels.json`, plus the TP5, TP7 and TP34 footprint fields. There are no arrows. Labels follow the user's hand edits of 2026-11-06: horizontal, centred right above or below the part, in mask at 0.5 mm where there's solid ground pour, with silk only as the fallback. Test points are named by their function, not their TP number. Connector pin names sit vertically above their pins. Treat `mask_labels.json` as the source: `mask_label_plan.py` follows an older rule and would undo this. `tools/silk_label_missing.py` adds silk labels for parts that have none, but it can still add arrows, so check its output. J10's pin names are now 0.7 mm, and `S+` was missing and is back. Order high-precision silkscreen printing.
+**Labels:** every one of the 306 referenced parts has one: 283 mask openings (0.5 mm, or 0.7 mm on large parts and connector pins) and 55 silk at 0.7 mm / 0.1 mm stroke, in `tools/mask_labels.json`, plus the TP5, TP7 and TP34 footprint fields. There are no arrows. Labels follow the user's hand edits of 2026-11-06: horizontal, centred right above or below the part, in mask at 0.5 mm where there's solid ground pour, with silk only as the fallback. Test points are named by their function, not their TP number. Connector pin names sit vertically above their pins. Treat `mask_labels.json` as the source: `mask_label_plan.py` follows an older rule and would undo this. `tools/silk_label_missing.py` adds silk labels for parts that have none, but it can still add arrows, so check its output. J10's pin names are now 0.7 mm, and `S+` was missing and is back. Order high-precision silkscreen printing.
 
 **U1 pin names:** all 40 side and bottom pads have a name on F.Silkscreen at 0.7 mm / 0.1 mm stroke, outside the module body. They are plain board text, not in `mask_labels.json`, so edit them in the board. Names follow Espressif's WROOM-2 datasheet v1.7, Table 3-1. Two groups differ from the project's U1 symbol: pads 13 and 14 read `IO19` and `IO20` (symbol: `USB_D-`, `USB_D+`), and pads 28-30 read `NC` (symbol: `IO35`-`IO37`). Every name sits on its pad's centreline and crosses vias where it has to, which relies on filled and capped vias. Don't run `silk_fix.py`.
 
-**DRC with schematic parity:** 0 errors, 0 unconnected, 0 parity. 13 accepted warnings:
-- 6 `silk_edge_clearance`: J11, J12 and J14 body lines at the board edge.
+**DRC with schematic parity:** 0 errors, 0 unconnected, 0 parity. 11 accepted warnings, plus the text size warnings below:
+- 4 `silk_edge_clearance`: J11 and J14 body lines at the board edge. J12's silk stops inside the edge.
 - 3 `silk_overlap`: part outline ticks at U16/C3, R70/R71 and R49/R50.
 - 4 `lib_footprint_mismatch`: U1 as in rev 2, and U18, C53 and C74 from the silk cuts above.
+- 102 `text_thickness` and 102 `text_height`: the 0.7 mm silk text class. The J12 swap didn't change these counts.
 
 No two printed texts overlap (DRC doesn't compare mask text, so this was checked with a script against the true stroke outlines).
 
@@ -88,6 +90,34 @@ No two printed texts overlap (DRC doesn't compare mask text, so this was checked
 - U6's exposed pad has one via, because In2 and back traces block more.
 
 **3D models:** the nine vendor STEP files for rev 3 parts are new in `lib/cryocooler.3dshapes` and listed in `LOCAL_STEP_MODELS` in `tools/pcbmodels.py`. Seating and pin 1 were checked by render and mesh bounds; U3, U14 and U34 show no pin 1 mark to compare. Q1 uses the AONR21305C file. The `SRP7050TA` model prints `2R2` on L2 and L3 whatever the real value is. L1 and L4 use `SRP4020TA-4R7M.step` and `SRP4020TA-R47M.step`, keyed by value because they share a footprint; Bourns' files are upside down, so both are flipped 180 degrees. `SRP4020TA.step` is no longer used.
+
+## J12: TE 643228-1
+
+**Status (2026-11-07):** done in the working tree and not committed. The board ID still reads `rev 49ebc9a` until it's committed and stamped.
+
+The user replaced the TE 2305908-3 SMT header with this through-hole Universal MATE-N-LOK part. Looking into the mating face with tails down, left to right is GND, -, +, which is molded cavities 3, 2, 1. Pin numbers and nets didn't change: pin 1 +, pin 2 - (ISO_GND), pin 3 GND.
+
+**Footprint:** `TE_643228-1_1x03_P6.35mm_Horizontal` comes from drawing C-643228 rev D3 (`dev/ENG_CD_643228_D3.pdf`), not the vendor file. The vendor outline is 1.9 mm short at the rear of the ears and its drill is 1.60 mm; the drawing says 1.52 +/-0.08 mm. Pads are 3.0 mm for current and a real ring.
+
+**Placement:** J12 is at (12.37, 45.8), rotation 90. Pin 1 is at y 45.8, pin 2 at y 39.45, pin 3 at y 33.1. Holes are at (9.83, 53.165) and (9.83, 25.735). The mating face is at x -3.0, 3 mm past the board edge, level with J11's face. J11 moved to clear the upper ear.
+
+**Copper:**
+- ISO_GND keeps its 1.5 mm barrier on all 4 layers. Pin 3 now sits north of pins 1 and 2, so a GND tab reaches it across the island. The scripted minimum gap is 1.499 mm.
+- J12+ is B.Cu: 2 mm, narrowing to 1.6 mm past the GND tab.
+- The ISO_GND F.Cu link from pin 2 to J11 pin 2 is 2 mm, narrowing to 1.2 mm in the same spot. The ISO_GND pours run alongside it. This replaces the x 7 link and its vias.
+- Raw 12 V at x 9.5 jogs around the lower hole.
+- A pour-only keep-out at (25.25, 40.5)-(26.75, 42) closes a 0.3 mm pour gap at that corner, which HEAD also had. The +3V3 and +5V_OR tracks still pass through that square.
+- B.Cu has 7 mm keep-outs around both mounting holes for washers.
+
+**How it was applied:** `tools/j12_643228_board.py` edits the pre-swap board once, then `tools/mask_labels.py` redoes the labels. Don't re-run it on the current board.
+
+**To confirm:**
+- 12 A / 600 V and mating plugs 350766-1 and 770018-1 come from distributor listings, not a TE document. The firmware limit is 5 A.
+- The TE drawing link in `part_links.py` returned 403 to scripts, so it's unchecked.
+- The STEP's tail tips sit 0.2 mm ahead of the drawing's pin line. The drawing sets the holes, so check the tails against a real part. At minimum drill tolerance the hole radius is 0.72 mm and the tail's corner radius is about 0.74 mm.
+- Enclosure: the J11 and J12 wall cut-outs must move. J12 needs about 25.4 x 9.2 mm plus plug clearance, and the 3 mm overhang isn't checked against the real wall.
+- Assembly: J12 needs hand or selective soldering and 2 screws, and it's no longer in the CPL. About 2.5 mm of tail sticks out below the board.
+- Regenerating the schematic also changes D13's stale Product link in `sheets/indicators.kicad_sch`. That file was restored to keep it out of this change, so it comes back on the next regeneration.
 
 ## Q1: AONR21307
 
@@ -151,6 +181,6 @@ The simulation uses ideal op-amp and AD5453 stand-ins. The KiCad sim project in 
 - **Trace angles:** 6 segments aren't 0/45/90: USB_D- (10 mm on In2, under SW1), EXPANDER_INT (5.4 mm), U3 OUT (1.2 mm), -15V (0.9 mm), +3V3 (0.8 mm), D16 K1 (0.3 mm).
 - D13: Adafruit 4684 was listed out of stock on 2026-11-06 (100 pack: Adafruit 6428). Check the new RMT timing and colours on the bench.
 - `src/main.cpp`: the indicator timer check uses `<`, so `indicator::update()` runs on every loop pass rather than every 100 ms. Harmless now that frames only go out on a colour change. Left as is.
-- J12 (TE 2305908-3) stock: one listing shows Last Time Buy, another in production. Confirm before ordering.
+- J12 (TE 643228-1): rating, plugs, tail fit and wall cut-outs still need confirming. See "J12: TE 643228-1" above.
 - C55 stays at 25 V.
 - Root sheet: the Supply Switches and Display sheet blocks overflow the bottom of the frame. This predates rev 3.
