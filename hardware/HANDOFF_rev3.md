@@ -1,6 +1,6 @@
 # Rev 3 — status
 
-Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. **Nothing is committed yet.** The schematic, PCB, fab files and CPL all describe rev 3.
+Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. Rev 3 and the label rework are committed and pushed. The schematic, PCB, fab files and CPL all describe rev 3.
 
 ## Stages
 
@@ -10,7 +10,7 @@ Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. **Nothing is committed yet.** 
 ## State
 
 - **Schematic:** see "Checks" below for the latest results. Datasheet findings are in `kicad/DESIGN_REVIEW.md`, "Rev 3".
-- **PCB:** see "PCB" below. Board ID reads `rev 436f6b4`, the commit the fab files were generated from.
+- **PCB:** see "PCB" below. Board ID reads `rev 436f6b4`, so it needs a new stamp and re-export when the label rework is committed.
 - **Firmware:** builds, native tests pass. Nothing has run on hardware.
 
 ## Reference numbers
@@ -56,12 +56,23 @@ UCS 145-125 board, 120 x 100 mm, 4 layers.
 - D13: WS2812B-2020 at the old LED's centre (68, 35), rotation 90, so VDD, DIN and GND face the same way as before. The GND diagonal that crossed the part and the via at (68, 36) are gone. Model `WS2812-2020.step` is the user's file from `dev/ws2812-2020-1.snapshot.4`.
 - SW1 / SW2: EVQ-P2F02K at the PTS810's centres, rotation -90. Moved for it: the +3V3 F.Cu run at y 8.3 is gone and U1 pad 2 has its own via to the In2 plane; DISP_RST runs at y 10.425 between SW1's rows; DISP_DC is on In2 at y 15 past SW2's GND land; ESP_EN, ESP_BOOT and three GND vias shifted off the pads. Each GND land has a via to In1.
 
+- Moved to fit a label beside every part, all inside their sections:
+  - By x: C7, C53 and C54 -0.3, C74 +0.2, FB1 +0.09, C40 -0.1, C51 +0.6, C6 +0.3, C32 -0.15, R76 +0.1.
+  - C87 from (23, 79.75) to (23, 80.83), R34 from (23, 80.8) to (23, 82.85), R82 from (29.65, 48.5) to (29.07, 48.9).
+  - Vias: `U17-OUTB` from (21.85, 20.05) to (21.85, 19.1), `U21-PGFBP` from (75.2, 53.85) to (75.444, 54.95).
+  - Tracks: ISO_5V from C54 to TP13 now runs at x 16.85, with C7's stubs extended to x 16.2. +3V3 and U16-FB follow C87 and R34, +3V3 follows C51, and the B.Cu D8-A and +3V3 stubs follow R82.
+  - Silk cuts: C53's right tick, C74's left tick and x 19.6-21.95 of U18's bottom line.
+
 `tools/board_edit.py` applies rip, track and via edits from JSON.
 
-**DRC with schematic parity:** 0 errors, 0 unconnected, 0 parity. 11 accepted warnings:
+**Labels:** every one of the 306 referenced parts has one: 286 mask openings (0.5 mm, or 0.7 mm on large parts and connector pins) and 52 silk at 0.7 mm / 0.1 mm stroke, in `tools/mask_labels.json`, plus the TP5, TP7 and TP34 footprint fields. There are no arrows. Labels follow the user's hand edits of 2026-11-06: horizontal, centred right above or below the part, in mask at 0.5 mm where there's solid ground pour, with silk only as the fallback. Test points are named by their function, not their TP number. Connector pin names sit vertically above their pins. Treat `mask_labels.json` as the source: `mask_label_plan.py` follows an older rule and would undo this. `tools/silk_label_missing.py` adds silk labels for parts that have none, but it can still add arrows, so check its output. J10's pin names are now 0.7 mm, and `S+` was missing and is back. Order high-precision silkscreen printing.
+
+**DRC with schematic parity:** 0 errors, 0 unconnected, 0 parity. 13 accepted warnings:
 - 6 `silk_edge_clearance`: J11, J12 and J14 body lines at the board edge.
-- 4 `silk_overlap`: part outline ticks at R94/C87, U16/C3, R70/R71 and R49/R50.
-- 1 `lib_footprint_mismatch`: U1, as in rev 2.
+- 3 `silk_overlap`: part outline ticks at U16/C3, R70/R71 and R49/R50.
+- 4 `lib_footprint_mismatch`: U1 as in rev 2, and U18, C53 and C74 from the silk cuts above.
+
+No two printed texts overlap (DRC doesn't compare mask text, so this was checked with a script against the true stroke outlines).
 
 **Accepted compromises:**
 - PWR_INT has 18 vias, TOUCH_IRQ 15 (both slow). SPI_SCK has 22 and SPI_MOSI 20.
@@ -122,6 +133,7 @@ The simulation uses ideal op-amp and AD5453 stand-ins. The KiCad sim project in 
 
 - **Test points:** AGENTS.md asks for test points beside every IC. These new or changed ICs have none on their own nets on the same side nearby: U3, U6, U16 (only `+5V_OR`, on the far side), U20 (its rail outputs are at TP11 and TP12, 12-14 mm away, and nothing is on `+5V_PS15`), U34, U35, U36, U37. Some rev 2 ICs are also short (U5, U9, U12, U18, U23, U24).
 - **Isolation gap:** the copper gap at the ISO boundary is 1.5 mm, though U17 has 8.1 mm package clearance. If you need the full rating, the pours and keep-out strips have to move.
+- **Silk over via holes:** 1.0 mm text still crosses via holes, against the AGENTS.md silk rule: the section names (DISPLAY, SIGNAL GENERATOR, WATER COOLING, RAILS ±15V, POWER GOOD, AMP CONTROL, POWER IN, FROM AMP), `SG 3V3`, the back board ID and some U1 pin names. All the 0.7 mm part labels are clear.
 - U33 is one array for 4 lines spread over 35 mm.
 - TPS62822 footprint pads are 0.8 x 0.25 mm against 0.6 x 0.25 mm in the datasheet: unresolved.
 - J2 and F1 at 4 A.

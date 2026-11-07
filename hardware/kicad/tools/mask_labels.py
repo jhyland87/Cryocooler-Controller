@@ -1,10 +1,11 @@
 """Turns the board's labels into small solder mask openings over the ground pours, using
-the positions in `mask_labels.json`. R, C and D references are 0.5 mm and everything else
-is 0.7 mm, because silk can't go under 1.0 mm. The exposed copper forms the letters, so
-order ENIG: HASL would blur them. `mask_label_plan.py` chooses the positions: centred on
-an edge of the part where possible, 1.0 mm silk (`silk: true`) where mask won't fit, and a
-silk arrow as the last resort. Section names, box lines, the board ID and part-body names
-are left alone.
+the positions in `mask_labels.json`. Most labels are 0.5 mm, with 0.7 mm on large parts and
+connector pins. The exposed copper forms the letters, so order ENIG: HASL would blur them.
+Labels are horizontal and centred right above or below their part where possible, as 0.7 mm
+silk (`silk: true`) where mask won't fit. The board uses no arrows: move parts apart instead
+(`arrow` is still honoured). Order high-precision printing: 0.7 mm silk
+is under JLCPCB's published 0.8 mm minimum for it, chosen by the user from printed samples.
+Section names, box lines, the board ID and part-body names are left alone.
 
 Safe to run again; it replaces its own text and arrows. The positions fit the committed
 route and silk, and they don't follow a moved part. Run this after `silk_fix.py`, which
@@ -21,9 +22,9 @@ import pcbnew
 
 LABEL_FILE = Path(__file__).with_name('mask_labels.json')
 STROKE = 0.1  # thinner strokes leave a sliver in the 9; "8" keeps 0.115 mm of mask at 0.5 mm
-SILK_TEXT_WIDTH = 0.9
-SILK_TEXT_HEIGHT = 1.0
-SILK_STROKE = 0.15
+SILK_TEXT_WIDTH = 0.7
+SILK_TEXT_HEIGHT = 0.7
+SILK_STROKE = 0.1
 LEADER_WIDTH = 0.15  # JLCPCB's silk line minimum
 ARROW_LENGTH = 0.5
 ARROW_WIDTH = 0.4

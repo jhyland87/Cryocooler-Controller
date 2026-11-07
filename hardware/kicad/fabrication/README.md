@@ -38,10 +38,13 @@ creation date, so the files differ in git after every export even if the board d
   L4 pad 2, R78 pad 1, C31 pad 1, C60 pad 1, C62 pad 2, C66 pad 1 and C77 pad 2. Most are 0.45 mm vias with 0.2 mm drills, some
   inside 0.5 mm pitch pads. Check JLCPCB's current via limits and order filled / capped vias; if they are too small the
   vias need enlarging and the pad connections reworking.
-* **ENIG finish and mask-opening labels:** 306 labels (`tools/mask_labels.py`) are 0.5 mm
+* **ENIG finish and mask-opening labels:** 286 labels (`tools/mask_labels.py`) are 0.5 mm
   or 0.7 mm text cut into the solder mask over the ground pours, and they are intentional.
-  26 labels have a silk arrow pointing at their part. HASL would blur the text. Tell JLCPCB in
-  the order notes so it isn't removed in review.
+  HASL would blur the text. Tell JLCPCB in the order notes so it isn't removed in review.
+* **High-precision silkscreen printing:** 52 more labels are 0.7 mm silk with a 0.1 mm stroke,
+  beside their parts. That text is under JLCPCB's published
+  0.8 mm minimum for high-precision printing, and well under 1.0 mm for standard printing, so select
+  high-precision and say in the order notes that the small text is intentional.
 * Parts on both sides: the back carries a few passives and small transistors.
 * The back silkscreen carries the board ID (name and git revision); check the viewer
   shows it mirrored correctly from the back.
