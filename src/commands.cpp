@@ -484,33 +484,34 @@ static void handleVoutSet(const char* args, Print& out) {
 
 // Raw SPI DAC write — bypasses all firmware DAC management.
 // Identical to the working test sketch: re-inits SPI, toggles CS manually.
-// Usage: "dac raw <0-4095>"
+// Usage: "dac raw <0-16383>"
 static void handleDacRaw(const char* args, Print& out) {
     if (*args == '\0') {
-        out.println(F("[ERR] Usage: dac raw <0-4095>"));
+        out.println(F("[ERR] Usage: dac raw <0-16383>"));
         return;
     }
     const uint16_t val = static_cast<uint16_t>(strtoul(args, nullptr, 10));
-    if (val > 4095) {
-        out.println(F("[ERR] Value must be 0-4095"));
+    if (val > AMPLIFIER_RESOLUTION) {
+        out.println(F("[ERR] Value must be 0-16383"));
         return;
     }
 
     // Exactly replicate the test sketch setup
-    const SpiDevice rawDac(MCP4921_CS, SPISettings(8e6, MSBFIRST, SPI_MODE0));
+    const SpiDevice rawDac(AD5453_SYNC, SPISettings(8e6, MSBFIRST, SPI_MODE1));
     SPI.end();
     rawDac.begin();
     SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 
-    const uint16_t cmd = 0x3000 | (val & 0x0FFF);
+    // C1,C0 = 00 (load and update); val is already limited to 14 bits.
+    const uint16_t cmd = val;
     {
         SpiTransaction transaction(rawDac);
         transaction.transfer16(cmd);
     }
 
     char buf[64];
-    snprintf(buf, sizeof(buf), "[OK] Raw SPI write: cmd=0x%04X (val=%u, %.2fV)",
-             cmd, val, val * 3.3f / 4095.0f);
+    snprintf(buf, sizeof(buf), "[OK] Raw SPI write: cmd=0x%04X (val=%u, %.1f%%)",
+             cmd, val, val * 100.0f / AMPLIFIER_RESOLUTION);
     out.println(buf);
 }
 
@@ -1217,7 +1218,7 @@ static const Command commandMap[] = {
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
-    {"dac raw",             handleDacRaw,          "Raw SPI write to MCP4921 (0-4095) — bypasses firmware DAC management"},
+    {"dac raw",             handleDacRaw,          "Raw SPI write to AD5453 (0-16383) — bypasses firmware DAC management"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V, 0-100%, or 'auto' to resume FSM)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.

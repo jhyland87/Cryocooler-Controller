@@ -106,31 +106,44 @@ private:
 };
 
 /**
- * The four +-15 V power-good flags the MCP23S08 GPIO expander reads (LT3097 PGP /
- * PGN and LT8582 PG1 / PG2). Each node is high (true) when its rail is good.
+ * The +-15 V power-good flags the MCP23S08 GPIO expander reads (LT3097 PGP and
+ * PGN). Each node is high (true) when its rail is good.
  */
 struct RailFlags {
     bool posLdo;     ///< LT3097 +15 V output (PGP)
     bool negLdo;     ///< LT3097 -15 V output (PGN)
-    bool posBoost;   ///< LT8582 +16.4 V boost (PG1)
-    bool negInvert;  ///< LT8582 -16.5 V inverter (PG2)
 
     /** True when every rail reports good. */
-    bool allGood() const { return posLdo && negLdo && posBoost && negInvert; }
+    bool allGood() const { return posLdo && negLdo; }
 };
 
 /**
  * Decode the GPIO expander port byte into rail flags.
  * @param ioState  Bit n = level of expander pin n.
- * @param bitPosLdo, bitNegLdo, bitPosBoost, bitNegInvert  GPIO numbers of
- *                 the four flags (EXPANDER_PIN_* in pin_config.h).
+ * @param bitPosLdo, bitNegLdo  Expander pin numbers of the two flags
+ *                 (EXPANDER_PIN_* in pin_config.h).
  * @return The decoded flags.
  * @code
- * RailFlags flags = decodeRailFlags(0b01111, 0, 1, 2, 3);  // all good
+ * RailFlags flags = decodeRailFlags(0b00011, 0, 1);  // all good
  * @endcode
  */
-inline RailFlags decodeRailFlags(uint8_t ioState, uint8_t bitPosLdo, uint8_t bitNegLdo,
-                                 uint8_t bitPosBoost, uint8_t bitNegInvert) {
+inline RailFlags decodeRailFlags(uint8_t ioState, uint8_t bitPosLdo, uint8_t bitNegLdo) {
     auto bit = [ioState](uint8_t index) { return ((ioState >> index) & 1u) != 0; };
-    return RailFlags{bit(bitPosLdo), bit(bitNegLdo), bit(bitPosBoost), bit(bitNegInvert)};
+    return RailFlags{bit(bitPosLdo), bit(bitNegLdo)};
+}
+
+/**
+ * Decide when a button power-off may release the supply: once the amplitude is
+ * at zero, or when the timeout expires so a stuck ramp cannot block power-off.
+ * @param dacCounts Current DAC code.
+ * @param elapsedMs Time since the button asked for power-off.
+ * @param timeoutMs Longest wait.  Keep it under the LTC2954 6.4 s forced-off time.
+ * @return true when KILL# should be driven low.
+ * @code
+ * powerOffReady(0, 100, 5000);    // true: amplitude is at zero
+ * powerOffReady(832, 100, 5000);  // false: still ramping
+ * @endcode
+ */
+inline bool powerOffReady(uint16_t dacCounts, uint32_t elapsedMs, uint32_t timeoutMs) {
+    return dacCounts == 0 || elapsedMs >= timeoutMs;
 }

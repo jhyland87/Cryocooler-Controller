@@ -13,41 +13,39 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 |---|---|
 | `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, USB-C + ESD |
 | `power_input` | 12 V DC jack (5.5 x 2.1 mm), 5 A fuse, SMBJ16A TVS, bulk caps |
-| `power_button` | LTC2954CTS8-2, IRF4905S high-side P-FET, KILL# bias, CL25N8-G (SOT-89) + red/green LED |
-| `rails_logic` | AP63205 buck (12→5 V); LM66100 pair ORs +5V and USB VBUS into +5V_OR → LD1117S33 (→3.3 V) |
-| `rails_15v` | LT8582 dual converter at 1.5 MHz (datasheet p.30 circuit): boost to +16.4 V, coupled-inductor (MSD7342-103) inverter to −16.5 V → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); PG1 / PG2 and the LT3097 PGP / PGN go to the `power_good` sheet (see below) |
-| `power_good` | One node and green LED per LT3097 PG pin, a BAT54AW AND of the two nodes into `PG_15V`, the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good), and 20k / 39k nodes for the LT8582 PG1 / PG2; all four flags are also read by the SC18IS604 GPIOs |
-| `signal_gen` | 25 MHz osc, AD9833, OPA1655, MCP4921 + LM4040-2.5 + OPA188, AD633 |
+| `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on J7 |
+| `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
+| `rails_15v` | ADP5071ACPZ dual converter at 1.2 MHz with SRP7050TA-3R3M and -6R8M (rev 1 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); the LT3097 PGP / PGN go to the `power_good` sheet |
+| `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
+| `signal_gen` | ECS-2520MV 25 MHz oscillator, AD9833, OPA1655 (gain 16.3), R39 + MMBZ9V1 clamp into AD5453 VREF, AD5453 (decoder Y1) with OPA188 output stage; all digital parts on `+3V3_SG` |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
-| `amp_current` | ACS37800 (SPI) + ISO7741 + MIE1W0505 (VSEL→GND2 = 3.3 V output), 4×1 MΩ + 4.02 kΩ divider |
-| `system_current` | INA239 (SPI mode 1, CS on GPIO3) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT and 3V3 power LEDs |
-| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, CS GPIO8), on unswitched `+3V3`: GP0-3 power-good flags, GP4 display backlight enable, GP5/GP6 READY/FAULT LEDs, GP7 spare; RESET 10 kΩ up, A0/A1 and exposed pad to GND, INT test point only |
+| `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908 SMT pluggable headers J11 / J12 |
+| `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs |
+| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3/GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
 | `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through BSS138 open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 1 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
-| `imu` | J14, a plain shielded SMT RJ45 (Amphenol RJSSE-5380, no magnetics) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND on T568B pairs, 100 Ω series resistors, 10 kΩ CS pull-up, shield to GND |
+| `imu` | J14, a plain shielded SMT RJ45 (Amphenol RJSSE-5380, no magnetics) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND on T568B pairs; two NUF4001MU filters (100 Ω series, 13 pF and ESD clamp each side), 2 channels spare; shield to GND |
 | `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin right-angle Sullins SWR25X output |
-| `indicators` | READY / FAULT LEDs, WS2812B status LED behind a 74AHCT1G125 level shifter |
-| `debug` | Test points on rails, grounds, SDA and control lines; LEDs on +5V, ±15V and ISO 3V3 |
-| `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below), each with a green LED + resistor that shows its switched rail is live |
+| `indicators` | WS2812B-2020 status LED behind a 74AHCT1G125 level shifter |
+| `debug` | Test points on rails, grounds and control lines; LEDs on +5V and ISO 5V |
+| `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below); FB3 ahead of JP5 |
 | `display` | FH12-14S FPC (J15) to the Phoenix 2.4" ST7789V touch display in the UCS 125-87-F-GD-D2,4 lid (pinout from datasheet 109921), TSC2046 touch controller on the shared SPI bus, BSS138 backlight switch (+5 V through 39 Ω), 10 kΩ pull-downs on the GPIO45 / GPIO46 straps |
 
 ## ±15 V rails and power good
 
-The LT8582 makes +16.4 V / −16.5 V (RFBX1 182k, RFBX2 198k; the inverter needs at least 5.6 µH at its ~0.80 duty,
-hence the 10 µH coupled MSD7342), and one LT3097 post-regulates them to **±14.7 V** (V = 100 µA × R_SET, 147 kΩ;
-+15 V would sit at the top of the LT3097's 0–15 V positive range, so the nets keep their `+15V` / `-15V` names
-but run about 0.3 V low). The LT8582 output capacitors (22 µF / 25 V X7R, two on -16V5) also serve as the LT3097
-input capacitors, and each LT3097 output has two 22 µF / 25 V X7R capacitors. The compensation values are the datasheet's
-±12 V ones; check the loops on the bench.
+The ADP5071 makes the two pre-regulated rails from `+5V_PS15` at 1.2 MHz (SYNC/FREQ low), with SEQ to VREG for a
+simultaneous start and SLEW to AGND for the slowest, quietest edges. One LT3097 post-regulates them to **±14.7 V**
+(V = 100 µA × R_SET, 147 kΩ; +15 V would sit at the top of the LT3097's 0–15 V positive range, so the nets keep their
+`+15V` / `-15V` names but run about 0.3 V low). The compensation and feedback values are from rev 1; check the loops on the
+bench.
 
-The LT8582 PG1 / PG2 pins (open drain, high = within 4 % of regulation, 0.5 mA max) each pull a 20k / 39k node from
-its 5 V input: 3.3 V when good, 0 V when the converter is off. Together with `PGP_15V` / `PGN_15V` they go to the
-MCP23S08 GP0-3, and the amplifier module logs which rail changed (`amplifier::railFlags()`).
+`PGP_15V` and `PGN_15V` go to MCP23S08 GP0 and GP1, and the amplifier module logs which rail changed
+(`amplifier::railFlags()`).
 
 PGP and PGN are open-collector (low = bad). Each drives its own node (`PGP_15V`, `PGN_15V`): +15 V through
 220 kΩ / 62 kΩ, about 3.2 V when its rail is good and 0 V when its pin pulls low or the rail is missing (thresholds
-from the 432 kΩ / 10 kΩ PGFB dividers, about 13.3 V). Each node turns on a BSS138W that lights its green LED (D20
-for +15 V, D21 for −15 V). A BAT54AW (common anode) with a 10 kΩ pull-up to +3V3 ANDs the nodes into `PG_15V`
+from the 432 kΩ / 10 kΩ PGFB dividers, about 13.3 V). Each node turns on a BSS138W that lights its green LED (D11
+for +15 V, D12 for −15 V). A BAT54AW (common anode) with a 10 kΩ pull-up to +3V3 ANDs the nodes into `PG_15V`
 (3.3 V only when both are good). `PG_15V` gates Q9 (a series BSS138 in the amplifier REM switch) and Q10 (the
 `PG_15V_N` flag for GPIO43). The amplifier module logs every change of `PG_15V_N` (they show in the dashboard
 console); the firmware should still check it before starting the signal generator.
@@ -57,18 +55,18 @@ console); the firmware should still check it before starting the signal generato
 | Signal | GPIO | Signal | GPIO |
 |---|---|---|---|
 | CS decoder enable / fan PWM | 8 / 9 | CS decoder A / B / C | 3 / 44 (RXD0) / 45 |
-| SPI SCK / MOSI / MISO | 42 / 41 / 40 | Free | 1, 5, 7 (3.3 V, ADC1), 47 (1.8 V) |
+| SPI SCK / MOSI / MISO | 42 / 41 / 40 | Free | 5, 7 (3.3 V, ADC1), 47 (1.8 V) |
 | LSM6DSOX INT1 / INT2 | 2 / 39 | ACS37800 SCK / MOSI / MISO / CS | 11 / 12 / 13 / 17 |
 | Amp REM enable | 6 | PWR_KILL (LTC2954 KILL#) | 10 |
-| FAULT / READY LED | 14 / 15 | Flow tach | 18 |
+| PWR_INT (LTC2954 INT#) | 1 | Flow tach | 18 |
 | Pump PWM / fan tach | 14 / 15 | NTC ADC | 4 |
 | Pump tach | 21 | | |
-| Status RGB (WS2812B) | 38 | Compressor relay enable | 16 |
+| Status RGB (WS2812B-2020) | 38 | Compressor relay enable | 16 |
 | Display D/C | 48 | Display RESET | 46 (strap, 10 kΩ pull-down) |
 
-The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9833, Y1 MCP4921, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
+The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9833, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
 
-GPIO3 is a strapping pin (JTAG source); R27 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R29 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R28 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
+GPIO3 is a strapping pin (JTAG source); R17 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R19 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R18 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.
 
 ## Drawing conventions
@@ -116,9 +114,9 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 
 ## PCB layout
 
-**Schematic ahead of PCB:** the schematic has replaced the EMC2303, SC18IS604 and 74LVC1G125 with an MCP23S08 expander
-and direct GPIO fan and pump control. `cryocooler.kicad_pcb`, `fabrication/` and `bom/` still describe the board with
-the old parts, and the layout notes below describe that board, until the PCB is regenerated.
+**Rev 3:** the schematic, `cryocooler.kicad_pcb`, `fabrication/` and `bom/cryocooler_cpl.csv` all describe rev 3. See
+`../HANDOFF_rev3.md` for its pipeline and the hand edits that live only in the board file. The layout notes below are older
+and describe earlier boards where they differ.
 
 `cryocooler.kicad_pcb` is generated by `tools/gen_pcb.py` (run with KiCad's bundled python, which provides
 `pcbnew`); don't hand-edit it and expect the edits to survive a regeneration.
@@ -144,9 +142,9 @@ the old parts, and the layout notes below describe that board, until the PCB is 
 
   | Jumper | Label | Cuts | Section |
   |---|---|---|---|
-  | JP1 | SG 3V3 | +3.3 V to the signal generator (AD9833 side, MCP4921) | Signal Generator |
+  | JP1 | SG 3V3 | +3.3 V to the signal generator (U3, U4, AD5453) | Signal Generator |
   | JP2 | ±15V EN | +5 V into the ±15 V generator (ADP5071), the only source of both ±15 V rails: pull it to disable +15 V and -15 V | Rails ±15V |
-  | JP3 | ISO PS | +5 V into the isolated supply (PS1), which powers the whole isolated side | Amp Current (Isolated) |
+  | JP3 | ISO PS | +5 V into the ISOW7741 integrated isolated supply, which powers the whole isolated side | Amp Current (Isolated) |
   | JP4 | WATER EN | switched +3.3 V net `+3V3_COOL`: fan and pump PWM and tach pull-ups, flow tach pull-up and the NTC divider | Water Cooling |
   | JP5 | HEAD EN | switched +3.3 V net `+3V3_CH`: the ADS1220 PT1000 ADC and its DRDY pull-up | Cold Head Temp |
 
@@ -179,11 +177,11 @@ the old parts, and the layout notes below describe that board, until the PCB is 
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
   and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.
-* **Checks (2026-10-17):** `kicad-cli pcb drc` reports 0 unconnected items and no copper violations; the only warnings are 6 silkscreen ones (reference text against reference text or a neighbour's outline, and the back-side logo over the JP2 / JP3 pads). Schematic ERC is 0 and all 175 datasheet rules pass. 302 footprints. After the water-cooling / cold-head split, Freerouting left four connections open (+12V to the amp REM section, a +15V link to C17, VIN at U11, the J12 net at R87) and two stitching vias too close to inner tracks; they were completed with a small grid router (clearance-aware, using the board's own copper as obstacles) and a 0.13 mm via nudge, then the zones were refilled.
+* **Checks (2026-10-17):** `kicad-cli pcb drc` reports 0 unconnected items and no copper violations; the only warnings are 6 silkscreen ones (reference text against reference text or a neighbour's outline, and the back-side logo over the JP2 / JP3 pads). Schematic ERC is 0 and all 175 datasheet rules pass. 302 footprints. After the water-cooling / cold-head split, Freerouting left four connections open (+12V to the amp REM section, a +15V link to C21, VIN at U11, the J12 net at R67) and two stitching vias too close to inner tracks; they were completed with a small grid router (clearance-aware, using the board's own copper as obstacles) and a 0.13 mm via nudge, then the zones were refilled.
 * **Checks (2026-10-20, LT3097 revision):** `kicad-cli pcb drc --schematic-parity` reports 0 unconnected items, 0 parity issues and no copper violations; what remains is the TP24 / U1 courtyard overlap (also present on the previous board, the ESP32 courtyard includes its antenna keep-out), 43 silkscreen warnings (more reference texts share the ±15 V box). Schematic ERC is 0 and all 193 datasheet rules pass. 310 footprints.
 * **Fabrication export:** every `gen_pcb.py` run and `link_usb_vbus.py` ends by running `tools/export_fab.py` (Gerbers, drill files, the JLCPCB zip and the front / back renders in `fabrication/`); set `SKIP_FAB_EXPORT=1` to skip it, or run the script yourself after a manual board edit.
 * **After `route`:** run `python3 tools/link_usb_vbus.py` (KiCad's python). Freerouting leaves the A4/B9 pair of the USB-C VBUS pads unconnected; the script adds a stub, two vias and a short B.Cu link, trying positions until DRC is clean.
-* **After `route` (LT3097 revision, Freerouting 2.5.0):** run `tools/fix_route.py` (KiCad's python) on the routed board. It removes GND vias that short or crowd a foreign-net track, gives pour fragments that lost their via a new one, removes signal vias that touch one layer only, links R87 pad 2 to the J12 current path and pulls the Q2 gate track away from Q4. Its two track edits match one routing result, so re-check them after any re-route. This run did not need `link_usb_vbus.py` (the VBUS pair routed). `gen_pcb.py` also joins the LT3097's same-net 0.5 mm-pitch pads with locked 0.2 mm stubs (`PAD_BRIDGES`) and pre-places its GND pad vias before routing, and it does not write the board stackup, so copy the `(stackup ...)` block from the previous board into `(setup` after a regeneration.
+* **After `route` (LT3097 revision, Freerouting 2.5.0):** run `tools/fix_route.py` (KiCad's python) on the routed board. It removes GND vias that short or crowd a foreign-net track, gives pour fragments that lost their via a new one, removes signal vias that touch one layer only, links R67 pad 2 to the J12 current path and pulls the Q2 gate track away from Q4. Its two track edits match one routing result, so re-check them after any re-route. This run did not need `link_usb_vbus.py` (the VBUS pair routed). `gen_pcb.py` also joins the LT3097's same-net 0.5 mm-pitch pads with locked 0.2 mm stubs (`PAD_BRIDGES`) and pre-places its GND pad vias before routing, and it does not write the board stackup, so copy the `(stackup ...)` block from the previous board into `(setup` after a regeneration.
 * **Fine-pitch ground pads:** the INA239 (U23 pad 7) and AD9833 (U4 pads 4, 9) ground pads get locked 0.35 mm / 0.2 mm via-in-pad before routing; `cryocooler.kicad_pro` allows 0.35 mm vias and a 0.075 mm annular ring for them (order filled/capped vias, check the fab's minimums).
 * **Silkscreen labels:** the placer reserves a label pocket beside every part before the next one is placed (`reserve_pockets` in `gen_pcb.py`), so each reference designator and each small label (`SILK_LABELS`: the RESET / BOOT / POWER buttons, the panel button connector and every indicator LED) sits right next to its own part and inside its module box. The back silkscreen carries a black-and-white trace of the cryocooler (`artwork/`, vectorized with potrace, stickers removed, mirrored so it reads from the back) with "STI Hybrid-98 Cryocooler Control Unit" and "ALPHA DEV UNIT" under it; a large "ALPHA" is on the front. To retrace, see `artwork/trace_cooler.py`.
 * **IC part numbers:** each U / PS part gets its part number on the top silkscreen inside its body (between the pads, largest font that fits, two lines if needed), so the soldered part covers it and it helps placement; `add_ic_labels` in `gen_pcb.py` runs with the silkscreen and as `iclabels`. Long values use shorter text (`IC_LABEL_TEXT`). Not labelled (no room under the body, or exposed pad): U2, U4, U8, U11, U12, U13, U15, U23, U24, U26 (SOT-23 / MSOP) and U10, U20, U21, PS1 (exposed pads / pad ring). The pin-1 arrows from the library footprints are unchanged.

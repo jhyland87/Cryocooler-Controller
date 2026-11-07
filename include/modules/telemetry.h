@@ -19,8 +19,8 @@
  *   5   temp_c                  float   cold-stage temperature in Celsius       (2 dp)
  *   6   ambient_temp_c          float   room temperature from DS18S20 in °C    (2 dp)
  *   7   cooling_rate            float   K/min; positive = cooling              (3 dp)
- *   8   dac_target              uint    desired DAC count from state machine (0-4095)
- *   9   dac_actual              uint    current DAC output count             (0-4095)
+ *   8   dac_target              uint    desired DAC count from state machine (0-16383)
+ *   9   dac_actual              uint    current DAC output count            (0-16383)
  *  10   rms_v                   float   RMS voltage VDC                        (2 dp)
  *  11   relay_normal            uint    0 = Bypass, 1 = Normal
  *  12   alarm_relay             uint    0 = off,    1 = active

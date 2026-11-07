@@ -35,34 +35,43 @@
 // ADC readings below this raw count are treated as 0 (noise floor / off).
 #define ADC_MIN_VOLTAGE   static_cast<uint8_t>(15)
 
-// 12-bit DAC full scale (0–4095).  Fixed by the MCP4921 hardware.
-// Voltage resolution is ~0.029 V/step (120 V / 4095).
-#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(4095)
+// 14-bit DAC full scale (0–16383).  Fixed by the AD5453 hardware.
+// Voltage resolution is ~0.007 V/step (120 V / 16383).
+#define AMPLIFIER_RESOLUTION  static_cast<uint16_t>(16383)
+
+// ACS37800KMACTR-015B5-SPI scale: +-15 A range, and the voltage divider on the
+// Amp Current sheet (R64-R67 = 4 x 1 MOhm, R63 = 4.02 kOhm).
+#define ACS37800_CURRENT_RANGE_A  static_cast<uint8_t>(15)
+#define ACS37800_RISO_OHMS        static_cast<uint32_t>(4000000UL)
+#define ACS37800_RSENSE_OHMS      static_cast<uint32_t>(4020)
+
+// Longest wait for the amplitude to reach zero after the power button asks for
+// power-off.  Stays under the LTC2954 forced-off time (6.4 s with C41 = 1 uF).
+#define POWER_OFF_TIMEOUT_MS      static_cast<uint32_t>(5000)
 
 // =============================================================================
 // Amplifier ramp rates (DAC counts per LOOP_INTERVAL_MS tick)
 // =============================================================================
 //
-// Scaled ×16 from 12-bit values to preserve the same wall-clock ramp speed
-// at 16-bit resolution.
+// Four times the former 12-bit values, which keeps the same wall-clock ramp speed
+// at 14-bit resolution.
 
 // Maximum DAC increment per main-loop tick (soft ramp-rate cap).
-// Scaled for 12-bit MCP4921 (4095 full scale).
-// At LOOP_INTERVAL_MS = 200 ms, 16 counts/tick → full-scale in ~51 s.
-#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(16)
+// At LOOP_INTERVAL_MS = 200 ms, 64 counts/tick → full-scale in ~51 s.
+#define AMPLIFIER_MAX_STEP_PER_INTERVAL       static_cast<uint16_t>(64)
 
-#define AMPLIFIER_RAMP_RATE_VERY_FAST         static_cast<uint16_t>(16)
-#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(16)
-#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(16)
-#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(32)
-#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(48)
+#define AMPLIFIER_RAMP_RATE_VERY_FAST         static_cast<uint16_t>(64)
+#define AMPLIFIER_RAMP_RATE_FAST              static_cast<uint16_t>(64)
+#define AMPLIFIER_RAMP_RATE_MEDIUM            static_cast<uint16_t>(64)
+#define AMPLIFIER_RAMP_RATE_SLOW              static_cast<uint16_t>(128)
+#define AMPLIFIER_RAMP_RATE_VERY_SLOW         static_cast<uint16_t>(192)
 
 // DAC step size during the shutdown ramp (ramps down much faster than up).
-// At LOOP_INTERVAL_MS = 200 ms, 208 counts/tick → full-scale in ~4 s.
-#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(208)
+// At LOOP_INTERVAL_MS = 200 ms, 832 counts/tick → full-scale in ~4 s.
+#define AMPLIFIER_DAC_SHUTDOWN_STEP_PER_INTERVAL  static_cast<uint16_t>(832)
 
-// The DAC output should only output 0-10vdc. This is the multiplier voltage
-// that gets passed to the AD633 voltage
+// Output stage swing at full DAC code: 10 Vpp into the amplifier input
+// (set on the bench, see hardware/kicad/DESIGN_REVIEW.md).
 #define AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V   static_cast<float>(10.0f)
 
 // =============================================================================
@@ -98,8 +107,8 @@
 #define OVERSTROKE_DEBOUNCE_MS        static_cast<uint32_t>(200)
 
 // DAC counts subtracted from the target per confirmed backoff event.
-// At AMPLIFIER_RESOLUTION = 4095, each step is ~4.9 % of full scale.
-#define BACKOFF_DAC_STEP              static_cast<uint16_t>(200)
+// At AMPLIFIER_RESOLUTION = 16383, each step is ~4.9 % of full scale.
+#define BACKOFF_DAC_STEP              static_cast<uint16_t>(800)
 
 // =============================================================================
 // Indicator LED timing

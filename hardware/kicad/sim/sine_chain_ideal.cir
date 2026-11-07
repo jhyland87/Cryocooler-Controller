@@ -1,37 +1,50 @@
 * Sine chain, ideal behavioural parts (no vendor models). Mirrors signal_gen sheet values.
-.param vdac=2.5
-* AD9833 stand-in: 60 Hz, 0.3 V pk about ~0.35 V mid-level
-Vdds dds 0 SIN(0.35 0.3 60)
-C10 dds np 1u
-R7 np 0 100k
-* OPA1656 stand-in: rail-limited high-gain VCVS with 1 MHz GBW pole
+.param code=16383
+* AD9833 stand-in: 60 Hz, 0.313 V pk about ~0.35 V mid-level
+Vdds dds 0 SIN(0.35 0.313 60)
+C44 dds np 1u
+R32 np 0 100k
+* OPA1655 stand-in: rail-limited high-gain VCVS with 1 MHz GBW pole; gain 1 + 50.6k/3.3k
 Bop1 o1i 0 V=max(min(1e6*(V(np)-V(inv1)),14),-14)
 Rp1 o1i o1 1k
 Cp1 o1 0 0.16u
-R8 o1 inv1 33k
-R9 inv1 0 3.3k
-R10 o1 x1 100
-* AD633: W = (X1-X2)(Y1-Y2)/10, X2=Y2=Z=0
-Bmul wint 0 V=max(min(V(x1)*V(y1)/10,13),-13)
-Rw wint w 1
-R11 w c11a 100
-C11 c11a sig 10u
-R12 sig 0 100k
-* MCP4921 stand-in + OPA188 stand-in (gain 4)
-Vdac dacout 0 DC {vdac}
-Bop2 o2i 0 V=max(min(1e6*(V(dacout)-V(inv2)),14),-14)
-Rp2 o2i y1 1k
-Cp2 y1 0 0.16u
-R14 y1 inv2 30k
-R15 inv2 0 10k
+R45 o1 inv1 50.6k
+C84 o1 inv1 1n
+R46 inv1 0 3.3k
+R50 o1 vref 220
+* MMBZ9V1ALT1G between its cathodes: two 9.1 V zeners back to back
+Dz1 vref zmid DZ
+Dz2 0 zmid DZ
+.model DZ D(Is=1e-12 N=1 BV=9.1 IBV=5m Rs=5)
+* AD5453 behavioural: 9k ladder from VREF, IOUT1 = VREF x code / 16384 / 9k, 9k RFB
+Rladder vref 0 9k
+Biout 0 iout I=V(vref)*{code}/16384/9k
+Rfb iout oo 9k
+C201 iout oo 2p
+Riout iout 0 1G
+* OPA188 stand-in: inverting output stage, + input grounded
+Bop2 o2i 0 V=max(min(1e6*(0-V(iout)),14),-14)
+Rp2 o2i oo 1k
+Cp2 oo 0 0.16u
+R51 oo c2a 100
+C2 c2a sig 10u
+R33 sig 0 100k
 .control
-foreach v 0 0.625 1.25 1.875 2.5
-  alter Vdac dc = $v
-  tran 20u 100m 0 20u
-  meas tran xpk MAX v(x1) from=50m to=100m
-  meas tran ypk MAX v(y1) from=50m to=100m
-  meas tran sigpk MAX v(sig) from=50m to=100m
-  meas tran sigmin MIN v(sig) from=50m to=100m
+foreach c 0 4096 8192 12288 16383
+  alterparam code = $c
+  reset
+  tran 20u 2 0 20u
+  meas tran vrefpk MAX v(vref) from=1.9 to=2
+  meas tran sigpk MAX v(sig) from=1.9 to=2
+  meas tran sigmin MIN v(sig) from=1.9 to=2
 end
+* Fault case: input well above normal. VREF must stay inside the +/-12 V limit.
+alterparam code = 16383
+reset
+alter @Vdds[sin] = [ 0.35 2 60 ]
+tran 20u 2 0 20u
+meas tran vrefmax MAX v(vref) from=1.9 to=2
+meas tran vrefmin MIN v(vref) from=1.9 to=2
+meas tran zo1 MAX v(o1) from=1.9 to=2
 .endc
 .end

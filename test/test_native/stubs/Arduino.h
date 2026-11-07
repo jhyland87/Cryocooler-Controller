@@ -91,6 +91,7 @@ void     delay(uint32_t /*ms*/);
 // SPI bit order and mode constants (values match the ESP32 Arduino core)
 static constexpr uint8_t MSBFIRST  = 1;
 static constexpr uint8_t SPI_MODE0 = 0;
+static constexpr uint8_t SPI_MODE1 = 1;
 
 // SPI stub class (minimal C++ interface)
 class SPISettings {

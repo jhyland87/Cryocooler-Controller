@@ -3,11 +3,10 @@
 
 The real design (cryocooler.*) is never touched. This project copies the
 signal_gen analog chain with the same component values and swaps the parts
-that have no SPICE model for sources:
+that have no SPICE model for sources or stand-ins:
   AD9833 + oscillator -> 60 Hz VSIN
-  MCP4921 + reference -> VDC control voltage
-OPA1656 / OPA188 use TI's original models; the AD633 uses the behavioural model
-in sim/models/.
+  AD5453              -> behavioural model in sim/models/, code set by CODE
+OPA1656 / OPA188 use TI's original models.
 
 Run: python3 hardware/kicad/tools/gen_sim.py
 """
@@ -46,11 +45,12 @@ OPA188_SIM = {
     'Sim.Name': 'OPAx188',
     'Sim.Pins': '3=IN+ 2=IN- 7=VCC 4=VEE 6=OUT',
 }
-AD633_SIM = {
+AD5453_SIM = {
     'Sim.Device': 'SUBCKT',
-    'Sim.Library': '${KIPRJMOD}/models/ad633_behavioral.lib',
-    'Sim.Name': 'AD633',
-    'Sim.Pins': '1=y1 2=y2 3=vsn 4=z 5=w 6=vsp 7=x1 8=x2',
+    'Sim.Library': '${KIPRJMOD}/models/ad5453_behavioral.lib',
+    'Sim.Name': 'AD5453',
+    'Sim.Pins': '1=iout 2=gnd 7=vref 8=rfb',
+    'Sim.Params': 'code={code}',
 }
 
 
@@ -130,21 +130,20 @@ def build_signal_sim(sh):
         12,
     )
     sh.note(
-        'VSIN stands in for AD9833 + C44 input (0.3 V pk about 0.35 V); VDC '
-        '"DAC_OUT" stands in for MCP4921 '
-        '(0..2.5 V, x4 = 0..10 V control).',
+        'VSIN stands in for AD9833 + C43 input (0.313 V pk about 0.35 V); the AD5453 is '
+        'a behavioural model whose code is the .param below (0..16383).',
         20,
         17,
     )
     sh.note(
-        'Probe SINE_X (AD633 X1), CTL (AD633 Y1) and SIG_SINE (output). '
-        'Expect SIG_SINE = SINE_X x CTL / 10.',
+        'Probe VREF (AD5453 VREF), OPA_OUT and SIG_SINE (output). Expect '
+        'SIG_SINE = -VREF x code / 16384.',
         20,
         22,
     )
     sh.note(
-        'R45 + R122 = 47k + 2.4k || 1 nF (gain 15.97, pole ~3 kHz) so CTL = 10 V '
-        'gives ~4.8 V pk (9.6 Vpp), as on the signal_gen sheet.',
+        'R35 + R92 = 47k + 3.6k || 1 nF (gain 16.3, pole ~3 kHz) so full code gives '
+        'about 10 Vpp, as on the signal_gen sheet. MMBZ9V1 clamp left out here.',
         20,
         24.5,
     )
@@ -155,18 +154,12 @@ def build_signal_sim(sh):
         27,
     )
     sh.note('.tran 100u 3 0 100u', 20, 32)
-    sh.note('.param vdac=2.5', 20, 36)
-    sh.note('.step param vdac list 0 0.625 1.25 1.875 2.5', 20, 40)
-    sh.note(
-        'DAC_OUT = {vdac}: edit .param (single run) or the .step list '
-        '(sweep); keep vdac <= 2.5 V.',
-        20,
-        44,
-    )
+    sh.note('.param code=16383', 20, 36)
+    sh.note('.step param code list 0 4096 8192 12288 16383', 20, 40)
     # 60 Hz source in place of oscillator + AD9833, then the same AC coupling
     # as the real sheet
     source = vsource(
-        sh, 'AD9833 60Hz', 64, 66, 'dc=0.35 ampl=0.3 f=60 ac=1', 'SIN'
+        sh, 'AD9833 60Hz', 64, 66, 'dc=0.35 ampl=0.313 f=60 ac=1', 'SIN'
     )
     wire(sh, pin_cell(source, '1'), (74, 62))
     sim_drop_ground(sh, pin_cell(source, '2'))
@@ -174,7 +167,7 @@ def build_signal_sim(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground_sim(sh, (86, 68))
-    # OPA1656 unit A: non-inverting gain of 15.97 (1 + 49.4k/3.3k)
+    # OPA1656 unit A: non-inverting gain of 16.3 (1 + 50.6k/3.3k)
     opa_ref = next_ref('U')
     opa_a = sh.add(
         'Amplifier_Operational:OPA1656ID',
@@ -189,7 +182,7 @@ def build_signal_sim(sh):
     )
     wire(sh, pin_cell(opa_a, '2'), (100, 62), (100, 70))
     hres(sh, '47k', 105, 70)
-    hres(sh, '2.4k', 111, 70)
+    hres(sh, '3.6k', 111, 70)
     hcap(sh, '1nF', 108, 74)
     wire(sh, (102, 70), (102, 74), (105, 74))
     wire(sh, (114, 70), (114, 74), (111, 74))
@@ -198,9 +191,9 @@ def build_signal_sim(sh):
     drop_ground_sim(sh, (100, 76))
     wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 70), (114, 70))
     wire(sh, (120, 60), (124, 60))
-    hres(sh, '100', 127, 60)
-    wire(sh, (130, 60), (192, 60))
-    net_label(sh, 'SINE_X', (150, 60), 0)
+    hres(sh, '220', 127, 60)
+    wire(sh, (130, 60), (150, 60), (180, 60))
+    net_label(sh, 'VREF', (150, 60), 0)
     # OPA1656 unit C: supply pins
     opa_p = sh.add(
         'Amplifier_Operational:OPA1656ID',
@@ -220,64 +213,50 @@ def build_signal_sim(sh):
         sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4)
     )
     rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 4))
-    # AD633 behavioural multiplier on the real symbol
-    mult = place_ic(
+    # AD5453 behavioural model on the real symbol, then the OPA188 output stage
+    mdac = place_ic(
         sh,
-        'cryocooler:AD633JRZ-R7',
-        'AD633JRZ-R7',
-        200,
-        66,
-        'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
-        props=AD633_SIM,
+        'cryocooler:AD5453WBCPZ',
+        'AD5453WBCPZ-RL',
+        190,
+        64,
+        'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm',
+        props=AD5453_SIM,
     )
-    wire(sh, pin_cell(mult, '8'), (188, 62), (188, 68))
-    wire(sh, pin_cell(mult, '2'), (188, 66))
-    wire(sh, pin_cell(mult, '4'), (188, 68))
-    drop_ground_sim(sh, (188, 68))
-    plus = pin_cell(mult, '6')
-    wire(sh, plus, (plus[0], 48))
-    rail_symbol(sh, '+15V', (plus[0], 48))
-    minus = pin_cell(mult, '3')
-    wire(sh, minus, (minus[0], 80), (minus[0] + 4, 80))
-    rail_symbol(sh, '-15V', (minus[0] + 4, 80))
-    wire(sh, pin_cell(mult, '5'), (214, 60))
-    hres(sh, '100', 217, 60)
-    wire(sh, (220, 60), (224, 60))
-    hcap(sh, '10uF', 227, 60)
-    wire(sh, (230, 60), (240, 60))
-    net_label(sh, 'SIG_SINE', (240, 60), 0)
-    vres(sh, '100k', 234, 60)
-    drop_ground_sim(sh, (234, 66))
-    # control voltage: DC source in place of MCP4921 + reference, then the real
-    # OPA188 gain-of-4 stage
+    drop_ground_sim(sh, pin_cell(mdac, '2'))
+    for pin in ('3', '4', '5', '6', '9'):
+        sh.nc(mdac, pin)
     opa188 = place_ic(
         sh,
         'Amplifier_Operational:OPA188xxD',
         'OPA188ID',
-        130,
-        110,
+        226,
+        62,
         OPAMP_FOOTPRINT,
         props=OPA188_SIM,
     )
-    dac = vsource(sh, 'DAC_OUT', 100, 112, 'dc={vdac}', 'DC')
-    dac_top = pin_cell(dac, '1')
-    wire(sh, dac_top, (110, dac_top[1]), (110, 108), pin_cell(opa188, '3'))
-    sim_drop_ground(sh, pin_cell(dac, '2'))
     for pin in ('1', '5', '8'):
         sh.nc(opa188, pin)
-    wire(sh, pin_cell(opa188, '2'), (120, 112), (120, 132))
-    wire(sh, pin_cell(opa188, '6'), (146, 110), (146, 132), (133, 132))
-    hres(sh, '30k', 130, 132)
-    wire(sh, (127, 132), (120, 132))
-    vres(sh, '10k', 120, 132)
-    drop_ground_sim(sh, (120, 138))
+    iout, rfb = pin_cell(mdac, '1'), pin_cell(mdac, '8')
+    inverting = pin_cell(opa188, '2')
+    wire(sh, iout, (206, iout[1]), (206, inverting[1]), inverting)
+    sim_drop_ground(sh, pin_cell(opa188, '3'))
+    out = pin_cell(opa188, '6')
+    wire(sh, rfb, (204, rfb[1]), (204, 84), (out[0] + 4, 84), (out[0] + 4, out[1]))
+    wire(sh, out, (out[0] + 4, out[1]), (out[0] + 8, out[1]))
+    net_label(sh, 'OPA_OUT', (out[0] + 4, 84), 0)
+    hres(sh, '100', out[0] + 11, out[1])
+    wire(sh, (out[0] + 14, out[1]), (out[0] + 16, out[1]))
+    hcap(sh, '10uF', out[0] + 19, out[1])
+    wire(sh, (out[0] + 22, out[1]), (out[0] + 26, out[1]), (out[0] + 32, out[1]))
+    net_label(sh, 'SIG_SINE', (out[0] + 32, out[1]), 0)
+    vres(sh, '100k', out[0] + 26, out[1])
+    drop_ground_sim(sh, (out[0] + 26, out[1] + 6))
     top, bottom = pin_cell(opa188, '7'), pin_cell(opa188, '4')
-    wire(sh, top, (top[0], 98))
-    rail_symbol(sh, '+15V', (top[0], 98))
-    wire(sh, bottom, (bottom[0], 120), (bottom[0] + 4, 120))
-    rail_symbol(sh, '-15V', (bottom[0] + 4, 120))
-    wire(sh, (146, 110), (170, 110), (170, 64), pin_cell(mult, '1'))
-    net_label(sh, 'CTL', (170, 90), 90)
+    wire(sh, top, (top[0], top[1] - 6))
+    rail_symbol(sh, '+15V', (top[0], top[1] - 6))
+    wire(sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4))
+    rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 4))
     # supply rails
     rail_source(sh, '+15V', 15, 30, 100)
     rail_source(sh, '-15V', -15, 50, 100)

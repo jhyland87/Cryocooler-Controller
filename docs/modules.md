@@ -247,7 +247,7 @@ These modules don't fit the uniform init/service signature and remain hand-coded
 | Module | Reason |
 |--------|--------|
 | `hardware` | Fatal init — halts startup if it fails. Initialised before all other modules. |
-| `indicator` | Must init before WiFi to avoid `neopixelWrite()` deadlock on ESP32-S3. Has its own timer-driven `update(nowMs)` in the loop. |
+| `indicator` | Must init before WiFi to avoid `rmtWrite()` deadlock on ESP32-S3. Has its own timer-driven `update(nowMs)` in the loop. |
 | `state_machine` | Non-standard `update(tempC, coolingRate, rmsV, stalled, nowMs, overstroke, sysVoltage)` signature. Returns actuator targets. |
 | `telemetry` | `emit(out)` takes `state_machine::Output` as input. `emitSafe()` is used during init for dashboard progress. |
 | `cold_head` | In the time-gated section of the loop, before `state_machine::update()`. Includes fault checking internally. |
@@ -391,7 +391,7 @@ A module declares one object per SPI IC at the top of its `.cpp` file, using [`i
 When the module writes the transfers itself, use `SpiDevice`. `SpiTransaction` takes the bus and selects the IC, then deselects and releases the bus at the end of its scope:
 
 ```cpp
-static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
+static const SpiDevice sDac(AD5453_SYNC, SPISettings(4e6, MSBFIRST, SPI_MODE1));
 
 module::InitStatus init() {
     sDac.begin();  // output, deselected

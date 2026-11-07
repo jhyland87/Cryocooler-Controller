@@ -174,6 +174,18 @@ LOCAL_STEP_MODELS = {
         (-2.4738, -2.3865, 0.935),
         (0.0, 0.0, 90.0),
     ),
+    # WS2812-2020.step (user's file, y up); rotation checked against the datasheet's top view
+    'LED_WS2812B-2020_PLCC4_2.0x2.0mm': (
+        'WS2812-2020.step',
+        (0.0, 0.0, 0.56),
+        (90.0, 0.0, 180.0),
+    ),
+    # EVQ-P2F02K.step (Panasonic series file, in metres); offset and rotation checked by render
+    'SW_Panasonic_EVQ-P2F': (
+        'EVQ-P2F02K.step',
+        (-0.682, -1.434, 1.65),
+        (0.0, 0.0, 90.0),
+    ),
     # PTS810SJM250SMTR-LFS.step (C&K; named PTS810SJS250 inside, same shape) is Y-up:
     # board plane at y 0, centred, terminals at z +-1.075
     'SW_CK_PTS810': (
@@ -271,6 +283,54 @@ LOCAL_STEP_MODELS = {
         'QFN20_4x4MC_MCH.step',
         (0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0),
+    ),
+    # Rev 3 parts, models from the user's library downloads. The TI assemblies and ADI files
+    # import Z-up and centred. AOS, ECS and onsemi files are Y-up and centred. Bourns' SRP4020TA file is off-origin, centred at x 5.882, y 7.75, z -2.105 to -0.2.
+    'Texas_RVA_VQFN-16-1EP_3.5x3.5mm_P0.5mm_EP2.14x2.14mm': (
+        'RVA0016A.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'Texas_DPY0002A_0.6x1mm_P0.65mm': (
+        'DPY0002A.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm': (
+        'CP_8_3_ADI.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'LFCSP-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm': (
+        'CP_20_1_ADI.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'L_Bourns_SRP4020TA': (
+        'SRP4020TA.step',
+        (-7.75, 5.882, 2.105),
+        (0.0, 0.0, 90.0),
+    ),
+    'TI_DFM0020A': (
+        'DFM0020A.step',
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ),
+    'OnSemi_UDFN-8-1EP_517AD': (
+        'NUF4001MUT2G.step',
+        (0.0, 0.0, 0.02),
+        (-90.0, 0.0, 180.0),
+    ),
+    # The AONR21305C file; the AONR21307 datasheet shows the same DFN 3x3 EP package
+    'AOS_DFN3x3A_8L_EP1': (
+        'AOS_DFN3x3_EP.step',
+        (0.0, 0.0, 0.0),
+        (-90.0, 0.0, -90.0),
+    ),
+    'Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm': (
+        'ECS-2520MV-250-BN-TR.step',
+        (0.0, 0.0, 0.0),
+        (-90.0, 0.0, 0.0),
     ),
     # Keystone 5015 is Y-up, in inches: feet at y 0, centred on the pad
     'TestPoint_Keystone_5015_Micro_Mini': (

@@ -31,6 +31,7 @@ HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
 NOTCH = (60.0, 0.0, 80.0, 6.6)
+SKIP_NETS = set(os.environ.get('SKIP', 'GND').split(','))  # nets the pours connect
 ROUTE_LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
 if os.environ.get('IN1') == '1':
     ROUTE_LAYERS.append(pcbnew.In1_Cu)
@@ -365,6 +366,8 @@ def parse_item(board, item):
     else:
         layers = ROUTE_LAYERS
     net = re.search(r'\[(.*?)\]', desc).group(1)
+    if board.FindNet(net) is None:  # the report prints {slash} in auto net names as /
+        net = net.replace('/', '{slash}')
     return net, pos, [layer for layer in layers if layer in ROUTE_LAYERS]
 
 
@@ -411,7 +414,7 @@ def add_route(board, net, runs, start_pos, end_pos, width):
 def route_pair(board, pair, margin):
     net, start_pos, start_layers = parse_item(board, pair[0])
     _, end_pos, end_layers = parse_item(board, pair[1])
-    if net == 'GND':
+    if net in SKIP_NETS:
         return 'skip'
     code = board.FindNet(net).GetNetCode()
     base = width_for(board, net)

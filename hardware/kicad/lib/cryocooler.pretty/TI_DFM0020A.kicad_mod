@@ -1,0 +1,245 @@
+(footprint "TI_DFM0020A"
+	(version 20260206)
+	(generator "make_footprints")
+	(layer "F.Cu")
+	(descr "TI DFM0020A SOIC-20W, 7.5 x 12.8 mm body; 8.1 mm clearance land pattern from https://www.ti.com/lit/ds/symlink/isow7741.pdf")
+	(property "Reference" "REF**"
+		(at 0 -7.6000000000000005 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "TI_DFM0020A"
+		(at 0 7.6000000000000005 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -3.6 -6.4)
+		(end 3.6 -6.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 3.6 -6.4)
+		(end 3.6 6.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 3.6 6.4)
+		(end -3.6 6.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -3.6 6.4)
+		(end -3.6 -6.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -3.9 -6.7)
+		(end 3.9 -6.7)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 3.9 -6.7)
+		(end 3.9 6.7)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 3.9 6.7)
+		(end -3.9 6.7)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -3.9 6.7)
+		(end -3.9 -6.7)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -5.95 -6.9)
+		(end 5.95 -6.9)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 5.95 -6.9)
+		(end 5.95 6.9)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 5.95 6.9)
+		(end -5.95 6.9)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -5.95 6.9)
+		(end -5.95 -6.9)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_circle
+		(center -4.875 -6.5)
+		(end -4.725 -6.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+	)
+	(pad "1" smd rect
+		(at -4.875 -5.715)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "20" smd rect
+		(at 4.875 -5.715)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at -4.875 -4.445)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "19" smd rect
+		(at 4.875 -4.445)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "3" smd rect
+		(at -4.875 -3.175)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "18" smd rect
+		(at 4.875 -3.175)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "4" smd rect
+		(at -4.875 -1.905)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "17" smd rect
+		(at 4.875 -1.905)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "5" smd rect
+		(at -4.875 -0.635)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "16" smd rect
+		(at 4.875 -0.635)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "6" smd rect
+		(at -4.875 0.635)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "15" smd rect
+		(at 4.875 0.635)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "7" smd rect
+		(at -4.875 1.905)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "14" smd rect
+		(at 4.875 1.905)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "8" smd rect
+		(at -4.875 3.175)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "13" smd rect
+		(at 4.875 3.175)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "9" smd rect
+		(at -4.875 4.445)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "12" smd rect
+		(at 4.875 4.445)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "10" smd rect
+		(at -4.875 5.715)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "11" smd rect
+		(at 4.875 5.715)
+		(size 1.65 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+)

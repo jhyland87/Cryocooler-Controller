@@ -9,28 +9,28 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Component | Part | Interface | Address / Pin | Purpose |
 |-----------|------|-----------|---------------|---------|
 | Microcontroller | ESP32-S3 DevKitC-1-N32R16V | — | — | Host MCU (32 MB flash, 16 MB PSRAM) |
-| Cold-stage sensor | ADS1220 + PT1000 RTD | SPI mode 1 (main bus) | CS: GPIO 44 | Cold-stage temperature (4-wire, ratiometric) |
-| Waveform generator | AD9833 DDS | SPI (main bus) | FSYNC (CS): GPIO 7 | 60 Hz sine wave for compressor |
-| DAC | MCP4921 12-bit | SPI (main bus) | CS: GPIO 5 | Amplifier amplitude control |
-| Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: GPIO 3 | 12 V rail voltage, current and power |
-| IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: GPIO 1, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
+| Cold-stage sensor | ADS1220 + PT1000 RTD | SPI mode 1 (main bus) | CS: decoder Y6 | Cold-stage temperature (4-wire, ratiometric) |
+| Waveform generator | AD9833 DDS | SPI (main bus) | FSYNC (CS): decoder Y0 | 60 Hz sine wave for compressor |
+| DAC | AD5453 14-bit multiplying | SPI mode 1 (main bus), write only | SYNC: decoder Y1 | Amplifier amplitude control |
+| Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: decoder Y2, ALERT: expander GP6 | 12 V rail voltage, current and power |
+| IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: decoder Y7, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
 | Fan / pump | 4-pin PWM through BSS138 drivers | LEDC PWM + PCNT tach | PWM: GPIO 9 / 14, tach: GPIO 15 / 21 | Cooling fan + pump |
-| Current sensor | ACS37800 behind an ISO7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
+| Current sensor | ACS37800-015B5 (±15 A) behind an ISOW7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
 | Compressor relay | BSS138 → BSS84 high-side +12 V switch (130 mA max) | GPIO | GPIO 16 | Compressor relay on/off |
 | Amplifier relay | BSS138 → BSS84 high-side switch | GPIO | GPIO 6 | Amplifier REM line on/off |
 | Coolant flow sensor | Alphacool ES (Hall-effect) | GPIO | GPIO 18 | Coolant flow pulses |
 | Coolant temperature | NTC thermistor | ADC | GPIO 4 | Coolant temp via voltage divider |
-| Status LED | WS2812 RGB | GPIO | GPIO 38 | Fault / Ready indication |
-| FAULT / READY LEDs | Discrete LEDs | GPIO | GPIO 14 / GPIO 15 | Fault / Ready indication |
-| Power kill | LTC2954 KILL input | GPIO | GPIO 10 | Cuts system power |
+| Status LED | WS2812B-2020 RGB | GPIO | GPIO 38 | Fault / Ready indication |
+| Expander | MCP23S08 | SPI (main bus) | CS: decoder Y3 | ±15 V flags, backlight, INA239 ALERT, touch IRQ, 3 spare pins |
+| Power button | LTC2954 INT# / KILL# | GPIO | GPIO 1 / GPIO 10 | Button press ramps down, then cuts system power |
 
 **I2C:** none. Every peripheral is on SPI or a GPIO.
 
-**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, MCP4921, the LSM6DSOX (on a cable, header J14), INA239 and ADS1220, each with its own chip select. The INA239 and ADS1220 use SPI mode 1 and their data outputs are high-impedance while CS is high. The ADS1220 chip select is on GPIO 44 (U0RXD); the console is native USB, so UART0 is free, and its DRDY pin is not wired to the MCU.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display and touch controller. Their chip selects come from the SN74LVC138A decoder, driven from GPIO 3, 44, 45 and 8. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
 
 **ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
 
-**Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 1 kΩ series resistor and a 4.7 kΩ pull-up to 3.3 V.
+**Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 4.7 kΩ series resistor, a clamp on the GPIO side, and a 4.7 kΩ pull-up to 3.3 V.
 
 **INA239 ALERT:** drives its red LED only; it is not wired to the MCU, and the firmware does not read it.
 
@@ -61,7 +61,7 @@ flowchart TD
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
         COOL[cooling<br/>PWM fan + pump<br/>software LUT]
         CH[cold_head<br/>ADS1220 PT1000 RTD]
-        AMP[amplifier<br/>AD9833 + MCP4921 DAC + ACS37800]
+        AMP[amplifier<br/>AD9833 + AD5453 DAC + ACS37800]
         COMP[compressor<br/>relay GPIO]
         IND[indicator<br/>WS2812 RGB LED]
     end
@@ -160,7 +160,7 @@ Uses a non-blocking two-phase state machine: start single-shot conversion → wa
 
 ### amplifier
 
-Drives the AD9833 DDS (60 Hz sine wave), the MCP4921 12-bit SPI DAC (amplifier amplitude), the amplifier relay (GPIO 6) and the ACS37800 current sensor. Provides two ramp modes:
+Drives the AD9833 DDS (60 Hz sine wave), the AD5453 14-bit multiplying SPI DAC (amplifier amplitude), the amplifier relay (GPIO 6) and the ACS37800 current sensor. Provides two ramp modes:
 
 - `rampToVoltage(target)` — smooth ramp at ±`DAC_MAX_STEP_PER_INTERVAL` per tick
 - `rampTowardShutdown(target)` — fast ramp at ±`DAC_SHUTDOWN_STEP_PER_INTERVAL` per tick
@@ -284,7 +284,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
 | `cooling pump <N>` | Set pump: raw duty (0–255) or percent (0–100%) |
 | `set vout <V>` | Set DAC output voltage (0–120 V, 0–100 %, or `auto`) |
-| `dac raw <N>` | Raw SPI write to the MCP4921 (0–4095), bypassing firmware DAC management |
+| `dac raw <N>` | Raw SPI write to the AD5453 (0–16383), bypassing firmware DAC management |
 | `get vout` | Get current DAC output voltage |
 | `relay` | Show current state of both relays |
 | `relay amplifier on/off` | Control amplifier relay |

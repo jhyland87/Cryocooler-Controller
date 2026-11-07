@@ -92,18 +92,26 @@ void test_pg_millis_wraparound(void) {
 }
 
 void test_rail_flags_all_good(void) {
-    // bits 1-4 high, bit 0 (not a flag here) don't care
-    const RailFlags flags = decodeRailFlags(0b11110, 1, 2, 3, 4);
+    // bits 1-2 high, bit 0 (not a flag here) don't care
+    const RailFlags flags = decodeRailFlags(0b00110, 1, 2);
     TEST_ASSERT_TRUE(flags.allGood());
 }
 
 void test_rail_flags_name_the_bad_rail(void) {
-    const RailFlags flags = decodeRailFlags(0b10111, 1, 2, 3, 4);  // GPIO3 low
-    TEST_ASSERT_TRUE(flags.posLdo);
-    TEST_ASSERT_TRUE(flags.negLdo);
-    TEST_ASSERT_FALSE(flags.posBoost);
-    TEST_ASSERT_TRUE(flags.negInvert);
+    const RailFlags flags = decodeRailFlags(0b00010, 1, 2);  // pin 2 low
     TEST_ASSERT_FALSE(flags.allGood());
+    TEST_ASSERT_TRUE(flags.posLdo);
+    TEST_ASSERT_FALSE(flags.negLdo);
+}
+
+void test_power_off_waits_for_zero_amplitude(void) {
+    TEST_ASSERT_FALSE(powerOffReady(832, 100, 5000));
+    TEST_ASSERT_TRUE(powerOffReady(0, 100, 5000));
+}
+
+void test_power_off_timeout_overrides_stuck_ramp(void) {
+    TEST_ASSERT_FALSE(powerOffReady(832, 4999, 5000));
+    TEST_ASSERT_TRUE(powerOffReady(832, 5000, 5000));
 }
 
 void run_power_good_tests() {
@@ -117,4 +125,6 @@ void run_power_good_tests() {
     RUN_TEST(test_pg_millis_wraparound);
     RUN_TEST(test_rail_flags_all_good);
     RUN_TEST(test_rail_flags_name_the_bad_rail);
+    RUN_TEST(test_power_off_waits_for_zero_amplitude);
+    RUN_TEST(test_power_off_timeout_overrides_stuck_ramp);
 }

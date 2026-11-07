@@ -21,7 +21,7 @@
 // A/B/C pick the output and G2A enables it (10 kOhm pull-up holds it off at boot).
 // GPIO3 and GPIO45 are strapping pins: 10 kOhm resistors hold GPIO3 high (default
 // USB-JTAG) and GPIO45 low at reset. GPIO44 is U0RXD; the console is native USB
-// CDC, so UART0 is unused. GPIO1, 5, 7 and 47 are free.
+// CDC, so UART0 is unused. GPIO5 and GPIO7 (3.3 V, ADC1) and GPIO47 (1.8 V only) are free.
 #define CS_ADDR_A_PIN      3
 #define CS_ADDR_B_PIN      44
 #define CS_ADDR_C_PIN      45
@@ -38,8 +38,8 @@
 // EXPANDER_PIN_* map below. RESET is tied high; INT is not wired to the MCU.
 #define EXPANDER_CS_PIN    (CS_ID_BASE + 3)
 
-// MCP4921 SPI DAC — amplitude control (shares SPI bus with AD9833)
-#define MCP4921_CS         (CS_ID_BASE + 1)
+// AD5453 14-bit multiplying DAC — amplitude control. SPI mode 1, writes only.
+#define AD5453_SYNC        (CS_ID_BASE + 1)
 
 // INA239 power monitor — SPI mode 1 on the shared SPI bus (MISO is Hi-Z when CS is high).
 #define INA239_CS          (CS_ID_BASE + 2)
@@ -49,7 +49,7 @@
 #define ADS1220_CS         (CS_ID_BASE + 6)
 
 // LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
-// cabled to header J14; SPI on the shared bus (AD9833, MCP4921, ...).
+// cabled to header J14; SPI on the shared bus (AD9833, AD5453, ...).
 #define LSM6DSOX_CS        (CS_ID_BASE + 7)    // J14 pin 6
 #define LSM6DSOX_INT1_PIN  2    // J14 pin 7
 #define LSM6DSOX_INT2_PIN  39   // J14 pin 8
@@ -59,28 +59,23 @@
 // =============================================================================
 #define AD9833_CS          (CS_ID_BASE + 0)    // Chip Select for AD9833
 
-// =============================================================================
-// Discrete Indicator Outputs
-// =============================================================================
-// The FAULT and READY LEDs are on the GPIO expander (EXPANDER_PIN_FAULT_IND and
-// EXPANDER_PIN_READY_IND, active HIGH).  The WS2812 (STATUS_LED_PIN) still
-// works if the expander or SPI bus is down.
-
 // Compressor relay driver (active HIGH): BSS138 + BSS84 high-side switch puts
-// +12 V on the compressor relay terminal (130 mA max).  GPIO16 used to carry
-// the optional LTC2954 INT# line, which is no longer wired to the MCU.
+// +12 V on the compressor relay terminal (130 mA max).
 #define COMPRESSOR_RELAY_PIN 16
 
-// Power kill switch (active LOW).
+// LTC2954 power button handshake. INT# pulses low (32 ms minimum, 10 kOhm
+// pull-up R8) when the button asks for power-off; driving KILL# low releases
+// the supply. The LTC2954 cuts power by itself if the button is held 6.4 s.
+#define PWR_INT_PIN       1
 #define PWR_KILL_PIN      10
 
 // =============================================================================
-// SPI Bus (AD9833, MCP4921, LSM6DSOX, INA239, ADS1220, MCP23S08)
+// SPI Bus (AD9833, AD5453, LSM6DSOX, INA239, ADS1220, MCP23S08, ST7789V, TSC2046)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
 #define SPI_MISO          40    // Master In Slave Out  (read by the LSM6DSOX, INA239 and ADS1220)
-#define SPI_MOSI          41    // Master Out Slave In  (MCP4921 SDI + AD9833 SDATA + LSM6DSOX SDI + INA239 MOSI)
+#define SPI_MOSI          41    // Master Out Slave In  (AD5453 SDIN + AD9833 SDATA + LSM6DSOX SDI + INA239 MOSI)
 #define SPI_CLK           42    // SPI Clock
 
 
@@ -107,7 +102,7 @@
 #define COOLING_PUMP_PWM_PIN     14
 
 // Fan and pump tach inputs (open collector, 2 pulses per revolution), pulled up
-// to 3.3 V at the connector, with a 1 kΩ series resistor to the GPIO.
+// to 3.3 V at the connector, with a 4.7 kΩ series resistor and a clamp to the GPIO.
 #define COOLING_FAN_TACH_PIN     15
 #define COOLING_PUMP_TACH_PIN    21
 
@@ -152,12 +147,12 @@
 // =============================================================================
 #define EXPANDER_PIN_PGP_15V         0   // input: LT3097 +15 V power good
 #define EXPANDER_PIN_PGN_15V         1   // input: LT3097 -15 V power good
-#define EXPANDER_PIN_PGP_16V5        2   // input: LT8582 +16.4 V power good (PG1)
-#define EXPANDER_PIN_PGN_16V5        3   // input: LT8582 -16.5 V power good (PG2)
+#define EXPANDER_PIN_SPARE_2         2   // input with weak pull-up, not wired
+#define EXPANDER_PIN_SPARE_3         3   // input with weak pull-up, not wired
 #define EXPANDER_PIN_DISP_BL         4   // output: display backlight enable
-#define EXPANDER_PIN_READY_IND       5   // output: READY LED (active HIGH)
-#define EXPANDER_PIN_FAULT_IND       6   // output: FAULT LED (active HIGH)
-#define EXPANDER_PIN_SPARE           7   // input with weak pull-up, not wired
+#define EXPANDER_PIN_SPARE_5         5   // input with weak pull-up, not wired
+#define EXPANDER_PIN_INA239_ALERT    6   // input: INA239 ALERT (active LOW, R9 pull-up)
+#define EXPANDER_PIN_TOUCH_IRQ       7   // input: TSC2046 PENIRQ (active LOW, internal pull-up)
 
 // =============================================================================
 

@@ -23,6 +23,8 @@
 #include "imu.h"
 #include "sensor_mock.h"
 #include "spi_device.h"
+#include "gpio_expander.h"
+#include "pin_config.h"
 
 // ── INA239 readings ─────────────────────────────────────────────────────────
 static float voltage = 0.0f;
@@ -125,8 +127,20 @@ module::InitStatus init() {
 }
 
 
+/** Log each change of INA239 ALERT (active low), read through the expander. */
+static void pollPowerAlert() {
+    static bool sAlertAsserted = false;
+    const bool asserted = gpio_expander::pinLow(EXPANDER_PIN_INA239_ALERT);
+    if (asserted == sAlertAsserted) {
+        return;
+    }
+    sAlertAsserted = asserted;
+    ESP_LOGW("sysinfo", "INA239 ALERT %s", asserted ? "asserted" : "cleared");
+}
+
 module::ServiceStatus service() {
     updateCpuUsage();
+    pollPowerAlert();
 
     if (sensor_mock::isActive()) {
         const auto& mo = sensor_mock::get();

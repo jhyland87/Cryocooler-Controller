@@ -1,0 +1,8 @@
+* AD5453 behavioural model (hand-written, not an Analog Devices model).
+* R-2R ladder seen from VREF as 9k, IOUT1 = VREF x code / 16384 / 9k, 9k feedback resistor.
+* Digital pins are not modelled; set the code with the CODE parameter.
+.subckt AD5453 iout gnd vref rfb params: code=16383
+Rladder vref gnd 9k
+Biout gnd iout I=V(vref,gnd)*{code}/16384/9k
+Rfb iout rfb 9k
+.ends AD5453

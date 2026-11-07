@@ -4,14 +4,14 @@
  *
  * Owns the full amplifier signal chain:
  *   AD9833 waveform generator  →  amplifier board  →  ACS37800 power monitor
- *   MCP4921 12-bit SPI DAC                              (amplitude control)
+ *   AD5453 14-bit multiplying SPI DAC                   (amplitude control)
  *
  * The former dac / waveform / rms modules have been consolidated here.
  *
- * MCP4921 SPI protocol notes:
- *   16-bit frame: [0 BUF GA SHDN D7..D0 xxxx].  We use unbuffered, 1× gain,
- *   active mode (0x3000 | data<<4).  SPI Mode 0, up to 20 MHz clock.
- *   The DAC output is volatile — resets to 0 on power cycle.
+ * AD5453 SPI protocol notes:
+ *   16-bit frame: [C1 C0 D13..D0].  C1,C0 = 00 loads and updates the output;
+ *   C1,C0 = 11 switches the data clock edge and must never be sent.  SPI mode 1
+ *   (data sampled on the falling edge), up to 50 MHz.  Powers up at zero scale.
  */
 
 #include <Arduino.h>
@@ -34,7 +34,7 @@
 #include "gpio_expander.h"
 #include "spi_device.h"
 
-/// How often the four expander-read rail flags are sampled (ms).
+/// How often the expander-read rail flags are sampled (ms).
 static constexpr uint32_t RAIL_FLAG_POLL_MS = 250;
 
 // ---------------------------------------------------------------------------
@@ -45,7 +45,7 @@ static constexpr char TAG[] = "amplifier";
 static LogStream _Log = Log.createChildLogger("amplifier");
 
 
-/// Set true by initDac() once the MCP4921 CS pin is configured and a test
+/// Set true by initDac() once the AD5453 SYNC pin is configured and a test
 /// write completes.  Guards dacWrite() so that hardStop() / setOutput()
 /// never fire SPI transactions before init.
 static bool sDacAvailable = false;
@@ -64,9 +64,13 @@ static MD_AD9833 ad9833_(sWaveformChipSelect.chipSelectId());
 static ACS37800 acs_(&hardware::acsSpi(), ACS37800_CS);
 static bool sAcsAvailable = false;
 
-// MCP4921 12-bit SPI DAC — amplitude control
-// SPI settings: Mode 0 (CPOL=0 CPHA=0), MSB first, 4 MHz (MCP4921 supports up to 20 MHz)
-static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
+// AD5453 14-bit multiplying SPI DAC — amplitude control
+// SPI settings: Mode 1 (CPOL=0 CPHA=1), MSB first, 4 MHz (AD5453 supports up to 50 MHz)
+static const SpiDevice sDac(AD5453_SYNC, SPISettings(4e6, MSBFIRST, SPI_MODE1));
+// 14 data bits; the top two bits are C1,C0 = 00 (load and update).
+static constexpr uint16_t DAC_DATA_MASK = 0x3FFFu;
+// rampTo() ignores differences this small to avoid chasing temperature noise.
+static constexpr int32_t DAC_DEADBAND_COUNTS = 4;
 uint16_t dacCurrent_ = 0u;
 
 // Manual vout override — set by the "set vout" command to prevent the FSM
@@ -161,7 +165,7 @@ static void logRailChange(const char* rail, bool good) {
 }
 
 /**
- * Read the four +-15 V power-good flags through the expander every
+ * Read the +-15 V power-good flags through the expander every
  * RAIL_FLAG_POLL_MS and log each one that changed, so a fault names the rail.
  */
 static void pollRailFlags() {
@@ -173,17 +177,13 @@ static void pollRailFlags() {
     const int16_t state = gpio_expander::readPins();
     if (state < 0) return;
     const RailFlags flags = decodeRailFlags(static_cast<uint8_t>(state), EXPANDER_PIN_PGP_15V,
-                                            EXPANDER_PIN_PGN_15V, EXPANDER_PIN_PGP_16V5,
-                                            EXPANDER_PIN_PGN_16V5);
+                                            EXPANDER_PIN_PGN_15V);
     if (sRailFlagsValid) {
         if (flags.posLdo != sRailFlags.posLdo) logRailChange("+15 V (LT3097)", flags.posLdo);
         if (flags.negLdo != sRailFlags.negLdo) logRailChange("-15 V (LT3097)", flags.negLdo);
-        if (flags.posBoost != sRailFlags.posBoost) logRailChange("+16.4 V (LT8582)", flags.posBoost);
-        if (flags.negInvert != sRailFlags.negInvert) logRailChange("-16.5 V (LT8582)", flags.negInvert);
     } else {
-        _Log.printf("Rail flags: +15V %s, -15V %s, +16.4V %s, -16.5V %s\n",
-                    flags.posLdo ? "ok" : "BAD", flags.negLdo ? "ok" : "BAD",
-                    flags.posBoost ? "ok" : "BAD", flags.negInvert ? "ok" : "BAD");
+        _Log.printf("Rail flags: +15V %s, -15V %s\n",
+                    flags.posLdo ? "ok" : "BAD", flags.negLdo ? "ok" : "BAD");
     }
     sRailFlags      = flags;
     sRailFlagsValid = true;
@@ -194,16 +194,13 @@ static void pollRailFlags() {
 // ---------------------------------------------------------------------------
 
 /**
- * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the MCP4921 DAC via SPI.
+ * Write @p dacVal (0–AMPLIFIER_RESOLUTION) to the AD5453 DAC via SPI.
  * The cached value is checked first so unchanged set-points do not
  * generate unnecessary SPI traffic.
  *
- * MCP4921 16-bit command frame:
- *   Bit 15   : 0      (channel A — only channel on MCP4921)
- *   Bit 14   : BUF=0  (unbuffered Vref input)
- *   Bit 13   : GA=1   (1× output gain)
- *   Bit 12   : SHDN=1 (active mode, output enabled)
- *   Bits 11-0: D11..D0 (12-bit data)
+ * AD5453 16-bit command frame:
+ *   Bits 15-14: C1,C0 = 00 (load and update)
+ *   Bits 13-0 : D13..D0 (14-bit data)
  */
 static void dacWrite(uint16_t dacVal) {
     if (!sDacAvailable) return;
@@ -212,7 +209,7 @@ static void dacWrite(uint16_t dacVal) {
 
     ESP_LOGD(TAG, "Writing DAC value: %u", dacVal);
 
-    const uint16_t cmd = 0x3000u | (dacVal & 0x0FFFu);
+    const uint16_t cmd = dacVal & DAC_DATA_MASK;
     {
         SpiTransaction transaction(sDac);
         transaction.transfer16(cmd);
@@ -260,19 +257,19 @@ module::InitStatus init() {
     // -- +-15 V power good ----------------------------------------------------
     initPowerGood();
 
-    // -- MCP4921 DAC -----------------------------------------------------------
-    // This is the multiplier voltage that gets passed to the AD633 voltage
-    // multiplier to multiply the sine wave output.
-    _Log.println(F("Initializing MCP4921 (DAC - Amplitude Control)..."));
+    // -- AD5453 DAC ------------------------------------------------------------
+    // Multiplying DAC: its code scales the sine wave on VREF, which sets the
+    // amplitude sent to the amplifier.
+    _Log.println(F("Initializing AD5453 (DAC - Amplitude Control)..."));
     {
         const module::InitStatus status = initDac();
         if (status != module::MODULE_INIT_SUCCESS) {
-            ESP_LOGE(TAG, "MCP4921 initialization failed: %d", static_cast<int>(status));
-            _Log.printf("MCP4921 initialization failed: %d\n", static_cast<int>(status));
+            ESP_LOGE(TAG, "AD5453 initialization failed: %d", static_cast<int>(status));
+            _Log.printf("AD5453 initialization failed: %d\n", static_cast<int>(status));
             return status;
         }
     }
-    _Log.println(F("MCP4921 DAC initialized"));
+    _Log.println(F("AD5453 DAC initialized"));
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
@@ -290,7 +287,7 @@ module::InitStatus init() {
 
     // -- AD9833 waveform generator --------------------------------------------
     // This is the waveform generator that generates the sine wave that is
-    // passed to the AD633 voltage multiplier.
+    // amplified onto the AD5453 reference input.
     _Log.println(F("Initializing AD9833 (DDS - Waveform Generator)..."));
     {
         const module::InitStatus status = initWaveform();
@@ -307,8 +304,8 @@ module::InitStatus init() {
 }
 
 module::InitStatus initDac() {
-    // MCP4921 is an SPI device — no address probing needed.  Just configure
-    // the CS pin and write zero to ensure the output starts at 0 V.
+    // AD5453 is write-only SPI — no probing is possible.  Just configure
+    // the SYNC line and write zero to ensure the output starts at 0 V.
     // The SPI bus is already initialised by hardware::initSPI().
     sDac.begin();
 
@@ -319,7 +316,7 @@ module::InitStatus initDac() {
     // (SPI has no ACK mechanism, so we trust the write).
     setOutput(0.0f);
 
-    ESP_LOGI(TAG, "MCP4921 SPI DAC initialised (CS decoder Y%d, 12-bit, %u full-scale)",
+    ESP_LOGI(TAG, "AD5453 SPI DAC initialised (CS decoder Y%d, 14-bit, %u full-scale)",
              sDac.chipSelectId() - CS_ID_BASE, AMPLIFIER_RESOLUTION);
     return module::MODULE_INIT_SUCCESS;
 }
@@ -361,7 +358,7 @@ module::InitStatus initAcs() {
         return module::MODULE_INIT_SUCCESS;  // non-fatal
     }
 
-    acs_.setBoardPololu(4);
+    acs_.setBoardParameters(ACS37800_CURRENT_RANGE_A, ACS37800_RISO_OHMS, ACS37800_RSENSE_OHMS);
     acs_.setSampleCount(0);
 
     sAcsAvailable = true;
@@ -493,9 +490,8 @@ static uint16_t fractionToDac(float fraction) {
 
 void rampTo(float fraction, uint16_t rampRate) {
     const uint16_t dacTarget = fractionToDac(fraction);
-    // Dead-band: ignore ±1 count differences to avoid chasing temperature noise.
     const int32_t diff = static_cast<int32_t>(dacTarget) - static_cast<int32_t>(dacCurrent_);
-    if (diff >= -1 && diff <= 1) return;
+    if (diff >= -DAC_DEADBAND_COUNTS && diff <= DAC_DEADBAND_COUNTS) return;
     dacRampInternal(dacTarget, rampRate);
 }
 

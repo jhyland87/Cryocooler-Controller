@@ -36,3 +36,9 @@
 (rule usb_c_own_holes
   (condition "A.memberOfFootprint('J1') && B.memberOfFootprint('J1')")
   (constraint hole_clearance (min 0mm)))
+
+# NUF4001MU ground pad sits 0.125 mm from the signal pads in the maker's land
+# pattern (onsemi case 517AD); JLCPCB's copper spacing minimum is 0.09 mm
+(rule nuf4001_own_pads
+  (condition "(A.memberOfFootprint('U36') && B.memberOfFootprint('U36')) || (A.memberOfFootprint('U37') && B.memberOfFootprint('U37'))")
+  (constraint clearance (min 0.12mm)))

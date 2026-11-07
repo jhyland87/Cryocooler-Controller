@@ -28,7 +28,7 @@ R1206 = 'Resistor_SMD:R_1206_3216Metric'
 R2512 = 'Resistor_SMD:R_2512_6332Metric'
 C0402 = 'Capacitor_SMD:C_0402_1005Metric'
 C0603 = 'Capacitor_SMD:C_0603_1608Metric'
-SMALL_CAPS = ('100nF', '10nF', '1nF', '1nF/C0G', '4.7nF', '2.2nF', '47pF')
+SMALL_CAPS = ('100nF', '10nF', '1nF/C0G', '120pF', '2pF/C0G')
 C0805 = 'Capacitor_SMD:C_0805_2012Metric'
 C1206 = 'Capacitor_SMD:C_1206_3216Metric'
 C1210 = 'Capacitor_SMD:C_1210_3225Metric'
@@ -59,14 +59,20 @@ INDUCTOR = 'cryocooler:L_Bourns_SRP7050TA'
 PITCH = 12.7
 
 # Parts added after the first release take numbers above these, clear of
-# the sequentially numbered parts (raised for rev 2, whose LT8582 stage has
+# the sequentially numbered parts (raised for rev 2, whose +-15 V stage had
 # more parts than the ADP5071 stage it replaced).
 NEW_REFS = {'R': 150, 'C': 120, 'D': 40, 'Q': 20}
 
-# The LT8582 output capacitors also serve as the LT3097 inputs. No 22 uF / 50 V
+# The ADP5071 output capacitors also serve as the LT3097 inputs. No 22 uF / 50 V
 # X7R 1210 could be sourced, so the rails use 25 V parts, doubled on -16V5 and
 # both LT3097 outputs to hold the required 10 uF effective at 15 V DC.
 RAIL_CAP = '22uF/25V X7R'
+
+# Rev 3 parts take numbers above everything earlier, so a surviving part keeps
+# its reference. The R, C and D sort by MPN happens before the board is laid out.
+REV3_REFS = {'R': 200, 'C': 200, 'D': 60, 'Q': 40, 'U': 32, 'L': 3, 'FB': 0}
+BEAD_0402 = 'Inductor_SMD:L_0402_1005Metric'
+BEAD_0603 = 'Inductor_SMD:L_0603_1608Metric'
 
 
 @contextmanager
@@ -77,6 +83,19 @@ def high_refs(prefix):
     with kicadgen.pinned_refs(prefix, NEW_REFS[prefix]):
         yield
         NEW_REFS[prefix] = kicadgen._ref_counters[prefix]
+
+
+@contextmanager
+def rev3_refs(*prefixes):
+    """Numbers parts created inside the block from the rev 3 ranges."""
+    counters = kicadgen._ref_counters
+    saved = {prefix: counters[prefix] for prefix in prefixes}
+    for prefix in prefixes:
+        counters[prefix] = REV3_REFS[prefix]
+    yield
+    for prefix in prefixes:
+        REV3_REFS[prefix] = counters[prefix]
+        counters[prefix] = saved[prefix]
 
 
 def grid(value):
@@ -110,7 +129,7 @@ def cap(sh, value, a, b='GND', near=None, fp=None, pose=None):
     fp = fp or (
         C0402
         if value in SMALL_CAPS
-        else C0603 if value == '1uF'
+        else C0603 if value in ('1uF', '47nF', '68nF')
         else C0805 if value in ('2.2uF', '4.7uF', '10uF') else C1206
     )
     px, py, prot = pose or (0, 0, 0)
@@ -260,7 +279,7 @@ def decouple(sh, near, rail, values=('100nF',), gnd='GND'):
 # index (include/config/pin_config.h). The order follows the routed board.
 CS_DECODER_OUTPUTS = (
     ('15', 'AD9833_FSYNC'),
-    ('14', 'MCP4921_CS'),
+    ('14', 'AD5453_SYNC'),
     ('13', 'INA239_CS'),
     ('12', 'EXPANDER_CS'),
     ('11', 'DISP_CS'),
@@ -340,7 +359,7 @@ def cs_decoder(sh):
 
 def build_mcu(sh):
     """Hand-laid root sheet: ESP32 in the middle, boot/reset circuits left,
-    USB-C right, I2C pull-ups below.
+    USB-C right, SPI chip select decoder below.
     """
     sh.handwired = True
     sh.note(
@@ -360,6 +379,7 @@ def build_mcu(sh):
     )
     left = {
         '38': 'IMU_INT1',
+        '39': 'PWR_INT',
         '4': 'NTC_ADC',
         '6': 'AMP_REM_EN',
         '12': 'CS_EN_N',
@@ -392,8 +412,8 @@ def build_mcu(sh):
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
     for pin, net in right.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 0, is_global=True)
-    # 28-30 are NC on the module; GPIO1, 5, 7 and 47 are spare
-    for pin in ('28', '29', '30', '39', '5', '7', '24'):
+    # 28-30 are NC on the module; GPIO5, GPIO7 and GPIO47 (1.8 V) are spare
+    for pin in ('28', '29', '30', '5', '7', '24'):
         sh.nc(esp, pin)
     cs_decoder(sh)
     # supplies
@@ -402,7 +422,7 @@ def build_mcu(sh):
     rail_symbol(sh, '+3V3', (vdd[0], 72))
     place_blocks(
         sh,
-        [('ESP32-S3 DECOUPLING CAPACITORS', '+3V3', ('10uF', '100nF'))],
+        [('ESP32-S3 DECOUPLING CAPACITORS', '+3V3', ('22uF/10V', '100nF'))],
         190,
         38,
     )
@@ -425,7 +445,7 @@ def build_mcu(sh):
         74 * 1.27,
         rot=270,
         auto=False,
-        footprint='cryocooler:SW_CK_PTS810',
+        footprint='cryocooler:SW_Panasonic_EVQ-P2F',
     )
     wire(sh, (108, 70), pin_cell(sw_reset, '1'))
     ground(sh, pin_cell(sw_reset, '2'))
@@ -446,7 +466,7 @@ def build_mcu(sh):
         (boot[1] + 4) * 1.27,
         rot=270,
         auto=False,
-        footprint='cryocooler:SW_CK_PTS810',
+        footprint='cryocooler:SW_Panasonic_EVQ-P2F',
     )
     wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
@@ -591,7 +611,7 @@ def build_power_input(sh):
         pose=at(60, 63, 270),
     )
     drop_ground(sh, (60, 66), 0)
-    cap_pol(sh, '100uF/25V', '', '', pose=at(70, 63), fp=CP_ELEC)
+    cap_pol(sh, '100uF/35V', '', '', pose=at(70, 63), fp=CP_ELEC)
     drop_ground(sh, (70, 66), 0)
     cap(sh, '100nF', '', '', pose=at(80, 63), fp=C0805)
     drop_ground(sh, (80, 66), 0)
@@ -599,40 +619,41 @@ def build_power_input(sh):
 
 def build_power_button(sh):
     """Hand-laid: LTC2954 controller top left, P-FET power switch right,
-    power-state LED bridge below.
+    standby LED below.
     """
     sh.handwired = True
     sh.note(
-        'LTC2954-2: tap PB = on, hold = off. EN# drives the P-FET gate; '
-        'KILL# from GPIO10 (active low, 100 ms pulse).',
+        'LTC2954-2: tap PB = on, hold = off. EN# drives the P-FET gate; KILL# from '
+        'GPIO10 (active low, 100 ms pulse). INT# tells GPIO1 to shut down cleanly; '
+        'holding PB cuts power about 6.4 s later (1 uF on PDT).',
         20,
         15,
     )
     sh.note(
-        'PWR_ON follows the +3V3 rail: on = green, standby = red. CL25 (25 '
-        'mA) feeds both legs, ~9 mA reaches the LED, ~25 mA total from VIN '
-        'in standby',
+        'Q1 gate: 10k series and 47 nF to the drain limit the ramp to about 20 V/ms; '
+        '470 nF to the source holds Vgs under 1.1 V on a hot plug (10 x Cgd); the '
+        'Zener caps Vgs at 15 V for input transients up to the 26 V TVS clamp.',
         20,
         21,
     )
     u = place_ic(
         sh,
-        'cryocooler:LTC2954CTS8-2',
-        'LTC2954CTS8-2',
+        'cryocooler:LTC2954CDDB-2',
+        'LTC2954CDDB-2',
         60,
         60,
-        'Package_TO_SOT_SMD:SOT-23-8',
+        'Package_DFN_QFN:DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm',
     )
     # supply with bypass above the controller
-    vin_pin = pin_cell(u, '1')
+    vin_pin = pin_cell(u, '4')
     wire(sh, vin_pin, (vin_pin[0], 46))
     rail_symbol(sh, 'VIN', (vin_pin[0], 46))
     place_blocks(
         sh, [('LTC2954 DECOUPLING CAPACITORS', 'VIN', ('100nF',))], 170, 40
     )
-    drop_ground(sh, pin_cell(u, 'GND') if False else pin_cell(u, '4'), 2)
+    gnd_bus(sh, [pin_cell(u, '1'), pin_cell(u, '9')])
     # push button, panel connector, ONT left open
-    pb = pin_cell(u, '2')
+    pb = pin_cell(u, '3')
     wire(sh, pb, (36, pb[1]))
     sw = sh.add(
         'Switch:SW_Push',
@@ -665,9 +686,21 @@ def build_power_button(sh):
         (pin_cell(j_panel, '2')[0] + 2, pin_cell(j_panel, '2')[1]),
     )
     ground(sh, (pin_cell(j_panel, '2')[0] + 2, pin_cell(j_panel, '2')[1]))
-    sh.nc(u, '3')
+    # the panel button sits on a long cable, so its line gets an ESD clamp
+    with rev3_refs('U'):
+        clamp = place_ic(
+            sh,
+            'cryocooler:TPD1E05U06DPYR',
+            'TPD1E05U06DPYR',
+            46,
+            76,
+            'Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
+        )
+    wire(sh, (36, 66), (36, pin_cell(clamp, '1')[1]), pin_cell(clamp, '1'))
+    drop_ground(sh, pin_cell(clamp, '2'), 2)
+    sh.nc(u, '2')
     # KILL#: 220k to the 5 V shunt reference, 10k from the MCU
-    kill = pin_cell(u, '8')
+    kill = pin_cell(u, '5')
     wire(sh, kill, (80, kill[1]))
     vres(sh, '220k', 80, 50)
     vres(sh, '10k', 80, 56)
@@ -687,118 +720,95 @@ def build_power_button(sh):
     )
     sh.nc(ref, '3')
     ground(sh, (88, 50))
-    # PDT cap, EN# to the P-FET gate, INT# with pull-up
-    pdt = pin_cell(u, '7')
+    # PDT cap, EN# to the P-FET gate, INT# with pull-up and its own GPIO
+    pdt = pin_cell(u, '6')
     wire(sh, pdt, (74, pdt[1]))
-    vcap(sh, '100nF', 74, pdt[1])
+    vcap(sh, '1uF', 74, pdt[1])
     drop_ground(sh, (74, pdt[1] + 6), 0)
-    en, intr = pin_cell(u, '6'), pin_cell(u, '5')
-    wire(sh, en, (72, en[1]), (72, 70), (146, 70))
-    wire(sh, intr, (71, intr[1]), (71, 76), (81, 76))
+    en, intr = pin_cell(u, '7'), pin_cell(u, '8')
+    wire(sh, en, (72, en[1]), (72, 70), (100, 70))
+    wire(sh, intr, (71, intr[1]), (71, 76), (76, 76), (81, 76))
     hres(sh, '10k', 84, 76)
     rail_symbol(sh, '+3V3', (87, 76))
     wire(sh, (76, 76), (76, 80))
     test_point(sh, 'LTC2954_INT', (76, 80), rot=180)
-    # high-side P-FET switch
-    q1 = sh.add(
-        'Transistor_FET:IRF4905',
-        next_ref('Q'),
-        'IRF4905S',
-        150 * 1.27,
-        70 * 1.27,
-        rot=180,
-        mirror=True,
-        auto=False,
-        footprint='Package_TO_SOT_SMD:TO-263-3_TabPin2',
+    wire(sh, (71, 76), (71, 90), (78, 90))
+    net_label(sh, 'PWR_INT', (78, 90), 0, is_global=True)
+    # high-side P-FET switch: series resistor, then Zener, Cgs, pull-up and Cgd
+    with rev3_refs('R'):
+        hres(sh, '10k', 103, 70)
+    wire(sh, (106, 70), (112, 70), (124, 70), (134, 70), (144, 70), (160, 70))
+    q1 = place_ic(
+        sh,
+        'cryocooler:AONR21307',
+        'AONR21307',
+        168,
+        72,
+        'cryocooler:AOS_DFN3x3A_8L_EP1',
+        ref_prefix='Q',
     )
-    wire(sh, pin_cell(q1, '1'), (146, 70))
-    vres(sh, '100k', 130, 64)
-    rail_symbol(sh, 'VIN', (130, 64))
-    wire(sh, pin_cell(q1, '3'), (pin_cell(q1, '3')[0], 62))
-    rail_symbol(sh, 'VIN', (pin_cell(q1, '3')[0], 62))
-    drain = pin_cell(q1, '2')
+    wire(sh, (112, 64), (124, 64), (134, 64))
+    rail_symbol(sh, 'VIN', (134, 64))
+    with rev3_refs('D'):
+        zener = diode(
+            sh,
+            'Device:D_Zener',
+            'BZT52C15',
+            '',
+            '',
+            'Diode_SMD:D_SOD-123',
+            pose=at(112, 67, 90),
+        )
+    if pin_cell(zener, '1')[1] > pin_cell(zener, '2')[1]:
+        zener.rot = 270
+    with rev3_refs('C'):
+        vcap(sh, '470nF', 124, 64, fp=C0805)
+        vcap(sh, '47nF', 144, 70)
+    vres(sh, '100k', 134, 64)
+    source, drain = pin_cell(q1, '1'), pin_cell(q1, '5')
+    wire(sh, source, (source[0] + 4, source[1]), (source[0] + 4, source[1] - 8))
+    rail_symbol(sh, 'VIN', (source[0] + 4, source[1] - 8))
     wire(
         sh,
         drain,
-        (drain[0], drain[1] + 2),
-        (drain[0] + 4, drain[1] + 2),
-        (drain[0] + 8, drain[1] + 2),
+        (drain[0] + 10, drain[1]),
+        (drain[0] + 16, drain[1]),
+        (drain[0] + 22, drain[1]),
     )
-    rail_symbol(sh, 'VSW', (drain[0] + 4, drain[1] + 2))
-    rail_flag(sh, (drain[0] + 8, drain[1] + 2))
-    # power-state LED: CL25 limiter feeding a bi-colour LED in an H-bridge of
-    # N-FETs
-    cl = place_ic(
-        sh,
-        'cryocooler:CL25N8-G',
-        'CL25N8-G',
-        44,
-        110,
-        'Package_TO_SOT_SMD:SOT-89-3',
-    )
-    va, vb = pin_cell(cl, '1'), pin_cell(cl, '2')
-    wire(sh, va, (va[0] - 2, va[1]))
-    rail_symbol(sh, 'VIN', (va[0] - 2, va[1]))
-    sh.nc(cl, '3')
-    wire(sh, vb, (60, vb[1]), (90, vb[1]))
-    vres(sh, '330', 60, vb[1], fp=R0603)
-    vres(sh, '330', 90, vb[1], fp=R0603)
-    led = aux(
-        sh,
-        'Device:LED_Dual_Bidirectional',
-        'D',
-        'RED/GREEN',
-        {},
-        pose=at(75, 114),
-        fp=LED1206,
-    )
-    wire(sh, (60, 114), pin_cell(led, '2'))
-    wire(sh, pin_cell(led, '1'), (90, 114))
-    q_a = nfet(sh, 'BSS138', '', '', pose=at(58, 128))
-    wire(sh, (60, 114), pin_cell(q_a, '3'))
-    ground(sh, spur(sh, q_a, '2', 2))
-    q_b = sh.add(
-        'Transistor_FET:BSS138',
-        next_ref('Q'),
-        'BSS138',
-        92 * 1.27,
-        128 * 1.27,
-        rot=0,
-        mirror=True,
-        auto=False,
-        footprint=SOT23,
-    )
-    wire(sh, (90, 114), pin_cell(q_b, '3'))
-    ground(sh, spur(sh, q_b, '2', 2))
-    q_c = sh.add(
-        'Transistor_FET:BSS138',
-        next_ref('Q'),
-        'BSS138',
-        30 * 1.27,
-        128 * 1.27,
-        rot=0,
-        mirror=True,
-        auto=False,
-        footprint=SOT23,
-    )
-    ground(sh, spur(sh, q_c, '2', 2))
-    node = (44, 128)
-    wire(sh, pin_cell(q_a, '1'), node, pin_cell(q_c, '1'))
-    vres(sh, '10k', 44, 122)
-    rail_symbol(sh, '+3V3', (44, 122))
-    vres(sh, '100k', 48, 128)
-    drop_ground(sh, (48, 134), 0)
-    # PWR_ON_N: Q_c drain, Q_b gate and a 100k pull-up to VIN
-    wire(
-        sh,
-        pin_cell(q_c, '3'),
-        (28, 100),
-        (106, 100),
-        (106, 128),
-        pin_cell(q_b, '1'),
-    )
-    vres(sh, '100k', 60, 94)
-    rail_symbol(sh, 'VIN', (60, 94))
+    rail_symbol(sh, 'VSW', (drain[0] + 16, drain[1]))
+    rail_flag(sh, (drain[0] + 22, drain[1]))
+    wire(sh, (144, 76), (144, 80), (drain[0] + 10, 80), (drain[0] + 10, drain[1]))
+    # numbers of the removed CL25, bi-colour LED and its H-bridge
+    kicadgen.retire_refs('U', 1)
+    kicadgen.retire_refs('D', 1)
+    kicadgen.retire_refs('Q', 3)
+    kicadgen.retire_refs('R', 5)
+    # standby LED: on while VIN is present, shorted out once +3V3 is up
+    sh.note('STANDBY LED (about 0.8 mA from VIN, off when +3V3 is up)', 20 * 1.27, 92 * 1.27, 1.8)
+    rail_symbol(sh, 'VIN', (40, 104))
+    wire(sh, (40, 104), (44, 104))
+    with rev3_refs('R', 'D', 'Q'):
+        hres(sh, '13k', 47, 104)
+        indicator = sh.add(
+            'Device:LED',
+            next_ref('D'),
+            'STANDBY (red)',
+            70 * 1.27,
+            107 * 1.27,
+            rot=90,
+            auto=False,
+            footprint=LED0402,
+        )
+        shunt = nfet(sh, 'BSS138', '', '', pose=at(58, 112))
+    if pin_cell(indicator, '2')[1] > pin_cell(indicator, '1')[1]:
+        indicator.rot = 270
+    wire(sh, (50, 104), (60, 104), (70, 104))
+    drop_ground(sh, (70, 110), 2)
+    wire(sh, (60, 104), pin_cell(shunt, '3'))
+    ground(sh, spur(sh, shunt, '2', 2))
+    gate = pin_cell(shunt, '1')
+    wire(sh, gate, (gate[0] - 4, gate[1]))
+    rail_symbol(sh, '+3V3', (gate[0] - 4, gate[1]))
 
 
 def wire(sh, *points):
@@ -904,7 +914,7 @@ TP_NAMES = {
     'ADS1220_DRDY': 'DRDY',
     'EXPANDER_INT': 'EXPINT',
     'TOUCH_IRQ': 'T_IRQ',
-    'ISO_3V3': 'ISO3V3',
+    'ISO_5V': 'ISO5V',
     'ISO_GND': 'ISOGND',
     'FAN_PWM': 'FANPWM',
     'PUMP_PWM': 'PMPPWM',
@@ -990,10 +1000,15 @@ def decoupling_block(sh, title, column, row, supply, values, ground='GND'):
 
 def place_blocks(sh, blocks, column, row, max_column=240, row_pitch=22):
     """Lay out decoupling blocks left to right from (column, row), wrapping to
-    a new row at max_column.
+    a new row at max_column. A number in place of a block retires that many
+    capacitor references.
     """
     x = column
-    for title, supply, values, *ground in blocks:
+    for block in blocks:
+        if isinstance(block, int):
+            kicadgen.retire_refs('C', block)
+            continue
+        title, supply, values, *ground = block
         width = max(12 * len(values) + 6, round(len(title) * 1.4)) + 6
         if x + width > max_column:
             x, row = column, row + row_pitch
@@ -1004,13 +1019,13 @@ def place_blocks(sh, blocks, column, row, max_column=240, row_pitch=22):
 
 
 def build_rails_logic(sh):
-    """Hand-laid sheet: input rail, buck switching loop, output rail, then the
-    3.3 V linear stage.
+    """Hand-laid sheet: input rail, 5 V buck switching loop, output rail, the
+    3.3 V buck, then the +5V / USB power mux.
     """
     sh.handwired = True
     sh.note(
         '12 V -> 5 V (AP63205 buck, datasheet Fig. 1 / Table 3: 4.7 uH, 10 '
-        'uF in, 2 x 22 uF out, 100 nF bootstrap) -> 3.3 V (LD1117S33).',
+        'uF in, 2 x 22 uF out, 100 nF bootstrap) -> 3.3 V (TPS62822 buck, 2 A).',
         20,
         15,
     )
@@ -1019,6 +1034,12 @@ def build_rails_logic(sh):
         'the fixed 5 V output.',
         20,
         21,
+    )
+    sh.note(
+        'TPS62822 (SLUSCY3): VOUT = 0.6 V x (1 + 453k/100k) = 3.32 V, Cff = 12 us / R2 '
+        '= 120 pF, 0.47 uH, 22 uF ceramic out. PG and NC stay open.',
+        20,
+        27,
     )
     u5 = ic(
         sh,
@@ -1049,10 +1070,10 @@ def build_rails_logic(sh):
         sh,
         'Device:L',
         'L',
-        'SRP6050CA-4R7M',
+        'SRP4020TA-4R7M',
         {},
         pose=at(108, 73, 90),
-        fp='cryocooler:L_Bourns_SRP6050CA',
+        fp='cryocooler:L_Bourns_SRP4020TA',
     )
     # output rail with FB feedback and two 22 uF caps
     wire(sh, (111, 73), (121, 73), (127, 73), (142, 73), (154, 73))
@@ -1060,97 +1081,103 @@ def build_rails_logic(sh):
     rail_symbol(sh, '+5V', (121, 73))
     cap(sh, '22uF/10V', '', '', pose=at(127, 76), fp=C1206)
     rail_symbol(sh, 'GND', (127, 79))
-    cap(sh, '22uF/10V', '', '', pose=at(72, 114), fp=C1206)  # LDO input, on +5V_OR
+    cap(sh, '22uF/10V', '', '', pose=at(72, 114), fp=C1206)  # buck input, on +5V_OR
     rail_symbol(sh, 'GND', (72, 117))
     rail_flag(sh, (154, 73))
-    # 3.3 V linear stage
-    u3 = ic(
+    # 3.3 V buck: VIN and EN on +5V_OR, then SW -> 0.47 uH -> +3V3
+    u3 = place_ic(
         sh,
-        'Regulator_Linear:LD1117S33TR_SOT223',
-        'LD1117S33TR',
-        110.49,
-        140.97,
-        {},
-        fp='Package_TO_SOT_SMD:SOT-223-3_TabPin2',
+        'cryocooler:TPS62822DLCR',
+        'TPS62822DLCR',
+        87,
+        115,
+        'Package_SON:Texas_VSON-HR-8_1.5x2mm_P0.5mm',
     )
-    wire(sh, (64, 111), (72, 111), (81, 111))
+    wire(sh, (64, 111), (72, 111), (77, 111), (79, 111))
     rail_symbol(sh, '+5V_OR', (64, 111))
-    wire(sh, (87, 117), (87, 119))
-    rail_symbol(sh, 'GND', (87, 119))
+    wire(sh, pin_cell(u3, '1'), (77, pin_cell(u3, '1')[1]), (77, 111))
+    gnd_bus(sh, [pin_cell(u3, '3'), pin_cell(u3, '5')])
+    sh.nc(u3, '8')
+    sh.nc(u3, '4')
     cap(sh, '22uF/10V', '', '', pose=at(142, 76), fp=C1206)
     rail_symbol(sh, 'GND', (142, 79))
-    wire(sh, (93, 111), (102, 111), (114, 111), (126, 111))
-    rail_symbol(sh, '+3V3', (126, 111))
-    cap_pol(sh, '22uF', '', '', pose=at(102, 114))
-    cap(sh, '100nF', '', '', pose=at(114, 114))
-    for column in (102, 114):
+    with rev3_refs('L'):
+        aux(
+            sh,
+            'Device:L',
+            'L',
+            'SRP4020TA-R47M',
+            {},
+            pose=at(100, 111, 90),
+            fp='cryocooler:L_Bourns_SRP4020TA',
+        )
+    wire(sh, pin_cell(u3, '6'), (97, 111))
+    cap(sh, '22uF/10V', '', '', pose=at(112, 114), fp=C1206)
+    wire(sh, (103, 111), (112, 111), (120, 111), (130, 111), (138, 111), (146, 111), (152, 111))
+    rail_symbol(sh, '+3V3', (146, 111))
+    rail_flag(sh, (152, 111))  # the inductor is passive, so nothing else drives the rail
+    cap(sh, '100nF', '', '', pose=at(120, 114))
+    for column in (112, 120):
         rail_symbol(sh, 'GND', (column, 117))
+    # feedback divider and feed-forward cap
+    with rev3_refs('R', 'C'):
+        vres(sh, '453k', 130, 111)
+        vres(sh, '100k', 130, 117)
+        vcap(sh, '120pF', 138, 111)
+    drop_ground(sh, (130, 123), 0)
+    wire(sh, (138, 117), (136, 117), (130, 117))
+    feedback = pin_cell(u3, '2')
+    wire(sh, feedback, (97, feedback[1]), (97, 129), (136, 129), (136, 117))
     usb_power_path(sh)
     return u5, u3, inductor
 
 
 def usb_power_path(sh):
-    """LM66100 pair (datasheet Fig. 17) feeding +5V_OR from +5V or USB VBUS.
-    U28's ST holds U29 off while +5V feeds the rail, so the two inputs never
-    conduct into each other; with +5V absent the pull-up lets U29 turn on.
+    """TPS2116 feeding +5V_OR from +5V, or from USB VBUS when +5V falls below about
+    4.3 V (0.92-1.08 V at PR1 through 33k / 10k). Priority mode needs MODE on VIN1.
     """
     sh.note(
-        '+5V_OR: USB alone powers +3V3 and the DDS, not the +5V rail or the +-15 V stage. '
-        'LM66100 SLVSEZ8A Fig. 17 (CE to the other input, ST + pull-up to the second CE).',
+        '+5V_OR: USB alone powers +3V3 and the logic, not the +5V rail or the +-15 V stage. '
+        'TPS2116 SLVSEH8 7.6.1: MODE on VIN1, divider VIN1 to PR1 sets the changeover.',
         20,
-        158,
+        178,
     )
     with kicadgen.pinned_refs('U', 27):
-        main_diode = ic(sh, 'cryocooler:LM66100', 'LM66100', 110.49, 215.9, {},
-                        fp=SC70_6)
-        usb_diode = ic(sh, 'cryocooler:LM66100', 'LM66100', 110.49, 254.0, {},
-                       fp=SC70_6)
-    for part in (main_diode, usb_diode):
-        drop_ground(sh, pin_cell(part, '2'), 2)
-        sh.nc(part, '4')
-    # main input: +5V, disabled by a higher VBUS on CE
-    vin = pin_cell(main_diode, '1')
-    wire(sh, vin, (64, vin[1]))
-    rail_symbol(sh, '+5V', (64, vin[1]))
-    enable = pin_cell(main_diode, '3')
-    wire(sh, enable, (64, enable[1]))
-    net_label(sh, 'USB_VBUS', (64, enable[1]), 180, is_global=True)
-    # priority signal: ST pulled up to +5V, drives the USB diode's CE
-    status = pin_cell(main_diode, '5')
-    wire(sh, status, (126, status[1]), (136, status[1]))
-    with kicadgen.pinned_refs('R', 170):
-        vres(sh, '10k', 126, status[1])
-    # the wire above leaves no room for +5V over the signal, so it steps sideways
-    wire(sh, (126, status[1] + 6), (130, status[1] + 6))
-    rail_symbol(sh, '+5V', (130, status[1] + 6))
-    net_label(sh, 'USB_SEL', (136, status[1]), 0)
+        mux = place_ic(
+            sh,
+            'cryocooler:TPS2116DRLR',
+            'TPS2116DRLR',
+            100,
+            160,
+            'Package_TO_SOT_SMD:SOT-583-8',
+        )
+    # main input: +5V, MODE tied to it, divider to PR1
+    vin1, mode, priority = (pin_cell(mux, pin) for pin in ('3', '5', '4'))
+    wire(sh, vin1, (86, vin1[1]), (70, vin1[1]), (62, vin1[1]))
+    rail_symbol(sh, '+5V', (62, vin1[1]))
+    wire(sh, mode, (86, mode[1]), (86, vin1[1]))
+    with rev3_refs('R'):
+        vres(sh, '33k', 70, vin1[1])
+        vres(sh, '10k', 70, vin1[1] + 6)
+    drop_ground(sh, (70, vin1[1] + 12), 0)
+    wire(sh, priority, (82, priority[1]), (82, vin1[1] + 6), (70, vin1[1] + 6))
     # USB input with its own 1 uF and test point
-    usb_in = pin_cell(usb_diode, '1')
-    wire(sh, usb_in, (68, usb_in[1]), (60, usb_in[1]), (52, usb_in[1]))
-    net_label(sh, 'USB_VBUS', (52, usb_in[1]), 180, is_global=True)
+    usb_in = pin_cell(mux, '6')
+    wire(sh, usb_in, (84, usb_in[1]), (84, 176), (68, 176), (60, 176), (52, 176))
+    net_label(sh, 'USB_VBUS', (52, 176), 180, is_global=True)
     with kicadgen.pinned_refs('C', 125):
-        vcap(sh, '1uF', 60, usb_in[1])
-    drop_ground(sh, (60, usb_in[1] + 6), 0)
-    # bleed: U28 CE sits on this net and must not float with USB unplugged
-    with kicadgen.pinned_refs('R', 179):
-        vres(sh, '100k', 56, usb_in[1])
-    drop_ground(sh, (56, usb_in[1] + 6), 0)
+        vcap(sh, '1uF', 60, 176)
+    drop_ground(sh, (60, 182), 0)
     with kicadgen.pinned_refs('TP', 42):
-        test_point(sh, 'USB_VBUS', (68, usb_in[1]), rot=0)
-    usb_enable = pin_cell(usb_diode, '3')
-    wire(sh, usb_enable, (72, usb_enable[1]))
-    net_label(sh, 'USB_SEL', (72, usb_enable[1]), 180)
-    usb_status = pin_cell(usb_diode, '5')
-    wire(sh, usb_status, (usb_status[0] + 4, usb_status[1]))
-    ground(sh, (usb_status[0] + 4, usb_status[1]))
+        test_point(sh, 'USB_VBUS', (68, 176), rot=0)
     # common output
-    out_main, out_usb = pin_cell(main_diode, '6'), pin_cell(usb_diode, '6')
-    wire(sh, out_main, (150, out_main[1]), (150, out_usb[1]), out_usb)
-    rail_symbol(sh, '+5V_OR', (150, out_main[1]))
-    rail_flag(sh, (142, out_main[1]))
+    out = pin_cell(mux, '2')
+    wire(sh, out, (150, out[1]), (156, out[1]))
+    rail_symbol(sh, '+5V_OR', (150, out[1]))
     with kicadgen.pinned_refs('TP', 43):
-        test_point(sh, '+5V_OR', (156, out_usb[1]), rot=0)
-    wire(sh, (150, out_usb[1]), (156, out_usb[1]))
+        test_point(sh, '+5V_OR', (156, out[1]), rot=0)
+    sh.nc(mux, '8')
+    drop_ground(sh, pin_cell(mux, '1'), 2)
 
 
 def place_ic(
@@ -1172,71 +1199,85 @@ def place_ic(
 
 
 def build_rails_15v(sh):
-    """Hand-laid: LT8582 with its input rail above, boost channel upper right,
-    coupled-inductor inverting channel lower right, timing and compensation
-    parts in a block below.
+    """Hand-laid: ADP5071 with its input rail to the left, boost channel upper
+    right, inverting channel lower right, one LT3097 below.
     """
     sh.handwired = True
     sh.note(
-        'LT8582 (5 V in, 1.5 MHz): channel 1 boosts to +16.4 V, channel 2 '
-        'inverts to -16.5 V; one LT3097 post-regulates them to +/-14.7 V.',
+        'ADP5071ACPZ (5 V in): +16.4 V boost and -16.5 V inverting rails; '
+        'one LT3097 post-regulates them to +/-14.7 V.',
         20,
         15,
     )
     sh.note(
-        'LT8582 circuit after datasheet p.30 (5 V to +/-12 V): RT 53.6k, SS '
-        '0.1 uF, VC 6.49k+4.7nF / 14.7k+2.2nF with 47 pF. RFBX1 = (16.4 - '
-        '1.204) / 83.3 uA = 182k, RFBX2 = (16.5 + 0.007) / 83.3 uA = 198k. '
-        'Inverting needs L >= 5.6 uH (duty ~0.80): 10 uH coupled MSD7342.',
+        'ADP5071 values from datasheet Fig. 47 / Tables 9-11. LT3097: VOUT = '
+        '100 uA x RSET (147k = 14.7 V, +15 V is the top of its range); '
+        'PGFB dividers 432k/10k trip power good near 13.3 V (also enables '
+        'fast start-up).',
         20,
         21,
     )
     sh.note(
-        'PG1 / PG2 (open drain, high = within 4 %) and the LT3097 PGP / PGN '
-        'go to the power_good sheet; GATE1/2 unused (no output disconnect).',
+        'ADP5071 layout: keep PGND off the exposed pad on the top layer (datasheet '
+        'layout section). SEQ on VREG starts both channels together when EN2 rises.',
         20,
         27,
     )
-    u = place_ic(sh, 'cryocooler:LT8582', 'LT8582EDKD#PBF', 110, 100, None)
-    # +5V_PS15 input rail across the top; VIN and SHDN pins straight up
-    # (datasheet p.32 ties SHDN to VIN), input caps hang off the rail
-    wire(sh, (96, 74), (104, 74), (108, 74), (112, 74), (116, 74), (130, 74))
-    rail_symbol(sh, '+5V_PS15', (96, 74))
-    for pin in ('2', '22', '15', '11'):
-        top = pin_cell(u, pin)
-        wire(sh, top, (top[0], 74))
-    for column in (122, 126):
-        vcap(sh, '4.7uF/25V', column, 74, fp=C0805)
-        drop_ground(sh, (column, 80), 0)
-    drop_ground(sh, pin_cell(u, '25'), 2)
-    # timing: CLKOUT1 drives SYNC2 (channels 180 deg apart), SYNC1 grounded,
-    # CLKOUT2 unused; RT / SS go to the block below through local labels
-    wire(sh, pin_cell(u, '23'), (96, 92), (96, 94), pin_cell(u, '18'))
-    sh.nc(u, '14')
-    sync1 = pin_cell(u, '19')
-    wire(sh, sync1, (sync1[0] - 2, sync1[1]))
-    drop_ground(sh, (sync1[0] - 2, sync1[1]), 2)
-    for pin, net in (('21', 'RT1'), ('20', 'SS1'), ('16', 'RT2'), ('17', 'SS2')):
-        net_label(sh, net, spur(sh, u, pin, 2), 180)
-    for pin, net in (('5', 'VC1'), ('8', 'VC2')):
-        net_label(sh, net, spur(sh, u, pin, 2), 0)
-    for pin, net in (('3', 'PGP_16V5'), ('10', 'PGN_16V5')):
-        net_label(sh, net, spur(sh, u, pin, 2), 0, is_global=True)
-    for pin in ('4', '9'):
-        sh.nc(u, pin)
-    # boost channel: L1 from the rail to SWA1/SWB1, Schottky to +16V5
-    wire(sh, pin_cell(u, '1'), (124, 88), (124, 90), pin_cell(u, '24'))
+    u = place_ic(
+        sh,
+        'cryocooler:ADP5071ACPZ',
+        'ADP5071ACPZ',
+        110,
+        100,
+        'Package_CSP:LFCSP-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm',
+    )
+    # +5V input: bus left of the IC, rail above it, three decoupling caps
+    wire(sh, (96, 70), (96, 102))
+    rail_symbol(sh, '+5V_PS15', (96, 70))
+    for pin in ('7', '15', '17', '16', '9'):
+        spur(sh, u, pin, 2)
+    place_blocks(
+        sh,
+        [('ADP5071 DECOUPLING CAPACITORS', '+5V_PS15', ('10uF', '10uF', '100nF'))],
+        190,
+        150,
+    )
+    # COMP1 network (left, above the bus crossing): 5.6k then 47nF to ground
+    wire(sh, pin_cell(u, '6'), (93, 84))
+    hres(sh, '5.6k', 90, 84)
+    wire(sh, (87, 84), (84, 84))
+    vcap(sh, '47nF', 84, 84)
+    drop_ground(sh, (84, 90), 0)
+    # VREG: pin 14 and SEQ (pin 3) joined on one wire with its 1 uF cap
+    wire(sh, pin_cell(u, '14'), (88, 96), (88, 106), (88, 108))
+    wire(sh, pin_cell(u, '3'), (88, pin_cell(u, '3')[1]))
+    wire(sh, (88, 106), (84, 106))
+    vcap(sh, '1uF', 84, 106)
+    drop_ground(sh, (84, 112), 0)
+    # COMP2 network: 12k then 68nF to ground
+    wire(sh, pin_cell(u, '10'), (81, 100))
+    hres(sh, '12k', 78, 100)
+    wire(sh, (75, 100), (72, 100))
+    vcap(sh, '68nF', 72, 100)
+    drop_ground(sh, (72, 106), 0)
+    # SS not connected; SYNC, SLEW and the grounds share one bar along the bottom
+    sh.nc(u, '8')
+    gnd_bus(
+        sh, [pin_cell(u, number) for number in ('2', '4', '13', '21', '19')]
+    )
+    # boost channel
     aux(
         sh,
         'Device:L',
         'L',
-        'SRP7050TA-4R7M',
+        'SRP7050TA-3R3M',
         {},
-        pose=at(130, 77),
+        pose=at(128, 88, 90),
         fp=INDUCTOR,
     )
-    wire(sh, (130, 80), (130, 88))
-    wire(sh, (124, 88), (130, 88), (134, 88))
+    wire(sh, pin_cell(u, '1'), (125, 88))
+    wire(sh, pin_cell(u, '20'), (131, 90), (131, 88))
+    wire(sh, (131, 90), (135, 90))
     diode(
         sh,
         'Device:D_Schottky',
@@ -1244,92 +1285,55 @@ def build_rails_15v(sh):
         '',
         '',
         'Diode_SMD:D_PowerDI-123',
-        pose=at(137, 88, 180),
+        pose=at(138, 90, 180),
     )
-    wire(sh, (140, 88), (152, 88), (158, 88), (166, 88))
-    rail_symbol(sh, '+16V5', (140, 88))
-    rail_flag(sh, (166, 88))
-    vcap(sh, RAIL_CAP, 158, 88, fp=C1210)
-    drop_ground(sh, (158, 94), 0)
-    # FBX1: 182k up to the +16V5 output
-    wire(sh, pin_cell(u, '6'), (146, 98))
-    hres(sh, '182k', 149, 98)
-    wire(sh, (152, 98), (152, 88))
-    # inverting channel (datasheet dual-inductor topology): winding 1 (dot
-    # at VIN) feeds SWA2/SWB2, C1 couples to node X, D2 clamps X to ground,
-    # winding 2 (dot at VOUT) delivers -16V5
-    wire(sh, pin_cell(u, '12'), (124, 100), (124, 102), pin_cell(u, '13'))
-    coupled = sh.add(
-        'Device:L_Coupled_1324',
-        next_ref('L'),
-        'MSD7342-103MLC',
-        160 * 1.27,
-        104 * 1.27,
-        mirror=True,
-        auto=False,
-        footprint='cryocooler:L_Coilcraft_MSD7342',
+    wire(sh, (141, 90), (150, 90), (166, 90), (172, 90))
+    rail_symbol(sh, '+16V5', (141, 90))
+    rail_flag(sh, (172, 90))
+    vres(sh, '2.67M', 150, 90)
+    vres(sh, '137k', 150, 96)
+    drop_ground(sh, (150, 102), 0)
+    wire(sh, (150, 96), (124, 96), (124, 92), pin_cell(u, '5'))
+    vcap(sh, RAIL_CAP, 166, 90, fp=C1210)
+    drop_ground(sh, (166, 96), 0)
+    # inverting channel
+    aux(
+        sh,
+        'Device:L',
+        'L',
+        'SRP7050TA-6R8M',
+        {},
+        pose=at(131, 111),
+        fp=INDUCTOR,
     )
-    vin_end, sw_end = pin_cell(coupled, '1'), pin_cell(coupled, '3')
-    out_end, node_end = pin_cell(coupled, '2'), pin_cell(coupled, '4')
-    wire(sh, vin_end, (vin_end[0], vin_end[1] - 3))
-    rail_symbol(sh, '+5V_PS15', (vin_end[0], vin_end[1] - 3))
-    wire(
-        sh, (124, 100), (148, 100), (152, 100), (152, sw_end[1]), sw_end
-    )
-    vcap(sh, '2.2uF/50V', 148, 100, fp=C1206)
-    wire(sh, (148, 106), node_end)
-    clamp = diode(
+    drop_ground(sh, (131, 114), 0)
+    wire(sh, pin_cell(u, '18'), (131, 108), (135, 108))
+    diode(
         sh,
         'Device:D_Schottky',
         'DFLS240',
         '',
         '',
         'Diode_SMD:D_PowerDI-123',
-        pose=at(148, 109, 90),
+        pose=at(138, 108),
     )
-    anode, cathode = pin_cell(clamp, '2'), pin_cell(clamp, '1')
-    if anode[1] > cathode[1]:
-        clamp.rot = 270
-        anode, cathode = pin_cell(clamp, '2'), pin_cell(clamp, '1')
-    drop_ground(sh, cathode, 0)
-    wire(sh, out_end, (170, out_end[1]), (174, out_end[1]), (180, out_end[1]))
-    rail_symbol(sh, '-16V5', (176, out_end[1]))
-    rail_flag(sh, (180, out_end[1]))
-    vcap(sh, RAIL_CAP, 174, out_end[1], fp=C1210)
-    drop_ground(sh, (174, out_end[1] + 6), 0)
+    wire(sh, (141, 108), (150, 108), (166, 108), (178, 108), (184, 108))
+    rail_symbol(sh, '-16V5', (141, 108))
+    rail_flag(sh, (184, 108))
+    wire(sh, (150, 108), (150, 112))
+    vres(sh, '2.55M', 150, 112)
+    vres(sh, '118k', 150, 118)
+    vcap(sh, RAIL_CAP, 166, 108, fp=C1210)
+    drop_ground(sh, (166, 114), 0)
     with kicadgen.pinned_refs('C', 130):
-        vcap(sh, RAIL_CAP, 180, out_end[1], fp=C1210)
-    drop_ground(sh, (180, out_end[1] + 6), 0)
-    # FBX2: 198k to the -16V5 output, routed under the inverting stage
-    fbx2 = pin_cell(u, '7')
-    wire(sh, fbx2, (124, fbx2[1]), (124, 122), (157, 122))
-    hres(sh, '198k', 160, 122)
-    wire(sh, (163, 122), (170, 122), (170, out_end[1]))
-    # timing and compensation block, right of the converter
-    top = 92
-    sh.note('LT8582 TIMING AND COMPENSATION', 200 * 1.27, (top - 14) * 1.27, 1.8)
-    for column, net, value in ((204, 'RT1', '53.6k'), (216, 'RT2', '53.6k')):
-        net_label(sh, net, (column, top - 5), 90)
-        wire(sh, (column, top - 5), (column, top))
-        vres(sh, value, column, top)
-        drop_ground(sh, (column, top + 6), 0)
-    for column, net in ((228, 'SS1'), (240, 'SS2')):
-        net_label(sh, net, (column, top - 5), 90)
-        wire(sh, (column, top - 5), (column, top))
-        vcap(sh, '100nF', column, top)
-        drop_ground(sh, (column, top + 6), 0)
-    for column, net, ohms, farads in (
-        (254, 'VC1', '6.49k', '4.7nF'),
-        (274, 'VC2', '14.7k', '2.2nF'),
-    ):
-        net_label(sh, net, (column, top - 5), 90)
-        wire(sh, (column, top - 5), (column, top))
-        wire(sh, (column, top), (column + 8, top))
-        vres(sh, ohms, column, top)
-        vcap(sh, farads, column, top + 6)
-        drop_ground(sh, (column, top + 12), 0)
-        vcap(sh, '47pF', column + 8, top)
-        drop_ground(sh, (column + 8, top + 6), 0)
+        vcap(sh, RAIL_CAP, 178, 108, fp=C1210)
+    drop_ground(sh, (178, 114), 0)
+    wire(sh, (150, 118), (126, 118), (126, 106), pin_cell(u, '11'))
+    wire(sh, pin_cell(u, '12'), (124, 104), (124, 124), (130, 124), (150, 124))
+    vcap(sh, '1uF', 130, 124)
+    drop_ground(sh, (130, 130), 0)
+    # the rev 2 stage used two more capacitors than this one
+    kicadgen.retire_refs('C', 2)
     # LT3097: +15 V regulator on top, -15 V regulator below, both inputs on
     # the left, feedback and power-good parts on the right
     reg = place_ic(
@@ -1393,7 +1397,7 @@ def build_rails_15v(sh):
 
 def build_power_good(sh):
     """Hand-laid: one node and LED per LT3097 power-good pin, their AND as
-    PG_15V, and the active-low flag for the ESP32.
+    PG_15V, the active-low flag for the ESP32 and the -15 V guard.
     """
     sh.handwired = True
     sh.note(
@@ -1412,18 +1416,39 @@ def build_power_good(sh):
     )
     power_good_node(sh, 'PGP_15V', 30, 40)
     power_good_node(sh, 'PGN_15V', 50, 40)
-    # LT8582 PG1 / PG2 (open drain, 0.5 mA max): 20k / 39k from its 5 V
-    # input gives 3.3 V when good and 0 V when the converter is unpowered
-    power_good_node(sh, 'PGP_16V5', 30, 150, '+5V_PS15', ('20k', '39k'))
-    power_good_node(sh, 'PGN_16V5', 50, 150, '+5V_PS15', ('20k', '39k'))
+    NEW_REFS['R'] += 4  # the removed +-16.5 V power good dividers
     power_good_and(sh, 90, 44)
     power_good_flag(sh, 160, 80)
     power_good_led(sh, 'PGP_15V', 'PG +15V (green)', 30, 110)
     power_good_led(sh, 'PGN_15V', 'PG -15V (green)', 70, 110)
+    power_good_guard(sh, 30, 150)
+
+
+def power_good_guard(sh, column, row):
+    """An unpowered LT3097 negative channel can't pull PGN low, so PGN_15V would
+    read good with -15 V missing. The midpoint of two 470k resistors between the
+    rails sits near 0 V when both are up and about +7.5 V when -15 V is gone, which
+    turns a BSS138W on and pulls the node low.
+    """
     sh.note(
-        'LT8582 POWER GOOD (to MCP23S08 GP2 / GP3)', 20 * 1.27, 140 * 1.27,
+        '-15 V GUARD: an unpowered LT3097 cannot pull PGN low. Midpoint near 0 V with '
+        'both rails up, about +7.5 V with -15 V missing.',
+        (column - 10) * 1.27,
+        (row - 10) * 1.27,
         1.8,
     )
+    rail_symbol(sh, '+15V', (column, row))
+    wire(sh, (column, row + 12), (column, row + 14), (column - 4, row + 14))
+    rail_symbol(sh, '-15V', (column - 4, row + 14))
+    with rev3_refs('R', 'Q'):
+        vres(sh, '470k', column, row)
+        vres(sh, '470k', column, row + 6)
+        fet = nfet(sh, 'BSS138W', '', '', pose=at(column + 14, row + 6), fp=SOT323)
+    gate, drain = pin_cell(fet, '1'), pin_cell(fet, '3')
+    wire(sh, (column, row + 6), gate)
+    ground(sh, spur(sh, fet, '2', 2))
+    wire(sh, drain, (drain[0], drain[1] - 4), (drain[0] + 4, drain[1] - 4))
+    net_label(sh, 'PGN_15V', (drain[0] + 4, drain[1] - 4), 0, is_global=True)
 
 
 def power_good_node(
@@ -1554,37 +1579,38 @@ def opamp_single(sh, ref, column, row):
 
 
 def build_signal_gen(sh):
-    """Hand-laid: clock + AD9833 + sine buffer + AD633 across the top, DAC
-    amplitude control below.
+    """Hand-laid: clock + AD9833 + gain stage + VREF clamp + AD5453 MDAC + OPA188
+    output stage across the top, decoupling below.
     """
     sh.handwired = True
     sh.note(
-        'AD9833 60 Hz sine -> OPA1655 gain stage -> AD633 multiplier; '
-        'MCP4921 + OPA188 give a 0-10 V amplitude control.',
+        'AD9833 60 Hz sine -> OPA1655 gain stage -> AD5453 VREF. The 14-bit MDAC sets '
+        'the amplitude: VOUT = -VREF x code / 16384. OPA188 is its output stage. Zero '
+        'scale at power-on.',
         20,
         15,
     )
     sh.note(
-        'Vctl 0-10 V (2.5 V ref x4) x sine +/-2.3 V pk / 10 = 0..2.3 V pk '
-        '(4.6 Vpp, 1.6 Vrms) to amplifier input; ZE500.1 RCA input range '
-        '0.2-6 V.',
+        'VREF and RFB are limited to +/-12 V but the op-amps run from +/-14.7 V, so R50 '
+        'and a 9.1 V bidirectional clamp protect VREF (under 10.5 V; 56 mW in R50). '
+        'About 10 Vpp at full code; ZE500.1 RCA input range 0.2-6 V.',
         20,
         21,
     )
-    # clock oscillator: OE tied to Vcc, bypass cap, output straight into MCLK
+    # clock oscillator: tri-state pin tied to VDD, bypass cap, output into MCLK
     osc = place_ic(
         sh,
-        'cryocooler:SG-8002CA',
-        'SG-8002CA-PH 25MHz',
+        'cryocooler:ECS-2520MV',
+        'ECS-2520MV-250-BN-TR',
         22,
         66,
-        'Oscillator:Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm',
+        'Oscillator:Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm',
     )
     oe, vcc_osc = pin_cell(osc, '1'), pin_cell(osc, '4')
     wire(sh, oe, (oe[0], 56))
     wire(sh, vcc_osc, (vcc_osc[0], 56))
     wire(sh, (oe[0], 56), (vcc_osc[0], 56))
-    rail_symbol(sh, '+5V_OR', (vcc_osc[0], 56))
+    rail_symbol(sh, '+3V3_SG', (vcc_osc[0], 56))
     drop_ground(sh, pin_cell(osc, '2'), 2)
     # AD9833
     dds = place_ic(
@@ -1608,7 +1634,7 @@ def build_signal_gen(sh):
     drop_ground(sh, (60, 72), 2)
     vdd = pin_cell(dds, '2')
     wire(sh, vdd, (vdd[0], 48), (75, 48))
-    rail_symbol(sh, '+5V_OR', (vdd[0], 48))
+    rail_symbol(sh, '+3V3_SG', (vdd[0], 48))
     comp = pin_cell(dds, '1')
     wire(sh, comp, (75, comp[1]), (75, 54))
     vcap(sh, '10nF', 75, 48)
@@ -1626,15 +1652,15 @@ def build_signal_gen(sh):
     wire(sh, (80, 62), (92, 62), (92, 58), (104, 58))
     vres(sh, '100k', 86, 62)
     drop_ground(sh, (86, 68), 0)
-    # OPA1655: non-inverting gain of 15.97 (1 + 49.4k/3.3k): 0.3 V pk
-    # AD9833 -> about 10 Vpp at Vctl = 10 V. The feedback is two series
-    # resistors so the amplitude can be trimmed by swapping one (51k measured
-    # 10.3 Vpp on the rev 1 board). 1 nF across both rolls off above ~3 kHz.
+    # OPA1655: non-inverting gain of 16.3 (1 + 50.6k/3.3k) sets about 10 Vpp at
+    # full code through R50 and the 9k VREF input. The feedback is two series
+    # resistors so the amplitude can be trimmed by swapping one. 1 nF across both
+    # rolls off above ~3 kHz.
     opa_a = opamp_single(sh, next_ref('U'), 110, 60)
     wire(sh, pin_cell(opa_a, '4'), (100, 62), (100, 76))
     hres(sh, '47k', 105, 76)
     with kicadgen.pinned_refs('R', 169):
-        hres(sh, '2.4k', 111, 76)
+        hres(sh, '3.6k', 111, 76)
     with high_refs('C'):
         hcap(sh, '1nF/C0G', 108, 80)
     wire(sh, (102, 76), (102, 80), (105, 80))
@@ -1644,115 +1670,98 @@ def build_signal_gen(sh):
     drop_ground(sh, (100, 82), 0)
     wire(sh, pin_cell(opa_a, '1'), (120, 60), (120, 76), (114, 76))
     wire(sh, (120, 60), (124, 60))
-    hres(sh, '100', 127, 60)
-    wire(sh, (130, 60), (192, 60))
+    hres(sh, '220', 127, 60)
     top, bottom = pin_cell(opa_a, '5'), pin_cell(opa_a, '2')
     wire(sh, top, (top[0], top[1] - 4))
     rail_symbol(sh, '+15V', (top[0], top[1] - 4))
     wire(sh, bottom, (bottom[0], bottom[1] + 4), (bottom[0] + 4, bottom[1] + 4))
     rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 4))
-    # AD633 multiplier
-    mult = place_ic(
+    # AD5453 VREF: series resistor, then the bidirectional clamp to ground
+    with rev3_refs('D'):
+        clamp = place_ic(
+            sh,
+            'cryocooler:MMBZ9V1ALT1G',
+            'MMBZ9V1ALT1G',
+            142,
+            70,
+            SOT23,
+            ref_prefix='D',
+        )
+    sh.nc(clamp, '3')
+    ground(sh, pin_cell(clamp, '2'))
+    mdac = place_ic(
         sh,
-        'cryocooler:AD633JRZ-R7',
-        'AD633JRZ-R7',
-        200,
-        66,
-        'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
+        'cryocooler:AD5453WBCPZ',
+        'AD5453WBCPZ-RL',
+        190,
+        64,
+        'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm',
     )
-    wire(sh, pin_cell(mult, '8'), (188, pin_cell(mult, '8')[1]))
-    wire(sh, pin_cell(mult, '2'), (188, pin_cell(mult, '2')[1]))
-    wire(sh, pin_cell(mult, '4'), (188, 68))
-    wire(sh, (188, pin_cell(mult, '8')[1]), (188, 68))
-    drop_ground(sh, (188, 68), 2)
-    plus = pin_cell(mult, '6')
-    wire(sh, plus, (plus[0], 48))
-    rail_symbol(sh, '+15V', (plus[0], 48))
-    minus = pin_cell(mult, '3')
-    wire(sh, minus, (minus[0], 80), (minus[0] + 4, 80))
-    rail_symbol(sh, '-15V', (minus[0] + 4, 80))
-    wire(sh, pin_cell(mult, '5'), (214, 60))
-    hres(sh, '100', 217, 60)
-    wire(sh, (220, 60), (224, 60))
-    hcap(sh, '10uF', 227, 60)
-    wire(sh, (230, 60), (240, 60))
-    net_label(sh, 'SIG_SINE', (240, 60), 0, is_global=True)
-    vres(sh, '100k', 234, 60)
-    drop_ground(sh, (234, 66), 0)
-    # amplitude control: MCP4921 -> OPA188 (gain of 4) -> AMP_CTL
-    dac = place_ic(
-        sh,
-        'cryocooler:MCP4921',
-        'MCP4921-E/MC',
-        60,
-        110,
-        'Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm',
-    )
-    dac.value_margin = 0.6  # keeps the value text off the Vdd wire
-    for pin, net in (('2', 'MCP4921_CS'), ('3', 'SPI_SCK'), ('4', 'SPI_MOSI')):
-        net_label(sh, net, spur(sh, dac, pin, 5), 180, is_global=True)
-    vdd = pin_cell(dac, '1')
-    wire(sh, vdd, (vdd[0], 94), (76, 94))
-    rail_symbol(sh, '+3V3_SG', (vdd[0], 94))
-    vres(sh, '6.8k', 76, 94)
-    vref_pin = pin_cell(dac, '6')
-    wire(sh, vref_pin, (vref_pin[0], 100), (92, 100))
-    aux(
-        sh,
-        'Reference_Voltage:LM4040DBZ-2.5',
-        'U',
-        'LM4040DBZ-2.5',
-        {},
-        pose=at(84, 103, 90),
-        fp=SOT23,
-    )
-    ground(sh, (84, 106))  # directly on the anode, clear of the DAC output below
-    vcap(sh, '100nF', 92, 100)
-    drop_ground(sh, (92, 106), 0)
-    rail_flag(sh, (88, 100))
-    gnd_bus(sh, [pin_cell(dac, '5'), pin_cell(dac, '7'), pin_cell(dac, '9')])
+    kicadgen.retire_refs('U', 2)  # U7 (MCP4921) and U8 (LM4040)
+    vref = pin_cell(mdac, '7')
+    wire(sh, (130, vref[1]), (pin_cell(clamp, '1')[0], vref[1]), vref)
+    wire(sh, (pin_cell(clamp, '1')[0], vref[1]), pin_cell(clamp, '1'))
+    for pin, net in (('5', 'AD5453_SYNC'), ('3', 'SPI_SCK'), ('4', 'SPI_MOSI')):
+        net_label(sh, net, spur(sh, mdac, pin, 5), 180, is_global=True)
+    supply = pin_cell(mdac, '6')
+    wire(sh, supply, (supply[0], supply[1] - 6))
+    rail_symbol(sh, '+3V3_SG', (supply[0], supply[1] - 6))
+    gnd_bus(sh, [pin_cell(mdac, '2'), pin_cell(mdac, '9')])
+    # output stage: IOUT1 into the inverting input, RFB back from the output, 2 pF
+    # across them for stability (datasheet C1), non-inverting input grounded
     opa188 = place_ic(
         sh,
         'Amplifier_Operational:OPA188xxDBV',
         'OPA188AIDBVR',
-        130,
-        110,
+        224,
+        58,
         'Package_TO_SOT_SMD:SOT-23-5',
     )
-    wire(sh, pin_cell(dac, '8'), (110, 110), (110, 108), pin_cell(opa188, '3'))
-    wire(sh, pin_cell(opa188, '4'), (120, 112), (120, 132))
-    wire(sh, pin_cell(opa188, '1'), (146, 110), (146, 132), (133, 132))
-    hres(sh, '30k', 130, 132)
-    wire(sh, (127, 132), (120, 132))
-    vres(sh, '10k', 120, 132)
-    drop_ground(sh, (120, 138), 0)
+    iout, rfb = pin_cell(mdac, '1'), pin_cell(mdac, '8')
+    inverting, positive = pin_cell(opa188, '4'), pin_cell(opa188, '3')
+    wire(sh, iout, (206, iout[1]), inverting)
+    with rev3_refs('C'):
+        vcap(sh, '2pF/C0G', 206, iout[1])
+    ground(sh, spur(sh, opa188, '3', 2))
     top, bottom = pin_cell(opa188, '5'), pin_cell(opa188, '2')
-    wire(sh, top, (top[0], 98))
-    rail_symbol(sh, '+15V', (top[0], 98))
-    wire(sh, bottom, (bottom[0], 120), (bottom[0] + 4, 120))
-    rail_symbol(sh, '-15V', (bottom[0] + 4, 120))
+    wire(sh, top, (top[0], top[1] - 4))
+    rail_symbol(sh, '+15V', (top[0], top[1] - 4))
+    wire(sh, bottom, (bottom[0], bottom[1] + 2), (bottom[0] + 4, bottom[1] + 2))
+    rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 2))
+    out = pin_cell(opa188, '1')
+    feedback_x = out[0] + 4
+    wire(sh, rfb, (204, rfb[1]), (204, iout[1] + 6), (206, iout[1] + 6), (212, iout[1] + 6))
+    wire(sh, (212, iout[1] + 6), (212, 80), (feedback_x, 80), (feedback_x, out[1]))
+    resistor_x = feedback_x + 8
+    wire(sh, out, (feedback_x, out[1]), (resistor_x - 3, out[1]))
+    hres(sh, '100', resistor_x, out[1])
+    wire(sh, (resistor_x + 3, out[1]), (resistor_x + 7, out[1]))
+    hcap(sh, '10uF', resistor_x + 10, out[1])
     wire(
         sh,
-        (146, 110),
-        (170, 110),
-        (170, pin_cell(mult, '1')[1]),
-        pin_cell(mult, '1'),
+        (resistor_x + 13, out[1]),
+        (resistor_x + 17, out[1]),
+        (resistor_x + 23, out[1]),
     )
+    net_label(sh, 'SIG_SINE', (resistor_x + 23, out[1]), 0, is_global=True)
+    vres(sh, '100k', resistor_x + 17, out[1])
+    drop_ground(sh, (resistor_x + 17, out[1] + 6), 0)
+    kicadgen.retire_refs('R', 3)  # R58, R59 and R3 went with the amplitude DAC
+    kicadgen.retire_refs('C', 1)  # C9 likewise
     place_blocks(
         sh,
         [
-            ('SG-8002CA DECOUPLING CAPACITORS', '+5V_OR', ('100nF',)),
-            ('AD9833 DECOUPLING CAPACITORS', '+5V_OR', ('100nF', '10uF')),
+            ('ECS-2520MV DECOUPLING CAPACITORS', '+3V3_SG', ('100nF',)),
+            ('AD9833 DECOUPLING CAPACITORS', '+3V3_SG', ('100nF', '10uF')),
             ('OPA1655 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('OPA1655 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
-            ('AD633 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
-            ('AD633 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
-            ('MCP4921 DECOUPLING CAPACITORS', '+3V3_SG', ('100nF', '10uF')),
+            2,  # the AD633 capacitors
+            ('AD5453 DECOUPLING CAPACITORS', '+3V3_SG', ('100nF', '10uF')),
             ('OPA188 +15V DECOUPLING CAPACITORS', '+15V', ('100nF',)),
             ('OPA188 -15V DECOUPLING CAPACITORS', '-15V', ('100nF',)),
         ],
         20,
-        160,
+        110,
         max_column=300,
     )
 
@@ -1814,7 +1823,7 @@ def rem_switch(
     # AMP_REM bus: drain, pull-down, LED branch and the REM terminal
     wire(sh, bottom, (bottom[0], 58), (136, 58))
     net_label(sh, bus_net, (104, 58), 0)
-    vres(sh, '1k', 90, 58)
+    vres(sh, '4.7k', 90, 58)
     drop_ground(sh, (90, 64), 0)
     vres(sh, '2.2k', 96, 40)
     rail_symbol(sh, '+5V', (96, 40))
@@ -1933,117 +1942,133 @@ def build_compressor_relay(sh):
 
 
 def build_amp_current(sh):
-    """Hand-laid: logic-side isolator top left, isolated supply bottom left,
-    ACS37800 and divider to the right.
+    """Hand-laid: isolator with its integrated supply on the left, ACS37800 and
+    divider to the right.
     """
     sh.handwired = True
     sh.note(
-        'Amplifier output V/I monitor: ACS37800 (SPI) on an isolated 3.3 V '
-        'domain (MIE1W0505, VSEL=GND2 -> 3.3 V); SPI bus GPIO11/12/13, CS '
-        'GPIO17.',
+        'Amplifier output V/I monitor: ACS37800 (SPI) on an isolated 5 V domain from '
+        'the ISOW7741 (110 mA max at 5 V to 5 V; VSEL on VISOOUT selects 5 V). Beads '
+        'on VISOOUT-VISOIN and GND2-GISOIN follow the ISOW774x datasheet for emissions.',
         20,
         15,
     )
     sh.note(
         'Mains-class creepage/clearance applies between ISO_GND domain and '
-        'the logic side on the PCB.',
+        'the logic side on the PCB. EN/FLT is an open-drain fault flag as well as '
+        'the enable, so it has a pull-up rather than a tie to VIO.',
         20,
         21,
     )
     iso = place_ic(
         sh,
-        'cryocooler:ISO7741DW',
-        'ISO7741DW',
+        'cryocooler:ISOW7741DFMR',
+        'ISOW7741DFMR',
         60,
-        62,
-        'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
+        58,
+        'cryocooler:TI_DFM0020A',
     )
     for pin, net in (
-        ('3', 'ACS_MOSI'),
-        ('4', 'ACS_SCK'),
-        ('5', 'ACS_CS'),
-        ('6', 'ACS_MISO'),
+        ('2', 'ACS_MOSI'),
+        ('3', 'ACS_SCK'),
+        ('4', 'ACS_CS'),
+        ('5', 'ACS_MISO'),
     ):
         net_label(sh, net, spur(sh, iso, pin, 3), 180, is_global=True)
-    en1 = pin_cell(iso, '7')
-    wire(sh, en1, (en1[0] - 2, en1[1]), (en1[0] - 2, en1[1] - 4))
-    rail_symbol(sh, '+3V3', (en1[0] - 2, en1[1] - 4))
-    vcc1 = pin_cell(iso, '1')
-    wire(sh, vcc1, (vcc1[0], 44))
-    rail_symbol(sh, '+3V3', (vcc1[0], 44))
-    gnd1 = spur(sh, iso, '2', 2)
-    ground(sh, gnd1)
-    en2 = pin_cell(iso, '10')
-    wire(sh, en2, (en2[0] + 2, en2[1]), (en2[0] + 2, en2[1] - 4))
-    rail_symbol(sh, 'ISO_3V3', (en2[0] + 2, en2[1] - 4))
-    vcc2 = pin_cell(iso, '16')
-    wire(sh, vcc2, (vcc2[0], 44))
-    rail_symbol(sh, 'ISO_3V3', (vcc2[0], 44))
-    rail_symbol(sh, 'ISO_GND', spur(sh, iso, '9', 2))
-    # pull-ups for the three idle-state lines, drawn as a small block
-    for index, net in enumerate(('ACS_CS', 'ACS_SCK', 'ACS_MOSI')):
-        row = 82 + index * 6
-        rail_symbol(sh, '+3V3', (28, row))
-        hres(sh, '10k', 31, row)
-        wire(sh, (34, row), (36, row))
-        net_label(sh, net, (36, row), 0, is_global=True)
-    # isolated supply
-    dc = place_ic(
-        sh,
-        'cryocooler:MIE1W0505BGLVH-3R-Z',
-        'MIE1W0505BGLVH-3R-Z',
-        60,
-        122,
-        'cryocooler:CONV_MIE1W0505BGLVH-3R-Z',
-        ref_prefix='PS',
-    )
-    vin = pin_cell(dc, '9_10')
-    wire(sh, vin, (vin[0], 108), (24, 108))
-    rail_symbol(sh, '+5V_ISO', (24, 108))
-    for column, value in ((30, '10uF'), (38, '100nF')):
-        vcap(sh, value, column, 108)
-        drop_ground(sh, (column, 114), 0)
-    en = pin_cell(dc, '8')
-    wire(sh, en, (46, en[1]))
-    vres(sh, '100k', 46, en[1] - 6)
-    rail_symbol(sh, '+5V_ISO', (46, en[1] - 6))
-    drop_ground(sh, pin_cell(dc, '1'), 2)
-    vout = pin_cell(dc, '5_6')
-    wire(sh, vout, (vout[0], vout[1]), (96, vout[1]))
-    rail_symbol(sh, 'ISO_3V3', (96, vout[1]))
-    for column, value in ((78, '22uF'), (88, '100nF')):
-        vcap(sh, value, column, vout[1], fp=C1206 if value == '22uF' else None)
-        rail_symbol(sh, 'ISO_GND', (column, vout[1] + 6))
-    vsel, gnd2 = pin_cell(dc, '7'), pin_cell(dc, '2')
-    wire(sh, gnd2, (gnd2[0], gnd2[1] + 2))
-    rail_symbol(sh, 'ISO_GND', (gnd2[0], gnd2[1] + 2))
+    # logic-side enables: EN/FLT through 10k, EN_IO1 tied to +3V3
+    enable = pin_cell(iso, '8')
+    wire(sh, enable, (40, enable[1]))
+    # the removed logic pull-ups, DC-DC module, its capacitors and enable resistor
+    kicadgen.retire_refs('R', 3)
+    kicadgen.retire_refs('PS', 1)
+    kicadgen.retire_refs('C', 2)
+    kicadgen.retire_refs('R', 1)
+    kicadgen.retire_refs('C', 2)
+    with rev3_refs('R'):
+        hres(sh, '10k', 37, enable[1])
+    rail_symbol(sh, '+3V3', (34, enable[1]))
+    channel_enable = pin_cell(iso, '7')
+    wire(sh, channel_enable, (28, channel_enable[1]), (28, channel_enable[1] - 6))
+    rail_symbol(sh, '+3V3', (28, channel_enable[1] - 6))
+    # logic and supply inputs
+    vio, vdd = pin_cell(iso, '1'), pin_cell(iso, '9')
+    wire(sh, vio, (vio[0], 44))
+    rail_symbol(sh, '+3V3', (vio[0], 44))
+    wire(sh, vdd, (vdd[0], 40))
+    rail_symbol(sh, '+5V_ISO', (vdd[0], 40))
+    gnd_bus(sh, [pin_cell(iso, '6'), pin_cell(iso, '10')])
+    # isolated output: VSEL on VISOOUT sets 5 V, a bead feeds VISOIN, EN_IO2 and
+    # the ACS37800
+    iso_out, iso_in = pin_cell(iso, '12'), pin_cell(iso, '20')
+    wire(sh, iso_out, (iso_out[0], 40), (66, 40), (72, 40), (82, 40))
+    rail_symbol(sh, 'VISOOUT', (72, 40))
+    voltage_select = pin_cell(iso, '13')
+    wire(sh, voltage_select, (82, voltage_select[1]), (82, 40))
+    with rev3_refs('FB'):
+        aux(
+            sh,
+            'Device:FerriteBead',
+            'FB',
+            'BLM15EX331SN1D',
+            {},
+            pose=at(66, 43),
+            fp=BEAD_0402,
+        )
+    wire(sh, iso_in, (66, 46))
+    side_two_enable = pin_cell(iso, '14')
     wire(
         sh,
-        vsel,
-        (vsel[0] + 2, vsel[1]),
-        (vsel[0] + 2, gnd2[1] + 2),
-        (gnd2[0], gnd2[1] + 2),
+        side_two_enable,
+        (78, side_two_enable[1]),
+        (78, 46),
+        (70, 46),
+        (66, 46),
     )
-    # the flag goes on the lower wire, clear of VOUT on the row above VSEL
-    wire(sh, (vsel[0] + 2, gnd2[1] + 2), (vsel[0] + 4, gnd2[1] + 2))
-    rail_flag(sh, (vsel[0] + 4, gnd2[1] + 2))
+    rail_symbol(sh, 'ISO_5V', (70, 46))
+    # isolated grounds, joined through the second bead
+    iso_return, side_two_ground = pin_cell(iso, '15'), pin_cell(iso, '11')
+    wire(sh, iso_return, (iso_return[0], 74), (72, 74))
+    rail_symbol(sh, 'ISO_GND', (iso_return[0], 74))
+    with rev3_refs('FB'):
+        aux(
+            sh,
+            'Device:FerriteBead',
+            'FB',
+            'BLM15EX331SN1D',
+            {},
+            pose=at(75, 74, 90),
+            fp=BEAD_0402,
+        )
+    wire(sh, side_two_ground, (side_two_ground[0], 70), (80, 70), (80, 74))
+    wire(sh, (78, 74), (80, 74))
+    rail_symbol(sh, 'ISO_GND2', (80, 74))
+    # the isolated rails have no power output pin of their own on these two nets
+    wire(sh, (24, 100), (30, 100))
+    rail_symbol(sh, 'ISO_5V', (24, 100))
+    rail_flag(sh, (30, 100))
+    wire(sh, (24, 112), (30, 112))
+    rail_symbol(sh, 'ISO_GND', (24, 112))
+    rail_flag(sh, (30, 112))
+    wire(sh, (50, 112), (56, 112))
+    rail_symbol(sh, 'ISO_GND2', (50, 112))
+    rail_flag(sh, (56, 112))
     # ACS37800
     acs = place_ic(
         sh,
-        'cryocooler:ACS37800KMACTR-030B3-SPI',
-        'ACS37800KMACTR-030B3-SPI',
+        'cryocooler:ACS37800KMACTR-015B5-SPI',
+        'ACS37800KMACTR-015B5-SPI',
         110,
         62,
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
         mirror=True,
     )
-    # isolated SPI: the ACS37800 pins are ordered like the ISO7741 outputs
+    # isolated SPI: the ACS37800 pins are ordered like the ISOW7741 outputs
     # (MOSI, SCK, CS, MISO) so each signal is a straight wire across
     for iso_pin, acs_pin in (
-        ('14', '10'),
-        ('13', '11'),
-        ('12', '9'),
-        ('11', '12'),
+        ('19', '10'),
+        ('18', '11'),
+        ('17', '9'),
+        ('16', '12'),
     ):
         wire(sh, pin_cell(iso, iso_pin), pin_cell(acs, acs_pin))
     gnd = pin_cell(acs, '14')
@@ -2051,7 +2076,7 @@ def build_amp_current(sh):
     rail_symbol(sh, 'ISO_GND', (gnd[0] - 4, gnd[1] + 2))
     vcc = pin_cell(acs, '13')
     wire(sh, vcc, (vcc[0], vcc[1] - 4), (vcc[0] + 4, vcc[1] - 4))
-    rail_symbol(sh, 'ISO_3V3', (vcc[0] + 4, vcc[1] - 4))
+    rail_symbol(sh, 'ISO_5V', (vcc[0] + 4, vcc[1] - 4))
     vinn = spur(sh, acs, '15', 2)
     rail_symbol(sh, 'ISO_GND', vinn)
     vinp = pin_cell(acs, '16')
@@ -2090,25 +2115,37 @@ def build_amp_current(sh):
     # J12's longer spur keeps ISO_GND and its name clear of the GND symbol on pin 3
     for connector, length in ((j_out, 2), (j_load, 7)):
         rail_symbol(sh, 'ISO_GND', spur(sh, connector, '2', length))
+    with rev3_refs('C'):
+        place_blocks(
+            sh,
+            [
+                ('ISOW7741 VIO DECOUPLING', '+3V3', ('1uF', '10nF')),
+                ('ISOW7741 VDD DECOUPLING', '+5V_ISO', ('22uF/10V', '1uF', '10nF')),
+                (
+                    'ISOW7741 VISOOUT DECOUPLING',
+                    'VISOOUT',
+                    ('22uF/10V', '1uF', '10nF'),
+                    'ISO_GND2',
+                ),
+                ('ISOW7741 VISOIN DECOUPLING', 'ISO_5V', ('1uF', '10nF'), 'ISO_GND'),
+            ],
+            20,
+            130,
+            max_column=300,
+        )
     place_blocks(
         sh,
         [
-            ('ISO7741 VCC1 DECOUPLING CAPACITORS', '+3V3', ('100nF',)),
-            (
-                'ISO7741 VCC2 DECOUPLING CAPACITORS',
-                'ISO_3V3',
-                ('100nF',),
-                'ISO_GND',
-            ),
+            2,  # the ISO7741 capacitors
             (
                 'ACS37800 DECOUPLING CAPACITORS',
-                'ISO_3V3',
+                'ISO_5V',
                 ('1uF', '100nF'),
                 'ISO_GND',
             ),
         ],
-        110,
-        150,
+        20,
+        154,
         max_column=300,
     )
 
@@ -2121,7 +2158,7 @@ def build_system_current(sh):
     sh.note(
         'INA239 monitors the switched 12 V rail: 15 mOhm shunt, SPI mode 1 '
         'on the main bus (CS from the decoder), +/-163.84 mV range (~10.9 A). ALERT '
-        'only drives its LED.',
+        'drives its LED and MCP23S08 GP6.',
         20,
         15,
     )
@@ -2190,6 +2227,8 @@ def build_system_current(sh):
     # the decoder drives CS push-pull; R68 stays retired
     kicadgen.retire_refs('R', 1)
     alert = spur(sh, ina, '3', 4)
+    wire(sh, alert, (alert[0] + 8, alert[1]))
+    net_label(sh, 'INA239_ALERT', (alert[0] + 8, alert[1]), 0, is_global=True)
     pull = (alert[0], alert[1] + 6)
     wire(sh, alert, pull, (pull[0], pull[1] + 6))
     hres(sh, '10k', pull[0] + 3, pull[1])
@@ -2251,7 +2290,7 @@ DEBUG_RAILS = (
     '-15V',
     '+16V5',
     '-16V5',
-    'ISO_3V3',
+    'ISO_5V',
 )
 DEBUG_GROUNDS = ('GND', 'GND', 'GND', 'ISO_GND')
 # TP18-TP28 (SPI clock, MOSI, MISO and chip selects) were removed; later points keep
@@ -2277,12 +2316,13 @@ DEBUG_SIGNALS = (
     )),
 )
 # (rail, resistor, LED description[, return net]): LEDs on rails that have no
-# indicator yet; the isolated rail returns to ISO_GND, never to GND
+# indicator yet; the isolated rail returns to ISO_GND, never to GND. None retires
+# the numbers of a removed LED: the two power good LEDs already cover +-15 V.
 DEBUG_RAIL_LEDS = (
     ('+5V', '3.3k', '5V (green)'),
-    ('+15V', '13k', '+15V (green)'),
-    ('-15V', '13k', '-15V (green)'),
-    ('ISO_3V3', '1.5k', 'ISO 3V3 (green)', 'ISO_GND'),
+    None,
+    None,
+    ('ISO_5V', '3.3k', 'ISO 5V (green)', 'ISO_GND'),
 )
 
 
@@ -2366,14 +2406,20 @@ def build_debug(sh):
     column = 24
     row += 30
     sh.note('RAIL LEDS', 20 * 1.27, (row - 8) * 1.27, 1.8)
-    for net, ohms, label, *ground in DEBUG_RAIL_LEDS:
+    for entry in DEBUG_RAIL_LEDS:
+        if entry is None:
+            kicadgen.retire_refs('R', 1)
+            kicadgen.retire_refs('D', 1)
+            continue
+        net, ohms, label, *ground = entry
         debug_rail_led(sh, net, ohms, label, column, row, *ground)
         column += 50
 
 
 def build_gpio_expander(sh):
     """Hand-laid: MCP23S08 SPI GPIO expander for the signals that have no ESP32
-    pin of their own: power-good flags, backlight enable and status LEDs. Runs
+    pin of their own: power-good flags, backlight enable, INA239 alert and touch
+    interrupt. Runs
     from +3V3, not a switched rail, so pulling a jumper does not take it down.
     """
     sh.handwired = True
@@ -2385,9 +2431,9 @@ def build_gpio_expander(sh):
         15,
     )
     sh.note(
-        'All pins power up as inputs. RESET, A1 and A0 must be biased '
-        '(datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. '
-        'GP7 is unused: firmware enables its weak pull-up.',
+        'All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet '
+        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP2, GP3 and GP5 are '
+        'spare; firmware enables weak pull-ups on them. TSC2046 PENIRQ drives GP7.',
         20,
         21,
     )
@@ -2418,8 +2464,8 @@ def build_gpio_expander(sh):
         ('20', 'SPI_MOSI'),
     ):
         net_label(sh, net, spur(sh, expander, pin, 12), 180, is_global=True)
-    # past the global labels above it, so the two label texts do not touch
-    net_label(sh, 'EXPANDER_RESET', spur(sh, expander, '4', 28), 180)
+    # past the global labels above it, so the symbol clears their text
+    rail_symbol(sh, '+3V3', spur(sh, expander, '4', 28))
     # A1 and A0 share one ground symbol
     address_low, address_high = spur(sh, expander, '3', 3), spur(sh, expander, '2', 3)
     wire(sh, address_low, address_high)
@@ -2428,27 +2474,21 @@ def build_gpio_expander(sh):
     for pin, net in (
         ('9', 'PGP_15V'),
         ('10', 'PGN_15V'),
-        ('11', 'PGP_16V5'),
-        ('12', 'PGN_16V5'),
         ('13', 'DISP_BL_EN'),
-        ('14', 'LED_READY'),
-        ('15', 'LED_FAULT'),
+        ('15', 'INA239_ALERT'),
+        ('16', 'TOUCH_IRQ'),
     ):
         net_label(sh, net, spur(sh, expander, pin, 6), 0, is_global=True)
-    sh.nc(expander, '16')
-    int_end = spur(sh, expander, '7', 8)
+    for pin in ('11', '12', '14'):
+        sh.nc(expander, pin)
+    # past the global labels above it, so the two label texts do not touch
+    int_end = spur(sh, expander, '7', 22)
     net_label(sh, 'EXPANDER_INT', int_end, 0)
     wire(sh, int_end, (int_end[0], int_end[1] + 4))
     test_point(sh, 'EXPANDER_INT', (int_end[0], int_end[1] + 4), rot=180)
-    sh.note('PULL-UPS', 20 * 1.27, 92 * 1.27, 1.8)
-    # the decoder drives CS push-pull; R81 stays retired
-    kicadgen.retire_refs('R', 1)
-    rail_symbol(sh, '+3V3', (28, 106))
-    hres(sh, '10k', 31, 106)
-    wire(sh, (34, 106), (36, 106))
-    net_label(sh, 'EXPANDER_RESET', (36, 106), 0)
-    # the removed bridge's other pull-ups and 74LVC1G125 keep their numbers free
-    kicadgen.retire_refs('R', 3)
+    # the removed CS and RESET pull-ups, the bridge's other pull-ups and the
+    # 74LVC1G125 keep their numbers free
+    kicadgen.retire_refs('R', 5)
     kicadgen.retire_refs('U', 1)
 
 
@@ -2467,10 +2507,28 @@ def pullup(sh, value, cell):
 LAST_RESISTOR_BEFORE_FAN_DRIVERS, LAST_FET_BEFORE_FAN_DRIVERS = 171, 25
 
 
+def esd_array(sh, column, row):
+    """TPD4E05U06 four-channel ESD clamp with its pass-through pins unused and both
+    ground pins tied together; returns the part so callers can wire IO1-IO4.
+    """
+    clamp = place_ic(
+        sh,
+        'cryocooler:TPD4E05U06DQAR',
+        'TPD4E05U06DQAR',
+        column,
+        row,
+        'Package_SON:USON-10_2.5x1.0mm_P0.5mm',
+    )
+    for pin in ('6', '7', '9', '10'):
+        sh.nc(clamp, pin)
+    drop_ground(sh, pin_cell(clamp, '3'), 2)
+    return clamp
+
+
 def fan_channel(sh, title, pwm_net, tach_net, row, index):
     """One 4-pin fan channel, drawn left to right from `row`: GPIO -> BSS138
-    open-drain PWM driver -> connector, and connector -> tach pull-up -> 1k ->
-    GPIO. The gate pull-up to +3V3 holds the PWM line low (0% drive) while the
+    open-drain PWM driver -> connector, and connector -> tach pull-up -> 4.7k ->
+    GPIO, which limits a 12 V short on the connector to about 2 mA. The gate pull-up to +3V3 holds the PWM line low (0% drive) while the
     GPIO floats during boot and reset.
     """
     first_resistor = LAST_RESISTOR_BEFORE_FAN_DRIVERS + index * 3
@@ -2508,13 +2566,13 @@ def fan_channel(sh, title, pwm_net, tach_net, row, index):
     )
     vres(sh, '10k', 100, pwm_pin[1] - 16)
     rail_symbol(sh, '+3V3_COOL', (100, pwm_pin[1] - 16))
-    # the pull-up stays on the connector side so the 1k does not form a
+    # the pull-up stays on the connector side so the 4.7k does not form a
     # divider with it when the open-collector tach output pulls low
     wire(sh, tach_pin, (120, tach_pin[1]))
     vres(sh, '4.7k', 126, tach_pin[1] - 6)
     rail_symbol(sh, '+3V3_COOL', (126, tach_pin[1] - 6))
     with kicadgen.pinned_refs('R', first_resistor + 2):
-        hres(sh, '1k', 117, tach_pin[1])
+        hres(sh, '4.7k', 117, tach_pin[1])
     wire(sh, (114, tach_pin[1]), (70, tach_pin[1]))
     net_label(sh, tach_net, (70, tach_pin[1]), 180, is_global=True)
     plus = pin_cell(connector, '2')
@@ -2567,7 +2625,7 @@ def build_cooling(sh):
     )
     raw = pin_cell(j_flow, '3')
     wire(sh, raw, (raw[0] - 6, raw[1]))
-    hres(sh, '1k', raw[0] - 9, raw[1])
+    hres(sh, '4.7k', raw[0] - 9, raw[1])
     wire(sh, (raw[0] - 12, raw[1]), (raw[0] - 30, raw[1]))
     net_label(sh, 'FLOW_TACH', (raw[0] - 30, raw[1]), 180, is_global=True)
     vres(sh, '10k', raw[0] - 20, raw[1] - 6)
@@ -2595,6 +2653,18 @@ def build_cooling(sh):
     vcap(sh, '100nF', ntc[0] - 22, ntc[1])
     drop_ground(sh, (ntc[0] - 22, ntc[1] + 6), 0)
     ground(sh, spur(sh, j_ntc, '2', 2))
+    # ESD clamp on the GPIO side of the tach resistors: J3-J5 carry 12 V beside the
+    # tach pin, and a 5.5 V clamp on the connector side would not survive that short
+    sh.note('ESD CLAMP (GPIO SIDE)', 150 * 1.27, 112 * 1.27, 1.8)
+    with rev3_refs('U'):
+        clamp = esd_array(sh, 180, 128)
+    for pin, net in (
+        ('1', 'FAN_TACH'),
+        ('2', 'PUMP_TACH'),
+        ('4', 'FLOW_TACH'),
+        ('5', 'NTC_ADC'),
+    ):
+        net_label(sh, net, spur(sh, clamp, pin, 3), 180, is_global=True)
 
 
 def build_cold_head(sh):
@@ -2603,22 +2673,29 @@ def build_cold_head(sh):
     """
     sh.handwired = True
     sh.note(
-        'PT1000 4-wire ratiometric: IDAC1 (AIN3) excites, AIN1/AIN0 sense, '
-        'Rref (3.9k) on REFP0/REFN0. SPI mode 1 on the main bus (CS from the decoder), '
-        'internal oscillator (CLK tied low). DRDY is not wired to the MCU.',
+        'PT1000 4-wire ratiometric: IDAC1 (AIN3) excites through 1k (1.5 V at 250 uA '
+        'if the cable shorts), AIN1/AIN0 sense, Rref (3.9k) on REFP0/REFN0. SPI mode 1 '
+        'on the main bus (CS from the decoder), internal oscillator (CLK tied low).',
         20,
         15,
     )
+    sh.note(
+        'DRDY goes to its test point only: firmware polls the conversion. The ESD '
+        'clamp sits on the connector side of the 1k resistors; 10 nA of leakage is '
+        'about 0.01 K.',
+        20,
+        21,
+    )
     adc = place_ic(
         sh,
-        'cryocooler:ADS1220IPW',
-        'ADS1220IPW',
+        'cryocooler:ADS1220IRVAR',
+        'ADS1220IRVAR',
         54,
         60,
-        'Package_SO:TSSOP-16_4.4x5mm_P0.65mm',
+        'Package_DFN_QFN:Texas_RVA_VQFN-16-1EP_3.5x3.5mm_P0.5mm_EP2.14x2.14mm',
     )
     # supplies
-    avdd, dvdd = pin_cell(adc, '12'), pin_cell(adc, '13')
+    avdd, dvdd = pin_cell(adc, '10'), pin_cell(adc, '11')
     wire(sh, avdd, (avdd[0], 42))
     wire(sh, dvdd, (dvdd[0], 42))
     wire(sh, (avdd[0], 42), (dvdd[0], 42))
@@ -2629,36 +2706,22 @@ def build_cold_head(sh):
         190,
         100,
     )
-    gnd_bus(
-        sh,
-        [
-            pin_cell(adc, '8'),
-            pin_cell(adc, '5'),
-            pin_cell(adc, '4'),
-            pin_cell(adc, '3'),
-        ],
-    )
-    # left side: SPI bus labels, chip select with pull-up, DRDY pull-up
+    gnd_bus(sh, [pin_cell(adc, number) for number in ('6', '3', '2', '1', '17')])
+    # left side: SPI bus labels; the decoder drives CS push-pull and DRDY is unread
     for pin, net in (
-        ('2', 'ADS1220_CS'),
-        ('1', 'SPI_SCK'),
-        ('16', 'SPI_MOSI'),
-        ('15', 'SPI_MISO'),
+        ('16', 'ADS1220_CS'),
+        ('15', 'SPI_SCK'),
+        ('14', 'SPI_MOSI'),
+        ('13', 'SPI_MISO'),
     ):
         net_label(sh, net, spur(sh, adc, pin, 12), 180, is_global=True)
-    cs = pin_cell(adc, '2')
-    vres(sh, '10k', cs[0] - 6, cs[1] - 6)
-    # switched rail: a +3V3 pull-up back-feeds the ADC through its CS clamp
-    # diode when JP5 is out (rev 1 bench finding)
-    rail_symbol(sh, '+3V3_CH', (cs[0] - 6, cs[1] - 6))
-    drdy_end = spur(sh, adc, '14', 4)
-    drdy = (drdy_end[0], drdy_end[1] + 4)
-    wire(sh, drdy_end, drdy, (drdy[0], drdy[1] + 4))
-    hres(sh, '10k', drdy[0] - 3, drdy[1])
-    rail_symbol(sh, '+3V3_CH', (drdy[0] - 6, drdy[1]))
-    test_point(sh, 'ADS1220_DRDY', (drdy[0], drdy[1] + 4), rot=180)
+    kicadgen.retire_refs('R', 2)
+    drdy_end = spur(sh, adc, '12', 4)
+    drdy = (drdy_end[0], drdy_end[1] + 8)
+    wire(sh, drdy_end, drdy)
+    test_point(sh, 'ADS1220_DRDY', drdy, rot=180)
     # right side inputs
-    sh.nc(adc, '7')
+    sh.nc(adc, '5')
     j_rtd = conn(
         sh,
         'Connector_Generic:Conn_01x04',
@@ -2671,30 +2734,26 @@ def build_cold_head(sh):
     fp_pin, sp_pin, sn_pin, ref_pin = (
         pin_cell(j_rtd, n) for n in ('1', '2', '3', '4')
     )
-    wire(
-        sh,
-        pin_cell(adc, '6'),
-        (74, 54),
-        (74, 44),
-        (160, 44),
-        (160, fp_pin[1]),
-        fp_pin,
-    )
+    excitation = pin_cell(adc, '4')
+    wire(sh, excitation, (74, excitation[1]), (74, 44), (122, 44))
+    with rev3_refs('R'):
+        hres(sh, '1k', 125, 44)
+    wire(sh, (128, 44), (140, 44), (160, 44), (160, fp_pin[1]), fp_pin)
     ain1, ain0, refp = (
-        pin_cell(adc, '10'),
-        pin_cell(adc, '11'),
+        pin_cell(adc, '8'),
         pin_cell(adc, '9'),
+        pin_cell(adc, '7'),
     )
     wire(sh, ain1, (76, ain1[1]), (76, 50), (93, 50))
     hres(sh, '1k', 96, 50)
-    wire(sh, (99, 50), (156, 50), (156, sp_pin[1]), sp_pin)
+    wire(sh, (99, 50), (140, 50), (156, 50), (156, sp_pin[1]), sp_pin)
     vcap(sh, '10nF', 82, 50)
     drop_ground(sh, (82, 56), 0)
     vcap(sh, '100nF', 88, 50)
     wire(sh, (88, 56), (88, 68))
     wire(sh, ain0, (78, ain0[1]), (78, 68), (93, 68))
     hres(sh, '1k', 96, 68)
-    wire(sh, (99, 68), (152, 68), (152, sn_pin[1]), sn_pin)
+    wire(sh, (99, 68), (140, 68), (152, 68), (152, sn_pin[1]), sn_pin)
     vcap(sh, '10nF', 82, 68)
     drop_ground(sh, (82, 74), 0)
     wire(
@@ -2702,6 +2761,7 @@ def build_cold_head(sh):
         refp,
         (76, refp[1]),
         (76, 80),
+        (140, 80),
         (160, 80),
         (160, ref_pin[1]),
         ref_pin,
@@ -2710,6 +2770,18 @@ def build_cold_head(sh):
     drop_ground(sh, (100, 86), 0)
     vcap(sh, '100nF', 108, 80)
     drop_ground(sh, (108, 86), 0)
+    # ESD clamp on all four cable lines
+    with rev3_refs('U'):
+        clamp = esd_array(sh, 150, 104)
+    for pin, net, tap_row in (
+        ('1', 'RTD_1', 44),
+        ('2', 'RTD_2', 50),
+        ('4', 'RTD_3', 68),
+        ('5', 'RTD_4', 80),
+    ):
+        wire(sh, (140, tap_row), (140, tap_row - 3), (142, tap_row - 3))
+        net_label(sh, net, (142, tap_row - 3), 0)
+        net_label(sh, net, spur(sh, clamp, pin, 3), 180)
 
 
 def build_imu(sh):
@@ -2735,9 +2807,9 @@ def build_imu(sh):
         21,
     )
     sh.note(
-        'Module Vin = +3V3 keeps its logic at 3.3 V. 100 R series resistors '
-        'damp the cable; the 10 k keeps CS high with the cable unplugged; '
-        'the jack shield is tied to GND.',
+        'Module Vin = +3V3 keeps its logic at 3.3 V. NUF4001MU filters: 100 R in '
+        'series to damp the cable, 13 pF and an ESD clamp on each side. Two channels '
+        'of the second part are spare. The jack shield is tied to GND.',
         20,
         27,
     )
@@ -2779,23 +2851,37 @@ def build_imu(sh):
         ),
         key=lambda signal: tips[signal[0]][1],
     )
+    with rev3_refs('U'):
+        filters = [imu_filter(sh, column - 36, 78), imu_filter(sh, column - 36, 102)]
+    # the removed series resistors leave one number retired, as the old CS pull-up did
+    kicadgen.retire_refs('R', 1)
+    jack_pins = ('8', '7', '6', '5')
+    module_pins = ('1', '2', '3', '4')
     # staircase fan-out, top signal turning furthest left, so no wires cross
     for index, (number, net) in enumerate(signals):
-        pin_row = tips[number][1]
+        part = filters[index // 4]
+        channel = index % 4
+        target = pin_cell(part, jack_pins[channel])
         bend = column - 8 - 3 * (len(signals) - 1 - index)
-        row = 74 + 9 * index
-        resistor_x = bend - 8
-        wire(sh, tips[number], (bend, pin_row), (bend, row), (resistor_x + 3, row))
-        # R90-R95 follow the last numbered resistor so no other part moves
-        with kicadgen.pinned_refs('R', 89 + index):
-            hres(sh, '100', resistor_x, row)
-        far = resistor_x - 3 - 14
-        wire(sh, (resistor_x - 3, row), (far, row))
-        net_label(sh, net, (far, row), 180, is_global=True)
-        if net == 'IMU_CS':
-            pull_x = resistor_x - 3 - 7
-            vres(sh, '10k', pull_x, row - 6)
-            rail_symbol(sh, '+3V3', (pull_x, row - 6))
+        wire(sh, tips[number], (bend, tips[number][1]), (bend, target[1]), target)
+        far = spur(sh, part, module_pins[channel], 12)
+        net_label(sh, net, far, 180, is_global=True)
+    for pin in ('3', '4', '5', '6'):
+        sh.nc(filters[1], pin)
+
+
+def imu_filter(sh, column, row):
+    """NUF4001MU four-channel 100 R filter with its ground pad tied off."""
+    part = place_ic(
+        sh,
+        'cryocooler:NUF4001MUT2G',
+        'NUF4001MUT2G',
+        column,
+        row,
+        'cryocooler:OnSemi_UDFN-8-1EP_517AD',
+    )
+    drop_ground(sh, pin_cell(part, '9'), 2)
+    return part
 
 
 FPC14 = (
@@ -2901,7 +2987,7 @@ def display_parts(sh):
         net_label(sh, net, spur(sh, touch, pin, 4), 0, is_global=True)
     sh.nc(touch, '1')
     irq = spur(sh, touch, '15', 4)
-    net_label(sh, 'TOUCH_IRQ', irq, 0)
+    net_label(sh, 'TOUCH_IRQ', irq, 0, is_global=True)
     wire(sh, irq, (irq[0], irq[1] + 4))
     test_point(sh, 'TOUCH_IRQ', (irq[0], irq[1] + 4), rot=180)
     vcc, iovdd = pin_cell(touch, '5'), pin_cell(touch, '14')
@@ -2920,11 +3006,11 @@ def display_parts(sh):
         130,
     )
     # backlight: +5V_OR -> 39R -> anode; cathode switched to ground by a
-    # BSS138 that a bridge GPIO turns on (pulled off at reset)
+    # BSS138 that an expander pin turns on (pulled off at reset)
     sh.note('BACKLIGHT', 20 * 1.27, 112 * 1.27, 1.8)
     rail_symbol(sh, '+5V_OR', (24, 120))
     wire(sh, (24, 120), (28, 120))
-    hres(sh, '39', 31, 120, fp=R0805)
+    hres(sh, '39', 31, 120, fp=R1206)
     wire(sh, (34, 120), (38, 120))
     net_label(sh, 'DISP_BL_A', (38, 120), 0)
     fet = nfet(sh, 'BSS138', '', '', pose=at(60, 130), fp=SOT23)
@@ -2996,40 +3082,19 @@ def display_buffers(sh):
         )
 
 
-def led_chain(sh, net, value, row):
-    """GPIO label -> 1.5k -> LED -> ground, drawn left to right."""
-    net_label(sh, net, (36, row), 180, is_global=True)
-    wire(sh, (36, row), (40, row))
-    hres(sh, '1.5k', 43, row)
-    wire(sh, (46, row), (48, row))
-    led_part = sh.add(
-        'Device:LED',
-        next_ref('D'),
-        value,
-        51 * 1.27,
-        row * 1.27,
-        rot=180,
-        auto=False,
-        footprint=LED0402,
-    )
-    drop_ground(sh, pin_cell(led_part, '1'), 2)
-    return led_part
-
-
 def build_indicators(sh):
-    """Hand-laid: two simple LED chains and the WS2812B behind its level
-    shifter.
-    """
+    """Hand-laid: the WS2812B-2020 status LED behind its level shifter."""
     sh.handwired = True
     sh.note(
-        'READY (MCP23S08 GP5) and FAULT (GP6) LEDs, active high; WS2812B status '
-        'LED on GPIO38 via a 74AHCT1G125 3.3 V -> 5 V level shifter (WS2812B '
-        'VIH = 0.7 x VDD).',
+        'WS2812B-2020 status LED on GPIO38 via a 74AHCT1G125 3.3 V -> 5 V level shifter. '
+        'Works without the SPI bus, so it can show faults '
+        'the bus would hide.',
         20,
         15,
     )
-    led_chain(sh, 'LED_READY', 'READY (green)', 40)
-    led_chain(sh, 'LED_FAULT', 'FAULT (red)', 56)
+    # numbers of the removed READY and FAULT LEDs
+    kicadgen.retire_refs('R', 2)
+    kicadgen.retire_refs('D', 2)
     buf = place_ic(
         sh,
         'cryocooler:74AHCT1G125',
@@ -3039,13 +3104,13 @@ def build_indicators(sh):
         'Package_TO_SOT_SMD:SOT-23-5',
     )
     rgb = sh.add(
-        'LED:WS2812B',
+        'LED:WS2812B-2020',
         next_ref('D'),
-        'WS2812B',
+        'WS2812B-2020',
         100 * 1.27,
         100 * 1.27,
         auto=False,
-        footprint='LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm',
+        footprint='LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm',
     )
     # buffer: output enable to ground, 5 V supply with bypass, input with
     # pull-down
@@ -3061,22 +3126,22 @@ def build_indicators(sh):
     y_pin = pin_cell(buf, '4')
     wire(sh, y_pin, (y_pin[0] + 2, y_pin[1]))
     hres(sh, '330', y_pin[0] + 5, y_pin[1])
-    wire(sh, (y_pin[0] + 8, y_pin[1]), pin_cell(rgb, '4'))
-    vdd = pin_cell(rgb, '1')
+    wire(sh, (y_pin[0] + 8, y_pin[1]), pin_cell(rgb, '3'))
+    vdd = pin_cell(rgb, '4')
     wire(sh, vdd, (vdd[0], vdd[1] - 6))
     rail_symbol(sh, '+5V', (vdd[0], vdd[1] - 6))
     place_blocks(
         sh,
         [
             ('74AHCT1G125 DECOUPLING CAPACITORS', '+5V', ('100nF',)),
-            ('WS2812B DECOUPLING CAPACITORS', '+5V', ('100nF',)),
+            ('WS2812B-2020 DECOUPLING CAPACITORS', '+5V', ('100nF',)),
         ],
         150,
         70,
         max_column=300,
     )
-    drop_ground(sh, pin_cell(rgb, '3'), 2)
-    sh.nc(rgb, '2')
+    drop_ground(sh, pin_cell(rgb, '2'), 2)
+    sh.nc(rgb, '1')
 
 
 # ═════════════════════════════════════════════════════════════════════════
@@ -3088,30 +3153,30 @@ ROOT_UUID = '8aa5b67b-a486-4448-878d-4d9f2d51f462'
 
 # ── supply switches ──────────────────────────────────────────────────────
 # One SMT 0R jumper in series with each load's supply feed (desolder it to
-# power that part off) and an LED on the switched side. Each switched rail is a
-# power net of its own: (key, main rail, switched rail, title, LED resistor);
-# an empty resistor means the rail already has a power LED (D15 / D16 / D17).
+# power that part off). Each switched rail is a power net of its own:
+# (key, main rail, switched rail, title).
 # Keystone 5110: a 'true zero ohm' 0603 SMT jumper that drops onto a
 # standard 0603 resistor land pattern (Keystone catalog p.60)
 SWITCH_HEADER = 'Resistor_SMD:R_0603_1608Metric'
 SWITCHES = (
-    ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3', '1.5k'),
-    ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)', '3.3k'),
-    ('ISO5', '+5V_OR', '+5V_ISO', 'ISOLATED SUPPLY +5V IN', '3.3k'),
-    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (FAN, PUMP, FLOW, NTC)', '1.5k'),
-    ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)', '1.5k'),
+    ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3'),
+    ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)'),
+    ('ISO5', '+5V_OR', '+5V_ISO', 'ISOLATED SUPPLY +5V IN'),
+    ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (FAN, PUMP, FLOW, NTC)'),
+    ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
 kicadgen.POWER_SYMBOLS['+5V_ISO'] = '+5V'
-# highest reference numbers used elsewhere: the LED chains continue from them
-LAST_LED_REF, LAST_RESISTOR_REF = 17, 95
+kicadgen.POWER_SYMBOLS['VISOOUT'] = '+5VA'
+kicadgen.POWER_SYMBOLS['ISO_GND2'] = 'GNDREF'
+# The ADS1220 reference is ratiometric but its supply is shared with the buck, so
+# the cold head feed gets a ferrite ahead of its jumper.
+BEAD_AHEAD_OF_JUMPER = {'CH'}
 
 
-def supply_block(sh, spec, led_index, column, row):
-    """Main rail -> jumper -> switched rail, with a PWR_FLAG on the switched
-    rail and an LED chain below it.
-    """
-    key, main, switched, title, ohms = spec
+def supply_block(sh, spec, column, row):
+    """Main rail -> jumper -> switched rail, with a PWR_FLAG on the switched rail."""
+    key, main, switched, title = spec
     sh.note(title, column * 1.27, (row - 6) * 1.27, 1.6)
     jumper = sh.add(
         'Jumper:Jumper_2_Bridged',
@@ -3124,27 +3189,26 @@ def supply_block(sh, spec, led_index, column, row):
         footprint=SWITCH_HEADER,
     )
     first, second = pin_cell(jumper, '1'), pin_cell(jumper, '2')
-    rail_symbol(sh, main, (first[0] - 4, first[1]))
-    wire(sh, (first[0] - 4, first[1]), first)
+    if key in BEAD_AHEAD_OF_JUMPER:
+        with rev3_refs('FB'):
+            aux(
+                sh,
+                'Device:FerriteBead',
+                'FB',
+                'BLM18PG121SN1D',
+                {},
+                pose=at(first[0] - 3, first[1], 90),
+                fp=BEAD_0603,
+            )
+        rail_symbol(sh, main, (first[0] - 10, first[1]))
+        wire(sh, (first[0] - 10, first[1]), (first[0] - 6, first[1]))
+    else:
+        rail_symbol(sh, main, (first[0] - 4, first[1]))
+        wire(sh, (first[0] - 4, first[1]), first)
     flag_x, switched_x = second[0] + 3, second[0] + 6
     wire(sh, second, (flag_x, second[1]), (switched_x, second[1]))
     rail_flag(sh, (flag_x, second[1]))
     rail_symbol(sh, switched, (switched_x, second[1]))
-    if not ohms:
-        return
-    ground = 'ISO_GND' if switched.startswith('ISO') else 'GND'
-    with kicadgen.pinned_refs('R', LAST_RESISTOR_REF + led_index), (
-        kicadgen.pinned_refs('D', LAST_LED_REF + led_index)
-    ):
-        debug_rail_led(
-            sh,
-            switched,
-            ohms,
-            f'{title} (green)',
-            column + 4,
-            row + 8,
-            ground,
-        )
 
 
 def build_supply_switches(sh):
@@ -3152,19 +3216,13 @@ def build_supply_switches(sh):
     sh.handwired = True
     sh.note(
         'Each Keystone 5110 0603 jumper sits in series with one load supply: '
-        'remove it to power that part off. The LED shows the switched rail is present. '
-        'A part left unpowered can still be fed through its signal pins, so '
-        'disconnect the cable too when you need it fully dead.',
+        'remove it to power that part off. A part left unpowered can still be fed '
+        'through its signal pins, so disconnect the cable too when you need it fully dead.',
         20,
         15,
     )
-    led_index = 0
     for index, spec in enumerate(SWITCHES):
-        column = 24 + 90 * (index // 6)
-        row = 40 + 28 * (index % 6)
-        supply_block(sh, spec, led_index, column, row)
-        if spec[4]:
-            led_index += 1
+        supply_block(sh, spec, 36 + 90 * (index // 6), 40 + 28 * (index % 6))
 
 
 SHEETS = [

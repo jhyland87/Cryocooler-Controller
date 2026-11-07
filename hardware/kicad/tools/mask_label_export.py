@@ -21,7 +21,7 @@ MASK = {'F': pcbnew.F_Mask, 'B': pcbnew.B_Mask}
 FAB = {'F': pcbnew.F_Fab, 'B': pcbnew.B_Fab}
 EXTRA_NAMED_PARTS = {'RESET': 'SW1', 'BOOT': 'SW2'}
 # text this tool never moves: board ID and names printed on part bodies
-FIXED_TEXT = {'POWER & RAILS', 'cryocooler', 'ACS37800', 'ISO7741DW', 'LD1117\nS33TR',
+FIXED_TEXT = {'POWER & RAILS', 'POWER IN', 'cryocooler', 'ACS37800', 'ISOW7741',
               'TO CRYO-\nCOOLER'}
 
 

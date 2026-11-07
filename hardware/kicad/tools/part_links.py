@@ -13,7 +13,7 @@ import gen_bom
 # MPN prefix -> datasheet URL (longest prefix wins)
 DATASHEETS = {
     'TL6800': 'https://www.mouser.com/datasheet/3/315/1/TL6800AF260QJ.pdf',
-    'PTS810': 'https://ckswitches.com/media/1476/pts810.pdf',
+    'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'ESP32-S3-WROOM-2':'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
     'OPA1655': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
@@ -24,30 +24,32 @@ DATASHEETS = {
     'OPA188': 'https://www.ti.com/lit/ds/symlink/opa188.pdf',
     'LM4040': 'https://www.ti.com/lit/ds/symlink/lm4040.pdf',
     'INA239': 'https://www.ti.com/lit/ds/symlink/ina239.pdf',
-    'ISO7741': 'https://www.ti.com/lit/ds/symlink/iso7741.pdf',
+    'ISOW7741': 'https://www.ti.com/lit/ds/symlink/isow7741.pdf',
     'ADS1220': 'https://www.ti.com/lit/ds/symlink/ads1220.pdf',
+    'AD5453': 'https://www.analog.com/media/en/technical-documentation/'
+    'data-sheets/AD5450_5451_5452_5453.pdf',
+    'TPS62822': 'https://www.ti.com/lit/ds/symlink/tps62823.pdf',
+    'TPS2116': 'https://www.ti.com/lit/ds/symlink/tps2116.pdf',
+    'TPD4E05U06': 'https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf',
+    'NUF4001': 'https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf',
+    'TPD1E05U06': 'https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf',
+    'AONR21307': 'https://aosmd.com/res/data_sheets/AONR21307.pdf',
+    'SRP4020TA': 'https://www.bourns.com/docs/Product-Datasheets/SRP4020TA.pdf',
+    'ECS-2520MV': 'https://ecsxtal.com/store/pdf/ECS-2520MV.pdf',
+    'BZT52C': 'https://www.diodes.com/assets/Datasheets/ds18004.pdf',
+    'MMBZ9V1': 'https://www.onsemi.com/download/data-sheet/pdf/mmbz5v6alt1-d.pdf',
     'SN74AHCT1G125': 'https://www.ti.com/lit/ds/symlink/sn74ahct1g125.pdf',
-    '74LVC1G125': 'https://www.ti.com/lit/ds/symlink/sn74lvc1g125.pdf',
     'SN74LV1T34': 'https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf',
     'SN74LVC138A': 'https://www.ti.com/lit/ds/symlink/sn74lvc138a.pdf',
     'AD9833': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/ad9833.pdf',
-    'AD633': 'https://www.analog.com/media/en/technical-documentation/'
-    'data-sheets/AD633.pdf',
     'LTC2954': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/2954fb.pdf',
     'ADP5071': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/ADP5071.pdf',
     'LT3097': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/lt3097.pdf',
-    'SC18IS604': 'https://www.nxp.com/docs/en/data-sheet/SC18IS604.pdf',
-    'CL25': 'https://ww1.microchip.com/downloads/en/DeviceDoc/CL25.pdf',
-    'MCP4921': 'https://ww1.microchip.com/downloads/en/DeviceDoc/22248a.pdf',
-    'EMC2303': 'https://ww1.microchip.com/downloads/en/DeviceDoc/'
-    'EMC2301-2-3-5-Data-Sheet-DS20006532A.pdf',
     'USBLC6-2': 'https://www.st.com/resource/en/datasheet/usblc6-2.pdf',
-    'LD1117': 'https://www.st.com/resource/en/datasheet/ld1117.pdf',
-    'LM66100': 'https://www.ti.com/lit/ds/symlink/lm66100.pdf',
     'AP63205': 'https://www.diodes.com/assets/Datasheets/'
     'AP63200-AP63201-AP63203-AP63205.pdf',
     'BSS138-7': 'https://www.diodes.com/assets/Datasheets/BSS138.pdf',
@@ -57,24 +59,18 @@ DATASHEETS = {
     'acs37800-datasheet.pdf',
     'USB4105': 'https://gct.co/files/drawings/usb4105.pdf',
     'SRP7050TA': 'https://www.bourns.com/docs/Product-Datasheets/SRP7050TA.pdf',
-    'SRP6050CA': 'https://www.bourns.com/docs/Product-Datasheets/SRP6050CA.pdf',
     'CR0603': 'https://www.bourns.com/docs/Product-Datasheets/chpreztr.pdf',
-    '1655': 'https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf',
+    '4684': 'https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf',
     'XZMDKVG55W': 'https://www.sunledusa.com/products/spec/XZMDKVG55W-4.pdf',
     'WSL2512': 'https://www.vishay.com/docs/30100/wsl.pdf',
     'CRCW0603': 'https://www.vishay.com/docs/20035/dcrcwe3.pdf',
     'C0603C': 'https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf',
     'C1206C': 'https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf',
     'C1210C': 'https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf',
-    'T491': 'https://content.kemet.com/datasheets/KEM_T2005_T491.pdf',
-    'SG-8002CA': 'https://www.digikey.com/en/products/result?keywords='
-    'SG-8002CA',
     '1769': 'https://cdn-shop.adafruit.com/datasheets/17311.pdf',
     '5001': 'https://www.keyelco.com/product-pdf.cfm?p=1310',
     '4392': 'https://cdn-shop.adafruit.com/product-files/4392/'
     '4392_C13927-001_CW2001-04T-H01-BD-A.PDF',
-    'LT8582': 'https://www.analog.com/media/en/technical-documentation/'
-    'data-sheets/8582f.pdf',
     'TSC2046E': 'https://www.ti.com/lit/ds/symlink/tsc2046e.pdf',
     'TSC2046': 'https://www.ti.com/lit/ds/symlink/tsc2046.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
@@ -85,8 +81,9 @@ DATASHEETS = {
 
 # Phoenix item number -> product page (datasheet and drawings are on it)
 PRODUCT_PAGES = {
+    '4684': 'https://www.adafruit.com/product/4684',
     'TL6800AF260QJ': 'https://www.mouser.com/en/ProductDetail/E-Switch/TL6800AF260QJ',
-    'PTS810SJM250SMTR LFS': 'https://www.mouser.com/en/ProductDetail/CK/PTS810SJM250SMTR-LFS',
+    'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'SWR25X-NRTC-S02-RB-BA':'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
     'CO975': 'https://www.moddiy.com/products/5408/4-Pin-3-Pin-2.54mm-Pitch-2510-Fan-Male-Angled-Connector-Black.html',

@@ -2,29 +2,22 @@
  * @file indicator.cpp
  * @brief FAULT and READY indicator implementation
  *
- * Uses the on-board WS2812 LED (STATUS_LED_PIN) to display a combined
- * FAULT + READY colour, and optional discrete digital outputs on
- * EXPANDER_PIN_FAULT_IND / EXPANDER_PIN_READY_IND.
+ * Uses the on-board WS2812B-2020 LED (STATUS_LED_PIN) to display a combined
+ * FAULT + READY colour.  It needs no SPI, so it still works if the bus is down.
  *
  * Flash timing is non-blocking (state-machine style).
- * LED output uses rgbLedWrite() from the ESP32 Arduino core — no external
- * library required.
+ * LED output uses the ESP32 Arduino core's RMT driver — no external library
+ * required.
  */
 
 #include <Arduino.h>
 
+#include <string.h>
+
 #include "pin_config.h"
 #include "config.h"
 #include "indicator.h"
-#include "gpio_expander.h"
 #include "tick.h"
-
-// rgbLedWrite() was introduced in Arduino Core 3.x.  Core 2.x provides the
-// identical function under the name neopixelWrite() (same signature, same
-// RMT-based WS2812 implementation).
-#if ESP_ARDUINO_VERSION_MAJOR < 3
-#define rgbLedWrite neopixelWrite
-#endif
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,6 +32,16 @@ struct RgbColor {
 // ---------------------------------------------------------------------------
 // Module constants
 // ---------------------------------------------------------------------------
+
+// WS2812B-2020 bit timing in 100 ns RMT ticks.
+static constexpr float   RMT_TICK_NS = 100.0f;
+static constexpr uint8_t T0H_TICKS   = 3;
+static constexpr uint8_t T0L_TICKS   = 8;
+static constexpr uint8_t T1H_TICKS   = 8;
+static constexpr uint8_t T1L_TICKS   = 6;
+
+static rmt_obj_t* sLedRmt = nullptr;
+static uint8_t    sLastChannels[3] = {0, 0, 0};
 
 static constexpr RgbColor COLOR_OFF     = {   0,   0,   0 };
 static constexpr RgbColor COLOR_RED     = { 255,   0,   0 };
@@ -79,12 +82,44 @@ static inline uint8_t applyBrightness(uint8_t channel)
     );
 }
 
+/**
+ * Send one colour to the WS2812B-2020 when it differs from the last one sent.
+ *
+ * The part needs T0H 220-380 ns and T1H/T0L/T1L 580-1000 ns (datasheet V1.3
+ * p.4), which neopixelWrite()'s 400 ns T0H and T1L miss. It also latches only
+ * after 280 us of low, so frames can't be sent on every loop pass.
+ */
 static void writeLed(const RgbColor& color)
 {
-    rgbLedWrite(STATUS_LED_PIN,
-                applyBrightness(color.red),
-                applyBrightness(color.green),
-                applyBrightness(color.blue));
+    const uint8_t channels[] = {applyBrightness(color.green),
+                                applyBrightness(color.red),
+                                applyBrightness(color.blue)};
+    if (sLedRmt != nullptr && memcmp(channels, sLastChannels, sizeof(channels)) == 0) {
+        return;
+    }
+    if (sLedRmt == nullptr) {
+        sLedRmt = rmtInit(STATUS_LED_PIN, RMT_TX_MODE, RMT_MEM_64);
+        if (sLedRmt == nullptr) {
+            return;
+        }
+        rmtSetTick(sLedRmt, RMT_TICK_NS);
+    }
+
+    rmt_data_t bits[sizeof(channels) * 8];
+    size_t bitIndex = 0;
+    for (const uint8_t channel : channels) {
+        for (int bitNumber = 7; bitNumber >= 0; --bitNumber) {
+            const bool isOne = (channel >> bitNumber) & 1u;
+            bits[bitIndex].level0 = 1;
+            bits[bitIndex].duration0 = isOne ? T1H_TICKS : T0H_TICKS;
+            bits[bitIndex].level1 = 0;
+            bits[bitIndex].duration1 = isOne ? T1L_TICKS : T0L_TICKS;
+            ++bitIndex;
+        }
+    }
+    if (rmtWrite(sLedRmt, bits, bitIndex)) {
+        memcpy(sLastChannels, channels, sizeof(channels));
+    }
 }
 
 /**
@@ -165,9 +200,6 @@ module::InitStatus init()
     // rgbLedWrite() initialises the RMT channel on first call — no explicit
     // setup required beyond the call itself.
     writeLed(COLOR_OFF);
-
-    gpio_expander::writePin(EXPANDER_PIN_FAULT_IND, false);
-    gpio_expander::writePin(EXPANDER_PIN_READY_IND, false);
     return module::MODULE_INIT_SUCCESS;
 }
 
@@ -197,10 +229,6 @@ void update()
 
     faultOnCached = faultOn;
     readyOnCached = readyOn;
-
-    // Discrete LEDs (active HIGH)
-    gpio_expander::writePin(EXPANDER_PIN_FAULT_IND, faultOn);
-    gpio_expander::writePin(EXPANDER_PIN_READY_IND, readyOn);
 
     // WS2812 — fault takes priority; both active simultaneously shows amber
     RgbColor colour = COLOR_OFF;

@@ -2,8 +2,7 @@
  * @file indicator.h
  * @brief FAULT and READY indicator control
  *
- * Drives the on-board WS2812 RGB LED (and optionally discrete digital LEDs
- * on EXPANDER_PIN_FAULT_IND / EXPANDER_PIN_READY_IND) according to the system state table:
+ * Drives the on-board WS2812B-2020 RGB LED according to the system state table:
  *
  *   State  | FAULT IND          | READY IND
  *   -------|--------------------|-----------------------

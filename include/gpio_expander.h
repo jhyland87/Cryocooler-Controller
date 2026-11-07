@@ -2,9 +2,9 @@
  * @file gpio_expander.h
  * @brief MCP23S08 8-bit SPI GPIO expander driver.
  *
- * Holds the slow signals that have no ESP32 pin of their own: the four
- * power-good flags, the display backlight enable and the READY and FAULT LEDs
- * (EXPANDER_PIN_* in pin_config.h).  SPI mode 0 on the shared bus, chip select
+ * Holds the slow signals that have no ESP32 pin of their own: the +-15 V
+ * power-good flags, the display backlight enable, INA239 ALERT and TSC2046
+ * PENIRQ, plus three spare pins (EXPANDER_PIN_* in pin_config.h).  SPI mode 0 on the shared bus, chip select
  * EXPANDER_CS_PIN.  RESET is tied high and INT is not wired to the MCU.
  */
 
@@ -48,5 +48,25 @@ bool writePin(uint8_t pin, bool level);
  * @endcode
  */
 int16_t readPins();
+
+/**
+ * Port byte from the latest readPins() call, with no SPI traffic.  amplifier::
+ * service() refreshes it every 250 ms.
+ * @return Bit n = level of pin n, or -1 before the first successful read.
+ * @code
+ * const int16_t levels = gpio_expander::lastPins();
+ * @endcode
+ */
+int16_t lastPins();
+
+/**
+ * Check one pin of the cached port byte for an active-low input.
+ * @param pin Expander pin 0-7 (EXPANDER_PIN_*).
+ * @return true if the pin read low; false if it read high or nothing was read yet.
+ * @code
+ * const bool alert = gpio_expander::pinLow(EXPANDER_PIN_INA239_ALERT);
+ * @endcode
+ */
+bool pinLow(uint8_t pin);
 
 }  // namespace gpio_expander

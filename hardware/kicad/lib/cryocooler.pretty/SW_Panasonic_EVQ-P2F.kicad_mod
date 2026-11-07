@@ -1,0 +1,152 @@
+(footprint "SW_Panasonic_EVQ-P2F"
+	(version 20260206)
+	(generator "make_footprints")
+	(layer "F.Cu")
+	(descr "Panasonic EVQP2 tactile switch with ground terminal, 4.7 x 3.5 mm; land pattern from datasheet sw_lt_eng_4735s p.4")
+	(tags "Switch Tactile")
+	(property "Reference" "REF**"
+		(at 0 -4.2 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "EVQ-P2F02K"
+		(at 0 4.2 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -1.75 -2.35)
+		(end 1.75 -2.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 1.75 -2.35)
+		(end 1.75 2.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 1.75 2.35)
+		(end -1.75 2.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -1.75 2.35)
+		(end -1.75 -2.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 1.85 -2.45)
+		(end 1.85 2.45)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -1.85 -2.45)
+		(end -1.85 -0.9)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -1.85 0.9)
+		(end -1.85 2.45)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -2.6 -3.55)
+		(end 2.6 -3.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 2.6 -3.55)
+		(end 2.6 3.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 2.6 3.55)
+		(end -2.6 3.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -2.6 3.55)
+		(end -2.6 -3.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(pad "1" smd rect
+		(at -0.85 -2.575)
+		(size 1.0 1.45)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at 0.85 -2.575)
+		(size 1.0 1.45)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "1" smd rect
+		(at -0.85 2.575)
+		(size 1.0 1.45)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at 0.85 2.575)
+		(size 1.0 1.45)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at -2.025 0)
+		(size 0.65 1.4)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+)

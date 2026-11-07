@@ -85,10 +85,12 @@ def npth(x, y, drill):
 '''
 
 
-def footprint(name, description, body, pads, extra=''):
-    """body = (half_x, half_y) of the part outline."""
+def footprint(name, description, body, pads, extra='', courtyard=None):
+    """body = (half_x, half_y) of the part outline; courtyard defaults to the
+    outline plus 0.5 mm, so pass it when pads reach past that.
+    """
     half_x, half_y = body
-    courtyard = (round(half_x + 0.5, 2), round(half_y + 0.5, 2))
+    courtyard = courtyard or (round(half_x + 0.5, 2), round(half_y + 0.5, 2))
     return (
         f'(footprint "{name}"\n'
         '\t(version 20260206)\n'
@@ -579,6 +581,45 @@ def te_2305908_3():
     return te_2305908(3)
 
 
+def panasonic_evq_p2f():
+    """Panasonic EVQP2 with ground terminal, 4.7 x 3.5 mm (datasheet sw_lt_eng_4735s p.4,
+    land pattern for reference): 1.0 x 1.45 mm pads, 2.7 mm across a row with a 0.7 mm gap,
+    6.6 mm overall with a 3.7 mm gap between rows. Contacts 1-3 and 2-4 are common, so the
+    left column is pin 1 and the right column pin 2. GND land 0.65 x 1.4 mm, 1.7 to 2.35 mm
+    left of centre. It is numbered 2, so it only suits parts with pin 2 on GND.
+    """
+    pad_x, pad_y = 0.85, 2.575
+    pads = [
+        smd_pad('1', -pad_x, -pad_y, 1.0, 1.45),
+        smd_pad('2', pad_x, -pad_y, 1.0, 1.45),
+        smd_pad('1', -pad_x, pad_y, 1.0, 1.45),
+        smd_pad('2', pad_x, pad_y, 1.0, 1.45),
+        smd_pad('2', -2.025, 0, 0.65, 1.4),
+    ]
+    outline = (
+        box(-1.75, -2.35, 1.75, 2.35, 'F.Fab', 0.1)
+        + line(1.85, -2.45, 1.85, 2.45, 'F.SilkS', 0.12)
+        + line(-1.85, -2.45, -1.85, -0.9, 'F.SilkS', 0.12)
+        + line(-1.85, 0.9, -1.85, 2.45, 'F.SilkS', 0.12)
+        + box(-2.6, -3.55, 2.6, 3.55, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "SW_Panasonic_EVQ-P2F"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Panasonic EVQP2 tactile switch with ground terminal, 4.7 x 3.5 mm; land '
+        'pattern from datasheet sw_lt_eng_4735s p.4")\n'
+        '\t(tags "Switch Tactile")\n'
+        + text('Reference', 'REF**', 0, -4.2, 'F.SilkS')
+        + text('Value', 'EVQ-P2F02K', 0, 4.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 def phoenix_mc05_2_smd():
     """Phoenix MC 0,5/ 2-G-2,54 SMD R24 (1821698), drawing 00783144 rev 02. Origin
     on pin 1's pad; +y points out of the mating side. Pads 1.2 x 2.06 at 2.54, their
@@ -623,6 +664,98 @@ def phoenix_mc05_2_smd():
     )
 
 
+def srp4020ta():
+    """Bourns SRP4020TA, 4.45 x 4.06 x 1.8 mm. Recommended layout (datasheet p.1):
+    5.2 mm overall, 2.2 mm gap, 2.4 mm tall, so 1.5 mm wide pads. The outline is
+    drawn slightly wide so the silkscreen clears the pads.
+    """
+    pads = [smd_pad('1', -1.85, 0, 1.5, 2.4), smd_pad('2', 1.85, 0, 1.5, 2.4)]
+    return footprint(
+        'L_Bourns_SRP4020TA',
+        'Bourns SRP4020TA shielded power inductor, 4.45 x 4.06 x 1.8 mm; land pattern '
+        'from https://www.bourns.com/docs/product-datasheets/srp4020ta.pdf',
+        (2.4, 2.03),
+        pads,
+        courtyard=(2.85, 2.53),
+    )
+
+
+def aos_dfn3x3a():
+    """AOS DFN3x3A_8L_EP1_P (PO-00047 ver I) recommended land pattern. Bottom row
+    1-4 left to right (S, S, S, G), 0.35 x 0.5 mm at 0.65 mm pitch, centres 1.40 mm
+    below the tab line. Drain pad: 2.45 mm wide, ending 0.63 mm below the tab line,
+    four 0.4 mm fingers on top (pins 5-8 right to left), 0.38 mm tabs on each side.
+    """
+    row_x = (-0.975, -0.325, 0.325, 0.975)
+    pads = [
+        smd_pad(str(index + 1), x, 1.4, 0.35, 0.5)
+        for index, x in enumerate(row_x)
+    ]
+    pads += [
+        smd_pad(str(8 - index), x, -1.475, 0.4, 0.35)
+        for index, x in enumerate(row_x)
+    ]
+    pads.append(smd_pad('5', 0, -0.36, 2.45, 1.98))  # merged drain pad
+    pads.append(smd_pad('5', 0, 0, 3.21, 0.43))  # side tabs
+    return footprint(
+        'AOS_DFN3x3A_8L_EP1',
+        'AOS DFN 3x3 EP (AONR21307, drawn for AONR21305C) with 8 leads; land pattern from AOS drawing '
+        'PO-00047 ver I, DFN3x3A_8L_EP1_P. Pins 5-8 and the drain pad are one net',
+        (1.5, 1.5),
+        pads,
+        circle(-1.95, 1.4, 0.12, 'F.SilkS', 0.12, fill=True),
+        courtyard=(2.1, 2.0),
+    )
+
+
+def onsemi_udfn8_517ad():
+    """onsemi UDFN8 1.8 x 1.2 mm, 0.4 mm pitch, case 517AD (98AON22154D) soldering
+    footprint: 0.25 x 0.45 mm pads (pin 1 is 0.35 mm wide, growing outward), rows
+    1.50 mm overall, 1.10 x 0.35 mm ground pad. Pin 1 is bottom left, top view.
+    """
+    pads = [smd_pad('1', -0.65, 0.525, 0.35, 0.45)]
+    pads += [
+        smd_pad(number, x, 0.525, 0.25, 0.45)
+        for number, x in (('2', -0.2), ('3', 0.2), ('4', 0.6))
+    ]
+    pads += [
+        smd_pad(number, x, -0.525, 0.25, 0.45)
+        for number, x in (('5', 0.6), ('6', 0.2), ('7', -0.2), ('8', -0.6))
+    ]
+    pads.append(smd_pad('9', 0, 0, 1.1, 0.35))
+    return footprint(
+        'OnSemi_UDFN-8-1EP_517AD',
+        'onsemi UDFN8 1.8x1.2 mm 0.4P, case 517AD, with ground pad; land pattern from '
+        'https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf',
+        (0.9, 0.6),
+        pads,
+        circle(-1.4, 0.75, 0.12, 'F.SilkS', 0.12, fill=True),
+        courtyard=(1.6, 1.1),
+    )
+
+
+def ti_dfm0020a():
+    """TI DFM0020A SOIC-20W land pattern for 8.1 mm clearance/creepage (ISOW774x
+    SLLSFK1C): 20 x 1.65 x 0.6 mm pads, 1.27 mm pitch, 9.75 mm between pad centres.
+    Stock SOIC-20W land patterns leave less clearance than this. The silkscreen
+    outline is drawn narrower than the 7.5 mm body to clear the pads.
+    """
+    pads = []
+    for index in range(10):
+        row = round(-5.715 + index * 1.27, 3)
+        pads.append(smd_pad(str(index + 1), -4.875, row, 1.65, 0.6))
+        pads.append(smd_pad(str(20 - index), 4.875, row, 1.65, 0.6))
+    return footprint(
+        'TI_DFM0020A',
+        'TI DFM0020A SOIC-20W, 7.5 x 12.8 mm body; 8.1 mm clearance land pattern from '
+        'https://www.ti.com/lit/ds/symlink/isow7741.pdf',
+        (3.6, 6.4),
+        pads,
+        circle(-4.875, -6.5, 0.15, 'F.SilkS', 0.12, fill=True),
+        courtyard=(5.95, 6.9),
+    )
+
+
 FOOTPRINTS = {
     'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': te_2305908_2,
     'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': te_2305908_3,
@@ -634,6 +767,11 @@ FOOTPRINTS = {
     'Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal': wurth_61900311021,
     'L_Coilcraft_MSD7342': msd7342,
     'L_Bourns_SRP6050CA': srp6050ca,
+    'L_Bourns_SRP4020TA': srp4020ta,
+    'SW_Panasonic_EVQ-P2F': panasonic_evq_p2f,
+    'AOS_DFN3x3A_8L_EP1': aos_dfn3x3a,
+    'OnSemi_UDFN-8-1EP_517AD': onsemi_udfn8_517ad,
+    'TI_DFM0020A': ti_dfm0020a,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
     'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,
     'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': adafruit_4392,

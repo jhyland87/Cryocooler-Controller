@@ -49,7 +49,7 @@ private:
  * @brief An SPI IC whose transfers the module writes itself.
  *
  * @code
- * static const SpiDevice sDac(MCP4921_CS, SPISettings(4e6, MSBFIRST, SPI_MODE0));
+ * static const SpiDevice sDac(AD5453_SYNC, SPISettings(4e6, MSBFIRST, SPI_MODE1));
  *
  * sDac.begin();                        // once, from init()
  * SpiTransaction transaction(sDac);    // selects the IC

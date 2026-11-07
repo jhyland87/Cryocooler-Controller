@@ -74,6 +74,8 @@ static void applyPanelSettings() {
     }
 }
 
+bool touchPressed() { return gpio_expander::pinLow(EXPANDER_PIN_TOUCH_IRQ); }
+
 void setBacklight(bool on) {
     gpio_expander::writePin(EXPANDER_PIN_DISP_BL, on);
 }

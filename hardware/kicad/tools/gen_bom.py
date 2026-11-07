@@ -58,26 +58,22 @@ CAPS = {
         'CL05B104KB54PNC', 'CAP CER 0.1UF 50V X7R 0402', ''),
     ('10nF', 'C_0402_1005Metric'): (
         'CL05B103KB5NNNC', 'CAP CER 10000PF 50V X7R 0402', ''),
-    ('4.7nF', 'C_0402_1005Metric'): (
-        'CL05B472KB5NNNC', 'CAP CER 4700PF 50V X7R 0402',
-        'LT8582 VC1 compensation'),
-    ('2.2nF', 'C_0402_1005Metric'): (
-        'CL05B222KB5NNNC', 'CAP CER 2200PF 50V X7R 0402',
-        'LT8582 VC2 compensation'),
     ('1nF/C0G', 'C_0402_1005Metric'): (
         'CL05C102JB5NNNC', 'CAP CER 1000PF 50V C0G 0402',
-        'across R45 + R122 (49.4k) in the sine gain stage'),
-    ('47pF', 'C_0402_1005Metric'): (
-        'CL05C470JB5NNNC', 'CAP CER 47PF 50V C0G 0402',
-        'LT8582 VC high-frequency poles'),
+        'across R35 + R92 (49.4k) in the sine gain stage'),
+    ('120pF', 'C_0402_1005Metric'): (
+        'CL05C121JB5NNNC', 'CAP CER 120PF 50V C0G 0402',
+        'TPS62822 feed-forward across the 453k'),
+    ('2pF/C0G', 'C_0402_1005Metric'): (
+        'CL05C020CB5NNNC', 'CAP CER 2PF 50V C0G 0402',
+        'AD5453 output stage stability (datasheet C1)'),
+    ('47nF', 'C_0603_1608Metric'): (
+        'CL10B473KB8NNNC', 'CAP CER 0.047UF 50V X7R 0603',
+        'ADP5071 COMP1; Q1 gate-drain slow start'),
+    ('68nF', 'C_0603_1608Metric'): (
+        'CL10B683KB8NNNC', 'CAP CER 0.068UF 50V X7R 0603', 'ADP5071 COMP2'),
     ('1uF', 'C_0603_1608Metric'): (
         'CL10A105KB8NNNC', 'CAP CER 1UF 50V X5R 0603', ''),
-    ('4.7uF/25V', 'C_0805_2012Metric'): (
-        'CL21A475KAQNNNE', 'CAP CER 4.7UF 25V X5R 0805',
-        'LT8582 VIN1 / VIN2 input caps'),
-    ('2.2uF/50V', 'C_1206_3216Metric'): (
-        'CL31B225KBHNNNE', 'CAP CER 2.2UF 50V X7R 1206',
-        'LT8582 inverting coupling cap C1 (sees VIN + |VOUT| = 21.5 V)'),
     ('100nF', 'C_0805_2012Metric'): (
         'CL21B104KBCNNNC', 'CAP CER 0.1UF 50V X7R 0805', ''),
     ('10nF', 'C_0603_1608Metric'): (
@@ -90,35 +86,25 @@ CAPS = {
         'CL21A475KAQNNNE', 'CAP CER 4.7UF 25V X5R 0805', 'USB VBUS filter'),
     ('470nF', 'C_0805_2012Metric'): (
         'CL21B474KBFNNNE', 'CAP CER 0.47UF 50V X7R 0805',
-        'INA239 input filter across IN+/IN-'),
+        'INA239 input filter across IN+/IN-; Q1 gate-source'),
     ('10uF/25V', 'C_1206_3216Metric'): (
         'CL31A106KAHNNNE', 'CAP CER 10UF 25V X5R 1206', '12 V rail'),
     ('22uF/25V X7R', 'C_1210_3225Metric'): (
         'GRM32ER71E226KE15L', 'CAP CER 22UF 25V X7R 1210',
-        'LT8582 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs '
+        'ADP5071 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs '
         '>= 10 uF effective at 15 V DC bias (INN and both outputs have two in '
         'parallel; INP needs 4.7 uF), so check the DC-bias curve'),
     ('1uF/50V', 'C_1206_3216Metric'): (
         'CL31B105KBHNNNE', 'CAP CER 1UF 50V X7R 1206',
         'LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)'),
     ('22uF/10V', 'C_1206_3216Metric'): (
-        'CL31A226KPHNNNE', 'CAP CER 22UF 10V X5R 1206', '5 V buck output'),
-    ('22uF', 'C_1206_3216Metric'): (
         'CL31A226KPHNNNE', 'CAP CER 22UF 10V X5R 1206',
-        'isolated 3.3 V output (needs 10 V or more)'),
+        '5 V and 3.3 V buck outputs, ISOW7741 VDD and VISOOUT, ESP32'),
     ('22uF/25V', 'C_1210_3225Metric'): (
         'CL32A226KAJNNNE', 'CAP CER 22UF 25V X5R 1210', '12 V rail'),
-    ('47nF', 'C_1206_3216Metric'): (
-        'C1206C473K5RACTU', 'CAP CER 0.047UF 50V X7R 1206',
-        'ADP5071 compensation (C59)'),
-    ('68nF', 'C_1206_3216Metric'): (
-        'CC1206KRX7R9BB683', 'CAP CER 0.068UF 50V X7R 1206',
-        'ADP5071 compensation (C61)'),
 }
 # makers for the caps that are not Samsung
 CAP_MAKERS = {
-    'C1206C473K5RACTU': 'Kemet',
-    'CC1206KRX7R9BB683': 'Yageo',
     'GRM32ER71E226KE15L': 'Murata',
 }
 
@@ -127,13 +113,12 @@ CAP_MAKERS = {
 PARTS = {
     ('100uF/25V', 'CP_Elec_8x10'): (
         'Panasonic', 'EEE-FK1E101P',
-        'CAP ALUM 100UF 20% 25V SMD 8x10.2', 'suggested',
-        'C54 sits on the input rail behind a 26 V TVS clamp; prefer 35 V '
-        '(EEE-FK1V101P)'),
-    ('22uF', 'CP_EIA-3528-21_Kemet-B'): (
-        'Kemet', 'T491B226K016AT',
-        'CAP TANT 22UF 10% 16V 3528-21 (B case)', 'suggested',
-        '3.3 V rail; pin 1 is the + side'),
+        'CAP ALUM 100UF 20% 25V SMD 8x10.2', 'suggested', 'switched +12 V rail'),
+    ('100uF/35V', 'CP_Elec_8x10'): (
+        'Panasonic', 'EEE-FK1V101P',
+        'CAP ALUM 100UF 20% 35V SMD 8x10.2', 'suggested',
+        'C65 sits on the input rail behind a 26 V TVS clamp; rating taken from '
+        'distributor listings, not a Panasonic datasheet'),
     ('1N4148W', 'D_SOD-123'): (
         'Diodes Incorporated', '1N4148W-7-F',
         'DIODE GEN PURP 75V 150MA SOD123', 'design', ''),
@@ -143,27 +128,87 @@ PARTS = {
     ('SMBJ16A', 'D_SMB'): (
         'Littelfuse', 'SMBJ16A',
         'TVS DIODE 16VWM 26VC DO214AA', 'design', 'unidirectional'),
-    ('WS2812B', 'LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm'): (
-        'Adafruit', '1655',
-        'LED RGB NEOPIXEL 5050 (WS2812/SK6812, 10 pack)', 'suggested',
-        'Digi-Key has no WorldSemi WS2812B; this is the same pinout and '
-        'protocol. Adafruit says hand-solder only, not for reflow, so '
-        'check JLCPCB/LCSC for a WS2812B-compatible part if you assemble '
-        'there'),
+    ('WS2812B-2020', 'LED_WS2812B-2020_PLCC4_2.0x2.0mm'): (
+        'Adafruit', '4684',
+        'LED RGB NEOPIXEL NANO WS2812B-2020 2 X 2 MM (10 pack)', 'design',
+        'Adafruit listed the 10 pack out of stock on 2026-11-06; the 100 pack is '
+        'Adafruit 6428. Check JLCPCB/LCSC for a WS2812B-2020 if you assemble there'),
     ('5A backup', 'Fuse_Littelfuse-NANO2-451_453'): (
         'Littelfuse', '0453005.MR', 'FUSE BRD MNT 5A 125VAC/VDC 2SMD',
         'suggested',
         'NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup '
         'only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
-    ('SRP6050CA-4R7M', 'L_Bourns_SRP6050CA'): (
-        'Bourns', 'SRP6050CA-4R7M', 'FIXED IND 4.7UH 10.5A 18.4MOHM SMD',
-        'design', 'AP63205 buck inductor, shielded'),
-    ('SRP7050TA-4R7M', 'L_Bourns_SRP7050TA'): (
-        'Bourns', 'SRP7050TA-4R7M', 'FIXED IND 4.7UH 10A 30.8MOHM SMD',
-        'design', 'LT8582 boost inductor, shielded; L_MIN about 2.9 uH'),
-    ('MIE1W0505BGLVH-3R-Z', 'CONV_MIE1W0505BGLVH-3R-Z'): (
-        'Monolithic Power Systems', 'MIE1W0505BGLVH-3R-Z',
-        'ISOLATED DC/DC 1W 5V IN, 5V/3.3V OUT, LGA-12', 'design', ''),
+    ('SRP4020TA-4R7M', 'L_Bourns_SRP4020TA'): (
+        'Bourns', 'SRP4020TA-4R7M', 'FIXED IND 4.7UH 2.6A 105MOHM SMD',
+        'design', 'AP63205 buck inductor, shielded; Isat 3.5 A against the 2 A buck'),
+    ('SRP4020TA-R47M', 'L_Bourns_SRP4020TA'): (
+        'Bourns', 'SRP4020TA-R47M', 'FIXED IND 0.47UH 8A 14MOHM SMD',
+        'design', 'TPS62822 inductor, shielded'),
+    ('SRP7050TA-3R3M', 'L_Bourns_SRP7050TA'): (
+        'Bourns', 'SRP7050TA-3R3M', 'FIXED IND 3.3UH 12A 20.9MOHM SMD',
+        'design', 'ADP5071 boost inductor (rev 1 value)'),
+    ('SRP7050TA-6R8M', 'L_Bourns_SRP7050TA'): (
+        'Bourns', 'SRP7050TA-6R8M', 'FIXED IND 6.8UH 8.5A 51.5MOHM SMD',
+        'design', 'ADP5071 inverting inductor (rev 1 value)'),
+    ('BLM15EX331SN1D', 'L_0402_1005Metric'): (
+        'Murata', 'BLM15EX331SN1D', 'FERRITE BEAD 330 OHM 100MHZ 0402',
+        'design', 'ISOW7741 VISOOUT and GND2 beads, named by the TI datasheet'),
+    ('BLM18PG121SN1D', 'L_0603_1608Metric'): (
+        'Murata', 'BLM18PG121SN1D', 'FERRITE BEAD 120 OHM 100MHZ 2A 0603',
+        'suggested', 'ahead of JP5 on the cold head supply; rating from '
+        'distributor listings'),
+    ('AONR21307', 'AOS_DFN3x3A_8L_EP1'): (
+        'Alpha & Omega Semiconductor', 'AONR21307',
+        'MOSFET P-CH 30V DFN3X3', 'design',
+        'Q1 main power switch; check the turn-on and turn-off SOA on the bench; '
+        'datasheet has no package outline, confirm the DFN3x3A land pattern'),
+    ('BZT52C15', 'D_SOD-123'): (
+        'Diodes Incorporated', 'BZT52C15-7-F', 'DIODE ZENER 15V 500MW SOD123',
+        'suggested', 'Q1 gate clamp, 13.8-15.6 V'),
+    ('MMBZ9V1ALT1G', 'SOT-23'): (
+        'onsemi', 'MMBZ9V1ALT1G', 'TVS DIODE 6VWM DUAL COMMON ANODE SOT23-3',
+        'design', 'AD5453 VREF clamp: used between cathodes, under 10.5 V'),
+    ('TPD4E05U06DQAR', 'USON-10_2.5x1.0mm_P0.5mm'): (
+        'Texas Instruments', 'TPD4E05U06DQAR', 'TVS DIODE 5.5VWM 4CH 10USON',
+        'design', 'ESD clamps on tach lines, NTC and J10'),
+    ('NUF4001MUT2G', 'OnSemi_UDFN-8-1EP_517AD'): (
+        'onsemi', 'NUF4001MUT2G', 'EMI FILTER 4CH 100 OHM 13PF ESD UDFN8',
+        'design', 'J14: 100 ohm series, ESD clamps; two parts give 8 channels, 6 used'),
+    ('TPD1E05U06DPYR', 'Texas_DPY0002A_0.6x1mm_P0.65mm'): (
+        'Texas Instruments', 'TPD1E05U06DPYR', 'TVS DIODE 5.5VWM 1CH X1SON-2',
+        'design', 'ESD clamp on the panel button line'),
+    ('ECS-2520MV-250-BN-TR', 'Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm'): (
+        'ECS Inc.', 'ECS-2520MV-250-BN-TR', 'XTAL OSC 25MHZ 3.3V CMOS +-50PPM SMD',
+        'design', 'AD9833 clock on +3V3_SG; -40 to 85 C'),
+    ('AD5453WBCPZ-RL', 'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm'): (
+        'Analog Devices', 'AD5453WBCPZ-RL', 'IC DAC 14BIT MULTIPLYING SPI 8LFCSP',
+        'design', 'amplitude control; powers up at zero scale'),
+    ('ISOW7741DFMR', 'TI_DFM0020A'): (
+        'Texas Instruments', 'ISOW7741DFMR',
+        'DIGITAL ISOLATOR 4CH WITH DC-DC 5KVRMS 20SOIC', 'design',
+        '110 mA maximum at 5 V to 5 V; no F suffix = outputs high when input lost'),
+    ('ACS37800KMACTR-015B5-SPI', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
+        'Allegro MicroSystems', 'ACS37800KMACTR-015B5-SPI',
+        'SENSOR CURRENT/VOLTAGE 15A 5V SPI 16SOIC', 'design', ''),
+    ('ADS1220IRVAR', 'Texas_RVA_VQFN-16-1EP_3.5x3.5mm_P0.5mm_EP2.14x2.14mm'): (
+        'Texas Instruments', 'ADS1220IRVAR', 'IC ADC 24BIT SIGMA-DELTA 16VQFN',
+        'design', ''),
+    ('ADP5071ACPZ', 'LFCSP-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm'): (
+        'Analog Devices', 'ADP5071ACPZ-R6', 'IC REG BOOST/INVERTING DUAL 20LFCSP',
+        'design', 'exposed pad 21 is GND; rev 1 compensation and feedback values'),
+    ('TPS62822DLCR', 'Texas_VSON-HR-8_1.5x2mm_P0.5mm'): (
+        'Texas Instruments', 'TPS62822DLCR', 'IC REG BUCK ADJ 2A 8VSON-HR',
+        'design', ''),
+    ('TPS2116DRLR', 'SOT-583-8'): (
+        'Texas Instruments', 'TPS2116DRLR', 'IC POWER MUX 2 INPUT 2.5A SOT583-8',
+        'design', '+5V / USB VBUS priority mux into +5V_OR'),
+    ('LTC2954CDDB-2', 'DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm'): (
+        'Analog Devices', 'LTC2954CDDB-2#TRMPBF',
+        'IC PUSHBUTTON ON/OFF CONTROLLER 8DFN', 'suggested',
+        'C grade, -2 version (EN# output)'),
+    ('BSS138W', 'SOT-323_SC-70'): (
+        'Diodes Incorporated', 'BSS138W-7-F', 'MOSFET N-CH 50V 200MA SOT323',
+        'suggested', '-15 V power good guard'),
     ('BSS138', 'SOT-323_SC-70'): (
         'Diodes Incorporated', 'BSS138W-7-F', 'MOSFET N-CH 50V 200MA SOT323',
         'suggested', 'power-good stage: same pinout as the SOT-23 BSS138 '
@@ -178,9 +223,6 @@ PARTS = {
     ('BSS84', 'SOT-23'): (
         'Diodes Incorporated', 'BSS84-7-F', 'MOSFET P-CH 50V 130MA SOT23-3',
         'suggested', 'output stage is limited to about 130 mA'),
-    ('IRF4905S', 'TO-263-3_TabPin2'): (
-        'Infineon', 'IRF4905STRLPBF', 'MOSFET P-CH 55V 74A D2PAK', 'design',
-        ''),
     ('15m', 'R_2512_6332Metric'): (
         'Vishay Dale', 'WSL2512R0150FEA18', 'RES 0.015 OHM 1% 2W 2512',
         'suggested',
@@ -241,35 +283,18 @@ PARTS = {
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
-    ('TACTILE', 'SW_CK_PTS810'): (
-        'C&K', 'PTS810SJM250SMTR LFS', 'SWITCH TACTILE SPST-NO 0.05A 16V SMD',
-        'design', 'SW1 reset, SW2 boot; 1.6 N, grey actuator, 150,000 cycles'),
+    ('TACTILE', 'SW_Panasonic_EVQ-P2F'): (
+        'Panasonic', 'EVQ-P2F02K', 'SWITCH TACTILE SPST-NO 20MA 15V SMD',
+        'design', 'SW1 reset, SW2 boot; 5.0 N, black actuator, 2.5 mm high, 200,000 cycles'),
     ('TACTILE', 'SW_E-Switch_TL6800AF'): (
         'E-Switch', 'TL6800AF260QJ', 'SWITCH TACTILE SPST-NO 0.05A 12V SMD IP67',
         'design', 'SW3 power button; 260 gf, 500,000 cycles, IP67'),
     ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
         'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
         'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
-    ('74LVC1G125', 'SOT-23-5'): (
-        'Texas Instruments', 'SN74LVC1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
-        'suggested', 'gates the SC18IS604 MISO'),
-    ('ACS37800KMACTR-030B3-SPI', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
-        'Allegro MicroSystems', 'ACS37800KMACTR-030B3-SPI',
-        'SENSOR CURRENT/VOLTAGE 30A SPI 16SOIC', 'design', ''),
-    ('AD633JRZ-R7', 'SOIC-8_3.9x4.9mm_P1.27mm'): (
-        'Analog Devices', 'AD633JRZ-R7', 'IC ANALOG MULTIPLIER 8SOIC', 'design',
-        ''),
     ('AD9833BRMZ', 'MSOP-10_3x3mm_P0.5mm'): (
         'Analog Devices', 'AD9833BRMZ', 'IC DDS WAVEFORM GEN 10MSOP', 'design',
         ''),
-    ('LT8582EDKD#PBF', 'DFN-24-1EP_4x7mm_P0.5mm_EP2.64x6.44mm'): (
-        'Analog Devices', 'LT8582EDKD#PBF',
-        'IC REG BOOST/INVERTING DUAL 3A 24DFN', 'design',
-        '#TRPBF is the reel; exposed pad 25 is GND'),
-    ('MSD7342-103MLC', 'L_Coilcraft_MSD7342'): (
-        'Coilcraft', 'MSD7342-103MLC', 'COUPLED INDUCTOR 10UH 1:1 SMD',
-        'design', 'LT8582 inverting channel: 10 uH needed at duty ~0.80 '
-        '(datasheet L_MIN ~5.6 uH)'),
     ('TSC2046EIRGVT', 'Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm'): (
         'Texas Instruments', 'TSC2046EIRGVT',
         'IC TOUCH SCREEN CTRLR 4-WIRE 16VQFN', 'design',
@@ -289,50 +314,19 @@ PARTS = {
         'IC REG LINEAR POS/NEG ADJ 500MA 22DFN', 'suggested',
         '#PBF is the tube, #TRPBF the reel; DFN with two exposed pads '
         '(23 = GND, 24 = INN = -16.5 V)'),
-    ('ADS1220IPW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
-        'Texas Instruments', 'ADS1220IPWR', 'IC ADC 24BIT SIGMA-DELTA 16TSSOP',
-        'design', ''),
     ('AP63205WU-7', 'TSOT-23-6'): (
         'Diodes Incorporated', 'AP63205WU-7', 'IC REG BUCK 5V 2A TSOT26',
         'design', ''),
-    ('CL25N8-G', 'SOT-89-3'): (
-        'Microchip', 'CL25N8-G', 'IC LED DRIVER CONSTANT CURRENT 25MA SOT89',
-        'design', ''),
-    ('EMC2303-x-KP', 'VQFN-12-1EP_4x4mm_P0.8mm_EP2.1x2.1mm_ThermalVias'): (
-        'Microchip', 'EMC2303-1-KP-TR', 'IC FAN CONTROLLER 3CH 12QFN',
-        'suggested',
-        'confirm the "-1" suffix gives the 0x4D address with the 33k ADDR_SEL '
-        'resistor (datasheet Table 5-1)'),
     ('ESP32-S3-WROOM-2-N32R16V', 'ESP32-S3-WROOM-2'): (
         'Espressif', 'ESP32-S3-WROOM-2-N32R16V',
         'MODULE ESP32-S3 32MB FLASH 16MB PSRAM', 'design', ''),
     ('INA239AIDGSR', 'TSSOP-10_3x3mm_P0.5mm'): (
         'Texas Instruments', 'INA239AIDGSR', 'IC CURRENT/POWER MONITOR 10VSSOP',
         'design', ''),
-    ('ISO7741DW', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
-        'Texas Instruments', 'ISO7741DWR', 'DIGITAL ISOLATOR 4CH 16SOIC',
-        'suggested', 'DWR is the reel; DW is the tube'),
-    ('LM66100', 'SOT-363_SC-70-6'): (
-        'Texas Instruments', 'LM66100DCKR', 'IC IDEAL DIODE 5.5V 1.5A SC70-6',
-        'design', '+5V / USB VBUS OR into +5V_OR'),
-    ('LD1117S33TR', 'SOT-223-3_TabPin2'): (
-        'STMicroelectronics', 'LD1117S33TR', 'IC REG LINEAR 3.3V 800MA SOT223',
-        'design', ''),
-    ('LM4040DBZ-2.5', 'SOT-23'): (
-        'Texas Instruments', 'LM4040B25IDBZR',
-        'IC VREF SHUNT 2.5V 0.2% SOT23-3', 'suggested',
-        'B grade (0.2 %) for the DAC reference; C or D grade also works'),
     ('LM4040DBZ-5', 'SOT-23'): (
         'Texas Instruments', 'LM4040D50IDBZR',
         'IC VREF SHUNT 5V 1% SOT23-3', 'suggested',
         'only biases the LTC2954 KILL input; 1 % is plenty'),
-    ('LTC2954CTS8-2', 'SOT-23-8'): (
-        'Analog Devices', 'LTC2954CTS8-2#TRMPBF',
-        'IC PUSHBUTTON ON/OFF CONTROLLER TSOT8', 'suggested',
-        'C grade, -2 version (EN# output)'),
-    ('MCP4921-E/MC', 'DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm'): (
-        'Microchip', 'MCP4921-E/MC', 'IC DAC 12BIT SPI 8DFN', 'design',
-        'long lead times seen at Digi-Key; check stock. MCP4921T-E/MC is the reel'),
     ('OPA1655DBVR', 'SOT-23-5'): (
         'Texas Instruments', 'OPA1655DBVR', 'IC OPAMP AUDIO 1CIRC SOT23-5',
         'design', 'single version of the OPA1656'),
@@ -343,14 +337,6 @@ PARTS = {
     ('MCP23S08-E/ML', 'QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm'): (
         'Microchip', 'MCP23S08-E/ML', 'IC I/O EXPANDER SPI 8B 20QFN', 'suggested',
         'stock not checked; MCP23S08T-E/ML is the reel'),
-    ('SC18IS604PW', 'TSSOP-16_4.4x5mm_P0.65mm'): (
-        'NXP', 'SC18IS604PWJ', 'IC SPI TO I2C BRIDGE 16TSSOP', 'suggested',
-        'PWJ is the reel'),
-    ('SG-8002CA-PH 25MHz', 'Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm'): (
-        'Epson', 'SG-8002CA 25.0000M-PHCLX', 'OSC 25.000MHZ CMOS 5V SMD 7x5',
-        'suggested',
-        'PH = 5 V CMOS with output enable; the PHBB variant is discontinued, '
-        'PHCLX is +/-100 ppm which is plenty for the AD9833 clock'),
     ('USBLC6-2SC6', 'SOT-23-6'): (
         'STMicroelectronics', 'USBLC6-2SC6', 'TVS DIODE 5.25V 17V SOT23-6',
         'design', ''),
@@ -381,19 +367,15 @@ SUBSTITUTES = {
     'RC0603FR-0751KL': ('CR0603-FX-5102ELF', 'Bourns'),
     'RC0603FR-07100RL': ('AR0603FR-07100RL', 'Yageo'),
     'RC0603FR-072M67L': ('CRCW06032M67FKEA', 'Vishay Dale'),
-    'LTC2954CTS8-2#TRMPBF': ('LTC2954CTS8-2#TRPBF', 'Analog Devices'),
-    'SN74LVC1G125DBVR': ('74LVC1G125DBVTG4', 'Texas Instruments'),
 }
 
 # Lines Digi-Key could not supply: Mouser order (Mouser part number is known
 # only where a listing was seen).
 MOUSER_LINES = {
-    'L1': '',
-    'PS1': '',
     'U1': '356-SP32S3WM2N32R16V',
-    'U3': '732-SG-82CA25M-PHCLX',
     'U15': '621-AP63205WU-7',
     'U23': '595-INA239AIDGSR',
+    'SW1': '',  # Mouser listing given by the user; its Mouser number wasn't seen
 }
 MOUSER_MPN = {}
 MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'

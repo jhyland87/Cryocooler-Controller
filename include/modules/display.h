@@ -6,7 +6,7 @@
  * off the shared SPI bus (CS from the decoder, D/C GPIO48, RESET GPIO46; 4-wire SPI
  * half duplex, so it never drives MISO). Its backlight is switched by the
  * MCP23S08 expander pin GP4. This first version only prints a few status lines;
- * the TSC2046 touch controller is wired but not read yet.
+ * touch positions are not read from the TSC2046 yet, only its pen-down flag.
  */
 
 #ifndef DISPLAY_H
@@ -36,6 +36,17 @@ module::ServiceStatus service();
  * @param on True to light the panel.
  */
 void setBacklight(bool on);
+
+/**
+ * True while the panel is touched: TSC2046 PENIRQ low, read through the
+ * expander every 250 ms.  PENIRQ is disabled during a conversion, so ignore this
+ * around touch reads, and end the last control byte with PD0 = 0 to keep it armed.
+ * @return true if the latest expander read saw PENIRQ low.
+ * @code
+ * if (display::touchPressed()) { ... }
+ * @endcode
+ */
+bool touchPressed();
 
 // ── Module interface ──────────────────────────────────────────────────────────
 

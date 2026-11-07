@@ -1426,7 +1426,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "cryocooler:AD633JRZ-R7"
+		(symbol "cryocooler:AD5453WBCPZ"
 			(pin_names
 				(offset 1.016)
 			)
@@ -1436,7 +1436,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 7.62 12.7 0)
+				(at 12.7 10.16 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1446,8 +1446,8 @@
 					(justify left)
 				)
 			)
-			(property "Value" "AD633JRZ-R7"
-				(at -7.62 12.7 0)
+			(property "Value" "AD5453WBCPZ"
+				(at -12.7 10.16 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1457,7 +1457,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+			(property "Footprint" "Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1468,7 +1468,7 @@
 					)
 				)
 			)
-			(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/ad633.pdf"
+			(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/AD5450_5451_5452_5453.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1479,7 +1479,7 @@
 					)
 				)
 			)
-			(property "Description" "Analog Devices low-cost 4-quadrant analog multiplier, W=(X1-X2)(Y1-Y2)/10V+Z, SOIC-8"
+			(property "Description" "Analog Devices 14-bit current-output multiplying DAC, SPI, 3 x 3 mm LFCSP-8 (CP-8-3). VREF and RFB limited to +/-12 V"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1490,7 +1490,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "multiplier analog"
+			(property "ki_keywords" "mdac dac multiplying"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1501,10 +1501,10 @@
 					)
 				)
 			)
-			(symbol "AD633JRZ-R7_0_1"
+			(symbol "AD5453WBCPZ_0_1"
 				(rectangle
-					(start -7.62 10.16)
-					(end 7.62 -10.16)
+					(start -12.7 7.62)
+					(end 12.7 -7.62)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -1514,11 +1514,11 @@
 					)
 				)
 			)
-			(symbol "AD633JRZ-R7_1_1"
-				(pin input line
-					(at -10.16 5.08 0)
+			(symbol "AD5453WBCPZ_1_1"
+				(pin output line
+					(at 15.24 5.08 180)
 					(length 2.54)
-					(name "Y1"
+					(name "IOUT1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1533,10 +1533,10 @@
 						)
 					)
 				)
-				(pin input line
-					(at -10.16 0 0)
+				(pin power_in line
+					(at -2.54 -10.16 90)
 					(length 2.54)
-					(name "Y2"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1551,10 +1551,10 @@
 						)
 					)
 				)
-				(pin power_in line
-					(at 0 -12.7 90)
+				(pin input line
+					(at -15.24 0 0)
 					(length 2.54)
-					(name "-VS"
+					(name "SCLK"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1570,9 +1570,9 @@
 					)
 				)
 				(pin input line
-					(at -10.16 -2.54 0)
+					(at -15.24 -2.54 0)
 					(length 2.54)
-					(name "Z"
+					(name "SDIN"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1587,10 +1587,10 @@
 						)
 					)
 				)
-				(pin output line
-					(at 10.16 7.62 180)
+				(pin input line
+					(at -15.24 2.54 0)
 					(length 2.54)
-					(name "W"
+					(name "~{SYNC}"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1606,9 +1606,9 @@
 					)
 				)
 				(pin power_in line
-					(at 0 12.7 270)
+					(at 0 10.16 270)
 					(length 2.54)
-					(name "+VS"
+					(name "VDD"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1624,9 +1624,9 @@
 					)
 				)
 				(pin input line
-					(at -10.16 7.62 0)
+					(at -15.24 5.08 0)
 					(length 2.54)
-					(name "X1"
+					(name "VREF"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1641,10 +1641,10 @@
 						)
 					)
 				)
-				(pin input line
-					(at -10.16 2.54 0)
+				(pin passive line
+					(at 15.24 2.54 180)
 					(length 2.54)
-					(name "X2"
+					(name "RFB"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1652,6 +1652,24 @@
 						)
 					)
 					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -10.16 90)
+					(length 2.54)
+					(name "EP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1917,28 +1935,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "Allow ~1 s for the 1 uF / 100 k input coupling to settle; read peaks after 2 s."
-		(exclude_from_sim no)
-		(at 20 27 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "03c07c02-2d7c-5adb-abdd-eddc3c85b9b1")
-	)
-	(text ".step param vdac list 0 0.625 1.25 1.875 2.5"
-		(exclude_from_sim no)
-		(at 20 40 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "1ebfd630-64d4-5f9a-bbe5-973b2005fa06")
-	)
 	(text ".tran 100u 3 0 100u"
 		(exclude_from_sim no)
 		(at 20 32 0)
@@ -1948,51 +1944,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "5ec3e199-f804-5297-b1ea-3644b63ece9e")
+		(uuid "0d26a315-e518-5c0b-8b75-1657caca90c0")
 	)
-	(text "R45 + R122 = 47k + 2.4k || 1 nF (gain 15.97, pole ~3 kHz) so CTL = 10 V gives ~4.8 V pk (9.6 Vpp), as on the signal_gen sheet."
+	(text "VSIN stands in for AD9833 + C44 input (0.313 V pk about 0.35 V); the AD5453 is a behavioural model whose code is the .param below (0..16383)."
 		(exclude_from_sim no)
-		(at 20 24.5 0)
+		(at 20 17 0)
 		(effects
 			(font
 				(size 1.8 1.8)
 			)
 			(justify left top)
 		)
-		(uuid "8a553061-4a4c-5add-936a-0bd051b7d173")
-	)
-	(text "Probe SINE_X (AD633 X1), CTL (AD633 Y1) and SIG_SINE (output). Expect SIG_SINE = SINE_X x CTL / 10."
-		(exclude_from_sim no)
-		(at 20 22 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "a1b30367-1a4b-58e3-9707-e36b5fe2e788")
-	)
-	(text ".param vdac=2.5"
-		(exclude_from_sim no)
-		(at 20 36 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "a666702b-4198-5f9c-aebb-80cdf628e152")
-	)
-	(text "DAC_OUT = {vdac}: edit .param (single run) or the .step list (sweep); keep vdac <= 2.5 V."
-		(exclude_from_sim no)
-		(at 20 44 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "bc0fa978-870a-5ba1-933e-363c8b803128")
+		(uuid "7c881315-0388-5c83-92cb-689817ef3542")
 	)
 	(text "SIMULATION ONLY - not part of the build schematic. Mirrors hardware/kicad/sheets/signal_gen; regenerate with tools/gen_sim.py."
 		(exclude_from_sim no)
@@ -2003,190 +1966,142 @@
 			)
 			(justify left top)
 		)
-		(uuid "c620fcd2-86d3-54ef-a49e-ff8bf49438c6")
+		(uuid "7eef9fdb-e816-5186-b5e9-e0c7fb3d7d97")
 	)
-	(text "VSIN stands in for AD9833 + C44 input (0.3 V pk about 0.35 V); VDC \"DAC_OUT\" stands in for MCP4921 (0..2.5 V, x4 = 0..10 V control)."
+	(text "Probe VREF (AD5453 VREF), OPA_OUT and SIG_SINE (output). Expect SIG_SINE = -VREF x code / 16384."
 		(exclude_from_sim no)
-		(at 20 17 0)
+		(at 20 22 0)
 		(effects
 			(font
 				(size 1.8 1.8)
 			)
 			(justify left top)
 		)
-		(uuid "ef6e144d-dec8-56f9-9b94-cafc2938f8c9")
-	)
-	(junction
-		(at 109.22 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "14ecc81f-0f47-545c-a84d-5132d1b8f151")
-	)
-	(junction
-		(at 129.54 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1d1adc79-c893-5ca7-8696-628a313420c0")
-	)
-	(junction
-		(at 152.4 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "383e2947-fc5a-528b-9795-a632a95df661")
-	)
-	(junction
-		(at 127 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "46b3860d-3dfe-59ba-8101-3f0083ad005a")
-	)
-	(junction
-		(at 238.76 86.36)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7c881315-0388-5c83-92cb-689817ef3542")
-	)
-	(junction
-		(at 297.18 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7eef9fdb-e816-5186-b5e9-e0c7fb3d7d97")
-	)
-	(junction
-		(at 185.42 139.7)
-		(diameter 0)
-		(color 0 0 0 0)
 		(uuid "86f0b3f8-9e7d-560f-9b7c-ea210d376663")
+	)
+	(text ".step param code list 0 4096 8192 12288 16383"
+		(exclude_from_sim no)
+		(at 20 40 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "98360d4b-cd8c-5875-b561-253a8d0427da")
+	)
+	(text "R45 + R122 = 47k + 3.6k || 1 nF (gain 16.3, pole ~3 kHz) so full code gives about 10 Vpp, as on the signal_gen sheet. MMBZ9V1 clamp left out here."
+		(exclude_from_sim no)
+		(at 20 24.5 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "c90f325f-8f42-5281-89f9-2b01259bbb4f")
+	)
+	(text "Allow ~1 s for the 1 uF / 100 k input coupling to settle; read peaks after 2 s."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "d3ac4147-92eb-5a2f-aadf-341b319ae668")
+	)
+	(text ".param code=16383"
+		(exclude_from_sim no)
+		(at 20 36 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "f6587f19-cffa-5afa-b033-019cfbb8096e")
 	)
 	(junction
 		(at 144.78 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "88ec77c5-e665-5ff4-81ff-910c8328fc88")
-	)
-	(junction
-		(at 152.4 167.64)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c90f325f-8f42-5281-89f9-2b01259bbb4f")
-	)
-	(junction
-		(at 238.76 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d3ac4147-92eb-5a2f-aadf-341b319ae668")
-	)
-	(no_connect
-		(at 162.56 137.16)
-		(uuid "0d26a315-e518-5c0b-8b75-1657caca90c0")
-	)
-	(no_connect
-		(at 165.1 142.24)
-		(uuid "98360d4b-cd8c-5875-b561-253a8d0427da")
-	)
-	(no_connect
-		(at 165.1 137.16)
-		(uuid "f6587f19-cffa-5afa-b033-019cfbb8096e")
-	)
-	(wire
-		(pts
-			(xy 140.97 93.98) (xy 144.78 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0308330a-d18f-5bf7-87f9-225e9e201dad")
-	)
-	(wire
-		(pts
-			(xy 129.54 88.9) (xy 129.54 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0c20e3b9-266c-5c05-a704-1ffa97fe2566")
-	)
-	(wire
-		(pts
-			(xy 152.4 167.64) (xy 161.29 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "14437a55-3990-5678-923d-f163eef960ba")
-	)
-	(wire
-		(pts
-			(xy 215.9 81.28) (xy 215.9 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "161e0c5a-87c7-52de-8bf3-de5fd068db87")
-	)
-	(wire
-		(pts
-			(xy 264.16 76.2) (xy 271.78 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "16ba2d8f-4ea4-54bd-8243-722d0ab1221e")
-	)
-	(wire
-		(pts
-			(xy 297.18 83.82) (xy 297.18 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
 		(uuid "1bc6a607-170c-5f76-b5ac-8f0d5dbdceb5")
 	)
-	(wire
-		(pts
-			(xy 152.4 76.2) (xy 152.4 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "23895af3-c152-568b-9638-bdcd71b27b10")
+	(junction
+		(at 226.06 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "362fa41a-0b68-5126-8b9b-bce1b541fb5e")
 	)
-	(wire
-		(pts
-			(xy 185.42 139.7) (xy 215.9 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "27e1d16e-d497-5216-be0a-873a906bb604")
+	(junction
+		(at 109.22 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a6cdc247-823b-53ae-a7c4-394aff46336c")
 	)
-	(wire
-		(pts
-			(xy 152.4 142.24) (xy 157.48 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "329ed47c-54c6-5899-abe7-8d633d4da078")
+	(junction
+		(at 299.72 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c62ea8b9-742b-59d1-b179-2d6eed5e4a24")
 	)
-	(wire
-		(pts
-			(xy 129.54 93.98) (xy 133.35 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "354edbad-9d30-5636-b497-9ee0ea47eef7")
+	(junction
+		(at 327.66 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c642883f-708f-5d98-a2bc-2a6bef750d8b")
+	)
+	(junction
+		(at 152.4 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c82cfeb7-c999-5a33-9ce8-dd9721853890")
+	)
+	(junction
+		(at 129.54 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d3e05e24-b771-532d-9763-487aab5a3249")
+	)
+	(junction
+		(at 127 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e119239d-514c-5d99-9945-434b6886043a")
+	)
+	(no_connect
+		(at 287.02 76.2)
+		(uuid "14ecc81f-0f47-545c-a84d-5132d1b8f151")
+	)
+	(no_connect
+		(at 226.06 83.82)
+		(uuid "161e0c5a-87c7-52de-8bf3-de5fd068db87")
+	)
+	(no_connect
+		(at 287.02 81.28)
+		(uuid "46b3860d-3dfe-59ba-8101-3f0083ad005a")
+	)
+	(no_connect
+		(at 284.48 76.2)
+		(uuid "60a17a5b-830c-5731-895d-8df9398bfe19")
+	)
+	(no_connect
+		(at 241.3 71.12)
+		(uuid "697d0a51-5774-5640-a0da-d7624e8c6812")
+	)
+	(no_connect
+		(at 226.06 81.28)
+		(uuid "bcdddd47-b3c3-5fba-960d-26e41de9bc77")
+	)
+	(no_connect
+		(at 243.84 91.44)
+		(uuid "c69daf39-2e7d-5a63-8e25-74aa30d65d49")
+	)
+	(no_connect
+		(at 226.06 78.74)
+		(uuid "d2c1bb0e-428e-5947-ad03-5e67b1c95952")
 	)
 	(wire
 		(pts
@@ -2196,357 +2111,37 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "35fb5233-26fa-51a2-9453-8bef3a3dc2c4")
+		(uuid "0308330a-d18f-5bf7-87f9-225e9e201dad")
 	)
 	(wire
 		(pts
-			(xy 162.56 124.46) (xy 162.56 132.08)
+			(xy 284.48 63.5) (xy 284.48 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "362fa41a-0b68-5126-8b9b-bce1b541fb5e")
+		(uuid "0c20e3b9-266c-5c05-a704-1ffa97fe2566")
 	)
 	(wire
 		(pts
-			(xy 152.4 76.2) (xy 157.48 76.2)
+			(xy 152.4 76.2) (xy 152.4 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3d975aa4-6892-52f8-b789-a8241e69a91a")
+		(uuid "14437a55-3990-5678-923d-f163eef960ba")
 	)
 	(wire
 		(pts
-			(xy 81.28 78.74) (xy 93.98 78.74)
+			(xy 256.54 76.2) (xy 261.62 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "464cb622-f727-532d-8203-baa160340b5a")
-	)
-	(wire
-		(pts
-			(xy 109.22 78.74) (xy 116.84 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "482defac-f2ad-50d7-b474-b9a6d906fb1a")
-	)
-	(wire
-		(pts
-			(xy 162.56 152.4) (xy 167.64 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4bc59a0e-9e22-59f3-897d-eb874f270393")
-	)
-	(wire
-		(pts
-			(xy 63.5 132.08) (xy 63.5 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60a17a5b-830c-5731-895d-8df9398bfe19")
-	)
-	(wire
-		(pts
-			(xy 38.1 132.08) (xy 38.1 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "697d0a51-5774-5640-a0da-d7624e8c6812")
-	)
-	(wire
-		(pts
-			(xy 297.18 76.2) (xy 304.8 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7182ea94-18bd-52d7-9e99-bf56f89b6fdb")
-	)
-	(wire
-		(pts
-			(xy 243.84 81.28) (xy 238.76 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "757e846d-3ccd-51bd-b111-1f5065eb41dc")
-	)
-	(wire
-		(pts
-			(xy 101.6 78.74) (xy 109.22 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "773ee56a-6319-5182-a3d3-e4bfac4fd573")
-	)
-	(wire
-		(pts
-			(xy 127 96.52) (xy 127 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "81da6dd6-ba26-53b9-b745-75a0486092a1")
-	)
-	(wire
-		(pts
-			(xy 238.76 83.82) (xy 243.84 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "888c9da0-d32b-5703-9c51-23dac4702652")
-	)
-	(wire
-		(pts
-			(xy 168.91 167.64) (xy 185.42 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e4d48f4-0e3e-58c9-b7c8-edafb38c2db6")
-	)
-	(wire
-		(pts
-			(xy 109.22 86.36) (xy 109.22 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "926c3f0d-d97f-5cb8-b8d1-d8350b9125d7")
-	)
-	(wire
-		(pts
-			(xy 327.66 127) (xy 332.74 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "964ff778-bf45-5ab2-b403-5164b8b124a3")
-	)
-	(wire
-		(pts
-			(xy 152.4 175.26) (xy 152.4 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "96daf30b-71e2-5936-a740-21c3f4c79f4e")
-	)
-	(wire
-		(pts
-			(xy 279.4 76.2) (xy 284.48 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9abb7ca4-bddd-5fbf-b7f5-473e5999aeb7")
-	)
-	(wire
-		(pts
-			(xy 147.32 76.2) (xy 152.4 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9e0d0a1b-d10d-579d-8cef-4f7185e96edb")
-	)
-	(wire
-		(pts
-			(xy 327.66 121.92) (xy 327.66 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a6cdc247-823b-53ae-a7c4-394aff46336c")
-	)
-	(wire
-		(pts
-			(xy 254 101.6) (xy 259.08 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aacb8446-810e-5969-ade2-a0fbab802bde")
-	)
-	(wire
-		(pts
-			(xy 127 137.16) (xy 157.48 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ad1b7f78-5a30-53be-8c51-628c442d95c2")
-	)
-	(wire
-		(pts
-			(xy 127 78.74) (xy 132.08 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b538a6f1-b51a-50e2-bb07-e0db9954f585")
-	)
-	(wire
-		(pts
-			(xy 238.76 86.36) (xy 243.84 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b7369817-4631-5aae-a510-e6adba37bebb")
-	)
-	(wire
-		(pts
-			(xy 292.1 76.2) (xy 297.18 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba69662a-7b3a-5f31-8bf9-066e4ad4e9fa")
-	)
-	(wire
-		(pts
-			(xy 162.56 147.32) (xy 162.56 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bcdddd47-b3c3-5fba-960d-26e41de9bc77")
-	)
-	(wire
-		(pts
-			(xy 116.84 73.66) (xy 132.08 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd0f0ad3-60f7-55d4-97ba-a5e5780f1fca")
-	)
-	(wire
-		(pts
-			(xy 144.78 88.9) (xy 144.78 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf829c7b-6c1a-5018-bfbf-721ec7a5c343")
-	)
-	(wire
-		(pts
-			(xy 116.84 73.66) (xy 116.84 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c38759f3-6f73-5384-ac69-539b8848e3ab")
-	)
-	(wire
-		(pts
-			(xy 238.76 78.74) (xy 238.76 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c62ea8b9-742b-59d1-b179-2d6eed5e4a24")
-	)
-	(wire
-		(pts
-			(xy 238.76 86.36) (xy 238.76 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c642883f-708f-5d98-a2bc-2a6bef750d8b")
-	)
-	(wire
-		(pts
-			(xy 63.5 119.38) (xy 63.5 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c69daf39-2e7d-5a63-8e25-74aa30d65d49")
-	)
-	(wire
-		(pts
-			(xy 185.42 139.7) (xy 185.42 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c82cfeb7-c999-5a33-9ce8-dd9721853890")
-	)
-	(wire
-		(pts
-			(xy 81.28 88.9) (xy 81.28 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c94e58eb-4224-5174-8bb6-8d261c6c9011")
-	)
-	(wire
-		(pts
-			(xy 127 88.9) (xy 129.54 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cd218adc-09e9-5389-8af8-54b69f1337e7")
-	)
-	(wire
-		(pts
-			(xy 127 147.32) (xy 127 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d0daac07-0be4-5f3d-b547-d1866b317bf0")
+		(uuid "16ba2d8f-4ea4-54bd-8243-722d0ab1221e")
 	)
 	(wire
 		(pts
@@ -2556,47 +2151,97 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d2c1bb0e-428e-5947-ad03-5e67b1c95952")
+		(uuid "23895af3-c152-568b-9638-bdcd71b27b10")
 	)
 	(wire
 		(pts
-			(xy 254 96.52) (xy 254 101.6)
+			(xy 127 78.74) (xy 132.08 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d3e05e24-b771-532d-9763-487aab5a3249")
+		(uuid "258e526e-7a1f-56b7-b04e-951489085da9")
 	)
 	(wire
 		(pts
-			(xy 172.72 139.7) (xy 185.42 139.7)
+			(xy 144.78 88.9) (xy 144.78 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d5be4839-e10c-54f3-8cf2-e60c9b14e880")
+		(uuid "27e1d16e-d497-5216-be0a-873a906bb604")
 	)
 	(wire
 		(pts
-			(xy 254 60.96) (xy 254 71.12)
+			(xy 127 96.52) (xy 127 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e119239d-514c-5d99-9945-434b6886043a")
+		(uuid "329ed47c-54c6-5899-abe7-8d633d4da078")
 	)
 	(wire
 		(pts
-			(xy 215.9 81.28) (xy 243.84 78.74)
+			(xy 109.22 78.74) (xy 116.84 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e6c913a2-4078-518f-8f7b-844428c41e04")
+		(uuid "3337cb28-068a-57e5-87e7-6b69558afd3d")
+	)
+	(wire
+		(pts
+			(xy 127 88.9) (xy 129.54 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "354edbad-9d30-5636-b497-9ee0ea47eef7")
+	)
+	(wire
+		(pts
+			(xy 152.4 76.2) (xy 157.48 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35fb5233-26fa-51a2-9453-8bef3a3dc2c4")
+	)
+	(wire
+		(pts
+			(xy 190.5 76.2) (xy 226.06 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d975aa4-6892-52f8-b789-a8241e69a91a")
+	)
+	(wire
+		(pts
+			(xy 322.58 78.74) (xy 327.66 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "464cb622-f727-532d-8203-baa160340b5a")
+	)
+	(wire
+		(pts
+			(xy 116.84 73.66) (xy 132.08 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "482defac-f2ad-50d7-b474-b9a6d906fb1a")
 	)
 	(wire
 		(pts
@@ -2606,27 +2251,147 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e7777174-8458-5621-ae0f-5c4dab2d7833")
+		(uuid "4bc59a0e-9e22-59f3-897d-eb874f270393")
 	)
 	(wire
 		(pts
-			(xy 165.1 76.2) (xy 243.84 76.2)
+			(xy 259.08 106.68) (xy 299.72 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f59ed37f-f0d4-5df2-ad78-4abcb9972990")
+		(uuid "7182ea94-18bd-52d7-9e99-bf56f89b6fdb")
 	)
 	(wire
 		(pts
-			(xy 152.4 142.24) (xy 152.4 167.64)
+			(xy 299.72 78.74) (xy 304.8 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fa80b849-4db7-5276-bc97-84c7abe2f74f")
+		(uuid "757e846d-3ccd-51bd-b111-1f5065eb41dc")
+	)
+	(wire
+		(pts
+			(xy 327.66 78.74) (xy 335.28 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "773ee56a-6319-5182-a3d3-e4bfac4fd573")
+	)
+	(wire
+		(pts
+			(xy 259.08 78.74) (xy 259.08 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81da6dd6-ba26-53b9-b745-75a0486092a1")
+	)
+	(wire
+		(pts
+			(xy 81.28 88.9) (xy 81.28 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "888c9da0-d32b-5703-9c51-23dac4702652")
+	)
+	(wire
+		(pts
+			(xy 327.66 86.36) (xy 327.66 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e4d48f4-0e3e-58c9-b7c8-edafb38c2db6")
+	)
+	(wire
+		(pts
+			(xy 81.28 78.74) (xy 93.98 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "920ad3f3-b494-50d6-af29-9ae227958f88")
+	)
+	(wire
+		(pts
+			(xy 261.62 76.2) (xy 261.62 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "926c3f0d-d97f-5cb8-b8d1-d8350b9125d7")
+	)
+	(wire
+		(pts
+			(xy 284.48 91.44) (xy 289.56 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "964ff778-bf45-5ab2-b403-5164b8b124a3")
+	)
+	(wire
+		(pts
+			(xy 63.5 119.38) (xy 63.5 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96daf30b-71e2-5936-a740-21c3f4c79f4e")
+	)
+	(wire
+		(pts
+			(xy 294.64 78.74) (xy 299.72 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9a8cfafa-4a8b-5a39-835b-af2491c3018c")
+	)
+	(wire
+		(pts
+			(xy 327.66 127) (xy 332.74 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9abb7ca4-bddd-5fbf-b7f5-473e5999aeb7")
+	)
+	(wire
+		(pts
+			(xy 165.1 76.2) (xy 190.5 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e0d0a1b-d10d-579d-8cef-4f7185e96edb")
+	)
+	(wire
+		(pts
+			(xy 109.22 86.36) (xy 109.22 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aacb8446-810e-5969-ade2-a0fbab802bde")
 	)
 	(wire
 		(pts
@@ -2636,9 +2401,179 @@
 			(width 0)
 			(type default)
 		)
+		(uuid "ad1b7f78-5a30-53be-8c51-628c442d95c2")
+	)
+	(wire
+		(pts
+			(xy 129.54 93.98) (xy 133.35 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b538a6f1-b51a-50e2-bb07-e0db9954f585")
+	)
+	(wire
+		(pts
+			(xy 116.84 73.66) (xy 116.84 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7369817-4631-5aae-a510-e6adba37bebb")
+	)
+	(wire
+		(pts
+			(xy 101.6 78.74) (xy 109.22 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba2bf172-0e01-509f-ac21-0d6ea319dea4")
+	)
+	(wire
+		(pts
+			(xy 261.62 81.28) (xy 279.4 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba69662a-7b3a-5f31-8bf9-066e4ad4e9fa")
+	)
+	(wire
+		(pts
+			(xy 140.97 93.98) (xy 144.78 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd0f0ad3-60f7-55d4-97ba-a5e5780f1fca")
+	)
+	(wire
+		(pts
+			(xy 284.48 86.36) (xy 284.48 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf829c7b-6c1a-5018-bfbf-721ec7a5c343")
+	)
+	(wire
+		(pts
+			(xy 238.76 91.44) (xy 238.76 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c38759f3-6f73-5384-ac69-539b8848e3ab")
+	)
+	(wire
+		(pts
+			(xy 327.66 121.92) (xy 327.66 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c94e58eb-4224-5174-8bb6-8d261c6c9011")
+	)
+	(wire
+		(pts
+			(xy 147.32 76.2) (xy 152.4 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd218adc-09e9-5389-8af8-54b69f1337e7")
+	)
+	(wire
+		(pts
+			(xy 299.72 78.74) (xy 299.72 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0daac07-0be4-5f3d-b547-d1866b317bf0")
+	)
+	(wire
+		(pts
+			(xy 256.54 78.74) (xy 259.08 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1bb234d-b612-5e6c-bcd3-1977f31174cf")
+	)
+	(wire
+		(pts
+			(xy 129.54 88.9) (xy 129.54 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5be4839-e10c-54f3-8cf2-e60c9b14e880")
+	)
+	(wire
+		(pts
+			(xy 312.42 78.74) (xy 314.96 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e6c913a2-4078-518f-8f7b-844428c41e04")
+	)
+	(wire
+		(pts
+			(xy 63.5 132.08) (xy 63.5 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7777174-8458-5621-ae0f-5c4dab2d7833")
+	)
+	(wire
+		(pts
+			(xy 226.06 76.2) (xy 228.6 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f59ed37f-f0d4-5df2-ad78-4abcb9972990")
+	)
+	(wire
+		(pts
+			(xy 38.1 132.08) (xy 38.1 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa80b849-4db7-5276-bc97-84c7abe2f74f")
+	)
+	(wire
+		(pts
+			(xy 279.4 76.2) (xy 279.4 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
 		(uuid "fe32ab66-5f97-52b3-9615-092d6274038d")
 	)
-	(label "SINE_X"
+	(label "VREF"
 		(at 190.5 76.2 0)
 		(effects
 			(font
@@ -2646,27 +2581,27 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "0ea2a901-2358-51c9-b9b5-c4ada979275d")
+		(uuid "1d1adc79-c893-5ca7-8696-628a313420c0")
 	)
 	(label "SIG_SINE"
-		(at 304.8 76.2 0)
+		(at 335.28 78.74 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "5a78160b-5296-5b46-b0d1-0b2dd3a2ef56")
+		(uuid "383e2947-fc5a-528b-9795-a632a95df661")
 	)
-	(label "CTL"
-		(at 215.9 114.3 90)
+	(label "OPA_OUT"
+		(at 299.72 106.68 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "9fc9a2ce-db31-5647-9f00-521dcd5f42eb")
+		(uuid "88ec77c5-e665-5ff4-81ff-910c8328fc88")
 	)
 	(symbol
 		(lib_id "Amplifier_Operational:OPA1656ID")
@@ -2779,28 +2714,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "42074ae8-d850-5c4d-82dc-90c0e72ef900")
+			(uuid "cc431655-3621-5205-89b4-15ceabe8f0a9")
 		)
 		(pin "2"
-			(uuid "a115e5c8-8aed-59b3-8334-f8e4bd4587e2")
+			(uuid "a5260c34-4cc1-5fe1-9855-296bbbb7d409")
 		)
 		(pin "3"
-			(uuid "f242afb8-3268-5781-b907-0967b12d603c")
+			(uuid "d369a0dd-65f7-535a-9ebe-5bd87c0dc280")
 		)
 		(pin "5"
-			(uuid "89972a2f-04a1-52cd-a1f3-9f3670b9bb1c")
+			(uuid "0e20c134-04df-5be6-aa03-34ca54f4e7ce")
 		)
 		(pin "6"
-			(uuid "305eaa69-2854-5dff-b15c-18f0deb9638f")
+			(uuid "5182d4c0-925b-5d53-be1d-566799bbe3ed")
 		)
 		(pin "7"
-			(uuid "066e824b-8529-5efa-8e23-9decc1677106")
+			(uuid "a14e87a2-8194-5421-a1a6-85c9b815b444")
 		)
 		(pin "4"
-			(uuid "a237ed5e-86a5-576e-9442-65c0d1848009")
+			(uuid "d8cbbaee-3255-54cd-bbe9-7d84170f9123")
 		)
 		(pin "8"
-			(uuid "1e629f92-136b-51bc-ae49-e800a9bf615e")
+			(uuid "09d97ee2-940a-5239-bd52-7de2b5bdca18")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -2812,8 +2747,8 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:AD633JRZ-R7")
-		(at 254 83.82 0)
+		(lib_id "cryocooler:AD5453WBCPZ")
+		(at 241.3 81.28 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2823,7 +2758,7 @@
 		(dnp no)
 		(uuid "0e722b52-2ba8-58d8-8164-870ca89f43d0")
 		(property "Reference" "U2"
-			(at 240.03 66.02 0)
+			(at 226.06 66.02 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2833,8 +2768,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AD633JRZ-R7"
-			(at 240.03 68.12 0)
+		(property "Value" "AD5453WBCPZ-RL"
+			(at 226.06 68.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2844,8 +2779,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-			(at 254 83.82 0)
+		(property "Footprint" "Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2855,8 +2790,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/ad633.pdf"
-			(at 254 83.82 0)
+		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/AD5450_5451_5452_5453.pdf"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2866,8 +2801,8 @@
 				)
 			)
 		)
-		(property "Description" "Analog Devices low-cost 4-quadrant analog multiplier, W=(X1-X2)(Y1-Y2)/10V+Z, SOIC-8"
-			(at 254 83.82 0)
+		(property "Description" "Analog Devices 14-bit current-output multiplying DAC, SPI, 3 x 3 mm LFCSP-8 (CP-8-3). VREF and RFB limited to +/-12 V"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2878,7 +2813,7 @@
 			)
 		)
 		(property "Sim.Device" "SUBCKT"
-			(at 254 83.82 0)
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2888,8 +2823,8 @@
 				)
 			)
 		)
-		(property "Sim.Library" "${KIPRJMOD}/models/ad633_behavioral.lib"
-			(at 254 83.82 0)
+		(property "Sim.Library" "${KIPRJMOD}/models/ad5453_behavioral.lib"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2899,8 +2834,8 @@
 				)
 			)
 		)
-		(property "Sim.Name" "AD633"
-			(at 254 83.82 0)
+		(property "Sim.Name" "AD5453"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2910,8 +2845,19 @@
 				)
 			)
 		)
-		(property "Sim.Pins" "1=y1 2=y2 3=vsn 4=z 5=w 6=vsp 7=x1 8=x2"
-			(at 254 83.82 0)
+		(property "Sim.Pins" "1=iout 2=gnd 7=vref 8=rfb"
+			(at 241.3 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Params" "code={code}"
+			(at 241.3 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2922,28 +2868,31 @@
 			)
 		)
 		(pin "7"
-			(uuid "a02c6494-30b5-5e6e-a568-8861dcbb8ad6")
-		)
-		(pin "1"
-			(uuid "62874a21-d9a4-55e6-ab32-07927d468642")
-		)
-		(pin "8"
-			(uuid "a77f6a0e-7532-5ec9-869e-da24f414bc0e")
-		)
-		(pin "2"
-			(uuid "73eb9cf0-e70f-57f6-8788-86ce9be083d1")
-		)
-		(pin "4"
-			(uuid "73563881-dab0-54ff-893f-11a81ec0c063")
+			(uuid "50b2f711-6aa8-50c0-adcc-1806be81ac01")
 		)
 		(pin "5"
-			(uuid "dbc5802d-b638-51b2-a6e9-d8a821c69416")
-		)
-		(pin "6"
-			(uuid "fa2fb8a1-f720-533c-a8aa-ff33166e790d")
+			(uuid "d92a243c-f863-58d8-92c5-04a5b784ce31")
 		)
 		(pin "3"
-			(uuid "57beb888-e1ff-5122-80a7-804507b3c110")
+			(uuid "42074ae8-d850-5c4d-82dc-90c0e72ef900")
+		)
+		(pin "4"
+			(uuid "a115e5c8-8aed-59b3-8334-f8e4bd4587e2")
+		)
+		(pin "1"
+			(uuid "f242afb8-3268-5781-b907-0967b12d603c")
+		)
+		(pin "8"
+			(uuid "89972a2f-04a1-52cd-a1f3-9f3670b9bb1c")
+		)
+		(pin "6"
+			(uuid "305eaa69-2854-5dff-b15c-18f0deb9638f")
+		)
+		(pin "2"
+			(uuid "066e824b-8529-5efa-8e23-9decc1677106")
+		)
+		(pin "9"
+			(uuid "a237ed5e-86a5-576e-9442-65c0d1848009")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3019,10 +2968,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "05888dbd-70ae-596f-ba3f-71a692d35ac4")
+			(uuid "c620fcd2-86d3-54ef-a49e-ff8bf49438c6")
 		)
 		(pin "2"
-			(uuid "892fb9c5-ed50-51a6-a6c6-0f6c4eb50010")
+			(uuid "ef6e144d-dec8-56f9-9b94-cafc2938f8c9")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3144,28 +3093,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "b2296eac-947a-53b7-ac85-963bd4729e34")
+			(uuid "5ec3e199-f804-5297-b1ea-3644b63ece9e")
 		)
 		(pin "2"
-			(uuid "64e043f5-7e92-58f2-a17c-2e4edb18be99")
+			(uuid "a666702b-4198-5f9c-aebb-80cdf628e152")
 		)
 		(pin "3"
-			(uuid "c59d85d1-76f4-5efb-b5fb-d8ce453dac8a")
+			(uuid "1ebfd630-64d4-5f9a-bbe5-973b2005fa06")
 		)
 		(pin "5"
-			(uuid "996c2a6e-c0b3-5e37-b070-efe8ba93ce57")
+			(uuid "bc0fa978-870a-5ba1-933e-363c8b803128")
 		)
 		(pin "6"
-			(uuid "a18e4bf6-7be8-59eb-956c-b79316d9fe56")
+			(uuid "a64cddb6-9bd1-50c6-ad0c-d66ae04f80b9")
 		)
 		(pin "7"
-			(uuid "663505e1-54de-5538-80d9-37c9e222737e")
+			(uuid "9bd19b39-3c60-573d-9216-4ef3089e2291")
 		)
 		(pin "4"
-			(uuid "4d245280-d669-57d0-b6c4-2781d77ed432")
+			(uuid "16900a85-a864-597b-aa42-96eb9bf4c940")
 		)
 		(pin "8"
-			(uuid "cc431655-3621-5205-89b4-15ceabe8f0a9")
+			(uuid "05888dbd-70ae-596f-ba3f-71a692d35ac4")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3243,10 +3192,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0f9be70e-6b55-5515-9cbf-14e6242e2fd3")
+			(uuid "a1b30367-1a4b-58e3-9707-e36b5fe2e788")
 		)
 		(pin "2"
-			(uuid "d80dd3dd-1995-595c-9db4-3e8d6acdb023")
+			(uuid "8a553061-4a4c-5add-936a-0bd051b7d173")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3258,85 +3207,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+15V")
-		(at 254 60.96 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "20035fd1-9f46-5f8d-a668-ea8d5a8f6c55")
-		(property "Reference" "#PWR007"
-			(at 254 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+15V"
-			(at 254 57.404 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 254 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 254 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 254 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "aa86fd0d-d8d8-5af9-baf9-dc39e4726a6a")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR007")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:VDC")
-		(at 63.5 127 0)
+		(lib_id "Amplifier_Operational:OPA188xxD")
+		(at 287.02 78.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3344,9 +3216,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "258e526e-7a1f-56b7-b04e-951489085da9")
-		(property "Reference" "V4"
-			(at 68.24 125.95 0)
+		(uuid "20035fd1-9f46-5f8d-a668-ea8d5a8f6c55")
+		(property "Reference" "U3"
+			(at 273.05 66.02 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3356,8 +3228,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "-15V"
-			(at 68.24 128.05 0)
+		(property "Value" "OPA188ID"
+			(at 273.05 68.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3367,8 +3239,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 63.5 127 0)
+		(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3378,8 +3250,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#sec_Independent_Sources_for"
-			(at 63.5 127 0)
+		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/opa188.pdf"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3389,8 +3261,8 @@
 				)
 			)
 		)
-		(property "Description" "Voltage source, DC"
-			(at 63.5 127 0)
+		(property "Description" "Precision, Low-Noise, Rail-to-Rail Output, 36-V, Zero-Drift Operational Amplifier, SOIC-8"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3400,8 +3272,8 @@
 				)
 			)
 		)
-		(property "Sim.Device" "V"
-			(at 63.5 127 0)
+		(property "Sim.Device" "SUBCKT"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3411,8 +3283,8 @@
 				)
 			)
 		)
-		(property "Sim.Type" "DC"
-			(at 63.5 127 0)
+		(property "Sim.Library" "${KIPRJMOD}/models/ti_original/OPAx188.LIB"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3422,8 +3294,8 @@
 				)
 			)
 		)
-		(property "Sim.Pins" "1=+ 2=-"
-			(at 63.5 127 0)
+		(property "Sim.Name" "OPAx188"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3433,8 +3305,8 @@
 				)
 			)
 		)
-		(property "Sim.Params" "dc=15"
-			(at 63.5 127 0)
+		(property "Sim.Pins" "3=IN+ 2=IN- 7=VCC 4=VEE 6=OUT"
+			(at 287.02 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3445,15 +3317,33 @@
 			)
 		)
 		(pin "1"
-			(uuid "2db4ae28-d00e-5a33-8fee-473078f32d71")
+			(uuid "3a7e8ad0-2e34-52dd-b8a5-8f5893c69b08")
 		)
 		(pin "2"
-			(uuid "c27320e4-ca21-50a4-9ae4-14689ace8435")
+			(uuid "0f79c7ab-10af-56d9-8c34-b5a92b153de7")
+		)
+		(pin "3"
+			(uuid "a02c6494-30b5-5e6e-a568-8861dcbb8ad6")
+		)
+		(pin "4"
+			(uuid "62874a21-d9a4-55e6-ab32-07927d468642")
+		)
+		(pin "5"
+			(uuid "a77f6a0e-7532-5ec9-869e-da24f414bc0e")
+		)
+		(pin "6"
+			(uuid "73eb9cf0-e70f-57f6-8788-86ce9be083d1")
+		)
+		(pin "7"
+			(uuid "73563881-dab0-54ff-893f-11a81ec0c063")
+		)
+		(pin "8"
+			(uuid "dbc5802d-b638-51b2-a6e9-d8a821c69416")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "V4")
+					(reference "U3")
 					(unit 1)
 				)
 			)
@@ -3525,7 +3415,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3a7e8ad0-2e34-52dd-b8a5-8f5893c69b08")
+			(uuid "eff3b216-2b3e-5fc0-9f30-2cec4475429e")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3537,133 +3427,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Simulation_SPICE:VDC")
-		(at 127 142.24 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2f4e8a6e-c2ee-5b9b-a89b-e0c69aeea30c")
-		(property "Reference" "V2"
-			(at 131.74 141.19 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "DAC_OUT"
-			(at 131.74 143.29 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#sec_Independent_Sources_for"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Voltage source, DC"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "V"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Type" "DC"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Pins" "1=+ 2=-"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Params" "dc={vdac}"
-			(at 127 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0b79c895-6f84-5203-b9c3-aa20e3b3edba")
-		)
-		(pin "2"
-			(uuid "60485a7e-271e-5169-8f25-39ec44fd9f3d")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "V2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:0")
-		(at 38.1 134.62 0)
+		(lib_id "power:-15V")
+		(at 289.56 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3671,9 +3436,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3337cb28-068a-57e5-87e7-6b69558afd3d")
-		(property "Reference" "#GND015"
-			(at 38.1 134.62 0)
+		(uuid "2f4e8a6e-c2ee-5b9b-a89b-e0c69aeea30c")
+		(property "Reference" "#PWR010"
+			(at 289.56 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3683,107 +3448,19 @@
 				)
 			)
 		)
-		(property "Value" "0"
-			(at 38.1 137.16 0)
+		(property "Value" "-15V"
+			(at 291.96 90.34 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 38.1 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 38.1 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "0V reference potential for simulation"
-			(at 38.1 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "NONE"
-			(at 38.1 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "047db5d0-42b9-5bb8-9a7c-c2feb923992e")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#GND015")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 297.18 80.01 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4f9c88e1-e72d-5507-a3c6-0909a216dd44")
-		(property "Reference" "R7"
-			(at 300.396 78.96 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100k"
-			(at 300.396 81.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 297.18 80.01 0)
+			(at 289.56 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3794,7 +3471,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 297.18 80.01 0)
+			(at 289.56 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3804,8 +3481,8 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
-			(at 297.18 80.01 0)
+		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
+			(at 289.56 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3818,8 +3495,86 @@
 		(pin "1"
 			(uuid "67c0e65c-0c63-50de-a14d-d594e2e98770")
 		)
+		(instances
+			(project "cryocooler_sim"
+				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
+					(reference "#PWR010")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 327.66 82.55 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4f9c88e1-e72d-5507-a3c6-0909a216dd44")
+		(property "Reference" "R7"
+			(at 330.876 81.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k"
+			(at 330.876 83.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 327.66 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 327.66 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 327.66 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "fa9cede5-005c-5312-a52c-b2310bac0a17")
+		)
 		(pin "2"
-			(uuid "7bd0b897-370d-526b-9a7a-d4c8165c325e")
+			(uuid "ab4162a6-285f-5aad-aaf8-4304c726a1e5")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3851,7 +3606,7 @@
 				)
 			)
 		)
-		(property "Value" "100"
+		(property "Value" "220"
 			(at 163.83 72.184 270)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3895,10 +3650,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "50b2f711-6aa8-50c0-adcc-1806be81ac01")
+			(uuid "663505e1-54de-5538-80d9-37c9e222737e")
 		)
 		(pin "2"
-			(uuid "d92a243c-f863-58d8-92c5-04a5b784ce31")
+			(uuid "4d245280-d669-57d0-b6c4-2781d77ed432")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3911,7 +3666,7 @@
 	)
 	(symbol
 		(lib_id "Simulation_SPICE:0")
-		(at 238.76 88.9 0)
+		(at 238.76 93.98 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3921,7 +3676,7 @@
 		(dnp no)
 		(uuid "67c50430-5990-5a3a-b73c-4f4f06d31524")
 		(property "Reference" "#GND006"
-			(at 238.76 88.9 0)
+			(at 238.76 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3932,7 +3687,7 @@
 			)
 		)
 		(property "Value" "0"
-			(at 238.76 91.44 0)
+			(at 238.76 96.52 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3942,7 +3697,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 238.76 88.9 0)
+			(at 238.76 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3953,7 +3708,7 @@
 			)
 		)
 		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 238.76 88.9 0)
+			(at 238.76 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3964,7 +3719,7 @@
 			)
 		)
 		(property "Description" "0V reference potential for simulation"
-			(at 238.76 88.9 0)
+			(at 238.76 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3975,7 +3730,7 @@
 			)
 		)
 		(property "Sim.Device" "NONE"
-			(at 238.76 88.9 0)
+			(at 238.76 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3986,7 +3741,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "77d6130d-f854-561c-bc05-f3e6fedf05bd")
+			(uuid "1e629f92-136b-51bc-ae49-e800a9bf615e")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -3999,7 +3754,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 275.59 76.2 90)
+		(at 308.61 78.74 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4009,7 +3764,7 @@
 		(dnp no)
 		(uuid "76d17f07-961c-54f8-b13d-b39521624bd2")
 		(property "Reference" "R6"
-			(at 275.59 70.084 270)
+			(at 308.61 72.624 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4019,7 +3774,7 @@
 			)
 		)
 		(property "Value" "100"
-			(at 275.59 72.184 270)
+			(at 308.61 74.724 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4029,7 +3784,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 275.59 76.2 0)
+			(at 308.61 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4040,7 +3795,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 275.59 76.2 0)
+			(at 308.61 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4051,7 +3806,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 275.59 76.2 0)
+			(at 308.61 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4062,10 +3817,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "fa9cede5-005c-5312-a52c-b2310bac0a17")
+			(uuid "57beb888-e1ff-5122-80a7-804507b3c110")
 		)
 		(pin "2"
-			(uuid "ab4162a6-285f-5aad-aaf8-4304c726a1e5")
+			(uuid "77d6130d-f854-561c-bc05-f3e6fedf05bd")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -4077,143 +3832,19 @@
 		)
 	)
 	(symbol
-		(lib_id "Simulation_SPICE:VDC")
-		(at 38.1 127 0)
+		(lib_id "power:+15V")
+		(at 38.1 119.38 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "920ad3f3-b494-50d6-af29-9ae227958f88")
-		(property "Reference" "V3"
-			(at 42.84 125.95 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "15V"
-			(at 42.84 128.05 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#sec_Independent_Sources_for"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Voltage source, DC"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "V"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Type" "DC"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Pins" "1=+ 2=-"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Params" "dc=15"
-			(at 38.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e01d7af7-e0c2-56bb-8a87-518134db4332")
-		)
-		(pin "2"
-			(uuid "d7af917c-cd79-5a73-87c9-b278eee7bd2a")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "V3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 165.1 167.64 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "93e6330c-3664-589e-97cf-59f676624c52")
-		(property "Reference" "R8"
-			(at 165.1 161.524 270)
+		(property "Reference" "#PWR011"
+			(at 38.1 119.38 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4222,8 +3853,8 @@
 				)
 			)
 		)
-		(property "Value" "30k"
-			(at 165.1 163.624 270)
+		(property "Value" "+15V"
+			(at 38.1 115.824 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4232,8 +3863,8 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 165.1 167.64 0)
+		(property "Footprint" ""
+			(at 38.1 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4244,7 +3875,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 165.1 167.64 0)
+			(at 38.1 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4254,8 +3885,8 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
-			(at 165.1 167.64 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
+			(at 38.1 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4266,15 +3897,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "62b1b072-c89b-5ae1-89d9-c5a86b44dd54")
-		)
-		(pin "2"
-			(uuid "9d701b18-a16f-52c2-b128-abd0b225e3b9")
+			(uuid "df005dec-4a45-5818-a58a-49daa3e06fbe")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "R8")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -4301,7 +3929,7 @@
 				)
 			)
 		)
-		(property "Value" "2.4k"
+		(property "Value" "3.6k"
 			(at 156.21 84.884 270)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4345,104 +3973,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "0e20c134-04df-5be6-aa03-34ca54f4e7ce")
+			(uuid "d80dd3dd-1995-595c-9db4-3e8d6acdb023")
 		)
 		(pin "2"
-			(uuid "5182d4c0-925b-5d53-be1d-566799bbe3ed")
+			(uuid "a437d071-4a83-5cde-8581-54c23dcaee8d")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
 					(reference "R3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:0")
-		(at 63.5 119.38 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "9a8cfafa-4a8b-5a39-835b-af2491c3018c")
-		(property "Reference" "#GND017"
-			(at 63.5 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "0"
-			(at 65.9 118.28 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 63.5 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 63.5 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "0V reference potential for simulation"
-			(at 63.5 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "NONE"
-			(at 63.5 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "49a28396-9b0f-5155-9c37-825c7914150a")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#GND017")
 					(unit 1)
 				)
 			)
@@ -4547,7 +4086,7 @@
 				)
 			)
 		)
-		(property "Sim.Params" "dc=0.35 ampl=0.3 f=60 ac=1"
+		(property "Sim.Params" "dc=0.35 ampl=0.313 f=60 ac=1"
 			(at 81.28 83.82 0)
 			(hide yes)
 			(show_name no)
@@ -4559,10 +4098,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a64cddb6-9bd1-50c6-ad0c-d66ae04f80b9")
+			(uuid "0ea2a901-2358-51c9-b9b5-c4ada979275d")
 		)
 		(pin "2"
-			(uuid "9bd19b39-3c60-573d-9216-4ef3089e2291")
+			(uuid "5a78160b-5296-5b46-b0d1-0b2dd3a2ef56")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -4574,161 +4113,18 @@
 		)
 	)
 	(symbol
-		(lib_id "Amplifier_Operational:OPA188xxD")
-		(at 165.1 139.7 0)
+		(lib_id "power:+15V")
+		(at 284.48 63.5 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "ad9b8b3f-9090-532b-85b8-87b353f2cbbe")
-		(property "Reference" "U3"
-			(at 151.13 126.98 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "OPA188ID"
-			(at 151.13 129.08 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/opa188.pdf"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Precision, Low-Noise, Rail-to-Rail Output, 36-V, Zero-Drift Operational Amplifier, SOIC-8"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "SUBCKT"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Library" "${KIPRJMOD}/models/ti_original/OPAx188.LIB"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Name" "OPAx188"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Pins" "3=IN+ 2=IN- 7=VCC 4=VEE 6=OUT"
-			(at 165.1 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "df005dec-4a45-5818-a58a-49daa3e06fbe")
-		)
-		(pin "2"
-			(uuid "fa39e327-2259-5b11-b047-225a87d6d6b7")
-		)
-		(pin "3"
-			(uuid "607af920-cd5e-5a76-8969-310562b419b3")
-		)
-		(pin "4"
-			(uuid "be2253d7-c106-5bcf-8a9e-15d46416e0ef")
-		)
-		(pin "5"
-			(uuid "ec089ff5-2f49-5359-930a-60851ad2ac9f")
-		)
-		(pin "6"
-			(uuid "fbf3cc56-70fa-55a9-85c0-40bc193d7d41")
-		)
-		(pin "7"
-			(uuid "fd592ad6-5f22-583e-ac95-6307952224d6")
-		)
-		(pin "8"
-			(uuid "e008d7ce-a2f6-5cd5-9c22-bfc750eca64e")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "U3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 38.1 119.38 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ba2bf172-0e01-509f-ac21-0d6ea319dea4")
-		(property "Reference" "#PWR014"
-			(at 38.1 119.38 0)
+		(property "Reference" "#PWR009"
+			(at 284.48 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4739,7 +4135,7 @@
 			)
 		)
 		(property "Value" "+15V"
-			(at 38.1 115.824 0)
+			(at 284.48 59.944 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4749,7 +4145,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 38.1 119.38 0)
+			(at 284.48 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4760,7 +4156,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 38.1 119.38 0)
+			(at 284.48 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4771,7 +4167,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 38.1 119.38 0)
+			(at 284.48 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4782,245 +4178,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "98f62601-b5d9-5a80-9908-c9a61f57e8cf")
+			(uuid "0fe3f8d3-98e2-5f23-a165-84f8c4f04138")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR014")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 162.56 124.46 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c198ae65-76a0-5d03-9179-deb56d08c196")
-		(property "Reference" "#PWR012"
-			(at 162.56 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+15V"
-			(at 162.56 120.904 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 162.56 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 162.56 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 162.56 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dd80d34e-9478-56ed-b734-7c4b47ab953f")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR012")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 259.08 101.6 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c2427616-8c69-5cd6-bd8f-36782f7d4a79")
-		(property "Reference" "#PWR008"
-			(at 259.08 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-15V"
-			(at 261.48 100.5 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 259.08 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 259.08 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 259.08 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "08cc730a-0cd6-5de2-9634-e4ede06fae87")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR008")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 167.64 152.4 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c37de131-e3f6-53f3-8c60-3c209b434527")
-		(property "Reference" "#PWR013"
-			(at 167.64 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-15V"
-			(at 170.04 151.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 167.64 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 167.64 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 167.64 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "2ae67c6b-eec8-5378-9280-8f6616323077")
-		)
-		(instances
-			(project "cryocooler_sim"
-				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR013")
+					(reference "#PWR009")
 					(unit 1)
 				)
 			)
@@ -5036,8 +4199,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d1bb234d-b612-5e6c-bcd3-1977f31174cf")
-		(property "Reference" "#PWR016"
+		(uuid "c198ae65-76a0-5d03-9179-deb56d08c196")
+		(property "Reference" "#PWR013"
 			(at 63.5 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -5093,12 +4256,190 @@
 			)
 		)
 		(pin "1"
-			(uuid "1e0fc3d4-fbda-5fd4-8d39-fa9febddb16e")
+			(uuid "ec089ff5-2f49-5359-930a-60851ad2ac9f")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#PWR016")
+					(reference "#PWR013")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Simulation_SPICE:0")
+		(at 279.4 78.74 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c2427616-8c69-5cd6-bd8f-36782f7d4a79")
+		(property "Reference" "#GND007"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0"
+			(at 277 77.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 279.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0V reference potential for simulation"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "NONE"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "fa2fb8a1-f720-533c-a8aa-ff33166e790d")
+		)
+		(instances
+			(project "cryocooler_sim"
+				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
+					(reference "#GND007")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Simulation_SPICE:0")
+		(at 63.5 119.38 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c37de131-e3f6-53f3-8c60-3c209b434527")
+		(property "Reference" "#GND014"
+			(at 63.5 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0"
+			(at 65.9 118.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
+			(at 63.5 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0V reference potential for simulation"
+			(at 63.5 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "NONE"
+			(at 63.5 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "fbf3cc56-70fa-55a9-85c0-40bc193d7d41")
+		)
+		(instances
+			(project "cryocooler_sim"
+				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
+					(reference "#GND014")
 					(unit 1)
 				)
 			)
@@ -5169,10 +4510,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a5260c34-4cc1-5fe1-9855-296bbbb7d409")
+			(uuid "892fb9c5-ed50-51a6-a6c6-0f6c4eb50010")
 		)
 		(pin "2"
-			(uuid "d369a0dd-65f7-535a-9ebe-5bd87c0dc280")
+			(uuid "0f9be70e-6b55-5515-9cbf-14e6242e2fd3")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5184,39 +4525,40 @@
 		)
 	)
 	(symbol
-		(lib_id "Simulation_SPICE:0")
-		(at 152.4 177.8 0)
+		(lib_id "Simulation_SPICE:VDC")
+		(at 63.5 127 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "d52cc366-2553-5acc-a365-33f6f92c2116")
-		(property "Reference" "#GND011"
-			(at 152.4 177.8 0)
-			(hide yes)
+		(property "Reference" "V3"
+			(at 68.24 125.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "0"
-			(at 152.4 180.34 0)
+		(property "Value" "-15V"
+			(at 68.24 128.05 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 152.4 177.8 0)
+			(at 63.5 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5226,8 +4568,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 152.4 177.8 0)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#sec_Independent_Sources_for"
+			(at 63.5 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5237,8 +4579,8 @@
 				)
 			)
 		)
-		(property "Description" "0V reference potential for simulation"
-			(at 152.4 177.8 0)
+		(property "Description" "Voltage source, DC"
+			(at 63.5 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5248,8 +4590,41 @@
 				)
 			)
 		)
-		(property "Sim.Device" "NONE"
-			(at 152.4 177.8 0)
+		(property "Sim.Device" "V"
+			(at 63.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Type" "DC"
+			(at 63.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=+ 2=-"
+			(at 63.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Params" "dc=15"
+			(at 63.5 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5260,12 +4635,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "56f9f791-6ab1-5965-ac33-c0172c82e849")
+			(uuid "607af920-cd5e-5a76-8969-310562b419b3")
+		)
+		(pin "2"
+			(uuid "be2253d7-c106-5bcf-8a9e-15d46416e0ef")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#GND011")
+					(reference "V3")
 					(unit 1)
 				)
 			)
@@ -5273,7 +4651,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 288.29 76.2 90)
+		(at 318.77 78.74 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5283,7 +4661,7 @@
 		(dnp no)
 		(uuid "d5c807b4-f936-52bd-95b6-31b8cd2702ac")
 		(property "Reference" "C3"
-			(at 288.29 69.068 270)
+			(at 318.77 71.608 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5293,7 +4671,7 @@
 			)
 		)
 		(property "Value" "10uF"
-			(at 288.29 71.168 270)
+			(at 318.77 73.708 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5303,7 +4681,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 288.29 76.2 0)
+			(at 318.77 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5314,7 +4692,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 288.29 76.2 0)
+			(at 318.77 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5325,7 +4703,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 288.29 76.2 0)
+			(at 318.77 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5336,10 +4714,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "12523d09-cafe-55c9-b0cf-1f36240e7905")
+			(uuid "aa86fd0d-d8d8-5af9-baf9-dc39e4726a6a")
 		)
 		(pin "2"
-			(uuid "0fe3f8d3-98e2-5f23-a165-84f8c4f04138")
+			(uuid "08cc730a-0cd6-5de2-9634-e4ede06fae87")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5351,40 +4729,18 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 152.4 171.45 0)
+		(lib_id "Simulation_SPICE:0")
+		(at 38.1 134.62 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "d76fce47-4c3f-5f0d-9d0b-653f2ecce49d")
-		(property "Reference" "R9"
-			(at 155.616 170.4 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 155.616 172.5 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 152.4 171.45 0)
+		(property "Reference" "#GND012"
+			(at 38.1 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5394,8 +4750,18 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 152.4 171.45 0)
+		(property "Value" "0"
+			(at 38.1 137.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 38.1 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5405,8 +4771,30 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
-			(at 152.4 171.45 0)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
+			(at 38.1 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0V reference potential for simulation"
+			(at 38.1 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "NONE"
+			(at 38.1 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5417,15 +4805,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6600fd66-e1b1-5772-a78b-d632e803a4a7")
-		)
-		(pin "2"
-			(uuid "74c15891-f0d1-57d3-a971-069cc58fe5d0")
+			(uuid "fa39e327-2259-5b11-b047-225a87d6d6b7")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "R9")
+					(reference "#GND012")
 					(unit 1)
 				)
 			)
@@ -5508,7 +4893,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8779e7d6-48b8-59cb-992d-a318eea33408")
+			(uuid "a18e4bf6-7be8-59eb-956c-b79316d9fe56")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5521,7 +4906,7 @@
 	)
 	(symbol
 		(lib_id "Simulation_SPICE:0")
-		(at 297.18 86.36 0)
+		(at 327.66 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5530,8 +4915,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "dafe41a4-da06-5510-87c2-67c66cef872a")
-		(property "Reference" "#GND009"
-			(at 297.18 86.36 0)
+		(property "Reference" "#GND008"
+			(at 327.66 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5542,7 +4927,7 @@
 			)
 		)
 		(property "Value" "0"
-			(at 297.18 88.9 0)
+			(at 327.66 91.44 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5552,7 +4937,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 297.18 86.36 0)
+			(at 327.66 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5563,7 +4948,7 @@
 			)
 		)
 		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 297.18 86.36 0)
+			(at 327.66 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5574,7 +4959,7 @@
 			)
 		)
 		(property "Description" "0V reference potential for simulation"
-			(at 297.18 86.36 0)
+			(at 327.66 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5585,7 +4970,7 @@
 			)
 		)
 		(property "Sim.Device" "NONE"
-			(at 297.18 86.36 0)
+			(at 327.66 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5596,12 +4981,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d605c6f9-c405-5ada-8526-4b52215bb8d3")
+			(uuid "12523d09-cafe-55c9-b0cf-1f36240e7905")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#GND009")
+					(reference "#GND008")
 					(unit 1)
 				)
 			)
@@ -5684,7 +5069,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "16900a85-a864-597b-aa42-96eb9bf4c940")
+			(uuid "9fc9a2ce-db31-5647-9f00-521dcd5f42eb")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5762,10 +5147,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "09d97ee2-940a-5239-bd52-7de2b5bdca18")
+			(uuid "c59d85d1-76f4-5efb-b5fb-d8ce453dac8a")
 		)
 		(pin "2"
-			(uuid "eff3b216-2b3e-5fc0-9f30-2cec4475429e")
+			(uuid "996c2a6e-c0b3-5e37-b070-efe8ba93ce57")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5853,7 +5238,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a437d071-4a83-5cde-8581-54c23dcaee8d")
+			(uuid "03c07c02-2d7c-5adb-abdd-eddc3c85b9b1")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5895,7 +5280,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 137.16 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -5929,10 +5314,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a14e87a2-8194-5421-a1a6-85c9b815b444")
+			(uuid "b2296eac-947a-53b7-ac85-963bd4729e34")
 		)
 		(pin "2"
-			(uuid "d8cbbaee-3255-54cd-bbe9-7d84170f9123")
+			(uuid "64e043f5-7e92-58f2-a17c-2e4edb18be99")
 		)
 		(instances
 			(project "cryocooler_sim"
@@ -5944,39 +5329,40 @@
 		)
 	)
 	(symbol
-		(lib_id "Simulation_SPICE:0")
-		(at 127 149.86 0)
+		(lib_id "Simulation_SPICE:VDC")
+		(at 38.1 127 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "f8abd234-32be-5a8b-967c-a83ee1467a7e")
-		(property "Reference" "#GND010"
-			(at 127 149.86 0)
-			(hide yes)
+		(property "Reference" "V2"
+			(at 42.84 125.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "0"
-			(at 127 152.4 0)
+		(property "Value" "15V"
+			(at 42.84 128.05 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 127 149.86 0)
+			(at 38.1 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5986,8 +5372,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#subsec_Circuit_elements__device"
-			(at 127 149.86 0)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#sec_Independent_Sources_for"
+			(at 38.1 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5997,8 +5383,8 @@
 				)
 			)
 		)
-		(property "Description" "0V reference potential for simulation"
-			(at 127 149.86 0)
+		(property "Description" "Voltage source, DC"
+			(at 38.1 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6008,8 +5394,41 @@
 				)
 			)
 		)
-		(property "Sim.Device" "NONE"
-			(at 127 149.86 0)
+		(property "Sim.Device" "V"
+			(at 38.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Type" "DC"
+			(at 38.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=+ 2=-"
+			(at 38.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Params" "dc=15"
+			(at 38.1 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6020,12 +5439,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "bfab7265-4301-576e-989d-c715d6c97b59")
+			(uuid "7bd0b897-370d-526b-9a7a-d4c8165c325e")
+		)
+		(pin "2"
+			(uuid "d605c6f9-c405-5ada-8526-4b52215bb8d3")
 		)
 		(instances
 			(project "cryocooler_sim"
 				(path "/3f6c1b7e-5d0a-4e8b-9a52-7c1d4e2a9b10"
-					(reference "#GND010")
+					(reference "V2")
 					(unit 1)
 				)
 			)
@@ -6097,7 +5519,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0f79c7ab-10af-56d9-8c34-b5a92b153de7")
+			(uuid "8779e7d6-48b8-59cb-992d-a318eea33408")
 		)
 		(instances
 			(project "cryocooler_sim"

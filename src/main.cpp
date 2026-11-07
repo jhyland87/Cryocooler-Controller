@@ -24,6 +24,7 @@
 #include "commands.h"
 #include "sysinfo.h"
 #include "display.h"
+#include "power_button.h"
 #include "cooling.h"
 #include "dashboard.h"
 #include "imu.h"
@@ -63,7 +64,7 @@ static void logPrintf(const char* fmt, ...) {
 //
 // Special-cased modules that don't appear here:
 //   - hardware    — fatal init, must succeed before anything else
-//   - indicator   — init before WiFi to avoid neopixelWrite deadlock
+//   - indicator   — init before WiFi to avoid rmtWrite deadlock
 //   - state_machine — non-standard update() signature
 //   - telemetry   — emit(out) takes state_machine output
 //   - cold_head   — in gated section, before state_machine
@@ -72,6 +73,7 @@ static void logPrintf(const char* fmt, ...) {
 
 /// Modules initialized once at boot (never re-initialized on reinit).
 static const module::ModuleEntry persistentModules[] = {
+    MODULE_ENTRY(power_button, false),
     MODULE_ENTRY(imu,       false),
     MODULE_ENTRY(ota,       false),
     MODULE_ENTRY(dashboard, false),
@@ -97,6 +99,7 @@ static constexpr size_t NUM_CONTROL = sizeof(controlModules) / sizeof(controlMod
 
 /// Modules serviced every loop() tick with health-transition logging.
 static const module::ModuleEntry tickServiceModules[] = {
+    MODULE_ENTRY(power_button, false),
 #if ENABLE_ESPNOW
     MODULE_ENTRY(espnow,    false),  // runs commands queued by the receive callback
 #endif
@@ -112,6 +115,7 @@ static constexpr size_t NUM_TICK_SERVICE = sizeof(tickServiceModules) / sizeof(t
 static const module::ModuleEntry allModulesForBanner[] = {
     MODULE_ENTRY(hardware,      true),
     MODULE_ENTRY(indicator,     false),
+    MODULE_ENTRY(power_button,  false),
     MODULE_ENTRY(imu,           false),
     MODULE_ENTRY(ota,           false),
     MODULE_ENTRY(dashboard,     false),
@@ -171,7 +175,7 @@ static void initPersistentModules() {
  * each step so the dashboard shows real-time progress.
  *
  * indicator is intentionally omitted — it is initialised once in setup()
- * before WiFi starts to avoid a neopixelWrite() deadlock on ESP32-S3 with
+ * before WiFi starts to avoid an rmtWrite() deadlock on ESP32-S3 with
  * Arduino 2.x.  It does not need re-initialisation on reinit().
  */
 static void initControlModules() {
@@ -205,7 +209,7 @@ void setup() {
     }
 
     // Initialise the indicator LED before WiFi starts.  On ESP32-S3 with
-    // Arduino 2.x, neopixelWrite() uses rmt_wait_tx_done() internally which
+    // Arduino 2.x, rmtWrite() uses rmt_wait_tx_done() internally which
     // deadlocks if the WiFi stack is already up — WiFi interrupt priorities
     // can block the RMT "done" interrupt, hanging the main task indefinitely.
     // The indicator only needs GPIO + RMT (no I2C/SPI), so it is safe to run

@@ -39,7 +39,7 @@ void test_ids_are_distinct_from_gpios_and_fit_int8(void) {
 
 void test_ids_match_the_schematic_outputs(void) {
     TEST_ASSERT_EQUAL(0, AD9833_CS - CS_ID_BASE);
-    TEST_ASSERT_EQUAL(1, MCP4921_CS - CS_ID_BASE);
+    TEST_ASSERT_EQUAL(1, AD5453_SYNC - CS_ID_BASE);
     TEST_ASSERT_EQUAL(2, INA239_CS - CS_ID_BASE);
     TEST_ASSERT_EQUAL(3, EXPANDER_CS_PIN - CS_ID_BASE);
     TEST_ASSERT_EQUAL(4, DISP_CS_PIN - CS_ID_BASE);

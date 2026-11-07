@@ -27,14 +27,15 @@ static constexpr uint8_t REG_GPPU  = 0x06;
 static constexpr uint8_t REG_GPIO  = 0x09;
 static constexpr uint8_t REG_OLAT  = 0x0A;
 
-static constexpr uint8_t OUTPUT_MASK = (1u << EXPANDER_PIN_DISP_BL) |
-                                       (1u << EXPANDER_PIN_READY_IND) |
-                                       (1u << EXPANDER_PIN_FAULT_IND);
-// The unused pin is an input, so its weak pull-up stops it floating.
-static constexpr uint8_t PULLUP_MASK = 1u << EXPANDER_PIN_SPARE;
+static constexpr uint8_t OUTPUT_MASK = 1u << EXPANDER_PIN_DISP_BL;
+// The unused pins are inputs, so their weak pull-ups stop them floating.
+static constexpr uint8_t PULLUP_MASK = (1u << EXPANDER_PIN_SPARE_2) |
+                                       (1u << EXPANDER_PIN_SPARE_3) |
+                                       (1u << EXPANDER_PIN_SPARE_5);
 
 static bool sPresent = false;
 static uint8_t sOutputLevels = 0;
+static int16_t sLastPins = -1;
 
 static void writeRegister(uint8_t reg, uint8_t value) {
     SpiTransaction transaction(sExpander);
@@ -89,7 +90,12 @@ int16_t readPins() {
     if (!sPresent) {
         return -1;
     }
-    return readRegister(REG_GPIO);
+    sLastPins = readRegister(REG_GPIO);
+    return sLastPins;
 }
+
+int16_t lastPins() { return sLastPins; }
+
+bool pinLow(uint8_t pin) { return sLastPins >= 0 && pin <= 7 && ((sLastPins >> pin) & 1) == 0; }
 
 }  // namespace gpio_expander
