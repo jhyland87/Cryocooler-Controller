@@ -10,7 +10,7 @@ Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. Rev 3 and the label rework are
 ## State
 
 - **Schematic:** see "Checks" below for the latest results. Datasheet findings are in `kicad/DESIGN_REVIEW.md`, "Rev 3".
-- **PCB:** see "PCB" below. Board ID reads `rev 436f6b4`, so it needs a new stamp and re-export when the label rework is committed.
+- **PCB:** see "PCB" below. Board ID reads `rev bbb8916`, the commit the fab files were generated from.
 - **Firmware:** builds, native tests pass. Nothing has run on hardware.
 
 ## Reference numbers
