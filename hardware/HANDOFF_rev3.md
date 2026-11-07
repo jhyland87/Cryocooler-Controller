@@ -10,7 +10,7 @@ Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. Rev 3 and the label rework are
 ## State
 
 - **Schematic:** see "Checks" below for the latest results. Datasheet findings are in `kicad/DESIGN_REVIEW.md`, "Rev 3".
-- **PCB:** see "PCB" below. Board ID reads `rev 49ebc9a`, the commit the fab files were generated from.
+- **PCB:** see "PCB" below. Board ID reads `rev f85d84d`, the commit the fab files were generated from.
 - **Firmware:** builds, native tests pass. Nothing has run on hardware.
 
 ## Reference numbers
@@ -93,7 +93,7 @@ No two printed texts overlap (DRC doesn't compare mask text, so this was checked
 
 ## J12: TE 643228-1
 
-**Status (2026-11-07):** done in the working tree and not committed. The board ID still reads `rev 49ebc9a` until it's committed and stamped.
+**Status (2026-11-07):** committed in `f85d84d` and pushed on `ucs-145-125-rev3`, not merged or bench tested. The board ID reads `rev f85d84d`.
 
 The user replaced the TE 2305908-3 SMT header with this through-hole Universal MATE-N-LOK part. Looking into the mating face with tails down, left to right is GND, -, +, which is molded cavities 3, 2, 1. Pin numbers and nets didn't change: pin 1 +, pin 2 - (ISO_GND), pin 3 GND.
 
