@@ -10,7 +10,7 @@ Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. **Nothing is committed yet.** 
 ## State
 
 - **Schematic:** see "Checks" below for the latest results. Datasheet findings are in `kicad/DESIGN_REVIEW.md`, "Rev 3".
-- **PCB:** see "PCB" below. Board ID reads `rev 79e604f`, the commit the branch started from; re-stamp it and re-export after committing.
+- **PCB:** see "PCB" below. Board ID reads `rev 436f6b4`, the commit the fab files were generated from.
 - **Firmware:** builds, native tests pass. Nothing has run on hardware.
 
 ## Reference numbers
