@@ -285,7 +285,7 @@ LOCAL_STEP_MODELS = {
         (0.0, 0.0, 0.0),
     ),
     # Rev 3 parts, models from the user's library downloads. The TI assemblies and ADI files
-    # import Z-up and centred. AOS, ECS and onsemi files are Y-up and centred. Bourns' SRP4020TA file is off-origin, centred at x 5.882, y 7.75, z -2.105 to -0.2.
+    # import Z-up and centred. AOS, ECS and onsemi files are Y-up and centred. Bourns' SRP4020TA files are off-origin and upside down: centred at x 5.882, y 7.75, marking at z -2.1, contacts at z -0.2, so they flip 180 degrees.
     'Texas_RVA_VQFN-16-1EP_3.5x3.5mm_P0.5mm_EP2.14x2.14mm': (
         'RVA0016A.step',
         (0.0, 0.0, 0.0),
@@ -306,10 +306,16 @@ LOCAL_STEP_MODELS = {
         (0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0),
     ),
-    'L_Bourns_SRP4020TA': (
-        'SRP4020TA.step',
-        (-7.75, 5.882, 2.105),
-        (0.0, 0.0, 90.0),
+    # Keyed by value, not footprint: L1 and L4 share a footprint but their markings differ
+    'SRP4020TA-4R7M': (
+        'SRP4020TA-4R7M.step',
+        (-7.75, -5.882, -0.2),
+        (0.0, 180.0, 90.0),
+    ),
+    'SRP4020TA-R47M': (
+        'SRP4020TA-R47M.step',
+        (-7.75, -5.882, -0.2),
+        (0.0, 180.0, 90.0),
     ),
     'TI_DFM0020A': (
         'DFM0020A.step',
@@ -376,7 +382,7 @@ def attach_missing_models(footprint):
     file is missing; returns True if it changed the model.
     """
     name = str(footprint.GetFPID().GetLibItemName())
-    local_step = LOCAL_STEP_MODELS.get(name)
+    local_step = LOCAL_STEP_MODELS.get(footprint.GetValue()) or LOCAL_STEP_MODELS.get(name)
     if local_step is not None and (MODEL_DIR / local_step[0]).exists():
         wanted = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{local_step[0]}'
         if [m.m_Filename for m in footprint.Models()] == [wanted]:

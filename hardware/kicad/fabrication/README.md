@@ -38,17 +38,19 @@ creation date, so the files differ in git after every export even if the board d
   L4 pad 2, R78 pad 1, C31 pad 1, C60 pad 1, C62 pad 2, C66 pad 1 and C77 pad 2. Most are 0.45 mm vias with 0.2 mm drills, some
   inside 0.5 mm pitch pads. Check JLCPCB's current via limits and order filled / capped vias; if they are too small the
   vias need enlarging and the pad connections reworking.
-* **ENIG finish and mask-opening labels:** 286 labels (`tools/mask_labels.py`) are 0.5 mm
+* **Filled and capped vias are required on the whole board:** the U1 pin names, section names and
+  board ID print across vias, so an open via would break the text. Confirm the option covers every via.
+* **ENIG finish and mask-opening labels:** 284 labels (`tools/mask_labels.py`) are 0.5 mm
   or 0.7 mm text cut into the solder mask over the ground pours, and they are intentional.
   HASL would blur the text. Tell JLCPCB in the order notes so it isn't removed in review.
-* **High-precision silkscreen printing:** 52 more labels are 0.7 mm silk with a 0.1 mm stroke,
-  beside their parts. That text is under JLCPCB's published
+* **High-precision silkscreen printing:** 54 more labels and the 40 U1 pin names are 0.7 mm silk
+  with a 0.1 mm stroke, beside their parts. That text is under JLCPCB's published
   0.8 mm minimum for high-precision printing, and well under 1.0 mm for standard printing, so select
   high-precision and say in the order notes that the small text is intentional.
 * Parts on both sides: the back carries a few passives and small transistors.
 * The back silkscreen carries the board ID (name and git revision); check the viewer
   shows it mirrored correctly from the back.
 
-The drill report lists every hole size: plated 0.2 mm (464), 0.3 mm (417),
+The drill report lists every hole size: plated 0.2 mm (466), 0.3 mm (415),
 0.35 mm (24), component holes 0.6 to 1.4 mm; unplated 0.65 mm (2, USB-C pegs) and
 3.2 mm (4 mounting holes).

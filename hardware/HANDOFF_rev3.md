@@ -63,9 +63,17 @@ UCS 145-125 board, 120 x 100 mm, 4 layers.
   - Tracks: ISO_5V from C54 to TP13 now runs at x 16.85, with C7's stubs extended to x 16.2. +3V3 and U16-FB follow C87 and R34, +3V3 follows C51, and the B.Cu D8-A and +3V3 stubs follow R82.
   - Silk cuts: C53's right tick, C74's left tick and x 19.6-21.95 of U18's bottom line.
 
+- Moved so all 40 U1 pads can show a pin name (2026-11-06, uncommitted):
+  - Test points: TP34 from (73.25, 17.65) to (70.9, 17.65), TP35 from (73.25, 20.34) to (70.9, 19.9), TP40 from (73.25, 24.69) to (70.9, 23.711), TP33 from (80.825, 27.75) to (75.35, 27.4).
+  - SW2 from (66.5, 17.675) to (66.3, 17.675), so the test point courtyards clear it. SW1 stayed, so the two switches are 0.2 mm out of line.
+  - Vias: `COMP_RELAY_EN` from (72.496, 18.649) to (72.496, 21.1), with F.Cu from pad 9 down x 72.4 and In2 shortened; `ACS_CS` from (74.025, 18.811) to (74.1, 19.1), 0.6 to 0.45 mm; `GND` from (84.6, 28.1) to (84.9, 28.5) and from (85.9, 27.85) to (87.81, 26.9).
+  - Tracks: `AMP_REM_EN` now detours left of TP34 along x 70.0 to its unchanged via, and runs on down to TP35. TP40 and TP33 each have a new stub. USB_D+/D- didn't move.
+
 `tools/board_edit.py` applies rip, track and via edits from JSON.
 
-**Labels:** every one of the 306 referenced parts has one: 286 mask openings (0.5 mm, or 0.7 mm on large parts and connector pins) and 52 silk at 0.7 mm / 0.1 mm stroke, in `tools/mask_labels.json`, plus the TP5, TP7 and TP34 footprint fields. There are no arrows. Labels follow the user's hand edits of 2026-11-06: horizontal, centred right above or below the part, in mask at 0.5 mm where there's solid ground pour, with silk only as the fallback. Test points are named by their function, not their TP number. Connector pin names sit vertically above their pins. Treat `mask_labels.json` as the source: `mask_label_plan.py` follows an older rule and would undo this. `tools/silk_label_missing.py` adds silk labels for parts that have none, but it can still add arrows, so check its output. J10's pin names are now 0.7 mm, and `S+` was missing and is back. Order high-precision silkscreen printing.
+**Labels:** every one of the 306 referenced parts has one: 284 mask openings (0.5 mm, or 0.7 mm on large parts and connector pins) and 54 silk at 0.7 mm / 0.1 mm stroke, in `tools/mask_labels.json`, plus the TP5, TP7 and TP34 footprint fields. There are no arrows. Labels follow the user's hand edits of 2026-11-06: horizontal, centred right above or below the part, in mask at 0.5 mm where there's solid ground pour, with silk only as the fallback. Test points are named by their function, not their TP number. Connector pin names sit vertically above their pins. Treat `mask_labels.json` as the source: `mask_label_plan.py` follows an older rule and would undo this. `tools/silk_label_missing.py` adds silk labels for parts that have none, but it can still add arrows, so check its output. J10's pin names are now 0.7 mm, and `S+` was missing and is back. Order high-precision silkscreen printing.
+
+**U1 pin names:** all 40 side and bottom pads have a name on F.Silkscreen at 0.7 mm / 0.1 mm stroke, outside the module body. They are plain board text, not in `mask_labels.json`, so edit them in the board. Names follow Espressif's WROOM-2 datasheet v1.7, Table 3-1. Two groups differ from the project's U1 symbol: pads 13 and 14 read `IO19` and `IO20` (symbol: `USB_D-`, `USB_D+`), and pads 28-30 read `NC` (symbol: `IO35`-`IO37`). Every name sits on its pad's centreline and crosses vias where it has to, which relies on filled and capped vias. Don't run `silk_fix.py`.
 
 **DRC with schematic parity:** 0 errors, 0 unconnected, 0 parity. 13 accepted warnings:
 - 6 `silk_edge_clearance`: J11, J12 and J14 body lines at the board edge.
@@ -79,7 +87,7 @@ No two printed texts overlap (DRC doesn't compare mask text, so this was checked
 - 38 short off-angle segments remain where `octilinear.py` found no clean path.
 - U6's exposed pad has one via, because In2 and back traces block more.
 
-**3D models:** the nine vendor STEP files for rev 3 parts are new in `lib/cryocooler.3dshapes` and listed in `LOCAL_STEP_MODELS` in `tools/pcbmodels.py`. Seating and pin 1 were checked by render and mesh bounds; U3, U14 and U34 show no pin 1 mark to compare. Q1 uses the AONR21305C file. The `SRP7050TA` model prints `2R2` on L2 and L3 whatever the real value is.
+**3D models:** the nine vendor STEP files for rev 3 parts are new in `lib/cryocooler.3dshapes` and listed in `LOCAL_STEP_MODELS` in `tools/pcbmodels.py`. Seating and pin 1 were checked by render and mesh bounds; U3, U14 and U34 show no pin 1 mark to compare. Q1 uses the AONR21305C file. The `SRP7050TA` model prints `2R2` on L2 and L3 whatever the real value is. L1 and L4 use `SRP4020TA-4R7M.step` and `SRP4020TA-R47M.step`, keyed by value because they share a footprint; Bourns' files are upside down, so both are flipped 180 degrees. `SRP4020TA.step` is no longer used.
 
 ## Q1: AONR21307
 
@@ -133,7 +141,7 @@ The simulation uses ideal op-amp and AD5453 stand-ins. The KiCad sim project in 
 
 - **Test points:** AGENTS.md asks for test points beside every IC. These new or changed ICs have none on their own nets on the same side nearby: U3, U6, U16 (only `+5V_OR`, on the far side), U20 (its rail outputs are at TP11 and TP12, 12-14 mm away, and nothing is on `+5V_PS15`), U34, U35, U36, U37. Some rev 2 ICs are also short (U5, U9, U12, U18, U23, U24).
 - **Isolation gap:** the copper gap at the ISO boundary is 1.5 mm, though U17 has 8.1 mm package clearance. If you need the full rating, the pours and keep-out strips have to move.
-- **Silk over via holes:** 1.0 mm text still crosses via holes, against the AGENTS.md silk rule: the section names (DISPLAY, SIGNAL GENERATOR, WATER COOLING, RAILS ±15V, POWER GOOD, AMP CONTROL, POWER IN, FROM AMP), `SG 3V3`, the back board ID and some U1 pin names. All the 0.7 mm part labels are clear.
+- **Silk over vias:** allowed by the user on 2026-11-06, but only if the board is ordered with filled and capped vias. U1 pin names, the section names (DISPLAY, SIGNAL GENERATOR, WATER COOLING, RAILS ±15V, POWER GOOD, AMP CONTROL, POWER IN, FROM AMP), `SG 3V3` and the back board ID all cross vias. Confirm the order option covers every via and the 0.2 mm drills; not yet checked with JLCPCB.
 - U33 is one array for 4 lines spread over 35 mm.
 - TPS62822 footprint pads are 0.8 x 0.25 mm against 0.6 x 0.25 mm in the datasheet: unresolved.
 - J2 and F1 at 4 A.

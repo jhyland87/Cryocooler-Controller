@@ -172,9 +172,10 @@ Standing rules for any schematic or PCB work in `hardware/kicad/` (or a new boar
 - **Label board I/O** — clearly silkscreen every input and output: power input and
   its voltage, ground, output signals, etc.
 - **Readable silkscreen** — no text may overlap other text, pads, part bodies,
-  section lines, holes or the board edge. Reserve room for fixed text (board
-  ID, labels) before placing parts, and fail the check rather than ship
-  overlapping text.
+  section lines, open holes or the board edge. Silk may cross a via when the
+  board is ordered with filled and capped vias; solder mask text stays on solid
+  pour. Reserve room for fixed text (board ID, labels) before placing parts, and
+  fail the check rather than ship overlapping text.
 - **Every part on the board** — never leave an unplaced part (e.g. at the
   origin or off the edge). An unplaced part is a layout failure, not a warning.
 - **Board ID block** — silkscreen a small identification block on every board:
