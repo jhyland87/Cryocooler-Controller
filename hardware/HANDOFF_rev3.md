@@ -10,7 +10,7 @@ Branch `ucs-145-125-rev3`, from `spi-cs-decoder`. Rev 3 and the label rework are
 ## State
 
 - **Schematic:** see "Checks" below for the latest results. Datasheet findings are in `kicad/DESIGN_REVIEW.md`, "Rev 3".
-- **PCB:** see "PCB" below. Board ID reads `rev f85d84d`, the commit the fab files were generated from.
+- **PCB:** see "PCB" below. Board ID reads `rev 99e9bd2`, the commit the fab files were generated from.
 - **Firmware:** builds, native tests pass. Nothing has run on hardware.
 
 ## Reference numbers
@@ -121,7 +121,7 @@ The user replaced the TE 2305908-3 SMT header with this through-hole Universal M
 
 ## Trim lands: R92 (AMP ADJ) and R96 (MDAC ADJ)
 
-**Status (2026-11-07):** uncommitted on `ucs-145-125-rev3`. The board ID still reads `rev f85d84d`; stamp and re-export after the commit.
+**Status (2026-11-07):** committed in `99e9bd2` and pushed on `ucs-145-125-rev3`, not bench tested. The board ID reads `rev 99e9bd2`.
 
 Both parts sit on `R_1206_or_Bourns_3313J` (`tools/make_footprints.py`), on the front: a 1206 resistor on the two end pads, or a Bourns 3313J-1 trimmer, whose wiper pad is tied to pad 2 by a track (rheostat, clockwise raises it). Land pattern from the 3313J drawing, end pads 0.4 mm longer outward for the 1206 toe; the wiper pad has no paste.
 
@@ -133,7 +133,7 @@ Both parts sit on `R_1206_or_Bourns_3313J` (`tools/make_footprints.py`), on the 
 
 ## SW3: TE 1571300-2 on the right edge
 
-**Status (2026-11-07):** uncommitted, same as the trim lands. The board ID still needs a stamp after the commit.
+**Status (2026-11-07):** committed in `99e9bd2` with the trim lands and pushed on `ucs-145-125-rev3`, not bench tested.
 
 SW3 (power button) is now a TE 1571300-2 right-angle SMT tact switch (SPST-NO, 50 mA, 24 VDC, IP67), replacing the TL6800AF at (27, 95.8). Its footprint is `SW_TE_1571300-2` in `tools/make_footprints.py`, checked against drawing C-1571300. It has contacts 1 and 2, four unnumbered bracket lands and two Ø0.85 NPTH guide-pin holes. The STEP is `lib/cryocooler.3dshapes/1571300-2.step`, from `dev/1571300-2`. It's seated by its guide pins.
 
