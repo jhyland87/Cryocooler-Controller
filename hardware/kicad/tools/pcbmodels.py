@@ -51,6 +51,34 @@ STOCK_HOUSING_RGB = (
 # NANO2 453 2.69 mm (Littelfuse); MIE1W0505 LGA-12 is 5 x 4 mm, height assumed
 # 1.8 mm (not read from its datasheet).
 ENVELOPES = {
+    'SW_Panasonic_EVP-AA': (
+        'EVP-AA_envelope',
+        [(3.5, 2.9, 1.4, 0.0, 0.0, SILVER), (2.2, 1.5, 1.7, 0.0, 0.0, GRAY)],
+    ),
+    'LED_Kingbright_APGB0607': (
+        'APGB0607_envelope',
+        [(0.65, 0.65, 0.25, 0.0, 0.0, (0.92, 0.92, 0.88))],
+    ),
+    # Littelfuse SP3422 DFN-5: 0.6 x 1.0 mm, 0.50 mm max (fallback for the vendor STEP)
+    'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': (
+        'SP3422_envelope',
+        [(0.6, 1.0, 0.5, 0.0, 0.0, BLACK)],
+    ),
+    # MCC DFN1510-6: 1.5 x 1.0 mm, 0.55 mm (SRL05P7, A 0.50-0.60)
+    'MCC_DFN1510-6_1.5x1.0mm_P0.5mm': (
+        'DFN1510-6_envelope',
+        [(1.5, 1.0, 0.55, 0.0, 0.0, BLACK)],
+    ),
+    # Nexperia X2SON5 SOT1226-3: 0.8 x 0.8 mm, 0.35 mm max (74LV1T34GX)
+    'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm': (
+        'X2SON5_SOT1226_envelope',
+        [(0.8, 0.8, 0.35, 0.0, 0.0, BLACK)],
+    ),
+    # onsemi NUF6401MN DFN12 case 506AD: 3.0 x 1.35 mm, 1.00 mm max (NUF6401/D)
+    'OnSemi_DFN-12-1EP_506AD': (
+        'NUF6401MN_envelope',
+        [(3.0, 1.35, 1.0, 0.0, 0.0, BLACK)],
+    ),
     'Oscillator_SMD_SeikoEpson_SG8002CA-4Pin_7.0x5.0mm': (
         'SG8002CA_envelope',
         [(7.0, 5.0, 1.4, 0.0, 0.0, BLACK)],
@@ -156,6 +184,12 @@ ENVELOPES = {
         'MC05_2_SMD_envelope',
         [(9.66, 4.0, 4.85, 1.27, 1.2, BLACK), (5.58, 3.1, 4.85, 1.27, -4.8, BLACK)],
     ),
+    # Molex 505448-0891 (drawing 5054480003-SD): body 9.6 wide, 8.43 deep,
+    # 8.95 high, footprint y -3.48 .. 4.95 (model y is up, so the centre is -0.735)
+    'Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal': (
+        'Micro-Lock_Plus_2x04_envelope',
+        [(9.6, 8.43, 8.95, 0.0, -0.735, BLACK)],
+    ),
     # Amphenol RJSSE-5380 (drawing P-RJSSE-5380 rev E): shield 16.51 wide,
     # 13.58 high, 15.75 deep; mouth 4.37 in front of the hole line, so the
     # body spans footprint y -11.38 .. 4.37. Fallback for LOCAL_STEP_MODELS.
@@ -171,6 +205,21 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # SP3422-04UTG.step (Littelfuse DFN_04UTG_LTF, user's file): Z-up, centred,
+    # long side along y as in the footprint; its underside is at z 0.085
+    'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': (
+        'SP3422-04UTG.step',
+        (0.0, 0.0, -0.085),
+        (0.0, 0.0, 0.0),
+    ),
+    # SOT1226-3.step (SamacSys 74LV1T34GXH, user's file): Y-up, off-origin. Placed
+    # by its terminals: the notched pin 1 terminal on pad 1, 0.38 mm tall. Its top
+    # dot sits at the corner opposite pin 1 (a model error; silk marks pin 1).
+    'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm': (
+        'SOT1226-3.step',
+        (-0.616, 0.299, 0.375),
+        (90.0, 0.0, 90.0),
+    ),
     # 141_TL6800AFxxxQJ.stp (E-Switch) is off-origin and turned 90 degrees from the
     # drawing: actuator axis at x -2.3865, y 2.4738, lowest point at z -0.935
     'SW_E-Switch_TL6800AF': (
@@ -342,11 +391,6 @@ LOCAL_STEP_MODELS = {
         'DFM0020A.step',
         (0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0),
-    ),
-    'OnSemi_UDFN-8-1EP_517AD': (
-        'NUF4001MUT2G.step',
-        (0.0, 0.0, 0.02),
-        (-90.0, 0.0, 180.0),
     ),
     # The AONR21305C file; the AONR21307 datasheet shows the same DFN 3x3 EP package
     'AOS_DFN3x3A_8L_EP1': (

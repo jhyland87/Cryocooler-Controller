@@ -270,7 +270,7 @@ Three SOIC-8 parts move to smaller packages at the same board centres, front sid
 
 The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_rev3.md`. Rules for each changed part are in `tools/datasheet_rules.py`.
 
-**Read from the maker's datasheet:** ADP5071, AD5453, LTC2954, TPS2116, TPS62822, ISOW774x, ADS1220, AONR21307, SRP4020TA, ECS-2520MV, TPD4E05U06 / TPD1E05U06, BZT52C15, MMBZ family, TSC2046E, ACS37800, NUF4001MU.
+**Read from the maker's datasheet:** ADP5071, AD5453, LTC2954, TPS2116, TPS62822, ISOW774x, ADS1220, AONR21307, SRP4020TA, ECS-2520MV, TPD4E05U06 / TPD1E05U06, BZT52C15, MMBZ family, TSC2046E, ACS37800, NUF6401MN.
 
 **Not verified from a maker's datasheet:**
 * BLM18PG121SN1D and EEE-FK1V101P: secondary sources only.
@@ -290,12 +290,12 @@ The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_re
 * **ACS37800-015B5:** ±15 A, 1833.3 LSB/A, 6.15 LSB/mW at 5 V, voltage 110 LSB/mV. **The amplifier current range halves from ±30 A.** `AMPLIFIER_MAX_CURRENT_A` is 5 A.
 * **ISOW7741:** 5 V to 5 V gives 110 mA at most, and FB1 and FB2 follow TI's EMI layout.
 
-**J14 filters replace R52-R57 and the two clamps:** `NUF4001MUT2G` (onsemi NUF4001MU/D rev 9, active) puts a 100 Ω series resistor (85-115 Ω), 13 pF (10-16 pF) and an ESD clamp on each side into a 1.8 x 1.2 mm UDFN8. U36 and U37 give 8 channels with 6 used.
-* Compared with the TPD4E05U06 it replaces: ±14 kV IEC contact instead of ±12 kV, and 5 V working voltage instead of 5.5 V, which is fine on 3.3 V signals.
-* It adds 26 pF per line (32 pF max). The 150 MHz cut-off is far above the 1 MHz IMU SPI clock.
-* No maximum channel current or power is listed. These are logic signals only, so don't use the spare channels for power.
-* The operating range is -40 to 85 °C.
-* KiCad's stock `OnSemi_UDFN-8_1.2x1.8mm_P0.4mm` has no ground pad, so `OnSemi_UDFN-8-1EP_517AD` is drawn from case 517AD. **At layout:** the 0.15 mm pad gap sits exactly on the default clearance, and the 0.35 mm wide ground pad can't hold a 0.45 mm via, so route it out from its ends.
+**J14 filter replaces R52-R57 and the two clamps:** `NUF6401MNT1G` (onsemi NUF6401/D rev 5, active) puts a 100 Ω series resistor (85-115 Ω), 17 pF (20 pF max) and an ESD clamp on each side of six channels in a 3.0 x 1.35 mm DFN12. U36 carries all six J14 signals; it replaced two NUF4001MU (U36, U37, two channels spare), so U37 is retired.
+* Compared with the TPD4E05U06 it replaces: ±15 kV IEC contact instead of ±12 kV, and 5 V working voltage instead of 5.5 V, which is fine on 3.3 V signals.
+* It adds 34 pF per line (40 pF max). The 110 MHz cut-off is far above the 1 MHz IMU SPI clock.
+* 100 mW per resistor, 600 mW per package: logic signals only.
+* The operating range is -40 to 105 °C.
+* `OnSemi_DFN-12-1EP_506AD` is drawn from the case 506AD soldering footprint (0.479 x 0.265 mm pads, 0.5 mm pitch, 2.352 x 0.351 mm ground pad). Its 3D model is a plain 3.0 x 1.35 x 1.0 mm envelope. **At layout:** the 0.351 mm ground pad can't hold a 0.45 mm via, so route it out from its ends.
 * EMI5204MU was also considered (7 pF, ±8 kV), but onsemi marks EMI5204MUTAG and EMI5206MUTAG discontinued as of June 2025.
 
 **Decisions to review:**
@@ -308,3 +308,95 @@ The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_re
 **J11 / J12 stay SMT:** rev 3 briefly moved them to through-hole Phoenix MSTBA headers. They are back on TE 2305908-2 / -3 (15 A) at their rev 2 positions, by your decision, so the 2026-11-04 notes above still apply: the SMT joints take the plugging force, with no pegs. One listing shows -3 as Last Time Buy, another as in production, and no TE notice was found, so confirm stock when ordering.
 
 **Superseded:** the MCP4921, AD633, LM4040 reference, LT8582, MIE1W0505, ISO7741, LD1117, LM66100 pair, IRF4905S, SG-8002CA and CL25N8 notes above describe rev 2 and earlier.
+
+## UCS 125-87 board: smaller buttons and bi-colour LEDs (2026-11-08)
+
+**SW1, SW2:** Panasonic EVQ-P2F02K → EVP-AA802Q (catalog ANCTB18E, No. 1, your pick). 3.5 x 2.9 x 1.7 mm with J-bent leads, against 4.7 x 3.5 x 2.5 mm. Same 5.0 N force and 20 mA / 15 V DC rating; grey actuator; life 100,000 cycles instead of 200,000. No ground terminal.
+* Land pattern: four 1.15 x 0.4 mm pads, 4.5 mm overall with a 2.2 mm gap, rows 2.5 mm overall. Pads 1-1′ (one row) and 2-2′ (the other) are common, so each row is one pin. Footprint `SW_Panasonic_EVP-AA`.
+* 3D model: a plain 3.5 x 2.9 x 1.4 mm body with a 2.2 x 1.5 x 1.7 mm actuator (`EVP-AA_envelope.step`).
+
+**Indicators:** every LED but D13 is now a Kingbright APGB0607G22R23C (datasheet rev V.3A): green and red dies in a 0.65 x 0.65 x 0.25 mm package with four 0.25 mm pads. The dies are independent: 1 green anode, 2 green cathode, 3 red cathode, 4 red anode.
+* Ratings: green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA DC max per die; VR 5 V; 35 mW. MSL 3. Every die here runs at about 0.5-2 mA.
+* **The green die can't run from +3V3** (VF up to 3.3 V), so every green die is fed from +5V.
+
+| LED | Green | Red |
+|---|---|---|
+| D7 STATUS (was D7 standby + D8 3V3 + D9 5V) | on: 2.2k from +5V, ~1 mA | standby: 13k from VIN, shorted once +3V3 is up. Both lit = +5V up but +3V3 missing |
+| D2 AMP, D3 COMP | output on: +12 V bus → green → 2.2k → +5V, ~1.9 mA | output off: +5V → 2.2k → red → bus → 4.7k pull-down, ~0.45 mA |
+| D11 PG +15V, D12 PG −15V | node good: the existing BSS138W pulls GK low | node bad: a second BSS138W (Q51, Q52), gated by the first one's drain with 100k to +3V3, pulls RK low; 1.5k from +3V3 |
+| D6 ALERT | unused | INA239 ALERT low, 1.5k from +3V3 (as before) |
+| D10 ISO 5V | ISO_5V, 3.3k to ISO_GND (as before) | unused |
+
+* D2/D3 dies are anti-parallel, so each one's reverse voltage is the other's VF (under 3.3 V, inside the 5 V VR).
+* Off, the AMP and COMP buses still sit at about 2.1 V through the red die and the 4.7k pull-down, as with the old 1206 part.
+* When the ±15 V rails are switched off, D11 and D12 show red.
+* Retired: D8, D9 and their resistors. New: R401-R405, Q51, Q52 (numbered above every other range so nothing else shifts).
+* Footprint `LED_Kingbright_APGB0607` (the datasheet pattern, 0.15 mm pad gaps, matching the board's 0.15 mm clearance). 3D model: a 0.65 x 0.65 x 0.25 mm envelope.
+* **Sourcing:** DigiKey 22561020. JLCPCB stock not checked; it may need to be supplied for assembly.
+* **Labels:** the LEDs are the only labelled parts on this board: a column on the front (STATE, PWR, +15V, −15V, AMP, COMP, ALERT) and ISO 5V beside D10 in the isolated island.
+
+## AD9837 in place of the AD9833 (2026-11-08)
+
+**U4:** AD9833BRMZ (MSOP-10, 3 x 4.9 mm with leads) → AD9837BCPZ-RL7 (ADI AD9837 rev A, LFCSP-WD-10 CP-10-9, 3 x 3 mm), your pick. The datasheet says it "has the same register settings as the AD9833/AD9834", and the pin numbers match: 1 COMP, 2 VDD, 3 CAP/2.5V, 4 DGND, 5 MCLK, 6 SDATA, 7 SCLK, 8 FSYNC, 9 AGND, 10 VOUT.
+* **Exposed pad to ground** (Figure 4). The project symbol `AD9837BCPZ` is KiCad's AD9833 symbol with pin 11 (EP) added; it carries the locked via-in-pad that pins 4 and 9 had.
+* **MCLK is 16 MHz max (B grade), against the AD9833's 25 MHz.** U3 is now ECS-2520MV-160-BN-TR: same family, footprint and pinout as the 25 MHz part, 1.6-3.6 V. The A grade is 5 MHz, so order the B grade.
+* **Firmware:** MD_AD9833 assumes 25 MHz, so `initWaveform()` calls `setClk(AMPLIFIER_DDS_MCLK_HZ)` (16e6) after `begin()`. Without it the sine would come out at 60 x 16/25 = 38.4 Hz. 28-bit resolution at 16 MHz is 0.06 Hz.
+* **Output:** VOUT 37 mV to 0.645 V, the same ~0.6 V p-p sine into the OPA1655 gain stage, so the 16.3 gain and the ~10 Vpp at full code stand. SNR -64 dB, THD -68 dBc at fMCLK/4096 (B grade).
+* VDD 2.3-5.5 V, -40 to 125 °C. Footprint `Package_CSP:LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm` (drawn from CP-10-9) with KiCad's STEP model.
+* **Sourcing:** DigiKey 2700194; JLCPCB stock not checked.
+
+## SP3422-04UTG ESD clamps (2026-11-08)
+
+**U33, U35:** TPD4E05U06DQAR (USON-10, 2.5 x 1.0 mm) → Littelfuse SP3422-04UTG (rev GD, DFN-5, 1.0 x 0.6 mm), your pick. U33 clamps FAN_TACH, PUMP_TACH, FLOW_TACH and NTC_ADC on the GPIO side of the 4.7 kΩ tach resistors; U35 clamps the four J10 PT1000 lines.
+* **Pins:** I/O 1, 3, 4, 5 to GND 2; no supply pin, no NC pins. Land pattern: 0.34 x 0.175 mm pads, 0.35 mm pitch (the datasheet's soldering pad layout, the same as Littelfuse's DFN_04UTG_LTF). STEP model is Littelfuse's.
+* **Ratings:** 5 V working voltage (the lines stay under 3.3 V), 0.2 pF, +22/-10 kV IEC contact, 2 A 8/20 µs.
+* **Leakage is the one step back:** 20 nA typical, 1 µA max at 5 V, against the TPD4E05U06's 10 nA max at 2.5 V. On the RTD only the RTD-to-Rref line matters (about 1 V at 250 µA); the typical figure is about 0.01 % (0.02 K). The 1 µA bound would be 0.4 %, but it is set at 5 V, not 1 V. On NTC_ADC (10 kΩ divider) 1 µA is at most 10 mV.
+* **Semtech RClamp7524T (considered):** 5 A and ±25 kV contact, and 100 nA max leakage at 5 V, in a 1.3 x 0.8 mm flow-through package. These lines only see ESD, so the extra current rating isn't needed; switch to it if the RTD leakage bound matters more than the size.
+* **Sourcing:** DigiKey 7897437, LCSC C1974549.
+
+## 74AHCT1G125GM level shifter (2026-11-08)
+
+**U24:** SN74AHCT1G125DBVR (SOT-23-5) → Nexperia 74AHCT1G125GM,115 (rev 15.1, XSON6 SOT886, 1.0 x 1.45 mm), your pick. Same function: 3.3 V GPIO38 to 5 V for the WS2812B data line.
+* **Pins differ from the SOT-23-5:** 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC. OE and GND to ground, VCC +5V, pin 5 left open.
+* **Levels:** TTL inputs, VIH 2.0 V at VCC 4.5-5.5 V, so a 3.3 V input drives it. The CMOS output swings to the 5 V rail into the WS2812B's high-impedance input (0.7 x VDD = 3.5 V).
+* **Footprint:** Nexperia's SOT886 reflow footprint (package information, 1 June 2022): 0.40 x 0.30 mm lands, 0.60 mm column pitch, 0.5 mm row pitch. 3D model: KiCad's 1 x 1.45 mm USON-6 STEP (same body, 0.63 mm tall against 0.5 mm).
+* **Sourcing:** DigiKey 2606148.
+
+## 74LV1T34GX display buffer (2026-11-08)
+
+**U31:** TI SN74LV1T34DBVR (SOT-23-5) → Nexperia 74LV1T34GXH (74LV1T34 rev 4, X2SON5 SOT1226-3, 0.8 x 0.8 mm). You asked about the 74AUP1G34GX4Z, but at VCC 3.0-3.6 V it needs VIH 2.0 V and GPIO47/48 only reach 1.8 V. The 74AXP1T34 and 74AUP1T34 need a 1.8 V supply the board doesn't have, and TI's SN74LV1T34 comes only in SOT-23-5 and SC70.
+* **Same function as the TI part:** single-supply translator, VIH 1.37 V at VCC 3.0-3.3 V (-40 to 125 °C), inputs to 5.5 V, same pin numbers (1 n.c., 2 A, 3 GND, 4 Y, 5 VCC).
+* **Footprint:** Nexperia's SOT1226-3 reflow footprint: 0.32 x 0.26 mm corner lands on a 0.64 x 0.5 mm grid and a 0.28 mm square GND land turned 45° in the centre; corner lands are cut 0.16 mm from it.
+* **Land orientation:** the sot1226-3_fr drawing is turned 90° from the datasheet's pin configuration (Fig. 5). In Fig. 5's top view the terminals sit on the left and right body edges (1 and 2 on the left, 5 and 4 on the right), so the lands run out past those edges. The first version of this footprint had them past the top and bottom edges, about 0.07 mm off each terminal. That was caught against the package outline and the vendor model before routing, and fixed.
+* **Pin 1 is grounded.** The centre GND land is boxed in by the four corner lands, so no 0.15 mm track or 0.45 mm via fits. A 0.15 mm copper bridge (a second pad 3, copper only, under the solder mask) joins it to pad 1, which is not connected inside the part. Bridge-to-pin-2/5 clearance is 0.2 mm or more.
+* **3D model:** `SOT1226-3.step` (SamacSys model of the 74LV1T34GXH, your file), 0.38 mm tall, placed by its terminals with the notched pin 1 terminal on pad 1. Its top dot is at the corner opposite pin 1, which is an error in the model; the silkscreen dot marks pin 1.
+* **Sourcing:** Nexperia orderable part 74LV1T34GXH; DigiKey and JLCPCB stock not checked.
+
+## SRL05P7 USB ESD clamp (2026-11-08)
+
+**U2:** ST USBLC6-2SC6 (SOT-23-6) → MCC SRL05P7-TP (DFN1510-6, 1.5 x 1.0 x 0.55 mm, 0.5 mm pitch), your pick for a leadless package.
+* **Same pin functions** (MCC rev 3-5): 1, 3, 4, 6 data lines, 5 VBUS, 2 GND, with 1-6 and 3-4 joined inside, so the pass-through wiring stays (connector on 1/3, ESP32 on 6/4). It reuses the stock USBLC6 symbol.
+* **Ratings:** 5 V working, breakdown 6.1-9.6 V, leakage 0.9 uA max at 5.25 V, clamp 12 V at 1 A and 17 V at 5 A (8/20 us), 0.6 pF typ / 1 pF max line to GND, ±15 kV contact / ±20 kV air.
+* **Footprint:** MCC's suggested pads, 0.20 x 0.35 mm, rows 0.65 mm apart; pin 1 bottom left as in the datasheet's top view.
+* **3D model:** a 1.5 x 1.0 x 0.55 mm STEP block (no vendor model).
+* **Sourcing:** JLCPCB C3713451 (extended); DigiKey 12177202. Stock not checked.
+
+## OPA2991 dual for U5 and U9 (2026-11-08)
+
+**U5:** TI OPA1655DBVR (U5) and OPA188AIDBVR (U9), both SOT-23-5 → one TI OPA2991IDSGR (WSON-8 DSG, 2 x 2 mm), your call to save board space. U9 is retired; its two 100 nF decoupling caps went with it. This replaces your 2026-11-05 OPA1655 choice for the gain stage.
+* **Pinout** (TI SBOS969, DSG): A 1 OUT, 2 -IN, 3 +IN; B 5 +IN, 6 -IN, 7 OUT; 4 V-, 8 V+, thermal pad 9 to V- (datasheet note). The symbol is a copy of KiCad's TLV9062xDSG, which has the same pinout.
+* **U5A** is the DDS gain stage (gain 16.3, as before); **U5B** is the AD5453 output stage.
+* **Ratings:** 2.7-40 V supply (here ±14.7 V), 4.5 MHz GBW, 21 V/us, 10 pA bias, 750 uV max offset, rail-to-rail in and out. Offset and bias are DC, and the output is AC-coupled (100 ohm + 10 uF), so they don't reach SIG_SINE. It is noisier than the audio-grade OPA1655; at about 10 Vpp that isn't expected to matter, but it wasn't quantified.
+* **C86 (datasheet C1): 2 pF → 22 pF C0G.** With the 9k RFB and 13-28 pF on IOUT1 (plus about 10 pF op-amp input), a two-pole op-amp model in ngspice peaks 5.7-7.6 dB at 2 pF and is flat at 22 pF; 22 pF puts the feedback pole at about 800 kHz, far above 60 Hz. (The OPA188 also peaked 3.8-5.6 dB with 2 pF in the same model.) Not yet checked with TI's OPA2991 SPICE model; `sim/` still models the OPA1656 / OPA188.
+* **Footprint:** generated from the datasheet's DSG land pattern (0.5 x 0.25 mm pads on 1.9 mm row centres, 0.9 x 1.6 mm pad); KiCad's stock DSG0008A footprint has 0.6 mm pads. 3D model: KiCad's WSON-8 2 x 2 mm STEP.
+* **Sourcing:** stock and price not checked.
+
+## Micro-Lock Plus J14 in place of the RJ45 (2026-11-08)
+
+**J14:** Amphenol RJSSE-5380 SMT RJ45 → Molex Micro-Lock Plus **505448-0891** (1.25 mm, 2x4, right angle, SMT, positive lock), your call to free space on the UCS 125-87 board. It takes 10.2 x 10.2 mm of the right edge instead of 19.4 x 17.6 mm.
+* **Drawing** 5054480003-SD rev C1 (`dev/5054480891_sd.pdf`; the layout was measured from Molex's 1:1 DXF): pads 0.8 x 2.0 mm at 1.25 mm, rows 7.4 mm apart (odd pins on the back row, even pins at the mating face); solder nails 1.0 x 4.85 mm, 8.15 mm apart, unconnected. Body 9.6 wide, 8.43 deep plus 0.42 mm tails, 8.95 mm high. Rated 1.5 A, 50 V, 30 mating cycles.
+* **Pins** keep the RJ45 numbering (1 SCK, 2 GND, 3 MOSI, 4 +3V3, 5 CS, 6 MISO, 7 INT1, 8 INT2), so the schematic, the U36 filter and the rules carry over; the shield pin is gone. The cable no longer has twisted pairs, so keep it short.
+* **Placement:** face 0.2 mm inside the right edge (mating-side pads 0.3 mm clear). The plug sticks out past the board edge, so the housing wall needs a slot for it (about 10 x 9 mm), or a gland with the plug inside.
+* **Mating parts:** a 505432 series 8-circuit dual-row receptacle housing and its crimp terminals (not in the BOM).
+* **3D:** plain 9.6 x 8.43 x 8.95 mm envelope; Molex's STEP isn't in the repo.
+* **Sourcing:** stock and price not checked.

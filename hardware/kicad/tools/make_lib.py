@@ -240,6 +240,36 @@ def from_stock(
     )
 
 
+def stock_copy(lib, stock_name, name, props, extra_pins=()):
+    """A stock symbol under a new name with the same pins and drawing, new
+    property values, and extra pins: (copy_of, number, name, x, y, angle), each
+    copied from an existing pin's style.
+    """
+    import copy
+
+    node = copy.deepcopy(sexpr.stock_symbol(lib, stock_name))
+    node[1] = ('s', name)
+    for child in node[2:]:
+        if not (isinstance(child, list) and child):
+            continue
+        if child[0] == 'property' and sexpr.sval(child[1]) in props:
+            child[2] = ('s', props[sexpr.sval(child[1])])
+        if child[0] == 'symbol':
+            child[1] = ('s', sexpr.sval(child[1]).replace(stock_name, name, 1))
+    units = [child for child in node if isinstance(child, list) and child and child[0] == 'symbol']
+    for source, number, pin_name, x, y, angle in extra_pins:
+        for unit in units:
+            for pin in sexpr.find_all(unit, 'pin'):
+                if sexpr.sval(sexpr.find_all(pin, 'number')[0][1]) != source:
+                    continue
+                added = copy.deepcopy(pin)
+                sexpr.find_all(added, 'at')[0][1:4] = [str(x), str(y), str(angle)]
+                sexpr.find_all(added, 'number')[0][1] = ('s', number)
+                sexpr.find_all(added, 'name')[0][1] = ('s', pin_name)
+                unit.append(added)
+    return sexpr.dump(node, 1)
+
+
 SYMBOLS = [
     symbol(
         'MJ-3523-SMT-TR',
@@ -328,27 +358,32 @@ SYMBOLS = [
             '12': -35.56,
         },
     ),
-    from_stock(
-        '74xGxx',
-        '74AHCT1G125',
-        '74AHCT1G125',
+    symbol(
+        '74AHCT1G125GM',
         'U',
-        left=['2'],
-        right=['4'],
-        top=['5'],
-        bottom=['1', '3'],
+        'Nexperia single 3-state buffer, TTL inputs (VIH 2.0 V at 4.5-5.5 V), VCC 4.5-5.5 V, '
+        '+/-8 mA, XSON6 SOT886 1.0 x 1.45 mm. Pin 5 is not connected',
+        'https://assets.nexperia.com/documents/data-sheet/74AHC_AHCT1G125.pdf',
+        'cryocooler:Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm',
+        left=[('2', 'A', 'input')],
+        right=[('4', 'Y', 'tri_state'), ('5', 'NC', 'no_connect')],
+        top=[('6', 'VCC', 'power_in')],
+        bottom=[('1', '~{OE}', 'input'), ('3', 'GND', 'power_in')],
         keywords='buffer level shifter',
     ),
-    from_stock(
-        '74xGxx',
-        '74LVC1G34',
-        'SN74LV1T34',
+    symbol(
+        '74LV1T34GX',
         'U',
-        left=['2'],
-        right=['4'],
-        top=['5'],
-        bottom=['3'],
-        keywords='buffer level shifter',
+        'Nexperia single-supply translating buffer: VIH 1.37 V at VCC 3.0-3.3 V, so 1.8 V '
+        'logic in, VCC-level out; inputs 5 V tolerant. X2SON5 SOT1226-3 0.8 x 0.8 mm. '
+        'Pin 1 is n.c.; tied to GND to escape the centre GND land',
+        'https://assets.nexperia.com/documents/data-sheet/74LV1T34.pdf',
+        'cryocooler:Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm',
+        left=[('2', 'A', 'input')],
+        right=[('4', 'Y', 'output')],
+        top=[('5', 'VCC', 'power_in')],
+        bottom=[('1', 'NC', 'passive'), ('3', 'GND', 'power_in')],
+        keywords='buffer level shifter translator',
     ),
     symbol(
         'SN74LVC138A',
@@ -444,10 +479,12 @@ SYMBOLS = [
         bottom=[('17', 'VSS', 'power_in'), ('21', 'EP', 'passive')],
         keywords='spi gpio expander',
     ),
+    # SRL05P7 (MCC DFN1510-6): same pin functions as the USBLC6-2SC6, with
+    # 1-6 and 3-4 joined inside, so it reuses the stock symbol
     from_stock(
         'Power_Protection',
         'USBLC6-2SC6',
-        'USBLC6-2SC6',
+        'SRL05P7',
         'U',
         left=['4', '6'],
         right=['3', '1'],
@@ -465,6 +502,16 @@ SYMBOLS = [
         right=['4', '8', '7', '6', '5', '3', '1', '2'],
         bottom=['SH'],
         keywords='rj45 8p8c',
+    ),
+    # J14 Molex Micro-Lock Plus 2x4: pins in the RJ45 symbol's order, so the
+    # IMU sheet keeps its layout
+    from_stock(
+        'Connector_Generic',
+        'Conn_02x04_Odd_Even',
+        'Conn_02x04_Rails_At_Ends',
+        'J',
+        right=['4', '8', '7', '6', '5', '3', '1', '2'],
+        keywords='connector 2x04 micro-lock',
     ),
     symbol(
         'ACS37800KMACTR-015B5-SPI',
@@ -741,28 +788,75 @@ SYMBOLS = [
         tip_x=10.16,
     ),
     symbol(
-        'NUF4001MUT2G',
+        'SP3422-04UTG',
         'U',
-        'onsemi 4-channel C-R-C EMI filter with ESD clamps: 100 ohm, 13 pF each side, '
-        '5 V, +/-14 kV IEC contact, UDFN8 1.8 x 1.2 mm. Channels 1-8, 2-7, 3-6, 4-5',
-        'https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf',
-        'cryocooler:OnSemi_UDFN-8-1EP_517AD',
+        'Littelfuse 4-channel 5 V ESD clamp, 0.2 pF, +22/-10 kV IEC contact, 1 uA max '
+        'leakage at 5 V, DFN-5 1.0 x 0.6 mm. Each I/O clamps to GND',
+        'https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet'
+        '?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285',
+        'cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm',
         left=[
-            ('1', 'CH1', 'passive'),
-            ('2', 'CH2', 'passive'),
-            ('3', 'CH3', 'passive'),
-            ('4', 'CH4', 'passive'),
+            ('1', 'IO1', 'passive'),
+            ('3', 'IO2', 'passive'),
+            ('4', 'IO3', 'passive'),
+            ('5', 'IO4', 'passive'),
         ],
-        right=[
-            ('8', 'CH1', 'passive'),
-            ('7', 'CH2', 'passive'),
-            ('6', 'CH3', 'passive'),
-            ('5', 'CH4', 'passive'),
-        ],
-        bottom=[('9', 'GND', 'passive')],
+        bottom=[('2', 'GND', 'passive')],
+        keywords='esd tvs',
+        tip_x=10.16,
+    ),
+    symbol(
+        'NUF6401MNT1G',
+        'U',
+        'onsemi 6-channel C-R-C EMI filter with ESD clamps: 100 ohm, 17 pF each side, '
+        '5 V, +/-15 kV IEC contact, DFN12 3.0 x 1.35 mm. Channels 1-12, 2-11, 3-10, '
+        '4-9, 5-8, 6-7',
+        'https://www.onsemi.com/pdf/datasheet/nuf6401-d.pdf',
+        'cryocooler:OnSemi_DFN-12-1EP_506AD',
+        left=[(str(pin), f'CH{pin}', 'passive') for pin in range(1, 7)],
+        right=[(str(13 - pin), f'CH{pin}', 'passive') for pin in range(1, 7)],
+        bottom=[('13', 'GND', 'passive')],
         keywords='emi filter esd tvs',
         tip_x=10.16,
         half_height_min=7.62,
+    ),
+    symbol(
+        'APGB0607G22R23C',
+        'D',
+        'Kingbright green/red bi-colour LED, independent dies, 0.65 x 0.65 x 0.25 mm. '
+        'Green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA max, VR 5 V',
+        'https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf',
+        'cryocooler:LED_Kingbright_APGB0607',
+        left=[('1', 'GA', 'passive'), ('4', 'RA', 'passive')],
+        right=[('2', 'GK', 'passive'), ('3', 'RK', 'passive')],
+        keywords='led bicolor red green',
+        tip_x=7.62,
+    ),
+    # OPA2991 in DSG: the TLV9062xDSG pinout (A 1-3, B 5-7, V- 4, V+ 8, pad 9)
+    stock_copy(
+        'Amplifier_Operational',
+        'TLV9062xDSG',
+        'OPA2991IDSG',
+        {
+            'Value': 'OPA2991IDSGR',
+            'Footprint': 'cryocooler:TI_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm',
+            'Datasheet': 'https://www.ti.com/lit/ds/symlink/opa2991.pdf',
+            'Description': 'TI dual 40 V rail-to-rail input/output op amp, 4.5 MHz, 10 pA bias, '
+            'WSON-8 2 x 2 mm, thermal pad to V-',
+        },
+    ),
+    stock_copy(
+        'Interface',
+        'AD9833xRM',
+        'AD9837BCPZ',
+        {
+            'Value': 'AD9837BCPZ',
+            'Footprint': 'Package_CSP:LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm',
+            'Datasheet': 'https://www.analog.com/media/en/technical-documentation/data-sheets/AD9837.pdf',
+            'Description': 'Analog Devices programmable waveform generator, 28-bit, 16 MHz MCLK (B grade), '
+            '2.3-5.5 V, AD9833 register set and pin numbers, LFCSP-WD-10 3 x 3 mm with exposed pad to ground',
+        },
+        extra_pins=[('9', '11', 'EP', 0, -12.7, 90)],
     ),
     symbol(
         'TPD1E05U06DPYR',

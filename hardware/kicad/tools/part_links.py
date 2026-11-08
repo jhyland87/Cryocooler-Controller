@@ -15,6 +15,8 @@ DATASHEETS = {
     '1571300': 'https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv'
     '&DocNm=1571300&DocType=Customer+Drawing&DocLang=English',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
+    'EVP-AA': 'https://industry.panasonic.com/ap/en/products/control/switch/light-touch/number/evpaa802q',
+    'APGB0607': 'https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf',
     'ESP32-S3-WROOM-2':'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
     'OPA1655': 'https://www.ti.com/lit/ds/symlink/opa1656.pdf',
@@ -22,6 +24,9 @@ DATASHEETS = {
     'MJ-3523': 'https://www.sameskydevices.com/product/resource/mj-3523-smt.pdf',
     '61900311021': 'https://www.we-online.com/components/products/datasheet/61900311021.pdf',
     'SWR25X': 'https://static.datasheets.com/doc/20841721-sullins-swr25x-nrtc-s20-st-ba-ds.pdf',
+    'OPA2991': 'https://www.ti.com/lit/ds/symlink/opa2991.pdf',
+    '505448': 'https://www.molex.com/content/dam/molex/molex-dot-com/products/'
+    'automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf',
     'OPA188': 'https://www.ti.com/lit/ds/symlink/opa188.pdf',
     'LM4040': 'https://www.ti.com/lit/ds/symlink/lm4040.pdf',
     'INA239': 'https://www.ti.com/lit/ds/symlink/ina239.pdf',
@@ -32,24 +37,31 @@ DATASHEETS = {
     'TPS62822': 'https://www.ti.com/lit/ds/symlink/tps62823.pdf',
     'TPS2116': 'https://www.ti.com/lit/ds/symlink/tps2116.pdf',
     'TPD4E05U06': 'https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf',
-    'NUF4001': 'https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf',
+    'NUF6401': 'https://www.onsemi.com/pdf/datasheet/nuf6401-d.pdf',
     'TPD1E05U06': 'https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf',
+    'SP3422': 'https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet'
+    '?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285',
     'AONR21307': 'https://aosmd.com/res/data_sheets/AONR21307.pdf',
     'SRP4020TA': 'https://www.bourns.com/docs/Product-Datasheets/SRP4020TA.pdf',
     'ECS-2520MV': 'https://ecsxtal.com/store/pdf/ECS-2520MV.pdf',
     'BZT52C': 'https://www.diodes.com/assets/Datasheets/ds18004.pdf',
     'MMBZ9V1': 'https://www.onsemi.com/download/data-sheet/pdf/mmbz5v6alt1-d.pdf',
+    '74AHCT1G125GM': 'https://assets.nexperia.com/documents/data-sheet/74AHC_AHCT1G125.pdf',
     'SN74AHCT1G125': 'https://www.ti.com/lit/ds/symlink/sn74ahct1g125.pdf',
+    '74LV1T34GX': 'https://assets.nexperia.com/documents/data-sheet/74LV1T34.pdf',
     'SN74LV1T34': 'https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf',
     'SN74LVC138A': 'https://www.ti.com/lit/ds/symlink/sn74lvc138a.pdf',
     'AD9833': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/ad9833.pdf',
+    'AD9837': 'https://www.analog.com/media/en/technical-documentation/'
+    'data-sheets/AD9837.pdf',
     'LTC2954': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/2954fb.pdf',
     'ADP5071': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/ADP5071.pdf',
     'LT3097': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/lt3097.pdf',
+    'SRL05P7': 'https://www.mccsemi.com/pdf/Products/SRL05P7(DFN1510-6).pdf',
     'USBLC6-2': 'https://www.st.com/resource/en/datasheet/usblc6-2.pdf',
     'AP63205': 'https://www.diodes.com/assets/Datasheets/'
     'AP63200-AP63201-AP63203-AP63205.pdf',
@@ -85,6 +97,17 @@ DATASHEETS = {
 PRODUCT_PAGES = {
     '4684': 'https://www.adafruit.com/product/4684',
     '1571300-2': 'https://www.digikey.com/en/products/detail/te-connectivity-alcoswitch-switches/1571300-2/2400327',
+    'OPA2991IDSGR': 'https://www.ti.com/product/OPA2991',
+    '505448-0891': 'https://www.molex.com/en-us/products/part-detail/5054480891',
+    'SRL05P7-TP': 'https://www.digikey.com/en/products/detail/mcc-micro-commercial-components/SRL05P7-TP/12177202',
+    'SP3422-04UTG': 'https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437',
+    '74AHCT1G125GM,115': 'https://www.digikey.com/en/products/detail/nexperia-usa-inc/74AHCT1G125GM-115/2606148',
+    '74LV1T34GXH': 'https://www.nexperia.com/pip/74LV1T34GX',
+    'NUF6401MNT1G': 'https://www.digikey.com/en/products/detail/onsemi/NUF6401MNT1G/1484990',
+    'AD9837BCPZ-RL7': 'https://www.digikey.com/en/products/detail/analog-devices-inc/AD9837BCPZ-RL7/2700194',
+    'ECS-2520MV-160-BN-TR': 'https://www.digikey.com/en/products/detail/ecs-inc/ECS-2520MV-160-BN-TR/13968073',
+    'EVP-AA802Q': 'https://www.digikey.com/en/products/detail/panasonic-industry/EVP-AA802Q/2810553',
+    'APGB0607G22R23C': 'https://www.digikey.com/en/products/detail/kingbright/APGB0607G22R23C/22561020',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'SWR25X-NRTC-S02-RB-BA':'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',

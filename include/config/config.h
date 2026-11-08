@@ -118,11 +118,15 @@
 #define ADS1220_ADC_FULL_SCALE  static_cast<float>(8388608.0f)
 
 // =============================================================================
-// Amplifier (AD9833 waveform generator)
+// Amplifier (AD9837 waveform generator, AD9833 register set)
 // =============================================================================
 
 // Output frequency in Hz.
 #define AMPLIFIER_FREQ_HZ  static_cast<uint16_t>(60)
+
+// DDS master clock (16 MHz oscillator; the AD9837 is limited to 16 MHz).
+// MD_AD9833 assumes 25 MHz unless told otherwise.
+#define AMPLIFIER_DDS_MCLK_HZ  static_cast<uint32_t>(16e6)
 
 // Maximum allowable RMS output voltage (VAC).
 // This is the absolute ceiling — the system can never exceed this even at

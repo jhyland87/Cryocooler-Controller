@@ -68,6 +68,9 @@ CAPS = {
     ('120pF', 'C_0402_1005Metric'): (
         'CL05C121JB5NNNC', 'CAP CER 120PF 50V C0G 0402',
         'TPS62822 feed-forward across the 453k'),
+    ('22pF/C0G', 'C_0402_1005Metric'): (
+        'CL05C220JB5NNNC', 'CAP CER 22PF 50V C0G 0402',
+        'AD5453 output stage stability (datasheet C1), sized for the OPA2991'),
     ('2pF/C0G', 'C_0402_1005Metric'): (
         'CL05C020CB5NNNC', 'CAP CER 2PF 50V C0G 0402',
         'AD5453 output stage stability (datasheet C1)'),
@@ -91,6 +94,10 @@ CAPS = {
     ('470nF', 'C_0805_2012Metric'): (
         'CL21B474KBFNNNE', 'CAP CER 0.47UF 50V X7R 0805',
         'INA239 input filter across IN+/IN-; Q1 gate-source'),
+    ('10uF/50V', 'C_1206_3216Metric'): (
+        'CL31A106KBHNNNE', 'CAP CER 10UF 50V X5R 1206',
+        '12 V rail (U15 input); 50 V so it is rated over the SMBJ16A clamp (about 26 V); '
+        'JLCPCB C13585 (basic)'),
     ('10uF/25V', 'C_1206_3216Metric'): (
         'CL31A106KAHNNNE', 'CAP CER 10UF 25V X5R 1206', '12 V rail'),
     ('22uF/25V X7R', 'C_1210_3225Metric'): (
@@ -175,15 +182,18 @@ PARTS = {
     ('TPD4E05U06DQAR', 'USON-10_2.5x1.0mm_P0.5mm'): (
         'Texas Instruments', 'TPD4E05U06DQAR', 'TVS DIODE 5.5VWM 4CH 10USON',
         'design', 'ESD clamps on tach lines, NTC and J10'),
-    ('NUF4001MUT2G', 'OnSemi_UDFN-8-1EP_517AD'): (
-        'onsemi', 'NUF4001MUT2G', 'EMI FILTER 4CH 100 OHM 13PF ESD UDFN8',
-        'design', 'J14: 100 ohm series, ESD clamps; two parts give 8 channels, 6 used'),
+    ('SP3422-04UTG', 'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm'): (
+        'Littelfuse', 'SP3422-04UTG', 'TVS DIODE 5VWM 4CH 5UDFN',
+        'design', 'ESD clamps on tach lines, NTC and J10'),
+    ('NUF6401MNT1G', 'OnSemi_DFN-12-1EP_506AD'): (
+        'onsemi', 'NUF6401MNT1G', 'EMI FILTER 6CH 100 OHM 17PF ESD DFN12',
+        'design', 'J14: 100 ohm series, ESD clamps on all six IMU cable signals'),
     ('TPD1E05U06DPYR', 'Texas_DPY0002A_0.6x1mm_P0.65mm'): (
         'Texas Instruments', 'TPD1E05U06DPYR', 'TVS DIODE 5.5VWM 1CH X1SON-2',
         'design', 'ESD clamp on the panel button line'),
-    ('ECS-2520MV-250-BN-TR', 'Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm'): (
-        'ECS Inc.', 'ECS-2520MV-250-BN-TR', 'XTAL OSC 25MHZ 3.3V CMOS +-50PPM SMD',
-        'design', 'AD9833 clock on +3V3_SG; -40 to 85 C'),
+    ('ECS-2520MV-160-BN-TR', 'Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm'): (
+        'ECS Inc.', 'ECS-2520MV-160-BN-TR', 'XTAL OSC 16MHZ 1.6-3.6V HCMOS +-50PPM SMD',
+        'design', 'AD9837 clock on +3V3_SG (16 MHz max); -40 to 85 C'),
     ('AD5453WBCPZ-RL', 'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm'): (
         'Analog Devices', 'AD5453WBCPZ-RL', 'IC DAC 14BIT MULTIPLYING SPI 8LFCSP',
         'design', 'amplitude control; powers up at zero scale'),
@@ -282,12 +292,25 @@ PARTS = {
         'design', 'J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei '
         'CW2001-04T-H01-BD-A; mates with a JST PHR-4 housing or JST PH '
         '4-pin pigtail'),
+    ('74AHCT1G125GM', 'Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm'): (
+        'Nexperia', '74AHCT1G125GM,115', 'IC BUF NON-INVERT 5.5V 6XSON',
+        'design', '5 V level shifter for the WS2812B'),
     ('74AHCT1G125', 'SOT-23-5'): (
         'Texas Instruments', 'SN74AHCT1G125DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '5 V level shifter for the WS2812B'),
+    ('74LV1T34GX', 'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm'): (
+        'Nexperia', '74LV1T34GXH', 'IC BUF NON-INVERT 5.5V 5X2SON',
+        'design', '1.8 V to 3.3 V buffer for DISP_DC'),
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
+    ('TACTILE', 'SW_Panasonic_EVP-AA'): (
+        'Panasonic', 'EVP-AA802Q', 'SWITCH TACTILE SPST-NO 20MA 15V SMD J-LEAD',
+        'design', 'SW1 reset, SW2 boot; 3.5 x 2.9 x 1.7 mm, 5.0 N, grey actuator, 100,000 cycles'),
+    ('APGB0607G22R23C', 'LED_Kingbright_APGB0607'): (
+        'Kingbright', 'APGB0607G22R23C', 'LED GREEN/RED BICOLOR 0.65X0.65MM SMD',
+        'design', 'all indicators but D13; independent dies, about 1 mA each. '
+        'D6 and D10 use one die'),
     ('TACTILE', 'SW_Panasonic_EVQ-P2F'): (
         'Panasonic', 'EVQ-P2F02K', 'SWITCH TACTILE SPST-NO 20MA 15V SMD',
         'design', 'SW1 reset, SW2 boot; 5.0 N, black actuator, 2.5 mm high, 200,000 cycles'),
@@ -297,9 +320,9 @@ PARTS = {
     ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
         'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
         'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
-    ('AD9833BRMZ', 'MSOP-10_3x3mm_P0.5mm'): (
-        'Analog Devices', 'AD9833BRMZ', 'IC DDS WAVEFORM GEN 10MSOP', 'design',
-        ''),
+    ('AD9837BCPZ', 'LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm'): (
+        'Analog Devices', 'AD9837BCPZ-RL7', 'IC DDS WAVEFORM GEN 10LFCSP', 'design',
+        'replaces AD9833BRMZ: same pins and registers, 16 MHz MCLK, exposed pad to GND'),
     ('TSC2046EIRGVT', 'Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm'): (
         'Texas Instruments', 'TSC2046EIRGVT',
         'IC TOUCH SCREEN CTRLR 4-WIRE 16VQFN', 'design',
@@ -310,6 +333,10 @@ PARTS = {
         'Hirose', 'FH12-14S-0.5SH(55)', 'CONN FFC BOTTOM 14POS 0.50MM R/A',
         'design', 'display FPC (Phoenix datasheet 109921); check the FFC '
         'contact side so pin 1 lands on pin 1'),
+    ('505448-0891', 'Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal'): (
+        'Molex', '505448-0891', 'CONN HEADER R/A 8POS 1.25MM DUAL ROW SMD',
+        'design', 'J14 IMU cable; Micro-Lock Plus, positive lock, 30 mating '
+        'cycles; mates with a 505432 series 8-circuit dual-row housing'),
     ('RJSSE-5380', 'RJ45_Amphenol_RJSSE-5380_Horizontal'): (
         'Amphenol', 'RJSSE-5380', 'CONN MOD JACK 8P8C R/A SHIELDED SMD',
         'design', 'J14 IMU cable; plain jack, no magnetics (drawing '
@@ -332,6 +359,9 @@ PARTS = {
         'Texas Instruments', 'LM4040D50IDBZR',
         'IC VREF SHUNT 5V 1% SOT23-3', 'suggested',
         'only biases the LTC2954 KILL input; 1 % is plenty'),
+    ('OPA2991IDSGR', 'TI_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm'): (
+        'Texas Instruments', 'OPA2991IDSGR', 'IC OPAMP GP 2CIRC RRIO 8WSON',
+        'design', 'U5: A is the DDS gain stage, B the AD5453 output stage; stock not checked'),
     ('OPA1655DBVR', 'SOT-23-5'): (
         'Texas Instruments', 'OPA1655DBVR', 'IC OPAMP AUDIO 1CIRC SOT23-5',
         'design', 'single version of the OPA1656'),
@@ -342,6 +372,9 @@ PARTS = {
     ('MCP23S08-E/ML', 'QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm'): (
         'Microchip', 'MCP23S08-E/ML', 'IC I/O EXPANDER SPI 8B 20QFN', 'suggested',
         'stock not checked; MCP23S08T-E/ML is the reel'),
+    ('SRL05P7', 'MCC_DFN1510-6_1.5x1.0mm_P0.5mm'): (
+        'Micro Commercial Components', 'SRL05P7-TP', 'TVS DIODE 5VWM 17VC DFN1510-6',
+        'design', 'USB ESD clamp; JLCPCB C3713451'),
     ('USBLC6-2SC6', 'SOT-23-6'): (
         'STMicroelectronics', 'USBLC6-2SC6', 'TVS DIODE 5.25V 17V SOT23-6',
         'design', ''),
@@ -580,6 +613,8 @@ def bom_value(ref, value, footprint):
         return 'TACTILE'
     if footprint == 'LED_1206_3216Metric':
         return 'RED/GREEN'
+    if footprint == 'LED_Kingbright_APGB0607':
+        return 'APGB0607G22R23C'
     return value
 
 

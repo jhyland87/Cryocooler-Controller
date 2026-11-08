@@ -17,14 +17,14 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
 | `rails_15v` | ADP5071ACPZ dual converter at 1.2 MHz with SRP7050TA-3R3M and -6R8M (rev 1 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); the LT3097 PGP / PGN go to the `power_good` sheet |
 | `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
-| `signal_gen` | ECS-2520MV 25 MHz oscillator, AD9833, OPA1655 (gain 16.3), R39 + MMBZ9V1 clamp into AD5453 VREF, AD5453 (decoder Y1) with OPA188 output stage; all digital parts on `+3V3_SG` |
+| `signal_gen` | ECS-2520MV 16 MHz oscillator, AD9837 (LFCSP-10), OPA2991 dual U5 (A: gain 16.3; B: AD5453 output stage, 22 pF C1), R39 + MMBZ9V1 clamp into AD5453 VREF, AD5453 (decoder Y1); all digital parts on `+3V3_SG` |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908-2 SMT pluggable header J11, TE 643228-1 through-hole header J12 |
 | `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs |
 | `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3/GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
 | `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through BSS138 open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 1 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
-| `imu` | J14, a plain shielded SMT RJ45 (Amphenol RJSSE-5380, no magnetics) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND on T568B pairs; two NUF4001MU filters (100 Ω series, 13 pF and ESD clamp each side), 2 channels spare; shield to GND |
+| `imu` | J14, a Molex Micro-Lock Plus 2x4 header (505448-0891, 1.25 mm, right angle, positive lock) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND; one NUF6401MN six-channel filter (100 Ω series, 17 pF and ESD clamp each side) |
 | `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin right-angle Sullins SWR25X output |
 | `indicators` | WS2812B-2020 status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds and control lines; LEDs on +5V and ISO 5V |
@@ -64,7 +64,7 @@ console); the firmware should still check it before starting the signal generato
 | Status RGB (WS2812B-2020) | 38 | Compressor relay enable | 16 |
 | Display D/C | 48 | Display RESET | 46 (strap, 10 kΩ pull-down) |
 
-The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9833, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
+The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9837, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
 
 GPIO3 is a strapping pin (JTAG source); R17 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R19 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R18 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.
@@ -152,27 +152,28 @@ and describe earlier boards where they differ.
   control PWM (they run from GPIOs on `+3V3`), but tach, flow and NTC readings stop. An unpowered ADS1220 can still clamp the shared
   SPI MISO line through its ESD diodes while other devices are being read, so leave JP5 fitted during normal operation.
 
-* **IMU cable (J14, RJ45):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
-  cryocooler. J14 pins 1-8 run top to bottom on the board as VIN, GND, SCL, SDA, DO, CS, I1, I2, the same order
-  as the breakout's SPI-side pads (minus its 3Vo pad), so an 8-wire cable maps pin for pin. Power the breakout's
+* **IMU cable (J14, Molex Micro-Lock Plus 2x4):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
+  cryocooler. The cable is 8 wires crimped into a Molex 505432 series 8-circuit dual-row housing; odd pins are
+  the back row, even pins the row at the mating face. The pins keep the numbering of the RJ45 they replaced, so
+  the far end is wired by the table below, not pin for pin. Power the breakout's
   `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad open. Keep the cable short (it hangs on the
   shared SPI bus; each signal has a 100 Ω series resistor at J14). The pin names are printed beside the connector.
 
-  | J14 (top to bottom) | Board signal | Breakout pad |
+  | J14 pin | Board signal | Breakout pad |
   |---|---|---|
-  | 1 | +3V3 | Vin |
+  | 1 | SPI_SCK | SCL |
   | 2 | GND | GND |
-  | 3 | SPI_SCK | SCL |
-  | 4 | SPI_MOSI | SDA |
-  | 5 | SPI_MISO | DO |
-  | 6 | IMU_CS (GPIO 1, 10 k pull-up on the board) | CS |
+  | 3 | SPI_MOSI | SDA |
+  | 4 | +3V3 | Vin |
+  | 5 | IMU_CS (from the U32 decoder) | CS |
+  | 6 | SPI_MISO | DO |
   | 7 | IMU_INT1 (GPIO 2) | I1 |
   | 8 | IMU_INT2 (GPIO 39) | I2 |
 
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11 +/-, J12 +/-/GND, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
+  J11 +/-, J12 +/-/GND, J13 12V/GND, J14 as in the table above. Pin 1 is the first label in each list.
 * **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 643228-1) on 2 mm traces, narrowing to 1.6 mm past J12's GND tab. J11 - and J12 - share a F.Cu link inside the ISO_GND island, 2 mm narrowing to 1.2 mm at the same tab. Along the left wall J12 reads GND, -, + from north to south (molded 3, 2, 1). See `hardware/HANDOFF_rev3.md`.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board

@@ -342,207 +342,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:LED"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "LED"
-				(at 0 -2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Light emitting diode"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Pins" "1=K 2=A"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "LED diode"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "LED_0_1"
-				(polyline
-					(pts
-						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 0) (xy 1.27 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 -1.27) (xy -1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "LED_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:R_US"
 			(pin_numbers
 				(hide yes)
@@ -722,6 +521,170 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "cryocooler:APGB0607G22R23C"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 5.08 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "APGB0607G22R23C"
+				(at -5.08 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "cryocooler:LED_Kingbright_APGB0607"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" "https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Kingbright green/red bi-colour LED, independent dies, 0.65 x 0.65 x 0.25 mm. Green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA max, VR 5 V"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "led bicolor red green"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "APGB0607G22R23C_0_1"
+				(rectangle
+					(start -5.08 5.08)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "APGB0607G22R23C_1_1"
+				(pin passive line
+					(at -7.62 2.54 0)
+					(length 2.54)
+					(name "GA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 2.54 180)
+					(length 2.54)
+					(name "GK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "RK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "RA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1522,7 +1485,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "307c6064-d80d-5848-804f-37cd072e10fc")
+		(uuid "4c60cf07-0ae0-5fc9-bb24-9e3d2036736f")
 	)
 	(text "INA239 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -1533,434 +1496,75 @@
 			)
 			(justify left top)
 		)
-		(uuid "63f9af43-13c4-5783-8617-eaaa0090f58e")
-	)
-	(text "3V3 POWER LED"
-		(exclude_from_sim no)
-		(at 50.8 116.84 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "99d9ecb1-1f98-5cb8-a765-d7bffb1580c8")
-	)
-	(junction
-		(at 97.79 43.18)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "18bebd63-8b75-5bc4-978f-598b9de337be")
-	)
-	(junction
-		(at 96.52 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2691e825-fc24-5811-8ed0-f4774a5e85c9")
-	)
-	(junction
-		(at 87.63 43.18)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2762805e-0c85-51a2-be50-949d2de2e749")
-	)
-	(junction
-		(at 160.02 127)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2fbb145c-0bfb-50c9-8b56-9d8ccd1eb25a")
+		(uuid "cf163474-7566-5768-87c3-a1612137045c")
 	)
 	(junction
 		(at 160.02 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "34fb8cde-8dd7-5ee0-9bd8-7fae12f08d0d")
-	)
-	(junction
-		(at 160.02 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "58954362-263d-5173-ad80-d99fd007ed88")
-	)
-	(junction
-		(at 77.47 43.18)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "6493c82b-6546-5561-b5e6-93b7d9c72b63")
+		(uuid "16ee8367-d4bb-5ccd-8a79-8f78bc2a8d8e")
 	)
 	(junction
 		(at 69.85 43.18)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "75b9e656-a27c-533a-a62b-605bf430d392")
+		(uuid "256dc8e8-ddca-5c50-9e25-80cc6e5f5127")
+	)
+	(junction
+		(at 87.63 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "307c6064-d80d-5848-804f-37cd072e10fc")
+	)
+	(junction
+		(at 97.79 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "63f9af43-13c4-5783-8617-eaaa0090f58e")
+	)
+	(junction
+		(at 96.52 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "687f9a96-5380-5c49-8b4a-7629dda8dd23")
+	)
+	(junction
+		(at 77.47 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "69d3ea8d-97e5-59b9-9655-d7ac888dcda4")
+	)
+	(junction
+		(at 160.02 127)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6b88e43f-ea7c-5563-a59a-1f45d8b50c4a")
 	)
 	(junction
 		(at 96.52 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "7df66ccf-77c4-5010-87cd-55928bf0fbd9")
+		(uuid "99d9ecb1-1f98-5cb8-a765-d7bffb1580c8")
+	)
+	(junction
+		(at 160.02 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d284dc49-9494-555a-9221-403ad329e9fe")
 	)
 	(junction
 		(at 120.65 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e542bf52-4e7c-5ce3-8953-d67051647e27")
+		(uuid "eb41f824-55fd-5e47-aed1-f64978c3a9f3")
 	)
-	(junction
-		(at 160.02 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e601cd29-ef7c-5866-bd62-a2205156d2c1")
+	(no_connect
+		(at 200.66 99.06)
+		(uuid "223f9cd9-622f-5d8f-bbd8-348bdd86010c")
 	)
-	(wire
-		(pts
-			(xy 110.49 76.2) (xy 124.46 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18ad2f33-8e4d-5294-86a4-14099684ef60")
-	)
-	(wire
-		(pts
-			(xy 154.94 73.66) (xy 170.18 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a404baf-a5d9-53c9-9329-8d4c1315e000")
-	)
-	(wire
-		(pts
-			(xy 139.7 60.96) (xy 139.7 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a890930-2aa2-5065-84c9-bc4bd264edbe")
-	)
-	(wire
-		(pts
-			(xy 160.02 88.9) (xy 160.02 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2f066fea-e51c-50d8-aa82-e57ba9cdef14")
-	)
-	(wire
-		(pts
-			(xy 97.79 43.18) (xy 105.41 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3697aec1-499e-5cbd-8f8c-c05771c0a243")
-	)
-	(wire
-		(pts
-			(xy 120.65 71.12) (xy 120.65 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "37437bc2-a224-5c87-9a8d-1d40532bd58a")
-	)
-	(wire
-		(pts
-			(xy 87.63 43.18) (xy 97.79 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3da84831-2023-5905-96ff-e99e59e55b90")
-	)
-	(wire
-		(pts
-			(xy 120.65 71.12) (xy 124.46 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4103edf3-20d4-5c30-a38b-fc1280600a2b")
-	)
-	(wire
-		(pts
-			(xy 73.66 127) (xy 73.66 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4405b704-2fea-5a5f-8a65-336c5c294f95")
-	)
-	(wire
-		(pts
-			(xy 152.4 127) (xy 160.02 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "500f2b39-aa28-50d5-98e0-e6d1c1e138a0")
-	)
-	(wire
-		(pts
-			(xy 77.47 43.18) (xy 77.47 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "53d2f3b1-8625-52e2-a241-add8a23051d8")
-	)
-	(wire
-		(pts
-			(xy 82.55 43.18) (xy 87.63 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59930a39-206d-5866-a81a-100616ea4084")
-	)
-	(wire
-		(pts
-			(xy 63.5 127) (xy 66.04 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b3d038a-6707-5e5d-b056-2b23d584b752")
-	)
-	(wire
-		(pts
-			(xy 154.94 78.74) (xy 170.18 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f9491b5-b4cf-568c-8e22-7b01ba6cdaf8")
-	)
-	(wire
-		(pts
-			(xy 77.47 73.66) (xy 82.55 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60c90157-9d4e-5406-9408-ec4177736a82")
-	)
-	(wire
-		(pts
-			(xy 168.91 96.52) (xy 170.18 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "61649660-d1b2-571b-9d54-b66adeb92b81")
-	)
-	(wire
-		(pts
-			(xy 160.02 96.52) (xy 161.29 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67508182-1947-52cb-a410-2d539ac114da")
-	)
-	(wire
-		(pts
-			(xy 90.17 73.66) (xy 96.52 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6f6ac9fb-b3c4-5d59-8ccc-e5c4966e854f")
-	)
-	(wire
-		(pts
-			(xy 160.02 134.62) (xy 175.26 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6fa1d768-78f7-56aa-b0a2-65c5e97f7eb5")
-	)
-	(wire
-		(pts
-			(xy 154.94 71.12) (xy 170.18 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75fc107d-6450-5d3c-936e-2db2493ffd78")
-	)
-	(wire
-		(pts
-			(xy 50.8 127) (xy 55.88 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8ca910ed-1abf-5c38-a104-ae09525f0d59")
-	)
-	(wire
-		(pts
-			(xy 139.7 91.44) (xy 139.7 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e00aaff-e86c-5239-a6a7-6f3fd60cb780")
-	)
-	(wire
-		(pts
-			(xy 160.02 127) (xy 175.26 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "99a9f92a-1029-5f32-80a3-f43f2fe3efb8")
-	)
-	(wire
-		(pts
-			(xy 96.52 73.66) (xy 124.46 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9dd7f9df-4b24-56d9-96f1-9a2a5eab3a32")
-	)
-	(wire
-		(pts
-			(xy 160.02 81.28) (xy 170.18 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a1d96c83-6df2-5834-9112-52ed1ba0a9e7")
-	)
-	(wire
-		(pts
-			(xy 154.94 81.28) (xy 160.02 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a8b215f2-467a-57cf-8267-83ddce327306")
-	)
-	(wire
-		(pts
-			(xy 69.85 43.18) (xy 69.85 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a9da5d91-7c05-573d-a001-efafb4e824b7")
-	)
-	(wire
-		(pts
-			(xy 90.17 81.28) (xy 96.52 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bc1ed768-148a-5689-b4ec-04511fe45df1")
-	)
-	(wire
-		(pts
-			(xy 110.49 76.2) (xy 110.49 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c423c831-162f-5607-b318-29782cc25979")
-	)
-	(wire
-		(pts
-			(xy 152.4 134.62) (xy 160.02 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c937988e-3df0-589a-9b5c-4c6dafe2bf93")
-	)
-	(wire
-		(pts
-			(xy 69.85 81.28) (xy 82.55 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5b2630b-3692-5b07-90da-21c97936fa75")
-	)
-	(wire
-		(pts
-			(xy 77.47 43.18) (xy 82.55 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d956c790-6fa8-5325-b1a1-427a963edad6")
-	)
-	(wire
-		(pts
-			(xy 160.02 81.28) (xy 160.02 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ddf609f1-ebe6-5198-b410-a115eb8bbd9e")
-	)
-	(wire
-		(pts
-			(xy 154.94 76.2) (xy 170.18 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f05bb099-d7ce-5565-a876-063433c693c9")
-	)
-	(wire
-		(pts
-			(xy 96.52 81.28) (xy 110.49 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f27dbf18-476e-5542-9211-cb2873e2bb53")
+	(no_connect
+		(at 185.42 99.06)
+		(uuid "94c859b0-ee2e-5d45-86b6-9e26feab625f")
 	)
 	(wire
 		(pts
@@ -1970,7 +1574,357 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f60e3785-377a-5711-8e92-280fa70f1d53")
+		(uuid "18ad2f33-8e4d-5294-86a4-14099684ef60")
+	)
+	(wire
+		(pts
+			(xy 152.4 127) (xy 160.02 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18bebd63-8b75-5bc4-978f-598b9de337be")
+	)
+	(wire
+		(pts
+			(xy 154.94 76.2) (xy 170.18 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a890930-2aa2-5065-84c9-bc4bd264edbe")
+	)
+	(wire
+		(pts
+			(xy 152.4 134.62) (xy 160.02 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2691e825-fc24-5811-8ed0-f4774a5e85c9")
+	)
+	(wire
+		(pts
+			(xy 200.66 101.6) (xy 203.2 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2762805e-0c85-51a2-be50-949d2de2e749")
+	)
+	(wire
+		(pts
+			(xy 110.49 76.2) (xy 124.46 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2f066fea-e51c-50d8-aa82-e57ba9cdef14")
+	)
+	(wire
+		(pts
+			(xy 77.47 43.18) (xy 77.47 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fbb145c-0bfb-50c9-8b56-9d8ccd1eb25a")
+	)
+	(wire
+		(pts
+			(xy 120.65 71.12) (xy 120.65 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34fb8cde-8dd7-5ee0-9bd8-7fae12f08d0d")
+	)
+	(wire
+		(pts
+			(xy 90.17 81.28) (xy 96.52 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37437bc2-a224-5c87-9a8d-1d40532bd58a")
+	)
+	(wire
+		(pts
+			(xy 157.48 99.06) (xy 160.02 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4405b704-2fea-5a5f-8a65-336c5c294f95")
+	)
+	(wire
+		(pts
+			(xy 77.47 73.66) (xy 82.55 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "500f2b39-aa28-50d5-98e0-e6d1c1e138a0")
+	)
+	(wire
+		(pts
+			(xy 69.85 81.28) (xy 82.55 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53d2f3b1-8625-52e2-a241-add8a23051d8")
+	)
+	(wire
+		(pts
+			(xy 160.02 134.62) (xy 175.26 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58954362-263d-5173-ad80-d99fd007ed88")
+	)
+	(wire
+		(pts
+			(xy 154.94 71.12) (xy 170.18 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b3d038a-6707-5e5d-b056-2b23d584b752")
+	)
+	(wire
+		(pts
+			(xy 82.55 43.18) (xy 87.63 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f9491b5-b4cf-568c-8e22-7b01ba6cdaf8")
+	)
+	(wire
+		(pts
+			(xy 97.79 43.18) (xy 105.41 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61649660-d1b2-571b-9d54-b66adeb92b81")
+	)
+	(wire
+		(pts
+			(xy 182.88 101.6) (xy 185.42 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6493c82b-6546-5561-b5e6-93b7d9c72b63")
+	)
+	(wire
+		(pts
+			(xy 87.63 43.18) (xy 97.79 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67508182-1947-52cb-a410-2d539ac114da")
+	)
+	(wire
+		(pts
+			(xy 154.94 73.66) (xy 170.18 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fa1d768-78f7-56aa-b0a2-65c5e97f7eb5")
+	)
+	(wire
+		(pts
+			(xy 167.64 99.06) (xy 170.18 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75b9e656-a27c-533a-a62b-605bf430d392")
+	)
+	(wire
+		(pts
+			(xy 160.02 127) (xy 175.26 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7df66ccf-77c4-5010-87cd-55928bf0fbd9")
+	)
+	(wire
+		(pts
+			(xy 160.02 81.28) (xy 160.02 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8c9d6a09-5973-53dd-8ab7-9db8869d4a31")
+	)
+	(wire
+		(pts
+			(xy 120.65 71.12) (xy 124.46 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ca910ed-1abf-5c38-a104-ae09525f0d59")
+	)
+	(wire
+		(pts
+			(xy 154.94 78.74) (xy 170.18 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e00aaff-e86c-5239-a6a7-6f3fd60cb780")
+	)
+	(wire
+		(pts
+			(xy 90.17 73.66) (xy 96.52 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "99a9f92a-1029-5f32-80a3-f43f2fe3efb8")
+	)
+	(wire
+		(pts
+			(xy 96.52 81.28) (xy 110.49 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9da5d91-7c05-573d-a001-efafb4e824b7")
+	)
+	(wire
+		(pts
+			(xy 154.94 81.28) (xy 160.02 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c423c831-162f-5607-b318-29782cc25979")
+	)
+	(wire
+		(pts
+			(xy 96.52 73.66) (xy 124.46 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c937988e-3df0-589a-9b5c-4c6dafe2bf93")
+	)
+	(wire
+		(pts
+			(xy 139.7 91.44) (xy 139.7 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9935e5d-be26-5c86-9ef0-3adabf03383f")
+	)
+	(wire
+		(pts
+			(xy 160.02 81.28) (xy 170.18 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddf609f1-ebe6-5198-b410-a115eb8bbd9e")
+	)
+	(wire
+		(pts
+			(xy 110.49 76.2) (xy 110.49 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e542bf52-4e7c-5ce3-8953-d67051647e27")
+	)
+	(wire
+		(pts
+			(xy 69.85 43.18) (xy 69.85 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e601cd29-ef7c-5866-bd62-a2205156d2c1")
+	)
+	(wire
+		(pts
+			(xy 77.47 43.18) (xy 82.55 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f05bb099-d7ce-5565-a876-063433c693c9")
+	)
+	(wire
+		(pts
+			(xy 139.7 60.96) (xy 139.7 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fdc03c75-e272-57fd-9722-58afef4f8822")
+	)
+	(label "ALERT_LED_A"
+		(at 182.88 101.6 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "524333c9-7447-5172-a555-e946e62b5475")
+	)
+	(label "ALERT_LED_A"
+		(at 170.18 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f679c653-22fa-5f3a-962e-d998a2b07c86")
 	)
 	(global_label "SPI_MISO"
 		(shape output)
@@ -1982,9 +1936,33 @@
 			)
 			(justify left)
 		)
-		(uuid "256dc8e8-ddca-5c50-9e25-80cc6e5f5127")
+		(uuid "0c5ba9fe-7c9a-595f-9c9f-fb96acb68125")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 170.18 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "SPI_MOSI"
+		(shape input)
+		(at 170.18 76.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "25ac8a3c-45c8-5217-8d1b-169a236a7bf3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 170.18 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2006,7 +1984,7 @@
 			)
 			(justify left)
 		)
-		(uuid "69d3ea8d-97e5-59b9-9655-d7ac888dcda4")
+		(uuid "425a893b-6bdd-5753-988c-9f74b8b7b6a6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 170.18 81.28 0)
 			(hide yes)
@@ -2030,33 +2008,9 @@
 			)
 			(justify left)
 		)
-		(uuid "8c9d6a09-5973-53dd-8ab7-9db8869d4a31")
+		(uuid "513a8dfb-8eec-565c-bc69-77e1405fa0bf")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 170.18 71.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "SPI_MOSI"
-		(shape input)
-		(at 170.18 76.2 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "c9935e5d-be26-5c86-9ef0-3adabf03383f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 170.18 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2078,9 +2032,33 @@
 			)
 			(justify left)
 		)
-		(uuid "fdc03c75-e272-57fd-9722-58afef4f8822")
+		(uuid "926a40a8-a90a-5508-8720-58977b09a95e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 170.18 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "INA239_ALERT"
+		(shape bidirectional)
+		(at 203.2 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fbb40393-9b2b-5418-92c3-9f813dcc08d7")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 203.2 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2170,10 +2148,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "4c60cf07-0ae0-5fc9-bb24-9e3d2036736f")
+			(uuid "d6b06f1a-e020-54fd-aee7-b782183e54c8")
 		)
 		(pin "2"
-			(uuid "cf163474-7566-5768-87c3-a1612137045c")
+			(uuid "434bc30b-4d66-5d73-a69c-34cfd79e8bd0")
 		)
 		(instances
 			(project "cryocooler"
@@ -2185,40 +2163,18 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 165.1 96.52 0)
+		(lib_id "power:+3V3")
+		(at 157.48 99.06 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "1fd75af7-b39b-5e68-9acd-61ee8b7027d6")
-		(property "Reference" "D6"
-			(at 171.11 99.788 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "ALERT (red)"
-			(at 171.11 101.888 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
-			(at 165.1 96.52 0)
+		(property "Reference" "#PWR232"
+			(at 157.48 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2228,8 +2184,18 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=APHHS1005SURCK"
-			(at 165.1 96.52 0)
+		(property "Value" "+3V3"
+			(at 157.48 95.504 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 157.48 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2239,8 +2205,8 @@
 				)
 			)
 		)
-		(property "Description" "Light emitting diode"
-			(at 165.1 96.52 0)
+		(property "Datasheet" ""
+			(at 157.48 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2250,8 +2216,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=APHHS1005SURCK"
-			(at 165.1 96.52 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 157.48 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2262,15 +2228,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5461af58-ac0d-5dd3-9907-9ffd07098e16")
-		)
-		(pin "2"
-			(uuid "21a1300d-d5f8-5553-a005-56477211fd70")
+			(uuid "5327ac47-36b4-5725-b865-1afa4045336c")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "D6")
+					(reference "#PWR232")
 					(unit 1)
 				)
 			)
@@ -2343,7 +2306,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "fe220d0f-020c-5a13-992f-fb07ec3851a5")
+			(uuid "b226d942-5c33-51a5-986e-aad8f087d62f")
 		)
 		(instances
 			(project "cryocooler"
@@ -2421,7 +2384,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8c79e521-fd4f-58ed-b5f8-845b4032c713")
+			(uuid "ef7db04c-8d0a-5a2e-8275-ed2162ca6af5")
 		)
 		(instances
 			(project "cryocooler"
@@ -2499,7 +2462,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "fbb40393-9b2b-5418-92c3-9f813dcc08d7")
+			(uuid "21a1300d-d5f8-5553-a005-56477211fd70")
 		)
 		(instances
 			(project "cryocooler"
@@ -2577,90 +2540,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "218df95c-7ec5-5c2c-a0f9-17424a7284af")
+			(uuid "f208bf70-4b2e-5c7e-9f56-57ca21fb81e5")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
 					(reference "#PWR230")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 73.66 129.54 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "672f7639-08b4-5822-9879-bfbb5d531b8f")
-		(property "Reference" "#PWR238"
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7215eadc-5a51-5f83-8811-29a3e2492262")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "#PWR238")
 					(unit 1)
 				)
 			)
@@ -2744,10 +2629,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "850880e7-384d-5cfb-93e1-13599bee6b5f")
+			(uuid "fa722625-880f-59c1-ab51-350c1756ae48")
 		)
 		(pin "2"
-			(uuid "ac4afdd9-d912-5afe-8986-4b0ee0731c89")
+			(uuid "84eb189d-9028-531f-91ae-d88e93bb58c2")
 		)
 		(instances
 			(project "cryocooler"
@@ -2836,34 +2721,34 @@
 			)
 		)
 		(pin "8"
-			(uuid "687f9a96-5380-5c49-8b4a-7629dda8dd23")
+			(uuid "8c79e521-fd4f-58ed-b5f8-845b4032c713")
 		)
 		(pin "9"
-			(uuid "d284dc49-9494-555a-9221-403ad329e9fe")
+			(uuid "850880e7-384d-5cfb-93e1-13599bee6b5f")
 		)
 		(pin "10"
-			(uuid "6b88e43f-ea7c-5563-a59a-1f45d8b50c4a")
+			(uuid "ac4afdd9-d912-5afe-8986-4b0ee0731c89")
 		)
 		(pin "1"
-			(uuid "16ee8367-d4bb-5ccd-8a79-8f78bc2a8d8e")
+			(uuid "218df95c-7ec5-5c2c-a0f9-17424a7284af")
 		)
 		(pin "5"
-			(uuid "eb41f824-55fd-5e47-aed1-f64978c3a9f3")
+			(uuid "86d7af66-0434-5aee-b16b-c51743d31e7b")
 		)
 		(pin "2"
-			(uuid "94c859b0-ee2e-5d45-86b6-9e26feab625f")
+			(uuid "dbc57132-3f33-5f13-a1da-a743f40d3ecf")
 		)
 		(pin "4"
-			(uuid "223f9cd9-622f-5d8f-bbd8-348bdd86010c")
+			(uuid "ccc23698-b487-5c65-843f-4beb0057cdab")
 		)
 		(pin "3"
-			(uuid "513a8dfb-8eec-565c-bc69-77e1405fa0bf")
+			(uuid "edfda51b-a961-5d77-96c6-8d627e46a8a6")
 		)
 		(pin "6"
-			(uuid "926a40a8-a90a-5508-8720-58977b09a95e")
+			(uuid "ccfa7915-38a7-5d3e-b3d0-fda465a05ff8")
 		)
 		(pin "7"
-			(uuid "25ac8a3c-45c8-5217-8d1b-169a236a7bf3")
+			(uuid "f87705d2-c0f6-5e06-aa1e-243084a87f9e")
 		)
 		(instances
 			(project "cryocooler"
@@ -2952,105 +2837,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ccfa7915-38a7-5d3e-b3d0-fda465a05ff8")
+			(uuid "9c31303d-24f3-559c-b331-435fa4012e4b")
 		)
 		(pin "2"
-			(uuid "f87705d2-c0f6-5e06-aa1e-243084a87f9e")
+			(uuid "e0532d07-64e5-5d0d-9ea6-beb1684f6564")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
 					(reference "C83")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 59.69 127 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7e1b58fb-33ab-5802-98df-c0df9717bfde")
-		(property "Reference" "R82"
-			(at 59.69 120.884 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1.5k"
-			(at 59.69 122.984 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 59.69 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071K5L"
-			(at 59.69 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 59.69 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071K5L"
-			(at 59.69 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "b09f7fac-6bec-5ba4-a746-c43c41957c46")
-		)
-		(pin "2"
-			(uuid "2ed7de53-993a-5991-ab9a-eb8385071fc9")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "R82")
 					(unit 1)
 				)
 			)
@@ -3122,7 +2917,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f679c653-22fa-5f3a-962e-d998a2b07c86")
+			(uuid "dc14131b-ecdf-59a7-9df4-5abb7bdc3301")
 		)
 		(instances
 			(project "cryocooler"
@@ -3211,10 +3006,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ba114865-9101-5861-98b1-c8a8c6fec211")
+			(uuid "a8c50a54-5836-5e4e-b56d-10aa8228eece")
 		)
 		(pin "2"
-			(uuid "9c31303d-24f3-559c-b331-435fa4012e4b")
+			(uuid "d58e5c09-e80b-5cbe-a9ee-d4f9169a28c2")
 		)
 		(instances
 			(project "cryocooler"
@@ -3301,10 +3096,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ec23f2f5-bc9d-53d8-859c-ce03463ebc39")
+			(uuid "b09f7fac-6bec-5ba4-a746-c43c41957c46")
 		)
 		(pin "2"
-			(uuid "6df70cf7-5dc3-5cc5-ad1e-55bb08e983e8")
+			(uuid "2ed7de53-993a-5991-ab9a-eb8385071fc9")
 		)
 		(instances
 			(project "cryocooler"
@@ -3382,7 +3177,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "dc14131b-ecdf-59a7-9df4-5abb7bdc3301")
+			(uuid "ec8dd0fd-35ff-59ad-ab30-55ed9a2a7caa")
 		)
 		(instances
 			(project "cryocooler"
@@ -3459,7 +3254,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f208bf70-4b2e-5c7e-9f56-57ca21fb81e5")
+			(uuid "8b5fadc9-53f0-5ceb-9346-5c08b0ec25c0")
 		)
 		(instances
 			(project "cryocooler"
@@ -3536,7 +3331,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "524333c9-7447-5172-a555-e946e62b5475")
+			(uuid "5461af58-ac0d-5dd3-9907-9ffd07098e16")
 		)
 		(instances
 			(project "cryocooler"
@@ -3549,7 +3344,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 173.99 96.52 90)
+		(at 163.83 99.06 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3559,7 +3354,7 @@
 		(dnp no)
 		(uuid "add909d8-6426-5ddb-b43f-254a58b89ec4")
 		(property "Reference" "R81"
-			(at 173.99 90.404 270)
+			(at 163.83 92.944 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3569,7 +3364,7 @@
 			)
 		)
 		(property "Value" "1.5k"
-			(at 173.99 92.504 270)
+			(at 163.83 95.044 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3579,7 +3374,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 173.99 96.52 0)
+			(at 163.83 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3590,7 +3385,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071K5L"
-			(at 173.99 96.52 0)
+			(at 163.83 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3601,7 +3396,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 173.99 96.52 0)
+			(at 163.83 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3612,7 +3407,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071K5L"
-			(at 173.99 96.52 0)
+			(at 163.83 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3623,10 +3418,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d6b06f1a-e020-54fd-aee7-b782183e54c8")
+			(uuid "7215eadc-5a51-5f83-8811-29a3e2492262")
 		)
 		(pin "2"
-			(uuid "434bc30b-4d66-5d73-a69c-34cfd79e8bd0")
+			(uuid "45fd5769-b102-5bce-85b9-698a095f8623")
 		)
 		(instances
 			(project "cryocooler"
@@ -3713,10 +3508,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ccc23698-b487-5c65-843f-4beb0057cdab")
+			(uuid "0acb6f06-5a23-520a-8af5-efad1bcd9027")
 		)
 		(pin "2"
-			(uuid "edfda51b-a961-5d77-96c6-8d627e46a8a6")
+			(uuid "ba114865-9101-5861-98b1-c8a8c6fec211")
 		)
 		(instances
 			(project "cryocooler"
@@ -3728,29 +3523,18 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 177.8 96.52 0)
+		(lib_id "cryocooler:APGB0607G22R23C")
+		(at 193.04 101.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "c5dca01c-24de-5429-bbb1-e10e8f006886")
-		(property "Reference" "#PWR232"
-			(at 177.8 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 180.2 95.42 0)
+		(property "Reference" "D6"
+			(at 185.42 91.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3760,8 +3544,19 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 177.8 96.52 0)
+		(property "Value" "ALERT (red)"
+			(at 185.42 93.52 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "cryocooler:LED_Kingbright_APGB0607"
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3771,8 +3566,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 177.8 96.52 0)
+		(property "Datasheet" "https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf"
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3782,8 +3577,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 177.8 96.52 0)
+		(property "Description" "Kingbright green/red bi-colour LED, independent dies, 0.65 x 0.65 x 0.25 mm. Green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA max, VR 5 V"
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3793,74 +3588,8 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "ef7db04c-8d0a-5a2e-8275-ed2162ca6af5")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "#PWR232")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 50.8 127 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d6ab1a0b-b694-5d3f-837a-4e2da3dd6490")
-		(property "Reference" "#PWR237"
-			(at 50.8 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 50.8 123.444 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 50.8 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 50.8 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 50.8 127 0)
+		(property "Product" "https://www.digikey.com/en/products/detail/kingbright/APGB0607G22R23C/22561020"
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3871,12 +3600,21 @@
 			)
 		)
 		(pin "1"
-			(uuid "e0532d07-64e5-5d0d-9ea6-beb1684f6564")
+			(uuid "6eecc668-1740-526b-8b05-b3dc70049484")
+		)
+		(pin "4"
+			(uuid "ef6e4207-1570-5c77-b971-e034fba9402a")
+		)
+		(pin "2"
+			(uuid "3bf7ea6b-a773-5a04-8ec9-3daa8b8a9e1b")
+		)
+		(pin "3"
+			(uuid "ee19084f-05ff-5be7-9791-3ffc334fc19d")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "#PWR237")
+					(reference "D6")
 					(unit 1)
 				)
 			)
@@ -3958,10 +3696,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "86d7af66-0434-5aee-b16b-c51743d31e7b")
+			(uuid "fe220d0f-020c-5a13-992f-fb07ec3851a5")
 		)
 		(pin "2"
-			(uuid "dbc57132-3f33-5f13-a1da-a743f40d3ecf")
+			(uuid "cabefadc-3190-5c5d-a161-204a718b4ae6")
 		)
 		(instances
 			(project "cryocooler"
@@ -4038,7 +3776,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "fa722625-880f-59c1-ab51-350c1756ae48")
+			(uuid "ec0037d9-2ebc-5127-acfe-d15cedc73c68")
 		)
 		(instances
 			(project "cryocooler"
@@ -4127,107 +3865,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "cabefadc-3190-5c5d-a161-204a718b4ae6")
+			(uuid "e136bee7-4a9d-51cd-943b-be29803a697b")
 		)
 		(pin "2"
-			(uuid "0acb6f06-5a23-520a-8af5-efad1bcd9027")
+			(uuid "7cb1f3b7-e857-52c8-86bb-6bda33e5ee1f")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
 					(reference "C32")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 69.85 127 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "fba50249-04ec-504a-b941-a35a6f4c71d4")
-		(property "Reference" "D8"
-			(at 76.622 125.442 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "PWR (green)"
-			(at 76.622 127.542 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
-			(at 69.85 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=APHHS1005CGCK"
-			(at 69.85 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 69.85 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=APHHS1005CGCK"
-			(at 69.85 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ec8dd0fd-35ff-59ad-ab30-55ed9a2a7caa")
-		)
-		(pin "2"
-			(uuid "5327ac47-36b4-5725-b865-1afa4045336c")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/9703c636-c4a3-539b-91d5-5b30ebe0d7e3"
-					(reference "D8")
 					(unit 1)
 				)
 			)
@@ -4309,10 +3955,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0c5ba9fe-7c9a-595f-9c9f-fb96acb68125")
+			(uuid "ec23f2f5-bc9d-53d8-859c-ce03463ebc39")
 		)
 		(pin "2"
-			(uuid "425a893b-6bdd-5753-988c-9f74b8b7b6a6")
+			(uuid "6df70cf7-5dc3-5cc5-ad1e-55bb08e983e8")
 		)
 		(instances
 			(project "cryocooler"
@@ -4390,7 +4036,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "84eb189d-9028-531f-91ae-d88e93bb58c2")
+			(uuid "5c19e929-334b-58ad-93c5-874c1dc7d939")
 		)
 		(instances
 			(project "cryocooler"

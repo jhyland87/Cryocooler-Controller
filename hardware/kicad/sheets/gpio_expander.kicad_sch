@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "8cab3075-6d25-5c64-b8ea-64638c0fd3cb")
+	(uuid "29bedad3-b1f5-5c18-8c5c-6da6cdfdd530")
 	(paper "A3")
 	(title_block
 		(title "GPIO Expander")
@@ -10,129 +10,6 @@
 		(company "Cryocooler Controller")
 	)
 	(lib_symbols
-		(symbol "Connector:TestPoint"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0.762)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "TP"
-				(at 0 6.858 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "TestPoint"
-				(at 0 5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "test point"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "test point tp"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "Pin* Test*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "TestPoint_0_1"
-				(circle
-					(center 0 3.302)
-					(radius 0.762)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "TestPoint_1_1"
-				(pin passive line
-					(at 0 0 90)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -977,6 +854,17 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "185f0b70-976e-50f9-8eb0-5dd3697a71ed")
+	)
 	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP2, GP3 and GP5 are spare; firmware enables weak pull-ups on them. TSC2046 PENIRQ drives GP7."
 		(exclude_from_sim no)
 		(at 20 21 0)
@@ -986,7 +874,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "0678833f-12bf-521a-990c-f5538de385e6")
+		(uuid "aa8ca5cf-ee13-52d7-aec1-10b7259a2712")
 	)
 	(text "MCP23S08 DECOUPLING CAPACITOR"
 		(exclude_from_sim no)
@@ -997,160 +885,23 @@
 			)
 			(justify left top)
 		)
-		(uuid "607d3697-308d-569f-820a-2a375d8b9d16")
-	)
-	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "fe0e02dc-490e-5527-8d69-2465a775b145")
-	)
-	(no_connect
-		(at 116.84 91.44)
-		(uuid "6aba786c-c0e1-5095-92d4-c69c1639a46d")
+		(uuid "ced69078-96cc-5328-8f24-4e117a04073b")
 	)
 	(no_connect
 		(at 116.84 83.82)
-		(uuid "8806225e-5931-50f3-885e-a9af3b2ad226")
+		(uuid "3943dc5d-8be6-5cc6-93a9-91580466e0cd")
 	)
 	(no_connect
 		(at 116.84 86.36)
-		(uuid "8ca7acba-9ec7-5924-9fbc-69ca0ad1e67e")
+		(uuid "a3b3ee35-6647-51d1-b3b9-6e2c431dd50c")
 	)
-	(wire
-		(pts
-			(xy 116.84 93.98) (xy 124.46 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0aa5f78d-1760-54fd-be25-b3339ed49146")
+	(no_connect
+		(at 116.84 99.06)
+		(uuid "a4552f80-d4ef-5769-9170-345169a51c15")
 	)
-	(wire
-		(pts
-			(xy 99.06 106.68) (xy 99.06 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29252e72-5497-5cb5-a211-e3831959a28e")
-	)
-	(wire
-		(pts
-			(xy 116.84 99.06) (xy 144.78 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d333235-cafa-55d8-a48c-dac08e7e027e")
-	)
-	(wire
-		(pts
-			(xy 116.84 76.2) (xy 124.46 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2fa53f5d-061c-50a2-9ce7-333c3bc70104")
-	)
-	(wire
-		(pts
-			(xy 50.8 83.82) (xy 86.36 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "37e8fbb9-dad2-5679-9aa2-4a6bbe69923e")
-	)
-	(wire
-		(pts
-			(xy 71.12 81.28) (xy 86.36 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b69ddd8-016a-55fc-b239-f6ed2ef1ccab")
-	)
-	(wire
-		(pts
-			(xy 116.84 96.52) (xy 124.46 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e8b3d95-f17b-5858-bf94-07f211e76d3d")
-	)
-	(wire
-		(pts
-			(xy 104.14 106.68) (xy 104.14 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60e7c1f9-75c3-59b2-b345-4c7695795ea3")
-	)
-	(wire
-		(pts
-			(xy 116.84 81.28) (xy 124.46 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6334aa7e-2546-5113-84f7-3742fb0accc0")
-	)
-	(wire
-		(pts
-			(xy 190.5 134.62) (xy 198.12 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "65b6a4d2-aa68-5b2b-a00f-274a75a04155")
-	)
-	(wire
-		(pts
-			(xy 101.6 63.5) (xy 101.6 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7738e177-12f2-5dfa-a88c-9271a498cec1")
-	)
-	(wire
-		(pts
-			(xy 71.12 76.2) (xy 86.36 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7de52123-d178-5a38-9876-70e7f4534f36")
-	)
-	(wire
-		(pts
-			(xy 82.55 86.36) (xy 82.55 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "821e4b13-fe90-5a3a-82af-0385e891457d")
+	(no_connect
+		(at 116.84 91.44)
+		(uuid "ceaee97c-bb87-544b-b680-c61c34d81b27")
 	)
 	(wire
 		(pts
@@ -1160,57 +911,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "89d5def6-0d9c-5ec2-9b90-456cf32a9c43")
+		(uuid "0678833f-12bf-521a-990c-f5538de385e6")
 	)
 	(wire
 		(pts
-			(xy 190.5 127) (xy 198.12 127)
+			(xy 190.5 134.62) (xy 198.12 134.62)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "91d7169a-2541-5c9c-a0ed-56e6dcba4df0")
-	)
-	(wire
-		(pts
-			(xy 82.55 88.9) (xy 86.36 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9348c4d-402a-59af-80e1-d5f8fff1e420")
-	)
-	(wire
-		(pts
-			(xy 144.78 99.06) (xy 144.78 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e275de7a-e621-5006-8e10-b3d24e56021d")
-	)
-	(wire
-		(pts
-			(xy 71.12 78.74) (xy 86.36 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e443fa75-1efe-5057-bd96-58ad566d31bb")
-	)
-	(wire
-		(pts
-			(xy 116.84 88.9) (xy 124.46 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eb1c13af-d544-55c5-a9af-99df82010e7f")
+		(uuid "14c02e84-b2a5-52ab-aa55-373539c42d81")
 	)
 	(wire
 		(pts
@@ -1220,45 +931,161 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f5eaf43f-556d-5fea-944f-25b7e11a8691")
+		(uuid "15f2eea8-4f7b-5377-80ce-3403d7abac3d")
 	)
-	(label "EXPANDER_INT"
-		(at 144.78 99.06 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
+	(wire
+		(pts
+			(xy 99.06 106.68) (xy 99.06 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2463a337-0bce-5634-8143-1a78a3655ee1")
+	)
+	(wire
+		(pts
+			(xy 190.5 127) (xy 198.12 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54b123cf-d431-5959-93f3-1de3e13a5869")
+	)
+	(wire
+		(pts
+			(xy 116.84 76.2) (xy 124.46 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54b5a655-6778-5652-b5ed-310d793391d8")
+	)
+	(wire
+		(pts
+			(xy 116.84 93.98) (xy 124.46 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5bf165dd-b981-56e6-b157-76e7e9dce079")
+	)
+	(wire
+		(pts
+			(xy 82.55 86.36) (xy 82.55 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5dd7aedf-5a29-5e8d-8344-04d94238c287")
+	)
+	(wire
+		(pts
+			(xy 82.55 88.9) (xy 86.36 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "607d3697-308d-569f-820a-2a375d8b9d16")
+	)
+	(wire
+		(pts
+			(xy 116.84 96.52) (xy 124.46 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8bcddf15-ec93-5fad-a2f3-13d36b614be1")
+	)
+	(wire
+		(pts
+			(xy 71.12 81.28) (xy 86.36 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a16da944-cd25-5a07-9540-770ef6450500")
+	)
+	(wire
+		(pts
+			(xy 71.12 78.74) (xy 86.36 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7486415-220a-51b6-b8ed-fe78ba96a819")
+	)
+	(wire
+		(pts
+			(xy 101.6 63.5) (xy 101.6 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cbb59bb0-578d-53af-8a3b-c4a1b1b8b37e")
+	)
+	(wire
+		(pts
+			(xy 104.14 106.68) (xy 104.14 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd633fe2-7c56-561b-aea0-c16bd590ce4c")
+	)
+	(wire
+		(pts
+			(xy 116.84 88.9) (xy 124.46 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e5533847-3416-550f-9f3a-b4548f682edf")
+	)
+	(wire
+		(pts
+			(xy 116.84 81.28) (xy 124.46 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
 		)
 		(uuid "f28b829f-a64b-5501-87f5-21a0682adf53")
 	)
-	(global_label "SPI_MISO"
-		(shape output)
-		(at 124.46 76.2 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
+	(wire
+		(pts
+			(xy 71.12 76.2) (xy 86.36 76.2)
 		)
-		(uuid "14c02e84-b2a5-52ab-aa55-373539c42d81")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
+		(uuid "f4d20e73-953f-5f1a-b875-37b4adbd1777")
 	)
-	(global_label "INA239_ALERT"
+	(wire
+		(pts
+			(xy 50.8 83.82) (xy 86.36 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe0e02dc-490e-5527-8d69-2465a775b145")
+	)
+	(global_label "PGP_15V"
 		(shape bidirectional)
-		(at 124.46 93.98 0)
+		(at 124.46 78.74 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1266,9 +1093,9 @@
 			)
 			(justify left)
 		)
-		(uuid "15f2eea8-4f7b-5377-80ce-3403d7abac3d")
+		(uuid "0445c717-4964-5949-8eb2-fd147fefe0a2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 93.98 0)
+			(at 124.46 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1277,30 +1104,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-	)
-	(global_label "SPI_SCK"
-		(shape input)
-		(at 71.12 78.74 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "48ab2606-8f3f-57f1-a2a0-5a4990c8ae1b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.12 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 			)
 		)
 	)
@@ -1314,7 +1117,7 @@
 			)
 			(justify right)
 		)
-		(uuid "54b123cf-d431-5959-93f3-1de3e13a5869")
+		(uuid "234caf98-bac5-5b75-abac-2e040caed2ff")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 71.12 81.28 0)
 			(hide yes)
@@ -1328,9 +1131,9 @@
 			)
 		)
 	)
-	(global_label "PGN_15V"
+	(global_label "INA239_ALERT"
 		(shape bidirectional)
-		(at 124.46 81.28 0)
+		(at 124.46 93.98 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1338,33 +1141,9 @@
 			)
 			(justify left)
 		)
-		(uuid "54b5a655-6778-5652-b5ed-310d793391d8")
+		(uuid "594086ef-bb4a-5358-87da-3ed1a4ed4eb2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "TOUCH_IRQ"
-		(shape bidirectional)
-		(at 124.46 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a16da944-cd25-5a07-9540-770ef6450500")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 96.52 0)
+			(at 124.46 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1386,9 +1165,81 @@
 			)
 			(justify left)
 		)
-		(uuid "c7486415-220a-51b6-b8ed-fe78ba96a819")
+		(uuid "5b023c2f-3aa2-59ce-a386-4a9c2540786f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 124.46 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "SPI_MISO"
+		(shape output)
+		(at 124.46 76.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "77a247c3-c1b1-5e5b-a308-1709b487c1a1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "TOUCH_IRQ"
+		(shape bidirectional)
+		(at 124.46 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c65aa80c-875a-5022-96f8-d5a555191925")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PGN_15V"
+		(shape bidirectional)
+		(at 124.46 81.28 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cead10de-b91c-5434-827b-55ad3eb8316d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1410,7 +1261,7 @@
 			)
 			(justify right)
 		)
-		(uuid "d4cc39db-1118-578e-92c2-1872c1d469ae")
+		(uuid "ead4372c-7b02-56f8-8605-567c2bd5e609")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 71.12 76.2 0)
 			(hide yes)
@@ -1424,19 +1275,19 @@
 			)
 		)
 	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 124.46 78.74 0)
+	(global_label "SPI_SCK"
+		(shape input)
+		(at 71.12 78.74 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
-		(uuid "f4d20e73-953f-5f1a-b875-37b4adbd1777")
+		(uuid "f5c6cd8c-7ea2-55f4-8ca9-6bd11ecdb612")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 78.74 0)
+			(at 71.12 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1444,7 +1295,240 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 50.8 83.82 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "2466b123-ea58-531e-8793-13292d5a54d0")
+		(property "Reference" "#PWR259"
+			(at 50.8 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 50.8 80.264 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 50.8 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 50.8 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 50.8 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1a7b2f30-d75c-5c22-8b31-c1d1ebda2295")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR259")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 82.55 88.9 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4534cc5a-24cd-5f31-b42e-c8e28060c0c0")
+		(property "Reference" "#PWR260"
+			(at 82.55 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 82.55 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 82.55 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 82.55 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 82.55 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9a41867d-c50e-573d-b5a0-d164107cd353")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR260")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 99.06 109.22 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "475ae0f1-4073-56d9-9094-243222b0b744")
+		(property "Reference" "#PWR255"
+			(at 99.06 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 99.06 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 99.06 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 99.06 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 99.06 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d79aa192-4f19-556f-8833-dd50123df677")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR255")
+					(unit 1)
+				)
 			)
 		)
 	)
@@ -1458,7 +1542,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1561a657-8b89-50b6-ace6-db797d55f5b1")
+		(uuid "57cb534b-81bb-5287-9833-f931bca70a62")
 		(property "Reference" "C35"
 			(at 202.352 129.76 0)
 			(show_name no)
@@ -1526,481 +1610,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "212f9eca-c08e-567f-b621-eec7d7dbbb83")
+			(uuid "a464b338-603c-5a6a-b043-3d6a02578eff")
 		)
 		(pin "2"
-			(uuid "0123d673-72e1-5f01-814c-bc4cde400b34")
+			(uuid "d8f8ee50-3ddb-5415-977a-0ae2cdc970cb")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
 					(reference "C35")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 104.14 109.22 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2466b123-ea58-531e-8793-13292d5a54d0")
-		(property "Reference" "#PWR258"
-			(at 104.14 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 104.14 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 104.14 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 104.14 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 104.14 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "aa8ca5cf-ee13-52d7-aec1-10b7259a2712")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR258")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 144.78 104.14 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4497648b-3dcc-58be-9b50-cdfe6cd4e21c")
-		(property "Reference" "TP3"
-			(at 147.742 105.122 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "EXPINT"
-			(at 147.742 107.222 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 144.78 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 144.78 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 144.78 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "da4d4920-2ed0-560d-81a2-0f0cf04d492e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 190.5 127 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4534cc5a-24cd-5f31-b42e-c8e28060c0c0")
-		(property "Reference" "#PWR259"
-			(at 190.5 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 190.5 123.444 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 190.5 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ced69078-96cc-5328-8f24-4e117a04073b")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR259")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 99.06 109.22 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "57cb534b-81bb-5287-9833-f931bca70a62")
-		(property "Reference" "#PWR257"
-			(at 99.06 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 99.06 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 99.06 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 99.06 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 99.06 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "185f0b70-976e-50f9-8eb0-5dd3697a71ed")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR257")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 50.8 83.82 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5b36d6d5-2855-57eb-a181-fa48703ac62a")
-		(property "Reference" "#PWR261"
-			(at 50.8 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 50.8 80.264 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 50.8 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 50.8 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 50.8 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5d4a5097-9bab-5a44-a01e-814eb1a43c62")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR261")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 82.55 88.9 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "709b3393-5587-5d83-87da-396b95f79779")
-		(property "Reference" "#PWR262"
-			(at 82.55 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 82.55 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 82.55 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 82.55 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 82.55 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "332071e5-4207-5c56-be57-cd6b1d904bd9")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR262")
 					(unit 1)
 				)
 			)
@@ -2016,8 +1634,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7931348a-3f2d-5147-b115-3aac16fa2169")
-		(property "Reference" "#PWR256"
+		(uuid "6490adf3-4612-5df5-a7bf-82ada77a49ef")
+		(property "Reference" "#PWR254"
 			(at 101.6 63.5 0)
 			(hide yes)
 			(show_name no)
@@ -2072,12 +1690,245 @@
 			)
 		)
 		(pin "1"
-			(uuid "c65aa80c-875a-5022-96f8-d5a555191925")
+			(uuid "205f0f2d-1bf9-502a-a3c7-e813696fe837")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR254")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 190.5 134.62 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7931348a-3f2d-5147-b115-3aac16fa2169")
+		(property "Reference" "#PWR258"
+			(at 190.5 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 190.5 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 190.5 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "f7a17f5d-e85e-55c7-9e95-86548d0b6314")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR258")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 104.14 109.22 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8cab3075-6d25-5c64-b8ea-64638c0fd3cb")
+		(property "Reference" "#PWR256"
+			(at 104.14 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 104.14 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 104.14 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 104.14 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 104.14 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "81e6d6c2-55d6-5765-bc79-c94c3d07783b")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
 					(reference "#PWR256")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 190.5 127 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "9ddf999c-56a6-54c7-885e-cb757140a8b9")
+		(property "Reference" "#PWR257"
+			(at 190.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 190.5 123.444 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 190.5 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d832a584-e841-5d7c-a1e1-5aaaf0daa174")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
+					(reference "#PWR257")
 					(unit 1)
 				)
 			)
@@ -2093,7 +1944,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9ddf999c-56a6-54c7-885e-cb757140a8b9")
+		(uuid "dc57978a-2354-5550-ae4c-68663f0ea9ae")
 		(property "Reference" "U25"
 			(at 85.09 66.02 0)
 			(show_name no)
@@ -2161,144 +2012,66 @@
 			)
 		)
 		(pin "5"
-			(uuid "e5533847-3416-550f-9f3a-b4548f682edf")
+			(uuid "f291be14-aa88-541f-bc62-d3b8d2419414")
 		)
 		(pin "19"
-			(uuid "5bf165dd-b981-56e6-b157-76e7e9dce079")
+			(uuid "212f9eca-c08e-567f-b621-eec7d7dbbb83")
 		)
 		(pin "20"
-			(uuid "8bcddf15-ec93-5fad-a2f3-13d36b614be1")
+			(uuid "0123d673-72e1-5f01-814c-bc4cde400b34")
 		)
 		(pin "4"
-			(uuid "cbb59bb0-578d-53af-8a3b-c4a1b1b8b37e")
+			(uuid "5d4a5097-9bab-5a44-a01e-814eb1a43c62")
 		)
 		(pin "3"
-			(uuid "2463a337-0bce-5634-8143-1a78a3655ee1")
+			(uuid "332071e5-4207-5c56-be57-cd6b1d904bd9")
 		)
 		(pin "2"
-			(uuid "dd633fe2-7c56-561b-aea0-c16bd590ce4c")
+			(uuid "da4d4920-2ed0-560d-81a2-0f0cf04d492e")
 		)
 		(pin "1"
-			(uuid "5dd7aedf-5a29-5e8d-8344-04d94238c287")
+			(uuid "59a67d84-7791-5938-98d1-88dad478f0f5")
 		)
 		(pin "9"
-			(uuid "3943dc5d-8be6-5cc6-93a9-91580466e0cd")
+			(uuid "c50b050b-2779-52c1-ac19-2bddd5088f34")
 		)
 		(pin "10"
-			(uuid "a3b3ee35-6647-51d1-b3b9-6e2c431dd50c")
+			(uuid "c20aa696-4e57-5dae-90ef-20517eb3fc4a")
 		)
 		(pin "11"
-			(uuid "ceaee97c-bb87-544b-b680-c61c34d81b27")
+			(uuid "f32458a2-9d02-5281-af0e-3d32d42e79e5")
 		)
 		(pin "12"
-			(uuid "a4552f80-d4ef-5769-9170-345169a51c15")
+			(uuid "40b9aea1-d018-5daf-b1bd-84b0d030a995")
 		)
 		(pin "13"
-			(uuid "ead4372c-7b02-56f8-8605-567c2bd5e609")
+			(uuid "5641fff3-aa87-5e93-9062-9f55a9e0e51d")
 		)
 		(pin "14"
-			(uuid "f5c6cd8c-7ea2-55f4-8ca9-6bd11ecdb612")
+			(uuid "54a995ca-e449-5cb4-a7aa-72c938a81493")
 		)
 		(pin "15"
-			(uuid "234caf98-bac5-5b75-abac-2e040caed2ff")
+			(uuid "685c9669-3a45-590f-8584-c2fe5ff6088a")
 		)
 		(pin "16"
-			(uuid "77a247c3-c1b1-5e5b-a308-1709b487c1a1")
+			(uuid "82e7df97-282e-549c-afcf-05787f44ed71")
 		)
 		(pin "7"
-			(uuid "0445c717-4964-5949-8eb2-fd147fefe0a2")
+			(uuid "afcc16e4-6ad8-55a3-804a-2ac1879c1903")
 		)
 		(pin "18"
-			(uuid "cead10de-b91c-5434-827b-55ad3eb8316d")
+			(uuid "a68456f3-8da3-5962-97d7-65b7d2d712ac")
 		)
 		(pin "17"
-			(uuid "5b023c2f-3aa2-59ce-a386-4a9c2540786f")
+			(uuid "be5f9809-3677-59b2-944f-afc6de92c7b2")
 		)
 		(pin "21"
-			(uuid "594086ef-bb4a-5358-87da-3ed1a4ed4eb2")
+			(uuid "6d7913f3-4a4d-5641-8dca-29bbaa0c2db8")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
 					(reference "U25")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 190.5 134.62 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c7582c16-73b5-5ae3-92f6-94d1e13406b0")
-		(property "Reference" "#PWR260"
-			(at 190.5 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 190.5 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 190.5 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f291be14-aa88-541f-bc62-d3b8d2419414")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/90809e00-9b2b-5b93-91de-7474e3800248"
-					(reference "#PWR260")
 					(unit 1)
 				)
 			)

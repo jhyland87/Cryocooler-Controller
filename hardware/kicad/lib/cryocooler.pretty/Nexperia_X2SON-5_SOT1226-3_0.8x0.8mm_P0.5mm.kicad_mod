@@ -1,0 +1,224 @@
+(footprint "Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm"
+	(version 20260206)
+	(generator "make_footprints")
+	(layer "F.Cu")
+	(descr "Nexperia X2SON5 SOT1226-3 0.8 x 0.8 mm, 0.5 mm pitch; land pattern from https://assets.nexperia.com/documents/package-information/SOT1226-3.pdf, with a copper bridge from the GND land (3) to pad 1")
+	(tags "X2SON5 SOT1226")
+	(property "Reference" "REF**"
+		(at 0 -1.2 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "74LV1T34GX"
+		(at 0 1.2 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -0.4 -0.4)
+		(end 0.4 -0.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 0.4 -0.4)
+		(end 0.4 0.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 0.4 0.4)
+		(end -0.4 0.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -0.4 0.4)
+		(end -0.4 -0.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -0.62 -0.2)
+		(end -0.62 0.45)
+		(stroke
+			(width 0.08)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 0.62 -0.45)
+		(end 0.62 0.45)
+		(stroke
+			(width 0.08)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_circle
+		(center -0.6 -0.55)
+		(end -0.53 -0.55)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -0.75 -0.7)
+		(end 0.75 -0.7)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 0.75 -0.7)
+		(end 0.75 0.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 0.75 0.6)
+		(end -0.75 0.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -0.75 0.6)
+		(end -0.75 -0.7)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(pad "1" smd custom
+		(at -0.32 -0.25)
+		(size 0.1 0.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy 0.0157 0.13) (xy -0.16 0.13) (xy -0.16 -0.13) (xy 0.16 -0.13) (xy 0.16 -0.0143))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+	(pad "5" smd custom
+		(at 0.32 -0.25)
+		(size 0.1 0.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy -0.0157 0.13) (xy 0.16 0.13) (xy 0.16 -0.13) (xy -0.16 -0.13) (xy -0.16 -0.0143))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+	(pad "2" smd custom
+		(at -0.32 0.25)
+		(size 0.1 0.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy 0.0157 -0.13) (xy -0.16 -0.13) (xy -0.16 0.13) (xy 0.16 0.13) (xy 0.16 0.0143))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+	(pad "4" smd custom
+		(at 0.32 0.25)
+		(size 0.1 0.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy -0.0157 -0.13) (xy 0.16 -0.13) (xy 0.16 0.13) (xy -0.16 0.13) (xy -0.16 0.0143))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+	(pad "3" smd custom
+		(at 0 0)
+		(size 0.1 0.1)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy 0 -0.198) (xy 0.198 0) (xy 0 0.198) (xy -0.198 0))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+	(pad "3" smd custom
+		(at -0.16 -0.125)
+		(size 0.1 0.1)
+		(layers "F.Cu")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts (xy 0.2062 0.0659) (xy -0.1138 -0.1841) (xy -0.2062 -0.0659) (xy 0.1138 0.1841))
+				(width 0)
+				(fill yes)
+			)
+		)
+	)
+)

@@ -16,7 +16,40 @@ import sys
 import pcbnew
 
 CELL = 0.05
-W_MM, H_MM = 120.0, 100.0
+
+
+def board_size():
+    """Right and bottom of the board edge (the outline starts at 0, 0)."""
+    path = next((arg for arg in sys.argv[1:] if arg.endswith('.kicad_pcb')), None)
+    if path is None:
+        return 120.0, 100.0
+    box = pcbnew.LoadBoard(path).GetBoardEdgesBoundingBox()
+    return box.GetRight() / 1e6, box.GetBottom() / 1e6
+
+
+def top_notch():
+    """(x0, y0, x1, y1) of a notch cut into the top edge: the outline corners
+    strictly inside the board box in its top half. A far-off box if none."""
+    path = next((arg for arg in sys.argv[1:] if arg.endswith('.kicad_pcb')), None)
+    if path is None:
+        return (60.0, 0.0, 80.0, 6.6)
+    board = pcbnew.LoadBoard(path)
+    outlines = pcbnew.SHAPE_POLY_SET()
+    board.GetBoardPolygonOutlines(outlines, False)
+    box = outlines.BBox()
+    inner = []
+    for index in range(outlines.OutlineCount()):
+        line = outlines.Outline(index)
+        for point_index in range(line.PointCount()):
+            point = line.CPoint(point_index)
+            if box.GetLeft() < point.x < box.GetRight() and box.GetTop() < point.y < (box.GetTop() + box.GetBottom()) / 2:
+                inner.append((point.x / 1e6, point.y / 1e6))
+    if not inner:
+        return (-10.0, -10.0, -9.0, -9.0)
+    return (min(x for x, _ in inner), 0.0, max(x for x, _ in inner), max(y for _, y in inner))
+
+
+W_MM, H_MM = board_size()
 NX, NY = int(W_MM / CELL) + 1, int(H_MM / CELL) + 1
 N = NX * NY
 FINE = os.environ.get('FINE') == '1'
@@ -30,7 +63,7 @@ SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
-NOTCH = (60.0, 0.0, 80.0, 6.6)
+NOTCH = top_notch()  # antenna notch in the top edge
 SKIP_NETS = set(os.environ.get('SKIP', 'GND').split(','))  # nets the pours connect
 ROUTE_LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
 if os.environ.get('IN1') == '1':

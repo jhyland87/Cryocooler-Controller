@@ -13,7 +13,8 @@ work has its own guide in
 | `hardware/kicad/tools/` | Python generators and checks for the schematic, PCB, 3D models and fab export (run with KiCad's Python). |
 | `hardware/kicad/lib/` | Project symbols, footprints and `cryocooler.3dshapes/` 3D models. |
 | `hardware/kicad/fabrication/` | Gerbers, JLCPCB zip and board renders, written by `tools/export_fab.py`. |
-| `hardware/HANDOFF_rev3.md` | Current board: status, PCB notes, bench list, open items. |
+| `hardware/HANDOFF_ucs125_rev3.md` | Current board (branch `ucs-125-87-rev3`): rev 3 on the 100 x 62 mm UCS 125-87 outline. |
+| `hardware/HANDOFF_rev3.md` | Rev 3 on the UCS 145-125 board: status, PCB notes, bench list, open items. |
 | `hardware/TODO.md` | Bench findings and open hardware items. |
 | `hardware/archive/` | Superseded handoffs (`HANDOFF_145.md`, `HANDOFF_rev2.md`). |
 
@@ -22,8 +23,9 @@ work has its own guide in
 The handoffs and `kicad/README.md` are 15-25 KB each, so read only what the task
 needs:
 
-- Start from `HANDOFF_rev3.md`: grep its `## ` headings and read the relevant
-  sections, not the whole file.
+- Start from `HANDOFF_ucs125_rev3.md` (this board), then `HANDOFF_rev3.md` for the
+  circuit's history: grep their `## ` headings and read the relevant sections,
+  not the whole file.
 - Open `archive/` only when the current handoff points there or the user asks
   about an older revision.
 - Read `kicad/README.md` by section, the same way.

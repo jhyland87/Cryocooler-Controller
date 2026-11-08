@@ -214,6 +214,48 @@ def rjsse5380():
     )
 
 
+MICRO_LOCK_NAME = 'Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal'
+
+
+def molex_505448_0891():
+    """Molex Micro-Lock Plus 505448-0891: 1.25 mm, 2x4, right angle, SMT, positive
+    lock (drawing 5054480003-SD rev C1, recommended layout, component side).
+    Origin at the pad pattern centre; +y points out of the mating face.
+    Pads 0.8 x 2.0, rows 7.4 apart: odd pins on the back row, even pins on the
+    mating-side row, pin 1 on the right seen from above (mating face down).
+    Nails 1.0 x 4.85, 8.15 apart, 0.7 in from the mating-side pad edge.
+    Body 9.6 wide, 8.43 deep from a face 0.25 past the even pads; tails reach
+    0.42 further back; 8.95 high.
+    """
+    pads = []
+    for column in range(4):
+        x = round(1.875 - column * 1.25, 3)
+        pads.append(smd_pad(str(2 * column + 1), x, -3.7, 0.8, 2.0))
+        pads.append(smd_pad(str(2 * column + 2), x, 3.7, 0.8, 2.0))
+    pads += [smd_pad('MP', side * 4.075, 1.575, 1.0, 4.85) for side in (-1, 1)]
+    face, back = 4.95, round(4.95 - 8.43, 3)
+    return (
+        f'(footprint "{MICRO_LOCK_NAME}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Molex Micro-Lock Plus 505448-0891, 1.25 mm pitch, dual row 2x4, '
+        'right angle, SMT, positive lock; land pattern from drawing 5054480003-SD '
+        '(https://www.molex.com/en-us/products/part-detail/5054480891)")\n'
+        + text('Reference', 'REF**', 0, -5.9, 'F.SilkS')
+        + text('Value', '505448-0891', 0, 6.1, 'F.Fab')
+        + '\t(attr smd)\n'
+        + box(-4.8, back, 4.8, face, 'F.Fab', 0.1)
+        + line(4.92, -3.3, 4.92, face - 0.4, 'F.SilkS', 0.12)
+        + line(-4.92, -3.3, -4.92, face - 0.4, 'F.SilkS', 0.12)
+        # pin-1 dot behind the back row, beside pad 1
+        + circle(2.75, -4.45, 0.15, 'F.SilkS', 0.1, fill=True)
+        + box(-5.05, -4.95, 5.05, face + 0.25, 'F.CrtYd', 0.05)
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 def box(x1, y1, x2, y2, layer, width):
     """Closed rectangle from corner (x1, y1) to (x2, y2)."""
     corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
@@ -690,6 +732,340 @@ def panasonic_evq_p2f():
     )
 
 
+def panasonic_evp_aa():
+    """Panasonic EVPAA without ground terminal, 3.5 x 2.9 mm, J-bent leads (catalog
+    ANCTB18E 201612, No. 1, PWB land pattern for reference): 1.15 x 0.4 mm pads,
+    4.5 mm overall with a 2.2 mm gap, rows 2.5 mm overall. Contacts 1-1' (top row)
+    and 2-2' (bottom row) are common, so each row is one pin.
+    """
+    pad_x, pad_y = 1.675, 1.05
+    pads = [
+        smd_pad('1', -pad_x, -pad_y, 1.15, 0.4),
+        smd_pad('1', pad_x, -pad_y, 1.15, 0.4),
+        smd_pad('2', -pad_x, pad_y, 1.15, 0.4),
+        smd_pad('2', pad_x, pad_y, 1.15, 0.4),
+    ]
+    outline = (
+        box(-1.75, -1.45, 1.75, 1.45, 'F.Fab', 0.1)
+        + circle(0, 0, 0.9, 'F.Fab', 0.1)
+        + line(-0.95, -1.55, 0.95, -1.55, 'F.SilkS', 0.12)
+        + line(-0.95, 1.55, 0.95, 1.55, 'F.SilkS', 0.12)
+        + box(-2.5, -1.75, 2.5, 1.75, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "SW_Panasonic_EVP-AA"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Panasonic EVPAA tactile switch, 3.5 x 2.9 mm, J-bent leads, no ground '
+        'terminal; land pattern from catalog ANCTB18E")\n'
+        '\t(tags "Switch Tactile")\n'
+        + text('Reference', 'REF**', 0, -2.4, 'F.SilkS')
+        + text('Value', 'EVP-AA802Q', 0, 2.4, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def custom_pad(number, x, y, points, layers='"F.Cu" "F.Paste" "F.Mask"'):
+    """SMD pad of any polygon shape; points are relative to (x, y), and the
+    0.1 mm anchor square must sit inside the polygon.
+    """
+    pts = ' '.join(f'(xy {round(px, 4)} {round(py, 4)})' for px, py in points)
+    return f"""\t(pad "{number}" smd custom
+\t\t(at {x} {y})
+\t\t(size 0.1 0.1)
+\t\t(layers {layers})
+\t\t(options
+\t\t\t(clearance outline)
+\t\t\t(anchor rect)
+\t\t)
+\t\t(primitives
+\t\t\t(gr_poly
+\t\t\t\t(pts {pts})
+\t\t\t\t(width 0)
+\t\t\t\t(fill yes)
+\t\t\t)
+\t\t)
+\t)
+"""
+
+
+def nexperia_sot1226_3():
+    """Nexperia X2SON5 (SOT1226-3), 0.8 x 0.8 x 0.32 mm (package information,
+    27 August 2020, reflow footprint sot1226-3_fr): 0.32 x 0.26 mm corner lands at
+    (+/-0.32, +/-0.25) and a 0.28 mm square GND land turned 45 degrees in the
+    centre. The corner lands' inner corners are cut on a 45 degree line 0.16 mm
+    from the GND land. Top view as datasheet Fig. 5: 1 top left, 2 bottom left,
+    4 bottom right, 5 top right, 3 centre; the terminals (and lands) run out
+    past the left and right body edges. sot1226-3_fr is drawn turned 90 degrees
+    from Fig. 5, so its lands are transposed here.
+
+    The GND land can't be escaped at 0.15 mm clearance with a 0.45 mm via, so a
+    0.15 mm copper bridge (a second pad 3, copper only) joins it to pad 1, which
+    is n.c. inside the part and tied to GND in the schematic.
+    """
+    half_diagonal = round(0.28 / 2 ** 0.5, 4)
+    chamfer = round(half_diagonal + 0.16 * 2 ** 0.5, 4)  # |x| + |y| of the cut
+    pads = []
+    for number, sign_x, sign_y in (('1', -1, -1), ('5', 1, -1), ('2', -1, 1), ('4', 1, 1)):
+        corner = [  # (|x|, |y|) of the land outline
+            (chamfer - 0.12, 0.12),
+            (0.48, 0.12),
+            (0.48, 0.38),
+            (0.16, 0.38),
+            (0.16, chamfer - 0.16),
+        ]
+        pads.append(custom_pad(
+            number, sign_x * 0.32, sign_y * 0.25,
+            [(sign_x * px - sign_x * 0.32, sign_y * py - sign_y * 0.25) for px, py in corner],
+        ))
+    pads.append(custom_pad(
+        '3', 0, 0,
+        [(0, -half_diagonal), (half_diagonal, 0), (0, half_diagonal), (-half_diagonal, 0)],
+    ))
+    # bridge from the GND land to pad 1, 0.15 mm wide, copper only
+    end_x, end_y = -0.32, -0.25
+    length = (end_x ** 2 + end_y ** 2) ** 0.5
+    normal_x, normal_y = -end_y / length * 0.075, end_x / length * 0.075
+    mid_x, mid_y = end_x / 2, end_y / 2
+    stripe = [
+        (normal_x, normal_y), (end_x + normal_x, end_y + normal_y),
+        (end_x - normal_x, end_y - normal_y), (-normal_x, -normal_y),
+    ]
+    pads.append(custom_pad(
+        '3', mid_x, mid_y, [(px - mid_x, py - mid_y) for px, py in stripe], '"F.Cu"',
+    ))
+    outline = (
+        box(-0.4, -0.4, 0.4, 0.4, 'F.Fab', 0.05)
+        + line(-0.62, -0.2, -0.62, 0.45, 'F.SilkS', 0.08)
+        + line(0.62, -0.45, 0.62, 0.45, 'F.SilkS', 0.08)
+        + circle(-0.6, -0.55, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-0.75, -0.7, 0.75, 0.6, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Nexperia X2SON5 SOT1226-3 0.8 x 0.8 mm, 0.5 mm pitch; land pattern from '
+        'https://assets.nexperia.com/documents/package-information/SOT1226-3.pdf, with a '
+        'copper bridge from the GND land (3) to pad 1")\n'
+        '\t(tags "X2SON5 SOT1226")\n'
+        + text('Reference', 'REF**', 0, -1.2, 'F.SilkS')
+        + text('Value', '74LV1T34GX', 0, 1.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def nexperia_sot886():
+    """Nexperia XSON6 (SOT886), 1.0 x 1.45 x 0.5 mm, 0.5 mm pitch (SOT886 package
+    information, 1 June 2022, reflow footprint sot886_fr): 0.40 x 0.30 mm lands on
+    0.60 mm column pitch. Top view: pins 1-3 down the left column, 4-6 up the right (6 beside 1). KiCad's
+    1 x 1.45 mm USON-6 STEP has the same body and pin 1 corner.
+    """
+    pads = []
+    for index in range(3):
+        row = round(-0.5 + index * 0.5, 2)
+        pads.append(smd_pad(str(index + 1), -0.3, row, 0.4, 0.3))
+        pads.append(smd_pad(str(6 - index), 0.3, row, 0.4, 0.3))
+    outline = (
+        box(-0.5, -0.725, 0.5, 0.725, 'F.Fab', 0.05)
+        + line(-0.25, -0.9, 0.6, -0.9, 'F.SilkS', 0.08)
+        + line(-0.6, 0.9, 0.6, 0.9, 'F.SilkS', 0.08)
+        + circle(-0.7, -0.8, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-0.85, -1.0, 0.75, 1.0, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Nexperia XSON6 SOT886 1.0 x 1.45 mm, 0.5 mm pitch; land pattern from '
+        'https://assets.nexperia.com/documents/package-information/SOT886.pdf")\n'
+        '\t(tags "XSON6 SOT886")\n'
+        + text('Reference', 'REF**', 0, -1.5, 'F.SilkS')
+        + text('Value', '74AHCT1G125GM', 0, 1.5, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + '''\t(model "${KICAD10_3DMODEL_DIR}/Package_SON.3dshapes/USON-6_1x1.45mm_P0.5mm.step"
+\t\t(offset
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t\t(scale
+\t\t\t(xyz 1 1 1)
+\t\t)
+\t\t(rotate
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t)
+'''
+        + ')\n'
+    )
+
+
+def littelfuse_dfn5():
+    """Littelfuse SP3422 DFN-5, 1.0 x 0.6 mm (SP3422 rev GD, recommended soldering
+    pad layout; same as Littelfuse's DFN_04UTG_LTF): 0.34 x 0.175 mm pads, 0.35 mm
+    pitch, rows 0.515 mm apart. Pins 1-3 top to bottom on the left (2 = GND), 5 and 4
+    on the right, offset half a pitch. Pin 1 dot on the silk.
+    """
+    pads = [
+        smd_pad('1', -0.2575, -0.35, 0.34, 0.175),
+        smd_pad('2', -0.2575, 0, 0.34, 0.175),
+        smd_pad('3', -0.2575, 0.35, 0.34, 0.175),
+        smd_pad('4', 0.2575, 0.175, 0.34, 0.175),
+        smd_pad('5', 0.2575, -0.175, 0.34, 0.175),
+    ]
+    outline = (
+        box(-0.3, -0.5, 0.3, 0.5, 'F.Fab', 0.05)
+        + line(-0.15, -0.65, 0.5, -0.65, 'F.SilkS', 0.08)
+        + line(-0.5, 0.65, 0.5, 0.65, 'F.SilkS', 0.08)
+        + circle(-0.6, -0.6, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-0.75, -0.75, 0.65, 0.75, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Littelfuse DFN-5 1.0 x 0.6 mm, 0.35 mm pitch (SP3422-04UTG); land pattern from '
+        'https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet")\n'
+        '\t(tags "ESD TVS DFN")\n'
+        + text('Reference', 'REF**', 0, -1.2, 'F.SilkS')
+        + text('Value', 'SP3422-04UTG', 0, 1.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def ti_dsg0008a():
+    """TI DSG0008A WSON-8, 2 x 2 x 0.8 mm, 0.5 mm pitch (OPA2991 datasheet, DSG
+    land pattern example): 0.5 x 0.25 mm pads on 1.9 mm row centres and a
+    0.9 x 1.6 mm thermal pad (9, to V- on the OPA2991). Pins 1-4 down the left,
+    5-8 up the right. KiCad's stock DSG0008A footprint has 0.6 mm pads.
+    """
+    pads = []
+    for index in range(4):
+        row = round(-0.75 + index * 0.5, 2)
+        pads.append(smd_pad(str(index + 1), -0.95, row, 0.5, 0.25))
+        pads.append(smd_pad(str(8 - index), 0.95, row, 0.5, 0.25))
+    pads.append(smd_pad('9', 0, 0, 0.9, 1.6))
+    outline = (
+        box(-1.0, -1.0, 1.0, 1.0, 'F.Fab', 0.05)
+        + line(-0.6, -1.15, 1.0, -1.15, 'F.SilkS', 0.08)
+        + line(-1.0, 1.15, 1.0, 1.15, 'F.SilkS', 0.08)
+        + circle(-1.15, -1.15, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-1.45, -1.3, 1.45, 1.3, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "TI_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "TI DSG0008A WSON-8 2 x 2 mm, 0.5 mm pitch, 0.9 x 1.6 mm thermal pad; land pattern from '
+        'https://www.ti.com/lit/ds/symlink/opa2991.pdf")\n'
+        '\t(tags "WSON DSG opamp")\n'
+        + text('Reference', 'REF**', 0, -1.7, 'F.SilkS')
+        + text('Value', 'OPA2991IDSGR', 0, 1.7, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + '''\t(model "${KICAD10_3DMODEL_DIR}/Package_SON.3dshapes/WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm.step"
+\t\t(offset
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t\t(scale
+\t\t\t(xyz 1 1 1)
+\t\t)
+\t\t(rotate
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t)
+'''
+        + ')\n'
+    )
+
+
+def mcc_dfn1510_6():
+    """MCC DFN1510-6, 1.5 x 1.0 x 0.55 mm, 0.5 mm pitch (SRL05P7 rev 3-5,
+    suggested solder pad layout): 0.20 x 0.35 mm pads, rows 0.65 mm apart.
+    Top view as the datasheet: 1-3 left to right along the bottom, 4-6 right to
+    left along the top (pin 1 bottom left). Pin 1 dot on the silk.
+    """
+    pads = []
+    for number, x, y in (
+        ('1', -0.5, 0.325), ('2', 0, 0.325), ('3', 0.5, 0.325),
+        ('4', 0.5, -0.325), ('5', 0, -0.325), ('6', -0.5, -0.325),
+    ):
+        pads.append(smd_pad(number, x, y, 0.2, 0.35))
+    outline = (
+        box(-0.75, -0.5, 0.75, 0.5, 'F.Fab', 0.05)
+        + line(-0.95, -0.25, -0.95, 0.25, 'F.SilkS', 0.08)
+        + line(0.95, -0.25, 0.95, 0.25, 'F.SilkS', 0.08)
+        + circle(-0.95, 0.6, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-1.1, -0.75, 1.0, 0.75, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "MCC_DFN1510-6_1.5x1.0mm_P0.5mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "MCC DFN1510-6 1.5 x 1.0 mm, 0.5 mm pitch (SRL05P7-TP); land pattern from '
+        'https://www.mccsemi.com/pdf/Products/SRL05P7(DFN1510-6).pdf")\n'
+        '\t(tags "ESD TVS USB DFN")\n'
+        + text('Reference', 'REF**', 0, -1.2, 'F.SilkS')
+        + text('Value', 'SRL05P7', 0, 1.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def kingbright_apgb0607():
+    """Kingbright APGB0607 bi-colour LED, 0.65 x 0.65 x 0.25 mm (APGB0607G22R23C
+    rev V.3A, recommended soldering pattern): four 0.25 x 0.25 mm pads with 0.15 mm
+    gaps. Top view: 1 green anode top left, 2 green cathode bottom left, 3 red
+    cathode bottom right, 4 red anode top right. Pin 1 dot on the silk.
+    """
+    offset = 0.2
+    pads = [
+        smd_pad('1', -offset, -offset, 0.25, 0.25),
+        smd_pad('2', -offset, offset, 0.25, 0.25),
+        smd_pad('3', offset, offset, 0.25, 0.25),
+        smd_pad('4', offset, -offset, 0.25, 0.25),
+    ]
+    outline = (
+        box(-0.325, -0.325, 0.325, 0.325, 'F.Fab', 0.05)
+        + circle(-0.56, -0.56, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-0.7, -0.7, 0.6, 0.6, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "LED_Kingbright_APGB0607"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Kingbright APGB0607 green/red bi-colour LED, 0.65 x 0.65 mm, 4 pads; '
+        'land pattern from https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf")\n'
+        '\t(tags "LED bicolor")\n'
+        + text('Reference', 'REF**', 0, -1.1, 'F.SilkS')
+        + text('Value', 'APGB0607G22R23C', 0, 1.1, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 def phoenix_mc05_2_smd():
     """Phoenix MC 0,5/ 2-G-2,54 SMD R24 (1821698), drawing 00783144 rev 02. Origin
     on pin 1's pad; +y points out of the mating side. Pads 1.2 x 2.06 at 2.54, their
@@ -778,29 +1154,27 @@ def aos_dfn3x3a():
     )
 
 
-def onsemi_udfn8_517ad():
-    """onsemi UDFN8 1.8 x 1.2 mm, 0.4 mm pitch, case 517AD (98AON22154D) soldering
-    footprint: 0.25 x 0.45 mm pads (pin 1 is 0.35 mm wide, growing outward), rows
-    1.50 mm overall, 1.10 x 0.35 mm ground pad. Pin 1 is bottom left, top view.
+def onsemi_dfn12_506ad():
+    """onsemi DFN12 3.0 x 1.35 mm, 0.5 mm pitch, case 506AD (NUF6401/D rev 5)
+    soldering footprint: 0.479 x 0.265 mm pads, 0.199 mm from a 2.352 x 0.351 mm
+    ground pad. Top view: pins 1-6 left to right on the bottom row, 7-12 right to
+    left on the top row (12 above 1).
     """
-    pads = [smd_pad('1', -0.65, 0.525, 0.35, 0.45)]
-    pads += [
-        smd_pad(number, x, 0.525, 0.25, 0.45)
-        for number, x in (('2', -0.2), ('3', 0.2), ('4', 0.6))
-    ]
-    pads += [
-        smd_pad(number, x, -0.525, 0.25, 0.45)
-        for number, x in (('5', 0.6), ('6', 0.2), ('7', -0.2), ('8', -0.6))
-    ]
-    pads.append(smd_pad('9', 0, 0, 1.1, 0.35))
+    row = round(0.351 / 2 + 0.199 + 0.479 / 2, 4)
+    pads = []
+    for index in range(6):
+        x = round(-1.25 + index * 0.5, 2)
+        pads.append(smd_pad(str(index + 1), x, row, 0.265, 0.479))
+        pads.append(smd_pad(str(12 - index), x, -row, 0.265, 0.479))
+    pads.append(smd_pad('13', 0, 0, 2.352, 0.351))
     return footprint(
-        'OnSemi_UDFN-8-1EP_517AD',
-        'onsemi UDFN8 1.8x1.2 mm 0.4P, case 517AD, with ground pad; land pattern from '
-        'https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf',
-        (0.9, 0.6),
+        'OnSemi_DFN-12-1EP_506AD',
+        'onsemi DFN12 3.0x1.35 mm 0.5P, case 506AD, with ground pad; land pattern from '
+        'https://www.onsemi.com/pdf/datasheet/nuf6401-d.pdf',
+        (1.5, 0.675),
         pads,
-        circle(-1.4, 0.75, 0.12, 'F.SilkS', 0.12, fill=True),
-        courtyard=(1.6, 1.1),
+        circle(-2.0, 0.9, 0.12, 'F.SilkS', 0.12, fill=True),
+        courtyard=(2.2, 1.2),
     )
 
 
@@ -957,10 +1331,18 @@ FOOTPRINTS = {
     'L_Bourns_SRP6050CA': srp6050ca,
     'L_Bourns_SRP4020TA': srp4020ta,
     'SW_Panasonic_EVQ-P2F': panasonic_evq_p2f,
+    'SW_Panasonic_EVP-AA': panasonic_evp_aa,
+    'LED_Kingbright_APGB0607': kingbright_apgb0607,
     'AOS_DFN3x3A_8L_EP1': aos_dfn3x3a,
-    'OnSemi_UDFN-8-1EP_517AD': onsemi_udfn8_517ad,
+    'OnSemi_DFN-12-1EP_506AD': onsemi_dfn12_506ad,
+    'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': littelfuse_dfn5,
+    'MCC_DFN1510-6_1.5x1.0mm_P0.5mm': mcc_dfn1510_6,
+    'TI_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm': ti_dsg0008a,
+    'Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm': nexperia_sot886,
+    'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm': nexperia_sot1226_3,
     'TI_DFM0020A': ti_dfm0020a,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
+    MICRO_LOCK_NAME: molex_505448_0891,
     'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,
     'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': adafruit_4392,
 }

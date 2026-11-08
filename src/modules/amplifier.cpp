@@ -326,6 +326,7 @@ module::InitStatus initWaveform() {
     // AD9833 library's begin() calls SPI.begin() with no args, which reassigns
     // the SPI peripheral to default pins (GPIO 12/11/13).  Restore our pins.
     hardware::initSPI();
+    ad9833_.setClk(AMPLIFIER_DDS_MCLK_HZ);  // before any frequency is set
     ad9833_.setMode(MD_AD9833::MODE_SINE);
     waveformMode_ = MD_AD9833::MODE_SINE;
     setFrequency(static_cast<float>(AMPLIFIER_FREQ_HZ));

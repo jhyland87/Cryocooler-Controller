@@ -1,10 +1,10 @@
-(footprint "OnSemi_UDFN-8-1EP_517AD"
+(footprint "Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal"
 	(version 20260206)
 	(generator "make_footprints")
 	(layer "F.Cu")
-	(descr "onsemi UDFN8 1.8x1.2 mm 0.4P, case 517AD, with ground pad; land pattern from https://www.onsemi.com/pdf/datasheet/nuf4001mu-d.pdf")
+	(descr "Molex Micro-Lock Plus 505448-0891, 1.25 mm pitch, dual row 2x4, right angle, SMT, positive lock; land pattern from drawing 5054480003-SD (https://www.molex.com/en-us/products/part-detail/5054480891)")
 	(property "Reference" "REF**"
-		(at 0 -1.7999999999999998 0)
+		(at 0 -5.9 0)
 		(layer "F.SilkS")
 		(effects
 			(font
@@ -13,8 +13,8 @@
 			)
 		)
 	)
-	(property "Value" "OnSemi_UDFN-8-1EP_517AD"
-		(at 0 1.7999999999999998 0)
+	(property "Value" "505448-0891"
+		(at 0 6.1 0)
 		(layer "F.Fab")
 		(effects
 			(font
@@ -25,8 +25,8 @@
 	)
 	(attr smd)
 	(fp_line
-		(start -0.9 -0.6)
-		(end 0.9 -0.6)
+		(start -4.8 -3.48)
+		(end 4.8 -3.48)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -34,8 +34,8 @@
 		(layer "F.Fab")
 	)
 	(fp_line
-		(start 0.9 -0.6)
-		(end 0.9 0.6)
+		(start 4.8 -3.48)
+		(end 4.8 4.95)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -43,8 +43,8 @@
 		(layer "F.Fab")
 	)
 	(fp_line
-		(start 0.9 0.6)
-		(end -0.9 0.6)
+		(start 4.8 4.95)
+		(end -4.8 4.95)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -52,8 +52,8 @@
 		(layer "F.Fab")
 	)
 	(fp_line
-		(start -0.9 0.6)
-		(end -0.9 -0.6)
+		(start -4.8 4.95)
+		(end -4.8 -3.48)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -61,8 +61,8 @@
 		(layer "F.Fab")
 	)
 	(fp_line
-		(start -1.2 -0.8999999999999999)
-		(end 1.2 -0.8999999999999999)
+		(start 4.92 -3.3)
+		(end 4.92 4.55)
 		(stroke
 			(width 0.12)
 			(type solid)
@@ -70,121 +70,108 @@
 		(layer "F.SilkS")
 	)
 	(fp_line
-		(start 1.2 -0.8999999999999999)
-		(end 1.2 0.8999999999999999)
+		(start -4.92 -3.3)
+		(end -4.92 4.55)
 		(stroke
 			(width 0.12)
 			(type solid)
 		)
 		(layer "F.SilkS")
-	)
-	(fp_line
-		(start 1.2 0.8999999999999999)
-		(end -1.2 0.8999999999999999)
-		(stroke
-			(width 0.12)
-			(type solid)
-		)
-		(layer "F.SilkS")
-	)
-	(fp_line
-		(start -1.2 0.8999999999999999)
-		(end -1.2 -0.8999999999999999)
-		(stroke
-			(width 0.12)
-			(type solid)
-		)
-		(layer "F.SilkS")
-	)
-	(fp_line
-		(start -1.6 -1.1)
-		(end 1.6 -1.1)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "F.CrtYd")
-	)
-	(fp_line
-		(start 1.6 -1.1)
-		(end 1.6 1.1)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "F.CrtYd")
-	)
-	(fp_line
-		(start 1.6 1.1)
-		(end -1.6 1.1)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "F.CrtYd")
-	)
-	(fp_line
-		(start -1.6 1.1)
-		(end -1.6 -1.1)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "F.CrtYd")
 	)
 	(fp_circle
-		(center -1.4 0.75)
-		(end -1.2799999999999998 0.75)
+		(center 2.75 -4.45)
+		(end 2.9 -4.45)
 		(stroke
-			(width 0.12)
+			(width 0.1)
 			(type solid)
 		)
 		(fill yes)
 		(layer "F.SilkS")
 	)
+	(fp_line
+		(start -5.05 -4.95)
+		(end 5.05 -4.95)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 5.05 -4.95)
+		(end 5.05 5.2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 5.05 5.2)
+		(end -5.05 5.2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -5.05 5.2)
+		(end -5.05 -4.95)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
 	(pad "1" smd rect
-		(at -0.65 0.525)
-		(size 0.35 0.45)
+		(at 1.875 -3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "2" smd rect
-		(at -0.2 0.525)
-		(size 0.25 0.45)
+		(at 1.875 3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "3" smd rect
-		(at 0.2 0.525)
-		(size 0.25 0.45)
+		(at 0.625 -3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "4" smd rect
-		(at 0.6 0.525)
-		(size 0.25 0.45)
+		(at 0.625 3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "5" smd rect
-		(at 0.6 -0.525)
-		(size 0.25 0.45)
+		(at -0.625 -3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "6" smd rect
-		(at 0.2 -0.525)
-		(size 0.25 0.45)
+		(at -0.625 3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "7" smd rect
-		(at -0.2 -0.525)
-		(size 0.25 0.45)
+		(at -1.875 -3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 	(pad "8" smd rect
-		(at -0.6 -0.525)
-		(size 0.25 0.45)
+		(at -1.875 3.7)
+		(size 0.8 2.0)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
-	(pad "9" smd rect
-		(at 0 0)
-		(size 1.1 0.35)
+	(pad "MP" smd rect
+		(at -4.075 1.575)
+		(size 1.0 4.85)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "MP" smd rect
+		(at 4.075 1.575)
+		(size 1.0 4.85)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 	)
 )

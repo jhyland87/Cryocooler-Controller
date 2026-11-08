@@ -10,7 +10,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 |-----------|------|-----------|---------------|---------|
 | Microcontroller | ESP32-S3 DevKitC-1-N32R16V | — | — | Host MCU (32 MB flash, 16 MB PSRAM) |
 | Cold-stage sensor | ADS1220 + PT1000 RTD | SPI mode 1 (main bus) | CS: decoder Y6 | Cold-stage temperature (4-wire, ratiometric) |
-| Waveform generator | AD9833 DDS | SPI (main bus) | FSYNC (CS): decoder Y0 | 60 Hz sine wave for compressor |
+| Waveform generator | AD9837 DDS (AD9833 register set, 16 MHz clock) | SPI (main bus) | FSYNC (CS): decoder Y0 | 60 Hz sine wave for compressor |
 | DAC | AD5453 14-bit multiplying | SPI mode 1 (main bus), write only | SYNC: decoder Y1 | Amplifier amplitude control |
 | Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: decoder Y2, ALERT: expander GP6 | 12 V rail voltage, current and power |
 | IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: decoder Y7, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
@@ -26,7 +26,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **I2C:** none. Every peripheral is on SPI or a GPIO.
 
-**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display and touch controller. Their chip selects come from the SN74LVC138A decoder, driven from GPIO 3, 44, 45 and 8. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9837, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display and touch controller. Their chip selects come from the SN74LVC138A decoder, driven from GPIO 3, 44, 45 and 8. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
 
 **ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
 
@@ -61,7 +61,7 @@ flowchart TD
     subgraph Control ["Control Modules (re-init on every Initialize state)"]
         COOL[cooling<br/>PWM fan + pump<br/>software LUT]
         CH[cold_head<br/>ADS1220 PT1000 RTD]
-        AMP[amplifier<br/>AD9833 + AD5453 DAC + ACS37800]
+        AMP[amplifier<br/>AD9837 + AD5453 DAC + ACS37800]
         COMP[compressor<br/>relay GPIO]
         IND[indicator<br/>WS2812 RGB LED]
     end
@@ -160,7 +160,7 @@ Uses a non-blocking two-phase state machine: start single-shot conversion → wa
 
 ### amplifier
 
-Drives the AD9833 DDS (60 Hz sine wave), the AD5453 14-bit multiplying SPI DAC (amplifier amplitude), the amplifier relay (GPIO 6) and the ACS37800 current sensor. Provides two ramp modes:
+Drives the AD9837 DDS (60 Hz sine wave, through the MD_AD9833 library set to a 16 MHz clock), the AD5453 14-bit multiplying SPI DAC (amplifier amplitude), the amplifier relay (GPIO 6) and the ACS37800 current sensor. Provides two ramp modes:
 
 - `rampToVoltage(target)` — smooth ramp at ±`DAC_MAX_STEP_PER_INTERVAL` per tick
 - `rampTowardShutdown(target)` — fast ramp at ±`DAC_SHUTDOWN_STEP_PER_INTERVAL` per tick

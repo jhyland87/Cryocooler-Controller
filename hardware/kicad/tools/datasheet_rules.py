@@ -47,10 +47,11 @@ RULES = [
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '17', '10k', '+3V3'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '22', '10k', '+3V3'),
     # ECS-2520MV (ECS datasheet): 1 tri-state (high = enabled), 2 GND, 3 OUT, 4 VDD
-    ('net', 'ECS-2520MV-250-BN-TR', '4', '+3V3_SG'),
-    ('net', 'ECS-2520MV-250-BN-TR', '1', '+3V3_SG'),
-    ('net', 'ECS-2520MV-250-BN-TR', '2', 'GND'),
-    ('join', 'ECS-2520MV-250-BN-TR', '3', 'AD9833BRMZ', '5'),
+    ('net', 'ECS-2520MV-160-BN-TR', '4', '+3V3_SG'),
+    ('net', 'ECS-2520MV-160-BN-TR', '1', '+3V3_SG'),
+    ('net', 'ECS-2520MV-160-BN-TR', '2', 'GND'),
+    # AD9837 (ADI rev A): 16 MHz MCLK max (B grade), so the 16 MHz oscillator
+    ('join', 'ECS-2520MV-160-BN-TR', '3', 'AD9837BCPZ', '5'),
     # LT3097: both regulators from the ADP5071 rails, enables tied to their
     # inputs, VOUT = 100 uA x RSET (147k = 14.7 V, the +15 V side is limited
     # to 15 V), pad 23 = GND and pad 24 = INN, ILIM pins grounded
@@ -122,26 +123,34 @@ RULES = [
     # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
     # 100 R series resistor next to the connector; the decoder holds CS high
     # with the cable unplugged, and the ESD clamps sit on the jack side.
-    # J14 is a plain shielded RJ45 (RJSSE-5380), T568B pairs 1-2 SCK/GND,
-    # 3-6 MOSI/MISO, 4-5 +3V3/CS, 7-8 INT1/INT2; shield to GND
-    ('net', 'RJSSE-5380', '4', '+3V3'),
-    ('net', 'RJSSE-5380', '2', 'GND'),
-    ('net', 'RJSSE-5380', 'SH', 'GND'),
-    # NUF4001MU (onsemi NUF4001MU/D rev 9): channels 1-8, 2-7, 3-6, 4-5, ground pad 9
-    ('channel', 'NUF4001MUT2G', ('NET', 'SPI_SCK'), ('RJSSE-5380', '1')),
-    ('channel', 'NUF4001MUT2G', ('NET', 'SPI_MOSI'), ('RJSSE-5380', '3')),
-    ('channel', 'NUF4001MUT2G', ('NET', 'SPI_MISO'), ('RJSSE-5380', '6')),
-    ('channel', 'NUF4001MUT2G', ('NET', 'IMU_CS'), ('RJSSE-5380', '5')),
-    ('channel', 'NUF4001MUT2G', ('NET', 'IMU_INT1'), ('RJSSE-5380', '7')),
-    ('channel', 'NUF4001MUT2G', ('NET', 'IMU_INT2'), ('RJSSE-5380', '8')),
-    ('net', 'NUF4001MUT2G', '9', ('GND',)),
-    # TPD4E05U06 (TI SLVSBO5): IO 1, 2, 4, 5; GND 3, 8; 6, 7, 9, 10 are NC. Channels:
-    # GPIO side of the 4.7k tach resistors, connector side of J10
-    ('net', 'TPD4E05U06DQAR', '3', ('GND',)),
-    ('net', 'TPD4E05U06DQAR', '8', ('GND',)),
-    ('net', 'TPD4E05U06DQAR', '1', ('FAN_TACH', 'RTD_1')),
-    ('net', 'TPD4E05U06DQAR', '2', ('PUMP_TACH', 'RTD_2')),
-    ('net', 'TPD4E05U06DQAR', '6', ('unconnected-(U33-NC-Pad6)', 'unconnected-(U35-NC-Pad6)')),
+    # J14 is a Molex Micro-Lock Plus 2x4 (505448-0891, drawing 5054480003-SD),
+    # same pin numbers as the RJ45 it replaced; its two nails are unconnected
+    ('net', '505448-0891', '4', '+3V3'),
+    ('net', '505448-0891', '2', 'GND'),
+    # NUF6401MN (onsemi NUF6401/D rev 5): channels 1-12, 2-11, 3-10, 4-9, 5-8, 6-7,
+    # ground pad 13
+    ('channel', 'NUF6401MNT1G', ('NET', 'SPI_SCK'), ('505448-0891', '1')),
+    ('channel', 'NUF6401MNT1G', ('NET', 'SPI_MOSI'), ('505448-0891', '3')),
+    ('channel', 'NUF6401MNT1G', ('NET', 'SPI_MISO'), ('505448-0891', '6')),
+    ('channel', 'NUF6401MNT1G', ('NET', 'IMU_CS'), ('505448-0891', '5')),
+    ('channel', 'NUF6401MNT1G', ('NET', 'IMU_INT1'), ('505448-0891', '7')),
+    ('channel', 'NUF6401MNT1G', ('NET', 'IMU_INT2'), ('505448-0891', '8')),
+    ('net', 'NUF6401MNT1G', '13', ('GND',)),
+    # SRL05P7 (MCC rev 3-5): GND 2, VBUS 5; 1-6 and 3-4 are joined inside, so each
+    # data line passes through it (connector on 1/3, ESP32 on 6/4)
+    ('net', 'SRL05P7', '2', 'GND'),
+    ('net', 'SRL05P7', '5', 'USB_VBUS'),
+    ('join', 'SRL05P7', '1', 'USB_C', 'A6'),
+    ('join', 'SRL05P7', '3', 'USB_C', 'A7'),
+    ('join', 'SRL05P7', '6', 'ESP32-S3-WROOM-2-N32R16V', '14'),
+    ('join', 'SRL05P7', '4', 'ESP32-S3-WROOM-2-N32R16V', '13'),
+    # SP3422-04UTG (Littelfuse rev GD): IO 1, 3, 4, 5; GND 2. Channels: GPIO side of
+    # the 4.7k tach resistors (U33), connector side of J10 (U35)
+    ('net', 'SP3422-04UTG', '2', ('GND',)),
+    ('net', 'SP3422-04UTG', '1', ('FAN_TACH', 'RTD_1')),
+    ('net', 'SP3422-04UTG', '3', ('PUMP_TACH', 'RTD_2')),
+    ('net', 'SP3422-04UTG', '4', ('FLOW_TACH', 'RTD_3')),
+    ('net', 'SP3422-04UTG', '5', ('NTC_ADC', 'RTD_4')),
     ('net', 'RTD PT1000 4-wire', '1', 'RTD_1'),
     ('net', 'RTD PT1000 4-wire', '2', 'RTD_2'),
     ('net', 'RTD PT1000 4-wire', '3', 'RTD_3'),
@@ -192,29 +201,30 @@ RULES = [
     ('join', 'ISOW7741DFMR', '17', 'ACS37800KMACTR-015B5-SPI', '9'),
     ('join', 'ISOW7741DFMR', '16', 'ACS37800KMACTR-015B5-SPI', '12'),
     # AD5453 (ADI, CP-8-3): 1 IOUT1, 2 GND, 3 SCLK, 4 SDIN, 5 SYNC, 6 VDD, 7 VREF,
-    # 8 RFB, 9 exposed pad. OPA188 is its output stage; VREF is clamped because the
-    # datasheet limits it to +/-12 V while the OPA1655 swings further
+    # 8 RFB, 9 exposed pad. U5B (OPA2991) is its output stage; VREF is clamped because
+    # the datasheet limits it to +/-12 V while U5A swings further
     ('net', 'AD5453WBCPZ-RL', '6', '+3V3_SG'),
     ('net', 'AD5453WBCPZ-RL', '2', 'GND'),
     ('net', 'AD5453WBCPZ-RL', '9', 'GND'),
     ('net', 'AD5453WBCPZ-RL', '3', 'SPI_SCK'),
     ('net', 'AD5453WBCPZ-RL', '4', 'SPI_MOSI'),
     ('net', 'AD5453WBCPZ-RL', '5', 'AD5453_SYNC'),
-    ('join', 'AD5453WBCPZ-RL', '1', 'OPA188AIDBVR', '4'),
+    ('join', 'AD5453WBCPZ-RL', '1', 'OPA2991IDSGR', '6'),
     # RFB reaches the output through the 0 ohm gain trim land (Figure 44, R2)
-    ('between', '0', ('AD5453WBCPZ-RL', '8'), ('OPA188AIDBVR', '1')),
-    ('between', '2pF/C0G', ('AD5453WBCPZ-RL', '1'), ('OPA188AIDBVR', '1')),
-    ('net', 'OPA188AIDBVR', '3', 'GND'),
-    ('between', '220', ('OPA1655DBVR', '1'), ('AD5453WBCPZ-RL', '7')),
+    ('between', '0', ('AD5453WBCPZ-RL', '8'), ('OPA2991IDSGR', '7')),
+    ('between', '22pF/C0G', ('AD5453WBCPZ-RL', '1'), ('OPA2991IDSGR', '7')),
+    ('net', 'OPA2991IDSGR', '5', 'GND'),
+    ('between', '220', ('OPA2991IDSGR', '1'), ('AD5453WBCPZ-RL', '7')),
     # MMBZ9V1ALT1G (onsemi MMBZ5V6ALT1 family): 1 and 2 cathodes, 3 common anode.
     # Used between the cathodes, so the two zeners clamp both polarities
     ('join', 'MMBZ9V1ALT1G', '1', 'AD5453WBCPZ-RL', '7'),
     ('net', 'MMBZ9V1ALT1G', '2', 'GND'),
     ('nc', 'MMBZ9V1ALT1G', '3'),
-    ('net', 'OPA188AIDBVR', '5', '+15V'),
-    ('net', 'OPA188AIDBVR', '2', '-15V'),
-    ('net', 'OPA1655DBVR', '5', '+15V'),
-    ('net', 'OPA1655DBVR', '2', '-15V'),
+    # OPA2991 DSG (TI SBOS969): A 1 OUT, 2 -IN, 3 +IN; B 5 +IN, 6 -IN, 7 OUT; 4 V-,
+    # 8 V+, thermal pad 9 to V-
+    ('net', 'OPA2991IDSGR', '8', '+15V'),
+    ('net', 'OPA2991IDSGR', '4', '-15V'),
+    ('net', 'OPA2991IDSGR', '9', '-15V'),
     # INA239 (SPI, SLYS027A): VS 3.3 V, VBUS on the +12V side, 49.9 ohm /
     # 470 nF input filter on IN+/IN-, ALERT open-drain pulled up and read by the
     # expander, CS idles high
@@ -312,7 +322,10 @@ RULES = [
     ('nc', 'TPS2116DRLR', '8'),
     ('res', 'TPS2116DRLR', '4', '33k', '+5V'),
     ('res', 'TPS2116DRLR', '4', '10k', 'GND'),
-    ('net', 'AD9833BRMZ', '2', '+3V3_SG'),
+    ('net', 'AD9837BCPZ', '2', '+3V3_SG'),
+    ('net', 'AD9837BCPZ', '4', 'GND'),
+    ('net', 'AD9837BCPZ', '9', 'GND'),
+    ('net', 'AD9837BCPZ', '11', 'GND'),  # exposed pad to ground (Figure 4)
     # Power path. AONR21307 (AOS): 1-3 S, 4 G, 5-8 D. EN# reaches the gate through
     # 10k; 47 nF gate-drain slows the ramp; 470 nF gate-source holds Vgs under the
     # threshold on a hot plug; the 15 V zener caps Vgs for input transients
@@ -336,12 +349,38 @@ RULES = [
     ('resjoin', 'LTC2954CDDB-2', '5', '220k', 'LM4040DBZ-5', '1'),
     ('net', 'LM4040DBZ-5', '2', 'GND'),
     ('resjoin', 'LM4040DBZ-5', '1', '82k', 'LTC2954CDDB-2', '4'),
-    # standby LED: 13k from VIN, shorted by a BSS138 once +3V3 is up
-    ('between', '13k', ('NET', 'VIN'), ('STANDBY (red)', '2')),
-    ('net', 'STANDBY (red)', '1', 'GND'),
-    ('net', '74AHCT1G125', '5', '+5V'),
-    ('net', '74AHCT1G125', '1', 'GND'),
-    ('net', '74AHCT1G125', '3', 'GND'),
+    # status LED (Kingbright APGB0607G22R23C rev V.3A: 1 GA, 2 GK, 3 RK, 4 RA): red
+    # 13k from VIN, shorted by a BSS138 once +3V3 is up; green 2.2k from +5V
+    ('between', '13k', ('NET', 'VIN'), ('STATUS G=on R=standby', '4')),
+    ('net', 'STATUS G=on R=standby', '3', 'GND'),
+    ('net', 'STATUS G=on R=standby', '2', 'GND'),
+    ('res', 'STATUS G=on R=standby', '1', '2.2k', '+5V'),
+    # switch state LEDs: dies anti-parallel between the bus and 2.2k to +5V, so
+    # each die's reverse voltage is the other's VF (< 5 V VR)
+    ('net', 'AMP_REM G=on R=off', '1', 'AMP_REM'),
+    ('net', 'AMP_REM G=on R=off', '3', 'AMP_REM'),
+    ('res', 'AMP_REM G=on R=off', '2', '2.2k', '+5V'),
+    ('res', 'AMP_REM G=on R=off', '4', '2.2k', '+5V'),
+    ('net', 'COMP_RELAY G=on R=off', '1', 'COMP_RELAY'),
+    ('net', 'COMP_RELAY G=on R=off', '3', 'COMP_RELAY'),
+    ('res', 'COMP_RELAY G=on R=off', '2', '2.2k', '+5V'),
+    ('res', 'COMP_RELAY G=on R=off', '4', '2.2k', '+5V'),
+    # power good LEDs: green 2.2k from +5V (VF up to 3.3 V), red 1.5k from +3V3
+    ('res', 'PG +15V G=good R=bad', '1', '2.2k', '+5V'),
+    ('res', 'PG +15V G=good R=bad', '4', '1.5k', '+3V3'),
+    ('res', 'PG -15V G=good R=bad', '1', '2.2k', '+5V'),
+    ('res', 'PG -15V G=good R=bad', '4', '1.5k', '+3V3'),
+    # single-die indicators
+    ('net', 'ALERT (red)', '3', 'INA239_ALERT'),
+    ('res', 'ALERT (red)', '4', '1.5k', '+3V3'),
+    ('res', 'ISO 5V (green)', '1', '3.3k', 'ISO_5V'),
+    ('net', 'ISO 5V (green)', '2', 'ISO_GND'),
+    # 74AHCT1G125GM (Nexperia rev 15.1, SOT886): 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC
+    ('net', '74AHCT1G125GM', '6', '+5V'),
+    ('net', '74AHCT1G125GM', '1', 'GND'),
+    ('net', '74AHCT1G125GM', '3', 'GND'),
+    ('net', '74AHCT1G125GM', '2', 'STATUS_RGB'),
+    ('nc', '74AHCT1G125GM', '5'),
     # ESP32-S3-WROOM-2: pins 28-30 are NC on this module, IO47/48 are 1.8 V
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '28'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '29'),
@@ -377,9 +416,13 @@ RULES = [
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '39', 'PWR_INT'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '5'),
     ('nc', 'ESP32-S3-WROOM-2-N32R16V', '7'),
-    # SN74LV1T34 (TI, DBV): 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.36 V at VCC 3.3 V
-    ('net', 'SN74LV1T34', '5', '+3V3'),
-    ('net', 'SN74LV1T34', '3', 'GND'),
+    # 74LV1T34GX (Nexperia rev 4, X2SON5): 1 n.c. (grounded for the footprint
+    # bridge), 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.37 V at VCC 3.0-3.3 V
+    ('net', '74LV1T34GX', '5', '+3V3'),
+    ('net', '74LV1T34GX', '3', 'GND'),
+    ('net', '74LV1T34GX', '1', 'GND'),
+    ('net', '74LV1T34GX', '2', 'DISP_DC_1V8'),
+    ('net', '74LV1T34GX', '4', 'DISP_DC'),
     # ACS_CS is on GPIO17 (module pin 10), not GPIO43 / U0TXD (pin 37), which
     # toggles with ROM boot messages; it carries the power-good flag (active
     # low) behind a 1k series resistor
@@ -391,9 +434,9 @@ RULES = [
     # WS2812B-2020 status LED (WorldSemi V1.3 p.2): 1 DO, 2 GND, 3 DI, 4 VDD; DO unused
     ('net', 'WS2812B-2020', '2', 'GND'),
     ('net', 'WS2812B-2020', '4', '+5V'),
-    ('between', '330', ('74AHCT1G125', '4'), ('WS2812B-2020', '3')),
-    # EVQ-P2F02K reset and boot buttons (Panasonic sw_lt_eng_4735s p.4): contact from the
-    # strap net to GND. Footprint pads 1-3 and 2-4 are common; the GND land is on pin 2.
+    ('between', '330', ('74AHCT1G125GM', '4'), ('WS2812B-2020', '3')),
+    # EVP-AA802Q reset and boot buttons (Panasonic ANCTB18E No. 1): contact from the
+    # strap net to GND. Pads 1-1' (top row) and 2-2' (bottom row) are common.
     ('net', 'RESET', '1', 'ESP_EN'),
     ('net', 'RESET', '2', 'GND'),
     ('net', 'BOOT', '1', 'ESP_BOOT'),
@@ -506,7 +549,7 @@ def run(path):
             check(found, f'{value} between {rule[2]} and {rule[3]}')
             continue
         elif kind == 'channel':
-            # a filter channel (pins 1-8, 2-7, 3-6 or 4-5) joins the two targets
+            # a filter channel (pin k with pin 13 - k) joins the two targets
 
             def channel_net(target):
                 if target[0] == 'NET':
@@ -518,7 +561,7 @@ def run(path):
             found = any(
                 {pin_net.get((part_ref, near)), pin_net.get((part_ref, far))} == want
                 for part_ref in refs
-                for near, far in (('1', '8'), ('2', '7'), ('3', '6'), ('4', '5'))
+                for near, far in ((str(pin), str(13 - pin)) for pin in range(1, 7))
             )
             check(found, f'{value} channel joins {rule[2]} and {rule[3]}')
             continue

@@ -230,6 +230,16 @@ CORNER_KEEPOUTS = [
     Rect(BOARD_WIDTH - CORNER, BOARD_HEIGHT - CORNER, BOARD_WIDTH, BOARD_HEIGHT),
 ]
 FREEROUTING_JAR = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+# a stuck modal dialog in the Freerouting window ends the run after this long
+FREEROUTING_TIMEOUT = 7200
+
+
+def freerouting_env():
+    """Freerouting shows its window unless FREEROUTING_HIDE=1. The window can
+    pop modal error dialogs; dismiss them or hide it for unattended runs."""
+    if os.environ.get('FREEROUTING_HIDE') == '1':
+        return {**os.environ, 'FREEROUTING__GUI__ENABLED': 'false'}
+    return dict(os.environ)
 MAX_PASSES = '20'
 JAVA = (
     '/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/java'
@@ -297,6 +307,9 @@ SILK_LABELS.update(
 # JLCPCB minimums: 1.0 mm text height, 0.15 mm silk line / stroke
 SILK_MIN_TEXT = 1.0
 SILK_MIN_LINE = 0.15
+# DRC floor: JLCPCB high-precision silkscreen (0.8 mm text, 0.1 mm stroke)
+SILK_DRC_MIN_TEXT = 0.8
+SILK_DRC_MIN_LINE = 0.1
 # letters narrower than this drop under JLCPCB's 0.15 mm letter gap
 SILK_WIDTH_RATIO = 0.9
 SILK_TEXT_SIZE = SILK_MIN_TEXT
@@ -1807,7 +1820,8 @@ class PcbBuilder:
             for zone in self.board.Zones()
         )
 
-    def obstacle_list(self):
+    def obstacle_list(self, skip_net=None):
+        """Pad, via and track boxes; tracks of `skip_net` are left out."""
         obstacles = []
         for footprint in self.board.GetFootprints():
             for pad in footprint.Pads():
@@ -1833,6 +1847,8 @@ class PcbBuilder:
                         None,
                     )
                 )
+                continue
+            if skip_net is not None and track.GetNetname() == skip_net:
                 continue
             half = track.GetWidth() / 2e6
             start, end = track.GetStart(), track.GetEnd()
@@ -1954,6 +1970,20 @@ class PcbBuilder:
         )
         return added
 
+    def other_side_pad_near(self, pad, net, center_x, center_y, reach):
+        """True when another net's pad on the other copper layer, or with a
+        hole, lies within `reach` of the point (a via-in-pad goes through)."""
+        for footprint in self.board.GetFootprints():
+            for other in footprint.Pads():
+                if other.GetNetname() == net or (other.IsOnLayer(pad.GetLayer()) and not other.HasHole()):
+                    continue
+                box = other.GetBoundingBox()
+                obstacle = (box.GetLeft() / 1e6, box.GetTop() / 1e6,
+                            box.GetRight() / 1e6, box.GetBottom() / 1e6, None)
+                if self.point_blocked(center_x, center_y, reach, obstacle):
+                    return True
+        return False
+
     def escape_uncovered_ground_pads(self, via_diameter, clearance):
         """Escape via for GND/ISO_GND SMD pads that no pour fragment reaches
         (boxed in by tracks), which the fragment scan above never sees.
@@ -2002,21 +2032,12 @@ class PcbBuilder:
             own.GetLeft() / 1e6, own.GetTop() / 1e6,
             own.GetRight() / 1e6, own.GetBottom() / 1e6,
         )
-        # drop only the pad itself and tracks that touch it (with parts on
-        # both sides another side's pad can cover the same point); a
-        # diagonal track's bounding box can cover the pad without touching it
+        # drop the pad itself and its own net's tracks; other nets' tracks
+        # under the pad (on any layer) still block a via
         obstacles = [
             o
-            for o in self.obstacle_list()
-            if not (
-                (o[4] is None and all(abs(a - b) < 1e-6 for a, b in zip(o[:4], own_box)))
-                or (
-                    o[4] is not None
-                    and o[0] <= center_x <= o[2]
-                    and o[1] <= center_y <= o[3]
-                    and self.point_blocked(center_x, center_y, 0.05, o)
-                )
-            )
+            for o in self.obstacle_list(skip_net=net)
+            if not (o[4] is None and all(abs(a - b) < 1e-6 for a, b in zip(o[:4], own_box)))
         ]
         for distance in (0.9, 1.1, 1.4, 1.8, 2.4, 3.0, 4.0):
             for direction_x, direction_y in (
@@ -2084,11 +2105,12 @@ class PcbBuilder:
         # no room for a stub: via-in-pad (order filled/capped vias for these,
         # see VIA_IN_PAD_REFS), but only where no other net's track runs
         # under the pad on any layer (the via goes through all of them)
+        reach = VIA_IN_PAD_DIAMETER / 2 + clearance
         if any(
             o[4] is not None
-            and self.point_blocked(center_x, center_y, VIA_IN_PAD_DIAMETER / 2 + clearance, o)
+            and self.point_blocked(center_x, center_y, reach, o)
             for o in obstacles
-        ):
+        ) or self.other_side_pad_near(pad, net, center_x, center_y, reach):
             print('no escape for', pad.GetParentFootprint().GetReference(), pad.GetNumber())
             return 0
         via = pcbnew.PCB_VIA(self.board)
@@ -2174,8 +2196,8 @@ class PcbBuilder:
                     '0',
                 ],
                 check=False,
-                # no Freerouting window (it pops modal error dialogs)
-                env={**os.environ, 'FREEROUTING__GUI__ENABLED': 'false'},
+                env=freerouting_env(),
+                timeout=FREEROUTING_TIMEOUT,
             )
             if not ses.exists() or ses.stat().st_size == 0:
                 raise RuntimeError('Freerouting produced no session file')
@@ -3590,8 +3612,8 @@ def patch_project_rules():
     rules['min_hole_clearance'] = 0.2
     rules['min_hole_to_hole'] = 0.2
     rules['min_silk_clearance'] = 0.15
-    rules['min_text_height'] = SILK_MIN_TEXT
-    rules['min_text_thickness'] = SILK_MIN_LINE
+    rules['min_text_height'] = SILK_DRC_MIN_TEXT
+    rules['min_text_thickness'] = SILK_DRC_MIN_LINE
     rules['solder_mask_min_width'] = 0.099
     rules['min_via_diameter'] = VIA_IN_PAD_DIAMETER
     rules['min_through_hole_diameter'] = 0.2
