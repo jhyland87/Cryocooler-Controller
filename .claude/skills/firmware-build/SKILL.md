@@ -10,7 +10,7 @@ PlatformIO project (`platformio.ini`), framework Arduino, platform
 
 ## Build pipeline (runs automatically before compile)
 
-Three pre-build scripts run **in order** (see `AGENTS.md`):
+Three pre-build scripts run **in order** (see `docs/agents/firmware.md`):
 1. `scripts/compile_proto.py` — Nanopb C stubs from `proto/telemetry.proto`.
 2. `scripts/build_dashboard.py` — `npm ci` + Vite build of `dashboard/` → `data/`.
 3. `scripts/embed_web.py` — embeds `data/` into `include/web_content.h`.

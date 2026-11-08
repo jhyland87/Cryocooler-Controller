@@ -315,10 +315,12 @@ LOCAL_STEP_MODELS = {
         (0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0),
     ),
+    # CP_8_3_ADI.step has its leads along y and the pin 1 dot at -x; turned 90 degrees
+    # the leads match the footprint's left / right pads and the dot sits by pin 1
     'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm': (
         'CP_8_3_ADI.step',
         (0.0, 0.0, 0.0),
-        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 90.0),
     ),
     'LFCSP-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm': (
         'CP_20_1_ADI.step',

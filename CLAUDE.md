@@ -1,24 +1,23 @@
 # CLAUDE.md
 
-Project guidance for Claude Code. The full contributor guide and coding
-conventions live in the shared files below — read them first:
+Project guidance for Claude Code. The shared overview loads here; each area's
+guide loads on demand from `.claude/rules/` when you touch files in that area:
+
+- `.claude/rules/firmware.md` — firmware, dashboard, proto, scripts, tests
+  (loads `docs/agents/firmware.md`).
+- `.claude/rules/style-cpp.md` — `src/`, `include/`, `test/` (loads
+  `docs/style/cpp.md`).
+- `.claude/rules/style-typescript.md` — `dashboard/` (loads
+  `docs/style/typescript.md`).
+- `.claude/rules/hardware.md` — anything under `hardware/` (loads
+  `hardware/AGENTS.md`).
+
+If a task spans both areas, read both guides.
 
 @AGENTS.md
-@STYLEGUIDE.md
 
 ## Claude Code specifics
 
-- **Dev server:** the dashboard dev server is preconfigured in
-  `.claude/launch.json` as `dashboard-dev` (`npm run dev`, port 5173, cwd
-  `dashboard/`). Use the preview tools to run it rather than a raw shell.
-- **Skills** (`.claude/skills/`) cover the common workflows:
-  - `firmware-build` — build / flash / monitor / test the firmware.
-  - `add-module` — scaffold a new subsystem module (ModuleBase pattern).
-  - `add-telemetry-field` — add a telemetry field end-to-end.
-  - `generate-docs` — regenerate the Doxygen API docs.
-- **Fast firmware iteration:** prefer
-  `SKIP_DASHBOARD_BUILD=1 SKIP_PROTO_BUILD=1 pio run` when a change doesn't touch
-  the dashboard or `proto/telemetry.proto`.
-- **Do not edit generated files** — see the list in `AGENTS.md`.
-- **Secrets:** `include/config/arduino_secrets.h` holds plaintext WiFi
-  credentials and is gitignored; never commit or echo its contents.
+- **Huge files are read-blocked** in `.claude/settings.json` (the `.kicad_pcb`,
+  STEP/WRL models, `web_content.h`, `data/`, Gerbers, Doxygen, `.pio/build`).
+  Query them with `grep` or scripts instead.

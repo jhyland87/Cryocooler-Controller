@@ -168,7 +168,7 @@ Requested so every ESP32 peripheral is on SPI. The first part named, SC18IS606, 
 
 1. **Terminal rating:** J11/J12 are now SMT TE 2305908-2 / -3 (check their rating against the drawing; first pass used Phoenix MKDS 1.5, about 8-12 A) while the ACS37800 path is a 30 A part; the
    pre-routed copper is a single 2 mm F.Cu trace per side (about 4-5 A at 1 oz). Confirm the real cryocooler current and widen / double-side the copper or use heavier terminals.
-2. **12 V copper:** VIN / +12 V / VSW reworked for 4 A total (see `hardware/HANDOFF_145.md`); check with a thermal camera at full load.
+2. **12 V copper:** VIN / +12 V / VSW reworked for 4 A total (see `hardware/archive/HANDOFF_145.md`); check with a thermal camera at full load.
 3. **Via-in-pad:** U11 pin 4 and U2 pin 2 (GND) use 0.45 / 0.2 mm via-in-pad; order filled/capped vias or move the neighbours.
 4. **Isolation:** the ISO_GND island has 1.5 mm keep-out bands, which is a pour/copper gap, not a certified creepage figure; the isolator packages set the real barrier.
 5. **USB:** D+/D- are 0.2 mm tracks; impedance (90 ohm) is not verified against the fab stackup.
@@ -204,7 +204,7 @@ Driven by the rev 1 bench results in `hardware/TODO.md`.
 * **Jumpers / LEDs / passives:** JP1-JP5 are Keystone 5110 "true zero ohm" 0603 jumpers on standard 0603 pads (catalog p.60). Single-colour LEDs are 0402 at about 1 mA (1.5k on 3.3 V, 3.3k on 5 V, 13k on 15 V; green for good, red for faults); the 5 V (yellow) and ±15 V (white) indicators are now green. Resistors default to 0402 (the CL25 LED resistors keep 0603, see the standby-LED open item), caps ≤ 100 nF are 0402 50 V, 1 µF 0603.
 * **Test points:** labelled with their net names on the silkscreen; new ones on DDS_SINE (raw AD9833 output). IMU INT1/2, ESP_EN and ESP_BOOT test points were dropped for space (the last two are reachable on the RESET / BOOT buttons). The SCK, MOSI, MISO, A_MISO, chip-select (TP18-TP28) and SCL (TP31) test points were removed on 2026-11-03; those numbers stay unused and SDA (TP30) stays.
 * **J11 / J12 / J8 (2026-11-04):** TE 2305908-2 and 2305908-3 (SMT, drawing C-2305908 rev A1) and Phoenix 1821698 (MC 0,5/2-G-2,54 SMD, drawing 00783144 rev 02). The SMT joints take the plugging force; J11 and J12 have no pegs. 3D: maker STEP files for all three.
-* **MCP23S08 board (2026-11-04):** U30 / U31 SN74LV1T34 (VIH 1.36 V at 3.3 V) lift the 1.8 V GPIO47/48 for the display. L1 SRP6050CA-4R7M, L2 SRP7050TA-4R7M, L3 MSD7342-103 kept; the SRP powder cores need a bench check at 1.5 MHz. See `hardware/HANDOFF_145.md`.
+* **MCP23S08 board (2026-11-04):** U30 / U31 SN74LV1T34 (VIH 1.36 V at 3.3 V) lift the 1.8 V GPIO47/48 for the display. L1 SRP6050CA-4R7M, L2 SRP7050TA-4R7M, L3 MSD7342-103 kept; the SRP powder cores need a bench check at 1.5 MHz. See `hardware/archive/HANDOFF_145.md`.
 
 ## Smaller analog packages (2026-11-05)
 

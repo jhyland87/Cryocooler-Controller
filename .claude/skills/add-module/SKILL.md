@@ -15,7 +15,7 @@ then follow these steps and mirror an existing module (e.g.
 ## Steps
 
 1. **Header** — `include/modules/<name>.h`:
-   - Doxygen `@file`/`@brief` block (see `STYLEGUIDE.md`).
+   - Doxygen `@file`/`@brief` block (see `docs/style/cpp.md`).
    - `namespace <name> { ... }` declaring `module::InitStatus init();` and
      `module::ServiceStatus service();` plus any getters.
    - The CRTP adapter:
