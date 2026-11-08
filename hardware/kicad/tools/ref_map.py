@@ -202,4 +202,5 @@ REF_MAP = {
     'R208': 'R22',
     'R209': 'R89',
     'R210': 'R90',
+    'R300': 'R96',  # DAC gain trim, added after the renumber
 }

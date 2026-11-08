@@ -119,6 +119,36 @@ The user replaced the TE 2305908-3 SMT header with this through-hole Universal M
 - Assembly: J12 needs hand or selective soldering and 2 screws, and it's no longer in the CPL. About 2.5 mm of tail sticks out below the board.
 - Regenerating the schematic also changes D13's stale Product link in `sheets/indicators.kicad_sch`. That file was restored to keep it out of this change, so it comes back on the next regeneration.
 
+## Trim lands: R92 (AMP ADJ) and R96 (MDAC ADJ)
+
+**Status (2026-11-07):** uncommitted on `ucs-145-125-rev3`. The board ID still reads `rev f85d84d`; stamp and re-export after the commit.
+
+Both parts sit on `R_1206_or_Bourns_3313J` (`tools/make_footprints.py`), on the front: a 1206 resistor on the two end pads, or a Bourns 3313J-1 trimmer, whose wiper pad is tied to pad 2 by a track (rheostat, clockwise raises it). Land pattern from the 3313J drawing, end pads 0.4 mm longer outward for the 1206 toe; the wiper pad has no paste.
+
+- **R92 (AMP ADJ)**, sine gain stage, at (36.0, 37.6) under U5: 3.6k as before (now 1206), or a 3313J-1-502E (5k) for gain 15.2-16.8.
+- **R96 (MDAC ADJ)**, new, AD5453 RFB to the OPA188 output, at (55.5, 36.2) under U9: 0 ohm 1206, or a 3313J-1-102E (1k) for +0-11 % DAC gain (datasheet Figure 44, R2).
+- **C86** moved to IOUT1-to-output, per Figure 44 (same circuit while R96 is 0 ohm). R40 now feeds from a via beside C86.
+
+**How it was applied:** `tools/trim_lands_board.py` edits the pre-change board once, then `gen_pcb.py link` and `tools/mask_labels.py`. Don't re-run it on the current board. DRC with parity is unchanged: 0 errors, 0 unconnected, 0 parity, the same 11 accepted warnings plus 204 text-size warnings. One GND stitching via at (36, 36) was removed.
+
+## SW3: TE 1571300-2 on the right edge
+
+**Status (2026-11-07):** uncommitted, same as the trim lands. The board ID still needs a stamp after the commit.
+
+SW3 (power button) is now a TE 1571300-2 right-angle SMT tact switch (SPST-NO, 50 mA, 24 VDC, IP67), replacing the TL6800AF at (27, 95.8). Its footprint is `SW_TE_1571300-2` in `tools/make_footprints.py`, checked against drawing C-1571300. It has contacts 1 and 2, four unnumbered bracket lands and two Ø0.85 NPTH guide-pin holes. The STEP is `lib/cryocooler.3dshapes/1571300-2.step`, from `dev/1571300-2`. It's seated by its guide pins.
+
+- **Placement:** body centre (117.25, 80), rotation 90. Pad 1 (PB) is at (116.75, 82) and pad 2 (GND) at (116.75, 78). The front face is on the edge at x 120, so the round actuator sticks out 2.7 mm. It is about Ø3.1, with its axis 4.3 mm above the board top at y 80. The body is 8.1 mm tall.
+- **Copper:** PB runs on In2 from J7 pin 1 to a via at (114.95, 82), then on F.Cu to pad 1. That's about 95 mm, through the +3V3 pour. Pad 2 has a GND via at (113.3, 78). The old PB track between the TL6800AF's two pad-1 lands stays, so U11 and J7 are still connected. Its GND stub was removed, along with the stitching vias at (116, 76 / 80 / 84).
+- **Labels:** `SW3` above the part, and the I/O label `POWER` below it.
+
+**How it was applied:** `tools/sw3_1571300_board.py` edits the pre-move board once. After it come `gen_pcb.py link`, `mask_labels.py`, `gen_bom.py` and `export_fab.py`. Don't re-run it on the current board. DRC with parity is unchanged: 0 errors, 0 unconnected, 0 parity, plus the same 215 accepted items.
+
+**To confirm:**
+- Enclosure: the right wall needs a hole for the actuator, about Ø3.5 at y 80, 4.3 mm above the board top. The wall must sit within the 2.7 mm the actuator reaches. Moving the body further out only gains 0.4 mm before the front bracket lands hit the 0.3 mm copper-edge clearance. Cover the old SW3 opening on the bottom wall.
+- The switch sits outside the power-button section box. An edge-mounted control has to.
+- CPL rotation 90 is KiCad's. Check the part's orientation in JLCPCB's placement preview.
+- The 3D model's contact feet sit about 1.2 mm ahead of the land-pattern centre, while its guide pins land on the holes. The land pattern follows the drawing.
+
 ## Q1: AONR21307
 
 Swapped from the AONR21305C, which you couldn't get. Same -30 V and pinout, VGS rating is +-25 V. Max Rds(on) at -10 V is 11 mOhm against 6.5, so about 0.38 W against 0.25 W at 5 A hot. Its datasheet has no outline drawing. It names the package DFN 3x3 EP, so the footprint stays the AOS DFN3x3A_8L_EP1 pattern: **compare it against the part or an AOS drawing before ordering.**
@@ -157,7 +187,7 @@ The simulation uses ideal op-amp and AD5453 stand-ins. The KiCad sim project in 
 ## Bench list
 
 1. ADP5071 loop stability with the LT3097 input capacitors. Rev 1 values, but the load capacitors differ.
-2. 10 Vpp calibration at full code and 0 V at code 0 after power-up. Trim R92 if needed: the AD5453 VREF input is 7-11 kΩ, so R39 gives a part-dependent gain error.
+2. 10 Vpp calibration at full code and 0 V at code 0 after power-up. Trim with R92 (AMP ADJ, 5k 3313J) or R96 (MDAC ADJ, 1k 3313J) if needed: the AD5453 VREF input is 7-11 kΩ, so R39 gives a part-dependent gain error. Measure the trimmer and fit the nearest 1206.
 3. Interlock with -15 V removed (Q42 guard).
 4. Button press ramps down and powers off. Holding it 6.4 s forces power off.
 5. Q1 inrush and SOA on a scope, with the slower gate network.

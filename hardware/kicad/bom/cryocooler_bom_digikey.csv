@@ -15,7 +15,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,CL10B473KB8NNNC,Samsung Electro-Mechanics,CAP CER 0.047UF 50V X7R 0603,C79 C80,47nF,C_0603_1608Metric,suggested,ADP5071 COMP1; Q1 gate-drain slow start
 2,CL31B105KBHNNNE,Samsung Electro-Mechanics,CAP CER 1UF 50V X7R 1206,C81 C82,1uF/50V,C_1206_3216Metric,suggested,LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)
 2,CL21B474KBFNNNE,Samsung Electro-Mechanics,CAP CER 0.47UF 50V X7R 0805,C83 C84,470nF,C_0805_2012Metric,suggested,INA239 input filter across IN+/IN-; Q1 gate-source
-1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C85,1nF/C0G,C_0402_1005Metric,suggested,across R35 + R92 (49.4k) in the sine gain stage
+1,CL05C102JB5NNNC,Samsung Electro-Mechanics,CAP CER 1000PF 50V C0G 0402,C85,1nF/C0G,C_0402_1005Metric,suggested,across R35 + R92 (50.6k) in the sine gain stage
 1,CL05C020CB5NNNC,Samsung Electro-Mechanics,CAP CER 2PF 50V C0G 0402,C86,2pF/C0G,C_0402_1005Metric,suggested,AD5453 output stage stability (datasheet C1)
 1,CL05C121JB5NNNC,Samsung Electro-Mechanics,CAP CER 120PF 50V C0G 0402,C87,120pF,C_0402_1005Metric,suggested,TPS62822 feed-forward across the 453k
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
@@ -82,12 +82,13 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 2,RC0402FR-0762KL,Yageo,RES 62K OHM 1% 1/16W 0402,R86 R87,62k,R_0402_1005Metric,suggested,
 3,RC0402FR-07470KL,Yageo,RES 470K OHM 1% 1/16W 0402,R88-R90,470k,R_0402_1005Metric,suggested,
 1,RC1206FR-0739RL,Yageo,RES 39 OHM 1% 1/4W 1206,R91,39,R_1206_3216Metric,suggested,
-1,RC0402FR-073K6L,Yageo,RES 3.6K OHM 1% 1/16W 0402,R92,3.6k,R_0402_1005Metric,suggested,
+1,RC1206FR-073K6L,Yageo,RES 3.6K OHM 1% 1/4W 1206,R92,3.6k,R_1206_or_Bourns_3313J,suggested,"trim land: fit a Bourns 3313J-1-502E (5k) instead to adjust (wiper tied to pin 3, clockwise raises it)"
 1,RC0402FR-0713KL,Yageo,RES 13K OHM 1% 1/16W 0402,R93,13k,R_0402_1005Metric,suggested,
 1,RC0402FR-07453KL,Yageo,RES 453K OHM 1% 1/16W 0402,R94,453k,R_0402_1005Metric,suggested,
 1,RC0402FR-0733KL,Yageo,RES 33K OHM 1% 1/16W 0402,R95,33k,R_0402_1005Metric,suggested,
+1,RC1206JR-070RL,Yageo,RES 0 OHM JUMPER 1/4W 1206,R96,0,R_1206_or_Bourns_3313J,suggested,"trim land: fit a Bourns 3313J-1-102E (1k) instead to adjust (wiper tied to pin 3, clockwise raises it)"
 2,EVQ-P2F02K,Panasonic,SWITCH TACTILE SPST-NO 20MA 15V SMD,SW1 SW2,TACTILE,SW_Panasonic_EVQ-P2F,design,"SW1 reset, SW2 boot; 5.0 N, black actuator, 2.5 mm high, 200,000 cycles"
-1,TL6800AF260QJ,E-Switch,SWITCH TACTILE SPST-NO 0.05A 12V SMD IP67,SW3,TACTILE,SW_E-Switch_TL6800AF,design,"SW3 power button; 260 gf, 500,000 cycles, IP67"
+1,1571300-2,TE Connectivity,SWITCH TACTILE SPST-NO 0.05A 24V R/A SMD IP67,SW3,TACTILE,SW_TE_1571300-2,design,"SW3 power button; right angle, actuator through the right board edge, IP67"
 4,5015,Keystone Electronics,PC TEST POINT MINIATURE SMT,TP14-TP17,,TestPoint_Keystone_5015_Micro_Mini,design,ground test points; needs a via to its ground plane
 1,ESP32-S3-WROOM-2-N32R16V,Espressif,MODULE ESP32-S3 32MB FLASH 16MB PSRAM,U1,ESP32-S3-WROOM-2-N32R16V,ESP32-S3-WROOM-2,design,
 1,USBLC6-2SC6,STMicroelectronics,TVS DIODE 5.25V 17V SOT23-6,U2,USBLC6-2SC6,SOT-23-6,design,

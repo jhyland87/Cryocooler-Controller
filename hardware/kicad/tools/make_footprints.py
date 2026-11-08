@@ -826,7 +826,124 @@ def ti_dfm0020a():
     )
 
 
+def r_1206_or_bourns_3313j():
+    """A 1206 resistor or a Bourns 3313J trimmer used as a rheostat. The trimmer's end
+    pads (1 left, 3 right, J leads up) double as the 1206 lands, so pad 2 is pin 3 and
+    the wiper pad below; route a track between them. Land pattern from the 3313J
+    drawing (pads 1.1 x 1.6 at +/-1.15, wiper 1.6 x 1.6, rows 2.9 apart), with the end
+    pads 0.4 mm longer outward and 0.15 mm taller for the 1206 toe. The wiper has no
+    paste, so the assembled 1206 leaves it bare. Clockwise raises the resistance.
+    """
+    pads = [
+        smd_pad('1', -1.35, 0, 1.5, 1.75),
+        smd_pad('2', 1.35, 0, 1.5, 1.75),
+        '''\t(pad "2" smd rect
+\t\t(at 0 2.9)
+\t\t(size 1.6 1.6)
+\t\t(layers "F.Cu" "F.Mask")
+\t)
+''',
+    ]
+    silk = (
+        line(-2.36, -1.135, 2.36, -1.135, 'F.SilkS', 0.12)
+        + line(2.36, -1.135, 2.36, 3.96, 'F.SilkS', 0.12)
+        + line(2.36, 3.96, -2.36, 3.96, 'F.SilkS', 0.12)
+        + line(-2.36, 3.96, -2.36, -1.135, 'F.SilkS', 0.12)
+    )
+    # 1206 body, and the trimmer body (3.2 x 3.5, centred between the pad rows)
+    fab = rect(1.6, 0.8, 'F.Fab', 0.1) + ''.join(
+        line(*start, *end, 'F.Fab', 0.1)
+        for start, end in (
+            ((-1.6, -0.3), (1.6, -0.3)),
+            ((1.6, -0.3), (1.6, 3.2)),
+            ((1.6, 3.2), (-1.6, 3.2)),
+            ((-1.6, 3.2), (-1.6, -0.3)),
+        )
+    )
+    courtyard = ''.join(
+        line(*start, *end, 'F.CrtYd', 0.05)
+        for start, end in (
+            ((-2.5, -1.3), (2.5, -1.3)),
+            ((2.5, -1.3), (2.5, 4.1)),
+            ((2.5, 4.1), (-2.5, 4.1)),
+            ((-2.5, 4.1), (-2.5, -1.3)),
+        )
+    )
+    name = 'R_1206_or_Bourns_3313J'
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "1206 resistor, or Bourns 3313J-1 3 mm trimmer as a rheostat (wiper tied '
+        'to pin 3); land pattern from https://www.bourns.com/docs/Product-Datasheets/3313.pdf")\n'
+        + text('Reference', 'REF**', 0, -2.3, 'F.SilkS')
+        + text('Value', name, 0, 5.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + fab
+        + silk
+        + courtyard
+        + ''.join(pads)
+        + '''\t(model "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step"
+\t\t(offset
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t\t(scale
+\t\t\t(xyz 1 1 1)
+\t\t)
+\t\t(rotate
+\t\t\t(xyz 0 0 0)
+\t\t)
+\t)
+'''
+        + ')\n'
+    )
+
+
+def te_1571300_2():
+    """TE 1571300-2 right-angle SMT tact switch (customer drawing C-1571300). Origin at the
+    body centre, +y towards the actuator: body 8.1 x 5.5, actuator 3.3 wide and 2.7 past the
+    front face. Contacts 1.5 x 3.5 at x +/-2.0, y -0.5; bracket lands 1.65 wide at x +/-4.775
+    (rear 1.8 long at y -2.85, front 2.0 long at y 1.05), unnumbered; Ø0.85 locating pegs at
+    x +/-4.4, y -1.25. Silk runs along the rear only, so the front can sit at the board edge.
+    """
+    name = 'SW_TE_1571300-2'
+    pads = [
+        smd_pad('1', -2.0, -0.5, 1.5, 3.5),
+        smd_pad('2', 2.0, -0.5, 1.5, 3.5),
+        *[smd_pad('', sign * 4.775, -2.85, 1.65, 1.8) for sign in (-1, 1)],
+        *[smd_pad('', sign * 4.775, 1.05, 1.65, 2.0) for sign in (-1, 1)],
+        npth(-4.4, -1.25, 0.85),
+        npth(4.4, -1.25, 0.85),
+    ]
+    outline = (
+        rect(4.05, 2.75, 'F.Fab', 0.1)
+        + line(-1.65, 2.75, -1.65, 5.45, 'F.Fab', 0.1)
+        + line(-1.65, 5.45, 1.65, 5.45, 'F.Fab', 0.1)
+        + line(1.65, 5.45, 1.65, 2.75, 'F.Fab', 0.1)
+        + line(-3.7, -3.05, 3.7, -3.05, 'F.SilkS', 0.12)
+        + circle(-2.0, -3.55, 0.15, 'F.SilkS', 0.12, fill=True)
+        + polygon([(-5.85, -4.0), (5.85, -4.0), (5.85, 5.7), (-5.85, 5.7)], 'F.CrtYd', 0.05)
+    )
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "TE Connectivity 1571300-2 right-angle SMT tact switch, SPST-NO '
+        '(drawing C-1571300)")\n'
+        + text('Reference', 'REF**', 0, -5.0, 'F.SilkS')
+        + text('Value', '1571300-2', 0, 0.5, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
+    'SW_TE_1571300-2': te_1571300_2,
+    'R_1206_or_Bourns_3313J': r_1206_or_bourns_3313j,
     'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': te_2305908_2,
     'TE_2305908-3_1x03_P5.00mm_Horizontal_SMD': te_2305908_3,
     'TE_643228-1_1x03_P6.35mm_Horizontal': te_643228_1,

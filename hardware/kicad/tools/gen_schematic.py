@@ -36,6 +36,8 @@ CP_ELEC = 'Capacitor_SMD:CP_Elec_8x10'
 CP_TANT = 'Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B'
 R0402 = 'Resistor_SMD:R_0402_1005Metric'
 R0805 = 'Resistor_SMD:R_0805_2012Metric'
+# 1206 resistor, or a Bourns 3313J trimmer as a rheostat (make_footprints.py)
+R_TRIM = 'cryocooler:R_1206_or_Bourns_3313J'
 LED0402 = 'LED_SMD:LED_0402_1005Metric'
 SOT323 = 'Package_TO_SOT_SMD:SOT-323_SC-70'
 SC70_6 = 'Package_TO_SOT_SMD:SOT-363_SC-70-6'
@@ -663,7 +665,7 @@ def build_power_button(sh):
         pb[1] * 1.27,
         mirror=True,
         auto=False,
-        footprint='cryocooler:SW_E-Switch_TL6800AF',
+        footprint='cryocooler:SW_TE_1571300-2',
     )
     wire(sh, (36, pb[1]), pin_cell(sw, '1'))
     wire(sh, pin_cell(sw, '2'), (24, pb[1]))
@@ -1654,13 +1656,13 @@ def build_signal_gen(sh):
     drop_ground(sh, (86, 68), 0)
     # OPA1655: non-inverting gain of 16.3 (1 + 50.6k/3.3k) sets about 10 Vpp at
     # full code through R50 and the 9k VREF input. The feedback is two series
-    # resistors so the amplitude can be trimmed by swapping one. 1 nF across both
-    # rolls off above ~3 kHz.
+    # resistors; the 3.6k sits on a 1206 / 3313J land, so a 5k trimmer can replace
+    # it (gain 15.2-16.8). 1 nF across both rolls off above ~3 kHz.
     opa_a = opamp_single(sh, next_ref('U'), 110, 60)
     wire(sh, pin_cell(opa_a, '4'), (100, 62), (100, 76))
     hres(sh, '47k', 105, 76)
     with kicadgen.pinned_refs('R', 169):
-        hres(sh, '3.6k', 111, 76)
+        hres(sh, '3.6k', 111, 76, fp=R_TRIM)
     with high_refs('C'):
         hcap(sh, '1nF/C0G', 108, 80)
     wire(sh, (102, 76), (102, 80), (105, 80))
@@ -1708,7 +1710,7 @@ def build_signal_gen(sh):
     rail_symbol(sh, '+3V3_SG', (supply[0], supply[1] - 6))
     gnd_bus(sh, [pin_cell(mdac, '2'), pin_cell(mdac, '9')])
     # output stage: IOUT1 into the inverting input, RFB back from the output, 2 pF
-    # across them for stability (datasheet C1), non-inverting input grounded
+    # from IOUT1 to the output for stability (datasheet C1), non-inverting input grounded
     opa188 = place_ic(
         sh,
         'Amplifier_Operational:OPA188xxDBV',
@@ -1730,8 +1732,16 @@ def build_signal_gen(sh):
     rail_symbol(sh, '-15V', (bottom[0] + 4, bottom[1] + 2))
     out = pin_cell(opa188, '1')
     feedback_x = out[0] + 4
-    wire(sh, rfb, (204, rfb[1]), (204, iout[1] + 6), (206, iout[1] + 6), (212, iout[1] + 6))
-    wire(sh, (212, iout[1] + 6), (212, 80), (feedback_x, 80), (feedback_x, out[1]))
+    # RFB to the output through a 0 ohm on a 1206 / 3313J land: a 1k trimmer there
+    # adds up to ~11 % DAC gain. C1 goes to the output side of it (Figure 44, R2/C1).
+    wire(sh, rfb, (204, rfb[1]), (204, 80))
+    trim_x = (204 + feedback_x) // 2
+    wire(sh, (204, 80), (trim_x - 3, 80))
+    with kicadgen.pinned_refs('R', 299):  # R300, mapped to R96 in ref_map.py
+        hres(sh, '0', trim_x, 80, fp=R_TRIM)
+    wire(sh, (trim_x + 3, 80), (feedback_x, 80), (feedback_x, 72))
+    wire(sh, (206, iout[1] + 6), (206, 72), (feedback_x, 72))
+    wire(sh, (feedback_x, 72), (feedback_x, out[1]))
     resistor_x = feedback_x + 8
     wire(sh, out, (feedback_x, out[1]), (resistor_x - 3, out[1]))
     hres(sh, '100', resistor_x, out[1])

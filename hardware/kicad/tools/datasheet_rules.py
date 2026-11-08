@@ -201,8 +201,9 @@ RULES = [
     ('net', 'AD5453WBCPZ-RL', '4', 'SPI_MOSI'),
     ('net', 'AD5453WBCPZ-RL', '5', 'AD5453_SYNC'),
     ('join', 'AD5453WBCPZ-RL', '1', 'OPA188AIDBVR', '4'),
-    ('join', 'AD5453WBCPZ-RL', '8', 'OPA188AIDBVR', '1'),
-    ('between', '2pF/C0G', ('AD5453WBCPZ-RL', '1'), ('AD5453WBCPZ-RL', '8')),
+    # RFB reaches the output through the 0 ohm gain trim land (Figure 44, R2)
+    ('between', '0', ('AD5453WBCPZ-RL', '8'), ('OPA188AIDBVR', '1')),
+    ('between', '2pF/C0G', ('AD5453WBCPZ-RL', '1'), ('OPA188AIDBVR', '1')),
     ('net', 'OPA188AIDBVR', '3', 'GND'),
     ('between', '220', ('OPA1655DBVR', '1'), ('AD5453WBCPZ-RL', '7')),
     # MMBZ9V1ALT1G (onsemi MMBZ5V6ALT1 family): 1 and 2 cathodes, 3 common anode.
@@ -384,7 +385,7 @@ RULES = [
     # low) behind a 1k series resistor
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '37', 'PG_15V_N'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '10', 'ACS_CS'),
-    # TL6800AF260QJ power button (E-Switch datasheet p.2): contact from LTC2954 PB to GND
+    # TE 1571300-2 power button (drawing C-1571300): contact from LTC2954 PB to GND
     ('join', 'POWER', '1', 'LTC2954CDDB-2', '3'),
     ('net', 'POWER', '2', 'GND'),
     # WS2812B-2020 status LED (WorldSemi V1.3 p.2): 1 DO, 2 GND, 3 DI, 4 VDD; DO unused

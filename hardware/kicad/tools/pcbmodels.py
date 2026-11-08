@@ -180,11 +180,19 @@ LOCAL_STEP_MODELS = {
         (-2.4738, -2.3865, 0.935),
         (0.0, 0.0, 90.0),
     ),
-    # WS2812-2020.step (user's file, y up); rotation checked against the datasheet's top view
+    # C-1571300-2 (TE) is y up, feet at y -4.3, actuator towards +z, locating pegs at
+    # x +/-4.4, z -4.0; seated by the pegs (footprint y -1.25), checked by render
+    'SW_TE_1571300-2': (
+        '1571300-2.step',
+        (0.0, -2.75, 4.3),
+        (-90.0, 0.0, 0.0),
+    ),
+    # WS2812-2020.step (user's file): y up, base at y -0.3, lens top at 0.56; the green
+    # back-side polarity bar is on +x, beside pins 1-2 (datasheet back view)
     'LED_WS2812B-2020_PLCC4_2.0x2.0mm': (
         'WS2812-2020.step',
-        (0.0, 0.0, 0.56),
-        (90.0, 0.0, 180.0),
+        (0.0, 0.0, 0.3),
+        (-90.0, 0.0, 180.0),
     ),
     # EVQ-P2F02K.step (Panasonic series file, in metres); offset and rotation checked by render
     'SW_Panasonic_EVQ-P2F': (

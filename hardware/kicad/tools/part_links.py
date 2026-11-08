@@ -12,7 +12,8 @@ import gen_bom
 
 # MPN prefix -> datasheet URL (longest prefix wins)
 DATASHEETS = {
-    'TL6800': 'https://www.mouser.com/datasheet/3/315/1/TL6800AF260QJ.pdf',
+    '1571300': 'https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv'
+    '&DocNm=1571300&DocType=Customer+Drawing&DocLang=English',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'ESP32-S3-WROOM-2':'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
@@ -83,7 +84,7 @@ DATASHEETS = {
 # Phoenix item number -> product page (datasheet and drawings are on it)
 PRODUCT_PAGES = {
     '4684': 'https://www.adafruit.com/product/4684',
-    'TL6800AF260QJ': 'https://www.mouser.com/en/ProductDetail/E-Switch/TL6800AF260QJ',
+    '1571300-2': 'https://www.digikey.com/en/products/detail/te-connectivity-alcoswitch-switches/1571300-2/2400327',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'SWR25X-NRTC-S02-RB-BA':'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',

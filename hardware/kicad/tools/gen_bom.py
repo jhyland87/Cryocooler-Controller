@@ -37,6 +37,10 @@ BOARD = KICAD_DIR / 'cryocooler.kicad_pcb'
 R0603 = 'R_0603_1608Metric'
 R1206 = 'R_1206_3216Metric'
 R0402 = 'R_0402_1005Metric'
+# 1206 resistor or Bourns 3313J trimmer land, and the trimmer each fitted value swaps for:
+# 3.6k (R92, sine gain 15.2-16.8) and 0 (R96, AD5453 gain +0-11 %)
+R_TRIM = 'R_1206_or_Bourns_3313J'
+TRIMMERS = {'3.6k': '3313J-1-502E (5k)', '0': '3313J-1-102E (1k)'}
 
 
 def resistor_code(value):
@@ -60,7 +64,7 @@ CAPS = {
         'CL05B103KB5NNNC', 'CAP CER 10000PF 50V X7R 0402', ''),
     ('1nF/C0G', 'C_0402_1005Metric'): (
         'CL05C102JB5NNNC', 'CAP CER 1000PF 50V C0G 0402',
-        'across R35 + R92 (49.4k) in the sine gain stage'),
+        'across R35 + R92 (50.6k) in the sine gain stage'),
     ('120pF', 'C_0402_1005Metric'): (
         'CL05C121JB5NNNC', 'CAP CER 120PF 50V C0G 0402',
         'TPS62822 feed-forward across the 453k'),
@@ -287,9 +291,9 @@ PARTS = {
     ('TACTILE', 'SW_Panasonic_EVQ-P2F'): (
         'Panasonic', 'EVQ-P2F02K', 'SWITCH TACTILE SPST-NO 20MA 15V SMD',
         'design', 'SW1 reset, SW2 boot; 5.0 N, black actuator, 2.5 mm high, 200,000 cycles'),
-    ('TACTILE', 'SW_E-Switch_TL6800AF'): (
-        'E-Switch', 'TL6800AF260QJ', 'SWITCH TACTILE SPST-NO 0.05A 12V SMD IP67',
-        'design', 'SW3 power button; 260 gf, 500,000 cycles, IP67'),
+    ('TACTILE', 'SW_TE_1571300-2'): (
+        'TE Connectivity', '1571300-2', 'SWITCH TACTILE SPST-NO 0.05A 24V R/A SMD IP67',
+        'design', 'SW3 power button; right angle, actuator through the right board edge, IP67'),
     ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
         'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
         'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
@@ -493,6 +497,16 @@ def classify(value, footprint):
         return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
                 'supply disable jumpers JP1-JP5 ("true zero ohm", 0603 '
                 'resistor land pattern); desolder to cut a section')
+    if footprint == R_TRIM:
+        trimmer = TRIMMERS[value]
+        if value == '0':
+            return ('Yageo', 'RC1206JR-070RL', 'RES 0 OHM JUMPER 1/4W 1206', 'suggested',
+                    f'trim land: fit a Bourns {trimmer} instead to adjust (wiper tied to '
+                    'pin 3, clockwise raises it)')
+        return ('Yageo', f'RC1206FR-07{resistor_code(value)}L',
+                f'RES {value.upper()} OHM 1% 1/4W 1206', 'suggested',
+                f'trim land: fit a Bourns {trimmer} instead to adjust (wiper tied to pin 3, '
+                'clockwise raises it)')
     if footprint.startswith('R_'):
         if value == '15m':
             return PARTS[('15m', footprint)]
