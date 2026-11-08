@@ -185,3 +185,5 @@ Standing rules for any schematic or PCB work in `hardware/kicad/` (or a new boar
   - Keep this block in the same place and format across revisions of the same
     board, so any two copies can be compared at a glance.
 - **Trace Angles** - Stick to 0°, 45°, 90° angle traces unless absolutely necessary.
+- **STEP 3D models only** — every footprint's 3D model must be a STEP file
+  (`.step` or `.stp`). Never use VRML (`.wrl`) models on the PCB.

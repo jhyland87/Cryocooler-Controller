@@ -3,8 +3,8 @@
 KiCad ships footprints for a few of our parts (SG-8002CA oscillator, SRP7050TA
 inductors, NANO2 fuse) without the STEP file they point at, and the MIE1W0505
 footprint is our own, so they render as bare pads. These are plain box models
-(VRML) sized from the part datasheets; they show where the part sits and how
-tall it is, not its exact shape.
+(STEP, written by stepbox.py) sized from the part datasheets; they show where the
+part sits and how tall it is, not its exact shape. VRML (.wrl) models are never used.
 """
 
 from pathlib import Path
@@ -12,14 +12,12 @@ from pathlib import Path
 import pcbnew
 
 from pcbnetlist import KICAD_DIR
+from stepbox import box_step_text
 
 MODEL_DIR = KICAD_DIR / 'lib' / 'cryocooler.3dshapes'
 STOCK_MODELS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels'
 )
-# VRML units in KiCad are 2.54 mm; the files are written in mm and scaled
-VRML_SCALE = 1 / 2.54
-
 BLACK = (0.10, 0.10, 0.11)
 GRAY = (0.22, 0.22, 0.24)
 TAN = (0.82, 0.72, 0.50)
@@ -369,28 +367,22 @@ LOCAL_STEP_MODELS = {
 
 
 def write_model(name, boxes):
-    """Writes the VRML file for one envelope and returns its path."""
+    """Writes the STEP file for one envelope and returns its path."""
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    lines = ['#VRML V2.0 utf8', f'# {name}: box envelope, units are mm']
-    for size_x, size_y, size_z, center_x, center_y, colour in boxes:
-        lines += [
-            'Transform {',
-            f'  translation {center_x} {center_y} {size_z / 2}',
-            '  children Shape {',
-            '    appearance Appearance { material Material {',
-            f'      diffuseColor {colour[0]} {colour[1]} {colour[2]} }} }}',
-            f'    geometry Box {{ size {size_x} {size_y} {size_z} }}',
-            '  }',
-            '}',
-        ]
-    path = MODEL_DIR / f'{name}.wrl'
-    path.write_text('\n'.join(lines) + '\n')
+    step_boxes = [
+        ((size_x, size_y, size_z), (center_x, center_y, size_z / 2), colour)
+        for size_x, size_y, size_z, center_x, center_y, colour in boxes
+    ]
+    path = MODEL_DIR / f'{name}.step'
+    path.write_text(box_step_text(name, step_boxes))
     return path
 
 
 def library_model_exists(model_path):
     """True if a footprint's 3D model file is present in the KiCad install
-    or the project library."""
+    or the project library. VRML (.wrl) models count as missing."""
+    if Path(model_path).suffix.lower() == '.wrl':
+        return False
     for prefix, root in (('${KICAD10_3DMODEL_DIR}/', STOCK_MODELS), ('${KIPRJMOD}/', KICAD_DIR)):
         if model_path.startswith(prefix):
             return (root / model_path[len(prefix) :]).exists()
@@ -420,7 +412,6 @@ def attach_missing_models(footprint):
         path = write_model(*ENVELOPES[name])
         model = pcbnew.FP_3DMODEL()
         model.m_Filename = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{path.name}'
-        model.m_Scale = pcbnew.VECTOR3D(VRML_SCALE, VRML_SCALE, VRML_SCALE)
     while footprint.Models().size():
         footprint.Models().pop_back()
     model.m_Show = True
