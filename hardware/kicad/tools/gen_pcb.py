@@ -337,14 +337,13 @@ LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
 LOGO_CENTER = (65.0, 51.0)
 LOGO_WIDTH = 80.0
 TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
-# KiCad project name (hardware/AGENTS.md allows the project or the repo name; the
-# shorter one fits this board)
-BOARD_NAME = 'cryocooler'
+# board name printed in the board ID block
+BOARD_NAME = 'Cryocooler Control Unit'
 # development stage printed in the board ID block (rev 1 carried ALPHA)
 BOARD_STAGE = 'BETA'
-# solder mask colour (JLCPCB standard blue): set in the board stackup, which
-# the renders use; order the board in blue (mask dam limit 0.10 mm)
-MASK_COLOUR = 'Blue'
+# solder mask colour: set in the board stackup, which the renders use; order
+# the board in black
+MASK_COLOUR = 'Black'
 # preferred spot of the board ID block (back silkscreen, board coordinates),
 # the same spot as on the earlier 145-125 layout
 BOARD_ID_SPOT = (19.0, 2.4)

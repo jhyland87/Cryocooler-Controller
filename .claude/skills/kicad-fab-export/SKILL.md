@@ -50,7 +50,7 @@ them there, not on the command line.
 
 ## Board ID stamp
 
-The back silkscreen carries `cryocooler` / `BETA rev <short hash>`, the commit the
+The back silkscreen carries `Cryocooler Control Unit` / `BETA rev <short hash>`, the commit the
 fab files come from (`hardware/AGENTS.md`, "Board ID block"). On the routed rev 3
 board no script restamps it (`gen_pcb.py` stamps only on a full rebuild, which
 must not be run). The repo's pattern:

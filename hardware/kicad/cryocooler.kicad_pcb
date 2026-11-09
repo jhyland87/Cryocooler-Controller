@@ -46,7 +46,7 @@
 			)
 			(layer "F.Mask"
 				(type "Top Solder Mask")
-				(color "Blue")
+				(color "Black")
 				(thickness 0.01)
 			)
 			(layer "F.Cu"
@@ -88,7 +88,7 @@
 			)
 			(layer "B.Mask"
 				(type "Bottom Solder Mask")
-				(color "Blue")
+				(color "Black")
 				(thickness 0.01)
 			)
 			(layer "B.Paste"
@@ -1328,10 +1328,9 @@
 		(descr "Littelfuse NANO2 https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_451_453_datasheet.pdf.pdf")
 		(tags "Fuse Nano2")
 		(property "Reference" "F1"
-			(at 0 -2.5 0)
+			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "a6043980-ae9b-4ad5-b8d0-362f5b8b972d")
 			(effects
 				(font
@@ -2119,7 +2118,7 @@
 		(descr "SOIC, 16 Pin (JEDEC MS-013AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_wide-rw/rw_16.pdf)")
 		(tags "SOIC SO")
 		(property "Reference" "U18"
-			(at -2.600001 7.04619 90)
+			(at -3.30619 1.139999 0)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "7d3a2cb8-c212-4e29-9b95-16fe48c76d89")
@@ -2131,7 +2130,7 @@
 			)
 		)
 		(property "Value" "ACS37800KMACTR-015B5-SPI"
-			(at 0 6.1 0)
+			(at -2.36 3.74 270)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "dbb8c161-fc9a-4fd1-9dc4-55a2c7577f77")
@@ -2143,7 +2142,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.allegromicro.com/-/media/files/datasheets/acs37800-datasheet.pdf"
-			(at 0 0 0)
+			(at 3.74 3.74 270)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "6a8e4b51-9b27-4620-8280-6811a16cca6d")
@@ -2154,7 +2153,7 @@
 			)
 		)
 		(property "Description" "Allegro isolated power monitor IC, +/-15 A, 5 V supply, SPI, SOIC-16W"
-			(at 0 0 0)
+			(at 3.74 3.74 270)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "373fe5b9-206a-4606-9292-01fb2b64801a")
@@ -2165,7 +2164,7 @@
 			)
 		)
 		(property "KiLib_Generator" "package/gullwing"
-			(at 0 0 0)
+			(at 3.74 3.74 270)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "ba9d5cda-829b-4ae1-b11f-a9f519f73cad")
@@ -2177,13 +2176,25 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=ACS37800KMACTR-015B5-SPI"
-			(at 0 0 0)
+			(at 3.74 3.74 270)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "f8cf2888-22d3-4e12-990c-625a3b63ba60")
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value_Short" "ACS37800"
+			(at 0 -0.0575 270)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "ffba2792-7524-4e27-be1b-88371f98c65c")
+			(effects
+				(font
+					(size 1 1)
 					(thickness 0.15)
 				)
 			)
@@ -2889,14 +2900,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C57"
-			(at -4.25 2.75 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "35aa98ed-d876-434e-b6fc-9fa472441b98")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -3051,14 +3061,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C58"
-			(at 0 2.493249 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "20dfef9c-1db1-4ded-8425-180792ecc55f")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -3215,7 +3224,7 @@
 			(at 10.81 6.098 0)
 			(layer "F.SilkS")
 			(hide yes)
-			(uuid "6534d74d-70d5-42df-8f20-90e9649ffd3a")
+			(uuid "c3968311-992b-4a85-9b87-dfdda92ebbd5")
 			(effects
 				(font
 					(size 1 0.9)
@@ -3227,7 +3236,7 @@
 			(at 3.81 4.4 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "2b7d13a5-7e7c-4806-9f12-a014f09f6558")
+			(uuid "4695d6da-915e-4c01-a810-184f80e565fa")
 			(effects
 				(font
 					(size 1 1)
@@ -3239,7 +3248,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "fa64893a-e729-4146-97e2-2f4ee9a1653e")
+			(uuid "0f605632-0cfb-4c52-a1de-dc70a8050ed6")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3250,7 +3259,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "c2f726e6-a6ec-407f-8726-8c48dc7c9ebb")
+			(uuid "5178a022-f9ff-4004-b01e-530f51673cc7")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3265,6 +3274,18 @@
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Label" "PUMP"
+			(at 7.431 10.661 270)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "c9a9b2c3-fcbc-4257-9b4f-d1345c879191")
+			(effects
+				(font
+					(size 1 1)
 					(thickness 0.15)
 				)
 			)
@@ -4723,14 +4744,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C2"
-			(at 0 -2.04325 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "00451139-2e46-4f09-a3a3-f7c93ebea0a0")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -8522,9 +8542,8 @@
 		(descr "Diode SMB (DO-214AA)")
 		(tags "Diode SMB (DO-214AA)")
 		(property "Reference" "D1"
-			(at 0 3.14325 90)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "90362b73-2ee7-4edb-8e9d-6823c169809d")
 			(effects
 				(font
@@ -12765,14 +12784,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C60"
-			(at 0 -2.3 180)
+			(at 0 0 90)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "53a36760-2c2b-4069-85be-e1dadb5cee87")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -12928,9 +12946,8 @@
 		(descr "Bourns SRP7050TA shielded power inductor, 7.3 x 6.6 mm body; land pattern from https://www.bourns.com/docs/product-datasheets/srp7050ta.pdf")
 		(tags "Inductor")
 		(property "Reference" "L2"
-			(at 0 -4.9 0)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "b252aba0-8c24-4390-a75d-589d5910d502")
 			(effects
 				(font
@@ -14638,9 +14655,8 @@
 		(descr "Bourns SRP7050TA shielded power inductor, 7.3 x 6.6 mm body; land pattern from https://www.bourns.com/docs/product-datasheets/srp7050ta.pdf")
 		(tags "Inductor")
 		(property "Reference" "L3"
-			(at 0 -4.9 0)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "c8bb3dd6-822a-4bb7-a99c-44c0a14a3882")
 			(effects
 				(font
@@ -14952,14 +14968,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C81"
-			(at -3.922381 0 0)
+			(at 0 0 90)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "7b12ef09-e669-4533-a05a-3d834975caef")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -15354,7 +15369,7 @@
 			(uuid "af83f2d5-6f75-4c2a-a864-57a33f0e72c8")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/lib/cryocooler.3dshapes/Micro-Lock_Plus_2x04_envelope.step"
+		(model "${KIPRJMOD}/lib/cryocooler.3dshapes/Micro_Lock_Plus-5054480891.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -15362,7 +15377,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -0 -0 -0)
 			)
 		)
 	)
@@ -17916,14 +17931,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C4"
-			(at 0 -1.85 90)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "50ba4fa3-63a6-4c57-8226-2a145e21b4ae")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -19224,9 +19238,8 @@
 		(at 28.5 11.75)
 		(descr "Bourns SRP4020TA shielded power inductor, 4.45 x 4.06 x 1.8 mm; land pattern from https://www.bourns.com/docs/product-datasheets/srp4020ta.pdf")
 		(property "Reference" "L4"
-			(at 0 -3.23 0)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "302cd6b6-204c-4d22-8670-5ba707d06ec9")
 			(effects
 				(font
@@ -20730,14 +20743,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C76"
-			(at 0 2.49325 90)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "298c619b-f02a-47fc-9dba-e70fba37c1d0")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -21054,14 +21066,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C3"
-			(at 3.193249 0 180)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "e8724668-08d1-4c7f-8f82-5821e86589be")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -21268,6 +21279,18 @@
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Label" "FAN"
+			(at 7.361 10.371 270)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "ff49152b-9f42-4732-a485-b3d5906c97d0")
+			(effects
+				(font
+					(size 1 1)
 					(thickness 0.15)
 				)
 			)
@@ -23240,14 +23263,13 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R91"
-			(at 0 -1.83 180)
+			(at 0 0 90)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "1b2935e0-c1b6-46b9-ae24-ee435162eefe")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -23403,14 +23425,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C78"
-			(at -0.2 3 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "91275ce8-824b-4621-95a5-f667c2be226e")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -24354,14 +24375,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C59"
-			(at 0 -2.3 180)
+			(at 0 0 90)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "dc72c2e6-ec50-4da6-bcbb-a552df671557")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -25222,9 +25242,8 @@
 		(at 22 21.5)
 		(descr "Bourns SRP4020TA shielded power inductor, 4.45 x 4.06 x 1.8 mm; land pattern from https://www.bourns.com/docs/product-datasheets/srp4020ta.pdf")
 		(property "Reference" "L1"
-			(at 0 -3.23 0)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "0e717492-462a-48f2-9f14-8eaba9033f5f")
 			(effects
 				(font
@@ -26143,9 +26162,8 @@
 		(descr "SMD capacitor, aluminum electrolytic, Nichicon, 8.0x10mm")
 		(tags "capacitor electrolytic")
 		(property "Reference" "C65"
-			(at 0 -5.29325 0)
+			(at 0 0 90)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "e88bc0f2-d7e4-4d55-8318-4cc2bf677eca")
 			(effects
 				(font
@@ -26548,7 +26566,7 @@
 			(uuid "714ee931-0441-4969-b5b2-44e852f83771")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 0)
+			(at 0 0 180)
 			(layer "F.Fab")
 			(uuid "79da72b0-51ba-4576-a3e7-e28926448930")
 			(effects
@@ -27080,14 +27098,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C62"
-			(at 0 -2.3 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "9ed43afb-c289-4f19-ac58-f1831403fc5d")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -27242,14 +27259,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C7"
-			(at 0 -1.85 0)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "152379a2-f61b-47a5-a726-382def0843fb")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -27404,14 +27420,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C77"
-			(at 0 2.493249 90)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "3734af5e-cee4-4791-8404-948d1073346e")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -27890,9 +27905,8 @@
 		(descr "SMD capacitor, aluminum electrolytic, Nichicon, 8.0x10mm")
 		(tags "capacitor electrolytic")
 		(property "Reference" "C66"
-			(at 6.872381 0 0)
+			(at 0 0 270)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "3c9730fb-7ad2-45bb-93a9-770f529bbeef")
 			(effects
 				(font
@@ -28295,7 +28309,7 @@
 			(uuid "6bac8ba0-af0b-45a4-8884-e56d09a424f7")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 0)
+			(at 0 0 180)
 			(layer "F.Fab")
 			(uuid "c88e3f85-cddf-424c-aac0-7c996e6f9848")
 			(effects
@@ -30928,14 +30942,13 @@
 		(descr "Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C82"
-			(at 3.922381 0 270)
+			(at 0 0 0)
 			(layer "F.SilkS")
-			(hide yes)
 			(uuid "cf2f5ae2-11c2-42b5-a10f-56e584bc38df")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 			)
 		)
@@ -36371,14 +36384,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C61"
-			(at 0.5 2.75 180)
+			(at -0.045 -0.045 270)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "f8b2a1f7-6db1-412e-8acc-7189fb46fd06")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -37959,6 +37971,19 @@
 				(justify mirror)
 			)
 		)
+		(property "Label" "NTC"
+			(at 3.955 -10.725 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "9519093f-6b49-4369-8aaf-873e88986aef")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
 		(path "/d435fe59-a9b1-598f-9a22-f3a71c9e80ce/a77f6a0e-7532-5ec9-869e-da24f414bc0e")
 		(sheetname "/Water Cooling/")
 		(attr through_hole)
@@ -38668,14 +38693,13 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R67"
-			(at 2.6 2.02325 180)
+			(at 0 0 90)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "5a2505f3-5848-46f4-8584-8ea12f63233f")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -39395,14 +39419,13 @@
 		(descr "TSSOP, 10 Pin (https://www.ti.com/lit/ml/mpds035c/mpds035c.pdf, https://www.ti.com/lit/ds/symlink/ads1115.pdf#page=50, https://www.nxp.com/docs/en/package-information/SOT552-1.pdf)")
 		(tags "TSSOP SO Texas_DGS0010A Texas_VSSOP-10 NXP_SOT552-1 MSOP-10_3x3mm_P0.5mm VSSOP-10_3x3mm_P0.5mm")
 		(property "Reference" "U23"
-			(at -4.2 2.9125 0)
+			(at -0.01 0 0)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "601d037a-32e1-49b9-ac3f-a5a8729f23c7")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -43805,6 +43828,19 @@
 				(justify mirror)
 			)
 		)
+		(property "Label" "BTN"
+			(at 3.735 -10.255 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "92988825-23ab-476b-947a-483fa8f0f3ac")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
 		(path "/8ded814a-06f7-55b6-9f07-c9c105f9ce1a/607af920-cd5e-5a76-8969-310562b419b3")
 		(sheetname "/Power Button/")
 		(attr through_hole)
@@ -45200,7 +45236,7 @@
 			(at 5.77 -5.125 0)
 			(layer "B.SilkS")
 			(hide yes)
-			(uuid "9862f95c-e578-4a00-be72-a790a64142a4")
+			(uuid "fa392af0-ab0d-449b-a005-53fe61e64409")
 			(effects
 				(font
 					(size 1 0.9)
@@ -45213,7 +45249,7 @@
 			(at 1.27 -3.5 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "745e462c-4841-44c3-842e-86b74b7301d3")
+			(uuid "a39dca4f-5b1b-49fc-9850-35519c26a9a1")
 			(effects
 				(font
 					(size 1 1)
@@ -45226,7 +45262,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "3a933f90-ee09-45b3-ac27-254020cd3ab1")
+			(uuid "95304047-0655-4568-8afc-ce780248c4ae")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45238,7 +45274,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "e0830375-6994-4d48-94ec-8d0f97f2d917")
+			(uuid "90c3c6e4-0cf9-4343-b384-2fafcf56fbf3")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45254,6 +45290,19 @@
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(property "Label" "RELAY"
+			(at 3.795 -9.805 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "d5b093df-9f58-42d1-97e7-7193edd258bb")
+			(effects
+				(font
+					(size 1 1)
 					(thickness 0.15)
 				)
 				(justify mirror)
@@ -45472,14 +45521,13 @@
 		(descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R78"
-			(at -5.452381 0 180)
+			(at 0.25 0 180)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "ff377a1f-8cfd-486b-9d48-68dae1b67996")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -49968,7 +50016,7 @@
 			(at 2 -1.900001 90)
 			(layer "B.SilkS")
 			(hide yes)
-			(uuid "8879bda3-f7cc-45e0-9fec-8351cb1a423c")
+			(uuid "802e7084-a35f-4b4f-a4be-c0d4246944ca")
 			(effects
 				(font
 					(size 1 0.9)
@@ -49981,7 +50029,7 @@
 			(at 0 -1.16 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "82c01e6e-1d91-4a43-a05f-07f90fb2a425")
+			(uuid "c184d0ff-8e30-4376-8427-9313aac42f21")
 			(effects
 				(font
 					(size 1 1)
@@ -49994,7 +50042,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "44508862-6f77-4d7f-9dfd-b3c7f242c386")
+			(uuid "3fcb9960-68f4-4464-8283-74763ceb3bbc")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50006,7 +50054,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "ed429029-6291-4f81-921e-2e091720b6fd")
+			(uuid "9866a69c-56b0-48d9-949a-f08b1b2ab460")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51758,14 +51806,13 @@
 		(descr "SOD-123")
 		(tags "SOD-123")
 		(property "Reference" "D17"
-			(at 0 2 180)
+			(at -0.04 -0.06 180)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "f200cc2a-b08c-4557-b985-a3fc7ee8a1ee")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -52008,7 +52055,7 @@
 			(uuid "f5c6724c-8835-4b72-a2e3-99446bbf5196")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 2 180)
+			(at 0.29 0.03 180)
 			(layer "B.Fab")
 			(uuid "0035e621-6e73-496c-9e19-c266370ebad6")
 			(effects
@@ -52613,14 +52660,13 @@
 		(descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "capacitor")
 		(property "Reference" "C56"
-			(at 0 2.3 0)
+			(at -0.005 -0.02 90)
 			(layer "B.SilkS")
-			(hide yes)
-			(uuid "152d2103-5f59-4222-8808-2616c5b188ba")
+			(uuid "b95f386a-0b0f-45c7-b80b-58b0adc8170e")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -52629,7 +52675,7 @@
 			(at 0 -2.3 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "d674a1c0-f0f6-4d94-91e1-344bd486a62c")
+			(uuid "5aa55efe-e50d-45c8-bec1-0b2caf80011a")
 			(effects
 				(font
 					(size 1 1)
@@ -52642,7 +52688,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "af3d426f-63c1-4753-8ca0-4e6792079858")
+			(uuid "3621fb02-5d69-49e3-8888-2efb7211dffa")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52654,7 +52700,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "36a1c153-c5fa-45a2-900b-16c9c63ebc8f")
+			(uuid "06510ba8-3c46-4d56-8805-0d18610f6436")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54985,14 +55031,13 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R65"
-			(at 0 2.752382 90)
+			(at 0 0 90)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "7e37589f-31fb-4e21-97bb-5ce96a1df798")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -55323,14 +55368,13 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R66"
-			(at -1.2 -2.02325 0)
+			(at 0 0 90)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "708541d4-4632-459f-b437-87274ded629e")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -55498,7 +55542,7 @@
 			(uuid "1202dd81-96b5-4593-87ff-19ff48fa78b5")
 			(effects
 				(font
-					(size 1 1)
+					(size 0.7 0.8)
 					(thickness 0.15)
 				)
 				(justify mirror)
@@ -55614,13 +55658,13 @@
 			(uuid "7d988914-c1c7-4a84-94b3-998b8d14d475")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 90)
-			(layer "B.Fab")
+			(at 0.07 0.015 90)
+			(layer "B.SilkS")
 			(uuid "0122cf0e-c5e4-4658-9f53-d8f59800cebf")
 			(effects
 				(font
-					(size 0.8 0.8)
-					(thickness 0.12)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -55660,7 +55704,7 @@
 		(at 21.75 27.5 -90)
 		(descr "TI DFM0020A SOIC-20W, 7.5 x 12.8 mm body; 8.1 mm clearance land pattern from https://www.ti.com/lit/ds/symlink/isow7741.pdf")
 		(property "Reference" "U17"
-			(at 0 7.6 270)
+			(at 0 7.6 90)
 			(layer "B.SilkS")
 			(hide yes)
 			(uuid "7890defd-7ae3-48ff-ba57-8cdf6ef60616")
@@ -55673,9 +55717,8 @@
 			)
 		)
 		(property "Value" "ISOW7741DFMR"
-			(at 0 -7.6 270)
-			(layer "B.Fab")
-			(hide yes)
+			(at -0.03 0.2 0)
+			(layer "B.SilkS")
 			(uuid "c11102d6-2244-42cb-8685-371a8b5c8e0c")
 			(effects
 				(font
@@ -55686,7 +55729,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/isow7741.pdf"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "ef523216-9b3e-4fe7-804c-e007dae7b3b1")
@@ -55698,7 +55741,7 @@
 			)
 		)
 		(property "Description" "TI quad digital isolator with integrated DC-DC, 3 forward / 1 reverse, 5 kVrms reinforced, SOIC-20W (DFM, 8.1 mm clearance)"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "03a474db-72af-497a-bc67-5150a5dd688b")
@@ -55710,7 +55753,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=ISOW7741DFMR"
-			(at 0 0 270)
+			(at 0 0 90)
 			(layer "B.SilkS")
 			(hide yes)
 			(uuid "6db8a17e-d662-435d-81aa-077c87c51b27")
@@ -58463,14 +58506,13 @@
 		(descr "SOD-123")
 		(tags "SOD-123")
 		(property "Reference" "D14"
-			(at -0.53 2.25 180)
+			(at -0.04 0.04 180)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "70291b9d-fd84-4302-b82e-31da253d7e1e")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -59437,14 +59479,13 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R64"
-			(at 1.8 -2.752381 0)
+			(at 0 0 0)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "72e53463-ebcd-48df-a1f1-3efc06171602")
 			(effects
 				(font
-					(size 1 0.9)
-					(thickness 0.15)
+					(size 0.8 0.7)
+					(thickness 0.1)
 				)
 				(justify mirror)
 			)
@@ -60683,17 +60724,6 @@
 			)
 		)
 	)
-	(gr_text "C78"
-		(at 16.1625 16.0815 0)
-		(layer "F.SilkS")
-		(uuid "b2b2c901-983b-4f28-b5eb-6e6dfcdb2c1c")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "C51"
 		(at 16.81 24.0885 0)
 		(layer "F.SilkS")
@@ -60738,17 +60768,6 @@
 			)
 		)
 	)
-	(gr_text "C4"
-		(at 18.879166 10.875 0)
-		(layer "F.SilkS")
-		(uuid "35998f92-7f3a-4dbb-90a7-85a00042f640")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "U18"
 		(at 20 34.0665 0)
 		(layer "F.SilkS")
@@ -60764,17 +60783,6 @@
 		(at 20.875 32.261499 0)
 		(layer "F.SilkS")
 		(uuid "a2a5e1d2-3773-448a-8a04-72ebbecc2dba")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "L1"
-		(at 21 24.7835 0)
-		(layer "F.SilkS")
-		(uuid "a8e738d9-a1f7-4a7d-8972-965f3e8b5d3d")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -60804,32 +60812,10 @@
 			)
 		)
 	)
-	(gr_text "C2"
-		(at 26.75 25.918499 0)
-		(layer "F.SilkS")
-		(uuid "e70a5478-8dc7-4472-86ac-46ffb323dc8f")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "FB2"
 		(at 27.48 27.3615 0)
 		(layer "F.SilkS")
 		(uuid "ff76961e-185c-4bc6-ad25-4a6a9c838c9d")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "L4"
-		(at 28.5 8.4665 0)
-		(layer "F.SilkS")
-		(uuid "47d557d3-7cf3-48e0-a22d-fb7a546524e0")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -60859,43 +60845,10 @@
 			)
 		)
 	)
-	(gr_text "C66"
-		(at 32.2125 24.2285 0)
-		(layer "F.SilkS")
-		(uuid "122788f9-ab37-4b78-85d6-64ea1af97d7e")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "C30"
 		(at 33.13 10.4215 0)
 		(layer "F.SilkS")
 		(uuid "8989c5fb-5546-497e-bcc3-eb7e7081733e")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "C65"
-		(at 34.7125 24.7715 0)
-		(layer "F.SilkS")
-		(uuid "f91625be-fb09-4f5c-b557-1956f16c6da6")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "F1"
-		(at 35 46.9685 0)
-		(layer "F.SilkS")
-		(uuid "5cbf9fba-e326-4d44-abbd-729aa3ba0757")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61090,17 +61043,6 @@
 			)
 		)
 	)
-	(gr_text "R91"
-		(at 54.784167 52.05 0)
-		(layer "F.SilkS")
-		(uuid "35e2c5fb-9da9-4aff-bf53-be67c5dfd49f")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "J15 DISPLAY"
 		(at 55.663333 57.5 0)
 		(layer "F.SilkS")
@@ -61178,10 +61120,10 @@
 			)
 		)
 	)
-	(gr_text "C76"
-		(at 63.729 41.580499 0)
+	(gr_text "R70"
+		(at 63.66 19.05 0)
 		(layer "F.SilkS")
-		(uuid "95f11f04-03f7-4432-b2d0-72313a2fc43a")
+		(uuid "3e891038-7628-47c2-982c-e89a51b1f345")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61200,32 +61142,10 @@
 			)
 		)
 	)
-	(gr_text "L2"
-		(at 64.353332 11 0)
-		(layer "F.SilkS")
-		(uuid "ecd00e5f-1cbf-4a9d-9630-f259f2dadbf8")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "C35"
 		(at 64.479999 36.6215 0)
 		(layer "F.SilkS")
 		(uuid "6af203d7-97fd-4e17-b9e4-2e002d464f67")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "R70"
-		(at 65.352499 20.348499 0)
-		(layer "F.SilkS")
-		(uuid "3e891038-7628-47c2-982c-e89a51b1f345")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61299,17 +61219,6 @@
 			)
 		)
 	)
-	(gr_text "C77"
-		(at 72.547333 44.524 0)
-		(layer "F.SilkS")
-		(uuid "5fdd0c7c-f6a5-4a0d-a2dc-66d7003f6f25")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
 	(gr_text "R89"
 		(at 72.602499 37.3165 0)
 		(layer "F.SilkS")
@@ -61358,17 +61267,6 @@
 		(at 78.899 45.0505 0)
 		(layer "F.SilkS")
 		(uuid "a0c2a45f-2f90-4bad-8f49-8d6a46d5b2a4")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-		)
-	)
-	(gr_text "L3"
-		(at 79 6.5965 0)
-		(layer "F.SilkS")
-		(uuid "9880a86b-b149-48bd-ba18-2ecdaa8a8df6")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61552,18 +61450,6 @@
 			)
 		)
 	)
-	(gr_text "R67"
-		(at 8.3125 31.5515 0)
-		(layer "B.SilkS")
-		(uuid "66681ff6-b8d9-4b3a-b733-eb021d800be2")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
 	(gr_text "R24"
 		(at 18.015 9.5385 0)
 		(layer "B.SilkS")
@@ -61580,18 +61466,6 @@
 		(at 19.905 6.0065 0)
 		(layer "B.SilkS")
 		(uuid "bc2af058-0d80-4ea6-af3c-c46afb37e23a")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "R66"
-		(at 20.2125 42.5015 0)
-		(layer "B.SilkS")
-		(uuid "a4ca08ac-b9a1-4742-be1d-07960ad5b50b")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61648,18 +61522,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "R64"
-		(at 21.418333 40.5175 0)
-		(layer "B.SilkS")
-		(uuid "16f430a1-61c2-4b7b-80c1-fbaed1b2177e")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
 	(gr_text "C72"
 		(at 22.755 17.8915 0)
 		(layer "B.SilkS")
@@ -61676,30 +61538,6 @@
 		(at 24.521667 9.004999 0)
 		(layer "B.SilkS")
 		(uuid "b7d52187-368d-4043-90d2-94e4d8509d39")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "R65"
-		(at 25.2125 46.2585 0)
-		(layer "B.SilkS")
-		(uuid "8b4bdbbf-f2a7-422f-b74a-463f35a0aaf0")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "C6"
-		(at 25.395 15.2065 0)
-		(layer "B.SilkS")
-		(uuid "7d6113e6-e3f6-4775-8140-43a191277ab7")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61816,18 +61654,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "U23"
-		(at 31.761666 33.307499 0)
-		(layer "B.SilkS")
-		(uuid "469f4afb-dd15-47d8-b205-5bfa8116271a")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
 	(gr_text "C48"
 		(at 32.14 12.4065 0)
 		(layer "B.SilkS")
@@ -61844,30 +61670,6 @@
 		(at 32.299999 17.2965 0)
 		(layer "B.SilkS")
 		(uuid "db8be314-1a7a-40a9-95cd-3c35d4819db1")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "C5"
-		(at 32.333333 9.274999 0)
-		(layer "B.SilkS")
-		(uuid "3fa15fb2-9901-4ca6-928d-bca230929202")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "D17"
-		(at 34.233333 41.5 0)
-		(layer "B.SilkS")
-		(uuid "108c0a62-fc8b-43e8-8ceb-7e019056ef56")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61948,10 +61750,10 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "C80"
-		(at 39.15 36.2065 0)
+	(gr_text "R1"
+		(at 39.12 10.44 0)
 		(layer "B.SilkS")
-		(uuid "b97733fa-89e9-464a-aa4f-882d671c1a3d")
+		(uuid "11547549-9bb3-4f58-a386-fb9ce373412b")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -61960,10 +61762,10 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "R1"
-		(at 39.74 12.4285 0)
+	(gr_text "C80"
+		(at 39.15 36.2065 0)
 		(layer "B.SilkS")
-		(uuid "11547549-9bb3-4f58-a386-fb9ce373412b")
+		(uuid "b97733fa-89e9-464a-aa4f-882d671c1a3d")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -62009,7 +61811,7 @@
 		)
 	)
 	(gr_text "C1"
-		(at 42.724999 7.1465 0)
+		(at 42.68 8.97 0)
 		(layer "B.SilkS")
 		(uuid "da44782b-6d2b-4186-88f9-617b2245dbc5")
 		(effects
@@ -62236,18 +62038,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "D14"
-		(at 57.832499 38.031499 0)
-		(layer "B.SilkS")
-		(uuid "d864cda9-848a-4c97-ad2f-60b7c8272c9a")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
 	(gr_text "R52"
 		(at 58.24 10.2015 0)
 		(layer "B.SilkS")
@@ -62348,18 +62138,6 @@
 		(at 69.914999 51.289 0)
 		(layer "B.SilkS")
 		(uuid "0a4d6179-4c60-4637-a56b-5da17b7f2d11")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "C56"
-		(at 69.975 16.0365 0)
-		(layer "B.SilkS")
-		(uuid "6fe44068-e393-43ae-9d85-19117c287686")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -62516,18 +62294,6 @@
 		(at 80.949999 9.5365 0)
 		(layer "B.SilkS")
 		(uuid "1c7f8dc1-000f-47c3-b7d2-3fabbc74e780")
-		(effects
-			(font
-				(size 0.8 0.7)
-				(thickness 0.1)
-			)
-			(justify mirror)
-		)
-	)
-	(gr_text "C61"
-		(at 80.975 14.1615 0)
-		(layer "B.SilkS")
-		(uuid "bca05376-458e-41f3-960a-f01fcecdefa3")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -62728,10 +62494,10 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "R78"
-		(at 29.2815 38 90)
+	(gr_text "C5"
+		(at 30.33 9.24 90)
 		(layer "B.SilkS")
-		(uuid "48c55ac0-dec3-41da-bee8-220b7912bee7")
+		(uuid "3fa15fb2-9901-4ca6-928d-bca230929202")
 		(effects
 			(font
 				(size 0.8 0.7)
@@ -62788,7 +62554,7 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "cryocooler"
+	(gr_text "Cryocooler Control Unit"
 		(at 80 23.2 0)
 		(layer "B.SilkS")
 		(uuid "ad80f807-ac2f-411a-bfe1-5a7c0e8c5378")
@@ -121384,72 +121150,62 @@
 			"0819cd48-21ed-47d7-9563-5d44ef015f71" "083f6e84-0c4a-4248-8a79-722765b13c69"
 			"09e54b7c-6b61-4896-929d-6da2eefd69a6" "0a4d6179-4c60-4637-a56b-5da17b7f2d11"
 			"0e59d4bd-03d0-4083-bb6c-9b30d7ee9be1" "0f98ea1e-d24f-4c84-b7ee-0ab550471716"
-			"108c0a62-fc8b-43e8-8ceb-7e019056ef56" "11547549-9bb3-4f58-a386-fb9ce373412b"
-			"122788f9-ab37-4b78-85d6-64ea1af97d7e" "1614678c-61b7-4be0-8be4-bd4e6776f6d2"
-			"164f8099-45ae-41f3-aded-07f0d9bc9b52" "16f430a1-61c2-4b7b-80c1-fbaed1b2177e"
-			"1716061a-b8ed-4c49-9e3c-597c48019f9e" "19384d26-79cb-479c-999b-db3a82017a91"
-			"19eeb454-6e3e-4725-97dd-eefe0ab1fd2c" "1b0ee19f-3f3e-41b1-8c4e-272b404a1d4f"
-			"1c7f8dc1-000f-47c3-b7d2-3fabbc74e780" "1f51c394-778c-462f-9de5-5e6a9bb0abba"
-			"202d2e6d-066a-4112-a35b-d37c6dcf4690" "26e20f1f-14eb-4325-8c2c-7def50cb763f"
-			"271c45dd-1a20-47db-9c21-67a422813ebd" "27440faa-8c3e-40ac-9ee3-22c2724799eb"
-			"27be7cdd-787a-45f7-8bbd-e3b9bd681222" "27da8111-73e4-4518-adeb-97fcdffac7f4"
-			"282f7cfe-a79d-4e1a-9b5d-1574ed3f772b" "2cf12991-6760-450b-93fb-a9e14b6a9e07"
-			"2e61e6d2-8f33-47e9-b08f-69e2fda3910a" "2f3fa2b2-7c0f-4fe6-94f6-339d18e1356b"
-			"3063334b-119c-401e-af63-5591fec9b8d4" "30fc46a7-c563-4920-b5de-c7b2af95614a"
-			"33eccb66-6a91-4a09-9da4-e063545aae37" "346b5ed2-3e6c-4050-8ee1-4f13193be4f3"
-			"35998f92-7f3a-4dbb-90a7-85a00042f640" "35e2c5fb-9da9-4aff-bf53-be67c5dfd49f"
-			"39550174-387b-4530-a060-d5383b898ac0" "3a14c52f-9608-412f-a0c4-fb6949d3b55e"
-			"3c622790-5e47-445c-be09-07f2123f88e5" "3c7eb025-9d23-4052-a55b-a9b02a98fe34"
-			"3d7f23ff-5669-4811-91a2-fbcdb2cbdbc9" "3e891038-7628-47c2-982c-e89a51b1f345"
-			"3f3625f6-6860-40fb-a838-567c7eb3326d" "3fa15fb2-9901-4ca6-928d-bca230929202"
-			"3fc89289-c617-40e9-89ed-2854775e1e6a" "40819b63-3ae6-4ea0-8179-e89f9aa7ab66"
-			"40a78113-8f7b-4465-b97a-7b7b00d7700f" "4130df73-1950-4174-a546-af02ab24e285"
-			"44b29661-7031-47aa-b175-632d57283c57" "466118fb-e976-46fb-8982-0302055cb175"
-			"46913c5d-2b0e-432a-8c3c-09e7c8fa6d1f" "469f4afb-dd15-47d8-b205-5bfa8116271a"
-			"46f921e6-bd5d-406b-b8e8-d9d6194e265e" "47d557d3-7cf3-48e0-a22d-fb7a546524e0"
-			"48c55ac0-dec3-41da-bee8-220b7912bee7" "4973c6b5-7db0-4ed7-9caf-0279268d100b"
+			"11547549-9bb3-4f58-a386-fb9ce373412b" "1614678c-61b7-4be0-8be4-bd4e6776f6d2"
+			"164f8099-45ae-41f3-aded-07f0d9bc9b52" "1716061a-b8ed-4c49-9e3c-597c48019f9e"
+			"19384d26-79cb-479c-999b-db3a82017a91" "19eeb454-6e3e-4725-97dd-eefe0ab1fd2c"
+			"1b0ee19f-3f3e-41b1-8c4e-272b404a1d4f" "1c7f8dc1-000f-47c3-b7d2-3fabbc74e780"
+			"1f51c394-778c-462f-9de5-5e6a9bb0abba" "202d2e6d-066a-4112-a35b-d37c6dcf4690"
+			"26e20f1f-14eb-4325-8c2c-7def50cb763f" "271c45dd-1a20-47db-9c21-67a422813ebd"
+			"27440faa-8c3e-40ac-9ee3-22c2724799eb" "27be7cdd-787a-45f7-8bbd-e3b9bd681222"
+			"27da8111-73e4-4518-adeb-97fcdffac7f4" "282f7cfe-a79d-4e1a-9b5d-1574ed3f772b"
+			"2cf12991-6760-450b-93fb-a9e14b6a9e07" "2e61e6d2-8f33-47e9-b08f-69e2fda3910a"
+			"2f3fa2b2-7c0f-4fe6-94f6-339d18e1356b" "3063334b-119c-401e-af63-5591fec9b8d4"
+			"30fc46a7-c563-4920-b5de-c7b2af95614a" "33eccb66-6a91-4a09-9da4-e063545aae37"
+			"346b5ed2-3e6c-4050-8ee1-4f13193be4f3" "39550174-387b-4530-a060-d5383b898ac0"
+			"3a14c52f-9608-412f-a0c4-fb6949d3b55e" "3c622790-5e47-445c-be09-07f2123f88e5"
+			"3c7eb025-9d23-4052-a55b-a9b02a98fe34" "3d7f23ff-5669-4811-91a2-fbcdb2cbdbc9"
+			"3e891038-7628-47c2-982c-e89a51b1f345" "3f3625f6-6860-40fb-a838-567c7eb3326d"
+			"3fa15fb2-9901-4ca6-928d-bca230929202" "3fc89289-c617-40e9-89ed-2854775e1e6a"
+			"40819b63-3ae6-4ea0-8179-e89f9aa7ab66" "40a78113-8f7b-4465-b97a-7b7b00d7700f"
+			"4130df73-1950-4174-a546-af02ab24e285" "44b29661-7031-47aa-b175-632d57283c57"
+			"466118fb-e976-46fb-8982-0302055cb175" "46913c5d-2b0e-432a-8c3c-09e7c8fa6d1f"
+			"46f921e6-bd5d-406b-b8e8-d9d6194e265e" "4973c6b5-7db0-4ed7-9caf-0279268d100b"
 			"4ad809ab-8136-4049-8c57-7e22b0b05d3f" "4aec7939-5f39-4de9-9cd4-f27bc18359d2"
 			"4b6de075-217f-45f4-9438-b9a9b05bf9b5" "4d61024b-d44f-4116-b3fa-3b746e796e6e"
 			"4ef5a8d7-764c-46e0-a4fd-269af24bcbc9" "4f6b61c9-4336-4cb8-9717-05f99e7b7e09"
 			"4f75af8f-9298-415c-9295-599e49ea3066" "537bc6bd-58db-44b4-802a-8b14bd0f729e"
 			"54ae810a-3ca9-4fdb-9ef6-1b4df9354595" "563a3fde-31e4-4e98-b66d-ba3189fa1c50"
 			"5941f599-8d4c-4428-9ae7-78801a745635" "5a2dd3d9-4fbb-4bb6-a36d-fdbcef331823"
-			"5bf4a0a5-09ee-4efc-b97b-5f4dc2b427b0" "5cbf9fba-e326-4d44-abbd-729aa3ba0757"
-			"5e3f7478-8dea-4f51-bc4b-5a0cf7c29af0" "5fdd0c7c-f6a5-4a0d-a2dc-66d7003f6f25"
+			"5bf4a0a5-09ee-4efc-b97b-5f4dc2b427b0" "5e3f7478-8dea-4f51-bc4b-5a0cf7c29af0"
 			"607faf9f-918d-4304-955a-9d3c4957bf4a" "646d876a-3117-4c51-88ce-6bdbc3bc708e"
-			"659d97cb-432e-4088-8aca-941c8e7d40dd" "66681ff6-b8d9-4b3a-b733-eb021d800be2"
-			"6af203d7-97fd-4e17-b9e4-2e002d464f67" "6d2fce1f-2190-4cf0-9b8f-b80b3ff83425"
-			"6d4f2ac0-c2fa-4572-b705-f404782f6544" "6fae5f64-2d21-43a1-bf3f-8f687f97c1f7"
-			"6fe44068-e393-43ae-9d85-19117c287686" "711034c4-d7ea-46b6-8213-704d284a1925"
+			"659d97cb-432e-4088-8aca-941c8e7d40dd" "6af203d7-97fd-4e17-b9e4-2e002d464f67"
+			"6d2fce1f-2190-4cf0-9b8f-b80b3ff83425" "6d4f2ac0-c2fa-4572-b705-f404782f6544"
+			"6fae5f64-2d21-43a1-bf3f-8f687f97c1f7" "711034c4-d7ea-46b6-8213-704d284a1925"
 			"7357e18d-fe2a-4de4-b406-21576a6b3432" "744fa194-0906-4c43-92cc-143b1bb9eb85"
 			"791d1b9f-8216-46d7-a10d-e6197449c45b" "7cc07c66-9c0e-40ff-b0ec-9a48f02e5a15"
-			"7d6113e6-e3f6-4775-8140-43a191277ab7" "7e1b69ea-83ae-4be3-9594-22e4f73f9306"
-			"7fc8a446-f8b5-48c4-947c-eb52b81739e4" "8091592f-97f2-458b-a255-2a5dfb011c44"
-			"812e1f9c-5016-488c-ba14-fc269c9ad667" "831421bc-5488-4006-9d44-e2471ccb1e4a"
-			"874a99f8-00ec-43eb-8a7f-27e82543aabd" "87efad43-a5e7-48ab-88d9-c3625ed25f39"
-			"8821bde5-dbb5-4e76-9b3b-2f8f5939a767" "8989c5fb-5546-497e-bcc3-eb7e7081733e"
-			"8b07f7c4-f7f3-49aa-9e97-17b46de54160" "8b4bdbbf-f2a7-422f-b74a-463f35a0aaf0"
+			"7e1b69ea-83ae-4be3-9594-22e4f73f9306" "7fc8a446-f8b5-48c4-947c-eb52b81739e4"
+			"8091592f-97f2-458b-a255-2a5dfb011c44" "812e1f9c-5016-488c-ba14-fc269c9ad667"
+			"831421bc-5488-4006-9d44-e2471ccb1e4a" "874a99f8-00ec-43eb-8a7f-27e82543aabd"
+			"87efad43-a5e7-48ab-88d9-c3625ed25f39" "8821bde5-dbb5-4e76-9b3b-2f8f5939a767"
+			"8989c5fb-5546-497e-bcc3-eb7e7081733e" "8b07f7c4-f7f3-49aa-9e97-17b46de54160"
 			"8b714141-1cd0-43bb-a8ad-014e147a5d29" "8c121acc-0e4a-4ee2-9f83-fbe49ecf1349"
 			"8c271834-b58b-4daa-bcb6-259bf13cf180" "8d8c6ef4-2af5-451d-9df9-94d7a3ca488a"
 			"93083ca9-c6bf-44f0-a596-0597a20bed6e" "93e8025c-9bd1-472c-968f-a8f569223442"
-			"95f11f04-03f7-4432-b2d0-72313a2fc43a" "962061cf-63d9-45b4-8f09-67a53eb25a61"
-			"9735b955-7249-4271-b7ca-6bb8b6a274e9" "9880a86b-b149-48bd-ba18-2ecdaa8a8df6"
+			"962061cf-63d9-45b4-8f09-67a53eb25a61" "9735b955-7249-4271-b7ca-6bb8b6a274e9"
 			"990fef39-349d-45f1-84ad-49d9ed8ee810" "9960dfda-6527-40b9-9121-87ab6a1021ea"
 			"9a404b08-7b4a-4d20-b3fa-362a74169061" "9c9ee20b-d88e-4bf9-a840-b4c134aaec06"
 			"9eebdfa0-a128-4d2b-b4be-50f21efc3532" "9f4f1ccc-a7cc-4eb8-bf3c-b4795c0d0d14"
 			"a06dee4e-bf03-4ccd-8e18-444b3a920b3b" "a0c2a45f-2f90-4bad-8f49-8d6a46d5b2a4"
 			"a1b8830a-21e0-4a6e-bf74-09d9ad65ba5c" "a2050a62-b7ef-4714-a81e-277db23aab4a"
-			"a2a5e1d2-3773-448a-8a04-72ebbecc2dba" "a4ca08ac-b9a1-4742-be1d-07960ad5b50b"
-			"a690bdb9-8ed7-4f34-acda-60f2a4215699" "a7aab29b-d65d-4b43-a0b2-41c9b5a61f54"
-			"a8e738d9-a1f7-4a7d-8972-965f3e8b5d3d" "a945e637-1bbf-48af-8d0b-07d75738bb6b"
+			"a2a5e1d2-3773-448a-8a04-72ebbecc2dba" "a690bdb9-8ed7-4f34-acda-60f2a4215699"
+			"a7aab29b-d65d-4b43-a0b2-41c9b5a61f54" "a945e637-1bbf-48af-8d0b-07d75738bb6b"
 			"aa5f894f-712f-4ec6-bd15-a7ef6bf8e6da" "abca3e6b-221f-4ef3-af24-1d40f1bff0b0"
 			"ac592f62-605e-482b-9f75-d139bdba6919" "ac657122-3f64-4062-b664-29efa847c221"
 			"ac76a0f2-c15f-4e04-873a-4896cb796cfe" "ace38dd2-68bb-4d2e-9996-e2cdea759832"
-			"b2b2c901-983b-4f28-b5eb-6e6dfcdb2c1c" "b3e2acb9-98e2-4901-a5fa-e794f0feba22"
-			"b3e424b4-2e83-44df-b2ca-0e9b9e7156fe" "b50d5ea7-4b36-4698-8833-0343fbbddf61"
-			"b77d42d4-b177-4fe9-a13d-1eb4beb1ff47" "b7d52187-368d-4043-90d2-94e4d8509d39"
-			"b97733fa-89e9-464a-aa4f-882d671c1a3d" "ba4415cf-61e9-4578-8d1c-0c8e8475c4ee"
-			"bc2af058-0d80-4ea6-af3c-c46afb37e23a" "bca05376-458e-41f3-960a-f01fcecdefa3"
+			"b3e2acb9-98e2-4901-a5fa-e794f0feba22" "b3e424b4-2e83-44df-b2ca-0e9b9e7156fe"
+			"b50d5ea7-4b36-4698-8833-0343fbbddf61" "b77d42d4-b177-4fe9-a13d-1eb4beb1ff47"
+			"b7d52187-368d-4043-90d2-94e4d8509d39" "b97733fa-89e9-464a-aa4f-882d671c1a3d"
+			"ba4415cf-61e9-4578-8d1c-0c8e8475c4ee" "bc2af058-0d80-4ea6-af3c-c46afb37e23a"
 			"bfafcd95-feb3-40ee-b336-5894dea219d5" "c1c6918e-d513-4942-a56c-a8524f4431c4"
 			"c241dbcd-8123-4d4f-a0f3-99e4a9211108" "c2b65dc5-6705-4944-8d78-7a0e3b12c5dd"
 			"c68c8764-7d1b-4a0d-93bc-eab3308abf4c" "c8233d7d-c9c2-4143-a4fe-cf533c6fcdfc"
@@ -121460,17 +121216,15 @@
 			"d2ef4a8f-d594-43e1-86fe-a078409e8538" "d3ef8be4-ea1b-4a9d-8434-30c3b78c669f"
 			"d59b7311-d383-4e55-934c-17517afcad73" "d5a5c1fb-8a5d-4dd2-a4f1-2dd64d51b4b5"
 			"d7ae1c3b-e03d-4a0a-a239-af03e88fc014" "d80d5a74-3508-4f2d-b815-f17fd3fbe03d"
-			"d864cda9-848a-4c97-ad2f-60b7c8272c9a" "d932b369-9dc8-455c-8686-89fa60c6fdf8"
-			"d9742786-8988-4d76-b9a7-c2b5aad5ea58" "da44782b-6d2b-4186-88f9-617b2245dbc5"
-			"daafdc3e-5527-4a90-b74d-9a4f2bdca17a" "db8be314-1a7a-40a9-95cd-3c35d4819db1"
-			"dceda3cf-c2c0-4355-88fd-c4a770bc8e77" "df3aef84-c574-4b8e-ac72-868eb1f1d690"
-			"dfd63539-cf9a-4009-8518-bd317ca0207a" "e256f10f-55ba-450d-881e-92b420708cff"
-			"e5c9134f-60ed-4bdf-85b8-7cc1edc6e3f6" "e70a5478-8dc7-4472-86ac-46ffb323dc8f"
-			"ec89325a-88e7-49b4-a696-4bbe67c1979b" "ecd00e5f-1cbf-4a9d-9630-f259f2dadbf8"
-			"ee67af6a-9993-4a4b-9102-bbe20a4aea5c" "ef3b1534-d6a9-4de7-a3c8-14801b05006b"
-			"f123ed53-7b2c-41f2-8357-c8575e630f6e" "f2eafcf8-6d17-41e8-9e8d-9a934dea0914"
-			"f47211df-45f2-40ea-9c26-036af7acb2af" "f662e119-5bb0-4b6d-9085-eebc0e8cc07f"
-			"f91625be-fb09-4f5c-b557-1956f16c6da6" "fb7f6b7e-feb9-4943-bef8-2d6ad8af56ee"
+			"d932b369-9dc8-455c-8686-89fa60c6fdf8" "d9742786-8988-4d76-b9a7-c2b5aad5ea58"
+			"da44782b-6d2b-4186-88f9-617b2245dbc5" "daafdc3e-5527-4a90-b74d-9a4f2bdca17a"
+			"db8be314-1a7a-40a9-95cd-3c35d4819db1" "dceda3cf-c2c0-4355-88fd-c4a770bc8e77"
+			"df3aef84-c574-4b8e-ac72-868eb1f1d690" "dfd63539-cf9a-4009-8518-bd317ca0207a"
+			"e256f10f-55ba-450d-881e-92b420708cff" "e5c9134f-60ed-4bdf-85b8-7cc1edc6e3f6"
+			"ec89325a-88e7-49b4-a696-4bbe67c1979b" "ee67af6a-9993-4a4b-9102-bbe20a4aea5c"
+			"ef3b1534-d6a9-4de7-a3c8-14801b05006b" "f123ed53-7b2c-41f2-8357-c8575e630f6e"
+			"f2eafcf8-6d17-41e8-9e8d-9a934dea0914" "f47211df-45f2-40ea-9c26-036af7acb2af"
+			"f662e119-5bb0-4b6d-9085-eebc0e8cc07f" "fb7f6b7e-feb9-4943-bef8-2d6ad8af56ee"
 			"ff76961e-185c-4bc6-ad25-4a6a9c838c9d"
 		)
 	)

@@ -798,11 +798,16 @@ def draw_outline(board):
         rule_area(board, rect_points(keepout), footprints=True)
 
 
+BOARD_NAME = 'Cryocooler Control Unit'
+# earlier board names, removed when the ID block is restamped
+OLD_BOARD_NAMES = ('cryocooler',)
+
+
 def board_id_lines():
     revision = subprocess.run(
         ['git', 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True, cwd=KICAD_DIR
     ).stdout.strip()
-    return ('cryocooler', f'BETA rev {revision}')
+    return (BOARD_NAME, f'BETA rev {revision}')
 
 
 def apply_spots(layout):
@@ -1168,7 +1173,8 @@ def stamp_board_id(path, x, y):
     board = pcbnew.LoadBoard(path)
     for drawing in list(board.GetDrawings()):
         if drawing.Type() == pcbnew.PCB_TEXT_T and drawing.GetLayer() == pcbnew.B_SilkS:
-            if drawing.GetText() == 'cryocooler' or drawing.GetText().startswith('BETA rev'):
+            name = drawing.GetText()
+            if name in (BOARD_NAME, *OLD_BOARD_NAMES) or name.startswith('BETA rev'):
                 KEEP.append(drawing)
                 board.Remove(drawing)
     for index, line in enumerate(board_id_lines()):

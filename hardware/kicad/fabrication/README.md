@@ -28,7 +28,7 @@ creation date, so the files differ in git after every export even if the board d
 
 ## Order settings to check
 
-* 4 layers, 120 x 100 mm, 1.6 mm, 1 oz copper, **blue** solder mask, no impedance control.
+* 4 layers, 120 x 100 mm, 1.6 mm, 1 oz copper, **black** solder mask, no impedance control.
 * Design minimums: 0.15 mm track / clearance, 0.2 mm smallest drill, 0.5 mm board
   edge clearance. The board has a routed notch in the top edge under the ESP32
   antenna (74.5-93.5 x 0-6 mm), and the four corner squares around the mounting

@@ -16,13 +16,14 @@ Firmware: same pins; one change for the AD9837's 16 MHz clock (`AMPLIFIER_DDS_MC
   - In2: signals, then a +3V3 pour.
   - F/B: signals with GND pours.
 - **Vias:** smallest is 0.45 / 0.2 mm, as on rev 3.
-- **Labels:** 0.8 mm / 0.1 mm silk (order with JLCPCB high-precision silkscreen) wherever one fits, on the part's own side. Footprint reference fields stay hidden; there are no section boxes or mask labels.
+- **Labels:** 0.8 mm / 0.1 mm silk (order with JLCPCB high-precision silkscreen) wherever one fits, on the part's own side. There are no section boxes or mask labels.
+  - **Inside labels (hand edits, 2026-11-08):** where a part's body has room, its reference field is shown centred inside the footprint (1.0 mm on large parts, else 0.8 mm) in place of an outside label; this beats leaving a part unlabelled. Inside labels are hidden once the part is fitted. C78, C81, C82, R64-R67 and R91 (1206 and up, three-character references) cross their own body lines: 16 accepted `silk_overlap` warnings. Part names sit on large IC bodies (U17 `ISOW7741DFMR`, U18 `ACS37800`). The board is now hand-edited, so don't re-run `ucs125_board.py labels`; it would add outside labels again.
   - `ucs125_board.py labels` places them (a `part labels` group, replaced on each run) above or below the part, then beside it, then vertical, never nearer another part than its own.
   - Test points show their net (`+15V`, `DDS`, `U5 OUT`, ...); connectors, jumpers and switches show reference and function (`J9 SINE OUT`, `SW1 RESET`). LEDs use `LED_LABELS`, also 0.8 mm.
   - A through-hole connector with no room on its own side is labelled on the far side, under its body (J3, J4 on the back; J6, J13 on the front).
   - 87 parts (mostly 0402 passives, a few ICs) have no room and stay unlabelled; the run prints the list.
   - The board's DRC text minimum is 0.8 mm / 0.1 mm (`SILK_DRC_MIN_*` in `gen_pcb.py`).
-- **Board ID:** `cryocooler` / `BETA rev <hash>` on the back silk, centred at (80, 23.2); now `rev 4cab2b9`. Keep it there on later revisions and restamp with `ucs125_board.py boardid <board> 80.0 23.2` after each board commit.
+- **Board ID:** `Cryocooler Control Unit` / `BETA rev <hash>` on the back silk, centred at (80, 23.2); now `rev 4cab2b9`. Keep it there on later revisions and restamp with `ucs125_board.py boardid <board> 80.0 23.2` after each board commit.
 - **Script:** `kicad/tools/ucs125_board.py`. It runs `place` → `route` → `finish` → `boardid` → `labels` from the routed 145-125 rev 3 board. Run it with KiCad's python. The last connections were closed by hand (see Routing), so a rerun doesn't reproduce the routed board: edit the board itself from here on.
 
 ## What changed from the 145-125 rev 3 board
