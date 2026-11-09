@@ -23,7 +23,7 @@ Firmware: same pins; one change for the AD9837's 16 MHz clock (`AMPLIFIER_DDS_MC
   - A through-hole connector with no room on its own side is labelled on the far side, under its body (J3, J4 on the back; J6, J13 on the front).
   - 87 parts (mostly 0402 passives, a few ICs) have no room and stay unlabelled; the run prints the list.
   - The board's DRC text minimum is 0.8 mm / 0.1 mm (`SILK_DRC_MIN_*` in `gen_pcb.py`).
-- **Board ID:** `Cryocooler Control Unit` / `BETA rev <hash>` on the back silk, centred at (80, 23.2); now `rev 4cab2b9`. Keep it there on later revisions and restamp with `ucs125_board.py boardid <board> 80.0 23.2` after each board commit.
+- **Board ID:** `Cryocooler Control Unit` / `BETA rev <hash>` on the back silk, centred at (80, 23.2); now `rev 1f42b30`. Keep it there on later revisions and restamp with `ucs125_board.py boardid <board> 80.0 23.2` after each board commit.
 - **Script:** `kicad/tools/ucs125_board.py`. It runs `place` → `route` → `finish` → `boardid` → `labels` from the routed 145-125 rev 3 board. Run it with KiCad's python. The last connections were closed by hand (see Routing), so a rerun doesn't reproduce the routed board: edit the board itself from here on.
 
 ## What changed from the 145-125 rev 3 board
