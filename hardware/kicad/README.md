@@ -153,26 +153,28 @@ the old parts, and the layout notes below describe that board, until the PCB is 
   SPI MISO line through its ESD diodes while other devices are being read, so leave JP5 fitted during normal operation.
 
 * **IMU cable (J14, RJ45):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
-  cryocooler. J14 pins 1-8 run top to bottom on the board as VIN, GND, SCL, SDA, DO, CS, I1, I2, the same order
-  as the breakout's SPI-side pads (minus its 3Vo pad), so an 8-wire cable maps pin for pin. Power the breakout's
-  `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad open. Keep the cable short (it hangs on the
-  shared SPI bus; each signal has a 100 Ω series resistor at J14). The pin names are printed beside the connector.
+  cryocooler. J14 pins 1-8 (top to bottom on the board) don't follow the breakout's pad order: they sit on
+  T568B pairs (1-2 SCK/GND, 3-6 MOSI/MISO, 4-5 +3V3/CS, 7-8 INT1/INT2), so wire the far end by the table
+  below, not pin for pin. Power the breakout's `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad
+  open. Keep the cable short (it hangs on the shared SPI bus; each signal has a 100 Ω series resistor at J14).
+  Only `IMU` is printed beside the connector; its pins aren't labelled.
 
   | J14 (top to bottom) | Board signal | Breakout pad |
   |---|---|---|
-  | 1 | +3V3 | Vin |
+  | 1 | SPI_SCK | SCL |
   | 2 | GND | GND |
-  | 3 | SPI_SCK | SCL |
-  | 4 | SPI_MOSI | SDA |
-  | 5 | SPI_MISO | DO |
-  | 6 | IMU_CS (GPIO 1, 10 k pull-up on the board) | CS |
+  | 3 | SPI_MOSI | SDA |
+  | 4 | +3V3 | Vin |
+  | 5 | IMU_CS (GPIO 1, 10 k pull-up on the board) | CS |
+  | 6 | SPI_MISO | DO |
   | 7 | IMU_INT1 (GPIO 2) | I1 |
   | 8 | IMU_INT2 (GPIO 39) | I2 |
+  | Shield | GND | — |
 
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11/J12 +/-, J13 12V/GND, J14 as above (VIN, GND, SCL, SDA, DO, CS, I1, I2). Pin 1 is the first label in each list.
+  J11/J12 +/-, J13 12V/GND. Pin 1 is the first label in each list. J14 has no pin labels; use the table above.
 * **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 2305908-3) on 2 mm traces. J11 - and J12 - share a 2 mm F.Cu link at x 7, stitched by five vias to ISO_GND.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
