@@ -1309,7 +1309,13 @@
 		(uuid "58c12190-e144-59ff-b5cd-54c224c9794d")
 	)
 	(junction
-		(at 101.6 76.2)
+		(at 124.46 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "79600d7b-6500-4ee2-9f08-da789ea9d345")
+	)
+	(junction
+		(at 114.3 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "afbbc26d-7c04-50f9-add3-934fee8bbc1d")
@@ -1346,33 +1352,13 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 76.2) (xy 116.84 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "43fc8ea6-62c1-5348-94e4-25ed0831123c")
-	)
-	(wire
-		(pts
-			(xy 88.9 76.2) (xy 101.6 76.2)
+			(xy 88.9 76.2) (xy 129.54 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "4a652f6d-2609-52ea-bcf0-cc7ffea3dad2")
-	)
-	(wire
-		(pts
-			(xy 101.6 76.2) (xy 109.22 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9381fcad-6243-57ce-9735-91a516042a8a")
 	)
 	(wire
 		(pts
@@ -1383,6 +1369,16 @@
 			(type default)
 		)
 		(uuid "998ac46e-0c4d-519e-90f3-395529258f7f")
+	)
+	(wire
+		(pts
+			(xy 124.46 73.66) (xy 124.46 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d1b523c-8eaa-4f27-9a5f-5832aaccfe15")
 	)
 	(wire
 		(pts
@@ -1504,7 +1500,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 101.6 83.82 0)
+		(at 114.3 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1514,7 +1510,7 @@
 		(dnp no)
 		(uuid "329ed47c-54c6-5899-abe7-8d633d4da078")
 		(property "Reference" "#PWR035"
-			(at 101.6 83.82 0)
+			(at 114.3 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1525,7 +1521,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 101.6 83.82 0)
+			(at 114.3 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1536,7 +1532,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 101.6 83.82 0)
+			(at 114.3 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1547,7 +1543,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 101.6 83.82 0)
+			(at 114.3 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1558,7 +1554,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 101.6 83.82 0)
+			(at 114.3 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1672,7 +1668,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 109.22 76.2 0)
+		(at 124.46 73.66 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1682,7 +1678,7 @@
 		(dnp no)
 		(uuid "7182ea94-18bd-52d7-9e99-bf56f89b6fdb")
 		(property "Reference" "#FLG032"
-			(at 109.22 76.2 0)
+			(at 124.46 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1693,7 +1689,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 109.22 76.2 0)
+			(at 124.46 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1704,7 +1700,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 109.22 76.2 0)
+			(at 124.46 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1715,7 +1711,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 109.22 76.2 0)
+			(at 124.46 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1726,7 +1722,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 109.22 76.2 0)
+			(at 124.46 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2169,7 +2165,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 101.6 80.01 0)
+		(at 114.3 80.01 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2179,7 +2175,7 @@
 		(dnp no)
 		(uuid "ad1b7f78-5a30-53be-8c51-628c442d95c2")
 		(property "Reference" "C67"
-			(at 105.832 78.96 0)
+			(at 118.872 79.756 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2190,7 +2186,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 105.832 81.06 0)
+			(at 118.872 81.856 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2201,7 +2197,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 101.6 80.01 0)
+			(at 114.3 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2212,7 +2208,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL21B104KBCNNNC"
-			(at 101.6 80.01 0)
+			(at 114.3 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2223,7 +2219,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 101.6 80.01 0)
+			(at 114.3 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2234,7 +2230,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL21B104KBCNNNC"
-			(at 101.6 80.01 0)
+			(at 114.3 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2271,7 +2267,7 @@
 		(dnp no)
 		(uuid "b7369817-4631-5aae-a510-e6adba37bebb")
 		(property "Reference" "C65"
-			(at 93.386 85.31 0)
+			(at 93.218 80.772 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2282,7 +2278,7 @@
 			)
 		)
 		(property "Value" "100uF/35V"
-			(at 93.386 87.41 0)
+			(at 93.218 82.872 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2353,7 +2349,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 116.84 76.2 0)
+		(at 129.54 76.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2363,7 +2359,7 @@
 		(dnp no)
 		(uuid "ba69662a-7b3a-5f31-8bf9-066e4ad4e9fa")
 		(property "Reference" "#PWR031"
-			(at 116.84 76.2 0)
+			(at 129.54 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2374,7 +2370,7 @@
 			)
 		)
 		(property "Value" "VIN"
-			(at 116.84 72.644 0)
+			(at 129.54 72.644 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2384,7 +2380,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 116.84 76.2 0)
+			(at 129.54 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2395,7 +2391,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 116.84 76.2 0)
+			(at 129.54 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2406,7 +2402,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 116.84 76.2 0)
+			(at 129.54 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
