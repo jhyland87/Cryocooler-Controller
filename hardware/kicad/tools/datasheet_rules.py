@@ -125,8 +125,8 @@ RULES = [
     ('join', 'MSD7342-103MLC', '3', 'LT8582EDKD#PBF', '12'),
     ('net', 'MSD7342-103MLC', '2', '-16V5'),
     ('between', '2.2uF/50V', ('LT8582EDKD#PBF', '12'), ('MSD7342-103MLC', '4')),
-    # J14: off-board Adafruit LSM6DSOX module. Pins 1-8 follow the module's
-    # pads (Vin, GND, SCL, SDA, DO, CS, INT1, INT2); its 3Vo pad is not
+    # J14: off-board Adafruit LSM6DSOX module, wired by the J14 table in
+    # kicad/README.md (the pins don't follow its pad order); its 3Vo pad is not
     # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
     # 100 R series resistor next to the connector; CS keeps a 10 k pull-up on
     # the board side so it idles high with the cable unplugged.
