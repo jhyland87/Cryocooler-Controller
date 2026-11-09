@@ -1,7 +1,7 @@
 # Rev 3 on the UCS 125-87 board — status
 
 Branch `ucs-125-87-rev3`, from `ucs-145-125-rev3` (085961d). The same rev 3 circuit
-moved onto the smaller Phoenix UCS 125-87 board. Nothing here is committed yet.
+moved onto the smaller Phoenix UCS 125-87 board. Routed board committed as 4cab2b9; fab files carry board ID `rev 4cab2b9`. Not pushed, not ordered.
 Firmware: same pins; one change for the AD9837's 16 MHz clock (`AMPLIFIER_DDS_MCLK_HZ` in `config.h`, passed to `setClk()` in `amplifier.cpp`).
 
 ## Board
@@ -22,7 +22,7 @@ Firmware: same pins; one change for the AD9837's 16 MHz clock (`AMPLIFIER_DDS_MC
   - A through-hole connector with no room on its own side is labelled on the far side, under its body (J3, J4 on the back; J6, J13 on the front).
   - 87 parts (mostly 0402 passives, a few ICs) have no room and stay unlabelled; the run prints the list.
   - The board's DRC text minimum is 0.8 mm / 0.1 mm (`SILK_DRC_MIN_*` in `gen_pcb.py`).
-- **Board ID:** `cryocooler` / `BETA rev <hash>` on the back silk, centred at (80, 23.2). Keep it there on later revisions.
+- **Board ID:** `cryocooler` / `BETA rev <hash>` on the back silk, centred at (80, 23.2); now `rev 4cab2b9`. Keep it there on later revisions and restamp with `ucs125_board.py boardid <board> 80.0 23.2` after each board commit.
 - **Script:** `kicad/tools/ucs125_board.py`. It runs `place` → `route` → `finish` → `boardid` → `labels` from the routed 145-125 rev 3 board. Run it with KiCad's python. The last connections were closed by hand (see Routing), so a rerun doesn't reproduce the routed board: edit the board itself from here on.
 
 ## What changed from the 145-125 rev 3 board
@@ -109,10 +109,8 @@ Only the USB stays on the top edge. Connectors that couldn't fit on the walls mo
 
 ## Still open
 
-
 - Wall cut-outs in the housing for the new connector positions; J15 (display FPC) against the lid display window.
 - J14's plug sticks out past the right edge: the wall needs a slot for it (about 10 x 9 mm) or a cable gland. The 505432 housing and crimps aren't in the BOM; stock not checked.
-- Restamp the board ID after the commit (`ucs125_board.py boardid board 80.0 23.2`; it now reads `rev 085961d`, the parent commit), then re-export.
 - The long, via-heavy routes listed under Routing.
 - APGB0607G22R23C (7 LEDs) is a DigiKey part (22561020); JLCPCB stock not checked.
 - 74LV1T34GXH (U31): DigiKey and JLCPCB stock not checked.
