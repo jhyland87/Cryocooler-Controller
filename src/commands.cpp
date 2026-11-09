@@ -340,6 +340,10 @@ static void handleWifiTxPower(const char* args, Print& out) {
     }
     out.println(F("[OK] WiFi TX power change requested"));
 }
+
+static void handleWifiPing(const char* args, Print& out) {
+    dashboard::startWifiPing(args, out);
+}
 #endif
 
 static void handleTelemetryDeltaOff(const char* /*args*/, Print& out) {
@@ -1209,6 +1213,7 @@ static const Command commandMap[] = {
     {"wifi status",         handleWifiStatus,   "Print WiFi link, signal, TX power and last disconnect reason"},
     {"wifi retry",          handleWifiRetry,    "Start a new WiFi connection attempt now"},
     {"wifi txpower",        handleWifiTxPower,  "Set max WiFi TX power in dBm until reboot; retries if not connected"},
+    {"wifi ping",           handleWifiPing,     "Ping the gateway, or [IPv4 address], 10 times and log loss and round-trip times"},
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
     {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},

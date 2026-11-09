@@ -280,6 +280,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `wifi status` | Print WiFi link, signal, TX power and last disconnect reason |
 | `wifi retry` | Start a new WiFi connection attempt now |
 | `wifi txpower <dBm>` | Set max WiFi TX power until reboot; retries if not connected |
+| `wifi ping [ip]` | Ping the gateway (or an IPv4 address) 10 times; logs loss and round-trip times |
 | `cooling on/off` | Enable / disable cooling system |
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
 | `cooling pump <N>` | Set pump: raw duty (0–255) or percent (0–100%) |

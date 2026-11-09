@@ -60,6 +60,15 @@ bool setWifiTxPower(float powerDbm);
  */
 void printWifiStatus(Print& out);
 
+/**
+ * Ping a host in the background (10 echoes, 500 ms apart) to check the link.
+ * Replies, timeouts and a loss / round-trip summary go to the log.
+ * @param address IPv4 address to ping; null or empty pings the gateway.
+ * @param out     Stream for the immediate OK / error reply.
+ * @return true if the ping session started.
+ */
+bool startWifiPing(const char* address, Print& out);
+
 // Internal — called from init() and the dashboard task; defined in dashboard.cpp.
 bool setupWifi();
 bool setupServer();

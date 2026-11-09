@@ -25,6 +25,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <ESPmDNS.h>
+#include <ping/ping_sock.h>
 #include "dashboard.h"
 #include "config.h"
 #include "telemetry.h"
@@ -34,6 +35,7 @@
 #include "state_machine.h"
 
 static LogStream _Log = Log.createChildLogger("dashboard");
+static LogStream pingLog_ = Log.createChildLogger("ping");  // written from the ping task
 // AsyncWebSocket is included via ESPAsyncWebServer.h
 
 // ─── WebSocket toggle ─────────────────────────────────────────────────────────
@@ -75,6 +77,10 @@ static constexpr uint32_t   wifiRetryMinDelayMs  = 5000;
 static constexpr uint32_t   wifiRetryMaxDelayMs  = 60000;
 static constexpr uint32_t   wifiScanDwellMs      = 100;  // per channel; about 1.3 s for a full scan
 
+static constexpr uint32_t   pingCount            = 10;
+static constexpr uint32_t   pingIntervalMs       = 500;
+static constexpr uint32_t   pingTimeoutMs        = 1000;
+
 // ─── Module state ─────────────────────────────────────────────────────────────
 
 static bool             runtimeStarted_ = false;  // HTTP server and task are running
@@ -92,6 +98,12 @@ static uint32_t         wifiAttemptCount_    = 0;
 static uint32_t         wifiAttemptStartMs_  = 0;
 static uint32_t         wifiNextAttemptMs_   = 0;
 static uint32_t         wifiRetryDelayMs_    = wifiRetryMinDelayMs;
+
+// Ping session state; the callbacks run in the ping task.
+static volatile bool    pingActive_    = false;
+static uint32_t         pingRttMinMs_  = 0;
+static uint32_t         pingRttMaxMs_  = 0;
+static uint32_t         pingRttSumMs_  = 0;
 
 static volatile bool    enabled_ = true;
 static AsyncWebServer   httpServer(HTTP_API_PORT);
@@ -342,6 +354,11 @@ void printWifiStatus(Print& out) {
                  WiFi.localIP().toString().c_str(), WiFi.RSSI(), WiFi.channel());
         out.println(line);
     }
+    if (connected) {
+        snprintf(line, sizeof(line), "  Gateway %s  modem sleep %s",
+                 WiFi.gatewayIP().toString().c_str(), WiFi.getSleep() ? "on" : "off");
+        out.println(line);
+    }
     snprintf(line, sizeof(line), "  MAC %s  TX power %.1f dBm",
              WiFi.macAddress().c_str(), static_cast<float>(WiFi.getTxPower()) / 4.0f);
     out.println(line);
@@ -349,6 +366,87 @@ void printWifiStatus(Print& out) {
              static_cast<unsigned>(wifiAttemptCount_), wifiDisconnectReason_,
              wifiReasonName(wifiDisconnectReason_));
     out.println(line);
+}
+
+// ─── Ping (link check) ────────────────────────────────────────────────────────
+
+static void onPingReply(esp_ping_handle_t session, void* /*args*/) {
+    uint16_t sequence = 0;
+    uint32_t rttMs    = 0;
+    esp_ping_get_profile(session, ESP_PING_PROF_SEQNO, &sequence, sizeof(sequence));
+    esp_ping_get_profile(session, ESP_PING_PROF_TIMEGAP, &rttMs, sizeof(rttMs));
+    pingRttMinMs_ = min(pingRttMinMs_, rttMs);
+    pingRttMaxMs_ = max(pingRttMaxMs_, rttMs);
+    pingRttSumMs_ += rttMs;
+    pingLog_.printf("seq %u reply in %u ms\n", sequence, static_cast<unsigned>(rttMs));
+}
+
+static void onPingTimeout(esp_ping_handle_t session, void* /*args*/) {
+    uint16_t sequence = 0;
+    esp_ping_get_profile(session, ESP_PING_PROF_SEQNO, &sequence, sizeof(sequence));
+    pingLog_.printf("seq %u timed out\n", sequence);
+}
+
+static void onPingEnd(esp_ping_handle_t session, void* /*args*/) {
+    uint32_t sent     = 0;
+    uint32_t received = 0;
+    esp_ping_get_profile(session, ESP_PING_PROF_REQUEST, &sent, sizeof(sent));
+    esp_ping_get_profile(session, ESP_PING_PROF_REPLY, &received, sizeof(received));
+    const unsigned lossPercent = sent ? static_cast<unsigned>((sent - received) * 100 / sent) : 0;
+    if (received == 0) {
+        pingLog_.printf("%u sent, 0 received, 100%% loss\n", static_cast<unsigned>(sent));
+    } else {
+        pingLog_.printf("%u sent, %u received, %u%% loss  RTT min/avg/max %u/%u/%u ms\n",
+                        static_cast<unsigned>(sent), static_cast<unsigned>(received), lossPercent,
+                        static_cast<unsigned>(pingRttMinMs_),
+                        static_cast<unsigned>(pingRttSumMs_ / received),
+                        static_cast<unsigned>(pingRttMaxMs_));
+    }
+    // Deleting from on_ping_end is the pattern ESP-IDF's console ping example uses.
+    esp_ping_delete_session(session);
+    pingActive_ = false;
+}
+
+bool startWifiPing(const char* address, Print& out) {
+    if (WiFi.status() != WL_CONNECTED) {
+        out.println(F("[ERR] WiFi not connected"));
+        return false;
+    }
+    if (pingActive_) {
+        out.println(F("[ERR] A ping is already running"));
+        return false;
+    }
+
+    IPAddress target = WiFi.gatewayIP();
+    if (address != nullptr && *address != '\0' && !target.fromString(address)) {
+        out.println(F("[ERR] Usage: wifi ping [IPv4 address]  (default: gateway)"));
+        return false;
+    }
+
+    esp_ping_config_t config = ESP_PING_DEFAULT_CONFIG();
+    config.count       = pingCount;
+    config.interval_ms = pingIntervalMs;
+    config.timeout_ms  = pingTimeoutMs;
+    IP_ADDR4(&config.target_addr, target[0], target[1], target[2], target[3]);
+
+    esp_ping_callbacks_t callbacks = {};
+    callbacks.on_ping_success = onPingReply;
+    callbacks.on_ping_timeout = onPingTimeout;
+    callbacks.on_ping_end     = onPingEnd;
+
+    esp_ping_handle_t session = nullptr;
+    if (esp_ping_new_session(&config, &callbacks, &session) != ESP_OK) {
+        out.println(F("[ERR] Could not create ping session"));
+        return false;
+    }
+    pingRttMinMs_ = UINT32_MAX;
+    pingRttMaxMs_ = 0;
+    pingRttSumMs_ = 0;
+    pingActive_   = true;
+    esp_ping_start(session);
+    out.printf("[OK] Pinging %s x%u; results follow\n", target.toString().c_str(),
+               static_cast<unsigned>(pingCount));
+    return true;
 }
 
 // ─── Dashboard FreeRTOS task ──────────────────────────────────────────────────
@@ -477,6 +575,9 @@ bool setupWifi() {
 
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
+    // Modem sleep only wakes the radio at the AP's DTIM beacons, which adds
+    // 100+ ms per packet and drops mDNS queries; page loads stall under it.
+    WiFi.setSleep(false);
 
     // One bounded attempt: control hardware, including the relay safe state,
     // initialises after this, so further retries belong to the dashboard task.
@@ -487,6 +588,15 @@ bool setupWifi() {
 }
 
 // ─── HTTP server setup ────────────────────────────────────────────────────────
+
+/** 32-bit FNV-1a hash, used to build asset ETags. */
+static uint32_t fnv1aHash(const uint8_t* data, size_t length) {
+    uint32_t hash = 2166136261u;
+    for (size_t index = 0; index < length; ++index) {
+        hash = (hash ^ data[index]) * 16777619u;
+    }
+    return hash;
+}
 
 bool setupServer() {
     // Static files embedded at compile time by scripts/embed_web.py.
@@ -500,11 +610,24 @@ bool setupServer() {
     httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* r) {
         r->send(200, "text/css", style_css);
     });
+    // The ETag lets the browser revalidate with a tiny 304 instead of pulling
+    // the whole bundle again over a weak link.
+    static char appJsEtag[16];
+    snprintf(appJsEtag, sizeof(appJsEtag), "\"%08lx\"",
+             static_cast<unsigned long>(fnv1aHash(app_js_gz, app_js_gz_len)));
     httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* r) {
+        const AsyncWebHeader* ifNoneMatch = r->getHeader("If-None-Match");
+        if (ifNoneMatch != nullptr && ifNoneMatch->value() == appJsEtag) {
+            AsyncWebServerResponse* notModified = r->beginResponse(304);
+            notModified->addHeader("ETag", appJsEtag);
+            r->send(notModified);
+            return;
+        }
         AsyncWebServerResponse* resp = r->beginResponse(
             200, "application/javascript", app_js_gz, app_js_gz_len);
         resp->addHeader("Content-Encoding", "gzip");
         resp->addHeader("Cache-Control", "no-cache");
+        resp->addHeader("ETag", appJsEtag);
         r->send(resp);
     });
 
