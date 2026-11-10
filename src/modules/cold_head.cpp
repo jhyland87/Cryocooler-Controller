@@ -32,6 +32,7 @@
 #include "tracking.h"
 #include "tick.h"
 #include "logger.h"
+#include "state_change_monitor.h"
 
 static LogStream _Log = Log.createChildLogger("cold_head");
 // ---------------------------------------------------------------------------
@@ -80,40 +81,9 @@ static float sLocalMockTempC   = 26.85f;
 // MAX_PLAUSIBLE_COLDHEAD_TEMP_C].
 // Self-clears on the next clean read.  Exposed via hasSensorFault().
 static bool sRtdFaultActive = false;
-// Per-key fault rate-limiter.
-// Each distinct fault type gets its own slot so that two simultaneously
-// oscillating faults don't reset each other's timers and cause spam.
-// Keys:
-//   1      → ADS1220 communication fault (all-zero / all-one frame)
-//   256    → plausibility fault, reading too low
-//   257    → plausibility fault, reading too high
-//   0      → unused slot
-static constexpr uint32_t FAULT_LOG_INTERVAL_MS  = 10'000;
-static constexpr uint16_t FAULT_KEY_NONE         = 0;
-static constexpr uint16_t FAULT_KEY_PLAUS_LOW    = 256;
-static constexpr uint16_t FAULT_KEY_PLAUS_HIGH   = 257;
-
-struct FaultRateLimit {
-    uint16_t key          = FAULT_KEY_NONE;
-    uint32_t lastLogMs    = 0;
-    uint32_t suppressedCt = 0;
-};
-
-// 4 slots: hw-fault (up to 2 distinct codes), plaus-low, plaus-high.
-static constexpr uint8_t MAX_TRACKED_FAULTS = 4;
-static FaultRateLimit    sFaultLimits[MAX_TRACKED_FAULTS];
-
-// Returns the existing slot for key, or claims an empty one.
-// Returns nullptr only if the table is full (shouldn't happen in practice).
-static FaultRateLimit* findFaultLimit(uint16_t key) {
-    FaultRateLimit* empty = nullptr;
-    for (auto& fl : sFaultLimits) {
-        if (fl.key == key)                              return &fl;
-        if (fl.key == FAULT_KEY_NONE && empty == nullptr) empty = &fl;
-    }
-    if (empty != nullptr) { empty->key = key; }
-    return empty;
-}
+// Debounced PT1000 presence. Starts "absent", so an unplugged sensor stays
+// silent; only found/dropped transitions are logged.
+static StateChangeMonitor sPt1000Presence(COLD_HEAD_PRESENCE_DEBOUNCE_MS);
 
 static constexpr char TAG[] = "cold_head";
 
@@ -161,6 +131,31 @@ static const TempSample& sampleAt(uint8_t i) {
     auto idx = static_cast<uint8_t>(
         (sHead + TEMP_HISTORY_SIZE - sCount + i) % TEMP_HISTORY_SIZE);
     return sHistory[idx];
+}
+
+/**
+ * Feed one conversion result to the presence monitor and log a change.
+ * @param readingOk  True when the reading was a plausible temperature.
+ * @param tempC      Converted temperature, or NAN for an empty SPI frame.
+ * @param nowMs      Current time in milliseconds.
+ */
+static void updatePt1000Presence(bool readingOk, float tempC, uint32_t nowMs) {
+    const auto event = sPt1000Presence.update(readingOk, nowMs);
+    if (event == StateChangeMonitor::Event::Restored) {
+        _Log.printf("ADS1220: PT1000 detected (%.2f C)\n", tempC);
+        return;
+    }
+    if (event != StateChangeMonitor::Event::Lost) {
+        return;
+    }
+    if (isnan(tempC)) {
+        _Log.println(F("ADS1220: PT1000 not detected (empty SPI frame)"));
+        return;
+    }
+    _Log.printf("ADS1220: PT1000 not detected (%.2f C outside [%.1f, %.1f])\n",
+                tempC,
+                static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
+                static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
 }
 
 // ---------------------------------------------------------------------------
@@ -302,6 +297,7 @@ module::ServiceStatus service() {
     // All-zero or all-one frames mean no device is driving MISO.
     if (signed_raw == 0 || signed_raw == -1) {
         sRtdFaultActive = true;
+        updatePt1000Presence(false, NAN, nowMs);
         return module::MODULE_SERVICE_ERROR;
     }
 
@@ -312,42 +308,9 @@ module::ServiceStatus service() {
     const float tempC      = conversions::resistanceToTemperaturePT1000(resistance);
 
     // --- plausibility check ---
-    bool anyFault = false;
-    const bool plausLow  = tempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C);
-    const bool plausHigh = tempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C);
-    if (plausLow || plausHigh) {
-        anyFault = true;
-        const uint16_t  key  = plausLow ? FAULT_KEY_PLAUS_LOW : FAULT_KEY_PLAUS_HIGH;
-        FaultRateLimit* fl   = findFaultLimit(key);
-        const bool      emit = (fl == nullptr) ||
-                               (nowMs - fl->lastLogMs >= FAULT_LOG_INTERVAL_MS);
-        if (emit) {
-            const uint32_t suppressed = fl ? fl->suppressedCt : 0;
-            if (suppressed > 0) {
-                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected"
-                              " (%u suppressed)\n",
-                         tempC,
-                         static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
-                         static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C),
-                         suppressed);
-            } else {
-                _Log.printf("tempC %.2f outside plausible range [%.1f, %.1f] — sensor fault suspected\n",
-                         tempC,
-                         static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C),
-                         static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C));
-            }
-            if (fl) { fl->lastLogMs = nowMs; fl->suppressedCt = 0; }
-        } else {
-            ++fl->suppressedCt;
-        }
-    } else {
-        // Plausibility fault cleared — reset its slots so any recurrence emits immediately.
-        for (auto& fl : sFaultLimits) {
-            if (fl.key == FAULT_KEY_PLAUS_LOW || fl.key == FAULT_KEY_PLAUS_HIGH) {
-                fl = {};
-            }
-        }
-    }
+    const bool anyFault = tempC < static_cast<float>(MIN_PLAUSIBLE_COLDHEAD_TEMP_C) ||
+                          tempC > static_cast<float>(MAX_PLAUSIBLE_COLDHEAD_TEMP_C);
+    updatePt1000Presence(!anyFault, tempC, nowMs);
 
     sRtdFaultActive = anyFault;
 
@@ -372,9 +335,6 @@ module::ServiceStatus service() {
     if (tempTracker_) {
         tempTracker_->update(targetTempC_, sLastTempC);
     }
-
-    // Inline fault check — previously called separately from main.cpp.
-    checkFaults();
 
     return module::MODULE_SERVICE_OK;
 }
@@ -401,13 +361,8 @@ void setLastReadings(float tempC,
 // }
 
 void checkFaults() {
-    if (sensor_mock::isActive()) return;
-    // ADS1220 has no dedicated fault register like the MAX31865.
-    // Faults are detected during service() via empty SPI frames and plausibility
-    // checks.  This function is retained for API compatibility.
-    if (sRtdFaultActive) {
-        _Log.println(F("ADS1220: sensor fault active (empty SPI frame or out-of-range reading)"));
-    }
+    // ADS1220 has no fault register; service() detects faults and logs
+    // PT1000 presence changes.  Kept for API compatibility.
 }
 
 float getLastTempC() {
