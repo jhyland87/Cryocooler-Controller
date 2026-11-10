@@ -205,6 +205,9 @@
 #define MIN_PLAUSIBLE_COLDHEAD_TEMP_C  static_cast<float>(-210.15f)
 #define MAX_PLAUSIBLE_COLDHEAD_TEMP_C  static_cast<float>(50.85f)
 
+// A PT1000 present/absent change must hold this long before it is logged.
+#define COLD_HEAD_PRESENCE_DEBOUNCE_MS  static_cast<uint32_t>(500)
+
 
 #define MIN_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(0.0f)
 #define MAX_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(33.0f)
