@@ -40,6 +40,8 @@ struct RailFlags {
  */
 inline RailFlags decodeRailFlags(uint8_t ioState, uint8_t bitPosLdo, uint8_t bitNegLdo,
                                  uint8_t bitPosBoost, uint8_t bitNegInvert) {
-    auto bit = [ioState](uint8_t index) { return ((ioState >> index) & 1u) != 0; };
-    return RailFlags{bit(bitPosLdo), bit(bitNegLdo), bit(bitPosBoost), bit(bitNegInvert)};
+    // Not named "bit": Arduino.h defines a bit(b) macro that would replace the call.
+    auto pinIsHigh = [ioState](uint8_t pin) { return ((ioState >> pin) & 1u) != 0; };
+    return RailFlags{pinIsHigh(bitPosLdo), pinIsHigh(bitNegLdo), pinIsHigh(bitPosBoost),
+                     pinIsHigh(bitNegInvert)};
 }
