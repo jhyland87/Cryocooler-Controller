@@ -41,6 +41,7 @@ guides below for subsystem detail.
 - [`docs/modules.md`](docs/modules.md) — module lifecycle / how to author a module.
 - [`docs/telemetry.md`](docs/telemetry.md) — add a telemetry field end-to-end.
 - [`docs/state_machine.md`](docs/state_machine.md) — FSM states and transitions.
+- [`docs/acs37800.md`](docs/acs37800.md) — ACS37800 SPI frame, probe and bring-up gotchas.
 - [`STYLEGUIDE.md`](STYLEGUIDE.md) — coding conventions.
 
 ## Architecture
