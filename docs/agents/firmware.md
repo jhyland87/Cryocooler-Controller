@@ -12,6 +12,7 @@ has its own guide in [`hardware/AGENTS.md`](../../hardware/AGENTS.md).
 - [`docs/modules.md`](../modules.md) — module lifecycle / how to author a module.
 - [`docs/telemetry.md`](../telemetry.md) — add a telemetry field end-to-end.
 - [`docs/state_machine.md`](../state_machine.md) — FSM states and transitions.
+- [`docs/acs37800.md`](../acs37800.md) — ACS37800 SPI frame, probe and bring-up gotchas.
 - [`STYLEGUIDE.md`](../../STYLEGUIDE.md) — coding conventions.
 
 ## Architecture
