@@ -436,6 +436,7 @@ void setFrequency(float frequencyHz) {
                   static_cast<unsigned>(frequencyHz));
     frequency_ = frequencyHz;
     ad9833_.setFrequency(MD_AD9833::CHAN_0, frequencyHz);
+    hardware::idleSpiClockLow();  // AD9833 is mode 2; see hardware.h
     // Reset the tracker so the new frequency has time to stabilise before
     // the warning timer starts.
     if (freqTracker_) freqTracker_->reset();
@@ -448,6 +449,7 @@ float getFrequency() {
 void enable() {
     ESP_LOGD(TAG, "Enabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_SINE);
+    hardware::idleSpiClockLow();
     waveformMode_ = MD_AD9833::MODE_SINE;
     enabled_ = true;
     freqTracker_.emplace(TrackingMonitor<float>::Config{
@@ -471,6 +473,7 @@ void enable() {
 void disable() {
     ESP_LOGD(TAG, "Disabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_OFF);
+    hardware::idleSpiClockLow();
     waveformMode_ = MD_AD9833::MODE_OFF;
     enabled_ = false;
     freqTracker_.reset();

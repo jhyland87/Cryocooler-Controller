@@ -117,6 +117,9 @@ static void onWsEvent(AsyncWebSocket* /*srv*/, AsyncWebSocketClient* client,
                       AwsEventType type, void* /*arg*/, uint8_t* /*data*/, size_t /*len*/) {
     switch (type) {
         case WS_EVT_CONNECT:
+            // On a slow link, drop frames for this client instead of closing
+            // it when its queue fills (the SPA would just reconnect and refill).
+            client->setCloseClientOnQueueFull(false);
             _Log.printf("WS client %u connected from %s\n",
                           client->id(), client->remoteIP().toString().c_str());
             break;
@@ -380,7 +383,10 @@ static void dashboardTask(void* /*arg*/) {
 
 #if DASHBOARD_WEBSOCKET_ENABLED
         // ── WebSocket: broadcast Protobuf binary to all SPA clients ───────
-        if (wsServer_.count() > 0) {
+        // Skip the tick while any client's queue is full: each frame is a
+        // full snapshot, so the next one replaces it, and a pending fault
+        // history push waits for the next tick instead of being dropped.
+        if (wsServer_.count() > 0 && wsServer_.availableForWriteAll()) {
             const size_t pbLen = telemetry::encodeProtobuf(pbBuf, pbBufSize);
             if (pbLen > 0) {
                 wsServer_.binaryAll(pbBuf, pbLen);
@@ -477,6 +483,9 @@ bool setupWifi() {
 
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
+    // Modem sleep wakes the radio only at the AP's DTIM beacons, adding
+    // 100-400 ms per packet. The board is mains powered, so keep it awake.
+    WiFi.setSleep(false);
 
     // One bounded attempt: control hardware, including the relay safe state,
     // initialises after this, so further retries belong to the dashboard task.
