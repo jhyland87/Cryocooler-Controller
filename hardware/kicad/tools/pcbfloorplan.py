@@ -12,7 +12,7 @@ from pcbplace import Rect
 # inside it, leaving room for the label that straddles the line
 PART_INSET = 0.5
 # lines run on the region edge itself, so neighbouring sections share one
-# wall (AGENTS.md PCB directives); regions within SHARED_WALL_GAP of each
+# wall (.claude/rules/hardware-pcb.md); regions within SHARED_WALL_GAP of each
 # other are closed up to meet at the midpoint
 LINE_INSET = 0.0
 MIN_REGION_GAP = 0.0
