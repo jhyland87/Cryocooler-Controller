@@ -2355,7 +2355,7 @@ class PcbBuilder:
     def add_board_id(self):
         """Board name and the git revision the files were generated from, in
         a small block on the back silkscreen nearest BOARD_ID_SPOT (same place
-        and format on every revision, per hardware/AGENTS.md).
+        and format on every revision, per .claude/rules/hardware-pcb.md).
         """
         lines = self.board_id_lines()
         size = SILK_MIN_TEXT
@@ -3529,7 +3529,7 @@ class PcbBuilder:
 
     def test_point_problems(self):
         """Test points on the other side from the part they test, or more
-        than TEST_POINT_CHECK_REACH mm from it (hardware/AGENTS.md: same side, close by).
+        than TEST_POINT_CHECK_REACH mm from it (.claude/rules/hardware-pcb.md: same side, close by).
         Ground loops go through the board and are reachable from both sides.
         """
         problems = []
