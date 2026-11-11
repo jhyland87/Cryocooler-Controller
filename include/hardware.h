@@ -35,6 +35,15 @@ namespace hardware {
     SPIClass& spi();
 
     /**
+     * Leaves the shared SPI clock idling low (CPOL 0) by clocking one byte
+     * with every CS high. Call after any SPI_MODE2/3 transaction (AD9833):
+     * the ESP32-S3 only applies a new idle level when the next transfer
+     * starts, so the next mode-1 device (ADS1220, INA239) would otherwise
+     * see an extra falling edge after its CS goes low and shift by a bit.
+     */
+    void idleSpiClockLow();
+
+    /**
      * Returns a reference to the ACS37800 dedicated SPI bus (SPI3_HOST).
      * Separate from the main SPI bus because the ACS37800 keeps MISO driven
      * when CS is high, which would corrupt the shared bus.
