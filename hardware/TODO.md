@@ -26,3 +26,19 @@
 - [x] The plug the cryocooler uses has 3 pins since its normally connected to a 3 pin socket that outputs AC voltage from a variac. Hot, Live and Ground. The amplifier output only has the + and - pins, so we need a 2 pin connector for the amplifier to connect to, then the + and - get ran through the ACS37800, and then it needs to connect to a three pin connector for the cryocooler. The 3rd pin should connect to ground.  — done (J11 2-pin from amp, J12 3-pin to cryocooler with pin 3 on GND)
 - [x] The PCB should be blue. — done
 - [x] Again, the board in this branch needs to be optimized to use both sides of the PCB, its pretty crowded on one side and baren on the other. — done
+
+# Deferred (do only when needed)
+
+- [ ] **Free GPIO 11, 12, 13 and 17 by moving the ACS37800 (U18) onto the shared SPI bus.**
+  Only worth doing if we run out of GPIO. U18 keeps driving MISO while its CS is high,
+  which is why it has its own SPI3 bus (`include/config/pin_config.h`, `docs/acs37800.md` gotcha 5).
+  - Add a 74LVC1G125 tri-state buffer on U18's MISO. Its /OE is active-low, so the
+    ACS37800 CS drives it directly (no inverter). The SC18IS604 MISO used the same trick.
+  - Put the buffer on the ESP32 side of the U17 isolator: U17's MISO output also drives
+    all the time. Take /OE from the ESP32-side CS.
+  - Route SCLK/MOSI from the shared bus (GPIO 42/41) through U17, and the buffered MISO
+    to GPIO 40. CS can move to a spare decoder ID (U32, IDs 100-107) or stay a GPIO.
+  - Firmware: drop the SPI3_HOST bus and use the shared `SPIClass` with LSBFIRST, SPI mode 3,
+    one 40-bit frame per CS. Keep the `primeSPI()` idle-clock fix: on a shared bus,
+    mode changes between devices make the first-frame shift more likely (gotcha 4).
+  - Verify every part and pin against its datasheet before changing the schematic.
