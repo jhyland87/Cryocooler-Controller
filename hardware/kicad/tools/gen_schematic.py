@@ -2861,8 +2861,8 @@ def build_cold_head(sh):
 def build_imu(sh):
     """Hand-laid: J14 (Molex Micro-Lock Plus 2x4 cabled to the off-board Adafruit
     LSM6DSOX module) on the right, +3V3 / ground pins tied off beside it, each
-    signal fanned out to a 100 R series resistor and a global label on the
-    left. Pins follow the T568B pairs: 1-2 SCK/GND, 3-6 MOSI/MISO,
+    signal fanned out through a NUF6401MN filter channel to a global label on
+    the left. Pins keep the RJ45's T568B numbering: 1-2 SCK/GND, 3-6 MOSI/MISO,
     4-5 +3V3/CS, 7-8 INT1/INT2.
     """
     sh.handwired = True

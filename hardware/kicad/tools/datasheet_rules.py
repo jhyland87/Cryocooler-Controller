@@ -118,10 +118,10 @@ RULES = [
     # the boost diode conducts into +16V5, the inverting diode out of -16V5
     ('net', 'DFLS240', '1', ('+16V5', 'Net-(D5-K)')),
     ('net', 'DFLS240', '2', ('Net-(D4-A)', '-16V5')),
-    # J14: off-board Adafruit LSM6DSOX module. Pins 1-8 follow the module's
-    # pads (Vin, GND, SCL, SDA, DO, CS, INT1, INT2); its 3Vo pad is not
-    # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal has a
-    # 100 R series resistor next to the connector; the decoder holds CS high
+    # J14: off-board Adafruit LSM6DSOX module, wired by the J14 table in
+    # kicad/README.md (the pins don't follow its pad order); its 3Vo pad is not
+    # wired. Vin = 3.3 V keeps the module's logic at 3.3 V. Each signal passes a
+    # NUF6401MN channel (100 R series) next to the connector; the decoder holds CS high
     # with the cable unplugged, and the ESD clamps sit on the jack side.
     # J14 is a Molex Micro-Lock Plus 2x4 (505448-0891, drawing 5054480003-SD),
     # same pin numbers as the RJ45 it replaced; its two nails are unconnected
