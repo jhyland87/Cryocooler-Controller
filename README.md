@@ -28,7 +28,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9833, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display and touch controller. Their chip selects come from the SN74LVC138A decoder, driven from GPIO 3, 44, 45 and 8. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
 
-**ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high.
+**ACS37800 SPI bus:** CLK → GPIO 11, MOSI → GPIO 12, MISO → GPIO 13, CS → GPIO 17. It has its own bus because the ACS37800 keeps MISO driven when CS is high. See [`docs/acs37800.md`](docs/acs37800.md) for its SPI frame and bring-up gotchas.
 
 **Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 4.7 kΩ series resistor, a clamp on the GPIO side, and a 4.7 kΩ pull-up to 3.3 V.
 

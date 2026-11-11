@@ -298,6 +298,8 @@ private:
 
   // -- SPI transport ----------------------------------------------------------
   //
+  // Read docs/acs37800.md before changing this (bit order, priming, probe).
+  //
   // Datasheet "SPI" section, Figures 28/30: one 40-bit frame per CS assertion,
   // sent LSB first: address A0..A6, then R/W (1 = read), then data D0..D31
   // (ignored on reads). So the command byte is (R/W << 7) | address on an
