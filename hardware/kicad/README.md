@@ -157,7 +157,8 @@ and describe earlier boards where they differ.
   the back row, even pins the row at the mating face. The pins keep the numbering of the RJ45 they replaced, so
   the far end is wired by the table below, not pin for pin. Power the breakout's
   `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad open. Keep the cable short (it hangs on the
-  shared SPI bus; each signal has a 100 Ω series resistor at J14). The pin names are printed beside the connector.
+  shared SPI bus; each signal passes a NUF6401MN filter channel at J14, 100 Ω in series). Only `IMU` is printed
+  beside the connector; its pins aren't labelled.
 
   | J14 pin | Board signal | Breakout pad |
   |---|---|---|
@@ -173,7 +174,7 @@ and describe earlier boards where they differ.
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH, J6 NTC/GND, J7 BTN/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11 +/-, J12 +/-/GND, J13 12V/GND, J14 as in the table above. Pin 1 is the first label in each list.
+  J11 +/-, J12 +/-/GND, J13 12V/GND. Pin 1 is the first label in each list. J14 has no pin labels; use the table above.
 * **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 643228-1) on 2 mm traces, narrowing to 1.6 mm past J12's GND tab. J11 - and J12 - share a F.Cu link inside the ISO_GND island, 2 mm narrowing to 1.2 mm at the same tab. Along the left wall J12 reads GND, -, + from north to south (molded 3, 2, 1). See `hardware/HANDOFF_rev3.md`.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
