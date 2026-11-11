@@ -324,7 +324,7 @@ LOGO_SOURCE_SIZE = (1658.0, 648.0)  # trace bitmap size in pixels
 LOGO_CENTER = (65.0, 51.0)
 LOGO_WIDTH = 80.0
 TITLE_TEXT = 'STI Hybrid-98 Cryocooler Control Unit'
-# KiCad project name (hardware/AGENTS.md allows the project or the repo name; the
+# KiCad project name (.claude/rules/hardware-pcb.md allows the project or the repo name; the
 # shorter one fits this board)
 BOARD_NAME = 'cryocooler'
 # development stage printed in the board ID block (rev 1 carried ALPHA)
@@ -2334,7 +2334,7 @@ class PcbBuilder:
     def add_board_id(self):
         """Board name and the git revision the files were generated from, in
         a small block on the back silkscreen nearest BOARD_ID_SPOT (same place
-        and format on every revision, per hardware/AGENTS.md).
+        and format on every revision, per .claude/rules/hardware-pcb.md).
         """
         lines = self.board_id_lines()
         size = SILK_MIN_TEXT
@@ -3508,7 +3508,7 @@ class PcbBuilder:
 
     def test_point_problems(self):
         """Test points on the other side from the part they test, or more
-        than TEST_POINT_CHECK_REACH mm from it (hardware/AGENTS.md: same side, close by).
+        than TEST_POINT_CHECK_REACH mm from it (.claude/rules/hardware-pcb.md: same side, close by).
         Ground loops go through the board and are reachable from both sides.
         """
         problems = []

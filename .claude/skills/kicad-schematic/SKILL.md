@@ -9,7 +9,7 @@ The `.kicad_sch` files, `lib/cryocooler.kicad_sym` and `lib/cryocooler.pretty` a
 generated. Edit the Python and re-run; never hand-edit the outputs. Drawing rules
 (upright power symbols, `R_US`, hand-laid sheets, the no-overlap text rule, the
 helpers in `gen_schematic.py`) are in `hardware/kicad/README.md` ("Drawing
-conventions", "Regenerating"). Layout rules are in `hardware/AGENTS.md`. Current
+conventions", "Regenerating"). Layout rules are in `.claude/rules/hardware-pcb.md`. Current
 board state: `hardware/HANDOFF_rev3.md`.
 
 These scripts don't need `pcbnew`, so the system `python3` works. Run from
@@ -38,7 +38,7 @@ exit code.
   changes on the next regeneration.
 - Part and datasheet links come from `tools/part_links.py`. Orderable part numbers
   come from the tables in `tools/gen_bom.py`.
-- Every new part must be checked against its datasheet first (`hardware/AGENTS.md`).
+- Every new part must be checked against its datasheet first (`.claude/rules/hardware-schematic.md`).
   Encode critical connections as a rule in `tools/datasheet_rules.py`.
 
 ## Check (run all after every schematic change)

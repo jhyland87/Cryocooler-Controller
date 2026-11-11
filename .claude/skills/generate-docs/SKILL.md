@@ -67,5 +67,5 @@ scripts/generate-mermaid-pdfs.sh
 
 - Review Doxygen warnings — `WARN_IF_UNDOCUMENTED` flags any undocumented
   public symbol. New warnings usually mean a missing `@file`, `@param`, or
-  `@return`; fix per `docs/style/cpp.md`.
+  `@return`; fix per `.claude/rules/firmware-cpp.md`.
 - Do not commit `docs/doxygen/` (it is gitignored regenerated output).
