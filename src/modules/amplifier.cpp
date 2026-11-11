@@ -335,27 +335,38 @@ module::InitStatus initWaveform() {
 }
 
 module::InitStatus initAcs() {
-    // NOTE: The ACS37800 EN pin must be tied HIGH (or pulled high) for the chip
-    // to produce valid readings.  With EN held LOW the chip outputs full-scale
-    // values on all channels (~130 VAC / max current), which looks like a real
-    // over-voltage reading and will immediately trigger an RmsOvervoltage fault.
+    // The ACS37800 has no EN pin. Its isolated 5 V supply comes from the
+    // ISOW7741 (U17); if that is off, MISO idles high and every read is
+    // 0xFFFFFFFF, which would look like full-scale V/I.
 
-    // Probe: read a known register to verify SPI communication works.
-    // Reading the RMS register with no load returns all zeros, which is
-    // indistinguishable from "no device present".  Instead, read a register
-    // that has a known non-zero default.  Register 0x1F (shadow config)
-    // has factory defaults that are never all-zero or all-ones on a real chip.
-    uint32_t probe = acs_.readReg(0x1F);
-    bool connected = (probe != 0x00000000 && probe != 0xFFFFFFFF);
+    acs_.primeSPI();
 
-    ESP_LOGI(TAG, "ACS37800 SPI probe: reg 0x1F = 0x%08X (%s)",
-             probe, connected ? "connected" : "not found");
+    // Probe: write a test N (bits 23:14) into volatile shadow 0x1F, read it
+    // back, then restore 0x1F from EEPROM 0x0F (its power-up value). A stuck,
+    // floating or unpowered MISO can't echo the value. Shadow 0x1F stores only
+    // bits 24:0; setSampleCount() below rewrites N anyway.
+    static constexpr uint32_t SHADOW_BITS        = 0x01FFFFFFu;
+    static constexpr uint32_t SAMPLE_COUNT_BITS  = 0x00FFC000u;
+    static constexpr uint32_t PROBE_SAMPLE_COUNT = 0x00554000u;  // N = 0x155
+    const uint32_t eepromConfig  = acs_.readReg(0x0F) & SHADOW_BITS;
+    const uint32_t probeWritten  = (eepromConfig & ~SAMPLE_COUNT_BITS) | PROBE_SAMPLE_COUNT;
+    acs_.enableWriteAccess();
+    acs_.writeReg(0x1F, probeWritten);
+    const uint32_t probeReadBack = acs_.readReg(0x1F);
+    acs_.writeReg(0x1F, eepromConfig);
+    const bool connected = (probeReadBack & SHADOW_BITS) == probeWritten;
+
+    _Log.printf("ACS37800 probe: 0x0F = 0x%08X, 0x1F wrote 0x%08X, read 0x%08X (%s)\n",
+                static_cast<unsigned>(eepromConfig), static_cast<unsigned>(probeWritten),
+                static_cast<unsigned>(probeReadBack), connected ? "connected" : "hardware error");
 
     if (!connected) {
-        ESP_LOGW(TAG, "ACS37800 not detected on SPI — power monitor disabled");
-        _Log.println(F("ACS37800 not found on SPI — power monitor disabled"));
+        const char* hint = probeReadBack == 0xFFFFFFFFu
+                               ? "isolated side unpowered? check U17 EN and ISO_5V"
+                               : "no write-back, check U18 / U17";
+        ESP_LOGE(TAG, "ACS37800 hardware error (%s): power monitor disabled", hint);
         sAcsAvailable = false;
-        return module::MODULE_INIT_SUCCESS;  // non-fatal
+        return module::MODULE_INIT_SUCCESS;  // non-fatal: DAC and DDS still run
     }
 
     acs_.setBoardParameters(ACS37800_CURRENT_RANGE_A, ACS37800_RISO_OHMS, ACS37800_RSENSE_OHMS);
@@ -422,6 +433,7 @@ void setFrequency(float frequencyHz) {
                   static_cast<unsigned>(frequencyHz));
     frequency_ = frequencyHz;
     ad9833_.setFrequency(MD_AD9833::CHAN_0, frequencyHz);
+    hardware::idleSpiClockLow();  // AD9833 is mode 2; see hardware.h
     // Reset the tracker so the new frequency has time to stabilise before
     // the warning timer starts.
     if (freqTracker_) freqTracker_->reset();
@@ -434,6 +446,7 @@ float getFrequency() {
 void enable() {
     ESP_LOGD(TAG, "Enabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_SINE);
+    hardware::idleSpiClockLow();
     waveformMode_ = MD_AD9833::MODE_SINE;
     enabled_ = true;
     freqTracker_.emplace(TrackingMonitor<float>::Config{
@@ -457,6 +470,7 @@ void enable() {
 void disable() {
     ESP_LOGD(TAG, "Disabling AD9833");
     ad9833_.setMode(MD_AD9833::MODE_OFF);
+    hardware::idleSpiClockLow();
     waveformMode_ = MD_AD9833::MODE_OFF;
     enabled_ = false;
     freqTracker_.reset();

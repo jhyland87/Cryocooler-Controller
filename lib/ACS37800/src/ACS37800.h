@@ -99,6 +99,18 @@ public:
       pinstantMult, pinstantShift);
   }
 
+  /// Call once before the first SPI frame. After SPIClass::begin() SCLK idles
+  /// low (mode 0); clocking one byte with CS high leaves it idling high, so
+  /// the first mode-3 frame doesn't gain an extra edge and shift by a bit.
+  void primeSPI()
+  {
+    if (transport_ != Transport::SPI) { return; }
+    digitalWrite(csPin_, HIGH);
+    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    spiBus_->transfer(0x00);
+    spiBus_->endTransaction();
+  }
+
   /// Writes the ACCESS_CODE to unlock register writes.
   void enableWriteAccess()
   {
@@ -286,46 +298,39 @@ private:
 
   // -- SPI transport ----------------------------------------------------------
   //
-  // ACS37800 SPI protocol (from datasheet):
-  //   Command byte: bits 7:1 = 7-bit register address, bit 0 = R/W (1=read, 0=write)
-  //   Data: 32 bits, little-endian byte order (LSB first), same as I2C
-  //   Clock: 10 MHz max, SPI Mode 3 (CPOL=1 CPHA=1), MSB first
-  //   (Clock idles HIGH; data sampled on rising edge / output on falling edge.)
+  // Read docs/acs37800.md before changing this (bit order, priming, probe).
   //
-  //   IMPORTANT — reads are pipelined:
-  //     Transaction 1: send read command for register R.
-  //                     MISO returns data from the PREVIOUS read (stale/undefined).
-  //     Transaction 2: send another read (same or different register).
-  //                     MISO returns data for register R from transaction 1.
-  //
-  //   To get a single register value we issue TWO back-to-back read
-  //   transactions and return the data from the second one.
+  // Datasheet "SPI" section, Figures 28/30: one 40-bit frame per CS assertion,
+  // sent LSB first: address A0..A6, then R/W (1 = read), then data D0..D31
+  // (ignored on reads). So the command byte is (R/W << 7) | address on an
+  // LSBFIRST bus. MISO returns the data for the PREVIOUS frame's command, so
+  // a read sends its command in two CS-framed transfers and keeps the second
+  // response. Mode 3, 0.1-10 MHz.
 
   static constexpr uint32_t kSpiClockHz = 1000000;  // 1 MHz (very conservative)
 
+  /// Clocks one 40-bit frame under its own CS assertion.
+  /// @return The 32-bit MISO response (data for the previous command).
+  uint32_t transferFrameSPI(uint8_t command, uint32_t data)
+  {
+    digitalWrite(csPin_, LOW);
+    spiBus_->transfer(command);
+    uint32_t response = 0;
+    for (uint8_t byteIndex = 0; byteIndex < 4; byteIndex++)
+    {
+      const uint8_t shift = 8 * byteIndex;
+      response |= (uint32_t)spiBus_->transfer((data >> shift) & 0xFF) << shift;
+    }
+    digitalWrite(csPin_, HIGH);
+    return response;
+  }
+
   uint32_t readRegSPI(uint8_t reg)
   {
-    SPISettings settings(kSpiClockHz, MSBFIRST, SPI_MODE3);
-    const uint8_t cmd = (reg << 1) | 0x01;                 // addr<<1 | R/W=1 (read)
-
-    spiBus_->beginTransaction(settings);
-    digitalWrite(csPin_, LOW);
-
-    // Cycle 1 — primes pipeline; MISO returns previous read's data (discarded).
-    spiBus_->transfer(cmd);
-    spiBus_->transfer(0x00);
-    spiBus_->transfer(0x00);
-    spiBus_->transfer(0x00);
-    spiBus_->transfer(0x00);
-
-    // Cycle 2 — MISO now returns data for the register addressed in cycle 1.
-    spiBus_->transfer(cmd);
-    uint32_t value  = spiBus_->transfer(0x00);             // byte 0 (LSB)
-    value |= (uint32_t)spiBus_->transfer(0x00) << 8;      // byte 1
-    value |= (uint32_t)spiBus_->transfer(0x00) << 16;     // byte 2
-    value |= (uint32_t)spiBus_->transfer(0x00) << 24;     // byte 3 (MSB)
-
-    digitalWrite(csPin_, HIGH);
+    const uint8_t command = 0x80 | (reg & 0x7F);           // R/W=1 (read) | addr
+    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    transferFrameSPI(command, 0);                          // request; response discarded
+    const uint32_t value = transferFrameSPI(command, 0);   // carries reg's data
     spiBus_->endTransaction();
     lastError = 0;
     return value;
@@ -333,15 +338,8 @@ private:
 
   void writeRegSPI(uint8_t reg, uint32_t value)
   {
-    SPISettings settings(kSpiClockHz, MSBFIRST, SPI_MODE3);
-    spiBus_->beginTransaction(settings);
-    digitalWrite(csPin_, LOW);
-    spiBus_->transfer((reg << 1) & 0xFE);                  // addr<<1 | R/W=0 (write)
-    spiBus_->transfer(value & 0xFF);                       // byte 0 (LSB)
-    spiBus_->transfer((value >> 8) & 0xFF);                // byte 1
-    spiBus_->transfer((value >> 16) & 0xFF);               // byte 2
-    spiBus_->transfer((value >> 24) & 0xFF);               // byte 3 (MSB)
-    digitalWrite(csPin_, HIGH);
+    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    transferFrameSPI(reg & 0x7F, value);                   // R/W=0 (write) | addr
     spiBus_->endTransaction();
     lastError = 0;
   }

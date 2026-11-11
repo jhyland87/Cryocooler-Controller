@@ -50,7 +50,7 @@
 
 // LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
 // cabled to header J14; SPI on the shared bus (AD9833, AD5453, ...).
-#define LSM6DSOX_CS        (CS_ID_BASE + 7)    // J14 pin 6
+#define LSM6DSOX_CS        (CS_ID_BASE + 7)    // J14 pin 5
 #define LSM6DSOX_INT1_PIN  2    // J14 pin 7
 #define LSM6DSOX_INT2_PIN  39   // J14 pin 8
 

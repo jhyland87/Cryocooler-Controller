@@ -8,7 +8,7 @@ description: Place, move or add the PCB part labels (solder-mask and silkscreen 
 Every referenced part has a label printed beside it. Most are solder-mask openings
 over ground pour (exposed copper forms the letters, so the board is ENIG). Where
 mask won't fit, the label is 0.7 mm silk. Silkscreen rules (no overlaps, board
-I/O labels, pin 1, board ID) are in `hardware/AGENTS.md`. Board-specific notes are
+I/O labels, pin 1, board ID) are in `.claude/rules/hardware-pcb.md`. Board-specific notes are
 under "Labels" and "U1 pin names" in `hardware/HANDOFF_rev3.md`.
 
 ```bash

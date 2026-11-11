@@ -61,7 +61,8 @@ float getLastTempCBelowAmbient();
 
 
 /**
- * Check for ADS1220 fault conditions and report via Serial.
+ * No-op kept for API compatibility: service() detects ADS1220 faults and logs
+ * only PT1000 found/dropped transitions.
  */
 void checkFaults();
 
