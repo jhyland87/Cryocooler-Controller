@@ -9,6 +9,11 @@
  */
 
 #include <unity.h>
+
+// Arduino.h's macro, defined here so decodeRailFlags() is tested as the firmware sees it.
+#ifndef bit
+#define bit(b) (1UL << (b))
+#endif
 #include "power_good.h"
 
 using Event = PowerGoodMonitor::Event;
