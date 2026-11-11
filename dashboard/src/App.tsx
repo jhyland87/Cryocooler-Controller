@@ -10,6 +10,7 @@ import { theme } from './theme/theme';
 import * as sx from './theme/styles';
 import { useTelemetry } from './hooks/useTelemetry';
 import { useHistoryBuffer } from './hooks/useHistoryBuffer';
+import { useRunHistory } from './hooks/useRunHistory';
 import { useFaultHistory } from './hooks/useFaultHistory';
 import { Header } from './components/Header';
 import { StatusPanel } from './components/StatusPanel';
@@ -21,8 +22,9 @@ import { AccelSparklines } from './components/AccelSparklines';
 import { SystemSparklines } from './components/SystemSparklines';
 import { ConsoleLog } from './components/ConsoleLog';
 import { CollapsiblePanel } from './components/CollapsiblePanel';
+import { HistoryRangeToggle, rangeWindowMs } from './components/HistoryRangeToggle';
 import type { TelemetryData } from './types/telemetry';
-import type { ChartOverlay, TileConfig } from './types/components';
+import type { ChartOverlay, HistoryRangeId, TileConfig } from './types/components';
 import { getField } from './types/telemetry';
 
 // ─── History buffer keys ──────────────────────────────────────────────────────
@@ -49,6 +51,12 @@ const HISTORY_KEYS = [
   'system.psram_usage_percent',
 ] as const;
 
+/** Bucket limit for line charts (≤ 2 points per bucket, about one per pixel). */
+const CHART_BUCKETS = 600;
+
+/** Points shown in sparklines (100 s at 1 Hz). */
+const SPARK_POINTS = 100;
+
 // ─── Quick-read tile data ─────────────────────────────────────────────────────
 
 const TILES: TileConfig[] = [
@@ -64,27 +72,34 @@ const TILES: TileConfig[] = [
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export function App() {
-  const { data, status, frameCount, onData, onFaultHistory } = useTelemetry();
-  const { push, getHistory }                                  = useHistoryBuffer([...HISTORY_KEYS]);
-  const { faults, loading: faultsLoading, pushUpdate }        = useFaultHistory();
+  const { data, status, frameCount, connectionCount, onData, onFaultHistory } = useTelemetry();
+  const history                                        = useHistoryBuffer(HISTORY_KEYS);
+  const { faults, loading: faultsLoading, pushUpdate } = useFaultHistory();
 
   const [tick, setTick] = useState(0);
+  const [range, setRange] = useState<HistoryRangeId>('2m');
+  const windowMs = rangeWindowMs(range);
   const loading = frameCount === 0;
 
-  // Browser-time of device boot, derived from uptime_ms on the first frame.
-  // Used to convert fault `entered_ms` / `cleared_ms` (millis-since-boot) into
-  // chart-axis timestamps regardless of NTP sync state. Set once and held
-  // stable so faultOverlays keeps a stable identity across telemetry ticks.
+  // Wall-clock time of device boot, from the history store. Converts fault
+  // `entered_ms` / `cleared_ms` (millis-since-boot) into chart-axis timestamps
+  // regardless of NTP sync state. It only moves on a reboot or NTP clock step,
+  // so faultOverlays keeps a stable identity across telemetry ticks.
   const [bootEpochMs, setBootEpochMs] = useState<number | null>(null);
 
+  const bumpTick = useCallback(() => setTick((n) => n + 1), []);
+
   const handleFrame = useCallback((d: TelemetryData, ts: number) => {
-    if (typeof d.system?.uptime_ms === 'number') {
-      const candidate = ts - d.system.uptime_ms;
-      setBootEpochMs((prev) => prev ?? candidate);
-    }
-    push(d, ts);
-    setTick((n) => n + 1);
-  }, [push]);
+    history.push(d, ts);
+    setBootEpochMs(history.clockOffsetMs ?? null);
+    bumpTick();
+  }, [history, bumpTick]);
+
+  // Whole-run history recorded on the device, loaded on every (re)connect.
+  useRunHistory(history, connectionCount, bumpTick);
+
+  const series = (key: string) => history.getSeries(key, windowMs, CHART_BUCKETS);
+  const recent = (key: string) => history.getRecent(key, SPARK_POINTS);
 
   useEffect(() => {
     onData(handleFrame);
@@ -202,13 +217,18 @@ export function App() {
             </Grid>
 
             {/* ── Row 2: Main line charts ───────────────────────────────── */}
+            <Grid size={{ xs: 12 }}>
+              <HistoryRangeToggle value={range} onChange={setRange} spanMs={history.spanMs} />
+            </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
               <CollapsiblePanel title="Cold Head Temperature">
                 <TemperatureChart
-                  actualC={getHistory('cold_head.temp_c')}
-                  ambientC={getHistory('cold_head.ambient_temp_c')}
-                  targetC={getHistory('cold_head.target_temp_c')}
+                  actualC={series('cold_head.temp_c')}
+                  ambientC={series('cold_head.ambient_temp_c')}
+                  targetC={series('cold_head.target_temp_c')}
                   overlays={faultOverlays}
+                  windowMs={windowMs}
                 />
               </CollapsiblePanel>
             </Grid>
@@ -216,12 +236,13 @@ export function App() {
             <Grid size={{ xs: 12, md: 6 }}>
               <CollapsiblePanel title="Power Consumption">
                 <PowerChart
-                  coldHeadVolts={getHistory('cold_head.voltage_v')}
-                  coldHeadAmps={getHistory('cold_head.current_a')}
-                  coldHeadWatts={getHistory('amplifier.power_w')}
-                  systemVolts={getHistory('system.voltage_v')}
-                  systemAmps={getHistory('system.current_a')}
+                  coldHeadVolts={series('cold_head.voltage_v')}
+                  coldHeadAmps={series('cold_head.current_a')}
+                  coldHeadWatts={series('amplifier.power_w')}
+                  systemVolts={series('system.voltage_v')}
+                  systemAmps={series('system.current_a')}
                   overlays={faultOverlays}
+                  windowMs={windowMs}
                 />
               </CollapsiblePanel>
             </Grid>
@@ -229,10 +250,11 @@ export function App() {
             <Grid size={{ xs: 12 }}>
               <CollapsiblePanel title="Cooling System">
                 <CoolingChart
-                  fanSpeed={getHistory('cooling.fan_speed')}
-                  coolantTemp={getHistory('cooling.temp_c')}
-                  flowRate={getHistory('cooling.flow_rate_lpm')}
+                  fanSpeed={series('cooling.fan_speed')}
+                  coolantTemp={series('cooling.temp_c')}
+                  flowRate={series('cooling.flow_rate_lpm')}
                   overlays={faultOverlays}
+                  windowMs={windowMs}
                 />
               </CollapsiblePanel>
             </Grid>
@@ -241,11 +263,11 @@ export function App() {
             <Grid size={{ xs: 12, md: 7 }}>
               <CollapsiblePanel title="Accelerometer">
                 <AccelSparklines
-                  accelX={getHistory('imu.x')}
-                  accelY={getHistory('imu.y')}
-                  accelZ={getHistory('imu.z')}
-                  accelMag={getHistory('imu.accel_mag')}
-                  freqHz={getHistory('imu.freq_hz')}
+                  accelX={recent('imu.x')}
+                  accelY={recent('imu.y')}
+                  accelZ={recent('imu.z')}
+                  accelMag={recent('imu.accel_mag')}
+                  freqHz={recent('imu.freq_hz')}
                   motion={typeof data.imu?.motion === 'number' ? data.imu.motion : undefined}
                 />
               </CollapsiblePanel>
@@ -254,9 +276,9 @@ export function App() {
             <Grid size={{ xs: 12, md: 5 }}>
               <CollapsiblePanel title="System Resources">
                 <SystemSparklines
-                  cpuUsage={getHistory('system.cpu_usage_percent')}
-                  heapUsage={getHistory('system.heap_usage_percent')}
-                  psramUsage={getHistory('system.psram_usage_percent')}
+                  cpuUsage={recent('system.cpu_usage_percent')}
+                  heapUsage={recent('system.heap_usage_percent')}
+                  psramUsage={recent('system.psram_usage_percent')}
                 />
               </CollapsiblePanel>
             </Grid>

@@ -1,7 +1,7 @@
 import type { CoolingChartProps } from '../types/components';
 import { TelemetryLineChart } from './TelemetryLineChart';
 
-export function CoolingChart({ fanSpeed, coolantTemp, flowRate, overlays }: CoolingChartProps) {
+export function CoolingChart({ fanSpeed, coolantTemp, flowRate, overlays, windowMs }: CoolingChartProps) {
   const series = [
     { label: 'Fan Speed (%)',     data: fanSpeed,    color: '#4dd0e1' },
     { label: 'Coolant Temp (°C)', data: coolantTemp, color: '#ef9a9a' },
@@ -14,6 +14,7 @@ export function CoolingChart({ fanSpeed, coolantTemp, flowRate, overlays }: Cool
       series={series}
       yAxis={{  }}
       overlays={overlays}
+      windowMs={windowMs}
     />
   );
 }

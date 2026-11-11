@@ -52,7 +52,7 @@ export function useContainerWidth<T extends HTMLElement = HTMLDivElement>(): [
  *   number of steps — which is extremely rare at 1 Hz.
  *
  * @param containerWidth  Measured outer container width (px).
- * @param windowMs        Total time window shown (ms). Default 60 000 (60 s at 1 Hz).
+ * @param windowMs        Total time span shown (ms). Default 60 000 (60 s at 1 Hz).
  * @param margins         Combined left + right chart margin (px). Default 62 (52 + 10).
  * @param labelWidth      Estimated rendered width of one "HH:MM:SS" label (px). Default 72.
  */
@@ -67,6 +67,10 @@ export function calcTickStep(
   const rawStepMs  = windowMs / maxTicks;
   // Round up to the nearest clean boundary so ticks always land at predictable
   // wall-clock positions regardless of when the session started.
-  const niceSteps  = [2_000, 5_000, 10_000, 15_000, 20_000, 30_000, 60_000];
-  return niceSteps.find((s) => s >= rawStepMs) ?? 60_000;
+  const niceSteps  = [
+    2_000, 5_000, 10_000, 15_000, 20_000, 30_000,               // seconds
+    60_000, 120_000, 300_000, 600_000, 900_000, 1_800_000,      // minutes
+    3_600_000, 7_200_000, 10_800_000, 21_600_000, 43_200_000,   // hours
+  ];
+  return niceSteps.find((s) => s >= rawStepMs) ?? 43_200_000;
 }

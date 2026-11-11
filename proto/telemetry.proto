@@ -154,3 +154,22 @@ message ModuleStatus {
   ModuleEntry commands      = 9;
   ModuleEntry telemetry     = 10;
 }
+
+// ── Run history (GET /api/history) ──────────────────────────────────────────
+// Not part of TelemetryFrame. The response body is one length-delimited
+// RunHistoryHeader followed by length-delimited HistorySample messages,
+// oldest first. Samples come from the PSRAM run recorder at 1 Hz.
+
+message RunHistoryHeader {
+  uint32          boot_id   = 1;  // random per boot; a change means the device restarted
+  repeated string channels  = 2;  // telemetry keys, in HistorySample.values order
+  uint32          first_seq = 3;  // seq of the first sample in this response
+  uint32          end_seq   = 4;  // one past the newest seq in this response
+}
+
+message HistorySample {
+  uint32         seq       = 1;  // sample number since boot
+  uint32         uptime_ms = 2;  // device uptime when sampled
+  sint32         state_id  = 3;  // FSM state id (sint32: Off is -1)
+  repeated float values    = 4;  // one per RunHistoryHeader.channels; NaN = no valid reading
+}

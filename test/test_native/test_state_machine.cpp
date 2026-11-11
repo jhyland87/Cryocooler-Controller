@@ -39,6 +39,9 @@ void run_log_tests();
 // +-15 V power-good monitor tests (defined in test_power_good.cpp)
 void run_power_good_tests();
 
+// Run recorder sample ring tests (defined in test_run_history_ring.cpp)
+void run_run_history_ring_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1672,6 +1675,9 @@ int main(int argc, char **argv) {
     // log ring buffer and LogStream
     run_log_tests();
     run_power_good_tests();
+
+    // Run recorder sample ring
+    run_run_history_ring_tests();
 
     return UNITY_END();
 }

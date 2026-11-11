@@ -214,6 +214,18 @@
 #define FAULT_HISTORY_LIMIT  static_cast<uint8_t>(8)
 
 // =============================================================================
+// Run recorder (PSRAM)
+// =============================================================================
+
+// Samples kept by the run recorder; the oldest is overwritten once full.
+// 24 h at 1 Hz, 88 B each: about 7.6 MB of the 16 MB PSRAM.
+// Served at GET /api/history.
+#define RUN_RECORDER_CAPACITY   static_cast<uint32_t>(8.64e4)
+
+// Interval between run recorder samples (milliseconds).
+#define RUN_RECORDER_PERIOD_MS  static_cast<uint32_t>(1000)
+
+// =============================================================================
 // FSM oscillation detection
 // =============================================================================
 

@@ -654,6 +654,22 @@ export const vibrationFreqValue: SxProps<Theme> = {
   fontSize: '0.75rem',
 };
 
+// ─── History range toggle ───────────────────────────────────────────────────
+
+export const rangeToggleRow: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  gap: 1.5,
+};
+
+export const rangeToggleButton: SxProps<Theme> = {
+  px: 1.25,
+  py: 0.25,
+  fontSize: '0.7rem',
+  textTransform: 'none',
+};
+
 // ─── Telemetry line chart (additional) ──────────────────────────────────────
 
 export const chartContainer: SxProps<Theme> = {

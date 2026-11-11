@@ -29,3 +29,6 @@ Rules:
   the `add-telemetry-field` skill.
 - Update both output paths together. A field present in one path and missing from
   the other is a bug.
+- The run recorder (`GET /api/history`) samples chart channels from
+  `telemetry::fillFrame()`. Its `CHANNELS` keys in `src/modules/run_recorder.cpp`
+  must match the dashboard's `HISTORY_KEYS`; the dashboard maps them by key.

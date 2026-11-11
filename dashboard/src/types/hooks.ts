@@ -10,6 +10,8 @@ export interface TelemetryState {
   lastUpdate: number | null;
   /** Frames received since last mount */
   frameCount: number;
+  /** Bumped on the first frame after each (re)connect; 0 until connected. */
+  connectionCount: number;
 }
 
 // ─── useConsoleLogs ──────────────────────────────────────────────────────────

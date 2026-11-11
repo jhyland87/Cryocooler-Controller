@@ -30,7 +30,8 @@
 namespace telemetry {
 
 // Static frame struct — avoids stack allocation in the dashboard task.
-// Only called from the single dashboard FreeRTOS task, so no reentrancy.
+// encodeProtobuf() is only called from the dashboard FreeRTOS task, so no
+// reentrancy. Other callers of fillFrame() pass their own frame.
 static cryocooler_TelemetryFrame frame_;
 
 // Helper to safely copy a string into a fixed-size Nanopb char array.
@@ -40,9 +41,9 @@ static void copyStr(char* dst, size_t dstSize, const char* src) {
     dst[dstSize - 1] = '\0';
 }
 
-size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
+void fillFrame(cryocooler_TelemetryFrame& frame) {
     // Zero the frame so proto3 defaults apply for any fields we don't set.
-    memset(&frame_, 0, sizeof(frame_));
+    memset(&frame, 0, sizeof(frame));
 
     // ── Service-status gating ────────────────────────────────────────────────
     // Mirror the buildStartupFrame() pattern from telemetry.cpp: if a module's
@@ -63,30 +64,30 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     const bool coolingOk    = svcOk(cooling::Module::getServiceStatus());
 
     // ── Timestamp ────────────────────────────────────────────────────────────
-    frame_.has_timestamp = true;
-    frame_.timestamp.epoch = static_cast<int64_t>(time(nullptr));
+    frame.has_timestamp = true;
+    frame.timestamp.epoch = static_cast<int64_t>(time(nullptr));
     {
         const time_t now = time(nullptr);
-        strftime(frame_.timestamp.local, sizeof(frame_.timestamp.local),
+        strftime(frame.timestamp.local, sizeof(frame.timestamp.local),
                  "%Y-%m-%d %H:%M:%S", localtime(&now));
     }
 
     // ── State machine ────────────────────────────────────────────────────────
-    frame_.has_state = true;
-    frame_.state.id = static_cast<int32_t>(state_machine::getState());
-    copyStr(frame_.state.name, sizeof(frame_.state.name),
+    frame.has_state = true;
+    frame.state.id = static_cast<int32_t>(state_machine::getState());
+    copyStr(frame.state.name, sizeof(frame.state.name),
             state_machine::stateName(state_machine::getState()));
-    copyStr(frame_.state.status_text, sizeof(frame_.state.status_text),
+    copyStr(frame.state.status_text, sizeof(frame.state.status_text),
             state_machine::getStatusText());
 
     // ── Status ───────────────────────────────────────────────────────────────
-    frame_.has_status = true;
+    frame.has_status = true;
     {
         const uint32_t durationMs = state_machine::getOnStateDuration();
-        frame_.status.on_duration_ms = durationMs;
+        frame.status.on_duration_ms = durationMs;
 
         const uint32_t durSec = durationMs / 1000u;
-        snprintf(frame_.status.on_duration, sizeof(frame_.status.on_duration),
+        snprintf(frame.status.on_duration, sizeof(frame.status.on_duration),
                  "%02lu:%02lu:%02lu",
                  static_cast<unsigned long>(durSec / 3600u),
                  static_cast<unsigned long>((durSec % 3600u) / 60u),
@@ -94,175 +95,175 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
         const uint32_t stateMs  = state_machine::getTimeInState();
         const uint32_t stateSec = stateMs / 1000u;
-        snprintf(frame_.status.time_in_state, sizeof(frame_.status.time_in_state),
+        snprintf(frame.status.time_in_state, sizeof(frame.status.time_in_state),
                  "%02lu:%02lu:%02lu",
                  static_cast<unsigned long>(stateSec / 3600u),
                  static_cast<unsigned long>((stateSec % 3600u) / 60u),
                  static_cast<unsigned long>(stateSec % 60u));
 
-        frame_.status.backoff_count = 0;
+        frame.status.backoff_count = 0;
     }
 
     // ── Cold head ────────────────────────────────────────────────────────────
-    frame_.has_cold_head = true;
+    frame.has_cold_head = true;
     if (coldHeadOk && !cold_head::hasSensorFault()) {
-        frame_.cold_head.temp_c   = cold_head::getLastTempC();
-        frame_.cold_head.has_temp = true;
-        frame_.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
-        frame_.cold_head.delta_below_ambient_c = cold_head::getLastTempCBelowAmbient();
+        frame.cold_head.temp_c   = cold_head::getLastTempC();
+        frame.cold_head.has_temp = true;
+        frame.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
+        frame.cold_head.delta_below_ambient_c = cold_head::getLastTempCBelowAmbient();
     } else {
-        frame_.cold_head.temp_c   = NAN;
-        frame_.cold_head.has_temp = false;
-        frame_.cold_head.cooldown_pct          = NAN;
-        frame_.cold_head.delta_below_ambient_c = NAN;
+        frame.cold_head.temp_c   = NAN;
+        frame.cold_head.has_temp = false;
+        frame.cold_head.cooldown_pct          = NAN;
+        frame.cold_head.delta_below_ambient_c = NAN;
     }
     // voltage_v / current_a come from the amplifier module, gate on its status
-    frame_.cold_head.voltage_v  = amplifierOk ? cold_head::getLastRmsVoltage()  : NAN;
-    frame_.cold_head.current_a  = amplifierOk ? cold_head::getLastRmsCurrent()  : NAN;
+    frame.cold_head.voltage_v  = amplifierOk ? cold_head::getLastRmsVoltage()  : NAN;
+    frame.cold_head.current_a  = amplifierOk ? cold_head::getLastRmsCurrent()  : NAN;
     // ambient_temp_c comes from the IMU module, gate on its status
-    frame_.cold_head.ambient_temp_c = imuOk ? cold_head::getLastAmbientTempC() : NAN;
-    frame_.cold_head.target_temp_c  = cold_head::getTargetTempC();
+    frame.cold_head.ambient_temp_c = imuOk ? cold_head::getLastAmbientTempC() : NAN;
+    frame.cold_head.target_temp_c  = cold_head::getTargetTempC();
 
     // ── Amplifier ────────────────────────────────────────────────────────────
-    frame_.has_amplifier = true;
+    frame.has_amplifier = true;
     if (amplifierOk) {
-        frame_.amplifier.voltage_v = amplifier::getLastRmsVoltage();
-        frame_.amplifier.current_a = amplifier::getLastRmsCurrent();
-        frame_.amplifier.power_w   = amplifier::getApparentPowerWatts();
+        frame.amplifier.voltage_v = amplifier::getLastRmsVoltage();
+        frame.amplifier.current_a = amplifier::getLastRmsCurrent();
+        frame.amplifier.power_w   = amplifier::getApparentPowerWatts();
     } else {
-        frame_.amplifier.voltage_v = NAN;
-        frame_.amplifier.current_a = NAN;
-        frame_.amplifier.power_w   = NAN;
+        frame.amplifier.voltage_v = NAN;
+        frame.amplifier.current_a = NAN;
+        frame.amplifier.power_w   = NAN;
     }
 
     // ── System ───────────────────────────────────────────────────────────────
-    frame_.has_system = true;
+    frame.has_system = true;
     if (sysinfoOk) {
-        frame_.system.voltage_v           = sysinfo::getVoltage();
-        frame_.system.current_a           = sysinfo::getCurrent();
-        frame_.system.power_w             = sysinfo::getPower();
+        frame.system.voltage_v           = sysinfo::getVoltage();
+        frame.system.current_a           = sysinfo::getCurrent();
+        frame.system.power_w             = sysinfo::getPower();
     } else {
-        frame_.system.voltage_v           = NAN;
-        frame_.system.current_a           = NAN;
-        frame_.system.power_w             = NAN;
+        frame.system.voltage_v           = NAN;
+        frame.system.current_a           = NAN;
+        frame.system.power_w             = NAN;
     }
     // CPU/heap/PSRAM metrics come from the ESP32 itself (always available)
-    frame_.system.cpu_usage_percent   = sysinfo::getCpuUsagePercent();
-    frame_.system.cpu_freq_mhz        = sysinfo::getCpuFreqMHz();
-    frame_.system.heap_usage_percent  = sysinfo::getHeapUsagePercent();
-    frame_.system.psram_usage_percent = sysinfo::getPsramUsagePercent();
-    frame_.system.total_heap_bytes    = sysinfo::getTotalHeapBytes();
-    frame_.system.total_psram_bytes   = sysinfo::getTotalPsramBytes();
-    frame_.system.uptime_ms           = sysinfo::getUptimeMs();
-    frame_.system.num_cores           = static_cast<uint32_t>(sysinfo::getNumCores());
+    frame.system.cpu_usage_percent   = sysinfo::getCpuUsagePercent();
+    frame.system.cpu_freq_mhz        = sysinfo::getCpuFreqMHz();
+    frame.system.heap_usage_percent  = sysinfo::getHeapUsagePercent();
+    frame.system.psram_usage_percent = sysinfo::getPsramUsagePercent();
+    frame.system.total_heap_bytes    = sysinfo::getTotalHeapBytes();
+    frame.system.total_psram_bytes   = sysinfo::getTotalPsramBytes();
+    frame.system.uptime_ms           = sysinfo::getUptimeMs();
+    frame.system.num_cores           = static_cast<uint32_t>(sysinfo::getNumCores());
 
     // ── IMU ──────────────────────────────────────────────────────────────────
-    frame_.has_imu = true;
+    frame.has_imu = true;
     if (imuOk) {
-        frame_.imu.roll_deg  = imu::getRoll();
-        frame_.imu.pitch_deg = imu::getPitch();
-        frame_.imu.yaw_deg   = imu::getYaw();
-        frame_.imu.accel_mag = imu::getAccelMag();
-        frame_.imu.temp_c    = imu::getTemperature();
-        frame_.imu.motion    = imu::isMotionDetected() ? 1u : 0u;
-        frame_.imu.x         = imu::getAccelX();
-        frame_.imu.y         = imu::getAccelY();
-        frame_.imu.z         = imu::getAccelZ();
+        frame.imu.roll_deg  = imu::getRoll();
+        frame.imu.pitch_deg = imu::getPitch();
+        frame.imu.yaw_deg   = imu::getYaw();
+        frame.imu.accel_mag = imu::getAccelMag();
+        frame.imu.temp_c    = imu::getTemperature();
+        frame.imu.motion    = imu::isMotionDetected() ? 1u : 0u;
+        frame.imu.x         = imu::getAccelX();
+        frame.imu.y         = imu::getAccelY();
+        frame.imu.z         = imu::getAccelZ();
         {
             const float freq = imu::getFrequency();
-            frame_.imu.freq_hz = isnan(freq) ? 0.0f : freq;
+            frame.imu.freq_hz = isnan(freq) ? 0.0f : freq;
         }
     } else {
-        frame_.imu.roll_deg  = NAN;
-        frame_.imu.pitch_deg = NAN;
-        frame_.imu.yaw_deg   = NAN;
-        frame_.imu.accel_mag = NAN;
-        frame_.imu.temp_c    = NAN;
-        frame_.imu.motion    = 0u;
-        frame_.imu.x         = NAN;
-        frame_.imu.y         = NAN;
-        frame_.imu.z         = NAN;
-        frame_.imu.freq_hz   = NAN;
+        frame.imu.roll_deg  = NAN;
+        frame.imu.pitch_deg = NAN;
+        frame.imu.yaw_deg   = NAN;
+        frame.imu.accel_mag = NAN;
+        frame.imu.temp_c    = NAN;
+        frame.imu.motion    = 0u;
+        frame.imu.x         = NAN;
+        frame.imu.y         = NAN;
+        frame.imu.z         = NAN;
+        frame.imu.freq_hz   = NAN;
     }
 
     // ── Cooling ──────────────────────────────────────────────────────────────
-    frame_.has_cooling = true;
+    frame.has_cooling = true;
     if (coolingOk) {
-        frame_.cooling.status        = cooling::isEnabled() ? 1 : 0;
-        frame_.cooling.pump_on       = cooling::isCoolingPumpOn() ? 1 : 0;
-        frame_.cooling.temp_c        = cooling::getCoolantTemperature();
-        frame_.cooling.flow_rate_lpm = cooling::getCoolantFlowRate();
-        frame_.cooling.fan_speed     = static_cast<float>(cooling::getFanSpeed());
-        frame_.cooling.fan_rpm       = cooling::getFanRPM();
-        frame_.cooling.pump_speed    = static_cast<float>(cooling::getPumpSpeed());
-        frame_.cooling.pump_rpm      = cooling::getPumpRPM();
+        frame.cooling.status        = cooling::isEnabled() ? 1 : 0;
+        frame.cooling.pump_on       = cooling::isCoolingPumpOn() ? 1 : 0;
+        frame.cooling.temp_c        = cooling::getCoolantTemperature();
+        frame.cooling.flow_rate_lpm = cooling::getCoolantFlowRate();
+        frame.cooling.fan_speed     = static_cast<float>(cooling::getFanSpeed());
+        frame.cooling.fan_rpm       = cooling::getFanRPM();
+        frame.cooling.pump_speed    = static_cast<float>(cooling::getPumpSpeed());
+        frame.cooling.pump_rpm      = cooling::getPumpRPM();
     } else {
-        frame_.cooling.status        = 0;
-        frame_.cooling.pump_on       = 0;
-        frame_.cooling.temp_c        = NAN;
-        frame_.cooling.flow_rate_lpm = NAN;
-        frame_.cooling.fan_speed     = NAN;
-        frame_.cooling.fan_rpm       = 0;
-        frame_.cooling.pump_speed    = NAN;
-        frame_.cooling.pump_rpm      = 0;
+        frame.cooling.status        = 0;
+        frame.cooling.pump_on       = 0;
+        frame.cooling.temp_c        = NAN;
+        frame.cooling.flow_rate_lpm = NAN;
+        frame.cooling.fan_speed     = NAN;
+        frame.cooling.fan_rpm       = 0;
+        frame.cooling.pump_speed    = NAN;
+        frame.cooling.pump_rpm      = 0;
     }
 
     // ── Compressor ───────────────────────────────────────────────────────────
-    frame_.has_compressor = true;
-    frame_.compressor.status = compressor::getStatus() ? 1 : 0;
+    frame.has_compressor = true;
+    frame.compressor.status = compressor::getStatus() ? 1 : 0;
 
     // ── Relays ───────────────────────────────────────────────────────────────
-    frame_.has_relay = true;
-    frame_.relay.compressor_state = compressor::getStatus() ? 1 : 0;
-    frame_.relay.amplifier_state  = amplifier::getRelayState() ? 1 : 0;
+    frame.has_relay = true;
+    frame.relay.compressor_state = compressor::getStatus() ? 1 : 0;
+    frame.relay.amplifier_state  = amplifier::getRelayState() ? 1 : 0;
 
     // ── Indicators ───────────────────────────────────────────────────────────
-    frame_.has_indicator = true;
-    frame_.indicator.fault = indicator::isFaultOn() ? 1 : 0;
-    frame_.indicator.ready = indicator::isReadyOn() ? 1 : 0;
+    frame.has_indicator = true;
+    frame.indicator.fault = indicator::isFaultOn() ? 1 : 0;
+    frame.indicator.ready = indicator::isReadyOn() ? 1 : 0;
 
     // ── Faults ───────────────────────────────────────────────────────────────
-    frame_.has_faults = true;
-    frame_.faults.count_10m = state_machine::countRecentFaults(600000u);
-    frame_.faults.count_30m = state_machine::countRecentFaults(1800000u);
-    frame_.faults.count_60m = state_machine::countRecentFaults(3600000u);
+    frame.has_faults = true;
+    frame.faults.count_10m = state_machine::countRecentFaults(600000u);
+    frame.faults.count_30m = state_machine::countRecentFaults(1800000u);
+    frame.faults.count_60m = state_machine::countRecentFaults(3600000u);
 
     // ── Firmware ─────────────────────────────────────────────────────────────
-    frame_.has_firmware = true;
-    copyStr(frame_.firmware.version, sizeof(frame_.firmware.version),
+    frame.has_firmware = true;
+    copyStr(frame.firmware.version, sizeof(frame.firmware.version),
             ota::getFirmwareVersion());
-    copyStr(frame_.firmware.build_date, sizeof(frame_.firmware.build_date),
+    copyStr(frame.firmware.build_date, sizeof(frame.firmware.build_date),
             ota::getFirmwareBuildDate());
-    frame_.firmware.ota_flash_ts = ota::getLastFlashTime();
+    frame.firmware.ota_flash_ts = ota::getLastFlashTime();
     {
         const int64_t flashTs = ota::getLastFlashTime();
         if (flashTs > 0) {
             const time_t ft = static_cast<time_t>(flashTs);
-            strftime(frame_.firmware.ota_flash_local,
-                     sizeof(frame_.firmware.ota_flash_local),
+            strftime(frame.firmware.ota_flash_local,
+                     sizeof(frame.firmware.ota_flash_local),
                      "%Y-%m-%d %H:%M:%S", localtime(&ft));
         } else {
-            copyStr(frame_.firmware.ota_flash_local,
-                    sizeof(frame_.firmware.ota_flash_local), "never");
+            copyStr(frame.firmware.ota_flash_local,
+                    sizeof(frame.firmware.ota_flash_local), "never");
         }
     }
 
     // ── Scores ───────────────────────────────────────────────────────────────
-    frame_.has_score = true;
-    frame_.score.has_cooling = true;
-    frame_.score.cooling.fan_speed    = cooling::getFanSpeedScore();
-    frame_.score.cooling.coolant_temp = cooling::getCoolantTempScore();
-    frame_.score.cooling.coolant_flow = cooling::getCoolantFlowScore();
-    frame_.score.cooling.worst        = cooling::getWorstTrackingScore();
+    frame.has_score = true;
+    frame.score.has_cooling = true;
+    frame.score.cooling.fan_speed    = cooling::getFanSpeedScore();
+    frame.score.cooling.coolant_temp = cooling::getCoolantTempScore();
+    frame.score.cooling.coolant_flow = cooling::getCoolantFlowScore();
+    frame.score.cooling.worst        = cooling::getWorstTrackingScore();
 
     // ── Module status ────────────────────────────────────────────────────────
-    frame_.has_modules = true;
+    frame.has_modules = true;
 
     #define FILL_MOD(field, ns) do { \
-        frame_.modules.has_##field = true; \
-        copyStr(frame_.modules.field.init, sizeof(frame_.modules.field.init), \
+        frame.modules.has_##field = true; \
+        copyStr(frame.modules.field.init, sizeof(frame.modules.field.init), \
                 module::initStatusName(ns::Module::getInitStatus())); \
-        copyStr(frame_.modules.field.service, sizeof(frame_.modules.field.service), \
+        copyStr(frame.modules.field.service, sizeof(frame.modules.field.service), \
                 module::serviceStatusName(ns::Module::getServiceStatus())); \
     } while(0)
 
@@ -279,7 +280,11 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
     #undef FILL_MOD
 
     // ── Log epoch ────────────────────────────────────────────────────────────
-    frame_.log_epoch = logger::getLastLogEpoch();
+    frame.log_epoch = logger::getLastLogEpoch();
+}
+
+size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
+    fillFrame(frame_);
 
     // ── Encode ───────────────────────────────────────────────────────────────
     pb_ostream_t stream = pb_ostream_from_buffer(buf, bufSize);

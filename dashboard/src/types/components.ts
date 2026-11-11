@@ -119,6 +119,20 @@ export interface TelemetryLineChartProps {
     max?: number;
   };
   overlays?: ChartOverlay[];
+  /** Trailing window shown on the x-axis (ms); undefined = all the data given. */
+  windowMs?: number;
+}
+
+// ─── HistoryRangeToggle ──────────────────────────────────────────────────────
+
+/** Chart time range: trailing 2 min, 30 min, 4 h, or the whole history. */
+export type HistoryRangeId = '2m' | '30m' | '4h' | 'all';
+
+export interface HistoryRangeToggleProps {
+  value:    HistoryRangeId;
+  onChange: (next: HistoryRangeId) => void;
+  /** Time covered by the history held (ms); 0 hides the caption. */
+  spanMs:   number;
 }
 
 // ─── VibrationWave ───────────────────────────────────────────────────────────
@@ -135,6 +149,7 @@ export interface TemperatureChartProps {
   ambientC:  DataPoint[];
   targetC:   DataPoint[];
   overlays?: ChartOverlay[];
+  windowMs?: number;
 }
 
 export interface CoolingChartProps {
@@ -142,6 +157,7 @@ export interface CoolingChartProps {
   coolantTemp: DataPoint[];
   flowRate:    DataPoint[];
   overlays?:   ChartOverlay[];
+  windowMs?:   number;
 }
 
 export interface PowerChartProps {
@@ -151,6 +167,7 @@ export interface PowerChartProps {
   systemVolts:   DataPoint[];
   systemAmps:    DataPoint[];
   overlays?:     ChartOverlay[];
+  windowMs?:     number;
 }
 
 // ─── Sparkline panels ────────────────────────────────────────────────────────

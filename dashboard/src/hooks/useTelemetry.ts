@@ -4,6 +4,7 @@ import type { ConnectionStatus, TelemetryState } from '../types/hooks';
 import { decodeTelemetryFrame } from '../utils/decodeTelemetry';
 import type { FaultHistoryMessage } from '../types/faultHistory';
 import { isFaultHistoryMessage } from '../types/faultHistory';
+import { deviceWsUrl } from '../utils/esp32Host';
 
 // Re-export types so existing consumers don't break
 export type { ConnectionStatus, TelemetryState } from '../types/hooks';
@@ -23,23 +24,10 @@ const STALE_TIMEOUT_MS = 5000;
 /** How often (ms) to check for staleness. */
 const STALE_CHECK_MS = 2000;
 
-/**
- * Target ESP32 hostname.
- *
- * Always connect to the ESP32's mDNS hostname so the dashboard works
- * correctly whether it's being served from the ESP32 itself, opened from a
- * local file, or run via the Vite dev server (`npm run dev`).
- *
- * Change this if your ESP32 uses a different hostname (see HOSTNAME in
- * include/config.h / include/arduino_secrets.h).
- */
-const ESP32_HOST = 'cryocooler.local';
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function wsUrl(): string {
-  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//${ESP32_HOST}/ws`;
+  return deviceWsUrl('/ws');
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -60,6 +48,7 @@ export function useTelemetry(): TelemetryState & {
   const [status, setStatus]         = useState<ConnectionStatus>('connecting');
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
   const [frameCount, setFrameCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
 
   const wsRef        = useRef<WebSocket | null>(null);
   const mountedRef   = useRef(true);
@@ -147,6 +136,7 @@ export function useTelemetry(): TelemetryState & {
       if (statusRef.current !== 'connected') {
         wasConnectedRef.current = true;
         updateStatus('connected');
+        setConnectionCount((count) => count + 1);
 
         // (Re)start the staleness watchdog.
         if (staleRef.current) clearInterval(staleRef.current);
@@ -203,5 +193,5 @@ export function useTelemetry(): TelemetryState & {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { data, status, lastUpdate, frameCount, onData, onFaultHistory };
+  return { data, status, lastUpdate, frameCount, connectionCount, onData, onFaultHistory };
 }

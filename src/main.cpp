@@ -34,6 +34,7 @@
 #include "esp_log.h"
 #include "ota.h"
 #include "espnow.h"
+#include "run_recorder.h"
 #include "tick.h"
 // =============================================================================
 // Logging
@@ -81,6 +82,7 @@ static const module::ModuleEntry persistentModules[] = {
     MODULE_ENTRY(telemetry, false),
     MODULE_ENTRY(sysinfo,   false),
     MODULE_ENTRY(display,   false),
+    MODULE_ENTRY(run_recorder, false),
 };
 static constexpr size_t NUM_PERSISTENT = sizeof(persistentModules) / sizeof(persistentModules[0]);
 
@@ -102,6 +104,7 @@ static const module::ModuleEntry tickServiceModules[] = {
     MODULE_ENTRY(amplifier, false),
     MODULE_ENTRY(cooling,   false),
     MODULE_ENTRY(display,   false),
+    MODULE_ENTRY(run_recorder, false),
 };
 static constexpr size_t NUM_TICK_SERVICE = sizeof(tickServiceModules) / sizeof(tickServiceModules[0]);
 
@@ -114,6 +117,7 @@ static const module::ModuleEntry allModulesForBanner[] = {
     MODULE_ENTRY(dashboard,     false),
     MODULE_ENTRY(sysinfo,       false),
     MODULE_ENTRY(display,       false),
+    MODULE_ENTRY(run_recorder,  false),
     MODULE_ENTRY(cooling,       false),
     MODULE_ENTRY(amplifier,     false),
     MODULE_ENTRY(cold_head,     false),

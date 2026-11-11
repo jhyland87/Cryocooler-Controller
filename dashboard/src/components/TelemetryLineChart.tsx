@@ -5,18 +5,25 @@ import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import { useMemo, useState, useCallback } from 'preact/hooks';
 import type { DataPoint } from '../types/telemetry';
-import type { ChartOverlay, TelemetryLineChartProps } from '../types/components';
+import type { ChartOverlay, ChartSeries, TelemetryLineChartProps } from '../types/components';
 import { useContainerWidth, calcTickStep } from '../hooks/useContainerWidth';
-import { HISTORY_WINDOW_MS } from '../hooks/useHistoryBuffer';
 import { createTimeFormatter } from '../utils/formatters';
 import * as sx from '../theme/styles';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function padTo(arr: (number | null)[], len: number): (number | null)[] {
-  const out: (number | null)[] = [...arr];
-  while (out.length < len) out.unshift(null);
-  return out;
+/** Smallest and largest non-null value across the series, or undefined if none. */
+function valueRange(series: ChartSeries[]): { min: number; max: number } | undefined {
+  let min = Infinity;
+  let max = -Infinity;
+  for (const s of series) {
+    for (const p of s.data) {
+      if (p.v === null) continue;
+      if (p.v < min) min = p.v;
+      if (p.v > max) max = p.v;
+    }
+  }
+  return min <= max ? { min, max } : undefined;
 }
 
 // ─── Overlay (active-fault bands) ─────────────────────────────────────────────
@@ -81,10 +88,9 @@ function RangeOverlay({ overlays, xMin, xMax }: RangeOverlayProps) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TelemetryLineChart({ title, series, yAxis, overlays }: TelemetryLineChartProps) {
+export function TelemetryLineChart({ title, series, yAxis, overlays, windowMs }: TelemetryLineChartProps) {
   const loading = series.every((s) => s.data.length === 0);
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
-  const tickStep = calcTickStep(containerWidth);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
 
   const toggleSeries = useCallback((label: string) => {
@@ -103,32 +109,25 @@ export function TelemetryLineChart({ title, series, yAxis, overlays }: Telemetry
     [],
   );
 
-  const xData        = longest.map((p) => p.t);
-  const timeFormatter = useMemo(() => createTimeFormatter(), [xData.length > 0 ? xData[0] : 0]);
-
-  const n    = xData.length || 1;
-  const xMax = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
-  const xMin = xMax - HISTORY_WINDOW_MS;
+  // Every series comes from the same history store window, so they share timestamps.
+  const xData = longest.map((p) => p.t);
+  const xMax  = longest.length > 0 ? longest[longest.length - 1].t : Date.now();
+  const xMin  = windowMs !== undefined ? xMax - windowMs : (longest.length > 0 ? longest[0].t : xMax);
+  const tickStep    = calcTickStep(containerWidth, Math.max(xMax - xMin, 1_000));
+  const showSeconds = tickStep < 60_000;
+  const timeFormatter = useMemo(
+    () => createTimeFormatter(showSeconds),
+    [xData.length > 0 ? xData[0] : 0, showSeconds],
+  );
 
   const PADDING = 10;
-
-  const yMin: number | undefined = (() => {
-    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v)).filter((v): v is number => v !== null);
-    if (allValues.length === 0) return yAxis?.min ?? 0;
-    const dataMin = Math.min(...allValues);
-    return Math.floor(dataMin - PADDING);
-  })();
-
-  const yMax: number | undefined = (() => {
-    const allValues = visibleSeries.flatMap((s) => s.data.map((p) => p.v)).filter((v): v is number => v !== null);
-    if (allValues.length === 0) return yAxis?.max ?? 1;
-    const dataMax = Math.max(...allValues);
-    return Math.ceil(dataMax + PADDING);
-  })();
+  const range = valueRange(visibleSeries);
+  const yMin  = range ? Math.floor(range.min - PADDING) : (yAxis?.min ?? 0);
+  const yMax  = range ? Math.ceil(range.max + PADDING) : (yAxis?.max ?? 1);
 
   const chartSeries = visibleSeries.map((s) => ({
     label:    s.label,
-    data:     padTo(s.data.map((p) => p.v), n),
+    data:     s.data.map((p) => p.v),
     color:    s.color,
     showMark: false,
     id:       s.label.replace(/[^a-zA-Z0-9]/g, '_'),

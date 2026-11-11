@@ -30,6 +30,7 @@
 #include "telemetry.h"
 #include "telemetry_pb.h"
 #include "ota.h"
+#include "run_recorder.h"
 #include "logger.h"
 #include "state_machine.h"
 
@@ -550,6 +551,9 @@ bool setupServer() {
     // OTA firmware-update endpoint (GET /ota — upload form, POST /ota — flash).
     // Registered here so it shares the same AsyncWebServer instance and port.
     ota::registerRoutes(httpServer);
+
+    // Run recorder history (GET /api/history), streamed from PSRAM.
+    run_recorder::registerRoutes(httpServer);
 
 #if DASHBOARD_WEBSOCKET_ENABLED
     // WebSocket endpoint for the Preact SPA dashboard.

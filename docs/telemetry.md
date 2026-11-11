@@ -11,6 +11,12 @@ that both need updating:
 
 Both paths share the same dot-notation key convention (`group.field_name`).
 
+The **run recorder** (`src/modules/run_recorder.cpp`) is not a third frame path:
+it samples the dashboard's chart channels from `telemetry::fillFrame()` once a
+second into PSRAM and serves the last 24 h at `GET /api/history` (messages
+`RunHistoryHeader` and `HistorySample` in `telemetry.proto`). A new field only
+reaches it if you add it as a chart channel (Step 7a).
+
 ---
 
 ## Worked Example
@@ -138,7 +144,7 @@ message Vacuum {
 ```protobuf
 message TelemetryFrame {
   ...
-  Vacuum vacuum = 16;   // next available field number in TelemetryFrame
+  Vacuum vacuum = 17;   // next available field number in TelemetryFrame
 }
 ```
 
@@ -172,25 +178,26 @@ The next `pio run` will regenerate all four files automatically via
 
 ## Step 4 — src/telemetry_pb.cpp: Nanopb encoder
 
-This file populates the Nanopb struct that is encoded and sent over WebSocket.
-It reads from the same module getters as `telemetry.cpp` but fills struct
-fields rather than calling `FrameBuilder::field()`.
+`fillFrame()` in this file populates the Nanopb struct that is encoded and sent
+over WebSocket (and that the run recorder samples). It reads from the same module
+getters as `telemetry.cpp` but fills struct fields rather than calling
+`FrameBuilder::field()`.
 
 ```cpp
-// src/telemetry_pb.cpp  — inside the cooling section
-frame_.has_cooling = true;
-frame_.cooling.status        = cooling::isEnabled() ? 1 : 0;
+// src/telemetry_pb.cpp  — fillFrame(), inside the cooling section
+frame.has_cooling = true;
+frame.cooling.status        = cooling::isEnabled() ? 1 : 0;
 ...
-frame_.cooling.pump_rpm      = cooling::getPumpRPM();
-frame_.cooling.pump_pressure_bar = cooling::getPumpPressure();   // ← add
+frame.cooling.pump_rpm      = cooling::getPumpRPM();
+frame.cooling.pump_pressure_bar = cooling::getPumpPressure();   // ← add
 ```
 
 The struct field names are generated from the `.proto` field names in
-snake_case (e.g. `pump_pressure_bar` → `frame_.cooling.pump_pressure_bar`).
+snake_case (e.g. `pump_pressure_bar` → `frame.cooling.pump_pressure_bar`).
 
 > **For new top-level messages** you also need to set the `has_<message>` flag
 > and initialise the nested struct, following the pattern used by
-> `frame_.has_cooling`, `frame_.has_system`, etc.
+> `frame.has_cooling`, `frame.has_system`, etc.
 
 ---
 
@@ -265,8 +272,8 @@ These are only needed if you want the field visible in the Preact dashboard.
 
 ### 7a — History buffer (App.tsx)
 
-To record a rolling 100-sample history for use in a chart, add the key to
-`HISTORY_KEYS`:
+To chart the field, add the key to `HISTORY_KEYS`. The dashboard keeps up to
+24 h of these in its history store (`dashboard/src/utils/historyStore.ts`):
 
 ```typescript
 // dashboard/src/App.tsx
@@ -290,9 +297,18 @@ const TILES: TileConfig[] = [
 
 ### 7c — Chart component
 
-Pass the history buffer slice to whichever chart component is appropriate, or
-create a new one.  Use `getHistory('cooling.pump_pressure_bar')` to retrieve
-the data.
+Pass the history to whichever chart component is appropriate, or create a new
+one. Use `series('cooling.pump_pressure_bar')` in `App.tsx` for line charts (the
+selected time range, decimated) or `recent(...)` for sparklines.
+
+### 7d — Run recorder (optional)
+
+To keep the field in the device's 24 h run history (so it survives a page reload
+or WiFi drop-out), add it to `CHANNELS` in `src/modules/run_recorder.cpp` with
+the same key, and raise `run_history::CHANNEL_COUNT` in
+`include/run_history_ring.h`. Each channel adds 4 bytes per sample (about 340 KB
+of PSRAM at 86,400 samples); past 24 channels, raise the `max_count` options in
+`telemetry.options`.
 
 ---
 
@@ -312,7 +328,8 @@ the data.
 | 6  | `dashboard/src/utils/decodeTelemetry.ts` | Map `f.<message>.<camelCaseField>` to `out.<group>.<snake_case_field>` |
 | 7a | `dashboard/src/App.tsx` — `HISTORY_KEYS` | Add key for chart history (optional) |
 | 7b | `dashboard/src/App.tsx` — `TILES` | Add tile entry for quick-read display (optional) |
-| 7c | Dashboard component | Wire `getHistory('group.key')` into a chart (optional) |
+| 7c | Dashboard component | Wire `series('group.key')` into a chart (optional) |
+| 7d | `src/modules/run_recorder.cpp` — `CHANNELS` | Keep it in the 24 h run history (optional) |
 
 ---
 

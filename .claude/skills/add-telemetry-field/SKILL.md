@@ -45,7 +45,9 @@ The authoritative, worked walkthrough is
    field. Use the `toLong()` helper for `int64`/`uint64`.
 
 7. **(Optional) Preact dashboard** — `App.tsx` `HISTORY_KEYS` (chart history) and
-   `TILES` (quick-read tile), then wire into a chart component.
+   `TILES` (quick-read tile), then wire into a chart component. To keep it in the
+   device's 24 h run history too, add it to `CHANNELS` in
+   `src/modules/run_recorder.cpp` and raise `run_history::CHANNEL_COUNT`.
 
 ## Verify
 

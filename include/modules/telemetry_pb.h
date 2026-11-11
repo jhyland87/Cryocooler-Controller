@@ -12,8 +12,20 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "generated/telemetry.pb.h"
 
 namespace telemetry {
+
+/**
+ * Fill @p frame from the module getters, with the same service-status NaN
+ * gating the WebSocket frames use. The run recorder samples its channels
+ * from this so both stay in step.
+ *
+ * Writes only to @p frame, so callers on different tasks each pass their own.
+ *
+ * @param frame  Frame to overwrite (zeroed first).
+ */
+void fillFrame(cryocooler_TelemetryFrame& frame);
 
 /**
  * Encode the current telemetry state into a Protobuf binary frame.
