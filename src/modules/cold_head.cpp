@@ -226,8 +226,13 @@ module::InitStatus initRTD() {
 module::ServiceStatus service() {
     // If hardware init failed, don't touch the SPI bus — a missing ADS1220
     // would only return all-zero or all-one frames every tick.
+    // V/I (amplifier) and ambient (IMU) come from other modules, so keep them
+    // current even when the RTD is unusable.
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS
         && !sensor_mock::isActive() && !sLocalMockEnabled) {
+        sLastRmsVoltageV  = amplifier::getLastRmsVoltage();
+        sLastRmsCurrentA  = amplifier::getLastRmsCurrent();
+        sLastAmbientTempC = imu::getTemperature();
         return module::MODULE_SERVICE_SKIPPED;
     }
 
