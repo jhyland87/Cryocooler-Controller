@@ -46,12 +46,12 @@ them there, not on the command line.
 - Vendor STEP models live in `lib/cryocooler.3dshapes/` and are tracked in git.
   A part with a missing model renders as bare pads, so a missing body in the render
   points to a model path problem. Models must be STEP, never `.wrl`
-  (`hardware/AGENTS.md`).
+  (`.claude/rules/hardware-pcb.md`).
 
 ## Board ID stamp
 
 The back silkscreen carries `Cryocooler Control Unit` / `BETA rev <short hash>`, the commit the
-fab files come from (`hardware/AGENTS.md`, "Board ID block"). On the routed rev 3
+fab files come from (`.claude/rules/hardware-pcb.md`, "Board ID block"). On the routed rev 3
 board no script restamps it (`gen_pcb.py` stamps only on a full rebuild, which
 must not be run). The repo's pattern:
 

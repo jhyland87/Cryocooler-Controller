@@ -1,20 +1,15 @@
 # CLAUDE.md
 
-Project guidance for Claude Code. The shared overview loads here; each area's
-guide loads on demand from `.claude/rules/` when you touch files in that area:
-
-- `.claude/rules/firmware.md` — firmware, dashboard, proto, scripts, tests
-  (loads `docs/agents/firmware.md`).
-- `.claude/rules/style-cpp.md` — `src/`, `include/`, `test/` (loads
-  `docs/style/cpp.md`).
-- `.claude/rules/style-typescript.md` — `dashboard/` (loads
-  `docs/style/typescript.md`).
-- `.claude/rules/hardware.md` — anything under `hardware/` (loads
-  `hardware/AGENTS.md`).
-
-If a task spans both areas, read both guides.
+Project guidance for Claude Code. The shared overview loads here:
 
 @AGENTS.md
+
+## Rules
+
+Rules live in `.claude/rules/` and load automatically: `general.md` and
+`git-workflow.md` every session, the rest when you work on matching paths (see the
+index in `AGENTS.md`). If a task spans firmware and hardware, both sets load. Edit
+the rule file, not this one, when a convention changes.
 
 ## Claude Code specifics
 
