@@ -72,6 +72,13 @@ namespace hardware {
         return module::InitStatus::MODULE_INIT_SUCCESS;
     }
 
+    void idleSpiClockLow() {
+        static const SPISettings idleLowSettings(1e6, MSBFIRST, SPI_MODE0);
+        SPI.beginTransaction(idleLowSettings);
+        SPI.transfer(0x00);
+        SPI.endTransaction();
+    }
+
     SPIClass& spi()    { return SPI;   }
     SPIClass& acsSpi() { return sAcsSpi; }
 
