@@ -21,7 +21,8 @@ import ripup  # noqa: E402
 # never ripped: switch nodes, a compensation node and the rail PG flags
 PROTECTED = {'GND', 'ISO_GND', 'Net-(U20-SWA2)', 'Net-(D5-A)', 'Net-(D6-A)',
              'Net-(C77-Pad1)', 'PGP_15V', 'PGN_15V', 'PGN_16V5'}
-SOFT_CLASSES = {'Default'}
+# SPI, Analog and Control are schematic colour classes with Default's rules
+SOFT_CLASSES = {'Default', 'SPI', 'Analog', 'Control'}
 # extra nets to leave alone this run ('|'-separated)
 KEEP = set(filter(None, os.environ.get('KEEP', '').split('|')))
 PATH_WIDTH = 0.2

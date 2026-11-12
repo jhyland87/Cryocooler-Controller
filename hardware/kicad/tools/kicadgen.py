@@ -658,6 +658,8 @@ class Sheet:
         self.uid = new_uuid()
         self.parts = []
         self.wires = []
+        self.buses = []  # ((x1, y1), (x2, y2)) in mm
+        self.bus_entries = []  # (x, y, dx, dy): wire end and offset to the bus
         self.labels = []
         self.no_connects = []
         self.junctions = []
@@ -715,8 +717,9 @@ class Sheet:
         self.connect(part, '1', net)
         return part
 
-    def note(self, text, x, y, size=1.8):
-        self.text_items.append((text, x, y, size))
+    def note(self, text, x, y, size=1.8, color=None):
+        """Free text; color is an (r, g, b) tuple or None for the theme."""
+        self.text_items.append((text, x, y, size, color))
 
     def finalize(self):
         if self.finalized:
@@ -944,6 +947,17 @@ class Sheet:
             out.append(
                 f'\t(no_connect (at {fmt(x)} {fmt(y)}) (uuid {q(new_uuid())}))'
             )
+        for (x1, y1), (x2, y2) in merge_overlapping_wires(self.buses):
+            out.append(
+                f'\t(bus (pts (xy {fmt(x1)} {fmt(y1)}) (xy {fmt(x2)} '
+                f'{fmt(y2)})) '
+                f'(stroke (width 0) (type default)) (uuid {q(new_uuid())}))'
+            )
+        for x, y, dx, dy in self.bus_entries:
+            out.append(
+                f'\t(bus_entry (at {fmt(x)} {fmt(y)}) (size {fmt(dx)} {fmt(dy)}) '
+                f'(stroke (width 0) (type default)) (uuid {q(new_uuid())}))'
+            )
         for kind, net, (x, y), angle in self.labels:
             rotation = int(angle) % 360
             justify = 'right' if rotation in (180, 270) else 'left'
@@ -968,11 +982,14 @@ class Sheet:
                     f'(do_not_autoplace no) '
                     f'(effects (font (size 1.27 1.27)) (justify {justify}))))'
                 )
-        for text, x, y, size in self.text_items:
+        for text, x, y, size, color in self.text_items:
+            font = f'(size {size} {size})'
+            if color:
+                font += ' (color {} {} {} 1)'.format(*color)
             out.append(
                 f'\t(text {q(text)} (exclude_from_sim no) (at {fmt(x)} '
                 f'{fmt(y)} 0) '
-                f'(effects (font (size {size} {size})) (justify left top)) '
+                f'(effects (font {font}) (justify left top)) '
                 f'(uuid {q(new_uuid())}))'
             )
         for part in self.parts:

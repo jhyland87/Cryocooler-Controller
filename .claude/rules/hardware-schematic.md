@@ -54,8 +54,11 @@ build, not a warning.
 Power symbols upright (supplies up, grounds down), US zig-zag resistors
 (`Device:R_US`), and signal flow left to right. Supplies are shared rails with
 decoupling hanging off them. Use wires rather than net labels except for global
-signals. Each IC's bypass caps sit in a labelled block at the side of the sheet. No
-text may overlap other text or a symbol body. The full description is in
+signals. The shared SPI bus is drawn as an unnamed `{SPI}` bus (`spi_bus()`), so the
+nets keep their names. Nets are colour-coded by net class (`NET_CLASSES`); a new class
+copies Default's copper rules unless the board needs different ones. Each IC's bypass
+caps sit in a labelled block at the side of the sheet. No text may overlap other text
+or a symbol body. The full description is in
 `hardware/kicad/README.md`, "Drawing conventions".
 
 ## Keep hardware and firmware in sync

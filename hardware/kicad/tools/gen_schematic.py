@@ -412,6 +412,7 @@ def build_mcu(sh):
         15,
     )
     sh.note('GPIO map follows include/config/pin_config.h', 30, 21)
+    colour_legend(sh, 30, 28)
     esp = place_ic(
         sh,
         'RF_Module:ESP32-S3-WROOM-2',
@@ -442,9 +443,6 @@ def build_mcu(sh):
         '23': 'PUMP_TACH',
         '31': 'STATUS_RGB',
         '32': 'IMU_INT2',
-        '33': 'SPI_MISO',
-        '34': 'SPI_MOSI',
-        '35': 'SPI_SCK',
         '36': 'CS_ADDR_B',
         '37': 'PG_15V_N',
         '26': 'CS_ADDR_C',
@@ -455,6 +453,18 @@ def build_mcu(sh):
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
     for pin, net in right.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 0, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, esp, pin, 3), net)
+            for pin, net in (('33', 'SPI_MISO'), ('34', 'SPI_MOSI'), ('35', 'SPI_SCK'))
+        ],
+        188,
+        1,
+        [(188, 120), (192, 120)],
+        # member text starts past the global flags on the rows around it
+        label_at=11,
+    )
     # 28-30 are NC on the module; GPIO5, GPIO7 and GPIO47 (1.8 V) are spare
     for pin in ('28', '29', '30', '5', '7', '24'):
         sh.nc(esp, pin)
@@ -641,9 +651,11 @@ def build_power_input(sh):
     wire(sh, (gnd[0] + 2, gnd[1]), (gnd[0] + 5, gnd[1]))
     rail_flag(sh, (gnd[0] + 5, gnd[1]))
     out = pin_cell(fuse, '2')
-    wire(sh, out, (92, out[1]))
-    rail_symbol(sh, 'VIN', (92, out[1]))
-    rail_flag(sh, (86, out[1]))
+    wire(sh, out, (102, out[1]))
+    rail_symbol(sh, 'VIN', (102, out[1]))
+    # PWR_FLAG on a short stub above the rail (hand-placed in KiCad, b8e851e)
+    wire(sh, (98, out[1] - 2), (98, out[1]))
+    rail_flag(sh, (98, out[1] - 2))
     diode(
         sh,
         'Device:D_TVS',
@@ -656,8 +668,8 @@ def build_power_input(sh):
     drop_ground(sh, (60, 66), 0)
     cap_pol(sh, '100uF/35V', '', '', pose=at(70, 63), fp=CP_ELEC)
     drop_ground(sh, (70, 66), 0)
-    cap(sh, '100nF', '', '', pose=at(80, 63), fp=C0805)
-    drop_ground(sh, (80, 66), 0)
+    cap(sh, '100nF', '', '', pose=at(90, 63), fp=C0805)
+    drop_ground(sh, (90, 66), 0)
 
 
 def build_power_button(sh):
@@ -1050,6 +1062,52 @@ def net_label(sh, net, cell, angle=0, is_global=False):
     """
     kind = 'global_label' if is_global else 'label'
     sh.labels.append((kind, net, (cell[0] * 1.27, cell[1] * 1.27), angle))
+
+
+# The shared SPI bus as an unnamed group bus: its members keep their own net
+# names (SPI_SCK, not SPI.SCK). SPI is a bus alias written to the project file.
+SPI_BUS = '{SPI}'
+SPI_ALIAS = {'SPI': ['SPI_SCK', 'SPI_MOSI', 'SPI_MISO']}
+
+
+def bus(sh, *cells):
+    """Bus polyline through (column, row) cells."""
+    for first, second in zip(cells, cells[1:]):
+        sh.buses.append(
+            (
+                (first[0] * 1.27, first[1] * 1.27),
+                (second[0] * 1.27, second[1] * 1.27),
+            )
+        )
+
+
+def spi_bus(sh, taps, column, slant, tail, label_at=0):
+    """SPI taps on a short {SPI} bus at `column`.
+
+    Each (start cell, net) gets a wire to two cells short of the bus, a local
+    member label `label_at` cells along it (text toward the bus) and a
+    45-degree entry; slant +1 runs the entries down to the bus, -1 up. The bus
+    runs from the farthest entry through the `tail` cells and ends in one
+    global {SPI} label.
+    """
+    side = 1 if column > taps[0][0][0] else -1
+    rows = []
+    for start, net in taps:
+        stub = (column - 2 * side, start[1])
+        label = (start[0] + label_at * side, start[1])
+        wire(sh, start, label, stub)
+        net_label(sh, net, label, 0 if side == 1 else 180)
+        sh.bus_entries.append(
+            (stub[0] * 1.27, stub[1] * 1.27, 2 * side * 1.27, 2 * slant * 1.27)
+        )
+        rows.append(start[1] + 2 * slant)
+    far = max(rows, key=lambda row: abs(row - tail[0][1]))
+    bus(sh, (column, far), *tail)
+    (x1, y1), (x2, y2) = tail[-2] if len(tail) > 1 else (column, far), tail[-1]
+    angle = {(1, 0): 0, (-1, 0): 180, (0, -1): 90, (0, 1): 270}[
+        ((x2 > x1) - (x2 < x1), (y2 > y1) - (y2 < y1))
+    ]
+    net_label(sh, SPI_BUS, tail[-1], angle, is_global=True)
 
 
 def decoupling_block(sh, title, column, row, supply, values, ground='GND'):
@@ -1709,12 +1767,14 @@ def build_signal_gen(sh):
         'Package_CSP:LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm',
     )
     wire(sh, pin_cell(osc, '3'), pin_cell(dds, '5'))
-    for pin, net in (
-        ('6', 'SPI_MOSI'),
-        ('7', 'SPI_SCK'),
-        ('8', 'AD9833_FSYNC'),
-    ):
-        net_label(sh, net, spur(sh, dds, pin, 2), 180, is_global=True)
+    net_label(sh, 'AD9833_FSYNC', spur(sh, dds, '8', 2), 180, is_global=True)
+    spi_bus(
+        sh,
+        [(spur(sh, dds, pin, 2), net) for pin, net in (('7', 'SPI_SCK'), ('6', 'SPI_MOSI'))],
+        35,
+        -1,
+        [(35, 50), (31, 50)],
+    )
     for pin in ('4', '9', '11'):  # DGND, AGND, exposed pad
         spur(sh, dds, pin, 2)
     wire(sh, (58, 72), (62, 72))
@@ -1797,8 +1857,15 @@ def build_signal_gen(sh):
     vref = pin_cell(mdac, '7')
     wire(sh, (130, vref[1]), (pin_cell(clamp, '1')[0], vref[1]), vref)
     wire(sh, (pin_cell(clamp, '1')[0], vref[1]), pin_cell(clamp, '1'))
-    for pin, net in (('5', 'AD5453_SYNC'), ('3', 'SPI_SCK'), ('4', 'SPI_MOSI')):
-        net_label(sh, net, spur(sh, mdac, pin, 5), 180, is_global=True)
+    # SYNC runs left past the bus, so its flag clears the SCLK label below it
+    net_label(sh, 'AD5453_SYNC', spur(sh, mdac, '5', 18), 180, is_global=True)
+    spi_bus(
+        sh,
+        [(spur(sh, mdac, pin, 2), net) for pin, net in (('3', 'SPI_SCK'), ('4', 'SPI_MOSI'))],
+        165,
+        1,
+        [(165, 70), (169, 70)],
+    )
     supply = pin_cell(mdac, '6')
     wire(sh, supply, (supply[0], supply[1] - 6))
     rail_symbol(sh, '+3V3_SG', (supply[0], supply[1] - 6))
@@ -2304,13 +2371,17 @@ def build_system_current(sh):
     )
     vcap(sh, '470nF', cap_x, row + 2, fp=C0805)
     # SPI: chip select with pull-up, bus labels, ALERT with LED
-    for pin, net in (
-        ('1', 'INA239_CS'),
-        ('5', 'SPI_SCK'),
-        ('2', 'SPI_MOSI'),
-        ('4', 'SPI_MISO'),
-    ):
-        net_label(sh, net, spur(sh, ina, pin, 12), 0, is_global=True)
+    net_label(sh, 'INA239_CS', spur(sh, ina, '1', 12), 0, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, ina, pin, 2), net)
+            for pin, net in (('5', 'SPI_SCK'), ('2', 'SPI_MOSI'), ('4', 'SPI_MISO'))
+        ],
+        150,
+        -1,
+        [(150, 52), (154, 52)],
+    )
     # the decoder drives CS push-pull; R68 stays retired
     kicadgen.retire_refs('R', 1)
     alert = spur(sh, ina, '3', 4)
@@ -2529,19 +2600,24 @@ def build_gpio_expander(sh):
     )
     # the removed SC18IS604 and 74LVC1G125 capacitors keep their numbers free
     kicadgen.retire_refs('C', 2)
-    for pin, net in (
-        ('5', 'EXPANDER_CS'),
-        ('19', 'SPI_SCK'),
-        ('20', 'SPI_MOSI'),
-    ):
-        net_label(sh, net, spur(sh, expander, pin, 12), 180, is_global=True)
-    # past the global labels above it, so the symbol clears their text
-    rail_symbol(sh, '+3V3', spur(sh, expander, '4', 28))
+    net_label(sh, 'EXPANDER_CS', spur(sh, expander, '5', 12), 180, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, expander, pin, 2), net)
+            for pin, net in (('19', 'SPI_SCK'), ('20', 'SPI_MOSI'))
+        ],
+        42,
+        -1,
+        [(42, 56), (38, 56)],
+    )
+    # left of the SPI bus, so the symbol clears it and the label text above
+    rail_symbol(sh, '+3V3', spur(sh, expander, '4', 32))
     # A1 and A0 share one ground symbol
     address_low, address_high = spur(sh, expander, '3', 3), spur(sh, expander, '2', 3)
     wire(sh, address_low, address_high)
     ground(sh, address_high)
-    net_label(sh, 'SPI_MISO', spur(sh, expander, '1', 6), 0, is_global=True)
+    spi_bus(sh, [(spur(sh, expander, '1', 2), 'SPI_MISO')], 108, -1, [(108, 54), (112, 54)])
     for pin, net in (
         ('9', 'PGP_15V'),
         ('10', 'PGN_15V'),
@@ -2780,13 +2856,17 @@ def build_cold_head(sh):
     )
     gnd_bus(sh, [pin_cell(adc, number) for number in ('6', '3', '2', '1', '17')])
     # left side: SPI bus labels; the decoder drives CS push-pull and DRDY is unread
-    for pin, net in (
-        ('16', 'ADS1220_CS'),
-        ('15', 'SPI_SCK'),
-        ('14', 'SPI_MOSI'),
-        ('13', 'SPI_MISO'),
-    ):
-        net_label(sh, net, spur(sh, adc, pin, 12), 180, is_global=True)
+    net_label(sh, 'ADS1220_CS', spur(sh, adc, '16', 12), 180, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, adc, pin, 2), net)
+            for pin, net in (('15', 'SPI_SCK'), ('14', 'SPI_MOSI'), ('13', 'SPI_MISO'))
+        ],
+        22,
+        1,
+        [(22, 64), (18, 64)],
+    )
     kicadgen.retire_refs('R', 2)
     if keeps_test_point('ADS1220_DRDY'):
         drdy_end = spur(sh, adc, '12', 4)
@@ -2933,12 +3013,19 @@ def build_imu(sh):
     jack_pins = ('12', '11', '10', '9', '8', '7')
     module_pins = ('1', '2', '3', '4', '5', '6')
     # staircase fan-out, top signal turning furthest left, so no wires cross
+    taps = []
     for channel, (number, net) in enumerate(signals):
         target = pin_cell(part, jack_pins[channel])
         bend = column - 8 - 3 * (len(signals) - 1 - channel)
         wire(sh, tips[number], (bend, tips[number][1]), (bend, target[1]), target)
-        far = spur(sh, part, module_pins[channel], 12)
-        net_label(sh, net, far, 180, is_global=True)
+        if net.startswith('SPI_'):
+            taps.append((spur(sh, part, module_pins[channel], 2), net))
+        else:
+            far = spur(sh, part, module_pins[channel], 12)
+            net_label(sh, net, far, 180, is_global=True)
+    # member labels sit between the CS/INT flags and the filter; the bus runs
+    # left of the flags
+    spi_bus(sh, taps, 124, 1, [(124, 94), (120, 94)])
 
 
 def imu_filter(sh, column, row):
@@ -3027,12 +3114,17 @@ def display_parts(sh):
         ('7', 'DISP_CS', True),
         ('8', 'DISP_RST', True),
         ('9', 'DISP_DC', True),
-        ('10', 'SPI_SCK', True),
-        ('11', 'SPI_MOSI', True),
         ('13', 'DISP_BL_A', False),
         ('14', 'DISP_BL_K', False),
     ):
         net_label(sh, net, spur(sh, fpc, number, 12), 180, is_global=is_global)
+    spi_bus(
+        sh,
+        [(spur(sh, fpc, pin, 12), net) for pin, net in (('11', 'SPI_MOSI'), ('10', 'SPI_SCK'))],
+        172,
+        -1,
+        [(172, 62), (168, 62)],
+    )
     # touch controller: panel lines on the left, SPI on the right
     touch = place_ic(
         sh,
@@ -3049,13 +3141,19 @@ def display_parts(sh):
         ('9', 'TOUCH_YN'),
     ):
         net_label(sh, net, spur(sh, touch, pin, 4), 180)
-    for pin, net in (
-        ('4', 'SPI_SCK'),
-        ('3', 'TOUCH_CS'),
-        ('2', 'SPI_MOSI'),
-        ('16', 'SPI_MISO'),
-    ):
-        net_label(sh, net, spur(sh, touch, pin, 4), 0, is_global=True)
+    net_label(sh, 'TOUCH_CS', spur(sh, touch, '3', 4), 0, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, touch, pin, 4), net)
+            for pin, net in (('4', 'SPI_SCK'), ('2', 'SPI_MOSI'), ('16', 'SPI_MISO'))
+        ],
+        119,
+        1,
+        [(119, 82), (123, 82)],
+        # member text starts past the TOUCH_CS flag between SCK and MOSI
+        label_at=11,
+    )
     sh.nc(touch, '1')
     irq = spur(sh, touch, '15', 4)
     net_label(sh, 'TOUCH_IRQ', irq, 0, is_global=True)
@@ -3328,6 +3426,92 @@ SHEETS = [
 ]
 
 
+# Reference/Value positions in mm that the user set by hand in KiCad (b8e851e),
+# keyed by sheet file, final reference and unit; text layout keeps them.
+PINNED_FIELDS = {
+    ('power_input.kicad_sch', 'C65', 1): ((93.218, 80.772), (93.218, 82.872)),
+    ('power_input.kicad_sch', 'C67', 1): ((118.872, 79.756), (118.872, 81.856)),
+    ('signal_gen.kicad_sch', 'U3', 1): ((30.48, 91.44), (30.48, 93.54)),
+    ('signal_gen.kicad_sch', 'TP47', 1): ((152.4, 62.67), (152.4, 64.77)),
+    ('signal_gen.kicad_sch', 'U5', 1): ((131.064, 66.294), (131.064, 68.394)),
+    ('signal_gen.kicad_sch', 'U5', 2): ((283.464, 65.464), (283.464, 67.564)),
+    ('signal_gen.kicad_sch', 'R36', 1): ((121.158, 100.838), (121.158, 102.938)),
+    # laid out by the generator before; pinned so the moves above don't shift it
+    ('signal_gen.kicad_sch', 'R40', 1): ((312.42, 67.544), (312.42, 69.644)),
+}
+
+
+# Wire colours by net class, with the legend text drawn on the root sheet.
+# Power, Power12V and Usb come from gen_pcb.py; only their colour is set here.
+# SPI, Analog and Control copy the Default class's copper rules, so they change
+# nothing on the board. Patterns are KiCad wildcards on the full net name.
+NET_CLASSES = [
+    ('Power', (200, 0, 0), 'Power rails', []),
+    ('Power12V', (140, 0, 0), '12 V input', []),
+    ('Usb', (0, 150, 160), 'USB data', []),
+    (
+        'SPI',
+        (0, 60, 220),
+        'SPI bus, chip selects and the ACS37800 SPI',
+        ['SPI_*', 'ACS_*', '*_CS', 'AD9833_FSYNC', 'AD5453_SYNC', 'CS_ADDR_?',
+         'CS_EN_N'],
+    ),
+    (
+        'Analog',
+        (180, 0, 180),
+        'Analog signals',
+        ['SIG_SINE', 'DDS_SINE', 'NTC_ADC', '*/RTD_?', '*/TOUCH_X?',
+         '*/TOUCH_Y?'],
+    ),
+    (
+        'Control',
+        (220, 120, 0),
+        'Control and status GPIO',
+        ['*_PWM', '*_TACH', 'AMP_REM_EN', 'COMP_RELAY_EN', 'PWR_KILL',
+         'PWR_INT', 'IMU_INT?', 'INA239_ALERT', 'TOUCH_IRQ', 'PG_15V*',
+         'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB', 'DISP_RST', 'DISP_DC*',
+         'DISP_BL_EN'],
+    ),
+]
+
+
+def set_net_classes(project):
+    """Colour the existing classes and (re)write the schematic-only ones."""
+    settings = project['net_settings']
+    classes = {item['name']: item for item in settings['classes']}
+    added = {name for name, _, _, patterns in NET_CLASSES if patterns}
+    settings['netclass_patterns'] = [
+        item
+        for item in settings['netclass_patterns']
+        if item['netclass'] not in added
+    ]
+    for name, color, _, patterns in NET_CLASSES:
+        if name not in classes:
+            item = dict(classes['Default'], name=name, priority=-1)
+            settings['classes'].append(item)
+            classes[name] = item
+        classes[name]['schematic_color'] = 'rgba({}, {}, {}, 1.000)'.format(*color)
+        settings['netclass_patterns'] += [
+            {'netclass': name, 'pattern': pattern} for pattern in patterns
+        ]
+
+
+def colour_legend(sh, x, y):
+    """One line per net class, in its wire colour."""
+    sh.note('WIRE COLOURS (NET CLASSES)', x, y)
+    for index, (_, color, text, _) in enumerate(NET_CLASSES):
+        sh.note(text, x, y + 4 + index * 3, 1.5, color)
+    sh.note('Unclassified nets and grounds: default colour', x, y + 4 + len(NET_CLASSES) * 3, 1.5)
+
+
+def pin_fields(sheets):
+    """Attach PINNED_FIELDS to their parts (after the final references)."""
+    for sheet in sheets:
+        for part in sheet.parts:
+            pinned = PINNED_FIELDS.get((sheet.filename, part.ref, part.unit))
+            if pinned:
+                part.pinned_fields = dict(zip(('Reference', 'Value'), pinned))
+
 def sheet_symbol(root_uuid, child, index, x, y):
     width, height = 50.8, 12.7
     return (
@@ -3435,6 +3619,7 @@ def main():
             part.ref = REF_MAP.get(part.ref, part.ref)
 
     link_parts([root] + children)
+    pin_fields([root] + children)
     overlaps, junctions, duplicates = check_sheets([root] + children)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
     (ROOT_DIR / 'cryocooler.kicad_sch').write_text(root.render(root_uuid))
@@ -3449,6 +3634,8 @@ def main():
     project['sheets'] = [[root_uuid, 'cryocooler']] + [
         [child.uid, child.title] for child in children
     ]
+    project['schematic']['bus_aliases'] = SPI_ALIAS
+    set_net_classes(project)
     project_file.write_text(json.dumps(project, indent=2) + '\n')
     print('wrote', 1 + len(children), 'sheets')
     if duplicates:

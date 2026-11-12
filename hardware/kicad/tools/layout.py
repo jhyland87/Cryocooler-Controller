@@ -389,7 +389,7 @@ class Layout:
         self.label_boxes = []
         self.note_boxes = [
             (x, y, x + textlayout.text_width(t, size), y + size * 1.5)
-            for t, x, y, size in sheet.text_items
+            for t, x, y, size, _ in sheet.text_items
         ]
         # wires must end at every pin / power-symbol point rather than run
         # through it

@@ -26,7 +26,7 @@ OUT=<session scratchpad>                                     # not the repo
 ```bash
 python3 tools/make_lib.py          # lib/cryocooler.kicad_sym
 python3 tools/make_footprints.py   # lib/cryocooler.pretty (only when a vendor footprint changed)
-python3 tools/gen_schematic.py     # root + sheets/*.kicad_sch, and the sheet list in cryocooler.kicad_pro
+python3 tools/gen_schematic.py     # root + sheets/*.kicad_sch; in cryocooler.kicad_pro the sheet list, SPI bus alias and net-class colours
 ```
 
 `gen_schematic.py` exits 1 on any text overlap, duplicate reference or 4-way

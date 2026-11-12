@@ -77,6 +77,19 @@ shared rails with decoupling caps hanging off them, switching loops are kept com
 lines rather than net labels (labels are used only for global signals such as the GPIO nets, and for a few
 local nets that would otherwise need long detours, for example the ISO7741 isolated-side SPI lines).
 
+**SPI bus.** `SPI_SCK`, `SPI_MOSI` and `SPI_MISO` are drawn as a KiCad bus on the root sheet and on every
+sheet with an SPI part (`spi_bus()` in `tools/gen_schematic.py`). Each pin's wire carries a local member label
+and a 45° entry onto a short bus that ends in one global `{SPI}` label. `SPI` is a bus alias in
+`cryocooler.kicad_pro`, and the group has no name before the braces, so the nets keep their own names
+(`SPI_SCK`, not `SPI.SCK`). Chip selects stay individual global labels.
+
+**Wire colours.** Nets are colour-coded by net class: power rails red, 12 V input dark red, USB data teal,
+SPI (shared bus, chip selects and the ACS37800 SPI) blue, analog signals magenta, control and status GPIO
+orange, and everything else (grounds, unnamed nets) the default colour. A legend sits at the top of the root
+sheet. `NET_CLASSES` in `tools/gen_schematic.py` holds the colours and name patterns and writes them to
+`cryocooler.kicad_pro`. The SPI, Analog and Control classes copy the Default class's copper rules, so they
+change nothing on the board.
+
 Bypass/decoupling capacitors for each IC are drawn together in a labelled block at the side of the sheet (supply rail, caps, ground bus) and connect to the IC through the shared power nets; regulator input/output and compensation capacitors stay in the circuit.
 
 **No-overlap text rule.** Reference, value, net-label and note text may not overlap other text or a symbol body
@@ -91,6 +104,8 @@ Each `build_*` function in `tools/gen_schematic.py` sets `sh.handwired = True` a
 (1 cell = 1.27 mm) with `place_ic`, `pose=at(column, row, rot)`, `wire`, `rail_symbol`, `rail_flag`, `spur` and
 `net_label`; `tools/layout.py` (the auto-router) is still there for sheets that leave `handwired` off.
 Wires are split at pins automatically, so a pin in the middle of a wire is connected.
+A Reference or Value moved by hand in KiCad is lost on the next run unless it is copied into
+`PINNED_FIELDS` (sheet file, reference, unit and the two positions in mm); text layout keeps those spots.
 
 ```bash
 python3 hardware/kicad/tools/make_lib.py        # lib/cryocooler.kicad_sym
@@ -122,7 +137,7 @@ and describe earlier boards where they differ.
 `pcbnew`); don't hand-edit it and expect the edits to survive a regeneration.
 
 * **Board:** 130 x 110 mm (was 130 x 100; the extra 10 mm at the bottom edge makes room for a label beside every part), 4 layers: F.Cu signal / In1 solid GND (ISO_GND island) / In2 signal + 3V3 pour / B.Cu signal,
-  GND pours and stitching vias on the outer layers. Net classes (Power 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`.
+  GND pours and stitching vias on the outer layers. Net classes (Power 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`; SPI, Analog and Control there are schematic colour classes with the Default rules.
 * **Floor plan:** every schematic module has its own outlined, labelled box on the front silkscreen
   (`MODULE_REGIONS` in `tools/pcbfloorplan.py`): signal generator and amp control top left, indicators top
   middle, MCU & USB top right (antenna overhanging the right edge over a copper keep-out), the isolated amp

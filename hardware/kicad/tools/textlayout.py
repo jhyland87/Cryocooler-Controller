@@ -88,7 +88,7 @@ class TextLayout:
                 max(a[0], b[0]),
                 max(a[1], b[1]),
             )
-            for a, b in sheet.wires
+            for a, b in sheet.wires + sheet.buses
         ]
         for part in sheet.parts:
             if part.ref.startswith('#'):
@@ -115,7 +115,7 @@ class TextLayout:
                 )
         for kind, net, (x, y), angle in sheet.labels:
             self.fixed_text.append(label_box(kind, net, x, y, angle))
-        for text, x, y, size in sheet.text_items:
+        for text, x, y, size, _ in sheet.text_items:
             self.fixed_text.append(
                 (x, y, x + text_width(text, size) * 1.0, y + size * 1.5)
             )
@@ -192,6 +192,14 @@ class TextLayout:
                     line_y = top + LINE_H / 2 + index * (LINE_H + LINE_GAP)
                     placement[name] = (anchor_x, line_y, justify)
                 yield rank * 4 + abs(shift_steps) * 0.35, placement
+
+    def place_pinned(self, part):
+        """Keep the Reference/Value positions given in part.pinned_fields."""
+        part.fields = {}
+        for name, (x, y) in part.pinned_fields.items():
+            text = part.ref if name == 'Reference' else part.value
+            part.fields[name] = {'x': x, 'y': y, 'justify': 'left', 'hide': False}
+            self.placed.append(field_box(x, y, text_width(text), 'left'))
 
     def place_part(self, part):
         fields = {
@@ -302,10 +310,15 @@ class TextLayout:
                 -(p.bbox()[2] - p.bbox()[0]) * (p.bbox()[3] - p.bbox()[1]),
             )
         )
+        # hand-placed fields first, so the rest are laid out around them
+        for part in parts:
+            if getattr(part, 'pinned_fields', None):
+                self.place_pinned(part)
         # power-symbol names are laid out last, so reserve their boxes while
         # placing fields
         for part in parts:
-            self.place_part(part)
+            if not getattr(part, 'pinned_fields', None):
+                self.place_part(part)
         self.place_power_text()
 
 
@@ -350,13 +363,19 @@ def check_text(sheet):
             )
     for kind, net, (x, y), angle in sheet.labels:
         items.append((f'label {net}', label_box(kind, net, x, y, angle)))
-    for text, x, y, size in sheet.text_items:
+    for text, x, y, size, _ in sheet.text_items:
         items.append(
             (
                 f'note "{text[:20]}"',
                 (x, y, x + text_width(text, size), y + size * 1.5),
             )
         )
+    # the user placed these by hand, so they may sit close to their own body
+    pinned = {
+        f'{part.ref}.{name}'
+        for part in sheet.parts
+        for name in getattr(part, 'pinned_fields', None) or ()
+    }
     problems = []
     for index, (name, box) in enumerate(items):
         for other_name, other in items[index + 1 :]:
@@ -364,7 +383,7 @@ def check_text(sheet):
                 problems.append(f'text {name} overlaps text {other_name}')
         for part, symbol in layout.symbols:
             if name.startswith(part.ref + '.'):
-                if hits(box, symbol, 0.05):
+                if name not in pinned and hits(box, symbol, 0.05):
                     problems.append(f'text {name} overlaps its own symbol')
                 continue
             if name.startswith('label'):

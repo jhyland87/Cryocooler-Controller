@@ -525,7 +525,7 @@
         "name": "Power",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(200, 0, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -544,7 +544,7 @@
         "name": "Power12V",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(140, 0, 0, 1.000)",
         "track_width": 0.8,
         "tuning_profile": "",
         "via_diameter": 0.7,
@@ -563,8 +563,65 @@
         "name": "Usb",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 150, 160, 1.000)",
         "track_width": 0.2,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SPI",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": -1,
+        "schematic_color": "rgba(0, 60, 220, 1.000)",
+        "track_width": 0.25,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Analog",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": -1,
+        "schematic_color": "rgba(180, 0, 180, 1.000)",
+        "track_width": 0.25,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Control",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": -1,
+        "schematic_color": "rgba(220, 120, 0, 1.000)",
+        "track_width": 0.25,
         "tuning_profile": "",
         "via_diameter": 0.6,
         "via_drill": 0.3,
@@ -668,6 +725,126 @@
       {
         "netclass": "Usb",
         "pattern": "Net-(J1-D--PadA7)"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "SPI_*"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "ACS_*"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "*_CS"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "AD9833_FSYNC"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "AD5453_SYNC"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "CS_ADDR_?"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "CS_EN_N"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "SIG_SINE"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "DDS_SINE"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "NTC_ADC"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "*/RTD_?"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "*/TOUCH_X?"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "*/TOUCH_Y?"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "*_PWM"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "*_TACH"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "AMP_REM_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "COMP_RELAY_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "PWR_KILL"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "PWR_INT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "IMU_INT?"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "INA239_ALERT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "TOUCH_IRQ"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "PG_15V*"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "PG?_15V"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "ESP_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "ESP_BOOT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "STATUS_RGB"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "DISP_RST"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "DISP_DC*"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "DISP_BL_EN"
       }
     ]
   },
@@ -771,7 +948,13 @@
       "sort_asc": true,
       "sort_field": "Reference"
     },
-    "bus_aliases": {},
+    "bus_aliases": {
+      "SPI": [
+        "SPI_SCK",
+        "SPI_MOSI",
+        "SPI_MISO"
+      ]
+    },
     "connection_grid_size": 50.0,
     "drawing": {
       "dashed_lines_dash_length_ratio": 12.0,

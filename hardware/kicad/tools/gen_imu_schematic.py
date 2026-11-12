@@ -223,6 +223,8 @@ def write_project(root_uuid):
     project['pcbnew']['last_paths'] = {
         key: '' for key in project['pcbnew']['last_paths']
     }
+    # the main board's SPI bus alias; this board draws no bus
+    project['schematic']['bus_aliases'] = {}
     net_settings = project['net_settings']
     net_settings['classes'] = [
         net_class for net_class in net_settings['classes']

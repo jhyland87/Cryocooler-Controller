@@ -148,7 +148,7 @@ def wires_through_bodies(path):
     tree = parse(path.read_text())
     boxes = library_boxes(tree)
     wires = []
-    for wire in children(tree, 'wire'):
+    for wire in children(tree, 'wire') + children(tree, 'bus'):
         points = children(children(wire, 'pts')[0], 'xy')
         wires.append(((float(points[0][1]), float(points[0][2])),
                       (float(points[1][1]), float(points[1][2]))))
