@@ -14,8 +14,10 @@ KICAD_DIR = Path(__file__).resolve().parents[1]
 KICAD_CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
 
 
-def export_netlist(out_path):
-    """Exports the root schematic netlist (kicadsexpr) to out_path."""
+def export_netlist(out_path, schematic=None):
+    """Exports a root schematic's netlist (kicadsexpr) to out_path; the main
+    board's by default.
+    """
     subprocess.run(
         [
             KICAD_CLI,
@@ -26,21 +28,21 @@ def export_netlist(out_path):
             'kicadsexpr',
             '-o',
             str(out_path),
-            str(KICAD_DIR / 'cryocooler.kicad_sch'),
+            str(schematic or KICAD_DIR / 'cryocooler.kicad_sch'),
         ],
         check=True,
         capture_output=True,
     )
 
 
-def load_netlist():
-    """Returns (parts, nets): parts[ref] = dict(value, footprint, sheet,
-    pins, ...) with pins[pin number] = symbol pin name; nets[name] =
-    [(ref, pin)].
+def load_netlist(schematic=None):
+    """Returns (parts, nets) for a root schematic (the main board's by
+    default): parts[ref] = dict(value, footprint, sheet, pins, ...) with
+    pins[pin number] = symbol pin name; nets[name] = [(ref, pin)].
     """
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'n.net'
-        export_netlist(path)
+        export_netlist(path, schematic)
         root = parse(path.read_text())
     parts = {}
     for comp in find_all(find_all(root, 'components')[0], 'comp'):

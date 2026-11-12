@@ -420,9 +420,9 @@ def link_to_symbol(footprint, part):
         footprint.GetField(field).SetVisible(False)
 
 
-def stackup_block():
-    """The 4-layer 1.6 mm stackup with the board colours (MASK_COLOUR,
-    white silk); pcbnew's Python API cannot set stackup colours.
+def stackup_block(copper_layers=4):
+    """The 1.6 mm stackup (4 or 2 copper layers) with the board colours
+    (MASK_COLOUR, white silk); pcbnew's Python API cannot set stackup colours.
     """
     def layer(name, kind, extra=''):
         return f'\t\t\t(layer "{name}"\n\t\t\t\t(type "{kind}"){extra}\n\t\t\t)\n'
@@ -431,9 +431,9 @@ def stackup_block():
     mask = f'\n\t\t\t\t(color "{MASK_COLOUR}")\n\t\t\t\t(thickness 0.01)'
     silk = '\n\t\t\t\t(color "White")'
 
-    def dielectric(index, kind):
+    def dielectric(index, kind, thickness=0.48):
         return (
-            f'\n\t\t\t\t(thickness 0.48)\n\t\t\t\t(material "FR4")'
+            f'\n\t\t\t\t(thickness {thickness})\n\t\t\t\t(material "FR4")'
             f'\n\t\t\t\t(epsilon_r 4.5)\n\t\t\t\t(loss_tangent 0.02)'
         ), f'dielectric {index}', kind
 
@@ -441,11 +441,15 @@ def stackup_block():
     body += layer('F.Paste', 'Top Solder Paste')
     body += layer('F.Mask', 'Top Solder Mask', mask)
     body += layer('F.Cu', 'copper', copper)
-    for index, (inner, kind) in enumerate((('In1.Cu', 'core'), ('In2.Cu', 'prepreg')), start=1):
+    inner_layers = (('In1.Cu', 'core'), ('In2.Cu', 'prepreg')) if copper_layers == 4 else ()
+    for index, (inner, kind) in enumerate(inner_layers, start=1):
         extra, name, kind = dielectric(index, kind)
         body += layer(name, kind, extra)
         body += layer(inner, 'copper', copper)
-    extra, name, kind = dielectric(3, 'core')
+    if copper_layers == 4:
+        extra, name, kind = dielectric(3, 'core')
+    else:
+        extra, name, kind = dielectric(1, 'core', 1.51)
     body += layer(name, kind, extra)
     body += layer('B.Cu', 'copper', copper)
     body += layer('B.Mask', 'Bottom Solder Mask', mask)
@@ -463,7 +467,7 @@ def save_board(board, path=None):
     pcbnew.SaveBoard(str(path), board)
     text = path.read_text()
     text = re.sub(r'\t\t\(stackup\n.*?\n\t\t\)\n', '', text, count=1, flags=re.S)
-    text = text.replace('\t(setup\n', '\t(setup\n' + stackup_block(), 1)
+    text = text.replace('\t(setup\n', '\t(setup\n' + stackup_block(board.GetCopperLayerCount()), 1)
     path.write_text(text)
 
 

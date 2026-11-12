@@ -38,6 +38,7 @@ DATASHEETS = {
     'TPS2116': 'https://www.ti.com/lit/ds/symlink/tps2116.pdf',
     'TPD4E05U06': 'https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf',
     'NUF6401': 'https://www.onsemi.com/pdf/datasheet/nuf6401-d.pdf',
+    'LSM6DSOX': 'https://www.st.com/resource/en/datasheet/lsm6dsox.pdf',
     'TPD1E05U06': 'https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf',
     'SP3422': 'https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet'
     '?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285',
@@ -104,6 +105,7 @@ PRODUCT_PAGES = {
     '74AHCT1G125GM,115': 'https://www.digikey.com/en/products/detail/nexperia-usa-inc/74AHCT1G125GM-115/2606148',
     '74LV1T34GXH': 'https://www.nexperia.com/pip/74LV1T34GX',
     'NUF6401MNT1G': 'https://www.digikey.com/en/products/detail/onsemi/NUF6401MNT1G/1484990',
+    'LSM6DSOXTR': 'https://www.st.com/en/mems-and-sensors/lsm6dsox.html',
     'AD9837BCPZ-RL7': 'https://www.digikey.com/en/products/detail/analog-devices-inc/AD9837BCPZ-RL7/2700194',
     'ECS-2520MV-160-BN-TR': 'https://www.digikey.com/en/products/detail/ecs-inc/ECS-2520MV-160-BN-TR/13968073',
     'EVP-AA802Q': 'https://www.digikey.com/en/products/detail/panasonic-industry/EVP-AA802Q/2810553',

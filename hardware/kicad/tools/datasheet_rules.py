@@ -2,7 +2,8 @@
 
 Each rule encodes something verified in a manufacturer datasheet (see
 ../DESIGN_REVIEW.md).
-Usage: python3 datasheet_rules.py netlist.net
+Usage: python3 datasheet_rules.py netlist.net          (main board)
+       python3 datasheet_rules.py --imu imu.net        (IMU board, imu/)
 """
 
 import sys
@@ -24,6 +25,9 @@ from verify_netlist import load
 # far end is on value2.pin2's net
 # ('fetdrive', value, pin, ohms, net)  pin is the drain of a BSS138 with source
 # on GND and its gate through `ohms` to `net`
+# ('nores', value, pin, rail)          no resistor joins the pin's net to rail
+# ('caps', net, value, count, net2)   at least `count` capacitors of that value
+# sit between net and net2
 RULES = [
     # 4-pin fans (Intel 4-wire spec): PWM open drain through a BSS138 with the
     # gate pulled to +3V3 (0% drive at reset), tach open collector with a
@@ -473,7 +477,44 @@ RULES = [
 ]
 
 
-def run(path):
+# IMU board (imu/): LSM6DSOX DS12814 rev 3 (Table 1 pin description, Section 7
+# application hints, Table 20 internal pin status) and the J14 cable map
+RULES_IMU = [
+    # Mode 1: SDx / SCx to VDDIO or GND, OCS_Aux unconnected, SDO_Aux to VDDIO
+    # or unconnected
+    ('net', 'LSM6DSOXTR', '2', 'GND'),
+    ('net', 'LSM6DSOXTR', '3', 'GND'),
+    ('nc', 'LSM6DSOXTR', '10'),
+    ('nc', 'LSM6DSOXTR', '11'),
+    ('net', 'LSM6DSOXTR', '6', 'GND'),
+    ('net', 'LSM6DSOXTR', '7', 'GND'),
+    ('net', 'LSM6DSOXTR', '8', '+3V3'),
+    ('net', 'LSM6DSOXTR', '5', '+3V3'),
+    # "Recommended 100 nF filter capacitor" on VDD and on VDDIO
+    ('caps', '+3V3', '100nF', 2, 'GND'),
+    # 4-wire SPI: CS 12, SPC 13, SDI 14, SDO 1; CS idles high
+    ('net', 'LSM6DSOXTR', '12', 'IMU_CS'),
+    ('net', 'LSM6DSOXTR', '13', 'SPI_SCK'),
+    ('net', 'LSM6DSOXTR', '14', 'SPI_MOSI'),
+    ('net', 'LSM6DSOXTR', '1', 'SPI_MISO'),
+    ('res', 'LSM6DSOXTR', '12', '10k', '+3V3'),
+    ('net', 'LSM6DSOXTR', '4', 'IMU_INT1'),
+    ('net', 'LSM6DSOXTR', '9', 'IMU_INT2'),
+    # INT1 must be low or open at power-up when SPI is used (Table 20 note 2)
+    ('nores', 'LSM6DSOXTR', '4', '+3V3'),
+    # J1 carries the J14 pin map, so the cable is wired pin to pin
+    ('net', '505448-0891', '1', 'SPI_SCK'),
+    ('net', '505448-0891', '2', 'GND'),
+    ('net', '505448-0891', '3', 'SPI_MOSI'),
+    ('net', '505448-0891', '4', '+3V3'),
+    ('net', '505448-0891', '5', 'IMU_CS'),
+    ('net', '505448-0891', '6', 'SPI_MISO'),
+    ('net', '505448-0891', '7', 'IMU_INT1'),
+    ('net', '505448-0891', '8', 'IMU_INT2'),
+]
+
+
+def run(path, rules=RULES):
     comps, nets = load(path)
     value_of = {
         ref: sval(find_all(c, 'value')[0][1]) for ref, c in comps.items()
@@ -495,8 +536,19 @@ def run(path):
         print(('ok    ' if ok else 'FAIL  ') + text)
         failures += 0 if ok else 1
 
-    for rule in RULES:
+    for rule in rules:
         kind, value = rule[0], rule[1]
+        if kind == 'caps':
+            net, cap_value, count, other = rule[1:]
+            found = sum(
+                1
+                for ref, pin, _ in members.get(net, [])
+                if ref.startswith('C') and value_of[ref] == cap_value
+                and pin_net.get((ref, '2' if pin == '1' else '1')) == other
+            )
+            check(found >= count, f'{count} x {cap_value} between {net} and '
+                  f'{other} (found {found})')
+            continue
         refs = refs_by_value.get(value)
         if not refs:
             check(False, f'{value}: part not found')
@@ -628,9 +680,21 @@ def run(path):
                 if pin_net.get((other_ref, far_pin)) == rule[4]:
                     found = True
             check(found, f'{value}.{rule[2]} has {rule[3]} to {rule[4]}')
-    print(f'{len(RULES) - failures}/{len(RULES)} datasheet rules pass')
+        elif kind == 'nores':
+            net = pin_net.get((ref, rule[2]))
+            joined = [
+                other_ref
+                for other_ref, other_pin, _ in members.get(net, [])
+                if other_ref.startswith('R') and pin_net.get(
+                    (other_ref, '2' if other_pin == '1' else '1')) == rule[3]
+            ]
+            check(not joined, f'{value}.{rule[2]} has no resistor to '
+                  f'{rule[3]} (found {joined or "none"})')
+    print(f'{len(rules) - failures}/{len(rules)} datasheet rules pass')
     return failures
 
 
 if __name__ == '__main__':
+    if sys.argv[1] == '--imu':
+        sys.exit(1 if run(sys.argv[2], RULES_IMU) else 0)
     sys.exit(1 if run(sys.argv[1]) else 0)

@@ -70,14 +70,9 @@ def load(path):
     return comps, nets
 
 
-def main(path):
-    comps, nets = load(path)
+def check_gpio_map(esp, nets):
+    """Compares each pin_config.h GPIO with the module pin on its net."""
     problems = 0
-    esp = next(
-        ref
-        for ref, c in comps.items()
-        if 'ESP32-S3-WROOM-2' in sval(find_all(c, 'value')[0][1])
-    )
     net_pins = {}
     for name, nodes in nets.items():
         for ref, pin, function in nodes:
@@ -89,6 +84,25 @@ def main(path):
         status = 'ok' if got == want else 'MISMATCH'
         print(f'{net:14s} GPIO{gpio:<3d} -> module pin {got}  [{status}]')
         problems += status != 'ok'
+    return problems
+
+
+def main(path):
+    comps, nets = load(path)
+    problems = 0
+    esp = next(
+        (
+            ref
+            for ref, c in comps.items()
+            if 'ESP32-S3-WROOM-2' in sval(find_all(c, 'value')[0][1])
+        ),
+        None,
+    )
+    if esp is None:
+        # the IMU board (imu/) has no MCU
+        print('no ESP32 module: GPIO map check skipped')
+    else:
+        problems += check_gpio_map(esp, nets)
     # footprints
     missing = [
         ref

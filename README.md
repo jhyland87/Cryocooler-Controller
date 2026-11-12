@@ -13,7 +13,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Waveform generator | AD9837 DDS (AD9833 register set, 16 MHz clock) | SPI (main bus) | FSYNC (CS): decoder Y0 | 60 Hz sine wave for compressor |
 | DAC | AD5453 14-bit multiplying | SPI mode 1 (main bus), write only | SYNC: decoder Y1 | Amplifier amplitude control |
 | Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: decoder Y2, ALERT: expander GP6 | 12 V rail voltage, current and power |
-| IMU | Adafruit LSM6DSOX breakout (off-board, on the cryocooler) | SPI (main bus) via header J14 | CS: decoder Y7, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
+| IMU | LSM6DSOX on the cryocooler: its own 18 x 18 mm board (`hardware/kicad/imu/`, not yet built) or the Adafruit breakout it replaces | SPI (main bus) via header J14 | CS: decoder Y7, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
 | Fan / pump | 4-pin PWM through BSS138 drivers | LEDC PWM + PCNT tach | PWM: GPIO 9 / 14, tach: GPIO 15 / 21 | Cooling fan + pump |
 | Current sensor | ACS37800-015B5 (±15 A) behind an ISOW7741 isolator | SPI (dedicated bus) | CS: GPIO 17 | Amplifier AC current monitoring |
 | Compressor relay | BSS138 → BSS84 high-side +12 V switch (130 mA max) | GPIO | GPIO 16 | Compressor relay on/off |
@@ -171,7 +171,7 @@ Drives the AD9837 DDS (60 Hz sine wave, through the MD_AD9833 library set to a 1
 
 ### imu
 
-Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. The sensor is the Adafruit breakout (product 4438) mounted on the cryocooler and cabled to header J14 (pinout in `hardware/kicad/README.md`), so it sees the cooler body's vibration; the SPI clock is `LSM6DSOX_SPI_FREQUENCY_HZ`. A missing cable is non-fatal: the module reports unavailable. On `init()` the module sets `I2C_disable` in CTRL4_C (13h) right after the driver's `begin_SPI()`, so the IMU's I²C block ignores traffic for the other devices on the shared SCK/MOSI lines (DS12814 §5.1.1; the driver only disables I3C). The sensor is then configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
+Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. The sensor is mounted on the cryocooler, so it sees the cooler body's vibration. It is cabled to header J14: the IMU board (`hardware/kicad/imu/`, not yet built) or, until then, the Adafruit breakout (product 4438); pinouts are in `hardware/kicad/README.md`. The SPI clock is `LSM6DSOX_SPI_FREQUENCY_HZ`. A missing cable is non-fatal: the module reports unavailable. On `init()` the module sets `I2C_disable` in CTRL4_C (13h) right after the driver's `begin_SPI()`, so the IMU's I²C block ignores traffic for the other devices on the shared SCK/MOSI lines (DS12814 §5.1.1; the driver only disables I3C). The sensor is then configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
 Each `service()` call applies calibration offsets, runs a first-order low-pass filter, and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2`; it clears after `MOTION_TIMEOUT_MS` of stillness.
 

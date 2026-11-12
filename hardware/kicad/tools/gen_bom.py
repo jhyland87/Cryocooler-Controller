@@ -13,7 +13,8 @@ Test points are bare PCB pads and are left out.
 Also writes the JLCPCB files: bom/cryocooler_bom_full.csv (every part, JLCPCB
 columns) and bom/cryocooler_cpl.csv (SMD placements from the PCB).
 
-Usage: python3 tools/gen_bom.py   (needs kicad-cli)
+Usage: python3 tools/gen_bom.py         (needs kicad-cli)
+       python3 tools/gen_bom.py --imu   (IMU board: imu/bom/imu_*.csv)
 """
 
 import collections
@@ -32,6 +33,7 @@ OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_digikey.csv'
 FULL_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_full.csv'
 CPL_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_cpl.csv'
 BOARD = KICAD_DIR / 'cryocooler.kicad_pcb'
+SCHEMATIC = KICAD_DIR / 'cryocooler.kicad_sch'
 
 # ── resistors (Yageo RC series, 1 %) ────────────────────────────────────────
 R0603 = 'R_0603_1608Metric'
@@ -188,6 +190,9 @@ PARTS = {
     ('NUF6401MNT1G', 'OnSemi_DFN-12-1EP_506AD'): (
         'onsemi', 'NUF6401MNT1G', 'EMI FILTER 6CH 100 OHM 17PF ESD DFN12',
         'design', 'J14: 100 ohm series, ESD clamps on all six IMU cable signals'),
+    ('LSM6DSOXTR', 'LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y'): (
+        'STMicroelectronics', 'LSM6DSOXTR', 'IMU ACCEL/GYRO I2C/SPI 14LGA',
+        'design', 'IMU board (imu/): SPI mode, datasheet DS12814'),
     ('TPD1E05U06DPYR', 'Texas_DPY0002A_0.6x1mm_P0.65mm'): (
         'Texas Instruments', 'TPD1E05U06DPYR', 'TVS DIODE 5.5VWM 1CH X1SON-2',
         'design', 'ESD clamp on the panel button line'),
@@ -435,7 +440,7 @@ def load_netlist():
             [
                 KICAD_CLI, 'sch', 'export', 'netlist', '--format',
                 'kicadsexpr', '-o', str(path),
-                str(KICAD_DIR / 'cryocooler.kicad_sch'),
+                str(SCHEMATIC),
             ],
             check=True,
             capture_output=True,
@@ -648,7 +653,42 @@ def compact_refs(refs):
     return ' '.join(pieces)
 
 
+def write_mouser(rows):
+    """The lines Digi-Key could not supply, as a Mouser upload."""
+    mouser = [row for row in rows if set(row['Designators']) & set(MOUSER_LINES)]
+    with MOUSER_OUTPUT.open('w', newline='') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(['Mouser Part Number', 'Manufacturer Part Number',
+                         'Manufacturer', 'Quantity', 'Description',
+                         'Customer Reference', 'Notes'])
+        for row in mouser:
+            ref = row['Designators'][0]
+            mpn = row['Manufacturer Part Number']
+            writer.writerow([MOUSER_LINES[ref], MOUSER_MPN.get(mpn, mpn),
+                             row['Manufacturer'], row['Quantity'],
+                             row['Description'], row['Customer Reference'],
+                             row['Notes']])
+
+
+def use_imu_board():
+    """Points the inputs and outputs at the IMU board project (imu/). Its
+    references overlap the main board's, so the Mouser lines (keyed by
+    reference) don't apply.
+    """
+    global OUTPUT, FULL_OUTPUT, CPL_OUTPUT, MOUSER_OUTPUT, BOARD, SCHEMATIC
+    imu = KICAD_DIR / 'imu'
+    OUTPUT = imu / 'bom' / 'imu_bom_digikey.csv'
+    FULL_OUTPUT = imu / 'bom' / 'imu_bom_full.csv'
+    CPL_OUTPUT = imu / 'bom' / 'imu_cpl.csv'
+    MOUSER_OUTPUT = None
+    BOARD = imu / 'imu.kicad_pcb'
+    SCHEMATIC = imu / 'imu.kicad_sch'
+    MOUSER_LINES.clear()
+
+
 def main():
+    if '--imu' in sys.argv[1:]:
+        use_imu_board()
     # pad test points are bare copper; the through-hole ground loops are parts
     parts = [
         p for p in load_netlist()
@@ -691,19 +731,8 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
-    mouser = [row for row in rows if set(row['Designators']) & set(MOUSER_LINES)]
-    with MOUSER_OUTPUT.open('w', newline='') as handle:
-        writer = csv.writer(handle)
-        writer.writerow(['Mouser Part Number', 'Manufacturer Part Number',
-                         'Manufacturer', 'Quantity', 'Description',
-                         'Customer Reference', 'Notes'])
-        for row in mouser:
-            ref = row['Designators'][0]
-            mpn = row['Manufacturer Part Number']
-            writer.writerow([MOUSER_LINES[ref], MOUSER_MPN.get(mpn, mpn),
-                             row['Manufacturer'], row['Quantity'],
-                             row['Description'], row['Customer Reference'],
-                             row['Notes']])
+    if MOUSER_OUTPUT is not None:
+        write_mouser(rows)
     total = sum(row['Quantity'] for row in rows)
     counts = collections.Counter(row['MPN basis'] for row in rows)
     print(f'{len(rows)} lines, {total} parts, bases {dict(counts)} -> {OUTPUT}')

@@ -15,6 +15,10 @@ from pcbnetlist import KICAD_DIR
 from stepbox import box_step_text
 
 MODEL_DIR = KICAD_DIR / 'lib' / 'cryocooler.3dshapes'
+# how a board's footprints name MODEL_DIR, and the folder ${KIPRJMOD} is;
+# the IMU board (imu/) sets '${KIPRJMOD}/../lib/cryocooler.3dshapes' and imu/
+MODEL_URI = '${KIPRJMOD}/lib/cryocooler.3dshapes'
+PROJECT_DIR = KICAD_DIR
 STOCK_MODELS = Path(
     '/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels'
 )
@@ -429,7 +433,7 @@ def library_model_exists(model_path):
     or the project library. VRML (.wrl) models count as missing."""
     if Path(model_path).suffix.lower() == '.wrl':
         return False
-    for prefix, root in (('${KICAD10_3DMODEL_DIR}/', STOCK_MODELS), ('${KIPRJMOD}/', KICAD_DIR)):
+    for prefix, root in (('${KICAD10_3DMODEL_DIR}/', STOCK_MODELS), ('${KIPRJMOD}/', PROJECT_DIR)):
         if model_path.startswith(prefix):
             return (root / model_path[len(prefix) :]).exists()
     return Path(model_path).exists()
@@ -443,7 +447,7 @@ def attach_missing_models(footprint):
     name = str(footprint.GetFPID().GetLibItemName())
     local_step = LOCAL_STEP_MODELS.get(footprint.GetValue()) or LOCAL_STEP_MODELS.get(name)
     if local_step is not None and (MODEL_DIR / local_step[0]).exists():
-        wanted = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{local_step[0]}'
+        wanted = f'{MODEL_URI}/{local_step[0]}'
         if [m.m_Filename for m in footprint.Models()] == [wanted]:
             return False
         model = pcbnew.FP_3DMODEL()
@@ -457,7 +461,7 @@ def attach_missing_models(footprint):
             return False
         path = write_model(*ENVELOPES[name])
         model = pcbnew.FP_3DMODEL()
-        model.m_Filename = f'${{KIPRJMOD}}/lib/cryocooler.3dshapes/{path.name}'
+        model.m_Filename = f'{MODEL_URI}/{path.name}'
     while footprint.Models().size():
         footprint.Models().pop_back()
     model.m_Show = True
@@ -489,7 +493,7 @@ def apply_connector_colour(footprint):
     if colour is None:
         return False
     stock_prefix = '${KICAD10_3DMODEL_DIR}/'
-    copy_prefix = '${KIPRJMOD}/lib/cryocooler.3dshapes/'
+    copy_prefix = MODEL_URI + '/'
     known_rgb = STOCK_HOUSING_RGB + tuple(
         colour_string(rgb) for rgb in HOUSING_COLOURS.values()
     )

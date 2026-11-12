@@ -20,6 +20,8 @@ from sexpr import (
 )
 
 PROJECT = 'cryocooler'
+# uuid namespace; another project (imu/) sets its own so its ids differ
+UUID_NAMESPACE = 'cryocooler-schematic'
 VERSION = '20260306'
 CUSTOM_LIB_PATH = (
     Path(__file__).resolve().parent.parent / 'lib' / 'cryocooler.kicad_sym'
@@ -47,7 +49,7 @@ def new_uuid():
 
 def stable_uuid(name):
     """Name-based uuid so ids do not change between runs."""
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, f'cryocooler-schematic/{name}'))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f'{UUID_NAMESPACE}/{name}'))
 
 
 def kicad_format(text):

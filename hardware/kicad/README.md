@@ -158,7 +158,8 @@ and describe earlier boards where they differ.
   the far end is wired by the table below, not pin for pin. Power the breakout's
   `Vin` from 3V3 so its logic stays 3.3 V, and leave its `3Vo` pad open. Keep the cable short (it hangs on the
   shared SPI bus; each signal passes a NUF6401MN filter channel at J14, 100 Ω in series). Only `IMU` is printed
-  beside the connector; its pins aren't labelled.
+  beside the connector; its pins aren't labelled. The [IMU board](#imu-board-imu) replaces the breakout: its J1
+  has J14's pin map, so that cable is wired pin for pin (1-1 ... 8-8). The table below is for the breakout.
 
   | J14 pin | Board signal | Breakout pad |
   |---|---|---|
@@ -189,3 +190,39 @@ and describe earlier boards where they differ.
 * **IC part numbers:** each U / PS part gets its part number on the top silkscreen inside its body (between the pads, largest font that fits, two lines if needed), so the soldered part covers it and it helps placement; `add_ic_labels` in `gen_pcb.py` runs with the silkscreen and as `iclabels`. Long values use shorter text (`IC_LABEL_TEXT`). Not labelled (no room under the body, or exposed pad): U2, U4, U8, U11, U12, U13, U15, U23, U24, U26 (SOT-23 / MSOP) and U10, U20, U21, PS1 (exposed pads / pad ring). The pin-1 arrows from the library footprints are unchanged.
 * **3D models:** KiCad ships no model file for the SG-8002CA (U3), SRP7050TA (L2, L3) or NANO2 fuse (F1), and PS1 is our own footprint, so `tools/pcbmodels.py` writes box envelope models (`lib/cryocooler.3dshapes/`, sized from the datasheets; the PS1 height of 1.8 mm is an assumption) and attaches them. `gen_pcb.py texts` redoes the silkscreen (box lines, reference designators, part labels, logo) and adds the models on an already routed board without touching tracks. `gen_pcb.py iclabels` only adds the IC part numbers (below).
 * **Test points:** every `TP` and the `Debug` sheet LEDs are placed beside a pad on their net by `gen_pcb.py` (ground loops use fixed anchors).
+
+## IMU board (`imu/`)
+
+A separate 18 x 18 mm, 2-layer board for the LSM6DSOX, cabled to J14. KiCad allows one board per project, so it is
+its own project in `imu/` (open `imu/imu.kicad_pro`). It shares `lib/` through its `sym-lib-table`, `fp-lib-table`
+and `${KIPRJMOD}/../lib` 3D model paths. Not yet fabricated or bench tested.
+
+* **Circuit:** U1 LSM6DSOXTR in 4-wire SPI (DS12814 Mode 1). SDx and SCx to GND, OCS_Aux and SDO_Aux open. 100 nF on
+  VDD (C1) and VDDIO (C2), 10 uF bulk at J1 (C3), a 10k CS pull-up (R1) so the part stays deselected while the cable
+  is unplugged, and a green power LED (D1, 1.5k R2, about 1 mA). No I2C, LDO or level shifters: it runs on the main
+  board's 3.3 V. A test point for each cable net, named by function. Details in `DESIGN_REVIEW.md`, "IMU board".
+* **Connector:** J1 is the same Molex 505448-0891 as J14 with the same pin map, so the cable (two 505432-series
+  8-circuit housings, not in the BOM) is wired pin for pin. The pin names are on the back silk, behind J1.
+* **Mounting:** a 3.2 mm NPTH (M3 clearance), on no net, centred on the top edge opposite J1's mating face. Copper
+  stays 3.0 mm from its centre on both layers, clear of the screw head.
+* **Axes:** the front silk shows U1's sensing axes (DS12814 Figure 4): +X toward the mounting hole, +Y toward the left
+  edge (the test-point column), +Z out of the top face.
+* **Order:** black mask, ENIG (the labels are mask openings), filled and capped vias (silk crosses a few vias) and
+  high-precision silk (0.7 mm text), as for the main board.
+
+`tools/imu_board.py` builds the whole board from the tables in the script (parts, tracks, vias), so hand edits in
+KiCad don't survive a rebuild. Change the script, then re-apply the labels and export:
+
+```bash
+KPY=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
+python3 hardware/kicad/tools/gen_imu_schematic.py   # imu/imu.kicad_sch and imu.kicad_pro
+$KPY hardware/kicad/tools/imu_board.py              # imu/imu.kicad_pcb
+$KPY hardware/kicad/tools/mask_labels.py hardware/kicad/imu/imu.kicad_pcb hardware/kicad/imu/mask_labels.json
+python3 hardware/kicad/tools/export_fab.py hardware/kicad/imu/imu.kicad_pcb   # imu/fabrication/
+python3 hardware/kicad/tools/gen_bom.py --imu       # imu/bom/
+```
+
+After review and commit, `$KPY hardware/kicad/tools/imu_board.py boardid` stamps `Cryocooler IMU` / `BETA rev <hash>`
+on the back silk; a rebuild drops it, so stamp again after one. Checks (2026-11-11): ERC 0, `datasheet_rules.py --imu`
+25/25, and `kicad-cli pcb drc --schematic-parity --severity-all` 0 errors, 0 unconnected, 0 parity, with 14
+`text_height` warnings for the 0.5 mm mask and 0.7 mm silk labels (the accepted baseline).

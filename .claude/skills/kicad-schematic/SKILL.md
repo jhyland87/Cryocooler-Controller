@@ -77,6 +77,20 @@ The netlist sets quantities and designators. The CPL is read from
 `cryocooler.kicad_pcb`, so re-run this after the board changes too. See
 `bom/README.md` for the `MPN basis` column, `LCSC_PARTS` and `ROTATION_OFFSETS`.
 
+## IMU board (`imu/`)
+
+The IMU board is its own project with its own generator and rule set (see
+`README.md`, "IMU board"):
+
+```bash
+python3 tools/gen_imu_schematic.py                 # imu/imu.kicad_sch and imu.kicad_pro
+$KC sch erc --severity-all imu/imu.kicad_sch       # 0
+$KC sch export netlist -o $OUT/imu.net imu/imu.kicad_sch
+python3 tools/datasheet_rules.py --imu $OUT/imu.net   # RULES_IMU, 25 of 25
+python3 tools/verify_netlist.py $OUT/imu.net       # skips the GPIO map (no ESP32)
+python3 tools/gen_bom.py --imu                     # imu/bom/imu_*.csv
+```
+
 ## KiCad gotchas the generator already handles (don't break them in kicadgen.py)
 
 - A pin or junction in the middle of a wire isn't connected. Wires are split at pins.

@@ -820,6 +820,32 @@ SYMBOLS = [
         tip_x=10.16,
         half_height_min=7.62,
     ),
+    # IMU board (imu/): pin numbers and functions from DS12814 Table 1
+    symbol(
+        'LSM6DSOXTR',
+        'U',
+        'ST iNEMO 6-axis IMU (3D accelerometer + 3D gyroscope), SPI/I2C/I3C, '
+        'VDD 1.71-3.6 V, VDDIO 1.62-3.6 V, LGA-14L 2.5 x 3.0 x 0.83 mm',
+        'https://www.st.com/resource/en/datasheet/lsm6dsox.pdf',
+        'Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y',
+        left=[
+            ('12', '~{CS}', 'input'),
+            ('13', 'SPC', 'input'),
+            ('14', 'SDI', 'input'),
+            ('1', 'SDO', 'tri_state'),
+            ('10', 'OCS_Aux', 'passive'),
+            ('11', 'SDO_Aux', 'passive'),
+        ],
+        right=[('4', 'INT1', 'output'), ('9', 'INT2', 'output')],
+        top=[('8', 'VDD', 'power_in'), ('5', 'VDDIO', 'power_in')],
+        bottom=[
+            ('2', 'SDx', 'passive'),
+            ('3', 'SCx', 'passive'),
+            (['6', '7'], 'GND', 'power_in'),
+        ],
+        keywords='imu accelerometer gyroscope',
+        half_height_min=15.24,
+    ),
     symbol(
         'APGB0607G22R23C',
         'D',

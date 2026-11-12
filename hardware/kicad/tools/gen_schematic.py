@@ -3349,6 +3349,66 @@ def sheet_symbol(root_uuid, child, index, x, y):
     )
 
 
+def link_parts(sheets):
+    """Writes each part's datasheet and product links into its properties."""
+    import part_links
+
+    unlinked = []
+    for sheet in sheets:
+        for part in sheet.parts:
+            if part.ref.startswith('#'):
+                continue
+            footprint = part.footprint or kicadgen.symbol_prop(
+                kicadgen.get_symbol(part.lib_id), 'Footprint'
+            )
+            found = part_links.links(part.ref, part.value, footprint)
+            if not found and not part.ref.startswith('TP'):
+                unlinked.append(part.ref)
+            part.props.update(found)
+    print(f'part links: {len(unlinked)} parts without a part number:',
+          ' '.join(unlinked))
+
+
+def check_sheets(sheets):
+    """Finalizes the sheets and runs the text overlap, 4-way junction and
+    duplicate reference checks; returns the three counts.
+    """
+    import textlayout
+
+    overlaps = 0
+    junctions = 0
+    for sheet in sheets:
+        sheet.finalize()
+        for column, row, count in sheet.four_way_junctions():
+            print(
+                f'  [{sheet.title}] {count}-way junction at column '
+                f'{column:.0f}, row {row:.0f}'
+            )
+            junctions += 1
+        for problem in textlayout.check_text(sheet):
+            overlaps += 1
+            print(f'  [{sheet.title}] {problem}')
+        for missing in textlayout.unlabeled_power(sheet):
+            overlaps += 1
+            print(f'  [{sheet.title}] power symbol name hidden: {missing}')
+    print(f'text overlap check: {overlaps} overlaps')
+    # a reference used by two different parts silently merges them in the
+    # netlist; units of one multi-unit part share theirs on purpose
+    owners = {}
+    duplicates = 0
+    for sheet in sheets:
+        for part in sheet.parts:
+            if part.ref.startswith('#'):
+                continue
+            owner = (sheet.title, part.lib_id, part.value)
+            if owners.setdefault(part.ref, owner) != owner:
+                duplicates += 1
+                print(f'  duplicate reference {part.ref}: {owners[part.ref]} '
+                      f'and {owner}')
+    print(f'duplicate reference check: {duplicates} found')
+    return overlaps, junctions, duplicates
+
+
 def main():
     kicadgen.reset_uuids()
     root_uuid = ROOT_UUID
@@ -3374,55 +3434,8 @@ def main():
         for part in sheet.parts:
             part.ref = REF_MAP.get(part.ref, part.ref)
 
-    import textlayout
-    import part_links
-
-    unlinked = []
-    for sheet in [root] + children:
-        for part in sheet.parts:
-            if part.ref.startswith('#'):
-                continue
-            footprint = part.footprint or kicadgen.symbol_prop(
-                kicadgen.get_symbol(part.lib_id), 'Footprint'
-            )
-            found = part_links.links(part.ref, part.value, footprint)
-            if not found and not part.ref.startswith('TP'):
-                unlinked.append(part.ref)
-            part.props.update(found)
-    print(f'part links: {len(unlinked)} parts without a part number:',
-          ' '.join(unlinked))
-
-    overlaps = 0
-    junctions = 0
-    for sheet in [root] + children:
-        sheet.finalize()
-        for column, row, count in sheet.four_way_junctions():
-            print(
-                f'  [{sheet.title}] {count}-way junction at column '
-                f'{column:.0f}, row {row:.0f}'
-            )
-            junctions += 1
-        for problem in textlayout.check_text(sheet):
-            overlaps += 1
-            print(f'  [{sheet.title}] {problem}')
-        for missing in textlayout.unlabeled_power(sheet):
-            overlaps += 1
-            print(f'  [{sheet.title}] power symbol name hidden: {missing}')
-    print(f'text overlap check: {overlaps} overlaps')
-    # a reference used by two different parts silently merges them in the
-    # netlist; units of one multi-unit part share theirs on purpose
-    owners = {}
-    duplicates = 0
-    for sheet in [root] + children:
-        for part in sheet.parts:
-            if part.ref.startswith('#'):
-                continue
-            owner = (sheet.title, part.lib_id, part.value)
-            if owners.setdefault(part.ref, owner) != owner:
-                duplicates += 1
-                print(f'  duplicate reference {part.ref}: {owners[part.ref]} '
-                      f'and {owner}')
-    print(f'duplicate reference check: {duplicates} found')
+    link_parts([root] + children)
+    overlaps, junctions, duplicates = check_sheets([root] + children)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
     (ROOT_DIR / 'cryocooler.kicad_sch').write_text(root.render(root_uuid))
     for child in children:

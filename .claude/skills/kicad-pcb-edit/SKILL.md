@@ -36,6 +36,12 @@ The rev 3 board carries hand copper that exists only in `cryocooler.kicad_pcb`
   new one-off script.
 - Don't run `tools/silk_fix.py`. It hides U1 pin names it finds colliding.
 
+**The IMU board (`imu/imu.kicad_pcb`) is the opposite:** `$KPY tools/imu_board.py`
+rebuilds it from the tables in that script, so edit the script, never the board.
+Then re-apply its labels (`kicad-part-labels`), export (`kicad-fab-export`) and run
+DRC on it. Its baseline is 0 errors, 0 unconnected, 0 parity and 14 `text_height`
+warnings (`README.md`, "IMU board").
+
 ## Safe `gen_pcb.py` modes on the routed board
 
 | Mode | Does |

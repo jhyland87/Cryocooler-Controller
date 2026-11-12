@@ -41,6 +41,12 @@ cd hardware/kicad/tools && python3 -c "import export_fab; export_fab.render_boar
 This runs `kicad-cli pcb render` three times: top with perspective, bottom, and
 angled. Sizes, camera and lighting are in `RENDERS` in `export_fab.py`. Change
 them there, not on the command line.
+The IMU board has its own camera settings (`RENDERS_BY_BOARD`, keyed by the
+board file's name).
+
+The IMU board: `python3 hardware/kicad/tools/export_fab.py hardware/kicad/imu/imu.kicad_pcb`
+writes `imu/fabrication/` (2 layers, `imu_jlcpcb.zip`). Its board ID is stamped by
+`$KPY hardware/kicad/tools/imu_board.py boardid`, after review and commit.
 
 - Look at the front render (`Read` the PNG) after a layout change.
 - Vendor STEP models live in `lib/cryocooler.3dshapes/` and are tracked in git.

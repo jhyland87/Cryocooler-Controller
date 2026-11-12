@@ -11,7 +11,8 @@ Safe to run again; it replaces its own text and arrows. The positions fit the co
 route and silk, and they don't follow a moved part. Run this after `silk_fix.py`, which
 could cut the arrows, and re-run DRC after any reroute or refill.
 
-Usage: mask_labels.py board.kicad_pcb (edits in place)
+Usage: mask_labels.py board.kicad_pcb [labels.json] (edits in place; the labels default
+to `mask_labels.json` beside this script)
 """
 import json
 import math
@@ -35,6 +36,13 @@ SILK_LAYERS = {'F': pcbnew.F_SilkS, 'B': pcbnew.B_SilkS}
 
 def add_label(board, label):
     """Adds one centred label on the mask layer of its side, mirrored on the back."""
+    text = make_label(board, label)
+    board.Add(text)
+    return text
+
+
+def make_label(board, label):
+    """The text item for one label, not yet on the board."""
     text = pcbnew.PCB_TEXT(board)
     text.SetText(label['text'])
     if label.get('silk'):
@@ -50,7 +58,6 @@ def add_label(board, label):
     text.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_CENTER)
     text.SetVertJustify(pcbnew.GR_TEXT_V_ALIGN_CENTER)
     text.SetMirrored(label['side'] == 'B')
-    board.Add(text)
     return text
 
 
@@ -115,7 +122,8 @@ def hide_silk(board, labels, removed):
 
 def main():
     path = sys.argv[1]
-    labels = json.loads(LABEL_FILE.read_text())
+    label_file = Path(sys.argv[2]) if len(sys.argv) > 2 else LABEL_FILE
+    labels = json.loads(label_file.read_text())
     board = pcbnew.LoadBoard(path)
     # SWIG frees removed or added items when their wrappers die: keep them until the save
     kept = []
