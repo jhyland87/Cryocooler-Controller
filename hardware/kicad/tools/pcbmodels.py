@@ -55,6 +55,26 @@ STOCK_HOUSING_RGB = (
 # NANO2 453 2.69 mm (Littelfuse); MIE1W0505 LGA-12 is 5 x 4 mm, height assumed
 # 1.8 mm (not read from its datasheet).
 ENVELOPES = {
+    # XKB X2510WRS (drawing X-X2510WRS-02-9TSN): body (N + 1) x 2.54 wide, 4.35 deep,
+    # 5.51 high at footprint y 0.69 .. 5.04; friction wall 0.85 thick out to y 12.04
+    'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal': (
+        'X2510WRS-02_envelope',
+        [(7.62, 4.35, 5.51, 1.27, -2.865, TAN), (3.74, 7.0, 0.85, 1.27, -8.54, TAN)],
+    ),
+    'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal': (
+        'X2510WRS-04_envelope',
+        [(12.7, 4.35, 5.51, 3.81, -2.865, TAN), (8.82, 7.0, 0.85, 3.81, -8.54, TAN)],
+    ),
+    # GCT USB4205 (drawing rev A2): 3.71 wide, 12.5 high, footprint y -4.12 .. 9.88
+    'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag': (
+        'USB4205_envelope',
+        [(3.71, 14.0, 12.5, 0.0, -2.88, SILVER)],
+    ),
+    # TI RUC0014A X2QFN-14: 2 x 2 mm, 0.4 mm max (OPA4990IRUCR)
+    'Texas_S-PX2QFN-14': (
+        'RUC0014A_envelope',
+        [(2.0, 2.0, 0.4, 0.0, 0.0, BLACK)],
+    ),
     'SW_Panasonic_EVP-AA': (
         'EVP-AA_envelope',
         [(3.5, 2.9, 1.4, 0.0, 0.0, SILVER), (2.2, 1.5, 1.7, 0.0, 0.0, GRAY)],

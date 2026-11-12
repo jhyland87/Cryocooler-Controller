@@ -32,7 +32,7 @@
   (constraint hole_clearance (min 0.2mm)))
 
 # the USB-C receptacle's own GND pads sit closer than 0.2 mm to its own
-# locating holes by design (GCT USB4105 land pattern); JLCPCB builds it as is
+# locating holes by design (GCT land pattern; rev 4's USB4205 keeps 0.3 mm); JLCPCB builds it as is
 (rule usb_c_own_holes
   (condition "A.memberOfFootprint('J1') && B.memberOfFootprint('J1')")
   (constraint hole_clearance (min 0mm)))

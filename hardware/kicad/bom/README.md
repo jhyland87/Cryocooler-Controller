@@ -46,7 +46,8 @@ preview on the order page and put any fixes in `ROTATION_OFFSETS` (footprint -> 
 
 ## Not in the list
 
-* Mating plugs and crimps (PC fan plugs on J3 / J4, Wurth WR-WTB on J5, Sullins SWH25X on J6 / J7 / J13, JST PH on J10),
+* Mating plugs and crimps (XKB X2510H housings with X2510T terminals on J3-J6, J13 and J16-J20: 4-way for J3 / J4 / J5,
+  2-way for the rest; fan, pump and flow-sensor leads have to be moved into them; JST PH on J10),
   the Molex 505432 series 8-circuit housing and crimp terminals for J14, and the cables themselves.
 * The Adafruit LSM6DSOX breakout (product 4438) that plugs into J14 through an 8-wire cable (wired by the J14 table in `../README.md`, not pin for pin); it replaces the
   on-board LSM6DSOXTR (U19), which is no longer on the board.

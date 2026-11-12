@@ -38,7 +38,7 @@ module::InitStatus init();
 /** Initialise the AD9833 waveform generator and start the sine wave. */
 module::InitStatus initWaveform();
 
-/** Initialise the ACS37800 RMS power monitor over I2C. */
+/** Initialise the ACS37800 RMS power monitor over SPI. */
 module::InitStatus initAcs();
 
 /** Initialise the AD5453 14-bit SPI DAC and drive output to zero. */

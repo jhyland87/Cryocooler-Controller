@@ -21,7 +21,7 @@
 // A/B/C pick the output and G2A enables it (10 kOhm pull-up holds it off at boot).
 // GPIO3 and GPIO45 are strapping pins: 10 kOhm resistors hold GPIO3 high (default
 // USB-JTAG) and GPIO45 low at reset. GPIO44 is U0RXD; the console is native USB
-// CDC, so UART0 is unused. GPIO5 and GPIO7 (3.3 V, ADC1) and GPIO47 (1.8 V only) are free.
+// CDC, so UART0 is unused. GPIO47 (1.8 V only) is free.
 #define CS_ADDR_A_PIN      3
 #define CS_ADDR_B_PIN      44
 #define CS_ADDR_C_PIN      45
@@ -70,22 +70,36 @@
 #define PWR_KILL_PIN      10
 
 // =============================================================================
-// SPI Bus (AD9833, AD5453, LSM6DSOX, INA239, ADS1220, MCP23S08, ST7789V, TSC2046)
+// SPI Bus (AD9833, AD5453, LSM6DSOX, INA239, ADS1220, MCP23S08, ST7789V, TSC2046,
+// ACS37800)
 // =============================================================================
 // Why am I not using values from /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32s3/pins_arduino.h?
 // or /Users/justinhyland/.platformio/packages/framework-arduinoespressif32/variants/esp32_s3r8n16/pins_arduino.h
-#define SPI_MISO          40    // Master In Slave Out  (read by the LSM6DSOX, INA239 and ADS1220)
+#define SPI_MISO          40    // Master In Slave Out  (read by the LSM6DSOX, INA239, ADS1220 and ACS37800)
 #define SPI_MOSI          41    // Master Out Slave In  (AD5453 SDIN + AD9833 SDATA + LSM6DSOX SDI + INA239 MOSI)
 #define SPI_CLK           42    // SPI Clock
 
 
-// ACS37800 Power Monitor — dedicated SPI3 bus (SPI3_HOST)
-// Separate bus required: ACS37800 keeps MISO driven when CS is HIGH.
+// ACS37800 power monitor (U18, behind the U17 ISOW7741 isolator): SPI mode 3, LSB
+// first, on the shared SPI bus. It keeps driving MISO while CS is high, so two
+// SN74LVC1G125 gates with /OE on ACS_CS connect it only while CS is low: one passes
+// SCK to the isolator, the other its MISO to the bus. A 10 kOhm pull-up holds CS
+// high while the GPIO floats. CS is a plain GPIO, not a decoder ID.
 // CS is GPIO17, not GPIO43: GPIO43 is U0TXD and toggles with ROM boot messages at reset.
 #define ACS37800_CS        17
-#define ACS37800_SPI_CLK   11
-#define ACS37800_SPI_MOSI  12
-#define ACS37800_SPI_MISO  13
+
+// =============================================================================
+// General-purpose I/O headers (IO5, IO7, IO11, IO12, IO13)
+// =============================================================================
+// Each pin has a 100 Ohm series resistor, 200 kOhm to ground, an ESD clamp and an
+// indicator LED whose brightness follows the pin voltage. Only GPIO5 and GPIO7 are
+// ADC1 and can read analog with WiFi on; GPIO11 to GPIO13 are ADC2.
+#define AUX_IO5_PIN        5
+#define AUX_IO7_PIN        7
+#define AUX_IO11_PIN       11
+#define AUX_IO12_PIN       12
+#define AUX_IO13_PIN       13
+
 // =============================================================================
 // Alphacool ES High Flow + Temperature Sensor
 // =============================================================================

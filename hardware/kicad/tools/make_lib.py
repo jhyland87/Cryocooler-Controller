@@ -270,7 +270,43 @@ def stock_copy(lib, stock_name, name, props, extra_pins=()):
     return sexpr.dump(node, 1)
 
 
+def us_resistor_pack(name, props):
+    """Device:R_Pack04_Split (four isolated resistors, one per unit, pins n and
+    9 - n) redrawn with the R_US zig-zag, so array elements match the discrete
+    resistors on the sheets.
+    """
+    import copy
+
+    stock_name = 'R_Pack04_Split'
+    node = copy.deepcopy(sexpr.stock_symbol('Device', stock_name))
+    zigzag = next(
+        child
+        for child in sexpr.stock_symbol('Device', 'R_US')
+        if isinstance(child, list) and child[0] == 'symbol'
+        and sexpr.sval(child[1]) == 'R_US_0_1'
+    )
+    node[1] = ('s', name)
+    for child in node[2:]:
+        if not (isinstance(child, list) and child):
+            continue
+        if child[0] == 'property' and sexpr.sval(child[1]) in props:
+            child[2] = ('s', props[sexpr.sval(child[1])])
+        if child[0] == 'symbol':
+            child[1] = ('s', sexpr.sval(child[1]).replace(stock_name, name, 1))
+            if sexpr.sval(child[1]).endswith('_0_1'):
+                child[2:] = copy.deepcopy(zigzag[2:])
+    return sexpr.dump(node, 1)
+
+
 SYMBOLS = [
+    us_resistor_pack(
+        'R_Pack04_Split_US',
+        {
+            'Footprint': 'Resistor_SMD:R_Array_Convex_4x0402',
+            'Description': 'Four isolated resistors in one 2.0 x 1.0 mm package (Yageo '
+            'YC124), one element per unit',
+        },
+    ),
     symbol(
         'MJ-3523-SMT-TR',
         'J',
@@ -870,6 +906,33 @@ SYMBOLS = [
             'Description': 'TI dual 40 V rail-to-rail input/output op amp, 4.5 MHz, 10 pA bias, '
             'WSON-8 2 x 2 mm, thermal pad to V-',
         },
+    ),
+    # OPA4990 in RUC: the TLV9004xRUCR pinout (TI SBOS933 Table 5-5: A 1/2/14, B 4/5/6,
+    # C 9/8/7, D 11/12/13, V+ 3, V- 10)
+    stock_copy(
+        'Amplifier_Operational',
+        'TLV9004xRUCR',
+        'OPA4990IRUC',
+        {
+            'Value': 'OPA4990IRUCR',
+            'Footprint': 'Package_DFN_QFN:Texas_S-PX2QFN-14',
+            'Datasheet': 'https://www.ti.com/lit/ds/symlink/opa4990.pdf',
+            'Description': 'TI quad 40 V rail-to-rail input/output op amp, 1.1 MHz, 10 pA bias, '
+            'inputs rated for differential voltages up to the supply, X2QFN-14 2 x 2 mm',
+        },
+    ),
+    symbol(
+        'SN74LVC1G125DRY',
+        'U',
+        'TI single 3-state buffer, 1.65-5.5 V, output off while OE is high (ten 5.3 ns, '
+        'tdis 5 ns max at 3.3 V), SON-6 DRY 1.45 x 1.0 mm. Pin 5 is not connected',
+        'https://www.ti.com/lit/ds/symlink/sn74lvc1g125.pdf',
+        'Package_SON:Texas_USON-6_1x1.45mm_P0.5mm_SMD',
+        left=[('2', 'A', 'input')],
+        right=[('4', 'Y', 'tri_state'), ('5', 'NC', 'no_connect')],
+        top=[('6', 'VCC', 'power_in')],
+        bottom=[('1', '~{OE}', 'input'), ('3', 'GND', 'power_in')],
+        keywords='buffer tri-state',
     ),
     stock_copy(
         'Interface',

@@ -63,6 +63,7 @@ SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
+NPTH_CLEAR = 0.25  # kicad_dru jlc_npth_to_copper is 0.2 mm; the grid adds a cell
 NOTCH = top_notch()  # antenna notch in the top edge
 SKIP_NETS = set(os.environ.get('SKIP', 'GND').split(','))  # nets the pours connect
 ROUTE_LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
@@ -217,7 +218,9 @@ class Grid:
                 if own:
                     continue
                 inner = layer in (pcbnew.In1_Cu, pcbnew.In2_Cu) and drill.x > 0
-                extra = 0.15 if inner else 0.0
+                # jlc_npth_to_copper: 0.2 mm from an unplated hole, against CLEAR elsewhere
+                npth = pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH
+                extra = 0.15 if inner else NPTH_CLEAR - CLEAR if npth else 0.0
                 self.mark_poly(self.blocked[layer], pad, layer, track_infl + extra)
                 if not smd:
                     self.mark_poly(self.via_blocked, pad, layer, via_infl + extra)

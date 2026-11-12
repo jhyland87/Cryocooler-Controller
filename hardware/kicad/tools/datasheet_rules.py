@@ -23,15 +23,41 @@ from verify_netlist import load
 # auto-named)
 # ('resjoin', value, pin, ohms, value2, pin2)  pin's net has a resistor whose
 # far end is on value2.pin2's net
-# ('fetdrive', value, pin, ohms, net)  pin is the drain of a BSS138 with source
-# on GND and its gate through `ohms` to `net`
+# ('fetdrive', value, pin, ohms, net)  pin is the drain of a BSS138 (or one
+# BSS138DW element) with source on GND and its gate through `ohms` to `net`
 # ('nores', value, pin, rail)          no resistor joins the pin's net to rail
 # ('caps', net, value, count, net2)   at least `count` capacitors of that value
 # sit between net and net2
+# N-FETs the open-drain rules accept: (value, gate, source, drain) per element.
+# BSS138DW (Diodes ds30203): 1 S, 2 G, 6 D and 4 S, 5 G, 3 D.
+NFET_ELEMENTS = (
+    ('BSS138', '1', '2', '3'),
+    ('BSS138DW', '2', '1', '6'),
+    ('BSS138DW', '5', '4', '3'),
+)
+
+
+def far_pin(ref, pin):
+    """The other end of a resistor. RN parts are 4-element arrays (Yageo YC124):
+    element n joins pins n and 9 - n.
+    """
+    if ref.startswith('RN'):
+        return str(9 - int(pin))
+    return '2' if pin == '1' else '1'
+
+
+def element_pins(ref):
+    """Pin pairs of a two-terminal part's elements."""
+    if ref.startswith('RN'):
+        return [(str(pin), str(9 - pin)) for pin in range(1, 5)]
+    return [('1', '2')]
+
+
 RULES = [
     # 4-pin fans (Intel 4-wire spec): PWM open drain through a BSS138 with the
     # gate pulled to +3V3 (0% drive at reset), tach open collector with a
-    # pull-up at the connector and 4.7k to the GPIO
+    # pull-up at the connector and 4.7k to the GPIO. Rev 4: both drivers are one
+    # BSS138DW, the 4.7k and 10k parts are array elements, the headers XKB X2510WRS
     ('fetdrive', 'FAN (4-pin PWM)', '4', '1k', 'FAN_PWM'),
     ('res', 'FAN (4-pin PWM)', '4', '10k', '+3V3_COOL'),
     ('res', 'FAN (4-pin PWM)', '3', '4.7k', '+3V3_COOL'),
@@ -159,9 +185,12 @@ RULES = [
     ('net', 'RTD PT1000 4-wire', '2', 'RTD_2'),
     ('net', 'RTD PT1000 4-wire', '3', 'RTD_3'),
     ('net', 'RTD PT1000 4-wire', '4', 'RTD_4'),
-    # TPD1E05U06 (TI SLVSBO5): panel button line, 1 IO, 2 GND
-    ('net', 'TPD1E05U06DPYR', '2', 'GND'),
-    ('join', 'TPD1E05U06DPYR', '1', 'LTC2954CDDB-2', '3'),
+    # TPD1E05U06 (TI SLVSBO5): 1 IO, 2 GND; one on the power button line, one at
+    # each general-purpose header
+    ('net', 'TPD1E05U06DPYR', '2', ('GND',)),
+    ('net', 'TPD1E05U06DPYR', '1',
+     ('PWR_BTN', 'IO5_HDR', 'IO7_HDR', 'IO11_HDR', 'IO12_HDR', 'IO13_HDR')),
+    ('net', 'LTC2954CDDB-2', '3', 'PWR_BTN'),
     # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
     ('net', 'EN SG3', '1', '+3V3'),
     ('net', 'EN SG3', '2', '+3V3_SG'),
@@ -191,10 +220,22 @@ RULES = [
     ('net', 'ISOW7741DFMR', '11', 'ISO_GND2'),
     ('between', 'BLM15EX331SN1D', ('NET', 'VISOOUT'), ('NET', 'ISO_5V')),
     ('between', 'BLM15EX331SN1D', ('NET', 'ISO_GND'), ('NET', 'ISO_GND2')),
-    ('net', 'ISOW7741DFMR', '2', 'ACS_MOSI'),
+    # rev 4: the ACS37800 shares the SPI bus. Its datasheet says MISO stays driven
+    # with CS high and is silent on SCLK with CS high, so SN74LVC1G125 gates (TI
+    # SCES223, DRY: 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC; off while OE is high) pass
+    # SCK in and MISO out only while ACS_CS is low
+    ('net', 'ISOW7741DFMR', '2', 'SPI_MOSI'),
     ('net', 'ISOW7741DFMR', '3', 'ACS_SCK'),
     ('net', 'ISOW7741DFMR', '4', 'ACS_CS'),
     ('net', 'ISOW7741DFMR', '5', 'ACS_MISO'),
+    ('res', 'ISOW7741DFMR', '3', '10k', '+3V3'),
+    ('res', 'ISOW7741DFMR', '4', '10k', '+3V3'),
+    ('net', 'SN74LVC1G125DRYR', '1', ('ACS_CS',)),
+    ('net', 'SN74LVC1G125DRYR', '2', ('SPI_SCK', 'ACS_MISO')),
+    ('net', 'SN74LVC1G125DRYR', '4', ('ACS_SCK', 'SPI_MISO')),
+    ('net', 'SN74LVC1G125DRYR', '3', ('GND',)),
+    ('net', 'SN74LVC1G125DRYR', '6', ('+3V3',)),
+    ('nc', 'SN74LVC1G125DRYR', '5'),
     # ACS37800 on the isolated 5 V domain
     ('net', 'ACS37800KMACTR-015B5-SPI', '13', 'ISO_5V'),
     ('net', 'ACS37800KMACTR-015B5-SPI', '14', 'ISO_GND'),
@@ -418,8 +459,51 @@ RULES = [
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '36', 'CS_ADDR_B'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '26', 'CS_ADDR_C'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '39', 'PWR_INT'),
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '5'),
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '7'),
+    # general-purpose I/O (rev 4): GPIO5, 7, 11, 12, 13 on module pins 5, 7, 19, 20,
+    # 21, each with a 100k / 100k divider to GND (the LED driver's input) and 100 R to
+    # its header; clamps on the header side
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '5', 'AUX_IO5'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '7', 'AUX_IO7'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '19', 'AUX_IO11'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '20', 'AUX_IO12'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '21', 'AUX_IO13'),
+    ('between', '100k', ('NET', 'AUX_IO5'), ('NET', 'IO5_SENSE')),
+    ('between', '100k', ('NET', 'AUX_IO7'), ('NET', 'IO7_SENSE')),
+    ('between', '100k', ('NET', 'AUX_IO11'), ('NET', 'IO11_SENSE')),
+    ('between', '100k', ('NET', 'AUX_IO12'), ('NET', 'IO12_SENSE')),
+    ('between', '100k', ('NET', 'AUX_IO13'), ('NET', 'IO13_SENSE')),
+    ('between', '100k', ('NET', 'IO5_SENSE'), ('NET', 'GND')),
+    ('between', '100k', ('NET', 'IO7_SENSE'), ('NET', 'GND')),
+    ('between', '100k', ('NET', 'IO11_SENSE'), ('NET', 'GND')),
+    ('between', '100k', ('NET', 'IO12_SENSE'), ('NET', 'GND')),
+    ('between', '100k', ('NET', 'IO13_SENSE'), ('NET', 'GND')),
+    ('between', '100', ('IO5 / GND', '1'), ('NET', 'AUX_IO5')),
+    ('between', '100', ('IO7 / GND', '1'), ('NET', 'AUX_IO7')),
+    ('between', '100', ('IO11 / GND', '1'), ('NET', 'AUX_IO11')),
+    ('between', '100', ('IO12 / GND', '1'), ('NET', 'AUX_IO12')),
+    ('between', '100', ('IO13 / GND', '1'), ('NET', 'AUX_IO13')),
+    ('net', 'IO5 / GND', '2', 'GND'),
+    ('net', 'IO7 / GND', '2', 'GND'),
+    ('net', 'IO11 / GND', '2', 'GND'),
+    ('net', 'IO12 / GND', '2', 'GND'),
+    ('net', 'IO13 / GND', '2', 'GND'),
+    # OPA4990 (TI SBOS933, RUC): IN+ 2 / 4 / 9 / 11, V+ 3, V- 10; 2.7-40 V. Inputs are
+    # diode-clamped to the rails (10 mA max), so the supply is +5V_OR, which is up
+    # whenever +3V3 is (also on USB alone), and each input sits behind the divider's
+    # 100k. Half the pin voltage plus the green die's VF stays under 5 V. Spare
+    # sections are followers on the supply pin beside them (VCM reaches both rails)
+    ('net', 'OPA4990IRUCR', '3', ('+5V_OR',)),
+    ('net', 'OPA4990IRUCR', '10', ('GND',)),
+    ('net', 'OPA4990IRUCR', '2', ('IO7_SENSE', '+5V_OR')),
+    ('net', 'OPA4990IRUCR', '4', ('IO13_SENSE', '+5V_OR')),
+    ('net', 'OPA4990IRUCR', '9', ('IO11_SENSE', 'GND')),
+    ('net', 'OPA4990IRUCR', '11', ('IO12_SENSE', 'IO5_SENSE')),
+    ('resjoin', 'IO5 G=active', '2', '3.3k', 'IO5 / GND', '2'),
+    ('resjoin', 'IO7 G=active', '2', '3.3k', 'IO7 / GND', '2'),
+    ('resjoin', 'IO11 G=active', '2', '3.3k', 'IO11 / GND', '2'),
+    ('resjoin', 'IO12 G=active', '2', '3.3k', 'IO12 / GND', '2'),
+    ('resjoin', 'IO13 G=active', '2', '3.3k', 'IO13 / GND', '2'),
+    ('nc', 'ALPHACOOL ES FLOW (pin 4 NC)', '4'),
     # 74LV1T34GX (Nexperia rev 4, X2SON5): 1 n.c. (grounded for the footprint
     # bridge), 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.37 V at VCC 3.0-3.3 V
     ('net', '74LV1T34GX', '5', '+3V3'),
@@ -593,11 +677,9 @@ def run(path, rules=RULES):
             want = {target_net(rule[2]), target_net(rule[3])}
             found = False
             for part_ref in refs_by_value.get(value, []):
-                got = {
-                    pin_net.get((part_ref, '1')),
-                    pin_net.get((part_ref, '2')),
-                }
-                found = found or got == want
+                for first, second in element_pins(part_ref):
+                    got = {pin_net.get((part_ref, first)), pin_net.get((part_ref, second))}
+                    found = found or got == want
             check(found, f'{value} between {rule[2]} and {rule[3]}')
             continue
         elif kind == 'channel':
@@ -638,8 +720,7 @@ def run(path, rules=RULES):
                     'R'
                 ):
                     continue
-                far_pin = '2' if other_pin == '1' else '1'
-                if pin_net.get((other_ref, far_pin)) == target_net:
+                if pin_net.get((other_ref, far_pin(other_ref, other_pin))) == target_net:
                     found = True
             check(
                 found,
@@ -648,21 +729,20 @@ def run(path, rules=RULES):
         elif kind == 'fetdrive':
             drain = pin_net.get((ref, rule[2]))
             found = False
-            for fet in refs_by_value.get('BSS138', []):
-                if (
-                    pin_net.get((fet, '3')) != drain
-                    or pin_net.get((fet, '2')) != 'GND'
-                ):
-                    continue
-                for other_ref, other_pin, _ in members.get(
-                    pin_net.get((fet, '1')), []
-                ):
-                    if value_of[other_ref] != rule[3] or not other_ref.startswith(
-                        'R'
+            for fet_value, gate_pin, source_pin, drain_pin in NFET_ELEMENTS:
+                for fet in refs_by_value.get(fet_value, []):
+                    if (
+                        pin_net.get((fet, drain_pin)) != drain
+                        or pin_net.get((fet, source_pin)) != 'GND'
                     ):
                         continue
-                    far_pin = '2' if other_pin == '1' else '1'
-                    found = found or pin_net.get((other_ref, far_pin)) == rule[4]
+                    for other_ref, other_pin, _ in members.get(
+                        pin_net.get((fet, gate_pin)), []
+                    ):
+                        if value_of[other_ref] != rule[3] or not other_ref.startswith('R'):
+                            continue
+                        far_net = pin_net.get((other_ref, far_pin(other_ref, other_pin)))
+                        found = found or far_net == rule[4]
             check(
                 found,
                 f'{value}.{rule[2]} driven by BSS138, gate {rule[3]} to '
@@ -676,8 +756,7 @@ def run(path, rules=RULES):
                     'R'
                 ):
                     continue
-                far_pin = '2' if other_pin == '1' else '1'
-                if pin_net.get((other_ref, far_pin)) == rule[4]:
+                if pin_net.get((other_ref, far_pin(other_ref, other_pin))) == rule[4]:
                     found = True
             check(found, f'{value}.{rule[2]} has {rule[3]} to {rule[4]}')
         elif kind == 'nores':
@@ -686,7 +765,7 @@ def run(path, rules=RULES):
                 other_ref
                 for other_ref, other_pin, _ in members.get(net, [])
                 if other_ref.startswith('R') and pin_net.get(
-                    (other_ref, '2' if other_pin == '1' else '1')) == rule[3]
+                    (other_ref, far_pin(other_ref, other_pin))) == rule[3]
             ]
             check(not joined, f'{value}.{rule[2]} has no resistor to '
                   f'{rule[3]} (found {joined or "none"})')

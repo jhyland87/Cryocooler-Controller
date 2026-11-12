@@ -29,7 +29,9 @@
 
 # Deferred (do only when needed)
 
-- [ ] **Free GPIO 11, 12, 13 and 17 by moving the ACS37800 (U18) onto the shared SPI bus.**
+- [x] **Free GPIO 11, 12, 13 and 17 by moving the ACS37800 (U18) onto the shared SPI bus.** — done on
+  `ucs-125-87-rev4` for GPIO 11, 12 and 13. CS stays on GPIO17: U32 has no spare output. A second
+  gate on SCK was added (see `kicad/DESIGN_REVIEW.md`, rev 4). Not bench tested.
   Only worth doing if we run out of GPIO. U18 keeps driving MISO while its CS is high,
   which is why it has its own SPI3 bus (`include/config/pin_config.h`, `docs/acs37800.md` gotcha 5).
   - Add a 74LVC1G125 tri-state buffer on U18's MISO. Its /OE is active-low, so the

@@ -31,9 +31,13 @@ public:
   ///
   /// The SPI bus must be initialised (begin() called) before any reads/writes.
   /// The CS pin is managed by this class (driven LOW during transactions).
-  ACS37800(SPIClass * spiBus, uint8_t csPin)
+  ///
+  /// @param afterTransaction Called after every SPI transaction, once the bus
+  ///   is released; SCLK is left idling high. On a bus shared with mode-0/1
+  ///   devices, pass a function that returns SCLK to idle low.
+  ACS37800(SPIClass * spiBus, uint8_t csPin, void (*afterTransaction)() = nullptr)
     : transport_(Transport::SPI), bus_(nullptr), address_(0),
-      spiBus_(spiBus), csPin_(csPin) {}
+      spiBus_(spiBus), csPin_(csPin), afterTransaction_(afterTransaction) {}
 
   /// Returns the transport mode this object is configured for.
   Transport getTransport() { return transport_; }
@@ -97,18 +101,6 @@ public:
     calculateApproximation(
       (uint64_t)isense_range * (riso + rsense) * 5, rsense * 462,
       pinstantMult, pinstantShift);
-  }
-
-  /// Call once before the first SPI frame. After SPIClass::begin() SCLK idles
-  /// low (mode 0); clocking one byte with CS high leaves it idling high, so
-  /// the first mode-3 frame doesn't gain an extra edge and shift by a bit.
-  void primeSPI()
-  {
-    if (transport_ != Transport::SPI) { return; }
-    digitalWrite(csPin_, HIGH);
-    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
-    spiBus_->transfer(0x00);
-    spiBus_->endTransaction();
   }
 
   /// Writes the ACCESS_CODE to unlock register writes.
@@ -309,6 +301,23 @@ private:
 
   static constexpr uint32_t kSpiClockHz = 1000000;  // 1 MHz (very conservative)
 
+  /// Takes the bus in mode 3 and clocks one byte with CS high. The ESP32-S3
+  /// applies a new clock idle level only when a transfer starts, so after
+  /// SPIClass::begin() or a mode-0/1 device SCLK still idles low; without
+  /// this byte the first frame gains an edge and shifts by a bit.
+  void beginTransactionSPI()
+  {
+    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    spiBus_->transfer(0x00);
+  }
+
+  /// Releases the bus, then lets the owner restore the clock idle level.
+  void endTransactionSPI()
+  {
+    spiBus_->endTransaction();
+    if (afterTransaction_) { afterTransaction_(); }
+  }
+
   /// Clocks one 40-bit frame under its own CS assertion.
   /// @return The 32-bit MISO response (data for the previous command).
   uint32_t transferFrameSPI(uint8_t command, uint32_t data)
@@ -328,19 +337,19 @@ private:
   uint32_t readRegSPI(uint8_t reg)
   {
     const uint8_t command = 0x80 | (reg & 0x7F);           // R/W=1 (read) | addr
-    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    beginTransactionSPI();
     transferFrameSPI(command, 0);                          // request; response discarded
     const uint32_t value = transferFrameSPI(command, 0);   // carries reg's data
-    spiBus_->endTransaction();
+    endTransactionSPI();
     lastError = 0;
     return value;
   }
 
   void writeRegSPI(uint8_t reg, uint32_t value)
   {
-    spiBus_->beginTransaction(SPISettings(kSpiClockHz, LSBFIRST, SPI_MODE3));
+    beginTransactionSPI();
     transferFrameSPI(reg & 0x7F, value);                   // R/W=0 (write) | addr
-    spiBus_->endTransaction();
+    endTransactionSPI();
     lastError = 0;
   }
 
@@ -380,6 +389,7 @@ private:
   // SPI
   SPIClass * spiBus_;
   uint8_t csPin_;
+  void (*afterTransaction_)() = nullptr;
 
   uint8_t lastError = 0;
 };

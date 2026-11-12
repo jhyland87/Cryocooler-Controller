@@ -414,3 +414,51 @@ The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_re
 * **Layout:** no top-layer tracks or vias under U1, equal 0.2 mm stubs leaving each pad, top pour kept off its pads, and U1 kept clear of the screw head. **Unverified:** these follow ST's community summary of TN0018 ("How to optimize your PCB design for MEMS sensors"); TN0018 itself couldn't be downloaded.
 * **Not on the board, firmware follow-up:** while CS is high the I2C block stays active and sees the shared SPI traffic on SCL/SDA. DS12814 Section 5.1.1 says to write `I2C_disable = 1` in CTRL4_C (13h). The firmware doesn't set it today (this applies to the breakout too).
 * **Not checked:** no bench test; stock and price not checked; the mating cable is not in the BOM.
+
+## Rev 4: shared-bus ACS37800, general-purpose I/O, new connectors (2026-11-12)
+
+Branch `ucs-125-87-rev4`. Not built or bench tested.
+
+**ACS37800 on the shared SPI bus (U41, U42):** frees GPIO 11, 12 and 13. The chip select stays on GPIO17, because all eight U32 decoder outputs are in use.
+* **Datasheet (Allegro ACS37800, "Communication Interfaces"):** "The ACS37800 MISO pin continues to drive the MISO line when CS goes high", and it recommends being the only device on the bus. It says nothing about SCLK activity while CS is high. tCS 50 ns, tCHD 5 ns, 0.1-10 MHz.
+* **U42** passes the isolator's MISO output (U17 pin 5) to `SPI_MISO` only while `ACS_CS` is low. It sits on the logic side because U17's output also drives all the time.
+* **U41** passes `SPI_SCK` to U17 pin 3 only while `ACS_CS` is low, with 10 kΩ (R501) pulling its output high when closed: the mode-3 idle level. This was not in `TODO.md`; it is there because the datasheet doesn't promise that clocks are ignored with CS high, and the probe in `initAcs()` leaves register writes unlocked. MOSI goes straight to U17 pin 2; without clocks it does nothing.
+* **Part:** TI SN74LVC1G125DRYR (SCES223, SON-6 DRY, 1.45 x 1.0 mm): 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC; output off while OE is high; ten 5.3 ns and tdis 5 ns max at 3.3 V; 1.65-5.5 V. Footprint `Package_SON:Texas_USON-6_1x1.45mm_P0.5mm_SMD` (KiCad's DRY land pattern). The Nexperia 74LVC1G125GM named in `TODO.md` shares the pinout, but its datasheet could not be fetched, so the TI part was used.
+* **R502** (10 kΩ) holds `ACS_CS` high while GPIO17 floats, so both gates start closed.
+* **Not verified:** that the ACS37800 tolerates the gated clock edge timing through U17 on real hardware.
+
+**General-purpose I/O (J16-J20):** GPIO 5, 7, 11, 12 and 13, each on a 2-pin header (pin 1 signal, pin 2 GND).
+* Per pin: ESD clamp at the header, 100 Ω in series, and a 100 kΩ / 100 kΩ divider to GND whose tap feeds the LED driver. Clamps: one TPD1E05U06 per pin (U45-U49, a part already on the board), each beside its own header. A four-line SP3422 for IO5, IO7, IO11 and IO12 was tried first; on the board its pin order tied the four header nets into a knot between RN3 and the header pads.
+* **ADC:** only GPIO5 and GPIO7 are ADC1. GPIO11-13 are ADC2, which the ESP32-S3 can't use while WiFi runs.
+* **3.3 V only.** The 5 V clamps and 100 Ω do not make the pins 5 V tolerant.
+* **The 200 kΩ to GND** holds an open pin low and loads a source: 0.1 % error for a 100 Ω source, 5 % for 10 kΩ.
+
+**I/O LEDs (U43, U44, D81-D85):** one OPA4990 section per pin drives the green die of an APGB0607 with half the pin voltage across 3.3 kΩ, the LED inside the feedback loop: I = Vpin / 6.6 kΩ, 0.5 mA at 3.3 V.
+* **Part:** TI OPA4990IRUCR (SBOS933, X2QFN-14 RUC, 2 x 2 mm), your pick in place of the out-of-stock TLV9004IRUCR. Table 5-5: IN+ 2 / 4 / 9 / 11, IN- 1 / 5 / 8 / 12, OUT 14 / 6 / 7 / 13, V+ 3, V- 10. Same pin numbers as KiCad's TLV9004xRUCR symbol and RUC0014A footprint.
+* **Supply: `+5V_OR`, not +12V.** Absolute maximum ratings, note 3: "Input pins are diode-clamped to the power-supply rails", 10 mA max beyond them. `+5V_OR` is up whenever `+3V3` is, including on USB alone, so a driven pin never sits above the op amp's supply. On +12V (the first draft) a GPIO driven high on USB power would have fed the dead 12 V rail through that diode. The LEDs also work on USB this way.
+* **Divider:** the op amp input is the tap, so it sits behind 100 kΩ (33 µA worst case into a clamp diode) and sees at most 1.65 V. The output then needs 1.65 V + VF (2.85 V typ, 3.3 V max): inside the 5 V supply at the typical figure, and it only flattens the top of the range at the worst-case VF or a sagging USB supply.
+* **Inputs:** rail to rail, ±10 pA bias, rated for differential voltages up to the supply ("MUX-friendly"). That matters here: with the LED off the loop is open and the inputs sit apart.
+* **Split over two packages:** U43 drives IO11 and IO12 (sections 3 and 4), U44 drives IO7, IO13 and IO5 (sections 1, 2 and 4). All four pins on one package did not route: the IN- pins are the four corner pins, and the front copper around U43 leaves no room for eight vias.
+* **LED resistors R506-R510** (3.3 kΩ, 0402) sit on the front, one just below each LED (IO12's beside it), so an LED net needs no more than its two vias. A shared array would need all the cathode nets to meet in one place.
+* **Spare sections** are followers with IN+ on the supply pin next to it: U43 sections 1 and 2 on V+ (pin 3), U44 section 3 on GND (pin 10). Electrical characteristics: common-mode range (V-) - 0.2 V to (V+) + 0.2 V, so either rail is a valid input.
+
+**Multi-element parts:**
+* **RN1-RN5:** Yageo YC124 (4 x 0402, 2.0 x 1.0 mm, 0.5 mm pitch, 1/16 W, 25 V working; datasheet V.9). RN1 4.7 kΩ: fan and pump tach pull-ups and series resistors (were R41, R42, R46, R47). RN2 10 kΩ: fan and pump PWM pull-ups and the flow pull-up (were R3, R4, R5); its fourth element is spare, both ends on +3V3_COOL. RN3 100 Ω, RN4 and RN5 100 kΩ (the divider): IO5, IO7, IO11, IO12. IO13 uses discretes (R503-R505). The arrays are 5 %, the parts they replace were 1 %; none of these values is critical.
+* **Q61:** Diodes BSS138DW-7-F (ds30203, SOT-363) replaces Q26 and Q27. Top view: D2 G1 S1 over S2 G2 D1, so one FET is pins 1 S / 2 G / 6 D and the other 4 S / 5 G / 3 D. VGS(th) 0.5-1.5 V, as the BSS138.
+* **Q5 / Q6 (BSS138 + BSS84) were left as they are.** The BSS8402DW's N-FET is a 2N7002 type with no RDS(on) figure at a 3.3 V gate.
+* **No capacitor arrays.** No four 100 nF capacitors sit together in the reworked areas, and each new IC keeps its capacitor at its own pin.
+
+**Headers: XKB X2510WRS (J3-J6, J13, J16-J20):** right-angle, all-SMD, 4 A. X2510WRS-04-9TSN for the fan, pump and flow sensor (pin 4 unused: there is no 3-pin part), X2510WRS-02-9TSN for the rest. This reverses the MODDIY CO975, Würth 61900311021 and Sullins SWR25X choices, at your request.
+* **Drawing X-X2510WRS-02-9TSN rev A0** (covers 2, 4 and 5 poles): signal pads 1.2 x 4.0 mm; hold-down pads 1.1 x 3.4 mm, 1.73 mm outside the end pins; 13.6 mm from tail tip to pin tip; body 4.35 mm deep, (N + 1) x 2.54 mm wide, 5.51 mm high.
+* **Scaled, not dimensioned:** how far the tails sit inside the signal pads (about 0.44 mm). The mating end's position is good to about ±0.3 mm for that reason.
+* **Overhang:** pin tips 3.0 mm past the board edge, level with J11 and J12.
+* **Plugs:** X2510H housings with X2510T terminals. The latch wall runs the full width, so PC fan plugs and the Alphacool 3-pin plug will most likely not push on; the leads are to be re-housed. Not checked against a sample.
+* **Sourcing:** LCSC C908467 (2-pin), C908468 (4-pin). Not stocked by DigiKey.
+
+**USB-C: GCT USB4205-GF-A (J1):** flag type, standing on its side, 3.71 mm wide, 12.5 mm above the board, in place of the USB4105-GF-A.
+* **Drawing USB4205 rev A2:** two columns of eight pads 1.05 mm long, outer edges 2.80 mm apart; GND and VBUS pads 0.45 mm wide, CC / SBU / D pads 0.35 mm; rows at 2.6 / 1.8 / 1.05 / 0.35 mm from the centre. Four 0.60 x 1.20 mm plated shell slots, two Ø0.80 mm pegs. The footprint matches GCT's own KiCad footprint in `dev/USB4205_GF_A` for every pad position.
+* **Shell slots are plated and grounded** here. GCT's KiCad footprint draws them unplated, which would leave the shell floating.
+* **Board edge:** GCT draws it 2.70 mm past the front slots, which leaves the mouth 4.3 mm past the edge. Here the mouth is 3.0 mm past it, level with the other wall connectors, so the board runs 1.3 mm further under the shell. The shell's underside is about 3 mm above the board, so nothing touches.
+* **3D model:** a 3.71 x 14.0 x 12.5 mm envelope. The STEP in `dev/USB4205_GF_A` is not placed.
+
+**J7 removed.** SW3 is the only power button. U34 stays on the button line, which is now named `PWR_BTN`.

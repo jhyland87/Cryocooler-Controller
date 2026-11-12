@@ -31,7 +31,7 @@ The rev 3 board carries hand copper that exists only in `cryocooler.kicad_pcb`
   section boxes) before it redraws. `iclabels` redoes the IC body labels. Don't
   use either on rev 3.
 - One-off board scripts (`rev3_board.py`, `j12_643228_board.py`,
-  `sw3_1571300_board.py`, `trim_lands_board.py` and the other `*_board.py`) were
+  `sw3_1571300_board.py`, `trim_lands_board.py`, `ucs125_rev4.py` and the other `*_board.py`) were
   run once on an earlier board. Don't re-run them. Use them as templates for a
   new one-off script.
 - Don't run `tools/silk_fix.py`. It hides U1 pin names it finds colliding.

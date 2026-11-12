@@ -83,7 +83,7 @@ BSS138/BSS84, WS2812B, SG-8002CA (datasheet supplied by the user), USB-C recepta
 1. No fans, pump, RTD, amplifier or USB attached. Use a current-limited bench supply at 12 V,
    limit about 50 mA, and check the input polarity before connecting.
 2. Watch the current: it should settle at tens of mA (the standby LED draws about 25 mA by design).
-3. Press the panel button. Check +5 V, +3.3 V, +16.5 V / -16.5 V, +15 V / -15 V and ISO 3V3 (against
+3. Press the power button (SW3). Check +5 V, +3.3 V, +16.5 V / -16.5 V, +15 V / -15 V and ISO 3V3 (against
    ISO_GND) with a meter before anything else; raise the current limit to about 300 mA.
 4. Connect USB and flash the firmware; confirm the serial log finds the INA239, ADS1220, MCP23S08
    and IMU.

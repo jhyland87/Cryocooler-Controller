@@ -1315,7 +1315,116 @@ def te_1571300_2():
     )
 
 
+def xkb_x2510wrs(pins):
+    """XKB X2510WRS-0N-9TSN right-angle SMT wafer, 2.54 mm (drawing X-X2510WRS-02-9TSN
+    rev A0, which covers 2, 4 and 5 poles). Origin on pin 1's pad; +y points out of the
+    mating side. Signal pads 1.2 x 4.0; hold-down pads 1.1 x 3.4, 1.73 outside the end
+    pins and ending 6.0 from the signal pads' rear edge. Body (N + 1) x 2.54 wide and
+    4.35 deep; tails 2.25 behind it, pins and friction wall 7.0 ahead (13.6 overall).
+    The tail tips sit about 0.44 inside the pads' rear edge (scaled, not dimensioned).
+    """
+    name = f'XKB_X2510WRS-{pins:02d}-9TSN_1x{pins:02d}_P2.54mm_Horizontal'
+    span = round((pins - 1) * 2.54, 2)
+    body_back, body_front, tip = 0.69, 5.04, 12.04
+    left, right = -2.54, round(span + 2.54, 2)
+    pads = [smd_pad(str(index + 1), round(index * 2.54, 2), 0, 1.2, 4.0)
+            for index in range(pins)]
+    pads += [smd_pad('', -1.73, 2.3, 1.1, 3.4),
+             smd_pad('', round(span + 1.73, 2), 2.3, 1.1, 3.4)]
+    outline = (
+        box(left, body_back, right, body_front, 'F.Fab', 0.1)
+        + box(-0.6, body_front, round(span + 0.6, 2), tip, 'F.Fab', 0.1)
+        + line(left - 0.12, body_back, left - 0.12, body_front, 'F.SilkS', 0.12)
+        + line(right + 0.12, body_back, right + 0.12, body_front, 'F.SilkS', 0.12)
+        + circle(-1.2, -1.4, 0.2, 'F.SilkS', 0.12, fill=True)
+        + box(left - 0.25, -2.15, right + 0.25, tip + 0.25, 'F.CrtYd', 0.05)
+    )
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        f'\t(descr "XKB X2510WRS-{pins:02d}-9TSN right-angle SMT wafer, {pins} pins, '
+        '2.54 mm, mates with X2510H housings (drawing X-X2510WRS-02-9TSN rev A0)")\n'
+        + text('Reference', 'REF**', round(span / 2, 2), -3.2, 'F.SilkS')
+        + text('Value', f'X2510WRS-{pins:02d}', round(span / 2, 2), 2.9, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def xkb_x2510wrs_02():
+    return xkb_x2510wrs(2)
+
+
+def xkb_x2510wrs_04():
+    return xkb_x2510wrs(4)
+
+
+def plated_slot(number, x, y, size, drill):
+    """Plated oval through-hole pad; size and drill are (x, y) pairs."""
+    return f'''\t(pad "{number}" thru_hole oval
+\t\t(at {x} {y})
+\t\t(size {size[0]} {size[1]})
+\t\t(drill oval {drill[0]} {drill[1]})
+\t\t(layers "*.Cu" "*.Mask")
+\t)
+'''
+
+
+def gct_usb4205():
+    """GCT USB4205-GF-A, 16-pin USB-C 2.0 flag-type receptacle standing on its side
+    (drawing USB4205 rev A2, 06/05/25). Origin at the centre of the pad field; +y points
+    out of the mouth. Two columns of eight pads, 1.05 long with outer edges 2.80 apart,
+    B12..B1 on -x and A1..A12 on +x from the back: rows at 2.6 / 1.8 (0.45 wide) and
+    1.05 / 0.35 (0.35 wide). Shell stakes: 0.60 x 1.20 plated slots at x +/-2.03, 6.10
+    apart; Ø0.80 pegs on the axis, 7.15 apart. Body 3.71 x 14.0, 12.5 high; GCT draws the
+    board edge 2.70 past the front slots (y 5.58), which leaves the mouth 4.3 past it.
+    """
+    name = 'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag'
+    rows = ((2.6, 0.45, ('12', '1')), (1.8, 0.45, ('9', '4')),
+            (1.05, 0.35, ('8', '5')), (0.35, 0.35, ('7', '6')))
+    pads = []
+    for offset, width, (back_b, back_a) in rows:
+        front_b, front_a = str(13 - int(back_b)), str(13 - int(back_a))
+        pads += [
+            smd_pad(f'B{back_b}', -0.875, -offset, 1.05, width),
+            smd_pad(f'A{back_a}', 0.875, -offset, 1.05, width),
+            smd_pad(f'B{front_b}', -0.875, offset, 1.05, width),
+            smd_pad(f'A{front_a}', 0.875, offset, 1.05, width),
+        ]
+    pads += [plated_slot('SH', sign * 2.03, y, (0.9, 1.5), (0.6, 1.2))
+             for sign in (-1, 1) for y in (-3.22, 2.88)]
+    pads += [npth(0, -3.57, 0.8), npth(0, 3.58, 0.8)]
+    back, mouth = -4.12, 9.88
+    outline = (
+        box(-1.855, back, 1.855, mouth, 'F.Fab', 0.1)
+        + line(-1.2, back - 0.25, 1.2, back - 0.25, 'F.SilkS', 0.12)
+        + circle(2.0, -4.4, 0.15, 'F.SilkS', 0.12, fill=True)
+        + box(-2.6, back - 0.4, 2.6, mouth + 0.25, 'F.CrtYd', 0.05)
+    )
+    return (
+        f'(footprint "{name}"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "GCT USB4205-GF-A USB-C 2.0 receptacle, 16 pin, flag type, top mount '
+        '(https://gct.co/files/drawings/usb4205.pdf rev A2)")\n'
+        + text('Reference', 'REF**', 0, -5.6, 'F.SilkS')
+        + text('Value', 'USB4205-GF-A', 0, 6.5, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
+    'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal': xkb_x2510wrs_02,
+    'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal': xkb_x2510wrs_04,
+    'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag': gct_usb4205,
     'SW_TE_1571300-2': te_1571300_2,
     'R_1206_or_Bourns_3313J': r_1206_or_bourns_3313j,
     'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD': te_2305908_2,

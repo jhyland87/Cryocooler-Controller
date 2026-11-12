@@ -60,8 +60,11 @@ static PowerGoodMonitor sPowerGood(AMPLIFIER_POWER_GOOD_DEBOUNCE_MS);
 static constexpr SpiChipSelect sWaveformChipSelect(AD9833_CS);
 static MD_AD9833 ad9833_(sWaveformChipSelect.chipSelectId());
 
-// RMS power monitor (ACS37800 over SPI — dedicated SPI3 bus)
-static ACS37800 acs_(&hardware::acsSpi(), ACS37800_CS);
+// RMS power monitor (ACS37800, mode 3 on the shared SPI bus). The driver primes
+// SCLK high itself; the hook returns it low for the mode-0/1 devices.
+static constexpr SpiChipSelect sPowerMonitorChipSelect(ACS37800_CS);
+static ACS37800 acs_(&hardware::spi(), sPowerMonitorChipSelect.chipSelectId(),
+                     hardware::idleSpiClockLow);
 static bool sAcsAvailable = false;
 
 // AD5453 14-bit multiplying SPI DAC — amplitude control
@@ -273,7 +276,7 @@ module::InitStatus init() {
 
     // -- ACS37800 -------------------------------------------------------------
     // This is the power monitor that reads the AC voltage and current coming
-    // out of the amplifier.  Uses a dedicated SPI3 bus (see hardware.cpp).
+    // out of the amplifier.  It is on the shared SPI bus (see docs/acs37800.md).
     _Log.println(F("Initializing ACS37800 (VOUT - Power Monitor, SPI)..."));
     {
         const module::InitStatus status = initAcs();
@@ -339,8 +342,6 @@ module::InitStatus initAcs() {
     // The ACS37800 has no EN pin. Its isolated 5 V supply comes from the
     // ISOW7741 (U17); if that is off, MISO idles high and every read is
     // 0xFFFFFFFF, which would look like full-scale V/I.
-
-    acs_.primeSPI();
 
     // Probe: write a test N (bits 23:14) into volatile shadow 0x1F, read it
     // back, then restore 0x1F from EEPROM 0x0F (its power-up value). A stuck,

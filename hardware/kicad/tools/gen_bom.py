@@ -250,6 +250,31 @@ PARTS = {
     ('USB_C', 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal'): (
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
+    ('USB_C', 'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag'): (
+        'GCT', 'USB4205-GF-A', 'USB-C 2.0 RECEPTACLE 16P, FLAG TYPE, TOP MOUNT',
+        'design', 'J1: stands on its side, 12.5 mm high, mouth 3 mm past the board '
+        'edge; four plated shell stakes and two pegs'),
+    # XKB X2510 wafers (rev 4): all-SMD, so two can sit back to back. KF2510-style
+    # latch wall, so PC fan plugs have to be re-housed.
+    ('', 'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'): (
+        'XKB Connectivity', 'X2510WRS-02-9TSN',
+        'CONN HEADER R/A SMT 2POS 2.54MM, 4 A', 'design',
+        'J6 NTC, J13 relay 12 V out, J16-J20 general-purpose I/O; mates with '
+        'X2510H-02 housings and X2510T terminals'),
+    ('', 'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'): (
+        'XKB Connectivity', 'X2510WRS-04-9TSN',
+        'CONN HEADER R/A SMT 4POS 2.54MM, 4 A', 'design',
+        'J3 fan, J4 pump, J5 flow sensor (pin 4 unused); mates with X2510H-04 '
+        'housings, so fan, pump and flow leads are re-housed'),
+    ('OPA4990IRUCR', 'Texas_S-PX2QFN-14'): (
+        'Texas Instruments', 'OPA4990IRUCR', 'IC OPAMP GP 4 CIRCUIT 14X2QFN',
+        'design', 'general-purpose I/O LED drivers, on +5V_OR'),
+    ('SN74LVC1G125DRYR', 'Texas_USON-6_1x1.45mm_P0.5mm_SMD'): (
+        'Texas Instruments', 'SN74LVC1G125DRYR', 'IC BUF NON-INVERT 5.5V 6SON',
+        'design', 'ACS37800 SCK and MISO gates, enabled by ACS_CS'),
+    ('BSS138DW', 'SOT-363_SC-70-6'): (
+        'Diodes Incorporated', 'BSS138DW-7-F', 'MOSFET 2N-CH 50V 200MA SOT363',
+        'design', 'fan and pump PWM drivers in one package'),
     # Right-angle connectors for the UCS 145-125 housing (plugs enter through
     # the side walls). Ratings from each maker's datasheet.
     ('', 'TE_2305908-2_1x02_P5.00mm_Horizontal_SMD'): (
@@ -425,7 +450,10 @@ MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'
 
 # JLCPCB: manufacturer part number -> LCSC part number (C-number). Fill in as
 # parts are matched in JLCPCB's BOM upload; blank cells are left for the upload.
-LCSC_PARTS = {}
+LCSC_PARTS = {
+    'X2510WRS-02-9TSN': 'C908467',
+    'X2510WRS-04-9TSN': 'C908468',
+}
 
 # JLCPCB: KiCad footprint -> degrees added to the KiCad rotation in the CPL.
 # JLCPCB's part library orients some packages differently; set these from the
@@ -545,6 +573,10 @@ def classify(value, footprint):
                 f'RES {value.upper()} OHM 1% 1/4W 1206', 'suggested',
                 f'trim land: fit a Bourns {trimmer} instead to adjust (wiper tied to pin 3, '
                 'clockwise raises it)')
+    if footprint == 'R_Array_Convex_4x0402':
+        return ('Yageo', f'YC124-JR-07{resistor_code(value)}L',
+                f'RES ARRAY 4 RES {value.upper()} OHM 5% 0804', 'suggested',
+                'four isolated 0402 elements, 2.0 x 1.0 mm')
     if footprint.startswith('R_'):
         if value == '15m':
             return PARTS[('15m', footprint)]
@@ -605,6 +637,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'PhoenixContact', 'TE_', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'Tensility_', 'SameSky_', 'TestPoint_Keystone',
+    'XKB_',
 )
 
 
