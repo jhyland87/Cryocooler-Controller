@@ -52,6 +52,12 @@ static constexpr float ACCEL_SCALE_MPS2 = 0.000244f * 9.80665f;  // raw int16 �
 static constexpr float ACCEL_SCALE_G    = 0.000244f;              // raw int16 → g
 
 // ---------------------------------------------------------------------------
+// LSM6DSOX serial-interface configuration (DS12814 Rev 4)
+// ---------------------------------------------------------------------------
+static constexpr uint8_t REG_CTRL4_C         = 0x13;  // Table 21: reset value 0x00
+static constexpr uint8_t CTRL4_C_I2C_DISABLE = 0x04;  // §9.18 Table 58: I2C_disable = bit 2
+
+// ---------------------------------------------------------------------------
 // LSM6DSOX tap (overstroke) detection registers & tuning
 // ---------------------------------------------------------------------------
 // Register addresses not already defined in the Adafruit header.
@@ -183,6 +189,25 @@ static void lsmWriteReg(uint8_t reg, uint8_t val) {
     SPI.transfer(val);
     digitalWrite(LSM6DSOX_CS, HIGH);
     SPI.endTransaction();
+}
+
+/**
+ * Disable the LSM6DSOX I²C block (DS12814 §5.1.1, I2C_disable in CTRL4_C) so
+ * it ignores traffic for the other devices on the shared SCK/MOSI lines while
+ * its CS is high.  Read-modify-write keeps the other CTRL4_C bits; SPI stays
+ * 4-wire (CTRL3_C SIM is not touched).  Call after begin_SPI(), whose software
+ * reset clears the bit.
+ */
+static void disableI2cInterface() {
+    const uint8_t ctrl4 = lsmReadReg(REG_CTRL4_C);
+    lsmWriteReg(REG_CTRL4_C, ctrl4 | CTRL4_C_I2C_DISABLE);
+
+    const uint8_t readBack = lsmReadReg(REG_CTRL4_C);
+    if ((readBack & CTRL4_C_I2C_DISABLE) == 0u) {
+        _Log.printf("I2C_disable did not stick — CTRL4_C=0x%02X\n", readBack);
+        return;
+    }
+    _Log.printf("I2C interface disabled — CTRL4_C=0x%02X\n", readBack);
 }
 
 // ---------------------------------------------------------------------------
@@ -537,6 +562,8 @@ module::InitStatus init() {
     }
     _Log.println(F("LSM6DSOX found on SPI — continuing"));
     sImuAvailable = true;
+
+    disableI2cInterface();
 
     sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
     sensor.setAccelDataRate(LSM6DS_RATE_833_HZ);

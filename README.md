@@ -171,7 +171,7 @@ Drives the AD9833 DDS (60 Hz sine wave), the MCP4921 12-bit SPI DAC (amplifier a
 
 ### imu
 
-Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. The sensor is the Adafruit breakout (product 4438) mounted on the cryocooler and cabled to header J14 (pinout in `hardware/kicad/README.md`), so it sees the cooler body's vibration; the SPI clock is `LSM6DSOX_SPI_FREQUENCY_HZ`. A missing cable is non-fatal: the module reports unavailable. On `init()` the sensor is configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
+Drives the LSM6DSOX 6-DOF IMU over SPI (CS GPIO 1) in FIFO mode at 833 Hz. The sensor is the Adafruit breakout (product 4438) mounted on the cryocooler and cabled to header J14 (pinout in `hardware/kicad/README.md`), so it sees the cooler body's vibration; the SPI clock is `LSM6DSOX_SPI_FREQUENCY_HZ`. A missing cable is non-fatal: the module reports unavailable. On `init()` the module sets `I2C_disable` in CTRL4_C (13h) right after the driver's `begin_SPI()`, so the IMU's I²C block ignores traffic for the other devices on the shared SCK/MOSI lines (DS12814 §5.1.1; the driver only disables I3C). The sensor is then configured and a one-time blocking calibration collects samples to compute per-axis offsets (gravity is removed from the Z offset).
 
 Each `service()` call applies calibration offsets, runs a first-order low-pass filter, and computes roll/pitch from filtered acceleration. Motion / overstroke is flagged when acceleration magnitude deviates from 9.81 m/s² by more than `ACCEL_THRESHOLD_MPS2`; it clears after `MOTION_TIMEOUT_MS` of stillness.
 
