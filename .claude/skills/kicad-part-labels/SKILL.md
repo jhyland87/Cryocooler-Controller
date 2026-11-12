@@ -31,6 +31,11 @@ field or board text that each label replaces. It is safe to re-run.
 **Labels don't follow a moved part.** After moving a part, edit its entries in the
 JSON, then re-run `mask_labels.py`.
 
+The IMU board keeps its labels in `imu/mask_labels.json`, passed as a second
+argument: `$KPY tools/mask_labels.py imu/imu.kicad_pcb imu/mask_labels.json`. Run it
+after every `imu_board.py` rebuild. That script keeps its stitching vias clear of
+these labels, so move a label in the JSON before rebuilding.
+
 ## Placement rule (from the user's hand edits of 2026-11-06)
 
 1. Horizontal text, centred right above or below the part, about 0.3-0.6 mm away.

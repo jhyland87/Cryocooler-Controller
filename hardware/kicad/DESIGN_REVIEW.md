@@ -400,3 +400,17 @@ The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_re
 * **Mating parts:** a 505432 series 8-circuit dual-row receptacle housing and its crimp terminals (not in the BOM).
 * **3D:** plain 9.6 x 8.43 x 8.95 mm envelope; Molex's STEP isn't in the repo.
 * **Sourcing:** stock and price not checked.
+
+## IMU board (2026-11-11)
+
+**New board:** the Adafruit LSM6DSOX breakout (product 4438) → its own 18 x 18 mm, 2-layer board in `imu/`, your call. It keeps the demo board's sensor circuit without I2C, cabled to J14 through the same Molex 505448-0891 with the same pin map (cable wired pin for pin). Checked against ST DS12814 rev 3; the rules are `RULES_IMU` in `tools/datasheet_rules.py` (25, all pass).
+* **Mode 1, 4-wire SPI** (Section 3.1, Table 1): CS 12, SPC 13, SDI 14, SDO 1. SDx (2) and SCx (3) to GND ("connect to VDDIO or GND"); OCS_Aux (10) and SDO_Aux (11) unconnected ("leave pin electrically unconnected and soldered", Table 1 note 2; internal pull-ups, Table 20). VDD 8 and VDDIO 5 on +3V3, GND 6 and 7.
+* **Decoupling:** 100 nF at VDD (C1) and at VDDIO (C2), the "recommended 100 nF filter capacitor" (Table 1 note 1); 10 uF (C3) at J1 for the supply that arrives over the cable.
+* **INT1 at power-up:** "INT1 must be set to '0' or left unconnected during power-on" when I2C/SPI is used (Table 20, note 2). J1 adds no pull-up. On the main board INT1 runs through U36 (NUF6401) to GPIO 2 with no resistor on either side (checked in the netlist), and the firmware sets GPIO 2 to `INPUT_PULLDOWN` (`imu.cpp`). The ESP32-S3's GPIO 2 state before the firmware runs was not checked. A rule (`nores`) keeps a pull-up off pin 4.
+* **CS pull-up:** 10k (R1) keeps U1 deselected while the cable is hot-plugged, as on the earlier on-board design.
+* **Dropped from the demo board:** the STEMMA I2C connectors and SCL/SDA pull-ups, the BSS138 level shifters, the AP2112K LDO, the CS diode and pull-up, the SDO address jumper and pull-down, and the pin headers. None is needed with 3.3 V supply and logic from the main board.
+* **Footprint:** KiCad's stock `LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y`. Its pads (0.35 x 0.625 mm, 0.5 mm pitch) cover the 0.25 x 0.475 mm lands of Figure 28, and its pin order and pin 1 match Figure 4 (bottom view, mirrored). 3D model: the matching KiCad STEP.
+* **Axes:** from Figure 4 (top view): on the board (U1 at 90°) +X points to the mounting hole, +Y to the left edge, +Z out of the top face. The front silk carries the glyph.
+* **Layout:** no top-layer tracks or vias under U1, equal 0.2 mm stubs leaving each pad, top pour kept off its pads, and U1 kept clear of the screw head. **Unverified:** these follow ST's community summary of TN0018 ("How to optimize your PCB design for MEMS sensors"); TN0018 itself couldn't be downloaded.
+* **Not on the board, firmware follow-up:** while CS is high the I2C block stays active and sees the shared SPI traffic on SCL/SDA. DS12814 Section 5.1.1 says to write `I2C_disable = 1` in CTRL4_C (13h). The firmware doesn't set it today (this applies to the breakout too).
+* **Not checked:** no bench test; stock and price not checked; the mating cable is not in the BOM.

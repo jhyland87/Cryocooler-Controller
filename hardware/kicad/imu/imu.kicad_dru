@@ -1,0 +1,14 @@
+(version 1)
+
+# ── JLCPCB 2-layer limits the board-wide settings cannot express ──
+# (jlcpcb.com/capabilities/pcb-capabilities)
+
+# plated through-hole pads: 0.18 mm annular ring minimum on 1-2 layer boards
+(rule jlc_pth_annular_ring
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'")
+  (constraint annular_width (min 0.18mm)))
+
+# non-plated holes: 0.2 mm to any copper
+(rule jlc_npth_to_copper
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'NPTH, mechanical'")
+  (constraint hole_clearance (min 0.2mm)))
