@@ -10,6 +10,9 @@ afterwards with gridroute.py, then run the usual repair loop.
 header's function and reference beside its friction wall, and drops or moves the
 silk labels of parts that left or moved.
 
+Parts moved by hand after routing (R29, C23, R501, C302) are not in the tables
+here; hardware/HANDOFF_ucs125_rev4.md lists them.
+
 Usage (KiCad's python):
     ucs125_rev4.py plan board.kicad_pcb     (dry run: prints the spots and conflicts)
     ucs125_rev4.py place board.kicad_pcb    (edits in place, once)
@@ -51,11 +54,20 @@ EDGE_PARTS = {
 }
 EDGE_NORMALS = {'top': (0, -1), 'bottom': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
 
-# Fixed spots: ref -> (x, y, rotation, bottom side). The amplifier REM switch FETs
-# take the spots of the old fan and pump drivers, which makes room for J6.
+# Fixed spots: ref -> (x, y, rotation, bottom side). J6 takes the place of four small
+# parts: the amplifier REM switch FETs go to the spots of the old fan and pump drivers.
 SPOTS = {
     'Q21': (70.0, 44.0, 0, True),
     'Q6': (76.0, 44.0, 0, True),
+    # Fan and pump: arrays and dual FET on the back, just inboard of the header pins.
+    # On the front two analog runs lie between this strip and the header pads.
+    'RN1': (61.2, 48.7, 0, True),
+    'RN2': (64.9, 48.7, 0, True),
+    'Q61': (76.9, 48.9, 180, True),
+    # J6 takes R84's place: it goes to the front, pad 1 on the +5V run beside D13
+    'R84': (87.3, 47.3, 90, False),
+    # D12's pull-up joins its twin R402 on the front, beside Q52 and the +3V3 run
+    'R404': (91.8, 50.5, 270, False),
     # I/O block. Back side, a row below the board ID: the series array and the two
     # divider arrays going inboard, 1.5 mm apart and facing each other pin for pin.
     'RN3': (86.75, 27.4, 180, True),
@@ -85,15 +97,12 @@ SPOTS = {
     'R506': (87.5, 25.25, 270, False),
     'R507': (87.5, 28.85, 270, False),
     'R508': (87.5, 33.05, 270, False),
-    'R509': (88.8, 36.75, 180, False),
+    'R509': (88.8, 36.6, 0, False),
 }
 
 # Zones (x0, y0, x1, y1) with room for the small parts
 IO_UPPER = (79.5, 14.9, 88.66, 22.3)  # back, above the board ID
 GATES = (28.95, 20.7, 36.5, 26.6)  # back, beside U17's logic side, where ACS_CS runs
-FAN_STRIP = (54.5, 47.0, 82.4, 50.6)  # front, the old header pin row
-REM_PARTS = (68.0, 42.2, 81.6, 50.65)  # back, where Q26 / Q27 sat
-LED_COLUMN = (81.6, 46.5, 92.0, 54.25)  # back, behind the status LED column
 BUTTON = (82.5, 4.6, 92.0, 9.9)  # back, under SW3
 
 # Small parts find their own spot, in this order:
@@ -113,21 +122,11 @@ SEARCH = {
     'R502': (True, GATES, (34.0, 24.6), 0.3),
     'C301': (True, GATES, (30.6, 26.0), 0.3),
     'C302': (True, GATES, (34.0, 22.6), 0.3),
-    # fan and pump: dual FET and arrays between the two headers
-    'Q61': (False, FAN_STRIP, (72.0, 48.8)),
-    'RN1': (False, FAN_STRIP, (69.4, 48.8)),
-    'RN2': (False, FAN_STRIP, (66.5, 48.8)),
-    # J6 takes R84's place: it stays beside D12, whose green die it feeds
-    'R84': (True, LED_COLUMN, (84.0, 53.5)),
-    # the amplifier REM switch's pull-up follows its FETs
-    'R404': (True, REM_PARTS, (78.6, 46.4)),
 }
 
 # All copper of these nets goes: their far ends changed, or the net left the schematic
 RIP_NETS = (
     'ACS_MOSI', 'ACS_SCK', 'ACS_MISO', 'Net-(J7-Pin_1)', 'Net-(Q26-G)', 'Net-(Q27-G)',
-    # J6 and J19 sit on these two RTD runs: route them afresh, first
-    '/Cold Head Temp/RTD_2', '/Cold Head Temp/RTD_3',
 )
 # A +3V3 run on the front crossed the spot the lower LED driver's vias and R508 need.
 # The In2 pour carries +3V3 at both of its ends. (net, corner points)
@@ -444,7 +443,8 @@ MOVED_LABELS = {
     'SW3 POWER': (77.2, 3.0), 'J1 USB': (11.0, 4.6), 'R24': (16.3, 7.9),
     'C67': (33.9, 27.0), 'J15 DISPLAY': (53.6, 57.3, 90), 'J10 RTD': (72.4, 51.5),
     'J8 AMP REM': (86.85, 59.9), 'Q24': (80.5, 32.05), 'R76': (83.1, 25.85),
-    'SW2 BOOT': (86.0, 28.9, 90),
+    'SW2 BOOT': (86.0, 28.9, 90), 'STATE': (87.95, 47.75), 'R53': (70.6, 44.95),
+    'R402': (92.9, 52.2), 'U35': (89.8, 38.25),
 }
 # Parts that were on the board before: their reference texts stay as they were
 KEPT_PARTS = {'SW3', 'U34', 'Q21', 'Q6', 'R84', 'R404', 'C14'}

@@ -5,69 +5,63 @@ circuit as rev 3 with the changes below. Not ordered, not built, not bench teste
 Read `HANDOFF_ucs125_rev3.md` for everything this note doesn't mention; the datasheet
 checks for the new parts are in `kicad/DESIGN_REVIEW.md` under "Rev 4".
 
-**Work in progress (paused 2026-11-12).** The schematic and firmware are done; the
-board is placed and mostly routed but not finished. Start at "Where it stands".
+**Finished, checked and approved by the user (2026-11-12).** The fab files and the
+board ID are not done yet. Start at "Where it stands".
 
 ## Where it stands
 
 | Area | State |
 |---|---|
 | Schematic, symbols, footprints | Done. ERC 0, 396 / 396 datasheet rules, `verify_netlist.py` and `check_symbols.py` pass; 309 parts, 246 nets |
-| Firmware | Done. Builds; 277 native tests pass. Not run on hardware |
-| Board placement | Done. 313 footprints, none off the board, parity 0 |
-| Board routing | **Not done.** DRC: 0 errors, 36 unconnected (below) |
-| Labels | **Not applied.** `ucs125_rev4.py labels` is written and was tried on a copy (silk warnings back at the rev 3 figures) |
-| BOM, CPL, renders, Gerbers, board ID | **Not regenerated.** `kicad/bom/` and `kicad/fabrication/` still hold rev 3 output |
+| Firmware | Done, unchanged since the WIP checkpoint, where it built and 277 native tests passed. Not run on hardware |
+| Board | Done. 313 footprints, none off the board. DRC: 0 errors, 0 unconnected, 0 parity, 23 warnings |
+| Labels | Applied (`ucs125_rev4.py labels`) |
+| BOM, CPL, renders | Regenerated from the finished board |
+| Gerbers, JLCPCB zip, board ID | **Not done.** `kicad/fabrication/gerbers` is still rev 3 and the board ID reads rev 3's hash |
 
-**Open connections** on `kicad/cryocooler.kicad_pcb` (routing pass 9):
-
-| Net | Between |
-|---|---|
-| `Net-(D84-GA)` | U43 pin 13 and D84 pin 1 |
-| `IO5_SENSE` | RN4 pin 8 and U44 pin 11 |
-| `ACS_MISO` | U17 pin 5 and U42 pin 2 |
-| `SPI_SCK` | U41 pin 2 and the bus track at (33.9, 32.2) |
-| `Net-(J3-Pin_4)` | Q61 pin 6 and the track at (65.2, 49.4) |
-| `+5V` | R84 pin 1 to C33 pin 1 and to the track at (84.2, 60.1) |
-| `+3V3` | R501 pin 1 and the track at (30.6, 23.7) |
-| `GND` | 28 pads and pour islands, left for `plane_ties.py` and the finish step |
+**DRC warnings:** the 22 of rev 3 (16 `silk_overlap`, 4 `lib_footprint_mismatch`, 2
+`silk_edge_clearance`) plus one new `silk_overlap`: the pin-1 dots of U45 and U47
+land on the same spot, because the two clamps face each other. It prints as one dot
+between the two pin 1 pads. Accepted by the user (2026-11-12), so 23 is the baseline
+for this board.
 
 **Still to do, in order:**
 
-1. Close the seven nets with `softloop2.sh` (rip-up routing; it closed `Net-(D84-GA)`
-   on an earlier pass by moving D84's cathode via).
-   - **Freerouting does not help here.** Tried on a copy (2026-11-12, `fr_trial.py`):
-     one round, 20 passes, 22 minutes, rev 3 copper locked. It closed none of the
-     seven and left the board otherwise as it was (0 errors, parity 0).
-   - With the rev 3 copper locked it has nowhere to go; unlocked, it would re-route
-     the hand-finished board. It also reads about a dozen rev 3 nets that join
-     through pours as open and spends its passes on those.
-2. Ground: `plane_ties.py`, then `ucs125_board.py finish`, prune, `octilinear.py`.
-3. `ucs125_rev4.py labels`, then DRC back to the rev 3 baseline: 0 errors, 0
-   unconnected, 0 parity, 22 warnings.
-4. `gen_bom.py`, renders, and after the commit the board ID stamp and `export_fab.py`.
-5. Review the docs against the final board, then list what became unused (old
-   header and USB4105 footprints and models, `link_usb_vbus.py`) for deletion.
-6. Delete `kicad/tools/rev4_wip/`, or fold what is worth keeping into `tools/`.
-   `softroute.py` there no longer runs: it calls `gridroute.apply_iso`, which is gone.
-
-**To resume:** the routing runs on a copy, not on the repo board.
-
-```bash
-export SCRATCH=/tmp/rev4 && mkdir -p $SCRATCH/out
-rsync -a --exclude __pycache__ --exclude fabrication hardware/kicad/ $SCRATCH/kicad/
-cp hardware/kicad/tools/rev4_wip/* $SCRATCH/
-$SCRATCH/softloop2.sh 'Net-(D84-GA)|/General Purpose IO/IO5_SENSE|ACS_MISO|SPI_SCK|Net-(J3-Pin_4)|+5V|+3V3'
-```
-
-Copy `$SCRATCH/kicad/cryocooler.kicad_pcb` back when a step is good (KiCad closed).
-`pipeline9.sh` repeats the whole pass from the rev 3 board; it needs
-`git show ucs-125-87-rev3:hardware/kicad/cryocooler.kicad_pcb > $SCRATCH/rev3_board_backup.kicad_pcb`
-first and takes about 40 minutes.
+1. Attach the USB4205's STEP model to J1 (`pcbmodels.attach_missing_models`; the file
+   and its table entry are in place) and redo the renders. Held back because KiCad
+   had the board open.
+2. Stamp the board ID with the hash of the commit that holds the finished board, run
+   `export_fab.py`, commit again.
+3. Delete what rev 4 left unused, once confirmed (list under "Unused after rev 4").
+4. Housing: every wall cut-out moved (open item, as on rev 3).
 
 **Not verified:** the ACS37800 with SCLK running while CS is high (hence the SCK
-gate), the keying of fan plugs in X2510H housings, the USB current budget. Nothing
-is bench tested.
+gate), the keying of fan plugs in X2510H housings, the USB current budget. The
+OPA4990 has an envelope 3D model only, and so does the USB4205 on the board until
+step 1 above is done. GCT's STEP model of the USB4205 was checked against the
+footprint: its feet land on the pads and its pegs in the holes. XKB's STEP model of
+the X2510WRS
+shows bare pins past the body, where the drawing has a friction wall; the labels
+clear both. Nothing is bench tested.
+
+**Weak spots of the routing.** Everything is connected and DRC clean, but the board
+was closed with rip-up routing on top of rev 3 copper, and it shows:
+
+| What | Rev 4 | Rev 3 |
+|---|---|---|
+| Vias | 761 | 586 |
+| Segments off 0 / 45 / 90 that `octilinear.py` could not straighten | 21 | 10 |
+| `NTC_ADC` | 163 mm, 23 vias | 92 mm, 7 vias |
+| `INA239_ALERT` | 222 mm, 11 vias | 114 mm, 3 vias |
+| `DISP_CS` | 202 mm, 19 vias | 74 mm, 8 vias |
+| `SPI_SCK` | 201 mm, 21 vias | 164 mm, 15 vias |
+
+- `NTC_ADC`: J6 reaches the clamp (U33) by way of the old header spot on the left of
+  the board. A direct route from the new corner position was tried and has no path.
+- `INA239_ALERT`: the alert LED branch (R9, D6) joins the rest round the bottom and
+  left of the board.
+- These are DC or slow signals apart from `SPI_SCK`. A clean-up pass on them is
+  worth doing before ordering if there is time.
 
 ## What changed from rev 3
 
@@ -121,30 +115,83 @@ The USB current budget has not been measured.
 - **I/O block:** top to bottom on the right wall: IO13, IO5, IO7, IO11, IO12. Their
   LEDs (D85, D81, D82, D83, D84) sit in the same order in a column on the front,
   just inboard of the headers.
-- **J6** sits back to back with J4.
+- **J6** sits back to back with J4, in the corner. Moving it was tried (the gap by
+  the display connector, the top wall, a shared header with J13) and each spot
+  blocks other nets.
+- **J13** is unchanged: the switched +12 V relay output on GPIO16.
 - **Housing:** every wall cut-out moves again (open item, as on rev 3).
 
 ## Board edits
 
 The routed rev 3 board was edited in place; copper outside the changed areas stays.
 
-- **Script:** `kicad/tools/ucs125_rev4.py` (KiCad's python).
+- **Script:** `kicad/tools/ucs125_rev4.py` (KiCad's python). Run once; don't re-run
+  `place` on the finished board.
   - `plan`: dry run, prints each spot and any clash.
   - `place`: syncs footprints and pad nets to the netlist, sets the wall parts and
     fixed spots, finds free spots for the small parts, removes copper under new pads.
   - `labels`: hides the new parts' reference texts, prints each header's function and
     reference beside its friction wall, drops or moves stale labels.
-- **Flow (`tools/rev4_wip/pipeline9.sh`):** `place` → `gen_pcb.py link` →
-  `plane_ties.py` → prune dangling copper along the bottom wall → `gridroute.py` by
-  `route_loop.py` (cut tracks first, then RTD and USB, the LED and header nets, the
-  rest of the I/O block, the ACS bus, everything else) → prune → a wider search for
-  what failed.
+- **Flow:** `place` → `gen_pcb.py link` → `plane_ties.py` → prune dangling copper
+  along the bottom wall → `gridroute.py` in stages (cold head analog nets, +5V, the
+  boxed-in nets, then the rest) → rip-up routing for what was left → the hand edits
+  below → `ucs125_board.py finish` → ground ties → `octilinear.py` → `labels`.
 - **`gridroute.py`** now keeps 0.25 mm from unplated holes (`jlc_npth_to_copper`).
-- **Parts that moved:** SW3 and U34 (top edge); Q21, Q6 and R404 (to the old Q26 / Q27
-  spots, to make room for J6); R84 (beside D12); C14 (clear of the divider arrays).
+- **Rev 3 parts that moved:**
+  - SW3 and U34 to the top edge.
+  - Q21 and Q6 to the old Q26 / Q27 spots; C14 clear of the divider arrays.
+  - R84 and R404 to the front (beside D13, and beside R402).
+  - R29 to the front at (76.7, 48.6), beside Q6 whose gate it pulls up.
+  - C23 to the front at (69.1, 43.2), on the `NTC_ADC` run beside the clamp U33.
 - **Rev 3 copper removed on purpose:** the +3V3 run on the front from (83.5, 36.2) to
   the via at (90.3, 32.2). It crossed the spot U43's vias and R508 need; the In2 pour
   carries +3V3 at both ends.
+
+### Hand edits after routing
+
+These exist only in the board file.
+
+- **Q5 drain (Q6 gate):** R29 moved to Q6, so the +12V string that fed its old spot
+  was freed. Its back run from the via at (78.55, 48.65) to Q5 now carries the Q5
+  drain; the In2 run and two vias are gone.
+- **U41, C301, C302 supply:** the In2 +3V3 pour under them is an island, cut off by
+  the USB pair. R501 was turned (pin 1 up, at (29.7, 22.0)) and U41 pin 6 gets +3V3
+  by a back track from the via at (29.05, 21.9). A front link and a via at
+  (31.15, 25.0) join C301 and C302 to it.
+- **U42 pin 3 (GND):** the +12V back run beside it moved 0.14 mm so a 0.15 mm ground
+  track fits between it and the `SPI_MISO` via, into the pour north of U42.
+- **C302** turned: its ground pad now sits beside the via at (32.3, 25.8).
+- **C17 pad 2 (GND):** no via fits nearby (In2 is full there). A ground track runs
+  from the pad along y 33.7 / 33.8 to a new via at (62.45, 33.85); `NTC_ADC` under
+  C17 moved 0.15 mm down to make room. On rev 3 this pad returned through 7 mm of
+  pour to one via, so the bypass is no worse than it was.
+- **C24 pad 2 (GND):** `INA239_ALERT` was re-routed off the front around C24, and a
+  ground track joins the pad to the pour west of the fuse.
+- **SW2's lower ground pad:** joined to the ground via above it; D83's anode line
+  was re-routed round it.
+- **New ground vias:** U2 pin 2 (20.87, 9.58, under C4's ground pad), J6 pin 2
+  (75.0, 51.25, with a track from Q61 pin 4 to J6 pin 2), D1 pin 2, C49, C40, Q21,
+  R87. C18 and U17 pin 6 got a track to a via that was there.
+- **Small:** R84 0.2 mm east, clear of D13's outline; the `RTD_2` track at J10 pin 2
+  trimmed to end on the pad; labels STATE, R53, R402 and U35 moved off pads.
+
+## Unused after rev 4
+
+Nothing here is deleted yet; each needs the user's OK.
+
+- `kicad/tools/rev4_wip/`: the routing helpers from the WIP checkpoint, older than
+  the ones the board was finished with.
+- `kicad/tools/softroute.py` no longer runs (it calls `gridroute.apply_iso`, which
+  is gone); `rev4_wip/soft8.py` replaced it for this board.
+- `kicad/tools/link_usb_vbus.py`: a post-Freerouting fix for the USB4105's VBUS pads.
+- Footprints: `FanHeader_4P_P2.54mm_Horizontal`, `Sullins_SWR25X-NRTC-S02-RB-BA_…`,
+  `Wurth_WR-WTB_61900311021_…`, with their entries in `make_footprints.py`,
+  `gen_bom.py`, `part_links.py` and `pcbmodels.py`.
+- Models: `SWR25X-NRTC-S02-RB-BA.step`, `SWR25X-NRTC-S03-RB-BA.step`,
+  `fan_header_90deg.step` and the three matching `_envelope.step` files.
+- The X2510WRS headers use XKB's STEP models (`lib/cryocooler.3dshapes/X2510WRS-0N-9TSN/`).
+  Their envelope models, and the USB4205's, are only the fallback when the vendor
+  files are missing.
 
 ## I/O block layout
 

@@ -229,6 +229,26 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # USB4205-GF-A.stp (GCT via CADENAS PARTsolutions, CC BY-ND 4.0, user's file):
+    # Y-up, origin on the board plane at the mouth, body towards -z. Placed like
+    # this its feet and pegs land on the footprint's pads and holes.
+    'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag': (
+        'USB4205-GF-A.stp',
+        (0.0, -9.88, 0.0),
+        (-90.0, 0.0, 0.0),
+    ),
+    # x2510wrs-0N-9tsn.stp (XKB via TraceParts, user's files): Z-up, centred on the pin
+    # row, body rear face at y 0, pins towards +y, board plane at z -5.832
+    'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal': (
+        'X2510WRS-02-9TSN/x2510wrs-02-9tsn.stp',
+        (1.27, -0.69, 5.832),
+        (0.0, 0.0, 180.0),
+    ),
+    'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal': (
+        'X2510WRS-04-9TSN/x2510wrs-04-9tsn.stp',
+        (3.81, -0.69, 5.832),
+        (0.0, 0.0, 180.0),
+    ),
     # SP3422-04UTG.step (Littelfuse DFN_04UTG_LTF, user's file): Z-up, centred,
     # long side along y as in the footprint; its underside is at z 0.085
     'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': (

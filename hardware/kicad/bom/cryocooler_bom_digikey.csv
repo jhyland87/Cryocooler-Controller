@@ -1,7 +1,7 @@
 Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Value,Package,MPN basis,Notes
 7,CL31A226KPHNNNE,Samsung Electro-Mechanics,CAP CER 22UF 10V X5R 1206,C1-C7,22uF/10V,C_1206_3216Metric,suggested,"5 V and 3.3 V buck outputs, ISOW7741 VDD and VISOOUT, ESP32"
 5,CL21A106KACLRNC,Samsung Electro-Mechanics,CAP CER 10UF 25V X5R 0805,C8-C12,10uF,C_0805_2012Metric,ordered,substitute for CL21A106KAYNNNE
-26,CL05B104KB54PNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0402,C13-C20 C23-C40,100nF,C_0402_1005Metric,suggested,
+30,CL05B104KB54PNC,Samsung Electro-Mechanics,CAP CER 0.1UF 50V X7R 0402,C13-C20 C23-C40 C301-C304,100nF,C_0402_1005Metric,suggested,
 14,CL10A105KB8NNNC,Samsung Electro-Mechanics,CAP CER 1UF 50V X5R 0603,C41-C54,1uF,C_0603_1608Metric,suggested,
 1,CL10B683KB8NNNC,Samsung Electro-Mechanics,CAP CER 0.068UF 50V X7R 0603,C55,68nF,C_0603_1608Metric,suggested,ADP5071 COMP2
 7,GRM32ER71E226KE15L,Murata,CAP CER 22UF 25V X7R 1210,C56-C62,22uF/25V X7R,C_1210_3225Metric,suggested,"ADP5071 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs >= 10 uF effective at 15 V DC bias (INN and both outputs have two in parallel; INP needs 4.7 uF), so check the DC-bias curve"
@@ -19,7 +19,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,CL05C220JB5NNNC,Samsung Electro-Mechanics,CAP CER 22PF 50V C0G 0402,C86,22pF/C0G,C_0402_1005Metric,suggested,"AD5453 output stage stability (datasheet C1), sized for the OPA2991"
 1,CL05C121JB5NNNC,Samsung Electro-Mechanics,CAP CER 120PF 50V C0G 0402,C87,120pF,C_0402_1005Metric,suggested,TPS62822 feed-forward across the 453k
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
-7,APGB0607G22R23C,Kingbright,LED GREEN/RED BICOLOR 0.65X0.65MM SMD,D2 D3 D6 D7 D10-D12,APGB0607G22R23C,LED_Kingbright_APGB0607,design,"all indicators but D13; independent dies, about 1 mA each. D6 and D10 use one die"
+12,APGB0607G22R23C,Kingbright,LED GREEN/RED BICOLOR 0.65X0.65MM SMD,D2 D3 D6 D7 D10-D12 D81-D85,APGB0607G22R23C,LED_Kingbright_APGB0607,design,"all indicators but D13; independent dies, about 1 mA each. D6 and D10 use one die"
 2,DFLS240-7,Diodes Incorporated,DIODE SCHOTTKY 40V 2A POWERDI123,D4 D5,DFLS240,D_PowerDI-123,design,
 1,4684,Adafruit,LED RGB NEOPIXEL NANO WS2812B-2020 2 X 2 MM (10 pack),D13,WS2812B-2020,LED_WS2812B-2020_PLCC4_2.0x2.0mm,design,Adafruit listed the 10 pack out of stock on 2026-11-06; the 100 pack is Adafruit 6428. Check JLCPCB/LCSC for a WS2812B-2020 if you assemble there
 1,1N4148W-7-F,Diodes Incorporated,DIODE GEN PURP 75V 150MA SOD123,D14,1N4148W,D_SOD-123,design,
@@ -29,11 +29,10 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,0453005.MR,Littelfuse,FUSE BRD MNT 5A 125VAC/VDC 2SMD,F1,5A backup,Fuse_Littelfuse-NANO2-451_453,suggested,"NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup only: add a fuse at the PSU end (see DESIGN_REVIEW.md)"
 2,BLM15EX331SN1D,Murata,FERRITE BEAD 330 OHM 100MHZ 0402,FB1 FB2,BLM15EX331SN1D,L_0402_1005Metric,design,"ISOW7741 VISOOUT and GND2 beads, named by the TI datasheet"
 1,BLM18PG121SN1D,Murata,FERRITE BEAD 120 OHM 100MHZ 2A 0603,FB3,BLM18PG121SN1D,L_0603_1608Metric,suggested,ahead of JP5 on the cold head supply; rating from distributor listings
-1,USB4105-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,suggested,footprint is the GCT USB4105-xx-A
+1,USB4205-GF-A,GCT,"USB-C 2.0 RECEPTACLE 16P, FLAG TYPE, TOP MOUNT",J1,USB_C,USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag,design,"J1: stands on its side, 12.5 mm high, mouth 3 mm past the board edge; four plated shell stakes and two pegs"
 1,54-00164,Tensility,CONN JACK R/A SMT 5.5X2.1MM,J2,,Tensility_54-00164_5.5x2.1mm_Horizontal_SMD,design,"J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates to 0 at 70 C; do not mate under load"
-2,CO975,MODDIY,CONN HEADER 3+1 FAN R/A 4POS 2.54MM,J3 J4,,FanHeader_4P_P2.54mm_Horizontal,design,"J3 fan, J4 pump: takes standard 3-pin and 4-pin PC fan plugs. FC-3+1P-MA; no maker drawing or current rating, so check the pins and hole fit on a real part before ordering boards"
-1,61900311021,Wurth Elektronik,"CONN HEADER WR-WTB R/A LOCKING 3POS 2.54MM, 3 A",J5,,Wurth_WR-WTB_61900311021_1x03_P2.54mm_Horizontal,design,J5 flow sensor: check the bottom locking plate clears the sensor plug
-3,SWR25X-NRTC-S02-RB-BA,Sullins Connector Solutions,"CONN HEADER R/A WAFER 2POS 2.54MM, 3 A",J6 J7 J13,,Sullins_SWR25X-NRTC-S02-RB-BA_1x02_P2.54mm_Horizontal,design,"J6 NTC, J7 panel button, J13 relay 12 V out; mates with SWH25X housings, so JST PH pigtails no longer fit"
+3,X2510WRS-04-9TSN,XKB Connectivity,"CONN HEADER R/A SMT 4POS 2.54MM, 4 A",J3-J5,,XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal,design,"J3 fan, J4 pump, J5 flow sensor (pin 4 unused); mates with X2510H-04 housings, so fan, pump and flow leads are re-housed"
+7,X2510WRS-02-9TSN,XKB Connectivity,"CONN HEADER R/A SMT 2POS 2.54MM, 4 A",J6 J13 J16-J20,,XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal,design,"J6 NTC, J13 relay 12 V out, J16-J20 general-purpose I/O; mates with X2510H-02 housings and X2510T terminals"
 1,1821698,Phoenix Contact,"PCB HEADER MC 0,5/ 2-G-2,54 SMD R24, 6 A",J8,,"PhoenixContact_MC_0,5_2-G-2,54_SMD_1x02_P2.54mm_Horizontal",design,"J8 amplifier REM. Mating plug FMC 0,5/ 2-ST-2,54 (confirm the plug item number before ordering)"
 1,MJ-3523-SMT-TR,Same Sky,CONN JACK MONO 3.5MM SMD,J9,,SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD,design,"J9 amplifier signal: tip = signal, sleeve = GND"
 1,4392,Adafruit,"CONN HEADER JST PH COMPATIBLE R/A SMT 4POS 2MM, 2 A",J10,,Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD,design,J10 PT1000 4-wire (F+ / S+ / S- / F-); Kaweei CW2001-04T-H01-BD-A; mates with a JST PHR-4 housing or JST PH 4-pin pigtail
@@ -47,17 +46,18 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,SRP7050TA-6R8M,Bourns,FIXED IND 6.8UH 8.5A 51.5MOHM SMD,L3,SRP7050TA-6R8M,L_Bourns_SRP7050TA,design,ADP5071 inverting inductor (rev 1 value)
 1,SRP4020TA-R47M,Bourns,FIXED IND 0.47UH 8A 14MOHM SMD,L4,SRP4020TA-R47M,L_Bourns_SRP4020TA,design,"TPS62822 inductor, shielded"
 1,AONR21307,Alpha & Omega Semiconductor,MOSFET P-CH 30V DFN3X3,Q1,AONR21307,AOS_DFN3x3A_8L_EP1,design,"Q1 main power switch; check the turn-on and turn-off SOA on the bench; datasheet has no package outline, confirm the DFN3x3A land pattern"
-7,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q5 Q7 Q21 Q25-Q27 Q41,BSS138,SOT-23,suggested,
+5,BSS138-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT23-3,Q5 Q7 Q21 Q25 Q41,BSS138,SOT-23,suggested,
 2,BSS84,onsemi,MOSFET P-CH 50V 130MA SOT23-3,Q6 Q8,BSS84,SOT-23,ordered,output stage is limited to about 130 mA; substitute for BSS84-7-F
 6,BSS138W-7-F,Diodes Incorporated,MOSFET N-CH 50V 200MA SOT323,Q22-Q24 Q42 Q51 Q52,BSS138,SOT-323_SC-70,suggested,"power-good stage: same pinout as the SOT-23 BSS138 (1 gate, 2 source, 3 drain); -15 V power good guard"
-22,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1-R22,10k,R_0402_1005Metric,suggested,
+1,BSS138DW-7-F,Diodes Incorporated,MOSFET 2N-CH 50V 200MA SOT363,Q61,BSS138DW,SOT-363_SC-70-6,design,fan and pump PWM drivers in one package
+21,RC0402FR-0710KL,Yageo,RES 10K OHM 1% 1/16W 0402,R1 R2 R6-R22 R501 R502,10k,R_0402_1005Metric,suggested,
 2,RC0402FR-075K1L,Yageo,RES 5.1K OHM 1% 1/16W 0402,R23 R24,5.1k,R_0402_1005Metric,suggested,
-12,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R25-R34 R402 R404,100k,R_0402_1005Metric,suggested,
+14,RC0402FR-07100KL,Yageo,RES 100K OHM 1% 1/16W 0402,R25-R34 R402 R404 R503 R504,100k,R_0402_1005Metric,suggested,
 1,RC0402FR-0747KL,Yageo,RES 47K OHM 1% 1/16W 0402,R35,47k,R_0402_1005Metric,suggested,
-2,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R36 R38,3.3k,R_0402_1005Metric,suggested,
+7,RC0402FR-073K3L,Yageo,RES 3.3K OHM 1% 1/16W 0402,R36 R38 R506-R510,3.3k,R_0402_1005Metric,suggested,
 1,RC0402FR-07220RL,Yageo,RES 220 OHM 1% 1/16W 0402,R39,220,R_0402_1005Metric,suggested,
-1,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R40,100,R_0402_1005Metric,suggested,
-7,RC0402FR-074K7L,Yageo,RES 4.7K OHM 1% 1/16W 0402,R41-R47,4.7k,R_0402_1005Metric,suggested,
+2,RC0402FR-07100RL,Yageo,RES 100 OHM 1% 1/16W 0402,R40 R505,100,R_0402_1005Metric,suggested,
+3,RC0402FR-074K7L,Yageo,RES 4.7K OHM 1% 1/16W 0402,R43-R45,4.7k,R_0402_1005Metric,suggested,
 8,RC0402FR-071KL,Yageo,RES 1K OHM 1% 1/16W 0402,R48-R55,1k,R_0402_1005Metric,suggested,
 3,RC0402FR-07220KL,Yageo,RES 220K OHM 1% 1/16W 0402,R56-R58,220k,R_0402_1005Metric,suggested,
 1,RC0402FR-0782KL,Yageo,RES 82K OHM 1% 1/16W 0402,R59,82k,R_0402_1005Metric,suggested,
@@ -85,6 +85,10 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,RC0402FR-07453KL,Yageo,RES 453K OHM 1% 1/16W 0402,R94,453k,R_0402_1005Metric,suggested,
 1,RC0402FR-0733KL,Yageo,RES 33K OHM 1% 1/16W 0402,R95,33k,R_0402_1005Metric,suggested,
 1,RC1206JR-070RL,Yageo,RES 0 OHM JUMPER 1/4W 1206,R96,0,R_1206_or_Bourns_3313J,suggested,"trim land: fit a Bourns 3313J-1-102E (1k) instead to adjust (wiper tied to pin 3, clockwise raises it)"
+1,YC124-JR-074K7L,Yageo,RES ARRAY 4 RES 4.7K OHM 5% 0804,RN1,4.7k,R_Array_Convex_4x0402,suggested,"four isolated 0402 elements, 2.0 x 1.0 mm"
+1,YC124-JR-0710KL,Yageo,RES ARRAY 4 RES 10K OHM 5% 0804,RN2,10k,R_Array_Convex_4x0402,suggested,"four isolated 0402 elements, 2.0 x 1.0 mm"
+1,YC124-JR-07100RL,Yageo,RES ARRAY 4 RES 100 OHM 5% 0804,RN3,100,R_Array_Convex_4x0402,suggested,"four isolated 0402 elements, 2.0 x 1.0 mm"
+2,YC124-JR-07100KL,Yageo,RES ARRAY 4 RES 100K OHM 5% 0804,RN4 RN5,100k,R_Array_Convex_4x0402,suggested,"four isolated 0402 elements, 2.0 x 1.0 mm"
 2,EVP-AA802Q,Panasonic,SWITCH TACTILE SPST-NO 20MA 15V SMD J-LEAD,SW1 SW2,TACTILE,SW_Panasonic_EVP-AA,design,"SW1 reset, SW2 boot; 3.5 x 2.9 x 1.7 mm, 5.0 N, grey actuator, 100,000 cycles"
 1,1571300-2,TE Connectivity,SWITCH TACTILE SPST-NO 0.05A 24V R/A SMD IP67,SW3,TACTILE,SW_TE_1571300-2,design,"SW3 power button; right angle, actuator through the right board edge, IP67"
 1,5015,Keystone Electronics,PC TEST POINT MINIATURE SMT,TP14,,TestPoint_Keystone_5015_Micro_Mini,design,ground test points; needs a via to its ground plane
@@ -111,5 +115,7 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 1,74LV1T34GXH,Nexperia,IC BUF NON-INVERT 5.5V 5X2SON,U31,74LV1T34GX,Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm,design,1.8 V to 3.3 V buffer for DISP_DC
 1,SN74LVC138ARGYR,Texas Instruments,IC DECODER/DEMUX 1X3:8 16VQFN,U32,SN74LVC138ARGYR,Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm,design,decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part
 2,SP3422-04UTG,Littelfuse,TVS DIODE 5VWM 4CH 5UDFN,U33 U35,SP3422-04UTG,Littelfuse_DFN-5_1.0x0.6mm_P0.35mm,design,"ESD clamps on tach lines, NTC and J10"
-1,TPD1E05U06DPYR,Texas Instruments,TVS DIODE 5.5VWM 1CH X1SON-2,U34,TPD1E05U06DPYR,Texas_DPY0002A_0.6x1mm_P0.65mm,design,ESD clamp on the panel button line
+6,TPD1E05U06DPYR,Texas Instruments,TVS DIODE 5.5VWM 1CH X1SON-2,U34 U45-U49,TPD1E05U06DPYR,Texas_DPY0002A_0.6x1mm_P0.65mm,design,ESD clamp on the panel button line
 1,NUF6401MNT1G,onsemi,EMI FILTER 6CH 100 OHM 17PF ESD DFN12,U36,NUF6401MNT1G,OnSemi_DFN-12-1EP_506AD,design,"J14: 100 ohm series, ESD clamps on all six IMU cable signals"
+2,SN74LVC1G125DRYR,Texas Instruments,IC BUF NON-INVERT 5.5V 6SON,U41 U42,SN74LVC1G125DRYR,Texas_USON-6_1x1.45mm_P0.5mm_SMD,design,"ACS37800 SCK and MISO gates, enabled by ACS_CS"
+2,OPA4990IRUCR,Texas Instruments,IC OPAMP GP 4 CIRCUIT 14X2QFN,U43 U44,OPA4990IRUCR,Texas_S-PX2QFN-14,design,"general-purpose I/O LED drivers, on +5V_OR"
