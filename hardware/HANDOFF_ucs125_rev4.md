@@ -34,11 +34,14 @@ board is placed and mostly routed but not finished. Start at "Where it stands".
 
 **Still to do, in order:**
 
-1. Close the seven nets. Try Freerouting first: `ucs125_board.py reroute` runs one
-   round that keeps the existing copper. Freerouting 2.5.0 and Java 25 are installed,
-   and it is the router that made the rev 3 board; the nine passes so far used only
-   `gridroute.py`. Not yet tried on rev 4. The fallback is `softloop2.sh` (rip-up
-   routing; it closed `Net-(D84-GA)` on an earlier pass by moving D84's cathode via).
+1. Close the seven nets with `softloop2.sh` (rip-up routing; it closed `Net-(D84-GA)`
+   on an earlier pass by moving D84's cathode via).
+   - **Freerouting does not help here.** Tried on a copy (2026-11-12, `fr_trial.py`):
+     one round, 20 passes, 22 minutes, rev 3 copper locked. It closed none of the
+     seven and left the board otherwise as it was (0 errors, parity 0).
+   - With the rev 3 copper locked it has nowhere to go; unlocked, it would re-route
+     the hand-finished board. It also reads about a dozen rev 3 nets that join
+     through pours as open and spends its passes on those.
 2. Ground: `plane_ties.py`, then `ucs125_board.py finish`, prune, `octilinear.py`.
 3. `ucs125_rev4.py labels`, then DRC back to the rev 3 baseline: 0 errors, 0
    unconnected, 0 parity, 22 warnings.
