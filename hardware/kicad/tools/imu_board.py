@@ -11,8 +11,9 @@ Every part, track and via comes from the tables below, so a run rebuilds the
 whole board and hand edits do not survive. The cable is wired pin for pin, so
 two signal pairs cross (SCK/MOSI and INT1/INT2); MOSI, INT2, MISO and +3V3 take
 the bottom layer for part of their run.
-The front silk carries U1's axis glyph (DS12814 Figure 4), and the ground
-stitching keeps clear of the labels in imu/mask_labels.json.
+The front silk carries U1's axis glyph (DS12814 Figure 4). No silk crosses a
+via, so the board can be ordered with plain tented vias: the ground stitching
+keeps clear of the labels in imu/mask_labels.json and of the board ID.
 
 Run with KiCad's python (it provides pcbnew):
     $KPY hardware/kicad/tools/imu_board.py           # rebuild the board
@@ -110,7 +111,7 @@ TRACKS = [
     ('+3V3', F, SIGNAL, [(16.1125, 4.5), (17.3, 4.5), (17.3, 6.27)]),
     # U1 top: VDD to C1, INT2 straight up to its via
     ('+3V3', F, SIGNAL, [(15.95, 2.8375), (15.95, 2.02), (16.27, 1.7), (16.42, 1.7)]),
-    ('+3V3', F, SIGNAL, [(16.42, 1.7), (16.42, 0.9)]),
+    ('+3V3', F, SIGNAL, [(16.42, 1.7), (16.42, 1.22), (15.85, 0.65)]),  # via left, clear of the C1 label
     ('IMU_INT2', F, SIGNAL, [(15.45, 2.8375), (15.45, 1.4)]),
     ('IMU_INT2', B, SIGNAL, [(15.45, 1.4), (13.4, 3.45), (13.4, 8.6), (7.125, 14.875)]),
     ('IMU_INT2', F, SIGNAL, [(7.125, 14.875), (7.125, 16.55)]),
@@ -119,12 +120,15 @@ TRACKS = [
     # +3V3: C1 and R1 at the top, down the right edge to C2, on to J1 pin 4,
     # the LED and C3 at the bottom right, and TP1
     ('+3V3', F, SIGNAL, [(13.1, 1.39), (13.1, 0.65)]),
-    ('+3V3', B, POWER, [(13.1, 0.65), (16.17, 0.65), (16.42, 0.9)]),
+    ('+3V3', B, POWER, [(13.1, 0.65), (15.85, 0.65)]),
+    ('+3V3', B, POWER, [(15.85, 0.65), (16.17, 0.65), (16.42, 0.9)]),
     ('+3V3', B, POWER, [(16.42, 0.9), (17.0, 0.9), (17.45, 1.35), (17.45, 5.15), (17.3, 5.3)]),
     ('+3V3', B, POWER, [(17.3, 5.3), (17.3, 7.225), (9.625, 14.9)]),
     ('+3V3', F, POWER, [(9.625, 14.9), (9.625, 16.55)]),
-    ('+3V3', B, POWER, [(12.925, 11.6), (14.35, 11.6)]),
-    ('+3V3', F, POWER, [(14.35, 11.6), (14.35, 16.85), (14.9, 16.85)]),
+    # the via sits below the board ID block
+    ('+3V3', B, POWER, [(12.925, 11.6), (14.35, 13.025), (14.35, 14.2)]),
+    ('+3V3', F, POWER, [(14.35, 11.6), (14.35, 14.2)]),
+    ('+3V3', F, POWER, [(14.35, 14.2), (14.35, 16.85), (14.9, 16.85)]),
     ('+3V3', F, SIGNAL, [(14.35, 11.6), (15.09, 11.6)]),
     ('+3V3', B, POWER, [(9.625, 14.9), (9.625, 16.8), (2.5, 16.8), (1.6, 15.9), (1.6, 15.5)]),
     ('+3V3', F, SIGNAL, [(1.6, 15.5), (1.6, 14.4)]),
@@ -146,10 +150,10 @@ VIAS = [
     ('IMU_INT2', 7.125, 14.875),
     ('IMU_INT2', 1.6, 11.1),
     ('+3V3', 13.1, 0.65),
-    ('+3V3', 16.42, 0.9),
+    ('+3V3', 15.85, 0.65),
     ('+3V3', 17.3, 5.3),
     ('+3V3', 9.625, 14.9),
-    ('+3V3', 14.35, 11.6),
+    ('+3V3', 14.35, 14.2),
     ('+3V3', 1.6, 15.5),
     ('GND', 10.875, 14.9),
     ('GND', 16.85, 2.75),  # the corner right of U1 (C1, pads 6 and 7)
@@ -388,6 +392,35 @@ def label_outlines(board):
     return outlines
 
 
+def board_id_texts(board, revision):
+    """The two board ID lines on the back silk, mirrored (the main board's font:
+    1 x 0.9 mm, 0.15 mm stroke), not yet on the board.
+    """
+    x, y = BOARD_ID_SPOT
+    texts = []
+    for index, line in enumerate((BOARD_NAME, f'BETA rev {revision}')):
+        text = pcbnew.PCB_TEXT(board)
+        text.SetText(line)
+        text.SetLayer(pcbnew.B_SilkS)
+        text.SetTextSize(pcbnew.VECTOR2I(mm(1.0), mm(0.9)))
+        text.SetTextThickness(mm(0.15))
+        text.SetMirrored(True)
+        text.SetPosition(point(x, y + index * ID_LINE_PITCH))
+        texts.append(text)
+        KEEP.append(text)
+    return texts
+
+
+def board_id_outlines(board):
+    """Ink outlines of the board ID, with a placeholder hash of the same length."""
+    outlines = []
+    for text in board_id_texts(board, '0' * 7):
+        outline = pcbnew.SHAPE_POLY_SET()
+        text.TransformTextToPolySet(outline, 0, mm(0.005), pcbnew.ERROR_INSIDE)
+        outlines.append(outline)
+    return outlines
+
+
 def add_stitching(board, glyph):
     """Ground vias on a STITCH_PITCH grid wherever one clears all other copper,
     the edge, the keep-outs, the labels and the axis glyph, at least
@@ -404,7 +437,7 @@ def add_stitching(board, glyph):
     box = glyph[0].GetBoundingBox()
     for item in glyph[1:]:
         box.Merge(item.GetBoundingBox())
-    clear = label_outlines(board) + [polygon([(box.GetLeft() / 1e6, box.GetTop() / 1e6),
+    clear = label_outlines(board) + board_id_outlines(board) + [polygon([(box.GetLeft() / 1e6, box.GetTop() / 1e6),
                                               (box.GetRight() / 1e6, box.GetTop() / 1e6),
                                               (box.GetRight() / 1e6, box.GetBottom() / 1e6),
                                               (box.GetLeft() / 1e6, box.GetBottom() / 1e6)])]
@@ -479,8 +512,8 @@ def build():
 
 
 def stamp_board_id():
-    """Board ID block on the back silk: name and short commit, mirrored, replacing
-    any earlier one (the main board's font: 1 x 0.9 mm, 0.15 mm stroke).
+    """Board ID block on the back silk: name and short commit, replacing any
+    earlier one.
     """
     revision = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], capture_output=True,
                               text=True, cwd=KICAD_DIR, check=True).stdout.strip()
@@ -490,17 +523,8 @@ def stamp_board_id():
             if drawing.GetText() == BOARD_NAME or drawing.GetText().startswith('BETA rev'):
                 KEEP.append(drawing)
                 board.Remove(drawing)
-    x, y = BOARD_ID_SPOT
-    for index, line in enumerate((BOARD_NAME, f'BETA rev {revision}')):
-        text = pcbnew.PCB_TEXT(board)
-        text.SetText(line)
-        text.SetLayer(pcbnew.B_SilkS)
-        text.SetTextSize(pcbnew.VECTOR2I(mm(1.0), mm(0.9)))
-        text.SetTextThickness(mm(0.15))
-        text.SetMirrored(True)
-        text.SetPosition(point(x, y + index * ID_LINE_PITCH))
+    for text in board_id_texts(board, revision):
         board.Add(text)
-        KEEP.append(text)
     pcbnew.SaveBoard(str(BOARD_PATH), board, True)
 
 

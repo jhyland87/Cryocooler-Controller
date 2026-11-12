@@ -217,13 +217,18 @@ and `${KIPRJMOD}/../lib` 3D model paths. Not yet fabricated or bench tested.
   is unplugged, and a green power LED (D1, 1.5k R2, about 1 mA). No I2C, LDO or level shifters: it runs on the main
   board's 3.3 V. A test point for each cable net, named by function. Details in `DESIGN_REVIEW.md`, "IMU board".
 * **Connector:** J1 is the same Molex 505448-0891 as J14 with the same pin map, so the cable (two 505432-series
-  8-circuit housings, not in the BOM) is wired pin for pin. The pin names are on the back silk, behind J1.
+  8-circuit housings, not in the BOM) is wired pin for pin. The pin map is on the back silk, behind J1: each pin's number above its escape via and its
+  name below it.
 * **Mounting:** a 3.2 mm NPTH (M3 clearance), on no net, centred on the top edge opposite J1's mating face. Copper
   stays 3.0 mm from its centre on both layers, clear of the screw head.
 * **Axes:** the front silk shows U1's sensing axes (DS12814 Figure 4): +X toward the mounting hole, +Y toward the left
   edge (the test-point column), +Z out of the top face.
-* **Order:** black mask, ENIG (the labels are mask openings), filled and capped vias (silk crosses a few vias) and
-  high-precision silk (0.7 mm text), as for the main board.
+* **Order (JLCPCB):** 2 layers, 1.6 mm, 1 oz, black mask (no extra cost on 2 layers), ENIG (the labels are mask
+  openings, and JLCPCB calls HASL unsuitable for fine pitch), **tented vias** and the default `0.3mm/(0.4/0.45mm)` via
+  size (every via is 0.3 / 0.6 mm; there is no via-in-pad). No silk or mask text crosses a via, so the board does not
+  need the main board's filled and capped vias; `imu_board.py` keeps the stitching off the labels and the board ID.
+  The 0.7 mm silk is under JLCPCB's published 1.0 mm minimum, and the quote form has no high-precision silk option.
+  In the PCB remark, say the text openings in the front mask are intentional.
 
 `tools/imu_board.py` builds the whole board from the tables in the script (parts, tracks, vias), so hand edits in
 KiCad don't survive a rebuild. Change the script, then re-apply the labels and export:
@@ -238,6 +243,6 @@ python3 hardware/kicad/tools/gen_bom.py --imu       # imu/bom/
 ```
 
 After review and commit, `$KPY hardware/kicad/tools/imu_board.py boardid` stamps `Cryocooler IMU` / `BETA rev <hash>`
-on the back silk; a rebuild drops it, so stamp again after one. Checks (2026-11-11): ERC 0, `datasheet_rules.py --imu`
-25/25, and `kicad-cli pcb drc --schematic-parity --severity-all` 0 errors, 0 unconnected, 0 parity, with 14
+on the back silk; a rebuild drops it, so stamp again after one. Checks (2026-11-12): ERC 0, `datasheet_rules.py --imu`
+25/25, and `kicad-cli pcb drc --schematic-parity --severity-all` 0 errors, 0 unconnected, 0 parity, with 22
 `text_height` warnings for the 0.5 mm mask and 0.7 mm silk labels (the accepted baseline).
