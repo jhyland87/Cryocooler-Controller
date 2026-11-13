@@ -5,8 +5,8 @@ circuit as rev 3 with the changes below. Not ordered, not built, not bench teste
 Read `HANDOFF_ucs125_rev3.md` for everything this note doesn't mention; the datasheet
 checks for the new parts are in `kicad/DESIGN_REVIEW.md` under "Rev 4".
 
-**Finished, checked and approved by the user (2026-11-12).** The fab files and the
-board ID are not done yet. Start at "Where it stands".
+**Finished, checked and approved by the user (2026-11-12).** The fab files come from
+board commit c41cac6, which is the hash in the board ID. Start at "Where it stands".
 
 ## Where it stands
 
@@ -17,7 +17,7 @@ board ID are not done yet. Start at "Where it stands".
 | Board | Done. 313 footprints, none off the board. DRC: 0 errors, 0 unconnected, 0 parity, 23 warnings |
 | Labels | Applied (`ucs125_rev4.py labels`) |
 | BOM, CPL, renders | Regenerated from the finished board |
-| Gerbers, JLCPCB zip, board ID | **Not done.** `kicad/fabrication/gerbers` is still rev 3 and the board ID reads rev 3's hash |
+| Gerbers, JLCPCB zip, board ID | Exported. The board ID reads `BETA rev c41cac6` |
 
 **DRC warnings:** the 22 of rev 3 (16 `silk_overlap`, 4 `lib_footprint_mismatch`, 2
 `silk_edge_clearance`) plus one new `silk_overlap`: the pin-1 dots of U45 and U47
@@ -27,20 +27,15 @@ for this board.
 
 **Still to do, in order:**
 
-1. Attach the USB4205's STEP model to J1 (`pcbmodels.attach_missing_models`; the file
-   and its table entry are in place) and redo the renders. Held back because KiCad
-   had the board open.
-2. Stamp the board ID with the hash of the commit that holds the finished board, run
-   `export_fab.py`, commit again.
-3. Delete what rev 4 left unused, once confirmed (list under "Unused after rev 4").
-4. Housing: every wall cut-out moved (open item, as on rev 3).
+1. Delete what rev 4 left unused, once confirmed (list under "Unused after rev 4").
+2. Housing: every wall cut-out moved (open item, as on rev 3).
+3. Before ordering: decide on a clean-up pass for the long nets below.
 
 **Not verified:** the ACS37800 with SCLK running while CS is high (hence the SCK
 gate), the keying of fan plugs in X2510H housings, the USB current budget. The
-OPA4990 has an envelope 3D model only, and so does the USB4205 on the board until
-step 1 above is done. GCT's STEP model of the USB4205 was checked against the
-footprint: its feet land on the pads and its pegs in the holes. XKB's STEP model of
-the X2510WRS
+OPA4990 has an envelope 3D model only. J1 carries GCT's STEP model of the USB4205
+(offset 0 / -9.88 / 0, turned -90 about x); placed like that its feet land on the
+footprint's pads and its pegs in the holes. XKB's STEP model of the X2510WRS
 shows bare pins past the body, where the drawing has a friction wall; the labels
 clear both. Nothing is bench tested.
 
