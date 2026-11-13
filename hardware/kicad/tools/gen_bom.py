@@ -251,9 +251,11 @@ PARTS = {
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
     ('USB_C', 'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag'): (
-        'GCT', 'USB4205-GF-A', 'USB-C 2.0 RECEPTACLE 16P, FLAG TYPE, TOP MOUNT',
-        'design', 'J1: stands on its side, 12.5 mm high, mouth 3 mm past the board '
-        'edge; four plated shell stakes and two pegs'),
+        'GCT', 'USB4210-GF-A', 'USB-C 2.0 RECEPTACLE 16P, FLAG TYPE, TOP MOUNT',
+        'design', 'J1: stands on its side, 9.89 mm high, mouth 3 mm past the board '
+        'edge; four plated shell stakes and two pegs. Same land pattern as the '
+        '12.5 mm USB4205-GF-A the footprint is named after (GCT drawing USB4210 '
+        'rev A2)'),
     # XKB X2510 wafers (rev 4): all-SMD, so two can sit back to back. KF2510-style
     # latch wall, so PC fan plugs have to be re-housed.
     ('', 'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'): (
