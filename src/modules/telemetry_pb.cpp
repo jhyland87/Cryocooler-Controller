@@ -105,7 +105,7 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
 
     // ── Cold head ────────────────────────────────────────────────────────────
     frame_.has_cold_head = true;
-    if (coldHeadOk && !cold_head::hasSensorFault()) {
+    if (coldHeadOk && cold_head::hasValidTemp()) {
         frame_.cold_head.temp_c   = cold_head::getLastTempC();
         frame_.cold_head.has_temp = true;
         frame_.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();

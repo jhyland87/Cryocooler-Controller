@@ -158,6 +158,8 @@ Reads the PT1000 RTD via the ADS1220 24-bit ADC over SPI (mode 1, chip select GP
 
 Uses a non-blocking two-phase state machine: start single-shot conversion → wait out the 50 ms conversion time (DRDY is not wired) → read the 24-bit result. Maintains a ring buffer of `TEMP_HISTORY_SIZE` timestamped samples for cooling-rate calculation (°C/min), stall detection, and cooldown progress (0–100 %).
 
+The temperature is reported (telemetry, dashboard, run history, display) only once it has settled: `COLD_HEAD_STABLE_READINGS` consecutive readings, each within `COLD_HEAD_STABLE_BAND_C` of the one before (about 2 s after boot, and again after any sensor fault). Until then it is sent as "no reading" instead of 0. This gate is for reporting only; the state machine's sensor-fault check is unchanged.
+
 | Function | Returns |
 |----------|---------|
 | `getLastTempK()` | Cold-stage temperature in Kelvin |

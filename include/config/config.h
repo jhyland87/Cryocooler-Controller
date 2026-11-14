@@ -210,6 +210,14 @@
 // A PT1000 present/absent change must hold this long before it is logged.
 #define COLD_HEAD_PRESENCE_DEBOUNCE_MS  static_cast<uint32_t>(500)
 
+// The cold-head temperature is reported (telemetry, dashboard, run history)
+// only after this many consecutive readings each sit within the band of the
+// one before.  Until then it is reported as "no reading", not as 0.  One
+// reading takes two control ticks (400 ms), so 5 readings is about 2 s.
+// Applies again after any sensor fault.
+#define COLD_HEAD_STABLE_READINGS  static_cast<uint8_t>(5)
+#define COLD_HEAD_STABLE_BAND_C    static_cast<float>(0.5f)
+
 
 #define MIN_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(0.0f)
 #define MAX_PLAUSIBLE_AMBIENT_TEMP_C  static_cast<float>(33.0f)

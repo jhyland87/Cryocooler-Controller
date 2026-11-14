@@ -258,8 +258,8 @@ static void buildStartupFrame(FrameBuilder& frame)
     }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
-        // Emit temp only when the reading is within the plausible range
-        if (!cold_head::hasSensorFault()) {
+        // Emit temp only when the reading is in range and has settled
+        if (cold_head::hasValidTemp()) {
             frame.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
         } else {
             frame.field("cold_head.temp_c", "%s", "");
@@ -586,7 +586,7 @@ void emit(const state_machine::Output& out)
         .field("state.id",                          "%d",   out.state)
         .field("state.name",                        "%s",   state_machine::stateName(out.state))
         .field("state.status_text",                 "%s",   state_machine::getStatusText());
-    if (!cold_head::hasSensorFault()) {
+    if (cold_head::hasValidTemp()) {
         lastFrame_.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
     } else {
         lastFrame_.field("cold_head.temp_c", "%s", "");

@@ -34,6 +34,7 @@
 #include "logger.h"
 #include "spi_device.h"
 #include "state_change_monitor.h"
+#include "reading_stabilizer.h"
 
 static LogStream _Log = Log.createChildLogger("cold_head");
 // ---------------------------------------------------------------------------
@@ -86,6 +87,9 @@ static bool sRtdFaultActive = false;
 // Debounced PT1000 presence. Starts "absent", so an unplugged sensor stays
 // silent; only found/dropped transitions are logged.
 static StateChangeMonitor sPt1000Presence(COLD_HEAD_PRESENCE_DEBOUNCE_MS);
+
+// Holds the temperature back from reporting until the first readings settle.
+static ReadingStabilizer sTempSettled(COLD_HEAD_STABLE_READINGS, COLD_HEAD_STABLE_BAND_C);
 
 static constexpr char TAG[] = "cold_head";
 
@@ -304,6 +308,7 @@ module::ServiceStatus service() {
     // All-zero or all-one frames mean no device is driving MISO.
     if (signed_raw == 0 || signed_raw == -1) {
         sRtdFaultActive = true;
+        sTempSettled.reset();
         updatePt1000Presence(false, NAN, nowMs);
         return module::MODULE_SERVICE_ERROR;
     }
@@ -320,6 +325,11 @@ module::ServiceStatus service() {
     updatePt1000Presence(!anyFault, tempC, nowMs);
 
     sRtdFaultActive = anyFault;
+    if (anyFault) {
+        sTempSettled.reset();
+    } else {
+        sTempSettled.update(tempC);
+    }
 
     sLastTempC = tempC;
     pushSample(nowMs, tempC, sLastAmbientTempC, sLastRmsVoltageV, sLastRmsCurrentA);
@@ -352,6 +362,7 @@ void setLastReadings(float tempC,
     sMockCoolingRate   = coolingRateCPerMin;
     sMockStalled       = stalled;
     sMockInjected      = true;
+    sTempSettled.forceStable();  // injected values need no settling
     sLastRmsVoltageV   = rmsVoltageV;
     sLastRmsCurrentA   = rmsCurrentA;
     // Push a timestamped sample so the ring buffer stays current;
@@ -378,6 +389,10 @@ float getLastTempC() {
 
 bool hasSensorFault() {
     return sRtdFaultActive;
+}
+
+bool hasValidTemp() {
+    return !sRtdFaultActive && sTempSettled.isStable();
 }
 
 // float getLastAmbientTempC() {
