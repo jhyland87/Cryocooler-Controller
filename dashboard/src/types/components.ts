@@ -40,6 +40,13 @@ export interface StatusPanelProps {
   loading?: boolean;
 }
 
+// ─── NetworkPanel ────────────────────────────────────────────────────────────
+
+export interface NetworkPanelProps {
+  network: TelemetryData['network'];
+  loading?: boolean;
+}
+
 // ─── CollapsiblePanel ────────────────────────────────────────────────────────
 
 export interface CollapsiblePanelProps {

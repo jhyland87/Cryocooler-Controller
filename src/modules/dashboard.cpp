@@ -467,6 +467,17 @@ bool setWifiTxPower(float powerDbm) {
     return false;
 }
 
+void getWifiInfo(WifiInfo& info) {
+    info = {};
+    if (!wifiRadioOn_ || WiFi.status() != WL_CONNECTED) {
+        return;
+    }
+    info.connected = true;
+    info.rssiDbm   = WiFi.RSSI();
+    strlcpy(info.ip, WiFi.localIP().toString().c_str(), sizeof(info.ip));
+    strlcpy(info.ssid, WiFi.SSID().c_str(), sizeof(info.ssid));
+}
+
 void printWifiStatus(Print& out) {
     char line[96];
     const bool connected = (WiFi.status() == WL_CONNECTED);

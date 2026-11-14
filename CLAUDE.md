@@ -27,4 +27,4 @@ changes.
   the dashboard or `proto/telemetry.proto`.
 - **Do not edit generated files** — see the list in `.claude/rules/general.md`.
 - **Secrets:** WiFi credentials live in NVS flash, set with the `wifi set` serial
-  command. Never log, print or commit a network name or passphrase.
+  command. Never log or commit a network name or passphrase.

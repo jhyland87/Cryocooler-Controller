@@ -248,6 +248,18 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
         }
     }
 
+    // ── Network ──────────────────────────────────────────────────────────────
+    {
+        dashboard::WifiInfo wifiInfo;
+        dashboard::getWifiInfo(wifiInfo);
+        frame.has_network = true;
+        copyStr(frame.network.hostname, sizeof(frame.network.hostname), HOSTNAME);
+        copyStr(frame.network.ip, sizeof(frame.network.ip), wifiInfo.ip);
+        copyStr(frame.network.ssid, sizeof(frame.network.ssid), wifiInfo.ssid);
+        frame.network.rssi_dbm  = wifiInfo.rssiDbm;
+        frame.network.connected = wifiInfo.connected;
+    }
+
     // ── Scores ───────────────────────────────────────────────────────────────
     frame.has_score = true;
     frame.score.has_cooling = true;
