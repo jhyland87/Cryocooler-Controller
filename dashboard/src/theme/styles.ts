@@ -253,6 +253,12 @@ export const headerClock: SxProps<Theme> = {
   fontSize: '0.85rem',
 };
 
+export const headerLogout: SxProps<Theme> = {
+  ml: 1,
+  fontSize: '0.7rem',
+  color: 'text.secondary',
+};
+
 // ─── Status panel ───────────────────────────────────────────────────────────
 
 export const ledContainer: SxProps<Theme> = {

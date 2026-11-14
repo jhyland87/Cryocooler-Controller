@@ -665,16 +665,17 @@ bool setupWifi() {
 
 bool setupServer() {
     web_auth::init();
+    web_auth::registerRoutes(httpServer);
 
-    // Every dashboard route asks for the dashboard login once a password is set.
+    // Every dashboard route needs the dashboard login once a password is set.
     // Static files embedded at compile time by scripts/embed_web.py.
     // No LittleFS partition needed — files are served directly from flash.
     httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {
-        if (!web_auth::allowDashboard(r)) return;
+        if (!web_auth::allowDashboard(r, web_auth::Route::Page)) return;
         r->send(200, "text/html", index_html);
     });
     httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* r) {
-        if (!web_auth::allowDashboard(r)) return;
+        if (!web_auth::allowDashboard(r, web_auth::Route::Page)) return;
         r->send(200, "text/html", index_html);
     });
     httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* r) {
@@ -733,31 +734,15 @@ bool setupServer() {
     // WebSocket endpoint for the Preact SPA dashboard.
     // Browsers connect to ws://<hostname>/ws and receive 1 Hz flat JSON pushes.
     wsServer_.onEvent(onWsEvent);
-    // With a dashboard password set, the socket opens only with a ticket from
-    // GET /api/ws-ticket; browsers don't reliably send a login on the handshake.
-    wsServer_.handleHandshake([](AsyncWebServerRequest* request) {
-        if (!web_auth::hasDashboardPassword()) {
-            return true;
-        }
-        return request->hasParam("ticket") &&
-               web_auth::redeemTicket(request->getParam("ticket")->value().c_str());
-    });
+    // The browser sends the session cookie on the handshake, same as any request.
+    wsServer_.handleHandshake(web_auth::hasDashboardAccess);
     httpServer.addHandler(&wsServer_);
-
-    // GET /api/ws-ticket — one-use ticket for the WebSocket; empty when no password is set.
-    httpServer.on("/api/ws-ticket", HTTP_GET, [](AsyncWebServerRequest* request) {
-        if (!web_auth::allowDashboard(request)) return;
-        char ticket[web_auth::TICKET_CHARS + 1] = "";
-        if (web_auth::hasDashboardPassword()) {
-            web_auth::issueTicket(ticket);
-        }
-        char body[48];
-        snprintf(body, sizeof(body), "{\"ticket\":\"%s\"}", ticket);
-        AsyncWebServerResponse* response = request->beginResponse(200, "application/json", body);
-        response->addHeader("Cache-Control", "no-store");
-        request->send(response);
-    });
 #endif
+
+    // Without this the library answers unknown URLs with 500.
+    httpServer.onNotFound([](AsyncWebServerRequest* request) {
+        request->send(404, "text/plain", "Not found");
+    });
 
     httpServer.begin();
 

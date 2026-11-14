@@ -57,6 +57,7 @@ gets the joined network from telemetry (`network.ssid`).
 
 The dashboard and OTA passwords (`include/web_auth.h`) follow the same rule: set only
 from the serial console, stored in NVS, never printed, logged, or sent in telemetry.
+Dashboard session IDs are stored only as hashes, and a session must never unlock OTA.
 
 ## Keep docs in sync
 

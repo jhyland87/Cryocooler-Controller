@@ -61,6 +61,9 @@
 #define WEB_AUTH_USERNAME     "admin"
 #define OTA_DEFAULT_PASSWORD  "cryocooler123"
 
+// How long a "Remember me" dashboard login lasts.
+#define DASHBOARD_REMEMBER_DAYS  30
+
 #define SERIAL_BAUD   static_cast<uint32_t>(115200)
 
 // =============================================================================

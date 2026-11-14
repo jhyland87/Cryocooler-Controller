@@ -4,7 +4,7 @@ import type { ConnectionStatus, TelemetryState } from '../types/hooks';
 import { decodeTelemetryFrame } from '../utils/decodeTelemetry';
 import type { FaultHistoryMessage } from '../types/faultHistory';
 import { isFaultHistoryMessage } from '../types/faultHistory';
-import { deviceHttpUrl, deviceWsUrl } from '../utils/esp32Host';
+import { deviceFetch, deviceWsUrl } from '../utils/esp32Host';
 
 // Re-export types so existing consumers don't break
 export type { ConnectionStatus, TelemetryState } from '../types/hooks';
@@ -26,30 +26,19 @@ const STALE_CHECK_MS = 2000;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** How long (ms) to wait for a WebSocket ticket before connecting without one. */
-const TICKET_TIMEOUT_MS = 3000;
-
-function isTicketReply(value: unknown): value is { ticket: string } {
-  return typeof value === 'object' && value !== null && 'ticket' in value &&
-    typeof value.ticket === 'string';
+function wsUrl(): string {
+  return deviceWsUrl('/ws');
 }
 
-// WebSocket URL, with a one-use ticket when the dashboard has a password.
-// The page's own login covers the ticket request; the socket itself can't carry one.
-async function wsUrl(): Promise<string> {
+// A refused socket closes without saying why. Asking for the session tells a
+// logged-out page (deviceFetch then goes to the login page) from a board that
+// is simply unreachable.
+async function checkSession(): Promise<void> {
   try {
-    const response = await fetch(deviceHttpUrl('/api/ws-ticket'), {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(TICKET_TIMEOUT_MS),
-    });
-    const reply: unknown = response.ok ? await response.json() : undefined;
-    if (isTicketReply(reply) && reply.ticket !== '') {
-      return deviceWsUrl(`/ws?ticket=${reply.ticket}`);
-    }
+    await deviceFetch('/api/session', { cache: 'no-store' });
   } catch {
-    // Unreachable, or firmware without tickets: the plain URL is the right fallback.
+    // Unreachable: the reconnect loop keeps trying.
   }
-  return deviceWsUrl('/ws');
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -78,8 +67,6 @@ export function useTelemetry(): TelemetryState & {
   const statusRef    = useRef<ConnectionStatus>('connecting');
   const staleRef     = useRef<ReturnType<typeof setInterval> | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  /** Counts connect() calls so a slow ticket request can tell it was overtaken. */
-  const attemptRef   = useRef(0);
   /** True once we've been connected at least once — prevents reconnect
    *  attempts from briefly flashing 'connecting' and hiding the overlay. */
   const wasConnectedRef = useRef(false);
@@ -141,72 +128,65 @@ export function useTelemetry(): TelemetryState & {
       updateStatus('connecting');
     }
 
-    // The ticket request is async, so a newer connect() may overtake this one.
-    const attempt = ++attemptRef.current;
-    const openSocket = async () => {
-      const url = await wsUrl();
-      if (!mountedRef.current || attempt !== attemptRef.current) return;
+    const ws = new WebSocket(wsUrl());
+    ws.binaryType = 'arraybuffer'; // Receive Protobuf binary frames
+    wsRef.current = ws;
 
-      const ws = new WebSocket(url);
-      ws.binaryType = 'arraybuffer'; // Receive Protobuf binary frames
-      wsRef.current = ws;
+    ws.addEventListener('open', () => {
+      if (!mountedRef.current) { ws.close(); return; }
+      lastMsgRef.current = Date.now();
+      // Don't set 'connected' here — wait for the first message so we know
+      // the device is truly alive (open can succeed even if the device is
+      // about to go away).
+    });
 
-      ws.addEventListener('open', () => {
-        if (!mountedRef.current) { ws.close(); return; }
-        lastMsgRef.current = Date.now();
-        // Don't set 'connected' here — wait for the first message so we know
-        // the device is truly alive (open can succeed even if the device is
-        // about to go away).
-      });
+    ws.addEventListener('message', (ev: MessageEvent) => {
+      lastMsgRef.current = Date.now();
 
-      ws.addEventListener('message', (ev: MessageEvent) => {
-        lastMsgRef.current = Date.now();
+      // Transition to 'connected' on the first real message.
+      if (statusRef.current !== 'connected') {
+        wasConnectedRef.current = true;
+        updateStatus('connected');
+        setConnectionCount((count) => count + 1);
 
-        // Transition to 'connected' on the first real message.
-        if (statusRef.current !== 'connected') {
-          wasConnectedRef.current = true;
-          updateStatus('connected');
-          setConnectionCount((count) => count + 1);
-
-          // (Re)start the staleness watchdog.
-          if (staleRef.current) clearInterval(staleRef.current);
-          staleRef.current = setInterval(() => {
-            if (!mountedRef.current) return;
-            if (Date.now() - lastMsgRef.current > STALE_TIMEOUT_MS) {
-              ws.close(); // force-close the zombie socket
-            }
-          }, STALE_CHECK_MS);
-        }
-
-        if (ev.data instanceof ArrayBuffer) {
-          // Binary frame → Protobuf telemetry
-          handleProtobufFrame(ev.data);
-        } else {
-          // Text frame → typed JSON dispatch (e.g. fault_history)
-          const raw = typeof ev.data === 'string' ? ev.data : String(ev.data);
-          try {
-            const parsed = JSON.parse(raw);
-            if (isFaultHistoryMessage(parsed)) {
-              onFaultHistoryCbRef.current?.(parsed);
-            }
-          } catch {
-            // Not valid JSON — ignore
+        // (Re)start the staleness watchdog.
+        if (staleRef.current) clearInterval(staleRef.current);
+        staleRef.current = setInterval(() => {
+          if (!mountedRef.current) return;
+          if (Date.now() - lastMsgRef.current > STALE_TIMEOUT_MS) {
+            ws.close(); // force-close the zombie socket
           }
+        }, STALE_CHECK_MS);
+      }
+
+      if (ev.data instanceof ArrayBuffer) {
+        // Binary frame → Protobuf telemetry
+        handleProtobufFrame(ev.data);
+      } else {
+        // Text frame → typed JSON dispatch (e.g. fault_history)
+        const raw = typeof ev.data === 'string' ? ev.data : String(ev.data);
+        try {
+          const parsed = JSON.parse(raw);
+          if (isFaultHistoryMessage(parsed)) {
+            onFaultHistoryCbRef.current?.(parsed);
+          }
+        } catch {
+          // Not valid JSON — ignore
         }
-      });
+      }
+    });
 
-      ws.addEventListener('close', () => {
-        if (staleRef.current) { clearInterval(staleRef.current); staleRef.current = null; }
-        if (!mountedRef.current) return;
-        updateStatus('disconnected');
-        reconnectRef.current = setTimeout(connect, WS_RECONNECT_MS);
-      });
+    ws.addEventListener('close', () => {
+      if (staleRef.current) { clearInterval(staleRef.current); staleRef.current = null; }
+      if (!mountedRef.current) return;
+      updateStatus('disconnected');
+      void checkSession();
+      reconnectRef.current = setTimeout(connect, WS_RECONNECT_MS);
+    });
 
-      ws.addEventListener('error', () => {
-        // 'close' fires after 'error', so the reconnect logic lives there.
-      });
-    };
-    void openSocket();
+    ws.addEventListener('error', () => {
+      // 'close' fires after 'error', so the reconnect logic lives there.
+    });
   }, [handleProtobufFrame, updateStatus]);
 
   useEffect(() => {

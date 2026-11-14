@@ -5,7 +5,7 @@
 
 import { useEffect, useRef } from 'preact/hooks';
 import { decodeRunHistory } from '../utils/decodeRunHistory';
-import { deviceHttpUrl } from '../utils/esp32Host';
+import { deviceFetch } from '../utils/esp32Host';
 import type { HistoryStore } from '../utils/historyStore';
 
 /**
@@ -28,7 +28,7 @@ export function useRunHistory(store: HistoryStore, connectionCount: number, onMe
     const controller = new AbortController();
 
     const fetchFrom = async (fromSeq: number) => {
-      const response = await fetch(deviceHttpUrl(`/api/history?from=${fromSeq}`), {
+      const response = await deviceFetch(`/api/history?from=${fromSeq}`, {
         cache: 'no-store',
         signal: controller.signal,
       });

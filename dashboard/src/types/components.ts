@@ -24,6 +24,8 @@ export interface HeaderProps {
   cooldownPct:       number | undefined;
   frameCount:        number;
   loading?:          boolean;
+  /** Ends the dashboard session; the button shows only when this is set. */
+  onLogout?:         () => void;
 }
 
 // ─── StatusPanel ─────────────────────────────────────────────────────────────

@@ -2,18 +2,24 @@
  * @file web_auth.h
  * @brief Passwords for the dashboard and for OTA updates, stored in NVS flash.
  *
- * Set from the serial console only (`dashboard password`, `ota password`) and
- * checked by the HTTP server with digest authentication, user WEB_AUTH_USERNAME.
+ * Set from the serial console only (`dashboard password`, `ota password`).
  * The dashboard has no password until one is set; OTA always has one and starts
  * at OTA_DEFAULT_PASSWORD. NVS is not encrypted, so both are plaintext in flash.
+ *
+ * Dashboard: a login page issues a session cookie. "Remember me" saves a hash of
+ * the session in flash for DASHBOARD_REMEMBER_DAYS; otherwise it lasts until
+ * reboot. Scripts may use HTTP digest instead (user WEB_AUTH_USERNAME).
+ * OTA: HTTP digest only; a dashboard session never unlocks it.
  */
 
 #ifndef WEB_AUTH_H
 #define WEB_AUTH_H
 
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
+class AsyncWebServer;
 class AsyncWebServerRequest;
 
 namespace web_auth {
@@ -40,11 +46,11 @@ inline bool isValidPassword(const char* password) {
 
 // ─── Stored passwords ─────────────────────────────────────────────────────────
 
-/** Load both passwords from flash. Call once before the HTTP server starts. */
+/** Load the passwords and remembered sessions from flash. Call once before the HTTP server starts. */
 void init();
 
 /**
- * Set the dashboard password, or remove it.
+ * Set the dashboard password, or remove it. Either way every session ends.
  * @param password A valid password, or "" to leave the dashboard open.
  * @return true if it was saved.
  */
@@ -63,14 +69,32 @@ bool hasDashboardPassword();
 /** @return true if the OTA password is still OTA_DEFAULT_PASSWORD. */
 bool isOtaPasswordDefault();
 
+/** End every dashboard session, remembered ones included. */
+void clearSessions();
+
 // ─── HTTP checks (device only) ────────────────────────────────────────────────
 
+/** How a refused dashboard request is answered. */
+enum class Route : uint8_t {
+    Page,  ///< redirect the browser to the login page
+    Api,   ///< 401; with a digest challenge unless the dashboard page itself asked
+};
+
 /**
- * Gate a dashboard or API request. Sends the login challenge when it fails.
+ * Gate a dashboard request: open when no password is set, else it needs a
+ * session cookie or a digest login. Answers the request itself when it fails.
  * @param request The incoming request.
- * @return true if the handler may go on; false if a 401 was already sent.
+ * @param route   How to answer a refusal.
+ * @return true if the handler may go on; false if a reply was already sent.
  */
-bool allowDashboard(AsyncWebServerRequest* request);
+bool allowDashboard(AsyncWebServerRequest* request, Route route = Route::Api);
+
+/**
+ * Check a dashboard request without answering it (for the WebSocket handshake).
+ * @param request The incoming request.
+ * @return true if no password is set or the request carries a live session.
+ */
+bool hasDashboardAccess(AsyncWebServerRequest* request);
 
 /**
  * Gate an OTA request. Sends the login challenge when it fails.
@@ -86,24 +110,13 @@ bool allowOta(AsyncWebServerRequest* request);
  */
 bool isOtaAuthorized(AsyncWebServerRequest* request);
 
-// ─── WebSocket tickets ────────────────────────────────────────────────────────
-
-static constexpr size_t TICKET_CHARS = 16;
-
 /**
- * Issue a one-use ticket for opening the WebSocket; it expires after 30 s.
- * Browsers can't be relied on to send a login on a WebSocket handshake, so the
- * page fetches a ticket over an authenticated request and passes it instead.
- * @param ticket Receives the ticket; at least TICKET_CHARS + 1 bytes.
+ * Register the login page and the session endpoints:
+ * GET /login, GET /api/login/challenge, POST /api/login, POST /api/logout,
+ * GET /api/session.
+ * @param server The dashboard's HTTP server.
  */
-void issueTicket(char* ticket);
-
-/**
- * Use up a ticket.
- * @param ticket The value the client sent.
- * @return true if it was issued, unused and not expired.
- */
-bool redeemTicket(const char* ticket);
+void registerRoutes(AsyncWebServer& server);
 
 } // namespace web_auth
 

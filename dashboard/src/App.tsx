@@ -12,6 +12,7 @@ import { useTelemetry } from './hooks/useTelemetry';
 import { useHistoryBuffer } from './hooks/useHistoryBuffer';
 import { useRunHistory } from './hooks/useRunHistory';
 import { useFaultHistory } from './hooks/useFaultHistory';
+import { useSession } from './hooks/useSession';
 import { Header } from './components/Header';
 import { StatusPanel } from './components/StatusPanel';
 import { NetworkPanel } from './components/NetworkPanel';
@@ -76,6 +77,7 @@ export function App() {
   const { data, status, frameCount, connectionCount, onData, onFaultHistory } = useTelemetry();
   const history                                        = useHistoryBuffer(HISTORY_KEYS);
   const { faults, loading: faultsLoading, pushUpdate } = useFaultHistory();
+  const { logout } = useSession();
 
   const [tick, setTick] = useState(0);
   const [range, setRange] = useState<HistoryRangeId>('2m');
@@ -147,6 +149,7 @@ export function App() {
           cooldownPct={typeof data.cold_head?.cooldown_pct === 'number' ? data.cold_head.cooldown_pct : undefined}
           frameCount={frameCount}
           loading={loading}
+          onLogout={logout}
         />
 
         {/* ── Main content ───────────────────────────────────────────────── */}

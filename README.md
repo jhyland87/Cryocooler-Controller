@@ -295,6 +295,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `wifi forget` | Erase the saved network and disconnect |
 | `dashboard password` | Set or remove the dashboard password; asked for on the next line (`none` removes it) |
 | `ota password` | Set the OTA update password; asked for on the next line (`default` restores the default) |
+| `dashboard logout` | End every dashboard login, including remembered ones |
 | `password status` | Show whether each password is set (never prints them) |
 | `wifi txpower <dBm>` | Set max WiFi TX power until reboot; retries if not connected |
 | `cooling on/off` | Enable / disable cooling system |
@@ -571,25 +572,42 @@ wifi set My Network    the name is the rest of the line, spaces included
 ### Passwords
 
 The dashboard and the OTA update page each have their own password. Both are set
-over the USB serial console only, saved in NVS flash, and checked with HTTP
-digest login as user `admin`.
+over the USB serial console only and saved in NVS flash.
 
-| | Default | Set with | Protects |
-|---|---|---|---|
-| Dashboard | none (open) | `dashboard password` | the dashboard page, `/api/*` and the `/ws` WebSocket |
-| OTA | `cryocooler123` | `ota password` | `/ota` (the upload page and the upload itself) |
+| | Default | Set with | Protects | Login |
+|---|---|---|---|---|
+| Dashboard | none (open) | `dashboard password` | the dashboard page, `/api/*` and the `/ws` WebSocket | login page and session cookie |
+| OTA | `cryocooler123` | `ota password` | `/ota` (the upload page and the upload itself) | HTTP digest, user `admin` |
 
 - Each command asks for the password on the next line. That line is never echoed
   or logged. Passwords are 8-32 characters with no spaces.
 - At the prompt, `none` removes the dashboard password and `default` restores the
   OTA default. `password status` shows which are set. **Change the OTA default.**
-- With a dashboard password set, open the dashboard from the board itself
-  (`http://cryocooler.local/` or its IP). The Vite dev server can't log in, so
-  `npm run dev` only works against a board with no dashboard password.
-- From a shell: `curl --digest -u admin ...`, or `OTA_PASSWORD=... bash scripts/ota-update.sh`.
-- The connection is plain HTTP. Digest login keeps the password itself off the
-  network, but telemetry and firmware uploads are not encrypted. NVS is not
-  encrypted either, so both passwords are plaintext in flash.
+
+**Dashboard login.** With a password set, the board serves a login page. The
+password is not sent: the page returns a keyed hash of a one-time value from the
+board. A correct login gets a session cookie.
+
+- Without "Remember me" the session lasts until the board reboots or the browser
+  closes. With it, the session is saved in flash and lasts
+  `DASHBOARD_REMEMBER_DAYS` (30) days, across reboots. The board stores only a
+  hash of the session, and keeps up to four of each kind; a fifth replaces the oldest.
+- The header's "Log out" button ends that browser's session. `dashboard logout`
+  on the serial console ends all of them, as does changing or removing the password.
+- Five wrong passwords in a row lock logins for 30 seconds.
+- A dashboard session never unlocks `/ota`.
+- Scripts can use digest instead: `curl --digest -u admin ... /api/telemetry`.
+- Open the dashboard from the board itself (`http://cryocooler.local/` or its IP).
+  The Vite dev server can't log in, so `npm run dev` only works against a board
+  with no dashboard password.
+
+**OTA.** `curl --digest -u admin ...`, or `OTA_PASSWORD=... bash scripts/ota-update.sh`.
+
+**Limits.** The connection is plain HTTP. Neither password crosses the network,
+but the session cookie does, on every request: someone who can capture traffic on
+your network can copy it and use the dashboard until it expires or you run
+`dashboard logout`. Telemetry and firmware uploads are not encrypted. NVS is not
+encrypted either, so both passwords are plaintext in flash.
 
 ### Key tuning parameters
 

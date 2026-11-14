@@ -600,6 +600,33 @@ void test_sc_dashboard_password_none_removes_it() {
     TEST_ASSERT_FALSE(web_auth::hasDashboardPassword());
 }
 
+void test_sc_dashboard_password_change_ends_every_login() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("dashboard password", p);
+    serial_commands::processLine("s3cret-dash", p);
+    TEST_ASSERT_EQUAL_UINT(1, web_auth_stub::sessionClears());
+    serial_commands::processLine("dashboard password", p);
+    serial_commands::processLine("none", p);
+    TEST_ASSERT_EQUAL_UINT(2, web_auth_stub::sessionClears());
+}
+
+void test_sc_dashboard_logout_ends_every_login() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("dashboard logout", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_UINT(1, web_auth_stub::sessionClears());
+}
+
+void test_sc_ota_password_change_keeps_dashboard_logins() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("ota password", p);
+    serial_commands::processLine("firmware-0nly", p);
+    TEST_ASSERT_EQUAL_UINT(0, web_auth_stub::sessionClears());
+}
+
 void test_sc_ota_password_starts_at_the_default() {
     resetAll();
     TEST_ASSERT_TRUE(web_auth::isOtaPasswordDefault());
@@ -787,6 +814,9 @@ void run_serial_command_tests() {
     // dashboard / OTA passwords
     RUN_TEST(test_sc_dashboard_password_is_saved_and_never_printed);
     RUN_TEST(test_sc_dashboard_password_none_removes_it);
+    RUN_TEST(test_sc_dashboard_password_change_ends_every_login);
+    RUN_TEST(test_sc_dashboard_logout_ends_every_login);
+    RUN_TEST(test_sc_ota_password_change_keeps_dashboard_logins);
     RUN_TEST(test_sc_ota_password_starts_at_the_default);
     RUN_TEST(test_sc_ota_password_is_saved_and_never_printed);
     RUN_TEST(test_sc_ota_password_default_restores_it);

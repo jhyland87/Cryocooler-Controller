@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in — Cryocooler</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    form {
+      background: #16213e;
+      border-radius: 6px;
+      padding: 28px;
+      width: min(340px, 86vw);
+    }
+    h2 { color: #00d4ff; margin: 0 0 4px; }
+    p.sub { color: #888; margin: 0 0 20px; font-size: .85em; }
+    label { display: block; font-size: .85em; color: #aaa; }
+    input[type=password] {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 6px 0 16px;
+      padding: 10px;
+      background: #0f172a;
+      color: #e0e0e0;
+      border: 1px solid #334;
+      border-radius: 4px;
+      font: inherit;
+    }
+    label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00d4ff;
+      color: #06202b;
+      border: 0;
+      border-radius: 4px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: default; }
+    #status { min-height: 1.4em; margin-top: 14px; font-size: .85em; color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <form id="login-form">
+    <h2>Cryocooler</h2>
+    <p class="sub">Enter the dashboard password.</p>
+    <label for="password">Password</label>
+    <input type="password" id="password" autocomplete="current-password" required autofocus>
+    <label class="check">
+      <input type="checkbox" id="remember"> Remember me on this browser for {{REMEMBER_DAYS}} days
+    </label>
+    <button type="submit" id="submit">Log in</button>
+    <div id="status" role="alert"></div>
+  </form>
+
+  <script>
+    // SHA-256 and HMAC are written out here because browsers switch off their
+    // built-in crypto (crypto.subtle) on plain-HTTP pages.
+    const ROUND_CONSTANTS = new Uint32Array([
+      0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+      0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+      0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+      0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+      0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+    ]);
+    const INITIAL_STATE = [
+      0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+    ];
+
+    const rotateRight = (value, bits) => (value >>> bits) | (value << (32 - bits));
+
+    function sha256(bytes) {
+      const paddedLength = Math.ceil((bytes.length + 9) / 64) * 64;
+      const padded = new Uint8Array(paddedLength);
+      padded.set(bytes);
+      padded[bytes.length] = 0x80;
+      const view = new DataView(padded.buffer);
+      view.setUint32(paddedLength - 8, Math.floor(bytes.length / 0x20000000));
+      view.setUint32(paddedLength - 4, (bytes.length * 8) >>> 0);
+
+      const state = new Uint32Array(INITIAL_STATE);
+      const words = new Uint32Array(64);
+      for (let offset = 0; offset < paddedLength; offset += 64) {
+        for (let index = 0; index < 16; index++) {
+          words[index] = view.getUint32(offset + index * 4);
+        }
+        for (let index = 16; index < 64; index++) {
+          const before15 = words[index - 15];
+          const before2 = words[index - 2];
+          const sigma0 = rotateRight(before15, 7) ^ rotateRight(before15, 18) ^ (before15 >>> 3);
+          const sigma1 = rotateRight(before2, 17) ^ rotateRight(before2, 19) ^ (before2 >>> 10);
+          words[index] = words[index - 16] + sigma0 + words[index - 7] + sigma1;
+        }
+
+        let [a, b, c, d, e, f, g, h] = state;
+        for (let index = 0; index < 64; index++) {
+          const sum1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
+          const choice = (e & f) ^ (~e & g);
+          const temp1 = (h + sum1 + choice + ROUND_CONSTANTS[index] + words[index]) | 0;
+          const sum0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
+          const majority = (a & b) ^ (a & c) ^ (b & c);
+          const temp2 = (sum0 + majority) | 0;
+          h = g; g = f; f = e; e = (d + temp1) | 0;
+          d = c; c = b; b = a; a = (temp1 + temp2) | 0;
+        }
+        const working = [a, b, c, d, e, f, g, h];
+        for (let index = 0; index < 8; index++) {
+          state[index] += working[index];
+        }
+      }
+
+      const digest = new Uint8Array(32);
+      const digestView = new DataView(digest.buffer);
+      state.forEach((word, index) => digestView.setUint32(index * 4, word));
+      return digest;
+    }
+
+    function hmacSha256(keyBytes, messageBytes) {
+      const blockKey = new Uint8Array(64);
+      blockKey.set(keyBytes.length > 64 ? sha256(keyBytes) : keyBytes);
+      const inner = new Uint8Array(64 + messageBytes.length);
+      const outer = new Uint8Array(64 + 32);
+      for (let index = 0; index < 64; index++) {
+        inner[index] = blockKey[index] ^ 0x36;
+        outer[index] = blockKey[index] ^ 0x5c;
+      }
+      inner.set(messageBytes, 64);
+      outer.set(sha256(inner), 64);
+      return sha256(outer);
+    }
+
+    const toHex = (bytes) => Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+    // The password is never sent: the board gets a keyed hash of its one-time nonce.
+    function loginProof(password, nonce) {
+      const encoder = new TextEncoder();
+      return toHex(hmacSha256(encoder.encode(password), encoder.encode(nonce)));
+    }
+
+    if (typeof document !== 'undefined') {
+      const form = document.getElementById('login-form');
+      const statusEl = document.getElementById('status');
+      const submit = document.getElementById('submit');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        submit.disabled = true;
+        statusEl.textContent = '';
+        try {
+          const challenge = await fetch('/api/login/challenge', { cache: 'no-store' });
+          const { nonce } = await challenge.json();
+          const body = new URLSearchParams({
+            nonce,
+            proof: loginProof(document.getElementById('password').value, nonce),
+            remember: document.getElementById('remember').checked ? '1' : '0',
+          });
+          const reply = await fetch('/api/login', { method: 'POST', body });
+          if (reply.ok) {
+            window.location.replace('/');
+            return;
+          }
+          const { error } = await reply.json();
+          statusEl.textContent = error || 'Login failed';
+        } catch {
+          statusEl.textContent = 'Could not reach the board';
+        }
+        submit.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
