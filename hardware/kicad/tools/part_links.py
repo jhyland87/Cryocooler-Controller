@@ -31,6 +31,7 @@ DATASHEETS = {
     'X2510WRS-02': 'https://www.lcsc.com/datasheet/C908467.pdf',
     'X2510WRS-04': 'https://www.lcsc.com/datasheet/C908468.pdf',
     'USB4205': 'https://gct.co/files/drawings/usb4205.pdf',
+    'USB4210': 'https://gct.co/files/drawings/usb4210.pdf',
     '505448': 'https://www.molex.com/content/dam/molex/molex-dot-com/products/'
     'automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf',
     'OPA188': 'https://www.ti.com/lit/ds/symlink/opa188.pdf',
@@ -123,6 +124,7 @@ PRODUCT_PAGES = {
     'X2510WRS-02-9TSN': 'https://www.lcsc.com/product-detail/C908467.html',
     'X2510WRS-04-9TSN': 'https://www.lcsc.com/product-detail/C908468.html',
     'USB4205-GF-A': 'https://www.digikey.com/en/products/detail/gct/USB4205-GF-A/24625573',
+    'USB4210-GF-A': 'https://www.digikey.com/en/products/detail/gct/USB4210-GF-A/24625574',
     '2305908-2': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/2305908-2/9744703',
     '643228-1': 'https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/643228-1/297685',
     '1821698': 'https://www.digikey.com/en/products/detail/phoenix-contact/1821698/7558295',

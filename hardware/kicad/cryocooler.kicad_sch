@@ -3130,7 +3130,7 @@
 		)
 		(uuid "1eebe661-c170-5678-ae09-4e1bc030b83d")
 	)
-	(text "Unclassified nets and grounds: default colour"
+	(text "Signals and grounds: default colour"
 		(exclude_from_sim no)
 		(at 30 50 0)
 		(effects
@@ -3141,37 +3141,37 @@
 		)
 		(uuid "20f2c2d6-010f-543e-9bc3-55b1fc276dc2")
 	)
-	(text "SPI bus, chip selects and the ACS37800 SPI"
+	(text "+15 V and +16.5 V analog rails (dark red)"
 		(exclude_from_sim no)
 		(at 30 41 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 0 60 220 1)
+				(color 130 0 0 1)
 			)
 			(justify left top)
 		)
 		(uuid "25390570-319b-5202-a6e0-63b89690b49e")
 	)
-	(text "12 V input"
+	(text "5 V rails and USB VBUS (red)"
 		(exclude_from_sim no)
 		(at 30 35 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 140 0 0 1)
+				(color 200 0 0 1)
 			)
 			(justify left top)
 		)
 		(uuid "296acb5c-8c6d-56dd-bead-4a61e733b09c")
 	)
-	(text "Control and status GPIO"
+	(text "Isolated 5 V, ISOW7741 output (purple)"
 		(exclude_from_sim no)
 		(at 30 47 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 220 120 0 1)
+				(color 130 0 170 1)
 			)
 			(justify left top)
 		)
@@ -3210,7 +3210,7 @@
 		)
 		(uuid "7e43ce6b-22d7-5670-8a66-3c0dbcf7e099")
 	)
-	(text "WIRE COLOURS (NET CLASSES)"
+	(text "POWER WIRE COLOURS (ATX SUPPLY CODE)"
 		(exclude_from_sim no)
 		(at 30 28 0)
 		(effects
@@ -3232,13 +3232,13 @@
 		)
 		(uuid "96327278-5b7d-5242-9d1e-1f84a7bb0cc6")
 	)
-	(text "Analog signals"
+	(text "-15 V and -16.5 V analog rails (blue)"
 		(exclude_from_sim no)
 		(at 30 44 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 180 0 180 1)
+				(color 0 60 200 1)
 			)
 			(justify left top)
 		)
@@ -3255,13 +3255,13 @@
 		)
 		(uuid "a7fafa2b-0298-5308-a7be-4f94db20ee11")
 	)
-	(text "USB data"
+	(text "12 V input (yellow)"
 		(exclude_from_sim no)
 		(at 30 38 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 0 150 160 1)
+				(color 175 140 0 1)
 			)
 			(justify left top)
 		)
@@ -3278,13 +3278,13 @@
 		)
 		(uuid "d1081749-acee-53a6-8966-17c1e5183fb6")
 	)
-	(text "Power rails"
+	(text "3.3 V rails (orange)"
 		(exclude_from_sim no)
 		(at 30 32 0)
 		(effects
 			(font
 				(size 1.5 1.5)
-				(color 200 0 0 1)
+				(color 215 110 0 1)
 			)
 			(justify left top)
 		)
@@ -8293,7 +8293,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://gct.co/files/drawings/usb4205.pdf"
+		(property "Datasheet" "https://gct.co/files/drawings/usb4210.pdf"
 			(at 304.8 127 0)
 			(hide yes)
 			(show_name no)
@@ -8315,7 +8315,7 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/detail/gct/USB4205-GF-A/24625573"
+		(property "Product" "https://www.digikey.com/en/products/detail/gct/USB4210-GF-A/24625574"
 			(at 304.8 127 0)
 			(hide yes)
 			(show_name no)

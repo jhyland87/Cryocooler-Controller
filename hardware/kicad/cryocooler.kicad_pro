@@ -525,7 +525,7 @@
         "name": "Analog",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgb(180, 0, 180)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.25,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -544,7 +544,26 @@
         "name": "Control",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgb(220, 120, 0)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Ground",
+        "pcb_color": "rgb(110, 110, 110)",
+        "priority": -1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.25,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -561,7 +580,45 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "pcb_color": "rgb(255, 140, 0)",
+        "priority": -1,
+        "schematic_color": "rgb(215, 110, 0)",
+        "track_width": 0.3,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power12V",
+        "pcb_color": "rgb(255, 220, 0)",
+        "priority": -1,
+        "schematic_color": "rgb(175, 140, 0)",
+        "track_width": 0.8,
+        "tuning_profile": "",
+        "via_diameter": 0.7,
+        "via_drill": 0.35,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power5V",
+        "pcb_color": "rgb(255, 40, 40)",
         "priority": -1,
         "schematic_color": "rgb(200, 0, 0)",
         "track_width": 0.3,
@@ -579,14 +636,52 @@
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
-        "name": "Power12V",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "name": "PowerAnalogNeg",
+        "pcb_color": "rgb(60, 120, 255)",
         "priority": -1,
-        "schematic_color": "rgb(140, 0, 0)",
-        "track_width": 0.8,
+        "schematic_color": "rgb(0, 60, 200)",
+        "track_width": 0.3,
         "tuning_profile": "",
-        "via_diameter": 0.7,
-        "via_drill": 0.35,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "PowerAnalogPos",
+        "pcb_color": "rgb(190, 40, 40)",
+        "priority": -1,
+        "schematic_color": "rgb(130, 0, 0)",
+        "track_width": 0.3,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "PowerIso",
+        "pcb_color": "rgb(190, 90, 255)",
+        "priority": -1,
+        "schematic_color": "rgb(130, 0, 170)",
+        "track_width": 0.3,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
         "wire_width": 6
       },
       {
@@ -601,7 +696,7 @@
         "name": "SPI",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgb(0, 60, 220)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.25,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -620,7 +715,7 @@
         "name": "Usb",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": -1,
-        "schematic_color": "rgb(0, 150, 160)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -631,11 +726,7 @@
     "meta": {
       "version": 5
     },
-    "net_colors": {
-      "+12V": "rgb(255, 255, 0)",
-      "+3V3": "rgb(0, 255, 255)",
-      "+5V": "rgb(0, 255, 0)"
-    },
+    "net_colors": null,
     "netclass_assignments": null,
     "netclass_patterns": [
       {
@@ -644,51 +735,7 @@
       },
       {
         "netclass": "Power",
-        "pattern": "+5V"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+15V"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "-15V"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+16V5"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "-16V5"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "ISO_5V"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "VISOOUT"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "USB_VBUS"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+5V_OR"
-      },
-      {
-        "netclass": "Power",
         "pattern": "+3V3_SG"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+5V_PS15"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "+5V_ISO"
       },
       {
         "netclass": "Power",
@@ -729,6 +776,50 @@
       {
         "netclass": "Usb",
         "pattern": "Net-(J1-D--PadA7)"
+      },
+      {
+        "netclass": "Power5V",
+        "pattern": "+5V"
+      },
+      {
+        "netclass": "Power5V",
+        "pattern": "+5V_OR"
+      },
+      {
+        "netclass": "Power5V",
+        "pattern": "+5V_PS15"
+      },
+      {
+        "netclass": "Power5V",
+        "pattern": "+5V_ISO"
+      },
+      {
+        "netclass": "Power5V",
+        "pattern": "USB_VBUS"
+      },
+      {
+        "netclass": "PowerAnalogPos",
+        "pattern": "+15V"
+      },
+      {
+        "netclass": "PowerAnalogPos",
+        "pattern": "+16V5"
+      },
+      {
+        "netclass": "PowerAnalogNeg",
+        "pattern": "-15V"
+      },
+      {
+        "netclass": "PowerAnalogNeg",
+        "pattern": "-16V5"
+      },
+      {
+        "netclass": "PowerIso",
+        "pattern": "ISO_5V"
+      },
+      {
+        "netclass": "PowerIso",
+        "pattern": "VISOOUT"
       },
       {
         "netclass": "SPI",
@@ -861,6 +952,18 @@
       {
         "netclass": "Control",
         "pattern": "DISP_BL_EN"
+      },
+      {
+        "netclass": "Ground",
+        "pattern": "GND"
+      },
+      {
+        "netclass": "Ground",
+        "pattern": "ISO_GND"
+      },
+      {
+        "netclass": "Ground",
+        "pattern": "ISO_GND2"
       }
     ]
   },

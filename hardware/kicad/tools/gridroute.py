@@ -71,7 +71,11 @@ if os.environ.get('IN1') == '1':
     ROUTE_LAYERS.append(pcbnew.In1_Cu)
 LAYER_COST = {pcbnew.In1_Cu: float(os.environ.get('IN1_COST', '8'))}
 ALL_LAYERS = [pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
-WIDTHS = {'Power': 0.3, 'Power12V': 0.8, 'Earth': 1.5, 'Usb': 0.2}
+WIDTHS = {
+    'Power': 0.3, 'Power5V': 0.3, 'PowerAnalogPos': 0.3, 'PowerAnalogNeg': 0.3,
+    'PowerIso': 0.3,
+    'Power12V': 0.8, 'Earth': 1.5, 'Usb': 0.2,
+}
 SIGNAL_WIDTH = 0.15 if FINE else 0.2
 
 

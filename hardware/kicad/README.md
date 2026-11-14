@@ -84,12 +84,16 @@ and a 45° entry onto a short bus that ends in one global `{SPI}` label. `SPI` i
 `cryocooler.kicad_pro`, and the group has no name before the braces, so the nets keep their own names
 (`SPI_SCK`, not `SPI.SCK`). Chip selects stay individual global labels.
 
-**Wire colours.** Nets are colour-coded by net class: power rails red, 12 V input dark red, USB data teal,
-SPI (shared bus, chip selects and the ACS37800 SPI) blue, analog signals magenta, control and status GPIO
-orange, and everything else (grounds, unnamed nets) the default colour. A legend sits at the top of the root
-sheet. `NET_CLASSES` in `tools/gen_schematic.py` holds the colours and name patterns and writes them to
-`cryocooler.kicad_pro`. The SPI, Analog and Control classes copy the Default class's copper rules, so they
-change nothing on the board.
+**Wire colours.** Power nets are colour-coded by net class in the schematic and the PCB editor, using the
+ATX power-supply wire colours: 3.3 V orange (`Power`), 5 V and USB VBUS red (`Power5V`), 12 V input yellow
+(`Power12V`), negative analog rails blue (`PowerAnalogNeg`), and by extension +15 V / +16.5 V dark red
+(`PowerAnalogPos`) and the isolated 5 V purple (`PowerIso`, after ATX's separate 5 V standby). Schematic shades
+are darker for the light sheet. Signals keep the default colour so colour means power; their classes (SPI,
+Usb, Analog, Control) stay for filtering. Grounds (`Ground`) are grey on the PCB only. A legend sits at the
+top of the root sheet. `NET_CLASSES` in `tools/gen_schematic.py` holds both colours and the name patterns and
+writes them to `cryocooler.kicad_pro`. The split-off power classes copy Power's copper rules and the rest copy
+Default's, so none of them change the board. The PCB editor shows class colours on copper only with
+Appearance → Nets → Net colors: All.
 
 Bypass/decoupling capacitors for each IC are drawn together in a labelled block at the side of the sheet (supply rail, caps, ground bus) and connect to the IC through the shared power nets; regulator input/output and compensation capacitors stay in the circuit.
 
@@ -138,7 +142,7 @@ and describe earlier boards where they differ.
 `pcbnew`); don't hand-edit it and expect the edits to survive a regeneration.
 
 * **Board:** 130 x 110 mm (was 130 x 100; the extra 10 mm at the bottom edge makes room for a label beside every part), 4 layers: F.Cu signal / In1 solid GND (ISO_GND island) / In2 signal + 3V3 pour / B.Cu signal,
-  GND pours and stitching vias on the outer layers. Net classes (Power 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`; SPI, Analog and Control there are schematic colour classes with the Default rules.
+  GND pours and stitching vias on the outer layers. Net classes (Power, Power5V, PowerAnalogPos, PowerAnalogNeg and PowerIso 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`; SPI, Analog, Control and Ground there are colour classes with the Default rules.
 * **Floor plan:** every schematic module has its own outlined, labelled box on the front silkscreen
   (`MODULE_REGIONS` in `tools/pcbfloorplan.py`): signal generator and amp control top left, indicators top
   middle, MCU & USB top right (antenna overhanging the right edge over a copper keep-out), the isolated amp

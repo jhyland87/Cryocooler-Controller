@@ -3752,68 +3752,121 @@ PINNED_FIELDS = {
 }
 
 
-# Wire colours by net class, with the legend text drawn on the root sheet.
-# Power, Power12V and Usb come from gen_pcb.py; only their colour is set here.
-# SPI, Analog and Control copy the Default class's copper rules, so they change
-# nothing on the board. Patterns are KiCad wildcards on the full net name.
+# Net class colours: (name, schematic RGB, PCB RGB, legend text, patterns, class
+# whose copper rules a new class copies). Power rails follow the ATX supply wire
+# colours (3.3 V orange, 5 V red, 12 V yellow, negative blue, standby-style
+# isolated 5 V purple); the schematic shades are darker for the light sheet.
+# Signals stay the default colour so colour means power; Ground is grey on the
+# PCB only. Power (3.3 V), Power12V and Usb come from gen_pcb.py; the power
+# classes split off Power copy its rules and the rest copy Default's, so the
+# board is unchanged. Patterns are KiCad wildcards on the full net name; a
+# pattern listed here is moved out of any other class.
 NET_CLASSES = [
-    ('Power', (200, 0, 0), 'Power rails', []),
-    ('Power12V', (140, 0, 0), '12 V input', []),
-    ('Usb', (0, 150, 160), 'USB data', []),
+    ('Power', (215, 110, 0), (255, 140, 0), '3.3 V rails (orange)', [], None),
+    (
+        'Power5V',
+        (200, 0, 0),
+        (255, 40, 40),
+        '5 V rails and USB VBUS (red)',
+        ['+5V', '+5V_OR', '+5V_PS15', '+5V_ISO', 'USB_VBUS'],
+        'Power',
+    ),
+    ('Power12V', (175, 140, 0), (255, 220, 0), '12 V input (yellow)', [], None),
+    (
+        'PowerAnalogPos',
+        (130, 0, 0),
+        (190, 40, 40),
+        '+15 V and +16.5 V analog rails (dark red)',
+        ['+15V', '+16V5'],
+        'Power',
+    ),
+    (
+        'PowerAnalogNeg',
+        (0, 60, 200),
+        (60, 120, 255),
+        '-15 V and -16.5 V analog rails (blue)',
+        ['-15V', '-16V5'],
+        'Power',
+    ),
+    (
+        'PowerIso',
+        (130, 0, 170),
+        (190, 90, 255),
+        'Isolated 5 V, ISOW7741 output (purple)',
+        ['ISO_5V', 'VISOOUT'],
+        'Power',
+    ),
+    ('Usb', None, None, None, [], None),
     (
         'SPI',
-        (0, 60, 220),
-        'SPI bus, chip selects and the ACS37800 SPI',
+        None,
+        None,
+        None,
         ['SPI_*', 'ACS_*', '*_CS', 'AD9833_FSYNC', 'AD5453_SYNC', 'CS_ADDR_?',
          'CS_EN_N'],
+        'Default',
     ),
     (
         'Analog',
-        (180, 0, 180),
-        'Analog signals',
+        None,
+        None,
+        None,
         ['SIG_SINE', 'DDS_SINE', 'NTC_ADC', '*/RTD_?', '*/TOUCH_X?',
          '*/TOUCH_Y?'],
+        'Default',
     ),
     (
         'Control',
-        (220, 120, 0),
-        'Control and status GPIO',
+        None,
+        None,
+        None,
         ['*_PWM', '*_TACH', 'AMP_REM_EN', 'COMP_RELAY_EN', 'PWR_KILL', 'AUX_IO*',
          '*/IO*_HDR', '*/IO*_SENSE',
          'PWR_INT', 'IMU_INT?', 'INA239_ALERT', 'TOUCH_IRQ', 'PG_15V*',
          'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB', 'DISP_RST', 'DISP_DC*',
          'DISP_BL_EN'],
+        'Default',
     ),
+    ('Ground', None, (110, 110, 110), None, ['GND', 'ISO_GND', 'ISO_GND2'],
+     'Default'),
 ]
+NO_COLOUR = 'rgba(0, 0, 0, 0.000)'
+
+
+def rgba(color):
+    return 'rgba({}, {}, {}, 1.000)'.format(*color) if color else NO_COLOUR
 
 
 def set_net_classes(project):
-    """Colour the existing classes and (re)write the schematic-only ones."""
+    """Create, colour and assign the classes in NET_CLASSES."""
     settings = project['net_settings']
     classes = {item['name']: item for item in settings['classes']}
-    added = {name for name, _, _, patterns in NET_CLASSES if patterns}
+    owned = {entry[0] for entry in NET_CLASSES if entry[4]}
+    claimed = {pattern for entry in NET_CLASSES for pattern in entry[4]}
     settings['netclass_patterns'] = [
         item
         for item in settings['netclass_patterns']
-        if item['netclass'] not in added
+        if item['netclass'] not in owned and item['pattern'] not in claimed
     ]
-    for name, color, _, patterns in NET_CLASSES:
+    for name, sch_color, pcb_color, _, patterns, rules in NET_CLASSES:
         if name not in classes:
-            item = dict(classes['Default'], name=name, priority=-1)
+            item = dict(classes[rules], name=name, priority=-1)
             settings['classes'].append(item)
             classes[name] = item
-        classes[name]['schematic_color'] = 'rgba({}, {}, {}, 1.000)'.format(*color)
+        classes[name]['schematic_color'] = rgba(sch_color)
+        classes[name]['pcb_color'] = rgba(pcb_color)
         settings['netclass_patterns'] += [
             {'netclass': name, 'pattern': pattern} for pattern in patterns
         ]
 
 
 def colour_legend(sh, x, y):
-    """One line per net class, in its wire colour."""
-    sh.note('WIRE COLOURS (NET CLASSES)', x, y)
-    for index, (_, color, text, _) in enumerate(NET_CLASSES):
+    """One line per schematic-coloured net class, in its wire colour."""
+    shown = [(text, color) for _, color, _, text, _, _ in NET_CLASSES if color]
+    sh.note('POWER WIRE COLOURS (ATX SUPPLY CODE)', x, y)
+    for index, (text, color) in enumerate(shown):
         sh.note(text, x, y + 4 + index * 3, 1.5, color)
-    sh.note('Unclassified nets and grounds: default colour', x, y + 4 + len(NET_CLASSES) * 3, 1.5)
+    sh.note('Signals and grounds: default colour', x, y + 4 + len(shown) * 3, 1.5)
 
 
 def pin_fields(sheets):
