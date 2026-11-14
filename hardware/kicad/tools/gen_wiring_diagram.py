@@ -239,8 +239,12 @@ def draw_amp():
     parts = [
         f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="#f2f2f2" '
         'stroke="#222" stroke-width="2.5"/>',
-        text(x + w / 2, y + h / 2 + 2, 'AUDIOZERONE ZE500.1', size=16, weight='bold'),
-        text(x + w / 2, y + h / 2 + 20, 'class-D amplifier', size=12, fill='#555'),
+        text(x + w / 2, y + h / 2 - 8, 'AUDIOZERONE ZE500.1', size=16, weight='bold'),
+        text(x + w / 2, y + h / 2 + 8, 'class-D amplifier', size=12, fill='#555'),
+        # The GAIN trimpot sets how much output a full-scale sine gives.
+        f'<circle cx="{x + 20}" cy="{y + 96}" r="8" fill="#fff" stroke="{COLOURS["drive"]}" stroke-width="2"/>',
+        f'<line x1="{x + 20}" y1="{y + 96}" x2="{x + 25}" y2="{y + 90}" stroke="{COLOURS["drive"]}" stroke-width="2"/>',
+        text(x + 34, y + 100, 'GAIN trimpot: sets 10 Vpp = 120 VAC', size=10.5, anchor='start', fill=COLOURS['drive']),
     ]
     for label, tx, face in AMP_TERMINALS:
         ty = y if face == 'top' else y + h - 12
@@ -343,10 +347,15 @@ def main():
     svg += [box(*item[:2], COLOURS[item[2]], item[3]) for item in BOXES]
     svg += draw_amp() + draw_cooler_labels()
     svg += [
-        halo_text(560, 76, 'J12 to cooler motor: + / - / GND', fill=COLOURS['drive']),
+        halo_text(
+            560, 76,
+            'J12 to cooler motor: 0-120 VAC (+ / - / GND), level proportional to the J9 sine: 0-10 Vpp = 0-100 %',
+            fill=COLOURS['drive'],
+        ),
         halo_text(528, 1116, 'Amplifier speaker output, measured by the ACS37800 on its way to J12', fill=COLOURS['drive']),
         halo_text(846, 520, '60 Hz sine', anchor='start', fill=COLOURS['drive']),
-        halo_text(846, 536, 'up to 10 Vpp', size=12, anchor='start', fill=COLOURS['drive']),
+        halo_text(846, 536, '0-10 Vpp = 0-100 %', size=12, anchor='start', fill=COLOURS['drive']),
+        halo_text(846, 551, 'of the 120 VAC on J12', size=12, anchor='start', fill=COLOURS['drive']),
         halo_text(720, 640, 'switched 12 V', size=12, anchor='end', fill=COLOURS['drive']),
         halo_text(792, 270, '8-way: SPI, INT1/2, 3V3, GND', size=12, anchor='start', fill=COLOURS['sensor']),
         halo_text(1110, 1070, '4-wire: F+ S+ S- F-', size=12, fill=COLOURS['sensor']),
