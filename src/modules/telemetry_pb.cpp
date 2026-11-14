@@ -106,7 +106,7 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
 
     // ── Cold head ────────────────────────────────────────────────────────────
     frame.has_cold_head = true;
-    if (coldHeadOk && !cold_head::hasSensorFault()) {
+    if (coldHeadOk && cold_head::hasValidTemp()) {
         frame.cold_head.temp_c   = cold_head::getLastTempC();
         frame.cold_head.has_temp = true;
         frame.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();

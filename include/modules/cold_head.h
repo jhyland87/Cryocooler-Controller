@@ -77,6 +77,14 @@ void checkFaults();
 bool hasSensorFault();
 
 /**
+ * Whether getLastTempC() is fit to report: no sensor fault, and the readings
+ * have settled since boot or since the last fault. Reporting only: the state
+ * machine's fault check still uses hasSensorFault().
+ * @return true if the temperature should be shown.
+ */
+bool hasValidTemp();
+
+/**
  * Return the most recently measured temperature in Celsius.
  * Returns 0.0f before the first successful read.
  */
