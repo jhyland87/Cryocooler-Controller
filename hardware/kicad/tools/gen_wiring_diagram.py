@@ -89,7 +89,7 @@ ARROWS = [(1050, 635, 180), (868, 925, 180), (596, 925, 180), (700, 1010, 0), (1
 # name, detail, colour group, (x, y, width, height)
 BOXES = [
     ('Host PC (optional)', 'USB-C: serial, flashing', 'ui', (202, 110, 160, 46)),
-    ('Dashboard', 'browser, over WiFi', 'ui', (405, 110, 150, 46)),
+    ('Dashboard', 'http://cryocooler.local', 'ui', (395, 110, 170, 46)),
     ('12 V supply', 'barrel plug, 5 A fuse', 'power', (195, 650, 135, 50)),
     ('Touch display', '2.4" ST7789V, FPC', 'ui', (365, 650, 130, 50)),
     ('Relay / SSR', 'coil, 130 mA max', 'power', (412, 730, 118, 50)),
@@ -353,6 +353,7 @@ def main():
             fill=COLOURS['drive'],
         ),
         halo_text(528, 1116, 'Amplifier speaker output, measured by the ACS37800 on its way to J12', fill=COLOURS['drive']),
+        halo_text(488, 182, 'over WiFi, when connected', size=12, anchor='start', fill=COLOURS['ui']),
         halo_text(846, 520, '60 Hz sine', anchor='start', fill=COLOURS['drive']),
         halo_text(846, 536, '0-10 Vpp = 0-100 %', size=12, anchor='start', fill=COLOURS['drive']),
         halo_text(846, 551, 'of the 120 VAC on J12', size=12, anchor='start', fill=COLOURS['drive']),
