@@ -74,7 +74,7 @@ WIRES = {
     'J9': ('drive', [('h', 835), ('v', 650)]),
     'J14': ('sensor', [('h', 1000), ('v', 318), ('h', 1104)]),
     'J12': ('drive', [('h', 150), ('v', 84), ('h', 970), ('v', 611), ('h', 1099)]),
-    'J11': ('drive', [('v', 612), ('h', 136), ('v', 1095), ('h', 900), ('v', 790)]),
+    'J11': ('drive', [('v', 612), ('h', 136), ('v', 1095), ('h', 854), ('v', 790)]),
 }
 # Coolant pipes: start point, then moves. Flow runs in the order drawn.
 PIPES = [
@@ -90,7 +90,7 @@ ARROWS = [(1050, 635, 180), (868, 925, 180), (596, 925, 180), (700, 1010, 0), (1
 BOXES = [
     ('Host PC (optional)', 'USB-C: serial, flashing', 'ui', (202, 110, 160, 46)),
     ('Dashboard', 'http://cryocooler.local', 'ui', (395, 110, 170, 46)),
-    ('12 V supply', 'barrel plug, 5 A fuse', 'power', (195, 650, 135, 50)),
+    ('Dell 2000 W PSU', 'breakout, 6-pin 12 V ports', 'power', (172, 650, 168, 50)),
     ('Touch display', '2.4" ST7789V, FPC', 'ui', (365, 650, 130, 50)),
     ('Relay / SSR', 'coil, 130 mA max', 'power', (412, 730, 118, 50)),
     ('Flow sensor', 'Alphacool ES', 'cooling', (250, 900, 120, 50)),
@@ -99,12 +99,14 @@ BOXES = [
     ('Coolant NTC', '10 k', 'cooling', (740, 900, 100, 50)),
 ]
 AMP = (730, 650, 225, 140)
+# The amplifier's 12 V feed, from its own port on the PSU breakout (not through the board).
+AMP_FEED = [(172, 675), (160, 675), (160, 1080), (922, 1080), (922, 790)]
 # label, x, on the top or bottom face of the amplifier
 AMP_TERMINALS = [
     ('REM / GND', 760, 'top'),
     ('LOW IN (RCA)', 835, 'top'),
-    ('12V / GND', 910, 'top'),
-    ('SPEAKER + / -', 900, 'bottom'),
+    ('SPEAKER + / -', 854, 'bottom'),
+    ('12V / GND', 922, 'bottom'),
 ]
 COOLER = (1020, 150, 400, 796)
 # colour group, legend text
@@ -250,11 +252,6 @@ def draw_amp():
         ty = y if face == 'top' else y + h - 12
         parts.append(f'<rect x="{tx - 9}" y="{ty}" width="18" height="12" fill="#222"/>')
         parts.append(text(tx, ty + 26 if face == 'top' else ty - 6, label, size=10.5))
-    # The amplifier's own supply is not wired through the board.
-    px = AMP_TERMINALS[2][1]
-    parts.append(polyline([(px, y), (px, y - 26)], COLOURS['power'], 2.5))
-    for row, line in enumerate(('Amp supply', '12 V DC (10-16 V)', 'not through the board')):
-        parts.append(text(px - 8, y - 66 + row * 15, line, size=11.5, fill=COLOURS['power']))
     return parts
 
 
@@ -341,6 +338,7 @@ def main():
         svg.append(polyline(points, COLOURS[group], 2.5))
         x, y = points[-1]
         svg.append(f'<circle cx="{x}" cy="{y}" r="4" fill="{COLOURS[group]}"/>')
+    svg.append(polyline(AMP_FEED, COLOURS['power'], 2.5))
     dash = ' stroke-dasharray="3 5"'
     svg.append(polyline([antenna, (antenna[0], 156)], COLOURS['ui'], 2.5, dash))
     svg += connectors
@@ -354,6 +352,7 @@ def main():
         ),
         halo_text(528, 1116, 'Amplifier speaker output, measured by the ACS37800 on its way to J12', fill=COLOURS['drive']),
         halo_text(488, 182, 'over WiFi, when connected', size=12, anchor='start', fill=COLOURS['ui']),
+        halo_text(400, 1073, 'Amplifier 12 V, from its own 6-pin port on the breakout', size=12, fill=COLOURS['power']),
         halo_text(846, 520, '60 Hz sine', anchor='start', fill=COLOURS['drive']),
         halo_text(846, 536, '0-10 Vpp = 0-100 %', size=12, anchor='start', fill=COLOURS['drive']),
         halo_text(846, 551, 'of the 120 VAC on J12', size=12, anchor='start', fill=COLOURS['drive']),
