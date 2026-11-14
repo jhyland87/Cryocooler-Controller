@@ -43,6 +43,12 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 The 130 x 110 mm 4-layer board is generated from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). Each module has its own outlined, labelled box on the silkscreen, and the sections with their own supply jumper and LED can be switched off one at a time.
 
+### System wiring
+
+![How the board, the amplifier, the cryocooler and the coolant loop are cabled](hardware/kicad/artwork/system-wiring.png)
+
+Every off-board connection except the GPIO headers J16 to J20. The order of the parts in the coolant loop is assumed. Redraw it with `python3 hardware/kicad/tools/gen_wiring_diagram.py`.
+
 ---
 
 ## Architecture
