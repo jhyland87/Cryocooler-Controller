@@ -39,6 +39,15 @@ board edge facing the camera:
 
 ![Right edge](circuit-board-render-edge-right.png)
 
+## Layer stack
+
+Each layer from front to back (F.Silkscreen, F.Paste, F.Mask, F.Cu, In1.Cu, In2.Cu, B.Cu,
+B.Mask, B.Paste, B.Silkscreen), seen from the front in the PCB editor with inactive layers
+dimmed and power nets in their net-class colours. Captured by hand from KiCad, so
+`export_fab.py` does not regenerate it: recapture it after a layout change.
+
+![Layer stack, front to back](pcb-layer-stack.gif)
+
 ## Order settings to check
 
 * 4 layers, 120 x 100 mm, 1.6 mm, 1 oz copper, **black** solder mask, no impedance control.
