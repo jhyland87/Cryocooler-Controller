@@ -44,3 +44,50 @@
     one 40-bit frame per CS. Keep the `primeSPI()` idle-clock fix: on a shared bus,
     mode changes between devices make the first-frame shift more likely (gotcha 4).
   - Verify every part and pin against its datasheet before changing the schematic.
+
+# Rev 5 ideas (only if there is ever a rev 5)
+
+- [ ] **Auto power-on.** Let the system turn on as soon as 12 V reaches the board, with no button
+  press. Maybe enabled by a jumper, or in software if that is possible.
+  - Idea: a 2.2 µF capacitor from the LTC2954 PB pin to GND, with a jumper in series. PB's
+    internal 100 k pull-up (to 1.9 V) charges it, so PB is low for roughly 80-500 ms after 12 V
+    arrives and high from then on. Holding the button still forces power off (6.4 s on PDT).
+  - Assumed, not bench tested: PB held low for 32 ms from power-up counts as a turn-on, even
+    though PB never starts high (the datasheet also describes turn-on as a high-to-low
+    transition). Test on rev 4 with a capacitor across SW3.
+  - Open: a short 12 V interruption may not discharge the capacitor, so there would be no pulse
+    when power returns. A diode from PB to VIN might fix that.
+- [ ] **Move J12 (cryocooler output) and J14 (IMU) closer together**, since both cables go to the
+  cryocooler. Ideally directly opposite each other, on the two sides of the board.
+  - J12 is the isolated 120 VAC section with its clearance barrier and J14 is low-voltage SPI.
+    The same edge is fine, but J14 has to stay outside the barrier.
+  - The two cables would then run side by side to the cooler, so consider a shielded IMU cable.
+- [ ] **Move J5 (flow sensor) and J6 (NTC) closer together**: the NTC and the flow sensor are in
+  the same device.
+  - Adjacent headers keep the stock cables. If the Alphacool unit's two plugs allow it, one
+    6-pin connector would also work (not checked).
+- [ ] **GPIO output level set in software.** Possibly let each GPIO header drive up to 3.3 V, 5 V
+  or 12 V, chosen by a software setting, so it can switch devices that need different levels
+  (the air compressor needs a 12 V "enable" signal, for example).
+  - Idea: one circuit for this and the analog outputs below. A DAC on the SPI bus feeds an
+    op-amp stage run from the +15 V rail, giving 0-12 V per channel. A digital output is that
+    channel driven to zero or to its configured ceiling.
+  - Limit: an op-amp output sources only tens of milliamps. Enough for an enable signal, not
+    for powering a load.
+  - Safety: a wrong setting could put 12 V into a 3.3 V device. Default every channel to off
+    and 3.3 V at boot, and show the configured level on the dashboard.
+  - If the headers stay usable as inputs, their protection has to survive 12 V applied from
+    outside.
+  - No parts chosen or checked against a datasheet yet.
+- [ ] **Drop J8 (amp remote) and J13 (compressor relay).** With configurable GPIO outputs they
+  can go away: each becomes a GPIO output set to 12 V.
+  - J8 is interlocked in hardware today: REM only switches on while both ±15 V rails are good.
+    The firmware already reads the ±15 V power-good signals (`src/modules/amplifier.cpp`), so
+    the interlock moves to software: the output may only be enabled while both rails are good.
+    Unlike the hardware one, a software interlock does not act if the firmware hangs.
+  - J13 drives a relay coil at up to 130 mA with a flyback diode. That is more than an op-amp
+    output stage sources, so the GPIO output it moves to needs a stronger driver and the diode.
+- [ ] **Analog outputs follow that setting**: an analog output should cover the range up to the
+  voltage configured for it.
+  - With the DAC and op-amp stage above, this is the same output set anywhere between zero and
+    the ceiling, with the ceiling enforced in software.
