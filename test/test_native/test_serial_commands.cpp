@@ -19,6 +19,8 @@
 #include "wifi_credentials.h"
 #include "dashboard.h"
 #include "wifi_stub.h"
+#include "web_auth.h"
+#include "web_auth_stub.h"
 
 extern "C" void stub_setMillis(uint32_t ms);
 
@@ -33,6 +35,7 @@ static void resetAll() {
     telemetry::enable();  // always start with telemetry on
     cooling::disable();   // reset fan speed and enabled state
     wifi_stub::reset();
+    web_auth_stub::reset();
 }
 
 // ---------------------------------------------------------------------------
@@ -572,6 +575,110 @@ void test_sc_wifi_scan_refused_while_off() {
     TEST_ASSERT_TRUE(wifi_stub::scanRequested());
 }
 
+// ---------------------------------------------------------------------------
+// dashboard / OTA passwords
+// ---------------------------------------------------------------------------
+
+void test_sc_dashboard_password_is_saved_and_never_printed() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("dashboard password", p);
+    TEST_ASSERT_EQUAL_STRING("", web_auth_stub::dashboardPassword());  // not until the next line
+    serial_commands::processLine("s3cret-dash", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_STRING("s3cret-dash", web_auth_stub::dashboardPassword());
+    TEST_ASSERT_FALSE(p.contains("s3cret-dash"));
+}
+
+void test_sc_dashboard_password_none_removes_it() {
+    resetAll();
+    Print p;
+    web_auth::setDashboardPassword("s3cret-dash");
+    serial_commands::processLine("dashboard password", p);
+    serial_commands::processLine("none", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_FALSE(web_auth::hasDashboardPassword());
+}
+
+void test_sc_ota_password_starts_at_the_default() {
+    resetAll();
+    TEST_ASSERT_TRUE(web_auth::isOtaPasswordDefault());
+    TEST_ASSERT_EQUAL_STRING(OTA_DEFAULT_PASSWORD, web_auth_stub::otaPassword());
+    TEST_ASSERT_TRUE(web_auth::isValidPassword(OTA_DEFAULT_PASSWORD));
+}
+
+void test_sc_ota_password_is_saved_and_never_printed() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("ota password", p);
+    serial_commands::processLine("firmware-0nly", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_STRING("firmware-0nly", web_auth_stub::otaPassword());
+    TEST_ASSERT_FALSE(p.contains("firmware-0nly"));
+    TEST_ASSERT_EQUAL_STRING("", web_auth_stub::dashboardPassword());  // the other one is untouched
+}
+
+void test_sc_ota_password_default_restores_it() {
+    resetAll();
+    Print p;
+    web_auth::setOtaPassword("firmware-0nly");
+    serial_commands::processLine("ota password", p);
+    serial_commands::processLine("default", p);
+    TEST_ASSERT_TRUE(web_auth::isOtaPasswordDefault());
+}
+
+void test_sc_web_password_rejects_bad_input() {
+    static const char* const badPasswords[] = {
+        "short",                                 // under 8
+        "has a space in it",                     // spaces
+        "123456789012345678901234567890123",     // 33
+    };
+    for (const char* badPassword : badPasswords) {
+        resetAll();
+        Print p;
+        serial_commands::processLine("ota password", p);
+        serial_commands::processLine(badPassword, p);
+        TEST_ASSERT_TRUE_MESSAGE(p.contains("[ERR]"), badPassword);
+        TEST_ASSERT_TRUE_MESSAGE(web_auth::isOtaPasswordDefault(), badPassword);
+
+        // The prompt is over: the next line is an ordinary command again.
+        p.reset();
+        serial_commands::processLine("status", p);
+        TEST_ASSERT_TRUE(p.contains("[OK]"));
+    }
+}
+
+void test_sc_web_password_reports_flash_failure() {
+    resetAll();
+    web_auth_stub::setSaveFails(true);
+    Print p;
+    serial_commands::processLine("dashboard password", p);
+    serial_commands::processLine("s3cret-dash", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_FALSE(web_auth::hasDashboardPassword());
+}
+
+void test_sc_web_password_prompt_times_out() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("dashboard password", p);
+    stub_setMillis(60000);
+    serial_commands::processLine("status", p);
+    TEST_ASSERT_TRUE(p.contains("timed out"));
+    TEST_ASSERT_FALSE(web_auth::hasDashboardPassword());
+}
+
+void test_sc_password_status_never_prints_a_password() {
+    resetAll();
+    web_auth::setDashboardPassword("s3cret-dash");
+    Print p;
+    serial_commands::processLine("password status", p);
+    TEST_ASSERT_TRUE(p.contains("Dashboard password: set"));
+    TEST_ASSERT_TRUE(p.contains("OTA password: default"));
+    TEST_ASSERT_FALSE(p.contains("s3cret-dash"));
+    TEST_ASSERT_FALSE(p.contains(OTA_DEFAULT_PASSWORD));
+}
+
 void test_wifi_ssid_length_limits() {
     TEST_ASSERT_FALSE(wifi_credentials::isValidSsid(""));
     TEST_ASSERT_TRUE(wifi_credentials::isValidSsid("a"));
@@ -676,5 +783,16 @@ void run_serial_command_tests() {
     RUN_TEST(test_sc_wifi_onboot_without_argument_prints_setting);
     RUN_TEST(test_sc_wifi_scan_refused_while_off);
     RUN_TEST(test_wifi_ssid_length_limits);
+
+    // dashboard / OTA passwords
+    RUN_TEST(test_sc_dashboard_password_is_saved_and_never_printed);
+    RUN_TEST(test_sc_dashboard_password_none_removes_it);
+    RUN_TEST(test_sc_ota_password_starts_at_the_default);
+    RUN_TEST(test_sc_ota_password_is_saved_and_never_printed);
+    RUN_TEST(test_sc_ota_password_default_restores_it);
+    RUN_TEST(test_sc_web_password_rejects_bad_input);
+    RUN_TEST(test_sc_web_password_reports_flash_failure);
+    RUN_TEST(test_sc_web_password_prompt_times_out);
+    RUN_TEST(test_sc_password_status_never_prints_a_password);
     RUN_TEST(test_wifi_passphrase_length_limits);
 }

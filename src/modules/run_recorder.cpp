@@ -18,6 +18,7 @@
 #include <memory>
 
 #include "run_recorder.h"
+#include "web_auth.h"
 #include "config.h"
 #include "logger.h"
 #include "run_history_ring.h"
@@ -201,6 +202,7 @@ private:
 
 void registerRoutes(AsyncWebServer& server) {
     server.on("/api/history", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         if (!Module::isInitialized()) {
             request->send(503, "application/json", "{\"error\":\"run recorder unavailable\"}");
             return;

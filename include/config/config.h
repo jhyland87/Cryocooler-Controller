@@ -54,6 +54,13 @@
 // Set false to compile out the OTA endpoint entirely.
 #define ENABLE_OTA true
 
+// Login for the dashboard and OTA pages (HTTP digest). The user name is fixed;
+// the passwords are set from the serial console and saved in flash
+// ('dashboard password', 'ota password'). The dashboard is open until a password
+// is set. OTA always needs one and starts at this default: change it.
+#define WEB_AUTH_USERNAME     "admin"
+#define OTA_DEFAULT_PASSWORD  "cryocooler123"
+
 #define SERIAL_BAUD   static_cast<uint32_t>(115200)
 
 // =============================================================================
