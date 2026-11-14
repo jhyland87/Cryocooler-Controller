@@ -5,8 +5,9 @@ attributes) and Excellon drill files (PTH and NPTH separate, mm, absolute origin
 made from `cryocooler.kicad_pcb` (4 layers, 120 x 100 mm, Phoenix UCS 145-125 housing). `gerbers/` holds the same
 files plus the drill maps and report; nothing in it is hand-edited.
 
-These files, the zip and the front / back / angled renders (`circuit-board-render-front.png`,
-`circuit-board-render-back.png`, `circuit-board-render-angle.png`) are regenerated automatically by `tools/export_fab.py`,
+These files, the zip and the renders (`circuit-board-render-front.png`, `-back.png`, `-angle.png`
+and the four edge views `-edge-top.png`, `-edge-bottom.png`, `-edge-left.png`, `-edge-right.png`)
+are regenerated automatically by `tools/export_fab.py`,
 which `gen_pcb.py` (every mode) and `link_usb_vbus.py` run after they write the board. After a
 manual edit of `cryocooler.kicad_pcb` (for example a hand-routed fix), run it yourself:
 
@@ -25,6 +26,18 @@ creation date, so the files differ in git after every export even if the board d
 ![Back of the board](circuit-board-render-back.png)
 
 ![Board at an angle](circuit-board-render-angle.png)
+
+The front and back renders carry a callout for every connector, drawn by
+`tools/render_callouts.py` (text in its `PORTS` table). Edge views, named for the
+board edge facing the camera:
+
+![Top edge](circuit-board-render-edge-top.png)
+
+![Bottom edge](circuit-board-render-edge-bottom.png)
+
+![Left edge](circuit-board-render-edge-left.png)
+
+![Right edge](circuit-board-render-edge-right.png)
 
 ## Order settings to check
 

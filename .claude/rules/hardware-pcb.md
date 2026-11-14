@@ -78,8 +78,26 @@ verification and selection rules are in `hardware-schematic.md`.
 
 ## After any board change
 
-- Regenerate the renders, `fabrication/circuit-board-render-{front,back,angle}.png`,
-  with `python3 hardware/kicad/tools/export_fab.py` (it also writes the Gerbers and
-  the JLCPCB zip; see the `kicad-fab-export` skill). Commit them with the board
-  change, and check the front render.
+- Regenerate the renders, `fabrication/circuit-board-render-{front,back,angle}.png`
+  and the main board's four `-edge-{top,bottom,left,right}.png`, with
+  `python3 hardware/kicad/tools/export_fab.py` (it also writes the Gerbers and the
+  JLCPCB zip; see the `kicad-fab-export` skill). Commit them with the board
+  change, and check the front render. A new or removed `J` connector needs its
+  callout text in `PORTS` in `tools/render_callouts.py`.
 - Run DRC and fix anything new before reporting the layout done.
+
+## When to re-render
+
+Re-render (the `kicad-fab-export` skill, "Renders only") and commit the images with
+the change whenever it alters what a render shows, not only after a board edit:
+
+- A 3D model added, swapped or re-posed, or a stackup or solder-mask colour change.
+- Camera, size or lighting settings in `RENDERS` in `tools/export_fab.py`.
+- Callout text or the parts listed in `PORTS` / `GROUPS` in
+  `tools/render_callouts.py`, or the drawing code there.
+- A labelled part (connector, button, ESP32, status LED) moved, added or removed:
+  check its callout still points at it, and that the edge views still fit a taller
+  part.
+
+A change that leaves every render identical (docs, BOM, schematic text) needs none.
+Look at the renders you regenerated before reporting them done.

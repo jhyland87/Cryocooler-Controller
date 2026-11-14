@@ -1,6 +1,6 @@
 ---
 name: kicad-fab-export
-description: Export the PCB fabrication files (Gerbers, drill files, JLCPCB zip) and the front, back and angled board renders, regenerate only the renders, and stamp the board ID with the git revision. Use after any change to hardware/kicad/cryocooler.kicad_pcb, when the renders in hardware/kicad/fabrication look stale, or when preparing a board order.
+description: Export the PCB fabrication files (Gerbers, drill files, JLCPCB zip) and the board renders (front and back with port callouts, angled, four edge views), regenerate only the renders, and stamp the board ID with the git revision. Use after any change to hardware/kicad/cryocooler.kicad_pcb, when the renders in hardware/kicad/fabrication look stale, or when preparing a board order.
 ---
 
 # Fab export, renders and board ID
@@ -10,10 +10,13 @@ settings to check (ENIG, filled and capped vias, high-precision silk, via-in-pad
 list). Never hand-edit anything in `fabrication/`.
 
 **Rule:** after any PCB change, regenerate the renders
-(`circuit-board-render-front.png`, `-back.png`, `-angle.png`) and include them in
+(`circuit-board-render-front.png`, `-back.png`, `-angle.png` and, on the main
+board, `-edge-top.png`, `-edge-bottom.png`, `-edge-left.png`, `-edge-right.png`) and include them in
 the same commit as the board.
 
-`export_fab.py` only shells out to `kicad-cli`, so the system `python3` works.
+`export_fab.py` shells out to `kicad-cli`, so the system `python3` works. The port
+callouts (`render_callouts.py`) need Pillow; under KiCad's python, which has none,
+`export_fab.py` runs that step with the `python3` on the PATH.
 
 ## Full export (Gerbers, drills, zip, renders)
 
@@ -22,7 +25,7 @@ python3 hardware/kicad/tools/export_fab.py      # about 30 s
 ```
 
 This writes `fabrication/gerbers/` (Gerbers with X2, Excellon PTH and NPTH in mm,
-drill maps, `drill_report.txt`), `fabrication/cryocooler_jlcpcb.zip` and the three
+drill maps, `drill_report.txt`), `fabrication/cryocooler_jlcpcb.zip` and the
 renders.
 
 - Every `gen_pcb.py` mode (including `link`) and `link_usb_vbus.py` already run it
@@ -38,11 +41,18 @@ renders.
 cd hardware/kicad/tools && python3 -c "import export_fab; export_fab.render_board()"
 ```
 
-This runs `kicad-cli pcb render` three times: top with perspective, bottom, and
-angled. Sizes, camera and lighting are in `RENDERS` in `export_fab.py`. Change
-them there, not on the command line.
+This runs `kicad-cli pcb render` once per view: top with perspective, bottom,
+angled, and the four board edges (edge-on, named for the edge facing the camera).
+Sizes, camera and lighting are in `RENDERS` in `export_fab.py`. Change them there,
+not on the command line. The edge views have a thin border, so look at them after
+adding a taller part.
+
+It then draws a label and arrow for every `J` connector on the top and bottom
+renders (`render_callouts.py`), and for any other part listed in `PORTS` (the
+ESP32 and the buttons) or sharing a callout in `GROUPS` (the status LEDs). The text is in `PORTS` there; the step fails if a
+connector on the board has no entry or an entry has no connector.
 The IMU board has its own camera settings (`RENDERS_BY_BOARD`, keyed by the
-board file's name).
+board file's name): three plain renders, no edge views or callouts.
 
 The IMU board: `python3 hardware/kicad/tools/export_fab.py hardware/kicad/imu/imu.kicad_pcb`
 writes `imu/fabrication/` (2 layers, `imu_jlcpcb.zip`). Its board ID is stamped by
