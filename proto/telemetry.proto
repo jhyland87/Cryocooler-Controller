@@ -23,6 +23,7 @@ message TelemetryFrame {
   Scores       score       = 14;
   ModuleStatus modules     = 15;
   int64        log_epoch   = 16;  // epoch of most recent log entry (0 = none)
+  Network      network     = 17;
 }
 
 message Timestamp {
@@ -124,6 +125,14 @@ message Firmware {
   string build_date      = 2;
   int64  ota_flash_ts    = 3;
   string ota_flash_local = 4;
+}
+
+message Network {
+  string hostname  = 1;  // mDNS name without ".local"
+  string ip        = 2;  // dotted IPv4; empty when not connected
+  string ssid      = 3;  // network the board is joined to; empty when not connected
+  sint32 rssi_dbm  = 4;  // sint32: always negative when connected
+  bool   connected = 5;
 }
 
 message ScoreCooling {

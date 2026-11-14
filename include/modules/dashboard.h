@@ -76,6 +76,20 @@ bool setWifiTxPower(float powerDbm);
  */
 void printWifiStatus(Print& out);
 
+/** Snapshot of the WiFi link, for telemetry. */
+struct WifiInfo {
+    bool   connected;
+    int8_t rssiDbm;   ///< 0 when not connected
+    char   ip[16];    ///< dotted IPv4; empty when not connected
+    char   ssid[33];  ///< joined network (32 characters + NUL); empty when not connected
+};
+
+/**
+ * Read the current WiFi link details.
+ * @param info Receives the snapshot.
+ */
+void getWifiInfo(WifiInfo& info);
+
 // Internal — called from init() and the dashboard task; defined in dashboard.cpp.
 bool setupWifi();
 bool setupServer();

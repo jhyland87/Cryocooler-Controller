@@ -13,6 +13,7 @@ import { useHistoryBuffer } from './hooks/useHistoryBuffer';
 import { useFaultHistory } from './hooks/useFaultHistory';
 import { Header } from './components/Header';
 import { StatusPanel } from './components/StatusPanel';
+import { NetworkPanel } from './components/NetworkPanel';
 import { FaultHistoryPanel } from './components/FaultHistoryPanel';
 import { TemperatureChart } from './components/TemperatureChart';
 import { PowerChart } from './components/PowerChart';
@@ -258,6 +259,12 @@ export function App() {
                   heapUsage={getHistory('system.heap_usage_percent')}
                   psramUsage={getHistory('system.psram_usage_percent')}
                 />
+              </CollapsiblePanel>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <CollapsiblePanel title="Network">
+                <NetworkPanel network={data.network} loading={loading} />
               </CollapsiblePanel>
             </Grid>
 

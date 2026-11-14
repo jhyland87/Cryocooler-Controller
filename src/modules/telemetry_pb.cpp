@@ -247,6 +247,18 @@ size_t encodeProtobuf(uint8_t* buf, size_t bufSize) {
         }
     }
 
+    // ── Network ──────────────────────────────────────────────────────────────
+    {
+        dashboard::WifiInfo wifiInfo;
+        dashboard::getWifiInfo(wifiInfo);
+        frame_.has_network = true;
+        copyStr(frame_.network.hostname, sizeof(frame_.network.hostname), HOSTNAME);
+        copyStr(frame_.network.ip, sizeof(frame_.network.ip), wifiInfo.ip);
+        copyStr(frame_.network.ssid, sizeof(frame_.network.ssid), wifiInfo.ssid);
+        frame_.network.rssi_dbm  = wifiInfo.rssiDbm;
+        frame_.network.connected = wifiInfo.connected;
+    }
+
     // ── Scores ───────────────────────────────────────────────────────────────
     frame_.has_score = true;
     frame_.score.has_cooling = true;
