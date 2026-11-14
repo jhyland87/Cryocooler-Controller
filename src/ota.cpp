@@ -224,7 +224,7 @@ module::InitStatus init() {
     Serial.printf("[ota] Next update target: %s\n", next->label);
     Serial.printf("[ota] Firmware version  : %s  built %s %s\n",
                   desc->version, desc->date, desc->time);
-    Serial.printf("[ota] Update endpoint   : http://%s/ota\n", HOSTNAME);
+    Serial.printf("[ota] Update endpoint   : http://%s.local/ota\n", HOSTNAME);
 
     return module::MODULE_INIT_SUCCESS;
 }

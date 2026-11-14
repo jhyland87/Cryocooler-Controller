@@ -24,6 +24,15 @@
  *   telemetry serial on  - Enable the Serial frame dump
  *   dashboard off        - Disable dashboard WebSocket broadcasts
  *   dashboard on         - Enable dashboard WebSocket broadcasts
+ *   wifi status          - Print WiFi state, saved settings, signal and last disconnect reason
+ *   wifi retry           - Start a new WiFi connection attempt now
+ *   wifi txpower \<dBm\>  - Set max WiFi TX power until reboot
+ *   wifi on              - Turn WiFi on until reboot
+ *   wifi off             - Turn WiFi off until reboot
+ *   wifi onboot <on|off> - Save whether WiFi starts at boot (also true/false/1/0)
+ *   wifi scan            - List visible networks (serial port only)
+ *   wifi set \<ssid\>    - Save a network; the passphrase is asked for on the next line
+ *   wifi forget          - Erase the saved network and disconnect
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)
  *   cooling on           - Enable cooling system
  *   cooling off          - Disable cooling system

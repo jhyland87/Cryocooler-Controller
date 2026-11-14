@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { LogEntry } from '../types/hooks';
+import { ESP32_HOST } from '../utils/esp32Host';
 
 // Re-export for existing consumers
 export type { LogEntry } from '../types/hooks';
@@ -8,13 +9,6 @@ export type { LogEntry } from '../types/hooks';
 
 /** Maximum number of log entries retained in the browser. */
 const MAX_ENTRIES = 500;
-
-/**
- * Target ESP32 hostname — must match HOSTNAME in include/config.h.
- * The hook always connects to the ESP32 directly so it works whether the
- * page is served from the device, a file:// URL, or the Vite dev server.
- */
-const ESP32_HOST = 'cryocooler.local';
 
 function apiUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';

@@ -14,6 +14,7 @@
 #  include <cstdio>
 #  include <cstring>
 #  include <cctype>
+#  include <strings.h>  // strcasecmp
 #  include "Arduino.h"  // native stub — provides millis() and Print
 #endif
 
@@ -28,12 +29,13 @@
 #include "indicator.h"
 #include "cooling.h"
 #include "config.h"
+#include "dashboard.h"
+#include "wifi_credentials.h"
 #ifdef ARDUINO
 #include <WiFi.h>
 #include <esp_ota_ops.h>  // esp_app_desc_t lives here on IDF 5.1.x
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include "dashboard.h"
 #include "mock_commands.h"
 #include "amplifier.h"
 #include "sensor_mock.h"
@@ -73,6 +75,22 @@ static bool s_awaitingUpdateConfirm = false;
 // The loop task, the only one allowed to run commands: they reach the SPI bus.
 static TaskHandle_t s_commandTask = nullptr;
 #endif
+
+// ─── WiFi passphrase prompt state ─────────────────────────────────────────────
+//
+// 'wifi set <ssid>' stores the name and sets this flag. processLine() takes the
+// next line as the passphrase before the echo, so it never reaches the log.
+
+static constexpr uint32_t wifiPromptTimeoutMs = 60000;
+
+static bool     s_awaitingWifiPassphrase = false;
+static uint32_t s_wifiPromptStartMs      = 0;
+static char     s_pendingWifiSsid[wifi_credentials::SSID_MAX_CHARS + 1];
+
+/** @return true once a pending `wifi set` passphrase prompt has run out of time. */
+static bool wifiPromptExpired() {
+    return s_awaitingWifiPassphrase && (millis() - s_wifiPromptStartMs) >= wifiPromptTimeoutMs;
+}
 
 // ─── Command handler type and dispatch table ──────────────────────────────────
 
@@ -326,9 +344,108 @@ static void handleTelemetryOn(const char* /*args*/, Print& out) {
 #ifdef ARDUINO
 static void handleWifiStatus(const char* /*args*/, Print& out) {
     dashboard::printWifiStatus(out);
+
+    // Serial only: the network name stays out of the log the dashboard shows.
+    char ssid[wifi_credentials::SSID_MAX_CHARS + 1];
+    char passphrase[wifi_credentials::PASSPHRASE_MAX_CHARS + 1];
+    if (wifi_credentials::load(ssid, sizeof(ssid), passphrase, sizeof(passphrase))) {
+        Serial.printf("  Saved network: %s (%s)\n", ssid,
+                      passphrase[0] != '\0' ? "passphrase set" : "open");
+    }
+}
+#endif
+
+static void handleWifiScan(const char* /*args*/, Print& out) {
+    if (!dashboard::isWifiEnabled()) {
+        out.println(F("[ERR] WiFi is off — run 'wifi on' first"));
+        return;
+    }
+    dashboard::requestWifiScan();
+    out.println(F("[OK] WiFi scan started; results print to the serial port in a few seconds"));
 }
 
+static void handleWifiSet(const char* args, Print& out) {
+    size_t ssidLen = strlen(args);
+    while (ssidLen > 0 && (args[ssidLen - 1] == ' ' || args[ssidLen - 1] == '\t')) {
+        --ssidLen;
+    }
+    if (ssidLen < 1 || ssidLen > wifi_credentials::SSID_MAX_CHARS) {
+        out.println(F("[ERR] Usage: wifi set <ssid>  (1-32 characters; the passphrase is asked for next)"));
+        return;
+    }
+    memcpy(s_pendingWifiSsid, args, ssidLen);
+    s_pendingWifiSsid[ssidLen] = '\0';
+    s_awaitingWifiPassphrase   = true;
+    s_wifiPromptStartMs        = millis();
+    out.println(F("Enter the passphrase (8-64 characters), or 'open' for a network without one."));
+    out.println(F("It is not echoed or logged. The prompt cancels after 60 s."));
+}
+
+/** Take @p line as the passphrase for the pending `wifi set`, save, and reconnect. */
+static void handleWifiPassphrase(const char* line, Print& out) {
+    s_awaitingWifiPassphrase = false;
+
+    const char* passphrase = (strcmp(line, "open") == 0) ? "" : line;
+    if (!wifi_credentials::isValidPassphrase(passphrase)) {
+        out.println(F("[ERR] Passphrase must be 8-64 characters; nothing saved"));
+        return;
+    }
+    if (!wifi_credentials::save(s_pendingWifiSsid, passphrase)) {
+        out.println(F("[ERR] Could not save WiFi credentials to flash"));
+        return;
+    }
+    dashboard::reloadWifiCredentials();
+    out.println(dashboard::isWifiEnabled()
+                    ? F("[OK] WiFi credentials saved; connecting")
+                    : F("[OK] WiFi credentials saved; WiFi is off — run 'wifi on' to connect"));
+}
+
+static void handleWifiForget(const char* /*args*/, Print& out) {
+    if (!wifi_credentials::clear()) {
+        out.println(F("[ERR] Could not erase WiFi credentials"));
+        return;
+    }
+    dashboard::reloadWifiCredentials();
+    out.println(F("[OK] WiFi credentials erased"));
+}
+
+static void handleWifiOn(const char* /*args*/, Print& out) {
+    dashboard::setWifiEnabled(true);
+    out.println(F("[OK] WiFi on"));
+}
+
+static void handleWifiOff(const char* /*args*/, Print& out) {
+    dashboard::setWifiEnabled(false);
+    out.println(F("[OK] WiFi off until reboot or 'wifi on' ('wifi onboot' sets the boot state)"));
+}
+
+static void handleWifiOnBoot(const char* args, Print& out) {
+    if (*args == '\0') {
+        out.println(wifi_credentials::loadOnBoot() ? F("[OK] WiFi on boot: on")
+                                                   : F("[OK] WiFi on boot: off"));
+        return;
+    }
+    const bool wantOn  = strcasecmp(args, "true") == 0 || strcmp(args, "1") == 0 ||
+                         strcasecmp(args, "on") == 0;
+    const bool wantOff = strcasecmp(args, "false") == 0 || strcmp(args, "0") == 0 ||
+                         strcasecmp(args, "off") == 0;
+    if (!wantOn && !wantOff) {
+        out.println(F("[ERR] Usage: wifi onboot <true|false|1|0|on|off>"));
+        return;
+    }
+    if (!wifi_credentials::saveOnBoot(wantOn)) {
+        out.println(F("[ERR] Could not save the setting to flash"));
+        return;
+    }
+    out.println(wantOn ? F("[OK] WiFi will start at boot") : F("[OK] WiFi will stay off at boot"));
+}
+
+#ifdef ARDUINO
 static void handleWifiRetry(const char* /*args*/, Print& out) {
+    if (!dashboard::isWifiEnabled()) {
+        out.println(F("[ERR] WiFi is off — run 'wifi on' first"));
+        return;
+    }
     if (WiFi.status() == WL_CONNECTED) {
         out.println(F("[OK] WiFi already connected"));
         return;
@@ -1209,6 +1326,12 @@ static const Command commandMap[] = {
     {"cooling pump",        handleCoolingPump,        "Set pump: <0-255> raw duty or <0-100%> percent. 'cooling on' restores LUT."},
     {"cooling on",          handleCoolingOn,           "Enable cooling system"},
     {"cooling off",         handleCoolingOff,          "Disable cooling system"},
+    {"wifi onboot",         handleWifiOnBoot,   "Start WiFi at boot: <true|false|1|0|on|off>; no argument prints the setting"},
+    {"wifi on",             handleWifiOn,       "Turn WiFi on until reboot"},
+    {"wifi off",            handleWifiOff,      "Turn WiFi off until reboot"},
+    {"wifi scan",           handleWifiScan,     "List visible WiFi networks (serial port only)"},
+    {"wifi set",            handleWifiSet,      "Save a network: wifi set <ssid>, then enter the passphrase when asked"},
+    {"wifi forget",         handleWifiForget,   "Erase the saved WiFi network and disconnect"},
 #ifdef ARDUINO
     {"dashboard off",       handleDashboardOff, "Disable dashboard WebSocket broadcasts"},
     {"dashboard on",        handleDashboardOn,  "Enable dashboard WebSocket broadcasts"},
@@ -1242,6 +1365,14 @@ static const Command commandMap[] = {
 static const uint8_t commandCount =
     static_cast<uint8_t>(sizeof(commandMap) / sizeof(commandMap[0]));
 
+/** @return true if @p line is a `wifi set` command, whose network name stays out of the log. */
+static bool isWifiSetLine(const char* line) {
+    static constexpr char name[] = "wifi set";
+    const size_t nameLen = sizeof(name) - 1;
+    return strncmp(line, name, nameLen) == 0 &&
+           (line[nameLen] == '\0' || line[nameLen] == ' ' || line[nameLen] == '\t');
+}
+
 static void handleHelp(const char* /*args*/, Print& out) {
     out.println(F("[OK] Available commands:"));
     for (uint8_t commandIndex = 0; commandIndex < commandCount; ++commandIndex) {
@@ -1266,7 +1397,22 @@ void processLine(const char* line, Print& out) {
     // Skip leading whitespace.
     while (*line == ' ' || *line == '\t') { ++line; }
     if (*line == '\0') return;
-    out.printf("[commands] Received > %s\n", line);
+
+    // Before the echo: a passphrase must never be printed or logged.
+    if (wifiPromptExpired()) {
+        s_awaitingWifiPassphrase = false;
+        out.println(F("[ERR] 'wifi set' timed out; nothing saved"));
+    }
+    if (s_awaitingWifiPassphrase) {
+        handleWifiPassphrase(line, out);
+        return;
+    }
+
+    if (isWifiSetLine(line)) {
+        out.println(F("[commands] Received > wifi set <hidden>"));
+    } else {
+        out.printf("[commands] Received > %s\n", line);
+    }
 
 #ifdef ARDUINO
     // ── OTA confirmation intercept ────────────────────────────────────────────
@@ -1326,6 +1472,7 @@ void processLine(const char* line, Print& out) {
 }
 
 void init() {
+    s_awaitingWifiPassphrase = false;
     lineLen    = 0;
     lineBuf[0] = '\0';
 #ifdef ARDUINO
@@ -1335,6 +1482,11 @@ void init() {
 
 void service() {
 #ifdef ARDUINO
+    if (wifiPromptExpired()) {
+        s_awaitingWifiPassphrase = false;
+        Log.println(F("[ERR] 'wifi set' timed out; nothing saved"));
+    }
+
     while (Serial.available()) {
         const char incomingChar = static_cast<char>(Serial.read());
         if (incomingChar == '\r' || incomingChar == '\n') {

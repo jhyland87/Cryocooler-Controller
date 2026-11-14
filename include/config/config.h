@@ -23,7 +23,6 @@
 #include <stdint.h>
 
 #include "pin_config.h"
-#include "arduino_secrets.h"
 
 // =============================================================================
 // Compressor
@@ -43,6 +42,9 @@
 // System
 // =============================================================================
 
+// Network name of the board: WiFi hostname and mDNS name (<HOSTNAME>.local).
+// The web build reads this line too (dashboard/vite.config.ts,
+// scripts/embed_web.py, scripts/ota-update.sh), so keep it a plain quoted string. Lowercase letters, digits and hyphens only.
 #define HOSTNAME      "cryocooler"
 
 #define ENABLE_LOGGER false

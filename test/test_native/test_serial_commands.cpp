@@ -16,6 +16,9 @@
 #include "cooling.h"
 #include "config.h"
 #include "tick.h"
+#include "wifi_credentials.h"
+#include "dashboard.h"
+#include "wifi_stub.h"
 
 extern "C" void stub_setMillis(uint32_t ms);
 
@@ -29,6 +32,7 @@ static void resetAll() {
     serial_commands::init();
     telemetry::enable();  // always start with telemetry on
     cooling::disable();   // reset fan speed and enabled state
+    wifi_stub::reset();
 }
 
 // ---------------------------------------------------------------------------
@@ -397,6 +401,205 @@ void test_sc_cooling_fan_does_not_match_cooling_on() {
 }
 
 // ---------------------------------------------------------------------------
+// wifi credentials
+// ---------------------------------------------------------------------------
+
+void test_sc_wifi_set_echo_hides_network_name() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    TEST_ASSERT_TRUE(p.contains("wifi set <hidden>"));
+    TEST_ASSERT_FALSE(p.contains("MyNetwork"));
+}
+
+void test_sc_wifi_set_saves_and_requests_reconnect() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set My Network  ", p);
+    TEST_ASSERT_FALSE(wifi_stub::hasSaved());  // nothing saved until the passphrase arrives
+    serial_commands::processLine("correct horse", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_EQUAL_STRING("My Network", wifi_stub::savedSsid());  // spaces kept, trailing trimmed
+    TEST_ASSERT_EQUAL_STRING("correct horse", wifi_stub::savedPassphrase());
+    TEST_ASSERT_TRUE(wifi_stub::reloadRequested());
+}
+
+void test_sc_wifi_passphrase_never_printed() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    serial_commands::processLine("hunter2hunter2", p);
+    TEST_ASSERT_FALSE(p.contains("hunter2"));
+    TEST_ASSERT_FALSE(p.contains("MyNetwork"));
+}
+
+void test_sc_wifi_passphrase_is_not_run_as_a_command() {
+    resetAll();
+    state_machine::init();
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    serial_commands::processLine("start now please", p);
+    TEST_ASSERT_FALSE(state_machine::isRunning());
+    TEST_ASSERT_EQUAL_STRING("start now please", wifi_stub::savedPassphrase());
+}
+
+void test_sc_wifi_set_open_network() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set Guest", p);
+    serial_commands::processLine("open", p);
+    TEST_ASSERT_TRUE(wifi_stub::hasSaved());
+    TEST_ASSERT_EQUAL_STRING("", wifi_stub::savedPassphrase());
+}
+
+void test_sc_wifi_set_short_passphrase_saves_nothing() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    serial_commands::processLine("short", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_FALSE(p.contains("short\n"));
+    TEST_ASSERT_FALSE(wifi_stub::hasSaved());
+    TEST_ASSERT_FALSE(wifi_stub::reloadRequested());
+
+    // The prompt is over: the next line is an ordinary command again.
+    p.reset();
+    serial_commands::processLine("status", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+}
+
+void test_sc_wifi_set_rejects_bad_ssid() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    p.reset();
+    serial_commands::processLine("wifi set 123456789012345678901234567890123", p);  // 33
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+
+    // No prompt was opened, so this is a command, not a passphrase.
+    p.reset();
+    serial_commands::processLine("status", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_FALSE(wifi_stub::hasSaved());
+}
+
+void test_sc_wifi_set_times_out() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    stub_setMillis(60000);
+    serial_commands::processLine("status", p);
+    TEST_ASSERT_TRUE(p.contains("timed out"));
+    TEST_ASSERT_TRUE(p.contains("Received > status"));
+    TEST_ASSERT_FALSE(wifi_stub::hasSaved());
+}
+
+void test_sc_wifi_set_reports_flash_failure() {
+    resetAll();
+    wifi_stub::setSaveFails(true);
+    Print p;
+    serial_commands::processLine("wifi set MyNetwork", p);
+    serial_commands::processLine("hunter2hunter2", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_FALSE(wifi_stub::reloadRequested());
+}
+
+void test_sc_wifi_forget_erases_and_reloads() {
+    resetAll();
+    wifi_credentials::save("MyNetwork", "hunter2hunter2");
+    Print p;
+    serial_commands::processLine("wifi forget", p);
+    TEST_ASSERT_TRUE(p.contains("[OK]"));
+    TEST_ASSERT_FALSE(wifi_stub::hasSaved());
+    TEST_ASSERT_TRUE(wifi_stub::reloadRequested());
+}
+
+void test_sc_wifi_on_off_do_not_touch_the_boot_setting() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi off", p);
+    TEST_ASSERT_FALSE(dashboard::isWifiEnabled());
+    TEST_ASSERT_TRUE(wifi_stub::onBoot());
+    serial_commands::processLine("wifi on", p);
+    TEST_ASSERT_TRUE(dashboard::isWifiEnabled());
+}
+
+void test_sc_wifi_onboot_accepts_each_spelling() {
+    static const char* const offWords[] = {"false", "0", "off", "FALSE", "Off"};
+    static const char* const onWords[]  = {"true", "1", "on", "TRUE", "On"};
+    char line[32];
+    for (size_t wordIndex = 0; wordIndex < 5; ++wordIndex) {
+        resetAll();
+        Print p;
+        snprintf(line, sizeof(line), "wifi onboot %s", offWords[wordIndex]);
+        serial_commands::processLine(line, p);
+        TEST_ASSERT_FALSE_MESSAGE(wifi_stub::onBoot(), line);
+        snprintf(line, sizeof(line), "wifi onboot %s", onWords[wordIndex]);
+        serial_commands::processLine(line, p);
+        TEST_ASSERT_TRUE_MESSAGE(wifi_stub::onBoot(), line);
+        TEST_ASSERT_TRUE(dashboard::isWifiEnabled());  // the running state is untouched
+    }
+}
+
+void test_sc_wifi_onboot_rejects_other_words() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi onboot maybe", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_TRUE(wifi_stub::onBoot());
+}
+
+void test_sc_wifi_onboot_without_argument_prints_setting() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi onboot off", p);
+    p.reset();
+    serial_commands::processLine("wifi onboot", p);
+    TEST_ASSERT_TRUE(p.contains("on boot: off"));
+}
+
+void test_sc_wifi_scan_refused_while_off() {
+    resetAll();
+    Print p;
+    serial_commands::processLine("wifi off", p);
+    serial_commands::processLine("wifi scan", p);
+    TEST_ASSERT_TRUE(p.contains("[ERR]"));
+    TEST_ASSERT_FALSE(wifi_stub::scanRequested());
+
+    serial_commands::processLine("wifi on", p);
+    serial_commands::processLine("wifi scan", p);
+    TEST_ASSERT_TRUE(wifi_stub::scanRequested());
+}
+
+void test_wifi_ssid_length_limits() {
+    TEST_ASSERT_FALSE(wifi_credentials::isValidSsid(""));
+    TEST_ASSERT_TRUE(wifi_credentials::isValidSsid("a"));
+    TEST_ASSERT_TRUE(wifi_credentials::isValidSsid("12345678901234567890123456789012"));    // 32
+    TEST_ASSERT_FALSE(wifi_credentials::isValidSsid("123456789012345678901234567890123"));  // 33
+}
+
+void test_wifi_passphrase_length_limits() {
+    char passphrase[66];
+    memset(passphrase, 'x', sizeof(passphrase));
+
+    passphrase[0] = '\0';
+    TEST_ASSERT_TRUE(wifi_credentials::isValidPassphrase(passphrase));   // open network
+    memset(passphrase, 'x', sizeof(passphrase));
+    passphrase[7] = '\0';
+    TEST_ASSERT_FALSE(wifi_credentials::isValidPassphrase(passphrase));
+    passphrase[7] = 'x';
+    passphrase[8] = '\0';
+    TEST_ASSERT_TRUE(wifi_credentials::isValidPassphrase(passphrase));
+    passphrase[8]  = 'x';
+    passphrase[64] = '\0';
+    TEST_ASSERT_TRUE(wifi_credentials::isValidPassphrase(passphrase));
+    passphrase[64] = 'x';
+    passphrase[65] = '\0';
+    TEST_ASSERT_FALSE(wifi_credentials::isValidPassphrase(passphrase));
+}
+
+// ---------------------------------------------------------------------------
 // Entry point called by the shared test runner in test_state_machine.cpp
 // ---------------------------------------------------------------------------
 
@@ -455,4 +658,23 @@ void run_serial_command_tests() {
     RUN_TEST(test_sc_cooling_fan_out_of_range_returns_error);
     RUN_TEST(test_sc_cooling_fan_non_numeric_returns_error);
     RUN_TEST(test_sc_cooling_fan_does_not_match_cooling_on);
+
+    // wifi credentials
+    RUN_TEST(test_sc_wifi_set_echo_hides_network_name);
+    RUN_TEST(test_sc_wifi_set_saves_and_requests_reconnect);
+    RUN_TEST(test_sc_wifi_passphrase_never_printed);
+    RUN_TEST(test_sc_wifi_passphrase_is_not_run_as_a_command);
+    RUN_TEST(test_sc_wifi_set_open_network);
+    RUN_TEST(test_sc_wifi_set_short_passphrase_saves_nothing);
+    RUN_TEST(test_sc_wifi_set_rejects_bad_ssid);
+    RUN_TEST(test_sc_wifi_set_times_out);
+    RUN_TEST(test_sc_wifi_set_reports_flash_failure);
+    RUN_TEST(test_sc_wifi_forget_erases_and_reloads);
+    RUN_TEST(test_sc_wifi_on_off_do_not_touch_the_boot_setting);
+    RUN_TEST(test_sc_wifi_onboot_accepts_each_spelling);
+    RUN_TEST(test_sc_wifi_onboot_rejects_other_words);
+    RUN_TEST(test_sc_wifi_onboot_without_argument_prints_setting);
+    RUN_TEST(test_sc_wifi_scan_refused_while_off);
+    RUN_TEST(test_wifi_ssid_length_limits);
+    RUN_TEST(test_wifi_passphrase_length_limits);
 }

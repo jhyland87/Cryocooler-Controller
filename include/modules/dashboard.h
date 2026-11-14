@@ -22,7 +22,7 @@ namespace dashboard {
  * Call from setup(). Makes one bounded WiFi attempt, then the task keeps retrying
  * with backoff. A repeat call only requests a retry, without blocking.
  * @return MODULE_INIT_SUCCESS when connected (also set later if the task connects),
- *         MODULE_INIT_CONFIG_ERROR while WiFi is down,
+ *         MODULE_INIT_CONFIG_ERROR while WiFi is down, off, or has no saved credentials,
  *         MODULE_INIT_DEPENDENCY_ERROR if the server or task can't start.
  */
 module::InitStatus init();
@@ -46,6 +46,22 @@ bool isEnabled();
 /** Ask the dashboard task to start a new WiFi attempt on its next tick (within 1 s). */
 void requestWifiRetry();
 
+/** Ask the dashboard task to re-read the saved credentials and reconnect with them. */
+void reloadWifiCredentials();
+
+/** Ask the dashboard task to scan and print every visible network to the serial port. */
+void requestWifiScan();
+
+/**
+ * Turn the WiFi radio on or off, applied by the dashboard task. Not stored: the
+ * state at boot comes from wifi_credentials::loadOnBoot().
+ * @param enabled true to turn WiFi on.
+ */
+void setWifiEnabled(bool enabled);
+
+/** @return true if WiFi is set to on (it may still be disconnected). */
+bool isWifiEnabled();
+
 /**
  * Request a maximum WiFi transmit power, applied by the dashboard task. Starts a
  * new attempt when not connected. Not stored: a reboot returns to the default.
@@ -55,7 +71,7 @@ void requestWifiRetry();
 bool setWifiTxPower(float powerDbm);
 
 /**
- * Print link state, signal, MAC, transmit power and last disconnect reason.
+ * Print on/off state, saved settings, link state, signal, MAC, transmit power and last disconnect reason.
  * @param out Stream to print to.
  */
 void printWifiStatus(Print& out);
