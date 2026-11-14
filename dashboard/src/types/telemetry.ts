@@ -108,6 +108,14 @@ export interface TelemetryData {
     ota_flash_local?: string;
   };
 
+  network?: {
+    hostname?: string;
+    ip?: string;
+    ssid?: string;
+    rssi_dbm?: number;
+    connected?: boolean;
+  };
+
   score?: {
     cooling?: {
       fan_speed?: number;

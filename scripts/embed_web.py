@@ -9,6 +9,9 @@ Files marked for gzip are compressed and embedded as const uint8_t[] byte
 arrays, with a corresponding _len constant.  The firmware serves these with
 a Content-Encoding: gzip header so the browser decompresses transparently.
 
+In text files, {{HOSTNAME}} is replaced with HOSTNAME from
+include/config/config.h.  (app.js gets it from dashboard/vite.config.ts.)
+
 Rebuild firmware after editing any file in data/ to pick up the changes.
 """
 
@@ -16,10 +19,13 @@ Import("env")  # noqa: F821  (PlatformIO injects this)
 
 import gzip  # noqa: E402
 import os  # noqa: E402
+import re  # noqa: E402
 
 PROJECT_DIR = env["PROJECT_DIR"]  # noqa: F821
 DATA_DIR = os.path.join(PROJECT_DIR, "data")
 OUT_PATH = os.path.join(PROJECT_DIR, "include", "web_content.h")
+CONFIG_PATH = os.path.join(PROJECT_DIR, "include", "config", "config.h")
+HOSTNAME_TOKEN = "{{HOSTNAME}}"
 
 # (symbol_name, filename, use_gzip)
 # When use_gzip is True the file is gzip-compressed and emitted as a byte
@@ -39,10 +45,23 @@ DELIM = "WEBFILE"
 BYTES_PER_LINE = 16
 
 
+def _firmware_hostname():
+    """Return HOSTNAME from config.h, or abort the build if it's missing."""
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        match = re.search(r'^#define\s+HOSTNAME\s+"([^"]+)"', f.read(), re.M)
+    if not match:
+        print(f"[embed_web] ERROR: HOSTNAME not found in {CONFIG_PATH}")
+        env.Exit(1)  # noqa: F821
+    return match.group(1)
+
+
+HOSTNAME = _firmware_hostname()
+
+
 def _emit_raw(h, sym, filename, src):
     """Embed a text file as a const char[] raw-string literal."""
     with open(src, "r", encoding="utf-8") as f:
-        content = f.read()
+        content = f.read().replace(HOSTNAME_TOKEN, HOSTNAME)
     size = len(content.encode("utf-8"))
     h.write(f"// {filename}  ({size:,} bytes)\n")
     h.write(f'static const char {sym}[] PROGMEM = R"{DELIM}(\n')

@@ -20,11 +20,9 @@ RECURSIVE              = YES
 FILE_PATTERNS          = *.c *.cpp *.h *.hpp *.md
 USE_MDFILE_AS_MAINPAGE = README.md
 
-# Exclude machine-generated code (regenerated at build time, never hand-edited),
-# the secrets header (gitignored, holds plaintext credentials), and everything
-# outside the firmware source tree.
-EXCLUDE                = include/web_content.h \
-                         include/config/arduino_secrets.h
+# Exclude machine-generated code (regenerated at build time, never hand-edited)
+# and everything outside the firmware source tree.
+EXCLUDE                = include/web_content.h
 EXCLUDE_PATTERNS       = */generated/* \
                          *.pb.c \
                          *.pb.h \

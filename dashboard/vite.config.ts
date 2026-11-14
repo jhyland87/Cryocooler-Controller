@@ -1,10 +1,25 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import path from 'path';
+import fs from 'fs';
+
+/** HOSTNAME from the firmware config, so the dashboard and the board always agree. */
+function firmwareHostname(): string {
+  const configPath = path.resolve(__dirname, '../include/config/config.h');
+  const match = fs.readFileSync(configPath, 'utf8').match(/^#define\s+HOSTNAME\s+"([^"]+)"/m);
+  if (!match) {
+    throw new Error(`HOSTNAME not found in ${configPath}`);
+  }
+  return match[1];
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [preact()],
+
+  define: {
+    __ESP32_HOSTNAME__: JSON.stringify(firmwareHostname()),
+  },
 
   resolve: {
     alias: {

@@ -78,7 +78,11 @@ void setBacklight(bool on) {
 static void formatLines(char lines[LINE_COUNT][LINE_LENGTH]) {
     snprintf(lines[0], LINE_LENGTH, "State: %s",
              state_machine::stateName(state_machine::getState()));
-    snprintf(lines[1], LINE_LENGTH, "Cold head: %7.1f C", cold_head::getLastTempC());
+    if (cold_head::hasValidTemp()) {
+        snprintf(lines[1], LINE_LENGTH, "Cold head: %7.1f C", cold_head::getLastTempC());
+    } else {
+        snprintf(lines[1], LINE_LENGTH, "Cold head:      -- C");
+    }
     RailFlags flags{};
     const bool known = amplifier::railFlags(flags);
     snprintf(lines[2], LINE_LENGTH, "+/-15 V: %s",

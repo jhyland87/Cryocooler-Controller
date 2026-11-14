@@ -26,5 +26,5 @@ changes.
   `SKIP_DASHBOARD_BUILD=1 SKIP_PROTO_BUILD=1 pio run` when a change doesn't touch
   the dashboard or `proto/telemetry.proto`.
 - **Do not edit generated files** — see the list in `.claude/rules/general.md`.
-- **Secrets:** `include/config/arduino_secrets.h` holds plaintext WiFi
-  credentials and is gitignored; never commit or echo its contents.
+- **Secrets:** WiFi credentials live in NVS flash, set with the `wifi set` serial
+  command. Never log or commit a network name or passphrase.

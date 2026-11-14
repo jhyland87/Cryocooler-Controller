@@ -73,6 +73,7 @@ static const char* const kPassiveFields[] = {
     "faults.count_30m",
     "faults.count_60m",
     // Firmware info is constant for the lifetime of a boot — never trigger delta.
+    "network.rssi_dbm",
     "firmware.version",
     "firmware.build_date",
     "firmware.ota_flash_local",
@@ -257,8 +258,8 @@ static void buildStartupFrame(FrameBuilder& frame)
     }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
-        // Emit temp only when the reading is within the plausible range
-        if (!cold_head::hasSensorFault()) {
+        // Emit temp only when the reading is in range and has settled
+        if (cold_head::hasValidTemp()) {
             frame.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
         } else {
             frame.field("cold_head.temp_c", "%s", "");
@@ -443,6 +444,19 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("firmware.ota_flash_local",  "%s",   flashBuf);
     }
 
+    // ── Network (always real) ────────────────────────────────────────────────
+    {
+        // FrameBuilder copies each value as it is added, so this can go out of scope.
+        dashboard::WifiInfo wifiInfo;
+        dashboard::getWifiInfo(wifiInfo);
+        frame
+            .field("network.hostname",  "%s", HOSTNAME)
+            .field("network.ip",        "%s", wifiInfo.ip)
+            .field("network.ssid",      "%s", wifiInfo.ssid)
+            .field("network.rssi_dbm",  "%d", static_cast<int>(wifiInfo.rssiDbm))
+            .field("network.connected", "%d", wifiInfo.connected ? 1 : 0);
+    }
+
     // ── Module init / service status (always real) ─────────────────────────
     frame
         .field("mod.hardware.init",             "%s", module::initStatusName(hardware::Module::getInitStatus()))
@@ -572,7 +586,7 @@ void emit(const state_machine::Output& out)
         .field("state.id",                          "%d",   out.state)
         .field("state.name",                        "%s",   state_machine::stateName(out.state))
         .field("state.status_text",                 "%s",   state_machine::getStatusText());
-    if (!cold_head::hasSensorFault()) {
+    if (cold_head::hasValidTemp()) {
         lastFrame_.field("cold_head.temp_c", "%.2f", cold_head::getLastTempC());
     } else {
         lastFrame_.field("cold_head.temp_c", "%s", "");
@@ -644,6 +658,19 @@ void emit(const state_machine::Output& out)
             .field("firmware.build_date",       "%s",   ota::getFirmwareBuildDate())
             .field("firmware.ota_flash_ts",     "%lld", flashTs)
             .field("firmware.ota_flash_local",  "%s",   flashBuf);
+    }
+
+    // ── Network (always real) ────────────────────────────────────────────────
+    {
+        // FrameBuilder copies each value as it is added, so this can go out of scope.
+        dashboard::WifiInfo wifiInfo;
+        dashboard::getWifiInfo(wifiInfo);
+        lastFrame_
+            .field("network.hostname",  "%s", HOSTNAME)
+            .field("network.ip",        "%s", wifiInfo.ip)
+            .field("network.ssid",      "%s", wifiInfo.ssid)
+            .field("network.rssi_dbm",  "%d", static_cast<int>(wifiInfo.rssiDbm))
+            .field("network.connected", "%d", wifiInfo.connected ? 1 : 0);
     }
 
     lastFrame_

@@ -167,6 +167,16 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
     };
   }
 
+  if (f.network) {
+    out.network = {
+      hostname:  f.network.hostname ?? undefined,
+      ip:        f.network.ip ?? undefined,
+      ssid:      f.network.ssid ?? undefined,
+      rssi_dbm:  f.network.rssiDbm ?? undefined,
+      connected: f.network.connected ?? undefined,
+    };
+  }
+
   if (f.score?.cooling) {
     out.score = {
       cooling: {

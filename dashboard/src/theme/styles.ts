@@ -804,3 +804,48 @@ export const skeletonConsoleDarkLine: SxProps<Theme> = {
   bgcolor: '#161b22',
   flex: 1,
 };
+
+// ─── Network panel ──────────────────────────────────────────────────────────
+
+/** Two-column label / value grid in the Network panel. */
+export const networkGrid: SxProps<Theme> = {
+  display: 'grid',
+  gridTemplateColumns: 'max-content 1fr',
+  columnGap: 2,
+  rowGap: 0.75,
+  alignItems: 'center',
+};
+
+export const networkLabel: SxProps<Theme> = {
+  color: 'text.secondary',
+  fontSize: '0.62rem',
+  letterSpacing: 0.5,
+  textTransform: 'uppercase',
+};
+
+export const networkValue: SxProps<Theme> = {
+  fontFamily: 'monospace',
+  fontSize: '0.85rem',
+  minWidth: 0,
+  overflowWrap: 'anywhere',
+};
+
+/** Loading placeholder spanning both columns. */
+export const networkSkeleton: SxProps<Theme> = {
+  gridColumn: '1 / -1',
+};
+
+export const signalMeter: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'flex-end',
+  gap: '2px',
+  height: 14,
+};
+
+/** One bar of the signal meter; bars get taller left to right. */
+export const signalBar = (barIndex: number, lit: boolean, color: string): SxProps<Theme> => ({
+  width: 4,
+  height: `${40 + barIndex * 20}%`,
+  borderRadius: '1px',
+  bgcolor: lit ? color : 'action.disabledBackground',
+});

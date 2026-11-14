@@ -106,7 +106,7 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
 
     // ── Cold head ────────────────────────────────────────────────────────────
     frame.has_cold_head = true;
-    if (coldHeadOk && !cold_head::hasSensorFault()) {
+    if (coldHeadOk && cold_head::hasValidTemp()) {
         frame.cold_head.temp_c   = cold_head::getLastTempC();
         frame.cold_head.has_temp = true;
         frame.cold_head.cooldown_pct          = cold_head::getTemperatureToPercent();
@@ -246,6 +246,18 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
             copyStr(frame.firmware.ota_flash_local,
                     sizeof(frame.firmware.ota_flash_local), "never");
         }
+    }
+
+    // ── Network ──────────────────────────────────────────────────────────────
+    {
+        dashboard::WifiInfo wifiInfo;
+        dashboard::getWifiInfo(wifiInfo);
+        frame.has_network = true;
+        copyStr(frame.network.hostname, sizeof(frame.network.hostname), HOSTNAME);
+        copyStr(frame.network.ip, sizeof(frame.network.ip), wifiInfo.ip);
+        copyStr(frame.network.ssid, sizeof(frame.network.ssid), wifiInfo.ssid);
+        frame.network.rssi_dbm  = wifiInfo.rssiDbm;
+        frame.network.connected = wifiInfo.connected;
     }
 
     // ── Scores ───────────────────────────────────────────────────────────────
