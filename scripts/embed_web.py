@@ -9,8 +9,9 @@ Files marked for gzip are compressed and embedded as const uint8_t[] byte
 arrays, with a corresponding _len constant.  The firmware serves these with
 a Content-Encoding: gzip header so the browser decompresses transparently.
 
-In text files, {{HOSTNAME}} is replaced with HOSTNAME from
-include/config/config.h.  (app.js gets it from dashboard/vite.config.ts.)
+In text files, {{HOSTNAME}} and {{REMEMBER_DAYS}} are replaced with HOSTNAME
+and DASHBOARD_REMEMBER_DAYS from include/config/config.h.  (app.js gets the
+hostname from dashboard/vite.config.ts.)
 
 Rebuild firmware after editing any file in data/ to pick up the changes.
 """
@@ -25,7 +26,11 @@ PROJECT_DIR = env["PROJECT_DIR"]  # noqa: F821
 DATA_DIR = os.path.join(PROJECT_DIR, "data")
 OUT_PATH = os.path.join(PROJECT_DIR, "include", "web_content.h")
 CONFIG_PATH = os.path.join(PROJECT_DIR, "include", "config", "config.h")
-HOSTNAME_TOKEN = "{{HOSTNAME}}"
+# {{TOKEN}} in a text file -> the #define it is filled from.
+CONFIG_TOKENS = {
+    "{{HOSTNAME}}": "HOSTNAME",
+    "{{REMEMBER_DAYS}}": "DASHBOARD_REMEMBER_DAYS",
+}
 
 # (symbol_name, filename, use_gzip)
 # When use_gzip is True the file is gzip-compressed and emitted as a byte
@@ -37,6 +42,7 @@ WEB_FILES = [
     ("ota_html", "ota.html", False),
     ("ota_css", "ota.css", False),
     ("ota_js", "ota.js", False),
+    ("login_html", "login.html", False),
 ]
 
 # Raw-string delimiter — must not appear inside any of the source files.
@@ -45,23 +51,29 @@ DELIM = "WEBFILE"
 BYTES_PER_LINE = 16
 
 
-def _firmware_hostname():
-    """Return HOSTNAME from config.h, or abort the build if it's missing."""
+def _config_values():
+    """Return {token: value} from config.h, or abort the build if one is missing."""
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        match = re.search(r'^#define\s+HOSTNAME\s+"([^"]+)"', f.read(), re.M)
-    if not match:
-        print(f"[embed_web] ERROR: HOSTNAME not found in {CONFIG_PATH}")
-        env.Exit(1)  # noqa: F821
-    return match.group(1)
+        config = f.read()
+    values = {}
+    for token, name in CONFIG_TOKENS.items():
+        match = re.search(rf'^#define\s+{name}\s+"?([^"\s]+)"?', config, re.M)
+        if not match:
+            print(f"[embed_web] ERROR: {name} not found in {CONFIG_PATH}")
+            env.Exit(1)  # noqa: F821
+        values[token] = match.group(1)
+    return values
 
 
-HOSTNAME = _firmware_hostname()
+CONFIG_VALUES = _config_values()
 
 
 def _emit_raw(h, sym, filename, src):
     """Embed a text file as a const char[] raw-string literal."""
     with open(src, "r", encoding="utf-8") as f:
-        content = f.read().replace(HOSTNAME_TOKEN, HOSTNAME)
+        content = f.read()
+    for token, value in CONFIG_VALUES.items():
+        content = content.replace(token, value)
     size = len(content.encode("utf-8"))
     h.write(f"// {filename}  ({size:,} bytes)\n")
     h.write(f'static const char {sym}[] PROGMEM = R"{DELIM}(\n')

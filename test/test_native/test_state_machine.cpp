@@ -39,6 +39,7 @@ void run_log_tests();
 // +-15 V power-good monitor tests (defined in test_power_good.cpp)
 void run_power_good_tests();
 void run_reading_stabilizer_tests();
+void run_session_table_tests();
 
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
@@ -1675,6 +1676,7 @@ int main(int argc, char **argv) {
     run_log_tests();
     run_power_good_tests();
     run_reading_stabilizer_tests();
+    run_session_table_tests();
 
     return UNITY_END();
 }

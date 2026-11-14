@@ -7,6 +7,9 @@
  * or run on the Vite dev server, it uses the device's mDNS name, which comes
  * from HOSTNAME in include/config/config.h (both injected by vite.config.ts).
  * That second case can't log in, so it only works with no dashboard password.
+ *
+ * With a password set the board answers a logged-out request with 401;
+ * deviceFetch() then sends the browser to the board's login page.
  */
 
 declare const __ESP32_HOSTNAME__: string;
@@ -38,4 +41,27 @@ export function deviceHttpUrl(path: string): string {
 export function deviceWsUrl(path: string): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${proto}//${ESP32_HOST}${path}`;
+}
+
+/**
+ * fetch() for a device endpoint. From a page served by the board it marks the
+ * request as the dashboard's own, and a 401 reply sends the browser to the
+ * login page.
+ *
+ * @param path  Absolute path, e.g. '/api/fault-history'.
+ * @param init  Usual fetch options.
+ * @returns The response, including a 401 one.
+ */
+export async function deviceFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  if (!SERVED_BY_DEVICE) {
+    // A custom header would force a cross-origin preflight the board doesn't answer.
+    return fetch(deviceHttpUrl(path), init);
+  }
+  const headers = new Headers(init.headers);
+  headers.set('X-Dashboard', '1');
+  const response = await fetch(deviceHttpUrl(path), { ...init, headers });
+  if (response.status === 401) {
+    window.location.replace('/login');
+  }
+  return response;
 }

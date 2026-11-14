@@ -34,6 +34,7 @@
  *   wifi set \<ssid\>    - Save a network; the passphrase is asked for on the next line
  *   wifi forget          - Erase the saved network and disconnect
  *   dashboard password   - Set or remove the dashboard password (asked for on the next line)
+ *   dashboard logout     - End every dashboard login, including remembered ones
  *   ota password         - Set the OTA update password (asked for on the next line)
  *   password status      - Show whether the dashboard and OTA passwords are set
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)

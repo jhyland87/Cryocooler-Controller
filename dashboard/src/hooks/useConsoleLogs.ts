@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { LogEntry } from '../types/hooks';
-import { deviceHttpUrl } from '../utils/esp32Host';
+import { deviceFetch } from '../utils/esp32Host';
 
 // Re-export for existing consumers
 export type { LogEntry } from '../types/hooks';
@@ -9,10 +9,6 @@ export type { LogEntry } from '../types/hooks';
 
 /** Maximum number of log entries retained in the browser. */
 const MAX_ENTRIES = 500;
-
-function apiUrl(): string {
-  return deviceHttpUrl('/api/telemetry');
-}
 
 /** Stable fingerprint for deduplication: ms + first 60 chars of text. */
 function fingerprint(e: LogEntry): string {
@@ -43,7 +39,7 @@ export function useConsoleLogs(logEpoch: number | undefined): { entries: LogEntr
   const fetchLogs = useCallback(async () => {
     if (!mountedRef.current) return;
     try {
-      const res = await fetch(apiUrl());
+      const res = await deviceFetch('/api/telemetry');
       if (!res.ok) return;
 
       const raw = await res.json() as Record<string, unknown>;

@@ -442,11 +442,17 @@ static void handleWebPassword(SecretPrompt prompt, const char* resetWord, const 
         return;
     }
     if (password[0] != '\0') {
-        out.println(isDashboard ? F("[OK] Dashboard password set") : F("[OK] OTA password set"));
+        out.println(isDashboard ? F("[OK] Dashboard password set; every dashboard login was ended")
+                                : F("[OK] OTA password set"));
         return;
     }
     out.println(isDashboard ? F("[OK] Dashboard password removed; the dashboard is open")
                             : F("[OK] OTA password restored to the default"));
+}
+
+static void handleDashboardLogout(const char* /*args*/, Print& out) {
+    web_auth::clearSessions();
+    out.println(F("[OK] Every dashboard login was ended, remembered ones included"));
 }
 
 static void handlePasswordStatus(const char* /*args*/, Print& out) {
@@ -1409,6 +1415,7 @@ static const Command commandMap[] = {
     {"wifi set",            handleWifiSet,      "Save a network: wifi set <ssid>, then enter the passphrase when asked"},
     {"wifi forget",         handleWifiForget,   "Erase the saved WiFi network and disconnect"},
     {"dashboard password",  handleDashboardPassword, "Set or remove the dashboard password (asked for on the next line)"},
+    {"dashboard logout",    handleDashboardLogout,   "End every dashboard login, remembered ones included"},
     {"ota password",        handleOtaPassword,       "Set the OTA update password (asked for on the next line)"},
     {"password status",     handlePasswordStatus,    "Show whether the dashboard and OTA passwords are set"},
 #ifdef ARDUINO

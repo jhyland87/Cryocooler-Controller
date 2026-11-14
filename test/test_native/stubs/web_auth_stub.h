@@ -14,6 +14,7 @@ void reset();
 const char* dashboardPassword();  ///< "" when none is set
 const char* otaPassword();        ///< the default until one is set
 void setSaveFails(bool fails);    ///< make the setters report a flash failure
+unsigned sessionClears();         ///< times every session was ended since reset()
 
 } // namespace web_auth_stub
 

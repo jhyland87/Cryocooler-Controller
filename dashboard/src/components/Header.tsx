@@ -4,6 +4,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import type { ConnectionStatus } from '../types/hooks';
 import type { HeaderProps } from '../types/components';
@@ -52,6 +53,7 @@ export function Header({
   cooldownPct,
   frameCount,
   loading,
+  onLogout,
 }: HeaderProps) {
   if (loading) {
     return (
@@ -136,6 +138,12 @@ export function Header({
         />
 
         <LiveClock />
+
+        {onLogout && (
+          <Button size="small" color="inherit" onClick={onLogout} sx={sx.headerLogout}>
+            Log out
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );

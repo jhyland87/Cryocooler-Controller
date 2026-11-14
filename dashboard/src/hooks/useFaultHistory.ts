@@ -1,14 +1,10 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { FaultRecord, FaultHistoryMessage } from '../types/faultHistory';
 import type { FaultHistoryState } from '../types/hooks';
-import { deviceHttpUrl } from '../utils/esp32Host';
+import { deviceFetch } from '../utils/esp32Host';
 
 // Re-export for existing consumers
 export type { FaultHistoryState } from '../types/hooks';
-
-function faultHistoryUrl(): string {
-  return deviceHttpUrl('/api/fault-history');
-}
 
 /**
  * useFaultHistory
@@ -27,7 +23,7 @@ export function useFaultHistory(): FaultHistoryState & { pushUpdate: (msg: Fault
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(faultHistoryUrl());
+        const res = await deviceFetch('/api/fault-history');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json() as FaultHistoryMessage;
         if (!cancelled) setFaults(json.records ?? []);
