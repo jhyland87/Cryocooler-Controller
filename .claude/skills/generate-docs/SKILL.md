@@ -53,7 +53,7 @@ pages, and the module/class APIs come from the `/** */` comments in
 
 Generated and non-firmware code is excluded from the docs and must never be
 hand-documented: `include/web_content.h`, `*/generated/*`, `*.pb.*`,
-`include/config/arduino_secrets.h` (secrets), `dashboard/`, `lib/`, `.pio/`.
+`dashboard/`, `lib/`, `.pio/`.
 
 ## Diagrams (optional)
 

@@ -246,9 +246,9 @@ Connects to WiFi and serves a Preact single-page application with real-time tele
 
 - **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`), a JSON telemetry endpoint at `GET /api/telemetry`, and the run history at `GET /api/history` (see run_recorder)
 - **WebSocket** (`ws://<hostname>/ws` on port 80): streams Protobuf-encoded telemetry frames at 1 Hz
-- **mDNS**: `cryocooler.local`
+- **mDNS**: `cryocooler.local` by default. Change `HOSTNAME` in `include/config/config.h`; the firmware and the dashboard build both read it, so rebuild both (a full `pio run`).
 
-The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials live in `include/config/arduino_secrets.h`.
+The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials are set from the serial console (`wifi set`) and saved in NVS flash; see [WiFi credentials](#wifi-credentials).
 
 ---
 
@@ -283,8 +283,13 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `fault history` | Print fault log with reason and clear method |
 | `board` | Print compile-time board/platform info |
 | `reinit` | Re-initialise all or named modules |
-| `wifi status` | Print WiFi link, signal, TX power and last disconnect reason |
+| `wifi status` | Print WiFi on/off state, saved settings, link, signal, TX power and last disconnect reason |
 | `wifi retry` | Start a new WiFi connection attempt now |
+| `wifi on` / `wifi off` | Turn WiFi on or off until reboot |
+| `wifi onboot <on\|off>` | Save whether WiFi starts at boot (also `true`/`false`/`1`/`0`); no argument prints the setting |
+| `wifi scan` | List visible networks with RSSI, channel and security (serial port only) |
+| `wifi set <ssid>` | Save a network; the passphrase is asked for on the next line |
+| `wifi forget` | Erase the saved network and disconnect |
 | `wifi txpower <dBm>` | Set max WiFi TX power until reboot; retries if not connected |
 | `cooling on/off` | Enable / disable cooling system |
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
@@ -540,12 +545,21 @@ board    = esp32-s3-devkitc-1-n32r16v
 
 ### WiFi credentials
 
-Create `include/config/arduino_secrets.h` (excluded from version control):
+Credentials are set over the USB serial console and saved in NVS flash, so they
+survive reboots and firmware updates. A board with nothing saved stays offline.
 
-```cpp
-#define WIFI_SSID "your-network-name"
-#define WIFI_PASS "your-password"
+```text
+wifi scan              list the networks in range
+wifi set My Network    the name is the rest of the line, spaces included
+<passphrase>           asked for next; type "open" for a network without one
 ```
+
+- The passphrase line is never echoed or logged, and network names are printed to
+  the serial port only, so neither shows in the dashboard's log panel.
+- `wifi forget` erases the saved network. `wifi off` / `wifi on` switch the radio
+  until reboot; `wifi onboot off` keeps it off at boot.
+- NVS is not encrypted: the passphrase is plaintext in flash, readable by anyone
+  with physical access to the board.
 
 ### Key tuning parameters
 

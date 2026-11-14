@@ -33,6 +33,7 @@
 #include "run_recorder.h"
 #include "logger.h"
 #include "state_machine.h"
+#include "wifi_credentials.h"
 
 static LogStream _Log = Log.createChildLogger("dashboard");
 // AsyncWebSocket is included via ESPAsyncWebServer.h
@@ -84,6 +85,9 @@ static bool             runtimeStarted_ = false;  // HTTP server and task are ru
 static volatile uint8_t wifiDisconnectReason_ = 0;
 static volatile bool    wifiRetryRequested_   = false;
 static volatile int8_t  wifiPendingTxPower_   = 0;  // wifi_power_t value; 0 = none pending
+static volatile bool    wifiCredentialsChanged_ = false;
+static volatile bool    wifiScanRequested_    = false;
+static volatile bool    wifiEnabled_          = true;  // wanted state; the task follows it
 
 // Owned by whichever task runs the connection: init(), then the dashboard task.
 static bool             wifiLinkUp_          = false;
@@ -93,6 +97,10 @@ static uint32_t         wifiAttemptCount_    = 0;
 static uint32_t         wifiAttemptStartMs_  = 0;
 static uint32_t         wifiNextAttemptMs_   = 0;
 static uint32_t         wifiRetryDelayMs_    = wifiRetryMinDelayMs;
+static bool             wifiRadioOn_         = false;
+static bool             wifiScanRunning_     = false;
+static char             wifiSsid_[wifi_credentials::SSID_MAX_CHARS + 1]             = "";
+static char             wifiPassphrase_[wifi_credentials::PASSPHRASE_MAX_CHARS + 1] = "";
 
 static volatile bool    enabled_ = true;
 static AsyncWebServer   httpServer(HTTP_API_PORT);
@@ -198,9 +206,76 @@ static const char* wifiSecurityName(wifi_auth_mode_t mode) {
     }
 }
 
+static bool hasWifiCredentials() {
+    return wifiSsid_[0] != '\0';
+}
+
+static void loadWifiCredentials() {
+    if (!wifi_credentials::load(wifiSsid_, sizeof(wifiSsid_), wifiPassphrase_, sizeof(wifiPassphrase_))) {
+        _Log.println(F("No WiFi credentials — run 'wifi set <ssid>'"));
+    }
+}
+
+/** Bring the radio up in station mode. */
+static void startWifiRadio() {
+    WiFi.setHostname(HOSTNAME);
+    WiFi.mode(WIFI_STA);
+    // Modem sleep wakes the radio only at the AP's DTIM beacons, adding
+    // 100-400 ms per packet. The board is mains powered, so keep it awake.
+    WiFi.setSleep(false);
+    wifiRadioOn_ = true;
+}
+
+/** Print the results of a finished `wifi scan`. Serial only: network names stay out of the log. */
+static void printWifiScan(int16_t foundCount) {
+    if (foundCount < 0) {
+        Serial.printf("[ERR] WiFi scan failed (%d)\n", foundCount);
+        return;
+    }
+    Serial.printf("[OK] WiFi scan: %d network(s)\n", foundCount);
+    for (int16_t index = 0; index < foundCount; ++index) {
+        Serial.printf("  %-32s  %4d dBm  channel %2d  %s\n",
+                      WiFi.SSID(index).c_str(), WiFi.RSSI(index), WiFi.channel(index),
+                      wifiSecurityName(WiFi.encryptionType(index)));
+    }
+}
+
+/**
+ * Run a requested `wifi scan` without blocking the task.
+ * @return true while a scan is starting or running, so connection attempts wait.
+ */
+static bool serviceWifiScan() {
+    if (wifiScanRunning_) {
+        const int16_t foundCount = WiFi.scanComplete();
+        if (foundCount == WIFI_SCAN_RUNNING) {
+            return true;
+        }
+        wifiScanRunning_ = false;
+        printWifiScan(foundCount);
+        WiFi.scanDelete();
+        return false;
+    }
+    if (!wifiScanRequested_) {
+        return false;
+    }
+    if (wifiAttemptActive_) {
+        // The driver can't scan while connecting; drop the attempt and scan next tick.
+        WiFi.disconnect();
+        wifiAttemptActive_ = false;
+        wifiNextAttemptMs_ = millis();
+        return true;
+    }
+    wifiScanRequested_ = false;
+    wifiScanRunning_   = (WiFi.scanNetworks(true) == WIFI_SCAN_RUNNING);
+    if (!wifiScanRunning_) {
+        Serial.println(F("[ERR] WiFi scan could not start"));
+    }
+    return wifiScanRunning_;
+}
+
 /** Log every access point advertising the configured network. The name itself stays out of the log. */
 static void logWifiScan() {
-    const int16_t foundCount = WiFi.scanNetworks(false, false, false, wifiScanDwellMs, 0, WIFI_SSID);
+    const int16_t foundCount = WiFi.scanNetworks(false, false, false, wifiScanDwellMs, 0, wifiSsid_);
     if (foundCount < 0) {
         _Log.printf("WiFi scan failed (%d)\n", foundCount);
         return;
@@ -230,7 +305,7 @@ static void beginWifiAttempt() {
     wifiDisconnectReason_ = 0;
     wifiAttemptStartMs_   = millis();
     wifiAttemptActive_    = true;
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    WiFi.begin(wifiSsid_, wifiPassphrase_[0] != '\0' ? wifiPassphrase_ : nullptr);
 }
 
 /** Start mDNS and SNTP. Both survive a reconnect, so this runs only once. */
@@ -256,12 +331,46 @@ static void startNetworkServices() {
 }
 
 void serviceWifiLink() {
+    if (!wifiEnabled_) {
+        if (wifiRadioOn_) {
+            WiFi.scanDelete();
+            WiFi.mode(WIFI_OFF);
+            wifiRadioOn_       = false;
+            wifiLinkUp_        = false;
+            wifiAttemptActive_ = false;
+            wifiScanRunning_   = false;
+            _Log.println(F("WiFi off"));
+        }
+        return;
+    }
+    if (!wifiRadioOn_) {
+        startWifiRadio();
+        wifiRetryDelayMs_  = wifiRetryMinDelayMs;
+        wifiNextAttemptMs_ = millis();
+        _Log.println(F("WiFi on"));
+    }
+
     const int8_t pendingPower = wifiPendingTxPower_;
     if (pendingPower != 0) {
         wifiPendingTxPower_ = 0;
         const bool applied = WiFi.setTxPower(static_cast<wifi_power_t>(pendingPower));
         _Log.printf("WiFi TX power %s: %.1f dBm\n", applied ? "set" : "NOT set",
                     static_cast<float>(WiFi.getTxPower()) / 4.0f);
+    }
+
+    if (wifiCredentialsChanged_) {
+        wifiCredentialsChanged_ = false;
+        loadWifiCredentials();
+        WiFi.disconnect();
+        wifiLinkUp_        = false;
+        wifiAttemptActive_ = false;
+        wifiRetryDelayMs_  = wifiRetryMinDelayMs;
+        wifiNextAttemptMs_ = millis();
+        return;  // let the disconnect settle; the next tick connects
+    }
+
+    if (serviceWifiScan()) {
+        return;
     }
 
     if (WiFi.status() == WL_CONNECTED) {
@@ -286,6 +395,11 @@ void serviceWifiLink() {
         wifiNextAttemptMs_ = nowMs;
         _Log.printf("WiFi connection lost (reason %u, %s)\n",
                     wifiDisconnectReason_, wifiReasonName(wifiDisconnectReason_));
+    }
+
+    if (!hasWifiCredentials()) {
+        wifiRetryRequested_ = false;
+        return;
     }
 
     if (wifiAttemptActive_) {
@@ -314,6 +428,22 @@ void requestWifiRetry() {
     wifiRetryRequested_ = true;
 }
 
+void reloadWifiCredentials() {
+    wifiCredentialsChanged_ = true;
+}
+
+void requestWifiScan() {
+    wifiScanRequested_ = true;
+}
+
+void setWifiEnabled(bool enabled) {
+    wifiEnabled_ = enabled;
+}
+
+bool isWifiEnabled() {
+    return wifiEnabled_;
+}
+
 bool setWifiTxPower(float powerDbm) {
     struct TxPowerLevel {
         float dbm;
@@ -340,7 +470,17 @@ bool setWifiTxPower(float powerDbm) {
 void printWifiStatus(Print& out) {
     char line[96];
     const bool connected = (WiFi.status() == WL_CONNECTED);
-    out.println(connected ? F("WiFi: connected") : F("WiFi: not connected"));
+    if (!wifiEnabled_) {
+        out.println(F("WiFi: off ('wifi on' to enable)"));
+    } else {
+        out.println(connected ? F("WiFi: connected") : F("WiFi: not connected"));
+    }
+    out.println(hasWifiCredentials() ? F("  Credentials: saved")
+                                     : F("  Credentials: none ('wifi set <ssid>' to add)"));
+    out.println(wifi_credentials::loadOnBoot() ? F("  On boot: on") : F("  On boot: off"));
+    if (!wifiEnabled_) {
+        return;
+    }
     if (connected) {
         snprintf(line, sizeof(line), "  IP %s  RSSI %d dBm  channel %d",
                  WiFi.localIP().toString().c_str(), WiFi.RSSI(), WiFi.channel());
@@ -368,7 +508,7 @@ static void dashboardTask(void* /*arg*/) {
         // Accurate 1 Hz period regardless of send duration.
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(broadcastIntervalMs));
 
-        // Runs even with broadcasts disabled, and may block here for a scan.
+        // Runs even with broadcasts disabled, and may block here for the pre-attempt scan.
         serviceWifiLink();
 
         if (!enabled_) continue;
@@ -431,8 +571,10 @@ module::InitStatus init() {
         if (WiFi.status() == WL_CONNECTED) {
             return module::MODULE_INIT_SUCCESS;
         }
-        requestWifiRetry();
-        _Log.println(F("WiFi not connected; retrying in the background"));
+        if (wifiEnabled_ && hasWifiCredentials()) {
+            requestWifiRetry();
+            _Log.println(F("WiFi not connected; retrying in the background"));
+        }
         return module::MODULE_INIT_CONFIG_ERROR;
     }
 
@@ -461,7 +603,9 @@ module::InitStatus init() {
     runtimeStarted_ = true;
 
     if (!wifiConnected) {
-        _Log.println(F("WiFi not connected; retrying in the background"));
+        if (wifiEnabled_ && hasWifiCredentials()) {
+            _Log.println(F("WiFi not connected; retrying in the background"));
+        }
         return module::MODULE_INIT_CONFIG_ERROR;
     }
     return module::MODULE_INIT_SUCCESS;
@@ -482,11 +626,20 @@ bool setupWifi() {
         }
     }, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
-    WiFi.setHostname(HOSTNAME);
-    WiFi.mode(WIFI_STA);
-    // Modem sleep wakes the radio only at the AP's DTIM beacons, adding
-    // 100-400 ms per packet. The board is mains powered, so keep it awake.
-    WiFi.setSleep(false);
+    wifiEnabled_ = wifi_credentials::loadOnBoot();
+    loadWifiCredentials();
+    if (!wifiEnabled_) {
+        // The HTTP server needs the TCP/IP stack, which only starts with the WiFi
+        // driver. Bring it up once, then switch the radio straight back off.
+        WiFi.mode(WIFI_STA);
+        WiFi.mode(WIFI_OFF);
+        _Log.println(F("WiFi is off at boot ('wifi onboot') — run 'wifi on' to enable"));
+        return false;
+    }
+    startWifiRadio();
+    if (!hasWifiCredentials()) {
+        return false;
+    }
 
     // One bounded attempt: control hardware, including the relay safe state,
     // initialises after this, so further retries belong to the dashboard task.
