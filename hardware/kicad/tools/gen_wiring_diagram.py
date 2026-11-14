@@ -22,6 +22,7 @@ from render_callouts import PORTS
 KICAD_DIR = Path(__file__).resolve().parents[1]
 CPL = KICAD_DIR / 'bom' / 'cryocooler_cpl.csv'
 COOLER_PNG = KICAD_DIR / 'artwork' / 'cryocooler.png'
+PSU_PNG = KICAD_DIR / 'artwork' / 'dell-psu.png'
 OUT = KICAD_DIR / 'artwork' / 'system-wiring.png'
 PNG_WIDTH = 2920  # twice the page width, so small text stays sharp
 
@@ -62,7 +63,7 @@ CONNECTORS = {
 # reference -> (colour group, route as ('h', x) / ('v', y) moves from the connector)
 WIRES = {
     'J1': ('ui', [('v', 156)]),
-    'J2': ('power', [('v', 622), ('h', 262), ('v', 650)]),
+    'J2': ('power', [('v', 622), ('h', 325), ('v', 800), ('h', 281)]),
     'J5': ('cooling', [('v', 634), ('h', 345), ('v', 850), ('h', 310), ('v', 900)]),
     'J15': ('ui', [('v', 650)]),
     'J13': ('power', [('v', 730)]),
@@ -90,7 +91,6 @@ ARROWS = [(1050, 635, 180), (868, 925, 180), (596, 925, 180), (700, 1010, 0), (1
 BOXES = [
     ('Host PC (optional)', 'USB-C: serial, flashing', 'ui', (202, 110, 160, 46)),
     ('Dashboard', 'http://cryocooler.local', 'ui', (395, 110, 170, 46)),
-    ('Dell 2000 W PSU', 'breakout, 6-pin 12 V ports', 'power', (172, 650, 168, 50)),
     ('Touch display', '2.4" ST7789V, FPC', 'ui', (365, 650, 130, 50)),
     ('Relay / SSR', 'coil, 130 mA max', 'power', (412, 730, 118, 50)),
     ('Flow sensor', 'Alphacool ES', 'cooling', (250, 900, 120, 50)),
@@ -100,7 +100,7 @@ BOXES = [
 ]
 AMP = (730, 650, 225, 140)
 # The amplifier's 12 V feed, from its own port on the PSU breakout (not through the board).
-AMP_FEED = [(172, 675), (160, 675), (160, 1080), (922, 1080), (922, 790)]
+AMP_FEED = [(220, 815), (160, 815), (160, 1080), (922, 1080), (922, 790)]
 # label, x, on the top or bottom face of the amplifier
 AMP_TERMINALS = [
     ('REM / GND', 760, 'top'),
@@ -109,6 +109,8 @@ AMP_TERMINALS = [
     ('12V / GND', 922, 'bottom'),
 ]
 COOLER = (1020, 150, 400, 796)
+# The supply stands on its breakout board, which is the lower third of the picture.
+PSU = (218, 635, 66, 205)
 # colour group, legend text
 LEGEND = [
     ('drive', 'Drive path'),
@@ -255,11 +257,25 @@ def draw_amp():
     return parts
 
 
+def picture(path, rect):
+    x, y, w, h = rect
+    data = base64.b64encode(path.read_bytes()).decode()
+    return f'<image x="{x}" y="{y}" width="{w}" height="{h}" href="data:image/png;base64,{data}"/>'
+
+
+def draw_psu():
+    x, y, w, h = PSU
+    return [
+        picture(PSU_PNG, PSU),
+        text(x + w / 2 - 12, y + h + 20, 'Dell 2000 W PSU', size=15, weight='bold'),
+        text(x + w / 2 - 12, y + h + 36, 'on its breakout board', size=12, fill='#555'),
+    ]
+
+
 def draw_cooler():
     x, y, w, h = COOLER
-    data = base64.b64encode(COOLER_PNG.read_bytes()).decode()
     return [
-        f'<image x="{x}" y="{y}" width="{w}" height="{h}" href="data:image/png;base64,{data}"/>',
+        picture(COOLER_PNG, COOLER),
         text(x + w / 2 + 20, y - 14, 'Cryocooler with cooling jacket', size=18, weight='bold'),
     ]
 
@@ -329,7 +345,7 @@ def main():
         f'<rect width="{PAGE[0]}" height="{PAGE[1]}" fill="#fff"/>',
         text(40, 42, 'Cryocooler system wiring', size=26, anchor='start', weight='bold'),
     ]
-    svg += draw_cooler() + board
+    svg += draw_cooler() + draw_psu() + board
     for start, moves in PIPES:
         svg.append(polyline(trace(start, moves), COLOURS['pipe'], 7))
     svg += [draw_arrow(*arrow) for arrow in ARROWS]

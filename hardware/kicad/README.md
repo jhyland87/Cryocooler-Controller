@@ -120,7 +120,7 @@ python3 hardware/kicad/tools/gen_schematic.py   # root + sheets/
 `tools/gen_bom.py` writes the Digi-Key BOM to `bom/` (see `bom/README.md`).
 
 `tools/gen_wiring_diagram.py` draws the system wiring diagram, `artwork/system-wiring.png` (shown in the root
-`README.md`), around the cooler picture `artwork/cryocooler.png`; it needs `rsvg-convert`. Re-run it when an
+`README.md`), around the cooler and supply pictures `artwork/cryocooler.png` and `artwork/dell-psu.png`; it needs `rsvg-convert`. Re-run it when an
 off-board connector is added, removed or moved.
 
 `tools/verify_netlist.py` checks the GPIO map against `pin_config.h`, missing footprints and
