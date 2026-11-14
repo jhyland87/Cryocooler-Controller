@@ -11,8 +11,15 @@ if [ -z "$HOSTNAME_VALUE" ]; then
 fi
 DEVICE_HOST="$HOSTNAME_VALUE.local"
 
+# Log in as "admin". Set OTA_PASSWORD for a non-interactive run; otherwise curl asks.
+if [ -n "$OTA_PASSWORD" ]; then
+	LOGIN="admin:$OTA_PASSWORD"
+else
+	LOGIN="admin"
+fi
+
 pio run -e esp32s3 &&
-	curl -vF "firmware=@.pio/build/esp32s3/firmware.bin" "http://$DEVICE_HOST/ota" &&
+	curl --fail --digest -u "$LOGIN" -F "firmware=@.pio/build/esp32s3/firmware.bin" "http://$DEVICE_HOST/ota" &&
 	printf "\nWaiting for device.." &&
 	until nc -z "$DEVICE_HOST" 80; do
 		printf ".";

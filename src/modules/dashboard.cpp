@@ -33,6 +33,7 @@
 #include "logger.h"
 #include "state_machine.h"
 #include "wifi_credentials.h"
+#include "web_auth.h"
 
 static LogStream _Log = Log.createChildLogger("dashboard");
 // AsyncWebSocket is included via ESPAsyncWebServer.h
@@ -662,18 +663,25 @@ bool setupWifi() {
 // ─── HTTP server setup ────────────────────────────────────────────────────────
 
 bool setupServer() {
+    web_auth::init();
+
+    // Every dashboard route asks for the dashboard login once a password is set.
     // Static files embedded at compile time by scripts/embed_web.py.
     // No LittleFS partition needed — files are served directly from flash.
     httpServer.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         request->send(200, "text/html", index_html);
     });
     httpServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         request->send(200, "text/html", index_html);
     });
     httpServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         request->send(200, "text/css", style_css);
     });
     httpServer.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         AsyncWebServerResponse* resp = request->beginResponse(
             200, "application/javascript", app_js_gz, app_js_gz_len);
         resp->addHeader("Content-Encoding", "gzip");
@@ -687,6 +695,7 @@ bool setupServer() {
     // fillJsonSafe() is used so the endpoint returns a fully-structured response
     // even during startup, with empty strings for modules not yet initialised.
     httpServer.on("/api/telemetry", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         static char jsonBuf[32768];
         JsonDocument doc;
         telemetry::fillJsonSafe(doc);
@@ -700,6 +709,7 @@ bool setupServer() {
 
     // GET /api/fault-history — full fault history snapshot as JSON.
     httpServer.on("/api/fault-history", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
         static char faultBuf[2048];
         JsonDocument doc;
         fillFaultHistoryJson(doc);
@@ -719,7 +729,30 @@ bool setupServer() {
     // WebSocket endpoint for the Preact SPA dashboard.
     // Browsers connect to ws://<hostname>/ws and receive 1 Hz flat JSON pushes.
     wsServer_.onEvent(onWsEvent);
+    // With a dashboard password set, the socket opens only with a ticket from
+    // GET /api/ws-ticket; browsers don't reliably send a login on the handshake.
+    wsServer_.handleHandshake([](AsyncWebServerRequest* request) {
+        if (!web_auth::hasDashboardPassword()) {
+            return true;
+        }
+        return request->hasParam("ticket") &&
+               web_auth::redeemTicket(request->getParam("ticket")->value().c_str());
+    });
     httpServer.addHandler(&wsServer_);
+
+    // GET /api/ws-ticket — one-use ticket for the WebSocket; empty when no password is set.
+    httpServer.on("/api/ws-ticket", HTTP_GET, [](AsyncWebServerRequest* request) {
+        if (!web_auth::allowDashboard(request)) return;
+        char ticket[web_auth::TICKET_CHARS + 1] = "";
+        if (web_auth::hasDashboardPassword()) {
+            web_auth::issueTicket(ticket);
+        }
+        char body[48];
+        snprintf(body, sizeof(body), "{\"ticket\":\"%s\"}", ticket);
+        AsyncWebServerResponse* response = request->beginResponse(200, "application/json", body);
+        response->addHeader("Cache-Control", "no-store");
+        request->send(response);
+    });
 #endif
 
     httpServer.begin();

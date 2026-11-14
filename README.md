@@ -266,7 +266,7 @@ The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware fla
 
 ### ota
 
-HTTP OTA firmware update endpoint. `GET /ota` serves an upload form; `POST /ota` flashes new firmware. Enabled with `ENABLE_OTA true` in `config.h`.
+HTTP OTA firmware update endpoint. `GET /ota` serves an upload form; `POST /ota` flashes new firmware. Enabled with `ENABLE_OTA true` in `config.h`. Every `/ota` request needs the OTA login; see [Passwords](#passwords).
 
 ---
 
@@ -296,6 +296,9 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `wifi scan` | List visible networks with RSSI, channel and security (serial port only) |
 | `wifi set <ssid>` | Save a network; the passphrase is asked for on the next line |
 | `wifi forget` | Erase the saved network and disconnect |
+| `dashboard password` | Set or remove the dashboard password; asked for on the next line (`none` removes it) |
+| `ota password` | Set the OTA update password; asked for on the next line (`default` restores the default) |
+| `password status` | Show whether each password is set (never prints them) |
 | `wifi txpower <dBm>` | Set max WiFi TX power until reboot; retries if not connected |
 | `cooling on/off` | Enable / disable cooling system |
 | `cooling fan <N>` | Set fan: raw duty (0–255) or percent (0–100%) |
@@ -567,6 +570,29 @@ wifi set My Network    the name is the rest of the line, spaces included
   until reboot; `wifi onboot off` keeps it off at boot.
 - NVS is not encrypted: the passphrase is plaintext in flash, readable by anyone
   with physical access to the board.
+
+### Passwords
+
+The dashboard and the OTA update page each have their own password. Both are set
+over the USB serial console only, saved in NVS flash, and checked with HTTP
+digest login as user `admin`.
+
+| | Default | Set with | Protects |
+|---|---|---|---|
+| Dashboard | none (open) | `dashboard password` | the dashboard page, `/api/*` and the `/ws` WebSocket |
+| OTA | `cryocooler123` | `ota password` | `/ota` (the upload page and the upload itself) |
+
+- Each command asks for the password on the next line. That line is never echoed
+  or logged. Passwords are 8-32 characters with no spaces.
+- At the prompt, `none` removes the dashboard password and `default` restores the
+  OTA default. `password status` shows which are set. **Change the OTA default.**
+- With a dashboard password set, open the dashboard from the board itself
+  (`http://cryocooler.local/` or its IP). The Vite dev server can't log in, so
+  `npm run dev` only works against a board with no dashboard password.
+- From a shell: `curl --digest -u admin ...`, or `OTA_PASSWORD=... bash scripts/ota-update.sh`.
+- The connection is plain HTTP. Digest login keeps the password itself off the
+  network, but telemetry and firmware uploads are not encrypted. NVS is not
+  encrypted either, so both passwords are plaintext in flash.
 
 ### Key tuning parameters
 

@@ -32,7 +32,7 @@
     <strong>FYI:</strong> This can be done via the CLI with:
     <p>
       <code>pio run -e esp32s3 &&
-curl -vF "firmware=@.pio/build/esp32s3/firmware.bin" http://{{HOSTNAME}}.local/ota</code>
+curl --digest -u admin -F "firmware=@.pio/build/esp32s3/firmware.bin" http://{{HOSTNAME}}.local/ota</code>
     </p>
     <p>Or, from the project root:</p>
     <p>

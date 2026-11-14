@@ -33,6 +33,9 @@
  *   wifi scan            - List visible networks (serial port only)
  *   wifi set \<ssid\>    - Save a network; the passphrase is asked for on the next line
  *   wifi forget          - Erase the saved network and disconnect
+ *   dashboard password   - Set or remove the dashboard password (asked for on the next line)
+ *   ota password         - Set the OTA update password (asked for on the next line)
+ *   password status      - Show whether the dashboard and OTA passwords are set
  *   cooling fan <0-100>  - Set cooling fan speed (percentage)
  *   cooling on           - Enable cooling system
  *   cooling off          - Disable cooling system

@@ -55,6 +55,9 @@ commits, chat, or docs. In firmware, the passphrase is never printed. Network na
 stay out of `Log`; the only place the dashboard shows one is the Network panel, which
 gets the joined network from telemetry (`network.ssid`).
 
+The dashboard and OTA passwords (`include/web_auth.h`) follow the same rule: set only
+from the serial console, stored in NVS, never printed, logged, or sent in telemetry.
+
 ## Keep docs in sync
 
 When behaviour, wiring, a pin, or a workflow changes, update the doc that describes it

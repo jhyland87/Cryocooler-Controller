@@ -61,8 +61,8 @@ export function NetworkPanel({ network, loading }: NetworkPanelProps) {
   }
 
   const hostname = network?.hostname ? `${network.hostname}.local` : '—';
-  const hasSignal = Boolean(network?.connected) && typeof network?.rssi_dbm === 'number';
-  const level = hasSignal ? signalLevel(network!.rssi_dbm!) : undefined;
+  const rssiDbm = network?.connected ? network.rssi_dbm : undefined;
+  const level = rssiDbm === undefined ? undefined : signalLevel(rssiDbm);
 
   return (
     <Box sx={sx.networkGrid}>
@@ -77,7 +77,7 @@ export function NetworkPanel({ network, loading }: NetworkPanelProps) {
                 <Box key={barIndex} sx={sx.signalBar(barIndex, barIndex < level.bars, level.color)} />
               ))}
             </Box>
-            <span>{network!.rssi_dbm} dBm · {level.label}</span>
+            <span>{rssiDbm} dBm · {level.label}</span>
           </Box>
         ) : '—'}
       </Row>

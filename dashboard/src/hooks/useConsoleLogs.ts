@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { LogEntry } from '../types/hooks';
-import { ESP32_HOST } from '../utils/esp32Host';
+import { deviceHttpUrl } from '../utils/esp32Host';
 
 // Re-export for existing consumers
 export type { LogEntry } from '../types/hooks';
@@ -11,8 +11,7 @@ export type { LogEntry } from '../types/hooks';
 const MAX_ENTRIES = 500;
 
 function apiUrl(): string {
-  const proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
-  return `${proto}//${ESP32_HOST}/api/telemetry`;
+  return deviceHttpUrl('/api/telemetry');
 }
 
 /** Stable fingerprint for deduplication: ms + first 60 chars of text. */

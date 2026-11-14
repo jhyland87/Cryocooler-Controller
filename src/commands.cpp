@@ -31,6 +31,7 @@
 #include "config.h"
 #include "dashboard.h"
 #include "wifi_credentials.h"
+#include "web_auth.h"
 #ifdef ARDUINO
 #include <WiFi.h>
 #include <esp_ota_ops.h>  // esp_app_desc_t lives here on IDF 5.1.x
@@ -76,20 +77,30 @@ static bool s_awaitingUpdateConfirm = false;
 static TaskHandle_t s_commandTask = nullptr;
 #endif
 
-// ─── WiFi passphrase prompt state ─────────────────────────────────────────────
+// ─── Hidden prompt state ──────────────────────────────────────────────────────
 //
-// 'wifi set <ssid>' stores the name and sets this flag. processLine() takes the
-// next line as the passphrase before the echo, so it never reaches the log.
+// 'wifi set <ssid>', 'dashboard password' and 'ota password' set this.
+// processLine() takes the next line as the secret before the echo, so it never
+// reaches the log.
 
-static constexpr uint32_t wifiPromptTimeoutMs = 60000;
+enum class SecretPrompt : uint8_t { None, WifiPassphrase, DashboardPassword, OtaPassword };
 
-static bool     s_awaitingWifiPassphrase = false;
-static uint32_t s_wifiPromptStartMs      = 0;
-static char     s_pendingWifiSsid[wifi_credentials::SSID_MAX_CHARS + 1];
+static constexpr uint32_t secretPromptTimeoutMs = 60000;
 
-/** @return true once a pending `wifi set` passphrase prompt has run out of time. */
-static bool wifiPromptExpired() {
-    return s_awaitingWifiPassphrase && (millis() - s_wifiPromptStartMs) >= wifiPromptTimeoutMs;
+static SecretPrompt s_secretPrompt        = SecretPrompt::None;
+static uint32_t     s_secretPromptStartMs = 0;
+static char         s_pendingWifiSsid[wifi_credentials::SSID_MAX_CHARS + 1];
+
+/** Start waiting for a secret on the next line. */
+static void openSecretPrompt(SecretPrompt prompt) {
+    s_secretPrompt        = prompt;
+    s_secretPromptStartMs = millis();
+}
+
+/** @return true once a pending hidden prompt has run out of time. */
+static bool secretPromptExpired() {
+    return s_secretPrompt != SecretPrompt::None &&
+           (millis() - s_secretPromptStartMs) >= secretPromptTimeoutMs;
 }
 
 // ─── Command handler type and dispatch table ──────────────────────────────────
@@ -375,16 +386,13 @@ static void handleWifiSet(const char* args, Print& out) {
     }
     memcpy(s_pendingWifiSsid, args, ssidLen);
     s_pendingWifiSsid[ssidLen] = '\0';
-    s_awaitingWifiPassphrase   = true;
-    s_wifiPromptStartMs        = millis();
+    openSecretPrompt(SecretPrompt::WifiPassphrase);
     out.println(F("Enter the passphrase (8-64 characters), or 'open' for a network without one."));
     out.println(F("It is not echoed or logged. The prompt cancels after 60 s."));
 }
 
 /** Take @p line as the passphrase for the pending `wifi set`, save, and reconnect. */
 static void handleWifiPassphrase(const char* line, Print& out) {
-    s_awaitingWifiPassphrase = false;
-
     const char* passphrase = (strcmp(line, "open") == 0) ? "" : line;
     if (!wifi_credentials::isValidPassphrase(passphrase)) {
         out.println(F("[ERR] Passphrase must be 8-64 characters; nothing saved"));
@@ -398,6 +406,74 @@ static void handleWifiPassphrase(const char* line, Print& out) {
     out.println(dashboard::isWifiEnabled()
                     ? F("[OK] WiFi credentials saved; connecting")
                     : F("[OK] WiFi credentials saved; WiFi is off — run 'wifi on' to connect"));
+}
+
+// ─── Dashboard and OTA passwords ──────────────────────────────────────────────
+
+static void handleDashboardPassword(const char* /*args*/, Print& out) {
+    openSecretPrompt(SecretPrompt::DashboardPassword);
+    out.println(F("Enter the dashboard password (8-32 characters, no spaces), or 'none' to remove it."));
+    out.println(F("It is not echoed or logged. The prompt cancels after 60 s."));
+}
+
+static void handleOtaPassword(const char* /*args*/, Print& out) {
+    openSecretPrompt(SecretPrompt::OtaPassword);
+    out.println(F("Enter the OTA password (8-32 characters, no spaces), or 'default' to restore the default."));
+    out.println(F("It is not echoed or logged. The prompt cancels after 60 s."));
+}
+
+/**
+ * Take @p line as the new dashboard or OTA password and save it.
+ * @param prompt     Which password the line is for.
+ * @param resetWord  Word that clears the password instead of setting one.
+ */
+static void handleWebPassword(SecretPrompt prompt, const char* resetWord, const char* line, Print& out) {
+    const bool        isDashboard = (prompt == SecretPrompt::DashboardPassword);
+    const char* const password    = (strcmp(line, resetWord) == 0) ? "" : line;
+
+    if (password[0] != '\0' && !web_auth::isValidPassword(password)) {
+        out.println(F("[ERR] Password must be 8-32 characters with no spaces; nothing changed"));
+        return;
+    }
+    const bool saved = isDashboard ? web_auth::setDashboardPassword(password)
+                                   : web_auth::setOtaPassword(password);
+    if (!saved) {
+        out.println(F("[ERR] Could not save the password to flash"));
+        return;
+    }
+    if (password[0] != '\0') {
+        out.println(isDashboard ? F("[OK] Dashboard password set") : F("[OK] OTA password set"));
+        return;
+    }
+    out.println(isDashboard ? F("[OK] Dashboard password removed; the dashboard is open")
+                            : F("[OK] OTA password restored to the default"));
+}
+
+static void handlePasswordStatus(const char* /*args*/, Print& out) {
+    out.println(web_auth::hasDashboardPassword() ? F("[OK] Dashboard password: set")
+                                                 : F("[OK] Dashboard password: none (open)"));
+    out.println(web_auth::isOtaPasswordDefault() ? F("     OTA password: default — change it with 'ota password'")
+                                                 : F("     OTA password: set"));
+    out.println(F("     User name for both: " WEB_AUTH_USERNAME));
+}
+
+/** Route the line that answers a hidden prompt. */
+static void handleSecretLine(const char* line, Print& out) {
+    const SecretPrompt prompt = s_secretPrompt;
+    s_secretPrompt = SecretPrompt::None;
+    switch (prompt) {
+        case SecretPrompt::WifiPassphrase:
+            handleWifiPassphrase(line, out);
+            break;
+        case SecretPrompt::DashboardPassword:
+            handleWebPassword(prompt, "none", line, out);
+            break;
+        case SecretPrompt::OtaPassword:
+            handleWebPassword(prompt, "default", line, out);
+            break;
+        case SecretPrompt::None:
+            break;
+    }
 }
 
 static void handleWifiForget(const char* /*args*/, Print& out) {
@@ -1332,6 +1408,9 @@ static const Command commandMap[] = {
     {"wifi scan",           handleWifiScan,     "List visible WiFi networks (serial port only)"},
     {"wifi set",            handleWifiSet,      "Save a network: wifi set <ssid>, then enter the passphrase when asked"},
     {"wifi forget",         handleWifiForget,   "Erase the saved WiFi network and disconnect"},
+    {"dashboard password",  handleDashboardPassword, "Set or remove the dashboard password (asked for on the next line)"},
+    {"ota password",        handleOtaPassword,       "Set the OTA update password (asked for on the next line)"},
+    {"password status",     handlePasswordStatus,    "Show whether the dashboard and OTA passwords are set"},
 #ifdef ARDUINO
     {"dashboard off",       handleDashboardOff, "Disable dashboard WebSocket broadcasts"},
     {"dashboard on",        handleDashboardOn,  "Enable dashboard WebSocket broadcasts"},
@@ -1398,13 +1477,13 @@ void processLine(const char* line, Print& out) {
     while (*line == ' ' || *line == '\t') { ++line; }
     if (*line == '\0') return;
 
-    // Before the echo: a passphrase must never be printed or logged.
-    if (wifiPromptExpired()) {
-        s_awaitingWifiPassphrase = false;
-        out.println(F("[ERR] 'wifi set' timed out; nothing saved"));
+    // Before the echo: a passphrase or password must never be printed or logged.
+    if (secretPromptExpired()) {
+        s_secretPrompt = SecretPrompt::None;
+        out.println(F("[ERR] The prompt timed out; nothing saved"));
     }
-    if (s_awaitingWifiPassphrase) {
-        handleWifiPassphrase(line, out);
+    if (s_secretPrompt != SecretPrompt::None) {
+        handleSecretLine(line, out);
         return;
     }
 
@@ -1425,13 +1504,14 @@ void processLine(const char* line, Print& out) {
         if (strncmp(line, "yes", 3) == 0 && (line[3] == '\0' || line[3] == ' ')) {
             out.println(F("[OK] Firmware update confirmed."));
             if (WiFi.status() == WL_CONNECTED) {
-                char buf[96];
+                char buf[128];
                 snprintf(buf, sizeof(buf),
                          "     Navigate to http://%s/ota in your browser to upload a .bin file.",
                          WiFi.localIP().toString().c_str());
                 out.println(buf);
+                out.println(F("     Log in as " WEB_AUTH_USERNAME " with the OTA password."));
                 snprintf(buf, sizeof(buf),
-                         "     Or use: curl -F 'firmware=@firmware.bin' http://%s/ota",
+                         "     Or use: curl --digest -u " WEB_AUTH_USERNAME " -F 'firmware=@firmware.bin' http://%s/ota",
                          WiFi.localIP().toString().c_str());
                 out.println(buf);
             } else {
@@ -1472,7 +1552,7 @@ void processLine(const char* line, Print& out) {
 }
 
 void init() {
-    s_awaitingWifiPassphrase = false;
+    s_secretPrompt = SecretPrompt::None;
     lineLen    = 0;
     lineBuf[0] = '\0';
 #ifdef ARDUINO
@@ -1482,9 +1562,9 @@ void init() {
 
 void service() {
 #ifdef ARDUINO
-    if (wifiPromptExpired()) {
-        s_awaitingWifiPassphrase = false;
-        Log.println(F("[ERR] 'wifi set' timed out; nothing saved"));
+    if (secretPromptExpired()) {
+        s_secretPrompt = SecretPrompt::None;
+        Log.println(F("[ERR] The prompt timed out; nothing saved"));
     }
 
     while (Serial.available()) {

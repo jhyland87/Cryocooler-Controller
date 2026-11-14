@@ -14,11 +14,12 @@ function firmwareHostname(): string {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [preact()],
 
   define: {
     __ESP32_HOSTNAME__: JSON.stringify(firmwareHostname()),
+    __DEV_SERVER__: JSON.stringify(command === 'serve'),
   },
 
   resolve: {
@@ -55,4 +56,4 @@ export default defineConfig({
     // large; the firmware has a 26 MB LittleFS partition so size isn't critical.
     chunkSizeWarningLimit: 2048,
   },
-});
+}));
