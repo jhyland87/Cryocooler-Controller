@@ -138,10 +138,13 @@ def grid(value):
 # ── component helpers ────────────────────────────────────────────────────
 # Discretes are auto-placed beside the pin named by near=(part, pin);
 # ICs/connectors are fixed.
-def res(sh, value, a, b, near=None, fp=R0402, pose=None, **props):
+def res(sh, value, a, b, near=None, fp=R0402, pose=None, small=False, **props):
+    """small draws the compact symbol (pins 2 cells from the centre, not 3), for
+    tight spots.
+    """
     px, py, prot = pose or (0, 0, 0)
     part = sh.add(
-        'Device:R_US',
+        'Device:R_Small_US' if small else 'Device:R_US',
         next_ref('R'),
         value,
         px,
@@ -157,7 +160,7 @@ def res(sh, value, a, b, near=None, fp=R0402, pose=None, **props):
     return part
 
 
-def cap(sh, value, a, b='GND', near=None, fp=None, pose=None):
+def cap(sh, value, a, b='GND', near=None, fp=None, pose=None, small=False):
     # rev 2 packs small values in 0402 (50 V X7R / C0G), 1 uF in 0603
     fp = fp or (
         C0402
@@ -167,7 +170,7 @@ def cap(sh, value, a, b='GND', near=None, fp=None, pose=None):
     )
     px, py, prot = pose or (0, 0, 0)
     part = sh.add(
-        'Device:C',
+        'Device:C_Small' if small else 'Device:C',
         next_ref('C'),
         value,
         px,
@@ -377,17 +380,17 @@ CS_DECODER_OUTPUTS = (
     ('2', 'AD5453_SYNC'),
     ('3', 'INA239_CS'),
     ('4', 'EXPANDER_CS'),
-    ('5', 'DISP_CS'),
-    ('6', 'TOUCH_CS'),
+    ('6', 'ACS_CS'),
     ('7', 'ADS1220_CS'),
     ('8', 'IMU_CS'),
     ('9', 'AMBIENT_CS'),
 )
-# Y9-Y15 are spare chip selects (IDs 109-115)
-CS_DECODER_SPARE_PINS = ('10', '11', '13', '14', '15', '16', '17')
+# Y4 (the display until rev 5) and Y9-Y15 are spare chip selects
+CS_DECODER_SPARE_PINS = ('5', '10', '11', '13', '14', '15', '16', '17')
 # Highest numbers on the rev 4 board; rev 5 parts count up from here so no earlier
-# part is renumbered. The ambient sensor sheet takes U+1, C+1, R+1..2 and the
-# address bit D buffer takes U+2, C+2, R+3.
+# part is renumbered. The ambient sensor sheet takes U+1, C+1, R+1..2, the
+# address bit D buffer U+2, C+2, R+3 and the display link (CAN transceiver,
+# clamps) U+3..5, C+3, R+5..8.
 REV5_LAST = {'U': 49, 'C': 304, 'R': 510, 'TP': 47}
 # Last-used numbers: the decoder takes U32, C132, R181-183 and TP45-46.
 CS_DECODER_LAST = {'U': 31, 'C': 131, 'R': 180, 'TP': 44}
@@ -439,8 +442,8 @@ def cs_decoder(sh):
         place_blocks(
             sh,
             [('74HC154 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
-            76,
-            70,
+            66,
+            134,
         )
     with kicadgen.pinned_refs('TP', CS_DECODER_LAST['TP']):
         if keeps_test_point('+3V3'):
@@ -468,16 +471,16 @@ def address_d_buffer(sh):
     74LV1T34GX (VIH 1.37 V at 3.3 V) lifts it to CS_ADDR_D. The pull-down holds the
     input, so address bit D reads 0 while the GPIO floats during boot.
     """
-    sh.note('ADDRESS BIT D BUFFER', 70 * 1.27, 106 * 1.27, 1.8)
-    sh.note('GPIO47 is 1.8 V on N32R16V.', 70 * 1.27, 110 * 1.27, 1.8)
-    sh.note('74LV1T34GX: VIH 1.37 V at 3.3 V.', 70 * 1.27, 114 * 1.27, 1.8)
+    sh.note('ADDRESS BIT D BUFFER', 100 * 1.27, 64 * 1.27, 1.8)
+    sh.note('GPIO47 is 1.8 V on N32R16V.', 100 * 1.27, 68 * 1.27, 1.8)
+    sh.note('74LV1T34GX: VIH 1.37 V at 3.3 V.', 100 * 1.27, 72 * 1.27, 1.8)
     with kicadgen.pinned_refs('U', REV5_LAST['U'] + 1):
         buffer_part = place_ic(
             sh,
             'cryocooler:74LV1T34GX',
             '74LV1T34GX',
-            112,
-            132,
+            122,
+            90,
             'cryocooler:Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm',
         )
     supply = pin_cell(buffer_part, '5')
@@ -494,8 +497,8 @@ def address_d_buffer(sh):
         place_blocks(
             sh,
             [('74LV1T34GX DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
-            128,
-            140,
+            104,
+            116,
         )
 
 
@@ -512,6 +515,53 @@ def build_mcu(sh):
     )
     sh.note('GPIO map follows include/config/pin_config.h', 30, 21)
     colour_legend(sh, 30, 28)
+    marks = sheet_marks(sh)
+    mcu_and_usb(sh)
+    # the MCU and USB sit right of the decoder and its buffer, with room between
+    shift_since(sh, marks, MCU_SHIFT, 0)
+    cs_decoder(sh)
+
+
+# Cells the MCU / USB group moves right of where mcu_and_usb() draws it.
+MCU_SHIFT = 50
+
+
+def sheet_marks(sh):
+    """How many of each drawn item the sheet holds now (see shift_since)."""
+    return {
+        name: len(getattr(sh, name))
+        for name in ('parts', 'wires', 'buses', 'bus_entries', 'labels', 'text_items')
+    }
+
+
+def shift_since(sh, marks, columns, rows):
+    """Moves everything drawn since `marks` by whole grid cells."""
+    dx, dy = columns * 1.27, rows * 1.27
+    for part in sh.parts[marks['parts']:]:
+        part.x += dx
+        part.y += dy
+    for name in ('wires', 'buses'):
+        items = getattr(sh, name)
+        items[marks[name]:] = [
+            ((x1 + dx, y1 + dy), (x2 + dx, y2 + dy))
+            for (x1, y1), (x2, y2) in items[marks[name]:]
+        ]
+    sh.bus_entries[marks['bus_entries']:] = [
+        (x + dx, y + dy, width, height)
+        for x, y, width, height in sh.bus_entries[marks['bus_entries']:]
+    ]
+    sh.labels[marks['labels']:] = [
+        (kind, net, (x + dx, y + dy), angle)
+        for kind, net, (x, y), angle in sh.labels[marks['labels']:]
+    ]
+    sh.text_items[marks['text_items']:] = [
+        (text, x + dx, y + dy, size, color)
+        for text, x, y, size, color in sh.text_items[marks['text_items']:]
+    ]
+
+
+def mcu_and_usb(sh):
+    """The ESP32-S3 module with its reset and boot circuits, and the USB-C port."""
     esp = place_ic(
         sh,
         'RF_Module:ESP32-S3-WROOM-2',
@@ -531,7 +581,7 @@ def build_mcu(sh):
         '17': 'FAN_PWM',
         '18': 'PWR_KILL',
         '19': 'AUX_IO11',
-        '20': 'AUX_IO12',
+        '20': 'CAN_RX',
         '21': 'AUX_IO13',
         '22': 'PUMP_PWM',
         '8': 'FAN_TACH',
@@ -539,7 +589,7 @@ def build_mcu(sh):
         '15': 'CS_ADDR_A',
     }
     right = {
-        '10': 'ACS_CS',
+        '10': 'CAN_TX',
         '11': 'FLOW_TACH',
         '23': 'PUMP_TACH',
         '31': 'STATUS_RGB',
@@ -547,8 +597,6 @@ def build_mcu(sh):
         '36': 'CS_ADDR_B',
         '37': 'PG_15V_N',
         '26': 'CS_ADDR_C',
-        '16': 'DISP_RST',
-        '25': 'DISP_DC_1V8',
         '24': 'CS_ADDR_D_1V8',
     }
     for pin, net in left.items():
@@ -567,10 +615,10 @@ def build_mcu(sh):
         # member text starts past the global flags on the rows around it
         label_at=11,
     )
-    # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered
-    for pin in ('28', '29', '30'):
+    # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered;
+    # GPIO46 (pin 16, strap) and GPIO48 (pin 25, 1.8 V) are spare
+    for pin in ('16', '25', '28', '29', '30'):
         sh.nc(esp, pin)
-    cs_decoder(sh)
     # supplies
     vdd = pin_cell(esp, '2')
     wire(sh, vdd, (vdd[0], 72))
@@ -631,21 +679,19 @@ def build_mcu(sh):
         next_ref('U'),
         'SRL05P7',
         200 * 1.27,
-        100 * 1.27,
+        92 * 1.27,
         auto=False,
         footprint='cryocooler:MCC_DFN1510-6_1.5x1.0mm_P0.5mm',
     )
-    esp_d_minus, esp_d_plus = pin_cell(esd, '4'), pin_cell(esd, '6')
-    wire(
-        sh, pin_cell(esp, '13'), (180, 90), (180, esp_d_minus[1]), esp_d_minus
-    )
-    wire(sh, pin_cell(esp, '14'), (178, 92), (178, esp_d_plus[1]), esp_d_plus)
+    # the clamp sits level with the module's USB pins, so D- and D+ run straight
+    wire(sh, pin_cell(esp, '13'), pin_cell(esd, '4'))
+    wire(sh, pin_cell(esp, '14'), pin_cell(esd, '6'))
     usb = sh.add(
         'Connector:USB_C_Receptacle_USB2.0_16P',
         next_ref('J'),
         'USB_C',
         240 * 1.27,
-        100 * 1.27,
+        92 * 1.27,
         mirror=True,
         auto=False,
         footprint=USB_C_FLAG,
@@ -672,19 +718,22 @@ def build_mcu(sh):
     # VBUS: connector, 4.7 uF cap and the ESD clamp share one wire
     vbus_esd = pin_cell(esd, '5')
     vbus = pin_cell(usb, 'A4')
-    wire(sh, vbus_esd, (vbus_esd[0], 84), (226, 84), (226, vbus[1]), vbus)
-    net_label(sh, 'USB_VBUS', (205, 84), 180, is_global=True)
-    vcap(sh, '4.7uF', 210, 84, fp=C0805)
-    drop_ground(sh, (210, 90), 0)
-    rail_flag(sh, (218, 84))
+    wire(sh, vbus_esd, (vbus_esd[0], 72), (226, 72), (226, vbus[1]), vbus)
+    # the flag sits left of the clamp's riser, clear of the wire
+    label_end = (vbus_esd[0] - 3, 72)
+    wire(sh, (vbus_esd[0], 72), label_end)
+    net_label(sh, 'USB_VBUS', label_end, 180, is_global=True)
+    # the VBUS capacitor and both CC pull-downs return on one ground bar; the
+    # pull-downs are staggered so each has room for its text
+    vcap(sh, '4.7uF', 214, 72, fp=C0805)
+    rail_flag(sh, (220, 72))
     cc1, cc2 = pin_cell(usb, 'A5'), pin_cell(usb, 'B5')
-    # up one step, so its ground symbol clears the CC2 wire below
-    wire(sh, cc1, (225, cc1[1]), (225, cc1[1] - 2))
-    hres(sh, '5.1k', 222, cc1[1] - 2)
-    ground(sh, (219, cc1[1] - 2))
-    wire(sh, cc2, (215, cc2[1]))
-    hres(sh, '5.1k', 212, cc2[1])
-    ground(sh, (209, cc2[1]))
+    wire(sh, (214, 78), (214, cc2[1]))
+    for cc, column in ((cc1, 223), (cc2, 217)):
+        hres(sh, '5.1k', column, cc[1], small=True)
+        wire(sh, (214, cc[1]), (column - 2, cc[1]))
+        wire(sh, (column + 2, cc[1]), cc)
+    drop_ground(sh, (214, cc2[1]), 1)
     for pin in ('A8', 'B8'):
         sh.nc(usb, pin)
     ground(sh, spur(sh, usb, 'A1', 2))
@@ -771,6 +820,67 @@ def build_power_input(sh):
     drop_ground(sh, (90, 66), 0)
 
 
+def display_buttons(sh, column, row):
+    """J21: the off-board display's two open-collector outputs (DO0, DO1) act as
+    the power button and the RESET button. Each line has 100 R in series and an
+    ESD clamp on the cable side. Header centred on (column, row), pin 1 at the
+    bottom; the lines run left from it.
+    """
+    sh.note('POWER BUTTON AND RESET FROM THE DISPLAY', 20 * 1.27, (row - 30) * 1.27, 1.8)
+    sh.note(
+        'DO0 / DO1 on the Waveshare display are NPN open collectors to its ground '
+        '(PC817 + transistor, 100 nF to GND): DO0 presses PWR_BTN like SW3, DO1 '
+        'pulls ESP_EN low like the RESET button.',
+        20 * 1.27,
+        (row - 26) * 1.27,
+        1.5,
+    )
+    with kicadgen.pinned_refs('J', 20):
+        buttons_ref = next_ref('J')
+    buttons = sh.add(
+        'Connector_Generic:Conn_01x04',
+        buttons_ref,
+        'DISPLAY PWR BTN / RESET',
+        column * 1.27,
+        row * 1.27,
+        rot=180,
+        mirror=True,
+        auto=False,
+        footprint=X2510_4P,
+    )
+    drop_ground(sh, spur(sh, buttons, '1', 4), 2)
+    sh.nc(buttons, '4')
+    press, reset = pin_cell(buttons, '2'), pin_cell(buttons, '3')
+    reset_row = reset[1] - 16
+    left = column - 60
+    wire(sh, press, (left + 3, press[1]))
+    net_label(sh, 'DISP_PWR_BTN', (column - 28, press[1]), 0)
+    wire(sh, reset, (column - 14, reset[1]), (column - 14, reset_row), (left + 3, reset_row))
+    net_label(sh, 'DISP_RESET', (column - 27, reset_row), 0)
+    with kicadgen.pinned_refs('U', REV5_LAST['U'] + 3), kicadgen.pinned_refs(
+        'R', REV5_LAST['R'] + 6
+    ):
+        clamp_refs = (next_ref('U'), next_ref('U'))
+        for net, line, tap, clamp_ref, is_global in (
+            ('ESP_EN', reset_row, column - 40, clamp_refs[1], True),
+            ('PWR_BTN', press[1], column - 50, clamp_refs[0], False),
+        ):
+            hres(sh, '100', left, line)
+            wire(sh, (left - 3, line), (left - 16, line))
+            net_label(sh, net, (left - 16, line), 180, is_global=is_global)
+            clamp = sh.add(
+                'cryocooler:TPD1E05U06DPYR',
+                clamp_ref,
+                'TPD1E05U06DPYR',
+                (tap + 6) * 1.27,
+                (line + 4) * 1.27,
+                auto=False,
+                footprint='Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
+            )
+            wire(sh, (tap, line), pin_cell(clamp, '1'))
+            drop_ground(sh, pin_cell(clamp, '2'), 2)
+
+
 def build_power_button(sh):
     """Hand-laid: LTC2954 controller top left, P-FET power switch right,
     standby LED below.
@@ -810,6 +920,7 @@ def build_power_button(sh):
     pb = pin_cell(u, '3')
     wire(sh, pb, (40, pb[1]), (36, pb[1]))
     net_label(sh, 'PWR_BTN', (40, pb[1]), 0)
+    display_buttons(sh, 100, 158)
     sw = sh.add(
         'Switch:SW_Push',
         next_ref('SW'),
@@ -1028,27 +1139,31 @@ def spur(sh, part, pin, length=2):
     return end
 
 
-def vres(sh, value, column, top, fp=R0402):
-    """Vertical resistor: pin 1 on (column, top), pin 2 six cells lower."""
-    return res(sh, value, '', '', pose=at(column, top + 3), fp=fp)
+def vres(sh, value, column, top, fp=R0402, small=False):
+    """Vertical resistor: pin 1 on (column, top), pin 2 six cells lower (four
+    with the small symbol).
+    """
+    centre = top + (2 if small else 3)
+    return res(sh, value, '', '', pose=at(column, centre), fp=fp, small=small)
 
 
-def vcap(sh, value, column, top, fp=None):
+def vcap(sh, value, column, top, fp=None, small=False):
     """Vertical capacitor with pin 1 on (column, top); pin 2 is six cells
-    lower.
+    lower (four with the small symbol).
     """
-    return cap(sh, value, '', '', pose=at(column, top + 3), fp=fp)
+    centre = top + (2 if small else 3)
+    return cap(sh, value, '', '', pose=at(column, centre), fp=fp, small=small)
 
 
-def hres(sh, value, column, row, fp=R0402):
+def hres(sh, value, column, row, fp=R0402, small=False):
     """Horizontal resistor centred on (column, row): pin 1 left, pin 2 right
-    (three cells each side).
+    (three cells each side, two with the small symbol).
     """
-    return res(sh, value, '', '', pose=at(column, row, 90), fp=fp)
+    return res(sh, value, '', '', pose=at(column, row, 90), fp=fp, small=small)
 
 
-def hcap(sh, value, column, row, fp=None):
-    return cap(sh, value, '', '', pose=at(column, row, 90), fp=fp)
+def hcap(sh, value, column, row, fp=None, small=False):
+    return cap(sh, value, '', '', pose=at(column, row, 90), fp=fp, small=small)
 
 
 TP_PAD = 'TestPoint:TestPoint_Pad_D1.0mm'
@@ -1062,7 +1177,6 @@ TP_NAMES = {
     'LTC2954_INT': 'PB_INT',
     'ADS1220_DRDY': 'DRDY',
     'EXPANDER_INT': 'EXPINT',
-    'TOUCH_IRQ': 'T_IRQ',
     'ISO_5V': 'ISO5V',
     'ISO_GND': 'ISOGND',
     'FAN_PWM': 'FANPWM',
@@ -2402,7 +2516,7 @@ def acs_bus_gates(sh):
     )
     sh.note(
         'SCK is gated the same way, so bus traffic for other devices never clocks the '
-        'ACS37800. 10k pull-ups hold both gates closed at reset.',
+        'ACS37800. ACS_CS comes from the CS decoder, which holds it high at reset.',
         190 * 1.27,
         87 * 1.27,
         1.5,
@@ -2453,11 +2567,9 @@ def acs_bus_gates(sh):
             1,
             [(194, 98), (190, 98)],
         )
-        # ACS_CS pull-up: the ACS37800 stays deselected while GPIO17 floats
-        rail_symbol(sh, '+3V3', (200, 152))
-        hres(sh, '10k', 203, 152)
-        wire(sh, (206, 152), (208, 152))
-        net_label(sh, 'ACS_CS', (208, 152), 0, is_global=True)
+        # the decoder drives ACS_CS push-pull (high while it is disabled), so the
+        # pull-up it had on GPIO17 is gone; its number stays retired
+        kicadgen.retire_refs('R', 1)
         place_blocks(
             sh,
             [('SN74LVC1G125 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))],
@@ -2723,8 +2835,7 @@ def build_debug(sh):
 
 def build_gpio_expander(sh):
     """Hand-laid: MCP23S08 SPI GPIO expander for the signals that have no ESP32
-    pin of their own: power-good flags, backlight enable, INA239 alert and touch
-    interrupt. Runs
+    pin of their own: power-good flags and the INA239 alert. Runs
     from +3V3, not a switched rail, so pulling a jumper does not take it down.
     """
     sh.handwired = True
@@ -2737,9 +2848,9 @@ def build_gpio_expander(sh):
     )
     sh.note(
         'All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet '
-        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP5 is spare; firmware '
-        'enables a weak pull-up on it. TSC2046 PENIRQ drives GP7, the ADT7320 INT and '
-        'CT outputs drive GP2 and GP3.',
+        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP4, GP5 and GP7 are spare; '
+        'firmware enables a weak pull-up on them. The ADT7320 INT and CT outputs '
+        'drive GP2 and GP3.',
         20,
         21,
     )
@@ -2785,14 +2896,13 @@ def build_gpio_expander(sh):
     for pin, net in (
         ('9', 'PGP_15V'),
         ('10', 'PGN_15V'),
-        ('13', 'DISP_BL_EN'),
         ('11', 'AMBIENT_INT'),
         ('12', 'AMBIENT_CT'),
         ('15', 'INA239_ALERT'),
-        ('16', 'TOUCH_IRQ'),
     ):
         net_label(sh, net, spur(sh, expander, pin, 6), 0, is_global=True)
-    sh.nc(expander, '14')
+    for spare in ('13', '14', '16'):
+        sh.nc(expander, spare)
     # past the global labels above it, so the two label texts do not touch
     if keeps_test_point('EXPANDER_INT'):
         int_end = spur(sh, expander, '7', 22)
@@ -3220,216 +3330,135 @@ def imu_filter(sh, column, row):
     return part
 
 
-FPC14 = (
-    'Connector_FFC-FPC:Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal'
-)
-
-
 def build_display(sh):
-    """Display sheet; its parts take high reference numbers."""
+    """Display sheet; the retired rev 2 to rev 4 display parts keep their numbers."""
     with high_refs('R'), high_refs('C'), high_refs('Q'):
-        display_parts(sh)
+        kicadgen.retire_refs('R', 4)
+        kicadgen.retire_refs('C', 4)
+        kicadgen.retire_refs('Q', 1)
+    kicadgen.retire_refs('U', 1)
+    kicadgen.retire_refs('TP', 1)
+    display_link(sh)
 
 
-def display_parts(sh):
-    """Hand-laid: the FPC to the Phoenix 2.4" touch display (ST7789V, 4-wire
-    SPI) on the right, its TSC2046 touch controller on the left, backlight
-    switch and strap pull-downs below.
+def waveshare_drawing(sh, x, y):
+    """Outline of the off-board Waveshare touchscreen (drawing only, mm): bezel,
+    screen and the terminal strip the two headers are wired to.
+    """
+    sh.note('OFF-BOARD: WAVESHARE TOUCHSCREEN WITH ITS OWN ESP32-S3', x, y - 8, 1.8)
+    sh.rectangle(x, y, x + 84, y + 54, 0.5)
+    sh.rectangle(x + 5, y + 5, x + 79, y + 45)
+    sh.note('WAVESHARE', x + 24, y + 13, 3.0)
+    sh.note('ESP32-S3-Touch-LCD-4.3B', x + 21, y + 21, 1.8)
+    sh.note('4.3 in, 800 x 480, capacitive touch', x + 20, y + 27, 1.5)
+    sh.note('runs its own firmware', x + 28, y + 32, 1.5)
+    # terminal strip on the back, eight of its screws shown
+    strip = y + 57
+    sh.rectangle(x + 18, strip, x + 66, strip + 6)
+    for index in range(1, 8):
+        sh.polyline([(x + 18 + 6 * index, strip), (x + 18 + 6 * index, strip + 6)])
+    sh.note('J15: VIN (12 V), GND, CAN H, CAN L terminals', x, strip + 10, 1.5)
+    sh.note('J21 (Power Button sheet): DO0 = power button, DO1 = reset, GND', x, strip + 14, 1.5)
+
+
+def display_link(sh):
+    """Hand-laid: the off-board Waveshare ESP32-S3-Touch-LCD-4.3B runs its own
+    firmware. CAN transceiver on the left, its header on the right. The header
+    for the display's two digital outputs is on the Power Button sheet.
     """
     sh.handwired = True
     sh.note(
-        'Phoenix DCT T 2,4 QVGA S RTOUCH (in the UCS 125-87-F-GD-D2,4 lid), '
-        'datasheet 109921: ST7789V, 4-wire SPI half duplex (SDA is input '
-        'only), VCC 2.6-3.3 V, FPC FH12-14S-0.5SH.',
+        'Waveshare ESP32-S3-Touch-LCD-4.3B (own ESP32-S3, 800 x 480, 7-36 V in, about '
+        '2.3 W): telemetry and commands over CAN (its TJA1051T/3 on GPIO15 / GPIO16, '
+        '120 R by switch).',
         20,
         15,
     )
     sh.note(
-        'Pin 1 YU, 2 XL, 3 YD, 4 XR (raw resistive touch), 5 GND, 6 VCC, '
-        '7 /CS, 8 /RST, 9 RS (D/C), 10 SCL, 11 SDA, 12 NC, 13 A, 14 C. '
-        'Backlight: 4 LEDs in parallel, 3.0 V / 60 mA typ.',
+        'It is fed from VIN, ahead of the power switch, so it runs while this board is '
+        'off. 120 R ends the bus at this board.',
         20,
         21,
     )
     sh.note(
-        'GPIO46 (DISP_RST) is a strapping pin: a 10k pull-down holds its '
-        'default (low) level at reset. DISP_CS and TOUCH_CS come from the CS '
-        'decoder on the root sheet.',
+        'TCAN3414 (SLLSFS8A): 3.3 V supply, STB and SHDN low = normal mode, TXD '
+        'dominant time-out 1.2 ms min, bus pins high impedance when unpowered, +-58 V '
+        'bus fault protection.',
         20,
         27,
     )
-    with kicadgen.pinned_refs('J', 14):
-        fpc_ref = next_ref('J')
-    fpc = sh.add(
-        'Connector_Generic_MountingPin:Conn_01x14_MountingPin',
-        fpc_ref,
-        'FH12-14S-0.5SH(55)',
-        200 * 1.27,
-        80 * 1.27,
-        rot=180,
-        mirror=True,
-        auto=False,
-        footprint=FPC14,
-    )
-    tips = {
-        number: pin_cell(fpc, number)
-        for number in [str(n) for n in range(1, 15)] + ['MP']
-    }
-    # supply pins run out past the signal labels, where nothing is above or below
-    for pin, net in (('6', '+3V3'), ('5', 'GND')):
-        end = (tips[pin][0] - 26, tips[pin][1])
-        wire(sh, tips[pin], end)
-        rail_symbol(sh, net, end)
-    mount = tips['MP']
-    wire(sh, mount, (mount[0], mount[1] - 2), (mount[0] + 3, mount[1] - 2))
-    rail_symbol(sh, 'GND', (mount[0] + 3, mount[1] - 2))
-    sh.nc(fpc, '12')
-    for number, net, is_global in (
-        ('1', 'TOUCH_YP', False),
-        ('2', 'TOUCH_XN', False),
-        ('3', 'TOUCH_YN', False),
-        ('4', 'TOUCH_XP', False),
-        ('7', 'DISP_CS', True),
-        ('8', 'DISP_RST', True),
-        ('9', 'DISP_DC', True),
-        ('13', 'DISP_BL_A', False),
-        ('14', 'DISP_BL_K', False),
-    ):
-        net_label(sh, net, spur(sh, fpc, number, 12), 180, is_global=is_global)
-    spi_bus(
-        sh,
-        [(spur(sh, fpc, pin, 12), net) for pin, net in (('11', 'SPI_MOSI'), ('10', 'SPI_SCK'))],
-        172,
-        -1,
-        [(172, 62), (168, 62)],
-    )
-    # touch controller: panel lines on the left, SPI on the right
-    touch = place_ic(
-        sh,
-        'cryocooler:TSC2046EIRGVT',
-        'TSC2046EIRGVT',
-        80,
-        74,
-        'Package_DFN_QFN:Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm',
-    )
-    for pin, net in (
-        ('6', 'TOUCH_XP'),
-        ('7', 'TOUCH_YP'),
-        ('8', 'TOUCH_XN'),
-        ('9', 'TOUCH_YN'),
-    ):
-        net_label(sh, net, spur(sh, touch, pin, 4), 180)
-    net_label(sh, 'TOUCH_CS', spur(sh, touch, '3', 4), 0, is_global=True)
-    spi_bus(
-        sh,
-        [
-            (spur(sh, touch, pin, 4), net)
-            for pin, net in (('4', 'SPI_SCK'), ('2', 'SPI_MOSI'), ('16', 'SPI_MISO'))
-        ],
-        119,
-        1,
-        [(119, 82), (123, 82)],
-        # member text starts past the TOUCH_CS flag between SCK and MOSI
-        label_at=11,
-    )
-    sh.nc(touch, '1')
-    irq = spur(sh, touch, '15', 4)
-    net_label(sh, 'TOUCH_IRQ', irq, 0, is_global=True)
-    if keeps_test_point('TOUCH_IRQ'):
-        wire(sh, irq, (irq[0], irq[1] + 4))
-        test_point(sh, 'TOUCH_IRQ', (irq[0], irq[1] + 4), rot=180)
-    else:
-        kicadgen.retire_refs('TP', 1)
-    vcc, iovdd = pin_cell(touch, '5'), pin_cell(touch, '14')
-    wire(sh, vcc, (vcc[0], vcc[1] - 4), (iovdd[0], iovdd[1] - 4), iovdd)
-    rail_symbol(sh, '+3V3', (vcc[0], vcc[1] - 4))
-    sh.nc(touch, '13')
-    # VBAT and AUX are unused ADC inputs: grounded with GND and the exposed pad
-    gnd_bus(sh, [pin_cell(touch, number) for number in ('10', '11', '12', '17')])
-    place_blocks(
-        sh,
-        [
-            ('TSC2046 DECOUPLING CAPACITORS', '+3V3', ('100nF', '1uF')),
-            ('DISPLAY DECOUPLING CAPACITORS', '+3V3', ('100nF', '4.7uF')),
-        ],
-        150,
-        130,
-    )
-    # backlight: +5V_OR -> 39R -> anode; cathode switched to ground by a
-    # BSS138 that an expander pin turns on (pulled off at reset)
-    sh.note('BACKLIGHT', 20 * 1.27, 112 * 1.27, 1.8)
-    rail_symbol(sh, '+5V_OR', (24, 120))
-    wire(sh, (24, 120), (28, 120))
-    hres(sh, '39', 31, 120, fp=R1206)
-    wire(sh, (34, 120), (38, 120))
-    net_label(sh, 'DISP_BL_A', (38, 120), 0)
-    fet = nfet(sh, 'BSS138', '', '', pose=at(60, 130), fp=SOT23)
-    gate, drain = pin_cell(fet, '1'), pin_cell(fet, '3')
-    wire(sh, drain, (drain[0], drain[1] - 4))
-    net_label(sh, 'DISP_BL_K', (drain[0], drain[1] - 4), 90)
-    drop_ground(sh, pin_cell(fet, '2'), 2)
-    wire(sh, gate, (gate[0] - 10, gate[1]))
-    net_label(sh, 'DISP_BL_EN', (gate[0] - 10, gate[1]), 180, is_global=True)
-    vres(sh, '100k', gate[0] - 5, gate[1])
-    drop_ground(sh, (gate[0] - 5, gate[1] + 6), 0)
-    # strap pull-downs
-    sh.note('STRAP PULL-DOWNS', 90 * 1.27, 104 * 1.27, 1.8)
-    # the GPIO45 pull-down moved to the decoder's address line; R168 stays retired
-    kicadgen.retire_refs('R', 1)
-    net_label(sh, 'DISP_RST', (116, 116), 90, is_global=True)
-    wire(sh, (116, 116), (116, 120))
-    vres(sh, '10k', 116, 120)
-    drop_ground(sh, (116, 126), 0)
-    display_buffers(sh)
-
-
-# Last-used numbers: the DISP_DC buffer takes U31, R179, C128 (U30, R178, C127
-# went with the DISP_CS buffer).
-DISPLAY_BUFFER_REFS = ((30, 178),)
-DISPLAY_BUFFER_LAST_CAP = 127
-
-
-def display_buffers(sh):
-    """GPIO47/48 swing 1.8 V on the R16V module, too low for the display's 3.3 V
-    logic. 74LV1T34GX: VIH 1.37 V at 3.3 V supply, input to 5.5 V. Pull-downs hold
-    the inputs defined while the GPIOs float during boot. Pin 1 (n.c.) is grounded:
-    the footprint bridges it to the centre GND land.
-    """
-    sh.note('DISPLAY LOGIC BUFFERS', 20 * 1.27, 148 * 1.27, 1.8)
     sh.note(
-        'GPIO47/48 are 1.8 V on N32R16V. 74LV1T34GX: VIH 1.37 V at 3.3 V.',
-        20 * 1.27,
-        152 * 1.27,
+        'Its two digital outputs press the power button and RESET through J21 on the '
+        'Power Button sheet.',
+        20,
+        33,
     )
-    for (column, in_net, out_net), (buffer_ref, resistor_ref) in zip(
-        ((120, 'DISP_DC_1V8', 'DISP_DC'),),
-        DISPLAY_BUFFER_REFS,
-    ):
-        with kicadgen.pinned_refs('U', buffer_ref):
-            buffer_part = place_ic(
-                sh,
-                'cryocooler:74LV1T34GX',
-                '74LV1T34GX',
-                column,
-                168,
-                'cryocooler:Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm',
-            )
-        supply = pin_cell(buffer_part, '5')
-        wire(sh, supply, (supply[0], supply[1] - 4))
-        rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
-        gnd_bus(sh, [pin_cell(buffer_part, '1'), pin_cell(buffer_part, '3')])
-        in_end = spur(sh, buffer_part, '2', 12)
-        net_label(sh, in_net, in_end, 180, is_global=True)
-        with kicadgen.pinned_refs('R', resistor_ref):
-            vres(sh, '100k', in_end[0] + 6, in_end[1])
-        drop_ground(sh, (in_end[0] + 6, in_end[1] + 6), 0)
-        net_label(sh, out_net, spur(sh, buffer_part, '4', 6), 0, is_global=True)
-    with kicadgen.pinned_refs('C', DISPLAY_BUFFER_LAST_CAP):
+    waveshare_drawing(sh, 300, 78)
+    with kicadgen.pinned_refs('U', REV5_LAST['U'] + 2):
+        phy = place_ic(
+            sh,
+            'cryocooler:TCAN3414DRBR',
+            'TCAN3414DRBR',
+            90,
+            74,
+            'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm',
+        )
+    sh.note('CAN TRANSCEIVER', 20 * 1.27, 48 * 1.27, 1.8)
+    supply = pin_cell(phy, '3')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    gnd_bus(sh, [pin_cell(phy, pin) for pin in ('2', '9')])
+    # STB and SHDN low: normal mode whenever +3V3 is up
+    standby, shutdown = pin_cell(phy, '8'), pin_cell(phy, '5')
+    wire(sh, standby, (standby[0] - 6, standby[1]), (standby[0] - 6, shutdown[1]))
+    wire(sh, shutdown, (standby[0] - 6, shutdown[1]))
+    drop_ground(sh, (standby[0] - 6, shutdown[1]), 2)
+    transmit = pin_cell(phy, '1')
+    transmit_end = (transmit[0] - 22, transmit[1])
+    wire(sh, transmit, transmit_end)
+    net_label(sh, 'CAN_TX', transmit_end, 180, is_global=True)
+    with kicadgen.pinned_refs('R', REV5_LAST['R'] + 4):
+        # recessive while GPIO17 floats at reset
+        vres(sh, '10k', transmit[0] - 14, transmit[1] - 6)
+        rail_symbol(sh, '+3V3', (transmit[0] - 14, transmit[1] - 6))
+        receive = pin_cell(phy, '4')
+        receive_end = (receive[0] - 22, receive[1])
+        wire(sh, receive, receive_end)
+        net_label(sh, 'CAN_RX', receive_end, 180, is_global=True)
+        # bus pair, terminated here
+        high, low = pin_cell(phy, '7'), pin_cell(phy, '6')
+        end = high[0] + 14
+        wire(sh, high, (end + 6, high[1]))
+        wire(sh, low, (low[0] + 8, low[1]), (low[0] + 8, high[1] + 6), (end + 6, high[1] + 6))
+        vres(sh, '120', end, high[1], fp=R1206)
+        net_label(sh, 'CAN_H', (end + 6, high[1]), 0)
+        net_label(sh, 'CAN_L', (end + 6, high[1] + 6), 0)
+        # header: pin 1 at the bottom; pins 1 and 2 match the fan headers (GND, 12 V)
+        with kicadgen.pinned_refs('J', 14):
+            link_ref = next_ref('J')
+        link = sh.add(
+            'Connector_Generic:Conn_01x04',
+            link_ref,
+            'DISPLAY 12V / CAN',
+            200 * 1.27,
+            74 * 1.27,
+            rot=180,
+            mirror=True,
+            auto=False,
+            footprint=X2510_4P,
+        )
+        drop_ground(sh, spur(sh, link, '1', 4), 2)
+        feed = spur(sh, link, '2', 16)
+        wire(sh, feed, (feed[0], feed[1] - 10))
+        rail_symbol(sh, 'VIN', (feed[0], feed[1] - 10))
+        net_label(sh, 'CAN_H', spur(sh, link, '3', 4), 180)
+        net_label(sh, 'CAN_L', spur(sh, link, '4', 4), 180)
+    with kicadgen.pinned_refs('C', REV5_LAST['C'] + 2):
         place_blocks(
             sh,
-            [('74LV1T34GX DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
-            180,
-            160,
+            [('TCAN3414 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
+            40,
+            150,
         )
 
 
@@ -3498,14 +3527,17 @@ def build_indicators(sh):
 
 # General-purpose I/O (rev 4): the GPIO number of each header, in channel order.
 # The first four share the resistor arrays.
-AUX_IO_GPIOS = (5, 7, 11, 12, 13)
+AUX_IO_GPIOS = (5, 7, 11, 13)
+# GPIO12 became CAN_RX in rev 5; its header, clamp, LED and LED resistor keep
+# their numbers free
+AUX_IO_REMOVED = 12
 # LED driver of each pin: (op amp package, section). The pins are spread over both
 # packages so every used section faces open board; four on one package did not route.
-AUX_IO_DRIVERS = {5: (1, 4), 7: (1, 1), 11: (0, 3), 12: (0, 4), 13: (1, 2)}
+AUX_IO_DRIVERS = {5: (1, 4), 7: (1, 1), 11: (0, 3), 13: (1, 2)}
 # order the header clamps take their references in (IO13's was U46 first)
-AUX_IO_CLAMP_ORDER = (5, 13, 7, 11, 12)
+AUX_IO_CLAMP_ORDER = (5, 13, 7, 11)
 # spare sections: followers on the supply pin that sits between their IN+ pins
-AUX_IO_SPARES = ((0, 1, '+5V_OR'), (0, 2, '+5V_OR'), (1, 3, 'GND'))
+AUX_IO_SPARES = ((0, 1, '+5V_OR'), (0, 2, '+5V_OR'), (1, 3, 'GND'), (0, 4, 'GND'))
 # OPA4990 RUC (TI SBOS933 Table 5-5): each section's (IN+, IN-, OUT) pins
 QUAD_OPAMP_PINS = {
     1: ('2', '1', '14'),
@@ -3594,15 +3626,15 @@ def build_aux_io(sh):
     """
     sh.handwired = True
     sh.note(
-        'General-purpose I/O: GPIO5, 7, 11, 12 and 13 each on a 2-pin header (signal, '
+        'General-purpose I/O: GPIO5, 7, 11 and 13 each on a 2-pin header (signal, '
         'GND), 3.3 V only. 100 R in series, ESD clamp at the header, 200k to GND (the '
         'LED divider) so an open pin reads low.',
         20,
         15,
     )
     sh.note(
-        'GPIO5 and GPIO7 are ADC1 (analog input works with WiFi on); GPIO11-13 are '
-        'ADC2, digital only while WiFi runs.',
+        'GPIO5 and GPIO7 are ADC1 (analog input works with WiFi on); GPIO11 and 13 are '
+        'ADC2, digital only while WiFi runs. GPIO12 is CAN_RX since rev 5.',
         20,
         21,
     )
@@ -3622,7 +3654,12 @@ def build_aux_io(sh):
         shared = {name: next_ref('RN') for name in ('series', 'upper', 'lower')}
         drivers = (next_ref('U'), next_ref('U'))
         for index, gpio in enumerate(AUX_IO_GPIOS):
-            aux_io_channel(sh, gpio, 54 + 20 * index, shared, index + 1 if index < 4 else None)
+            if gpio > AUX_IO_REMOVED > AUX_IO_GPIOS[index - 1]:
+                kicadgen.retire_refs('J', 1)
+            aux_io_channel(sh, gpio, 54 + 20 * index, shared, index + 1)
+        # IO13 moved onto the arrays' fourth elements: its three discrete
+        # resistors keep their numbers free
+        kicadgen.retire_refs('R', 3)
         # header-side clamps: one single-line part per pin, so each sits at its own
         # header (a four-line array tied the four header nets into a knot on the board)
         sh.note('ESD CLAMPS (HEADER SIDE)', 92 * 1.27, 54 * 1.27, 1.8)
@@ -3638,13 +3675,17 @@ def build_aux_io(sh):
             )
             net_label(sh, f'IO{gpio}_HDR', spur(sh, clamp, '1', 3), 180)
             drop_ground(sh, pin_cell(clamp, '2'), 2)
+        kicadgen.retire_refs('U', 1)
         sh.note('LED DRIVERS', 132 * 1.27, 44 * 1.27, 1.8)
         cells = ((146, 56), (146, 84), (146, 112), (206, 56), (206, 84))
-        for gpio, (column, row) in zip(AUX_IO_GPIOS, cells):
+        for index, (gpio, (column, row)) in enumerate(zip(AUX_IO_GPIOS, cells)):
+            if gpio > AUX_IO_REMOVED > AUX_IO_GPIOS[index - 1]:
+                kicadgen.retire_refs('D', 1)
+                kicadgen.retire_refs('R', 1)
             package, unit = AUX_IO_DRIVERS[gpio]
             aux_io_led(sh, gpio, column, row, drivers[package], unit)
         sh.note('SPARE SECTIONS (FOLLOWERS ON THE SUPPLY PIN BESIDE THEM)', 196 * 1.27, 108 * 1.27, 1.8)
-        for (package, unit, rail), column in zip(AUX_IO_SPARES, (204, 226, 248)):
+        for (package, unit, rail), column in zip(AUX_IO_SPARES, (204, 226, 248, 270)):
             plus, minus, out = QUAD_OPAMP_PINS[unit]
             spare = opamp_quad(sh, drivers[package], unit, column, 120)
             tie = spur(sh, spare, plus, 2)
@@ -3921,8 +3962,7 @@ NET_CLASSES = [
         None,
         None,
         None,
-        ['SIG_SINE', 'DDS_SINE', 'NTC_ADC', '*/RTD_?', '*/TOUCH_X?',
-         '*/TOUCH_Y?'],
+        ['SIG_SINE', 'DDS_SINE', 'NTC_ADC', '*/RTD_?'],
         'Default',
     ),
     (
@@ -3932,9 +3972,8 @@ NET_CLASSES = [
         None,
         ['*_PWM', '*_TACH', 'AMP_REM_EN', 'COMP_RELAY_EN', 'PWR_KILL', 'AUX_IO*',
          '*/IO*_HDR', '*/IO*_SENSE',
-         'PWR_INT', 'IMU_INT?', 'INA239_ALERT', 'TOUCH_IRQ', 'PG_15V*',
-         'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB', 'DISP_RST', 'DISP_DC*',
-         'DISP_BL_EN'],
+         'PWR_INT', 'IMU_INT?', 'INA239_ALERT', 'CAN_TX', 'CAN_RX', 'PG_15V*',
+         'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB'],
         'Default',
     ),
     ('Ground', None, (110, 110, 110), None, ['GND', 'ISO_GND', 'ISO_GND2'],
@@ -4028,9 +4067,45 @@ def link_parts(sheets):
           ' '.join(unlinked))
 
 
+def describe_parts(sheets):
+    """Writes each part's role and each labelled net's meaning
+    (part_descriptions.py) into the Description fields; returns the number of
+    parts and labels without one plus stale entries.
+    """
+    import part_descriptions
+
+    table = part_descriptions.DESCRIPTIONS
+    refs = {
+        part.ref
+        for sheet in sheets
+        for part in sheet.parts
+        if not part.ref.startswith('#')
+    }
+    for sheet in sheets:
+        for part in sheet.parts:
+            if part.ref in table:
+                part.props['Description'] = table[part.ref]
+    missing = sorted(refs - table.keys())
+    stale = sorted(table.keys() - refs)
+    print(f'part descriptions: {len(missing)} parts without one:', ' '.join(missing))
+    if stale:
+        print('  descriptions for parts that no longer exist:', ' '.join(stale))
+    nets = part_descriptions.NET_DESCRIPTIONS
+    labels = {net for sheet in sheets for _kind, net, _at, _angle in sheet.labels}
+    for sheet in sheets:
+        sheet.label_descriptions = nets
+    unnamed = sorted(labels - nets.keys())
+    unused = sorted(nets.keys() - labels)
+    print(f'label descriptions: {len(unnamed)} labels without one:', ' '.join(unnamed))
+    if unused:
+        print('  descriptions for labels that no longer exist:', ' '.join(unused))
+    return len(missing) + len(stale) + len(unnamed) + len(unused)
+
+
 def check_sheets(sheets):
-    """Finalizes the sheets and runs the text overlap, 4-way junction and
-    duplicate reference checks; returns the three counts.
+    """Finalizes the sheets and runs the text overlap (including wires drawn
+    across labels), 4-way junction and duplicate reference checks; returns the
+    three counts.
     """
     import textlayout
 
@@ -4045,6 +4120,9 @@ def check_sheets(sheets):
             )
             junctions += 1
         for problem in textlayout.check_text(sheet):
+            overlaps += 1
+            print(f'  [{sheet.title}] {problem}')
+        for problem in textlayout.wires_over_labels(sheet):
             overlaps += 1
             print(f'  [{sheet.title}] {problem}')
         for missing in textlayout.unlabeled_power(sheet):
@@ -4082,7 +4160,7 @@ def main():
         child.path = f'/{root_uuid}/{child.uid}'
         builder(child)
         children.append(child)
-        column, row = index % 5, index // 5
+        column, row = index % 6, index // 6
         root.sheet_symbols.append(
             sheet_symbol(
                 root_uuid, child, index, 20 + column * 62, 190 + row * 20
@@ -4094,6 +4172,7 @@ def main():
             part.ref = REF_MAP.get(part.ref, part.ref)
 
     link_parts([root] + children)
+    undescribed = describe_parts([root] + children)
     pin_fields([root] + children)
     overlaps, junctions, duplicates = check_sheets([root] + children)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
@@ -4116,7 +4195,7 @@ def main():
     if duplicates:
         sys.exit(1)
     print(f'4-way junction check: {junctions} found')
-    if overlaps or junctions:
+    if overlaps or junctions or undescribed:
         sys.exit(1)
 
 

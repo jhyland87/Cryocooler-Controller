@@ -664,6 +664,8 @@ class Sheet:
         self.no_connects = []
         self.junctions = []
         self.text_items = []
+        self.label_descriptions = {}  # label name -> hidden Description text
+        self.shapes = []  # ('rectangle' | 'polyline', points in mm, line width)
         self.sheet_symbols = []
         self.used_libs = []
         self.conns = []
@@ -720,6 +722,14 @@ class Sheet:
     def note(self, text, x, y, size=1.8, color=None):
         """Free text; color is an (r, g, b) tuple or None for the theme."""
         self.text_items.append((text, x, y, size, color))
+
+    def rectangle(self, x0, y0, x1, y1, width=0.25):
+        """Drawing-only rectangle (mm); it connects nothing."""
+        self.shapes.append(('rectangle', ((x0, y0), (x1, y1)), width))
+
+    def polyline(self, points, width=0.25):
+        """Drawing-only line through (x, y) points in mm; it connects nothing."""
+        self.shapes.append(('polyline', tuple(points), width))
 
     def finalize(self):
         if self.finalized:
@@ -961,11 +971,19 @@ class Sheet:
         for kind, net, (x, y), angle in self.labels:
             rotation = int(angle) % 360
             justify = 'right' if rotation in (180, 270) else 'left'
+            described = ''
+            if net in self.label_descriptions:
+                described = (
+                    f' (property "Description" {q(self.label_descriptions[net])} '
+                    f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
+                    f'(do_not_autoplace no) '
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                )
             if kind == 'label':
                 out.append(
                     f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(effects (font (size 1.27 1.27)) (justify {justify} '
-                    f'bottom)) (uuid {q(new_uuid())}))'
+                    f'bottom)) (uuid {q(new_uuid())}){described})'
                 )
             else:
                 shape = label_shape(
@@ -980,7 +998,22 @@ class Sheet:
                     f'"${{INTERSHEET_REFS}}" '
                     f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
                     f'(do_not_autoplace no) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify}))))'
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                    f'{described})'
+                )
+        for kind, points, width in self.shapes:
+            stroke = f'(stroke (width {fmt(width)}) (type default))'
+            if kind == 'rectangle':
+                (x0, y0), (x1, y1) = points
+                out.append(
+                    f'\t(rectangle (start {fmt(x0)} {fmt(y0)}) (end {fmt(x1)} '
+                    f'{fmt(y1)}) {stroke} (fill (type none)) '
+                    f'(uuid {q(new_uuid())}))'
+                )
+            else:
+                pts = ' '.join(f'(xy {fmt(x)} {fmt(y)})' for x, y in points)
+                out.append(
+                    f'\t(polyline (pts {pts}) {stroke} (uuid {q(new_uuid())}))'
                 )
         for text, x, y, size, color in self.text_items:
             font = f'(size {size} {size})'
@@ -1055,7 +1088,8 @@ GLOBAL_NETS = {
     'PWR_KILL',
     'PWR_INT',
     'INA239_ALERT',
-    'TOUCH_IRQ',
+    'CAN_TX',
+    'CAN_RX',
     'FLOW_TACH',
     'FAN_TACH',
     'PUMP_TACH',

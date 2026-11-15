@@ -92,3 +92,4 @@
   - With the DAC and op-amp stage above, this is the same output set anywhere between zero and
     the ceiling, with the ceiling enforced in software.
 - [ ] **Ambient Temperature**: ADT7320 added in the rev 5 schematic (branch `rev5-schematic`). PCB placement still to do: far from anything that warms the board.
+- [ ] **Display**: an off-board Waveshare ESP32-S3-Touch-LCD-4.3B on CAN replaces the on-board display in the rev 5 schematic (branch `rev5-schematic`; see `kicad/DESIGN_REVIEW.md`). Still to do: CAN firmware on both sides, the `pin_config.h` changes (ACS37800 CS to decoder Y5, GPIO12 and GPIO17 to CAN), removing the ST7789V / TSC2046 display module, a fuse for the display feed, PCB.

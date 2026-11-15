@@ -866,14 +866,6 @@
         "pattern": "*/RTD_?"
       },
       {
-        "netclass": "Analog",
-        "pattern": "*/TOUCH_X?"
-      },
-      {
-        "netclass": "Analog",
-        "pattern": "*/TOUCH_Y?"
-      },
-      {
         "netclass": "Control",
         "pattern": "*_PWM"
       },
@@ -919,7 +911,11 @@
       },
       {
         "netclass": "Control",
-        "pattern": "TOUCH_IRQ"
+        "pattern": "CAN_TX"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "CAN_RX"
       },
       {
         "netclass": "Control",
@@ -940,18 +936,6 @@
       {
         "netclass": "Control",
         "pattern": "STATUS_RGB"
-      },
-      {
-        "netclass": "Control",
-        "pattern": "DISP_RST"
-      },
-      {
-        "netclass": "Control",
-        "pattern": "DISP_DC*"
-      },
-      {
-        "netclass": "Control",
-        "pattern": "DISP_BL_EN"
       },
       {
         "netclass": "Ground",

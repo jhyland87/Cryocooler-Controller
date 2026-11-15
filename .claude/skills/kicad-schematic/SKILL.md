@@ -29,8 +29,10 @@ python3 tools/make_footprints.py   # lib/cryocooler.pretty (only when a vendor f
 python3 tools/gen_schematic.py     # root + sheets/*.kicad_sch; in cryocooler.kicad_pro the sheet list, SPI bus alias and net-class colours
 ```
 
-`gen_schematic.py` exits 1 on any text overlap, duplicate reference or 4-way
-junction. It prints the count for each check, so read the output, not just the
+`gen_schematic.py` exits 1 on any text overlap, wire drawn across a label,
+duplicate reference, 4-way junction, or part or net label without a description
+in `tools/part_descriptions.py` (what the part does, what the net carries). Add
+the entry when you add the symbol or label. It prints the count for each check, so read the output, not just the
 exit code.
 
 - Every sheet is rewritten. UUIDs reshuffle after an inserted part (diff noise).

@@ -93,8 +93,7 @@ DATASHEETS = {
     '5001': 'https://www.keyelco.com/product-pdf.cfm?p=1310',
     '4392': 'https://cdn-shop.adafruit.com/product-files/4392/'
     '4392_C13927-001_CW2001-04T-H01-BD-A.PDF',
-    'TSC2046E': 'https://www.ti.com/lit/ds/symlink/tsc2046e.pdf',
-    'TSC2046': 'https://www.ti.com/lit/ds/symlink/tsc2046.pdf',
+    'TCAN3414': 'https://www.ti.com/lit/ds/symlink/tcan3414.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
     '2305908': 'https://www.farnell.com/cad/2571341.pdf',

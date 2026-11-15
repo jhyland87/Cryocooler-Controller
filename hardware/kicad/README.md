@@ -13,7 +13,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 |---|---|
 | `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, USB-C (GCT USB4205-GF-A, flag type) + ESD |
 | `power_input` | 12 V DC jack (5.5 x 2.1 mm), 5 A fuse, SMBJ16A TVS, bulk caps |
-| `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (SW3 only; the J7 panel header went in rev 4) |
+| `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (the J7 panel header went in rev 4). Rev 5: J21 (X2510WRS-04: 1 GND, 2 power button, 3 reset, 4 unused) lets the off-board display's two open-collector outputs press `PWR_BTN` like SW3 and pull `ESP_EN` low like the RESET button, each through 100 Ω with a TPD1E05U06 clamp |
 | `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
 | `rails_15v` | ADP5071ACPZ dual converter at 1.2 MHz with SRP7050TA-3R3M and -6R8M (rev 1 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); the LT3097 PGP / PGN go to the `power_good` sheet |
 | `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
@@ -21,7 +21,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908-2 SMT pluggable header J11, TE 643228-1 through-hole header J12. Rev 4: on the shared SPI bus through two SN74LVC1G125 gates enabled by `ACS_CS` (U41 passes SCK in, U42 passes MISO out), with 10 kΩ pull-ups on the gated SCK and on `ACS_CS` |
 | `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs |
-| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3 ADT7320 INT/CT, GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
+| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP6 INA239 ALERT, GP2/GP3 ADT7320 INT/CT, GP4, GP5 and GP7 spare (rev 5; GP4 was the display backlight enable and GP7 the touch IRQ); RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
 | `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through the two halves of one BSS138DW (Q61) as open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 4.7 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail. Rev 4: XKB X2510WRS headers (J5 is a 4-pin part with pin 4 unused), 4.7 kΩ and 10 kΩ resistors in arrays RN1 / RN2 |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
 | `imu` | J14, a Molex Micro-Lock Plus 2x4 header (505448-0891, 1.25 mm, right angle, positive lock) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND; one NUF6401MN six-channel filter (100 Ω series, 17 pF and ESD clamp each side) |
@@ -29,8 +29,8 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `indicators` | WS2812B-2020 status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds and control lines; LEDs on +5V and ISO 5V |
 | `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below); FB3 ahead of JP5 |
-| `display` | FH12-14S FPC (J15) to the Phoenix 2.4" ST7789V touch display in the UCS 125-87-F-GD-D2,4 lid (pinout from datasheet 109921), TSC2046 touch controller on the shared SPI bus, BSS138 backlight switch (+5 V through 39 Ω), 10 kΩ pull-downs on the GPIO45 / GPIO46 straps |
-| `aux_io` ("General Purpose IO") | Rev 4: GPIO 5, 7, 11, 12, 13 each on a 2-pin XKB X2510WRS-02 header J16-J20 (signal, GND) with an ESD clamp, 100 Ω in series and a 100 kΩ / 100 kΩ divider to GND; one OPA4990 section per pin (on `+5V_OR`, so it also runs on USB power) takes the divider tap and drives a green LED with Vpin / 6.6 kΩ |
+| `display` | Rev 5: link to the off-board Waveshare ESP32-S3-Touch-LCD-4.3B, which runs its own firmware. TCAN3414 CAN transceiver (U52, `CAN_TX` GPIO17 with a 10 kΩ pull-up, `CAN_RX` GPIO12, 120 Ω termination R516) to J15 (X2510WRS-04: 1 GND, 2 unswitched 12 V `VIN`, 3 CAN_H, 4 CAN_L). The header for the display's two digital outputs, J21, is on the `power_button` sheet. Rev 4 and earlier: FH12-14S FPC to the Phoenix 2.4" ST7789V display with a TSC2046 touch controller |
+| `aux_io` ("General Purpose IO") | GPIO 5, 7, 11, 13 each on a 2-pin XKB X2510WRS-02 header J16-J18 and J20 (rev 5; rev 4 also had GPIO12 on J19, now `CAN_RX`) (signal, GND) with an ESD clamp, 100 Ω in series and a 100 kΩ / 100 kΩ divider to GND; one OPA4990 section per pin (on `+5V_OR`, so it also runs on USB power) takes the divider tap and drives a green LED with Vpin / 6.6 kΩ |
 
 ## ±15 V rails and power good
 
@@ -56,16 +56,16 @@ console); the firmware should still check it before starting the signal generato
 | Signal | GPIO | Signal | GPIO |
 |---|---|---|---|
 | CS decoder enable / fan PWM | 8 / 9 | CS decoder A / B / C | 3 / 44 (RXD0) / 45 |
-| SPI SCK / MOSI / MISO | 42 / 41 / 40 | General-purpose I/O (J16-J20) | 5, 7 (ADC1), 11, 12, 13 (ADC2) |
-| LSM6DSOX INT1 / INT2 | 2 / 39 | ACS37800 CS (shared SPI bus) | 17 |
+| SPI SCK / MOSI / MISO | 42 / 41 / 40 | General-purpose I/O (J16-J18, J20) | 5, 7 (ADC1), 11, 13 (ADC2) |
+| LSM6DSOX INT1 / INT2 | 2 / 39 | CAN TX / RX (display link) | 17 / 12 |
 | Amp REM enable | 6 | PWR_KILL (LTC2954 KILL#) | 10 |
 | PWR_INT (LTC2954 INT#) | 1 | Flow tach | 18 |
 | Pump PWM / fan tach | 14 / 15 | NTC ADC | 4 |
 | Pump tach | 21 | CS decoder D (via 74LV1T34) | 47 (1.8 V) |
 | Status RGB (WS2812B-2020) | 38 | Compressor relay enable | 16 |
-| Display D/C | 48 | Display RESET | 46 (strap, 10 kΩ pull-down) |
+| Spare (rev 5; display D/C before) | 48 (1.8 V) | Spare (rev 5; display reset before) | 46 (strap) |
 
-The shared-bus chip selects come from U32 (74HC154BQ, rev 5; rev 4 has an SN74LVC138A): Y0 AD9837, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX, Y8 ADT7320, Y9 to Y15 spare. Address bit D is GPIO47, which is 1.8 V on this module, so a 74LV1T34 buffer (100 k pull-down on its input) lifts it to 3.3 V. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
+The shared-bus chip selects come from U32 (74HC154BQ, rev 5; rev 4 has an SN74LVC138A): Y0 AD9837, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 spare (the display before rev 5), Y5 ACS37800 (rev 5; the TSC2046 touch controller before, with the ACS37800 select on GPIO17), Y6 ADS1220, Y7 LSM6DSOX, Y8 ADT7320, Y9 to Y15 spare. Address bit D is GPIO47, which is 1.8 V on this module, so a 74LV1T34 buffer (100 k pull-down on its input) lifts it to 3.3 V. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
 
 GPIO3 is a strapping pin (JTAG source); R17 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R19 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R18 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.
@@ -73,7 +73,8 @@ by the octal flash/PSRAM and are left unconnected.
 ## Drawing conventions
 
 Power symbols are always upright (supplies point up, grounds hang down) and resistors use the US zig-zag symbol
-(`Device:R_US`). Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
+(`Device:R_US`). In tight spots the small symbols are used instead (`Device:R_Small_US`, `Device:C_Small`, with
+`small=True` on `hres` / `vres` / `hcap` / `vcap` in `tools/gen_schematic.py`), and neighbouring grounds share one bar. Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
 shared rails with decoupling caps hanging off them, switching loops are kept compact, and nets are wired with
 lines rather than net labels (labels are used only for global signals such as the GPIO nets, and for a few
 local nets that would otherwise need long detours, for example the ISO7741 isolated-side SPI lines).
@@ -97,9 +98,12 @@ Appearance → Nets → Net colors: All.
 
 Bypass/decoupling capacitors for each IC are drawn together in a labelled block at the side of the sheet (supply rail, caps, ground bus) and connect to the IC through the shared power nets; regulator input/output and compensation capacitors stay in the circuit.
 
+**Drawings.** `sh.rectangle()` and `sh.polyline()` add drawing-only shapes that connect nothing; the display sheet
+uses them for the outline of the off-board Waveshare touchscreen (`waveshare_drawing()`).
+
 **No-overlap text rule.** Reference, value, net-label and note text may not overlap other text or a symbol body
 (plus 1 mm for pin numbers). `tools/textlayout.py` places each field in the first free spot, hides a field only
-if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. Pin names and
+if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. The same check fails on a wire or bus drawn across a label's text or a global label's flag (`wires_over_labels`). Pin names and
 numbers drawn inside a library symbol, and labels that sit on their own wire, are outside the rule.
 
 ## Regenerating
@@ -116,6 +120,11 @@ A Reference or Value moved by hand in KiCad is lost on the next run unless it is
 python3 hardware/kicad/tools/make_lib.py        # lib/cryocooler.kicad_sym
 python3 hardware/kicad/tools/gen_schematic.py   # root + sheets/
 ```
+
+Every part's hidden Description field says what it does in this circuit, and every net label's says what the net carries
+(open a symbol's or label's properties in KiCad to read it). The text comes from `tools/part_descriptions.py`:
+`DESCRIPTIONS` keyed by reference and `NET_DESCRIPTIONS` keyed by label name. `gen_schematic.py` exits non-zero if a
+part or label has no entry, or an entry names one that no longer exists.
 
 `tools/gen_bom.py` writes the Digi-Key BOM to `bom/` (see `bom/README.md`).
 
@@ -199,7 +208,7 @@ and describe earlier boards where they differ.
 * **Connector pin labels:** every terminal and header has its pin functions printed beside the pads on the side
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH/NC, J6 NTC/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
-  J11 +/-, J12 +/-/GND, J13 12V/GND, J16-J20 IOn/GND. Pin 1 is the first label in each list. J14 has no pin labels; use the table above.
+  J11 +/-, J12 +/-/GND, J13 12V/GND, J16-J20 IOn/GND (no J19 in rev 5). Pin 1 is the first label in each list. J14 has no pin labels; use the table above.
 * **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 643228-1) on 2 mm traces, narrowing to 1.6 mm past J12's GND tab. J11 - and J12 - share a F.Cu link inside the ISO_GND island, 2 mm narrowing to 1.2 mm at the same tab. Along the left wall J12 reads GND, -, + from north to south (molded 3, 2, 1). See `hardware/HANDOFF_rev3.md`.
 * **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board

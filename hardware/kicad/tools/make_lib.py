@@ -482,38 +482,23 @@ SYMBOLS = [
         keywords='decoder demultiplexer chip select',
     ),
     symbol(
-        'TSC2046EIRGVT',
+        'TCAN3414DRBR',
         'U',
-        'TI 4-wire resistive touch-screen controller, 12-bit SPI ADC, DOUT '
-        'high-Z with CS high, VQFN-16 (RGV)',
-        'https://www.ti.com/lit/ds/symlink/tsc2046e.pdf',
-        'Package_DFN_QFN:Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm',
+        'TI 3.3 V CAN FD transceiver, +-58 V bus fault protection, TXD dominant time-out, '
+        'STB high = standby, SHDN high = shutdown (both low = normal mode), bus pins high '
+        'impedance when unpowered, VSON-8 3 x 3 mm (DRB). Thermal pad to GND',
+        'https://www.ti.com/lit/ds/symlink/tcan3414.pdf',
+        'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm',
         left=[
-            ('6', 'X+', 'passive'),
-            ('7', 'Y+', 'passive'),
-            ('8', 'X-', 'passive'),
-            ('9', 'Y-', 'passive'),
+            ('1', 'TXD', 'input'),
+            ('4', 'RXD', 'output'),
+            ('8', 'STB', 'input'),
+            ('5', 'SHDN', 'input'),
         ],
-        right=[
-            ('4', 'DCLK', 'input'),
-            ('3', '~{CS}', 'input'),
-            ('2', 'DIN', 'input'),
-            ('16', 'DOUT', 'tri_state'),
-            ('1', 'BUSY', 'tri_state'),
-            ('15', '~{PENIRQ}', 'output'),
-        ],
-        top=[
-            ('5', '+VCC', 'power_in'),
-            ('14', 'IOVDD', 'power_in'),
-            ('13', 'VREF', 'passive'),
-        ],
-        bottom=[
-            ('10', 'GND', 'power_in'),
-            ('11', 'VBAT', 'input'),
-            ('12', 'AUX', 'input'),
-            ('17', 'EP', 'passive'),
-        ],
-        keywords='touch screen controller resistive spi',
+        right=[('7', 'CANH', 'bidirectional'), ('6', 'CANL', 'bidirectional')],
+        top=[('3', 'VCC', 'power_in')],
+        bottom=[('2', 'GND', 'power_in'), ('9', 'EP', 'passive')],
+        keywords='can transceiver',
     ),
     symbol(
         'MCP23S08',

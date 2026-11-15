@@ -261,13 +261,14 @@ PARTS = {
     ('', 'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-02-9TSN',
         'CONN HEADER R/A SMT 2POS 2.54MM, 4 A', 'design',
-        'J6 NTC, J13 relay 12 V out, J16-J20 general-purpose I/O; mates with '
+        'J6 NTC, J13 relay 12 V out, J16-J18 and J20 general-purpose I/O; mates with '
         'X2510H-02 housings and X2510T terminals'),
     ('', 'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-04-9TSN',
         'CONN HEADER R/A SMT 4POS 2.54MM, 4 A', 'design',
-        'J3 fan, J4 pump, J5 flow sensor (pin 4 unused); mates with X2510H-04 '
-        'housings, so fan, pump and flow leads are re-housed'),
+        'J3 fan, J4 pump, J5 flow sensor (pin 4 unused), J15 display 12 V and CAN, '
+        'J21 display power button and reset; mates with X2510H-04 housings, so fan, '
+        'pump and flow leads are re-housed'),
     ('OPA4990IRUCR', 'Texas_S-PX2QFN-14'): (
         'Texas Instruments', 'OPA4990IRUCR', 'IC OPAMP GP 4 CIRCUIT 14X2QFN',
         'design', 'general-purpose I/O LED drivers, on +5V_OR'),
@@ -332,7 +333,7 @@ PARTS = {
         'suggested', '5 V level shifter for the WS2812B'),
     ('74LV1T34GX', 'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm'): (
         'Nexperia', '74LV1T34GXH', 'IC BUF NON-INVERT 5.5V 5X2SON',
-        'design', '1.8 V to 3.3 V buffer for DISP_DC'),
+        'design', '1.8 V to 3.3 V buffer for decoder address bit D'),
     ('SN74LV1T34', 'SOT-23-5'): (
         'Texas Instruments', 'SN74LV1T34DBVR', 'IC BUF NON-INVERT 5.5V SOT23-5',
         'suggested', '1.8 V to 3.3 V buffer for DISP_DC'),
@@ -358,16 +359,9 @@ PARTS = {
     ('AD9837BCPZ', 'LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm'): (
         'Analog Devices', 'AD9837BCPZ-RL7', 'IC DDS WAVEFORM GEN 10LFCSP', 'design',
         'replaces AD9833BRMZ: same pins and registers, 16 MHz MCLK, exposed pad to GND'),
-    ('TSC2046EIRGVT', 'Texas_RGV0016A_VQFN-16-1EP_4x4mm_P0.65mm_EP2.1x2.1mm'): (
-        'Texas Instruments', 'TSC2046EIRGVT',
-        'IC TOUCH SCREEN CTRLR 4-WIRE 16VQFN', 'design',
-        'TI lists it as Last Time Buy; TSC2046IRGVR is the active fallback, same '
-        'footprint and pins but no IEC ESD rating'),
-    ('FH12-14S-0.5SH(55)',
-     'Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal'): (
-        'Hirose', 'FH12-14S-0.5SH(55)', 'CONN FFC BOTTOM 14POS 0.50MM R/A',
-        'design', 'display FPC (Phoenix datasheet 109921); check the FFC '
-        'contact side so pin 1 lands on pin 1'),
+    ('TCAN3414DRBR', 'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm'): (
+        'Texas Instruments', 'TCAN3414DRBR', 'IC TRANSCEIVER CAN FD 3.3V 8VSON',
+        'design', 'CAN link to the Waveshare display; STB and SHDN tied low'),
     ('505448-0891', 'Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal'): (
         'Molex', '505448-0891', 'CONN HEADER R/A 8POS 1.25MM DUAL ROW SMD',
         'design', 'J14 IMU cable; Micro-Lock Plus, positive lock, 30 mating '

@@ -22,7 +22,7 @@ def signatures(path):
         ref
         for ref, c in comps.items()
         if sval(find_all(find_all(c, 'libsource')[0], 'part')[0][1])
-        in ('R_US', 'C', 'L', 'Fuse')
+        in ('R_US', 'R_Small_US', 'C', 'C_Small', 'L', 'Fuse')
     }
     result = collections.Counter()
     for nodes in nets.values():

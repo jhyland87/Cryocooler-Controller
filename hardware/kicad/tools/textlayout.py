@@ -336,6 +336,58 @@ def unlabeled_power(sheet):
     return missing
 
 
+def label_text_box(kind, net, x, y, angle):
+    """Area a label's text (and a global label's flag) covers. A local label's
+    text sits beside its wire; a global label is centred on it.
+    """
+    length = text_width(net) + (2.2 if kind == 'global_label' else 0.3)
+    near, far = (-1.3, 1.3) if kind == 'global_label' else (-1.9, -0.2)
+    angle = int(angle) % 360
+    if angle == 0:
+        return (x, y + near, x + length, y + far)
+    if angle == 180:
+        return (x - length, y + near, x, y + far)
+    if angle == 90:
+        return (x + near, y - length, x + far, y)
+    return (x + near, y, x + far, y + length)
+
+
+def segment_inside(start, end, box, trim=0.1):
+    """True if more than a point of the segment lies inside the box shrunk by
+    `trim`, so a wire that only ends on the box edge does not count.
+    """
+    x0, y0, x1, y1 = box[0] + trim, box[1] + trim, box[2] - trim, box[3] - trim
+    low, high = 0.0, 1.0
+    for origin, delta, near, far in (
+        (start[0], end[0] - start[0], x0, x1),
+        (start[1], end[1] - start[1], y0, y1),
+    ):
+        if abs(delta) < 1e-9:
+            if not near < origin < far:
+                return False
+            continue
+        first, second = sorted(((near - origin) / delta, (far - origin) / delta))
+        low, high = max(low, first), min(high, second)
+    return high - low > 1e-6
+
+
+def wires_over_labels(sheet):
+    """Wires and buses drawn across a label's text. The wire a label sits on
+    ends at a global label's connection point and runs under a local label's
+    text, so neither is reported.
+    """
+    problems = []
+    for kind, net, (x, y), angle in sheet.labels:
+        box = label_text_box(kind, net, x, y, angle)
+        for start, end in sheet.wires + sheet.buses:
+            if segment_inside(start, end, box):
+                problems.append(
+                    f'wire ({start[0]:.2f}, {start[1]:.2f}) to '
+                    f'({end[0]:.2f}, {end[1]:.2f}) crosses label {net}'
+                )
+    return problems
+
+
 def place_text(sheet):
     TextLayout(sheet).run()
 
