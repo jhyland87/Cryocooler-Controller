@@ -46,6 +46,7 @@ export function mockFrame(elapsedMs: number): TelemetryData {
 
   const cryoVolts = 21 + 0.4 * wave(elapsedMs, 40);
   const cryoAmps = 3.2 + 0.8 * remaining + 0.1 * wave(elapsedMs, 13);
+  const cryoPowerFactor = 0.8 + 0.05 * wave(elapsedMs, 29);
   const systemVolts = 12.05 + 0.03 * wave(elapsedMs, 25);
   const systemAmps = 1.4 + 0.15 * wave(elapsedMs, 17);
   const duration = formatDuration(elapsedMs);
@@ -64,7 +65,13 @@ export function mockFrame(elapsedMs: number): TelemetryData {
       target_temp_c: TARGET_C,
     },
     amplifier: amplifierOnline
-      ? { voltage_v: cryoVolts, current_a: cryoAmps, power_w: cryoVolts * cryoAmps }
+      ? {
+          voltage_v: cryoVolts,
+          current_a: cryoAmps,
+          power_w: cryoVolts * cryoAmps,
+          active_power_w: cryoVolts * cryoAmps * cryoPowerFactor,
+          power_factor: cryoPowerFactor,
+        }
       : {},
     system: {
       voltage_v: systemVolts,

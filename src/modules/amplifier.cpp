@@ -89,6 +89,8 @@ float frequency_ = 0.0f;   // waveform frequency set-point (Hz)
 float lastRmsVoltage_      = 0.0f;
 float lastRmsCurrent_      = 0.0f;
 float lastApparentPowerW_  = 0.0f;
+float lastActivePowerW_    = 0.0f;
+float lastPowerFactor_     = 0.0f;
 
 // Latest measured frequency from IMU FFT
 float lastFrequency_ = 0.0f;
@@ -592,6 +594,8 @@ module::ServiceStatus service() {
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
         lastApparentPowerW_ = NAN;
+        lastActivePowerW_   = NAN;
+        lastPowerFactor_    = NAN;
         lastFrequency_      = imu::getFrequency();
         return module::MODULE_SERVICE_OK;
     }
@@ -609,6 +613,8 @@ module::ServiceStatus service() {
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
         lastApparentPowerW_ = NAN;
+        lastActivePowerW_   = NAN;
+        lastPowerFactor_    = NAN;
         lastFrequency_      = NAN;
         return module::MODULE_SERVICE_ERROR;
     }
@@ -616,6 +622,8 @@ module::ServiceStatus service() {
     lastRmsVoltage_     = static_cast<float>(acs_.rmsVoltageMillivolts) / 1000.0f;
     lastRmsCurrent_     = static_cast<float>(acs_.rmsCurrentMilliamps)  / 1000.0f;
     lastApparentPowerW_ = static_cast<float>(acs_.readApparentPowerMilliwatts()) / 1000.0f;
+    lastPowerFactor_    = acs_.powerFactor;
+    lastActivePowerW_   = static_cast<float>(acs_.readActivePowerMilliwatts()) / 1000.0f;
     lastFrequency_  = imu::getFrequency();
 
     // Frequency tracker: only advance when active and the IMU has a valid FFT
@@ -641,6 +649,8 @@ module::ServiceStatus service() {
 float getLastRmsVoltage()       { return lastRmsVoltage_; }
 float getLastRmsCurrent()       { return lastRmsCurrent_; }
 float getApparentPowerWatts()   { return lastApparentPowerW_; }
+float getActivePowerWatts()     { return lastActivePowerW_; }
+float getPowerFactor()          { return lastPowerFactor_; }
 float getOutputRmsVoltage()     { return lastRmsVoltage_; }
 float getOutputRmsCurrent()     { return lastRmsCurrent_; }
 

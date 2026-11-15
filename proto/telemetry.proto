@@ -59,7 +59,9 @@ message ColdHead {
 message Amplifier {
   float voltage_v = 1;
   float current_a = 2;
-  float power_w   = 3;
+  float power_w   = 3;  // apparent power (VA)
+  float active_power_w = 4;  // real power, signed
+  float power_factor   = 5;  // -1 to 1
 }
 
 message SystemInfo {

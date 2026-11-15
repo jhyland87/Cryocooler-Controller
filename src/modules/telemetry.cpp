@@ -250,11 +250,15 @@ static void buildStartupFrame(FrameBuilder& frame)
     if (amplifierReady) {
         frame
             .field("amplifier.voltage_v", "%.2f", amplifier::getLastRmsVoltage())
-            .field("amplifier.current_a", "%.2f", amplifier::getLastRmsCurrent());
+            .field("amplifier.current_a", "%.2f", amplifier::getLastRmsCurrent())
+            .field("amplifier.active_power_w", "%.2f", amplifier::getActivePowerWatts())
+            .field("amplifier.power_factor",   "%.3f", amplifier::getPowerFactor());
     } else {
         frame
             .field("amplifier.voltage_v", "%s", "")
-            .field("amplifier.current_a", "%s", "");
+            .field("amplifier.current_a", "%s", "")
+            .field("amplifier.active_power_w", "%s", "")
+            .field("amplifier.power_factor",   "%s", "");
     }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
@@ -604,7 +608,9 @@ void emit(const state_machine::Output& out)
         .field("status.on_duration",                "%s",   hmsBuf)
         .field("amplifier.voltage_v",               "%.2f", amplifier::getLastRmsVoltage())
         .field("amplifier.current_a",               "%.2f", amplifier::getLastRmsCurrent())
-        .field("cold_head.cooldown_pct",            "%.2f", cold_head::getTemperatureToPercent())
+        .field("amplifier.active_power_w",          "%.2f", amplifier::getActivePowerWatts())
+        .field("amplifier.power_factor",            "%.3f", amplifier::getPowerFactor())
+        .field("cold_head.cooldown_pct",           "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
         .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(6e5)))

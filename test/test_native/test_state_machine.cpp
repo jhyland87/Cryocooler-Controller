@@ -44,6 +44,9 @@ void run_session_table_tests();
 // Run recorder sample ring tests (defined in test_run_history_ring.cpp)
 void run_run_history_ring_tests();
 
+// ACS37800 register field decoders (defined in test_acs37800_fields.cpp)
+void run_acs37800_fields_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1683,6 +1686,9 @@ int main(int argc, char **argv) {
 
     // Run recorder sample ring
     run_run_history_ring_tests();
+
+    // ACS37800 register field decoders
+    run_acs37800_fields_tests();
 
     return UNITY_END();
 }
