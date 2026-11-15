@@ -21,13 +21,14 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Coolant flow sensor | Alphacool ES (Hall-effect) | GPIO | GPIO 18 | Coolant flow pulses |
 | Coolant temperature | NTC thermistor | ADC | GPIO 4 | Coolant temp via voltage divider |
 | Status LED | WS2812B-2020 RGB | GPIO | GPIO 38 | Fault / Ready indication |
-| Expander | MCP23S08 | SPI (main bus) | CS: decoder Y3 | ±15 V flags, backlight, INA239 ALERT, touch IRQ, 3 spare pins |
+| Expander | MCP23S08 | SPI (main bus) | CS: decoder Y3 | ±15 V flags, backlight, INA239 ALERT, touch IRQ, ADT7320 INT and CT, 1 spare pin |
+| Ambient temperature (rev 5, schematic only) | ADT7320 | SPI mode 3 (main bus) | CS: decoder Y8, INT / CT: expander GP2 / GP3 | Ambient temperature; replaces the reading the I2C fan controller gave |
 | Power button | LTC2954 INT# / KILL# | GPIO | GPIO 1 / GPIO 10 | Button press ramps down, then cuts system power |
 | General-purpose I/O | 2-pin headers J16-J20 (signal, GND), each with an LED that follows the pin voltage | GPIO; ADC on IO5 / IO7 only | GPIO 5, 7, 11, 12, 13 | Spare 3.3 V inputs or outputs (sensors, relay triggers, LEDs) |
 
 **I2C:** none. Every peripheral is on SPI or a GPIO.
 
-**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9837, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display, touch controller and the ACS37800. Their chip selects come from the SN74LVC138A decoder, driven from GPIO 3, 44, 45 and 8. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
+**Main SPI bus:** CLK → GPIO 42, MOSI → GPIO 41, MISO → GPIO 40. Devices: AD9837, AD5453, the LSM6DSOX (on a cable, header J14), INA239, ADS1220, MCP23S08, display, touch controller and the ACS37800. Their chip selects come from the 74HC154 4-to-16 decoder (rev 5; rev 4 has an SN74LVC138A with eight outputs), driven from GPIO 3, 44, 45, 47 (through a 74LV1T34 buffer, because it is 1.8 V) and 8, with Y9 to Y15 spare. The INA239, ADS1220 and AD5453 use SPI mode 1, and the INA239 and ADS1220 data outputs are high-impedance while CS is high. The ADS1220 DRDY pin is not wired to the MCU.
 
 **ACS37800:** on the main SPI bus, with CS on GPIO 17 (a plain GPIO, not a decoder output). The ACS37800 keeps MISO driven when CS is high, so two SN74LVC1G125 gates connect it only while CS is low: one passes SCK to the isolator, the other passes its MISO to the bus. See [`docs/acs37800.md`](docs/acs37800.md) for its SPI frame and bring-up gotchas.
 

@@ -29,9 +29,7 @@ static constexpr uint8_t REG_OLAT  = 0x0A;
 
 static constexpr uint8_t OUTPUT_MASK = 1u << EXPANDER_PIN_DISP_BL;
 // The unused pins are inputs, so their weak pull-ups stop them floating.
-static constexpr uint8_t PULLUP_MASK = (1u << EXPANDER_PIN_SPARE_2) |
-                                       (1u << EXPANDER_PIN_SPARE_3) |
-                                       (1u << EXPANDER_PIN_SPARE_5);
+static constexpr uint8_t PULLUP_MASK = (1u << EXPANDER_PIN_SPARE_5);
 
 static bool sPresent = false;
 static uint8_t sOutputLevels = 0;

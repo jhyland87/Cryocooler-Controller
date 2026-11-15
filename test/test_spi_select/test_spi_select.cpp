@@ -32,9 +32,9 @@ void test_ids_are_distinct_from_gpios_and_fit_int8(void) {
     TEST_ASSERT_FALSE(spi_select::isChipSelectId(48));
     TEST_ASSERT_FALSE(spi_select::isChipSelectId(97));  // Arduino's RGB_BUILTIN alias
     TEST_ASSERT_TRUE(spi_select::isChipSelectId(CS_ID_BASE));
-    TEST_ASSERT_TRUE(spi_select::isChipSelectId(CS_ID_BASE + 7));
-    TEST_ASSERT_FALSE(spi_select::isChipSelectId(CS_ID_BASE + 8));
-    TEST_ASSERT_LESS_OR_EQUAL(127, CS_ID_BASE + 7);  // Adafruit BusIO stores CS as int8_t
+    TEST_ASSERT_TRUE(spi_select::isChipSelectId(CS_ID_BASE + 15));
+    TEST_ASSERT_FALSE(spi_select::isChipSelectId(CS_ID_BASE + 16));
+    TEST_ASSERT_LESS_OR_EQUAL(127, CS_ID_BASE + 15);  // Adafruit BusIO stores CS as int8_t
 }
 
 void test_ids_match_the_schematic_outputs(void) {
@@ -46,21 +46,32 @@ void test_ids_match_the_schematic_outputs(void) {
     TEST_ASSERT_EQUAL(5, TOUCH_CS_PIN - CS_ID_BASE);
     TEST_ASSERT_EQUAL(6, ADS1220_CS - CS_ID_BASE);
     TEST_ASSERT_EQUAL(7, LSM6DSOX_CS - CS_ID_BASE);
+    TEST_ASSERT_EQUAL(8, AMBIENT_CS - CS_ID_BASE);
 }
 
 void test_select_sets_address_while_disabled(void) {
-    spi_select::applyChipSelect(ADS1220_CS, 0, sSelected, writePin);  // Y6: C=1 B=1 A=0
+    spi_select::applyChipSelect(ADS1220_CS, 0, sSelected, writePin);  // Y6: D=0 C=1 B=1 A=0
     const PinWrite expected[] = {{CS_ENABLE_PIN, 1},
                                  {CS_ADDR_A_PIN, 0},
                                  {CS_ADDR_B_PIN, 1},
                                  {CS_ADDR_C_PIN, 1},
+                                 {CS_ADDR_D_PIN, 0},
                                  {CS_ENABLE_PIN, 0}};
-    TEST_ASSERT_EQUAL(5, sWrites.size());
-    for (size_t index = 0; index < 5; ++index) {
+    TEST_ASSERT_EQUAL(6, sWrites.size());
+    for (size_t index = 0; index < 6; ++index) {
         TEST_ASSERT_EQUAL(expected[index].pin, sWrites[index].pin);
         TEST_ASSERT_EQUAL(expected[index].level, sWrites[index].level);
     }
     TEST_ASSERT_EQUAL(6, sSelected);
+}
+
+void test_upper_half_sets_address_bit_d(void) {
+    spi_select::applyChipSelect(AMBIENT_CS, 0, sSelected, writePin);  // Y8: D=1 C=0 B=0 A=0
+    TEST_ASSERT_EQUAL(6, sWrites.size());
+    TEST_ASSERT_EQUAL(CS_ADDR_D_PIN, sWrites[4].pin);
+    TEST_ASSERT_EQUAL(1, sWrites[4].level);
+    TEST_ASSERT_EQUAL(0, sWrites[1].level);
+    TEST_ASSERT_EQUAL(8, sSelected);
 }
 
 void test_deselect_only_disables(void) {
@@ -86,6 +97,7 @@ int main(int, char**) {
     RUN_TEST(test_ids_are_distinct_from_gpios_and_fit_int8);
     RUN_TEST(test_ids_match_the_schematic_outputs);
     RUN_TEST(test_select_sets_address_while_disabled);
+    RUN_TEST(test_upper_half_sets_address_bit_d);
     RUN_TEST(test_deselect_only_disables);
     RUN_TEST(test_deselecting_another_output_leaves_the_selection);
     return UNITY_END();

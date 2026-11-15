@@ -462,3 +462,17 @@ Branch `ucs-125-87-rev4`. Not built or bench tested.
 * **3D model:** a 3.71 x 14.0 x 12.5 mm envelope. The STEP in `dev/USB4205_GF_A` is not placed.
 
 **J7 removed.** SW3 is the only power button. U34 stays on the button line, which is now named `PWR_BTN`.
+
+## Rev 5 schematic: 74HC154 decoder and ADT7320 ambient sensor (2026-11-14, branch `rev5-schematic`)
+
+Schematic only. No PCB work has been done for rev 5.
+
+* **Reversal:** U32 changes from the SN74LVC138A (8 outputs, "SN74LVC138A chip-select decoder", 2026-11-05) to a 74HC154BQ (Nexperia, DHVQFN24 SOT815-1, 16 outputs) so more SPI devices can be added. Y0-Y7 keep their devices, Y8 is the ADT7320, Y9-Y15 are spare (IDs 109-115).
+* **74HC154 (Nexperia 74HC_HCT154 rev 9):** pins 1-11 Y0-Y10, 12 GND, 13-17 Y11-Y15, 18 E0, 19 E1, 20-23 A3-A0, 24 VCC. E1 is grounded and the CS_EN_N pull-up stays on E0. The exposed pad is not a supply pin: floating or VCC, so it is left floating. The datasheet tabulates VIH only at 2.0, 4.5 and 6.0 V, so the 3.3 V threshold is **not verified**; the ESP32's 2.64 V minimum high level should clear the roughly 2.3 V expected.
+* **Footprint unverified:** the datasheet has no land pattern. `Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm` uses the outline (pin positions, 4.1 x 2.1 mm pad) with the pad style of KiCad's SOT764-1 footprint. Check it against Nexperia's reflow drawing before layout. No 3D model yet.
+* **Address bit D:** GPIO47 is 1.8 V on this module, so a 74LV1T34GX (the display buffer part) lifts it to `CS_ADDR_D`; its 100 k input pull-down keeps D at 0 while the GPIO floats at boot. The decoder stays disabled until firmware drives CS_EN_N.
+* **ADT7320UCPZ (Analog Devices rev 0, CP-16-17):** 1 SCLK, 2 DOUT, 3 DIN, 4 CS, 9 INT, 10 CT, 11 GND, 12 VDD, pins 5-8 and 13-16 NC (not bonded), pad 17 floating or GND (grounded). SPI mode 3 (DIN clocked on the rising edge, DOUT changes on the falling edge, SCLK idles high); DOUT is released 10-80 ns after CS rises (t7), so it shares SPI_MISO. VDD 0.1 uF; INT and CT are open drain with 10 k pull-ups, wired to MCP23S08 GP2 and GP3. Accuracy: +/-0.20 C typ -10 to +85 C at 3.0 V.
+* **ADT7320 footprint:** KiCad's stock `UQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm` matches the body, pitch and pad size of CP-16-17; ADI's own land pattern was not compared.
+* **Placement (for layout):** board edge, far from the compressor drive, amplifier, regulators and the INA239 shunt; consider a slot around it.
+* **Now unused:** the SN74LVC138A symbol and BOM entry, and the older decoder scripts that name it, are dead for rev 5. Left in place until you confirm.
+* **Not verified:** ERC (0 violations), 408 datasheet rules and the GPIO map pass; clean selects at boot and ADT7320 readings are untested (no hardware).

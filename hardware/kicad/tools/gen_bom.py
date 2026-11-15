@@ -349,9 +349,12 @@ PARTS = {
     ('TACTILE', 'SW_TE_1571300-2'): (
         'TE Connectivity', '1571300-2', 'SWITCH TACTILE SPST-NO 0.05A 24V R/A SMD IP67',
         'design', 'SW3 power button; right angle, actuator through the right board edge, IP67'),
-    ('SN74LVC138ARGYR', 'Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm'): (
-        'Texas Instruments', 'SN74LVC138ARGYR', 'IC DECODER/DEMUX 1X3:8 16VQFN',
-        'design', 'decodes the shared SPI bus chip selects; SN74LVC138ARGYRG4 is the same part'),
+    ('74HC154BQ', 'Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm'): (
+        'Nexperia', '74HC154BQ,118', 'IC DECODER/DEMUX 1X4:16 24DHVQFN',
+        'design', 'decodes the 16 shared SPI bus chip selects; exposed pad floating'),
+    ('ADT7320UCPZ', 'UQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm'): (
+        'Analog Devices', 'ADT7320UCPZ-R2', 'IC TEMP SENSOR DIGITAL SPI 16LFCSP',
+        'design', 'ambient temperature; keep it away from heat sources'),
     ('AD9837BCPZ', 'LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm'): (
         'Analog Devices', 'AD9837BCPZ-RL7', 'IC DDS WAVEFORM GEN 10LFCSP', 'design',
         'replaces AD9833BRMZ: same pins and registers, 16 MHz MCLK, exposed pad to GND'),

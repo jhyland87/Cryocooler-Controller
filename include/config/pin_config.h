@@ -16,15 +16,17 @@
 #define RGB_LED_PIN 38
 
 // =============================================================================
-// Shared SPI bus chip selects: SN74LVC138A decoder (U32)
+// Shared SPI bus chip selects: 74HC154 4-to-16 decoder (U32)
 // =============================================================================
-// A/B/C pick the output and G2A enables it (10 kOhm pull-up holds it off at boot).
+// A/B/C/D pick the output and E0 enables it (10 kOhm pull-up holds it off at boot).
 // GPIO3 and GPIO45 are strapping pins: 10 kOhm resistors hold GPIO3 high (default
 // USB-JTAG) and GPIO45 low at reset. GPIO44 is U0RXD; the console is native USB
-// CDC, so UART0 is unused. GPIO47 (1.8 V only) is free.
+// CDC, so UART0 is unused. GPIO47 swings 1.8 V only, so address bit D reaches the
+// decoder through a 74LV1T34 buffer whose input pull-down reads 0 while it floats.
 #define CS_ADDR_A_PIN      3
 #define CS_ADDR_B_PIN      44
 #define CS_ADDR_C_PIN      45
+#define CS_ADDR_D_PIN      47
 #define CS_ENABLE_PIN      8
 
 // *_CS values below are not GPIOs: src/spi_select.cpp catches these IDs in
@@ -32,7 +34,7 @@
 // output number. They must stay above RGB_BUILTIN (97) and fit an int8_t, which
 // is how Adafruit BusIO stores CS.
 #define CS_ID_BASE         100
-#define CS_OUTPUT_COUNT    8
+#define CS_OUTPUT_COUNT    16
 
 // MCP23S08 SPI GPIO expander — SPI mode 0 on the shared SPI bus. See the
 // EXPANDER_PIN_* map below. RESET is tied high; INT is not wired to the MCU.
@@ -51,6 +53,11 @@
 // LSM6DSOX IMU — Adafruit breakout (product 4438) mounted on the cryocooler and
 // cabled to header J14; SPI on the shared bus (AD9833, AD5453, ...).
 #define LSM6DSOX_CS        (CS_ID_BASE + 7)    // J14 pin 5
+
+// ADT7320 ambient temperature sensor (U50) — SPI mode 3, MSB first, DOUT is released
+// after CS rises. INT and CT (open drain, 10 kOhm pull-ups) go to expander GP2 and GP3.
+#define AMBIENT_CS         (CS_ID_BASE + 8)
+// IDs CS_ID_BASE + 9 to CS_ID_BASE + 15 are spare decoder outputs (Y9 to Y15).
 #define LSM6DSOX_INT1_PIN  2    // J14 pin 7
 #define LSM6DSOX_INT2_PIN  39   // J14 pin 8
 
@@ -161,8 +168,8 @@
 // =============================================================================
 #define EXPANDER_PIN_PGP_15V         0   // input: LT3097 +15 V power good
 #define EXPANDER_PIN_PGN_15V         1   // input: LT3097 -15 V power good
-#define EXPANDER_PIN_SPARE_2         2   // input with weak pull-up, not wired
-#define EXPANDER_PIN_SPARE_3         3   // input with weak pull-up, not wired
+#define EXPANDER_PIN_AMBIENT_INT     2   // input: ADT7320 INT (active LOW, R pull-up)
+#define EXPANDER_PIN_AMBIENT_CT      3   // input: ADT7320 CT (active LOW, R pull-up)
 #define EXPANDER_PIN_DISP_BL         4   // output: display backlight enable
 #define EXPANDER_PIN_SPARE_5         5   // input with weak pull-up, not wired
 #define EXPANDER_PIN_INA239_ALERT    6   // input: INA239 ALERT (active LOW, R9 pull-up)

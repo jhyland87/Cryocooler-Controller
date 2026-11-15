@@ -1,6 +1,6 @@
 /**
  * @file spi_select.cpp
- * @brief Routes chip-select IDs to the SN74LVC138A decoder.
+ * @brief Routes chip-select IDs to the 74HC154 decoder.
  *
  * The Arduino core defines pinMode() and digitalWrite() as weak aliases of
  * __pinMode() and __digitalWrite(), so these strong definitions replace them for
@@ -30,7 +30,7 @@ static void prepareDecoderPins() {
     sDecoderPinsReady = true;
     __digitalWrite(CS_ENABLE_PIN, HIGH);
     __pinMode(CS_ENABLE_PIN, OUTPUT);
-    for (uint8_t addressPin : {CS_ADDR_A_PIN, CS_ADDR_B_PIN, CS_ADDR_C_PIN}) {
+    for (uint8_t addressPin : {CS_ADDR_A_PIN, CS_ADDR_B_PIN, CS_ADDR_C_PIN, CS_ADDR_D_PIN}) {
         __pinMode(addressPin, OUTPUT);
     }
 }

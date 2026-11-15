@@ -1,8 +1,8 @@
 /**
  * @file spi_select.h
- * @brief Chip-select logic for the SN74LVC138A decoder (U32) on the shared SPI bus.
+ * @brief Chip-select logic for the 74HC154 decoder (U32) on the shared SPI bus.
  *
- * The eight shared-bus chip selects are outputs of a 3-to-8 decoder rather than
+ * The sixteen shared-bus chip selects are outputs of a 4-to-16 decoder rather than
  * GPIOs. Each has an ID above the real GPIO numbers (see pin_config.h), which
  * src/spi_select.cpp catches in strong overrides of pinMode() and digitalWrite(),
  * so the SPI libraries work unchanged. This header holds the logic, free of
@@ -24,7 +24,7 @@ constexpr uint8_t NO_OUTPUT_SELECTED = 0xFF;
 /**
  * @brief Tells whether a pin number is a decoder chip-select ID.
  * @param pin Pin number passed to pinMode() or digitalWrite().
- * @return True for an ID from CS_ID_BASE to CS_ID_BASE + 7.
+ * @return True for an ID from CS_ID_BASE to CS_ID_BASE + CS_OUTPUT_COUNT - 1.
  */
 constexpr bool isChipSelectId(uint8_t pin) {
     return pin >= CS_ID_BASE && pin < CS_ID_BASE + CS_OUTPUT_COUNT;
@@ -44,7 +44,7 @@ constexpr bool isChipSelectId(uint8_t pin) {
  *
  * @code
  * uint8_t selected = NO_OUTPUT_SELECTED;
- * applyChipSelect(ADS1220_CS, 0, selected, writeGpio);  // enable high, A=0 B=1 C=1, enable low
+ * applyChipSelect(ADS1220_CS, 0, selected, writeGpio);  // enable high, A=0 B=1 C=1 D=0, enable low
  * applyChipSelect(ADS1220_CS, 1, selected, writeGpio);  // enable high
  * @endcode
  */
@@ -63,6 +63,7 @@ inline void applyChipSelect(uint8_t chipSelectId, uint8_t level, uint8_t& select
     writePin(CS_ADDR_A_PIN, output & 1);
     writePin(CS_ADDR_B_PIN, (output >> 1) & 1);
     writePin(CS_ADDR_C_PIN, (output >> 2) & 1);
+    writePin(CS_ADDR_D_PIN, (output >> 3) & 1);
     writePin(CS_ENABLE_PIN, 0);
     selectedOutput = output;
 }

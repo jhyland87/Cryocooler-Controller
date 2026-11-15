@@ -58,7 +58,8 @@ DATASHEETS = {
     'SN74AHCT1G125': 'https://www.ti.com/lit/ds/symlink/sn74ahct1g125.pdf',
     '74LV1T34GX': 'https://assets.nexperia.com/documents/data-sheet/74LV1T34.pdf',
     'SN74LV1T34': 'https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf',
-    'SN74LVC138A': 'https://www.ti.com/lit/ds/symlink/sn74lvc138a.pdf',
+    '74HC154': 'https://assets.nexperia.com/documents/data-sheet/74HC_HCT154.pdf',
+    'ADT7320': 'https://www.analog.com/media/en/technical-documentation/data-sheets/ADT7320.pdf',
     'AD9833': 'https://www.analog.com/media/en/technical-documentation/'
     'data-sheets/ad9833.pdf',
     'AD9837': 'https://www.analog.com/media/en/technical-documentation/'

@@ -22,6 +22,7 @@ EXPECTED = {
     'CS_ADDR_A': 3,
     'CS_ADDR_B': 44,
     'CS_ADDR_C': 45,
+    'CS_ADDR_D_1V8': 47,
     'IMU_INT1': 2,
     'IMU_INT2': 39,
     'ACS_CS': 17,

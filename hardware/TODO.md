@@ -91,3 +91,4 @@
   voltage configured for it.
   - With the DAC and op-amp stage above, this is the same output set anywhere between zero and
     the ceiling, with the ceiling enforced in software.
+- [ ] **Ambient Temperature**: ADT7320 added in the rev 5 schematic (branch `rev5-schematic`). PCB placement still to do: far from anything that warms the board.

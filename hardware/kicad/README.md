@@ -21,7 +21,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
 | `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908-2 SMT pluggable header J11, TE 643228-1 through-hole header J12. Rev 4: on the shared SPI bus through two SN74LVC1G125 gates enabled by `ACS_CS` (U41 passes SCK in, U42 passes MISO out), with 10 kΩ pull-ups on the gated SCK and on `ACS_CS` |
 | `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs |
-| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3/GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
+| `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP4 display backlight enable, GP6 INA239 ALERT, GP7 touch IRQ, GP2/GP3 ADT7320 INT/CT, GP5 spare; RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point |
 | `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through the two halves of one BSS138DW (Q61) as open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 4.7 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail. Rev 4: XKB X2510WRS headers (J5 is a 4-pin part with pin 4 unused), 4.7 kΩ and 10 kΩ resistors in arrays RN1 / RN2 |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
 | `imu` | J14, a Molex Micro-Lock Plus 2x4 header (505448-0891, 1.25 mm, right angle, positive lock) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND; one NUF6401MN six-channel filter (100 Ω series, 17 pF and ESD clamp each side) |
@@ -61,11 +61,11 @@ console); the firmware should still check it before starting the signal generato
 | Amp REM enable | 6 | PWR_KILL (LTC2954 KILL#) | 10 |
 | PWR_INT (LTC2954 INT#) | 1 | Flow tach | 18 |
 | Pump PWM / fan tach | 14 / 15 | NTC ADC | 4 |
-| Pump tach | 21 | Free | 47 (1.8 V) |
+| Pump tach | 21 | CS decoder D (via 74LV1T34) | 47 (1.8 V) |
 | Status RGB (WS2812B-2020) | 38 | Compressor relay enable | 16 |
 | Display D/C | 48 | Display RESET | 46 (strap, 10 kΩ pull-down) |
 
-The shared-bus chip selects come from U32 (SN74LVC138A): Y0 AD9837, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
+The shared-bus chip selects come from U32 (74HC154BQ, rev 5; rev 4 has an SN74LVC138A): Y0 AD9837, Y1 AD5453, Y2 INA239, Y3 MCP23S08, Y4 display, Y5 touch, Y6 ADS1220, Y7 LSM6DSOX, Y8 ADT7320, Y9 to Y15 spare. Address bit D is GPIO47, which is 1.8 V on this module, so a 74LV1T34 buffer (100 k pull-down on its input) lifts it to 3.3 V. Firmware numbers them `CS_ID_BASE + Yn` (`pin_config.h`, `src/spi_select.cpp`).
 
 GPIO3 is a strapping pin (JTAG source); R17 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R19 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R18 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.

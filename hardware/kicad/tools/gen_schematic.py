@@ -373,34 +373,43 @@ def decouple(sh, near, rail, values=('100nF',), gnd='GND'):
 # Decoder output pin -> chip select net. The output number is the firmware's CS
 # index (include/config/pin_config.h). The order follows the routed board.
 CS_DECODER_OUTPUTS = (
-    ('15', 'AD9833_FSYNC'),
-    ('14', 'AD5453_SYNC'),
-    ('13', 'INA239_CS'),
-    ('12', 'EXPANDER_CS'),
-    ('11', 'DISP_CS'),
-    ('10', 'TOUCH_CS'),
-    ('9', 'ADS1220_CS'),
-    ('7', 'IMU_CS'),
+    ('1', 'AD9833_FSYNC'),
+    ('2', 'AD5453_SYNC'),
+    ('3', 'INA239_CS'),
+    ('4', 'EXPANDER_CS'),
+    ('5', 'DISP_CS'),
+    ('6', 'TOUCH_CS'),
+    ('7', 'ADS1220_CS'),
+    ('8', 'IMU_CS'),
+    ('9', 'AMBIENT_CS'),
 )
+# Y9-Y15 are spare chip selects (IDs 109-115)
+CS_DECODER_SPARE_PINS = ('10', '11', '13', '14', '15', '16', '17')
+# Highest numbers on the rev 4 board; rev 5 parts count up from here so no earlier
+# part is renumbered. The ambient sensor sheet takes U+1, C+1, R+1..2 and the
+# address bit D buffer takes U+2, C+2, R+3.
+REV5_LAST = {'U': 49, 'C': 304, 'R': 510, 'TP': 47}
 # Last-used numbers: the decoder takes U32, C132, R181-183 and TP45-46.
 CS_DECODER_LAST = {'U': 31, 'C': 131, 'R': 180, 'TP': 44}
 
 
 def cs_decoder(sh):
-    """SN74LVC138A: the shared SPI bus chip selects, one low at a time. The enable
+    """74HC154: the shared SPI bus chip selects, one low at a time. The enable
     pull-up holds every output high until firmware takes over. The address lines
-    are strapping GPIOs, so their strap resistors live here too.
+    A, B and C are strapping GPIOs, so their strap resistors live here too. Address
+    bit D comes from GPIO47 (1.8 V) through a 74LV1T34 buffer.
     """
     column, row = 56, 100
     sh.note('SPI CHIP SELECT DECODER', 20 * 1.27, 50 * 1.27, 1.8)
     sh.note(
-        'One output low at a time. G2A pull-up: all outputs high at reset.',
+        'One output low at a time. E0 pull-up: all outputs high at reset.',
         20 * 1.27,
         54 * 1.27,
         1.8,
     )
     sh.note(
-        'GPIO3 pull-up and GPIO45 pull-down are strap defaults.',
+        'GPIO3 pull-up and GPIO45 pull-down are strap defaults. 74HC154 exposed pad: '
+        'floating (datasheet).',
         20 * 1.27,
         58 * 1.27,
         1.8,
@@ -408,29 +417,28 @@ def cs_decoder(sh):
     with kicadgen.pinned_refs('U', CS_DECODER_LAST['U']):
         decoder = place_ic(
             sh,
-            'cryocooler:SN74LVC138A',
-            'SN74LVC138ARGYR',
+            'cryocooler:74HC154BQ',
+            '74HC154BQ',
             column,
             row,
-            'Package_DFN_QFN:Texas_RGY_R-PVQFN-N16_EP2.05x2.55mm',
+            'cryocooler:Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm',
         )
-    for pin, net in (('1', 'CS_ADDR_A'), ('2', 'CS_ADDR_B'), ('3', 'CS_ADDR_C'),
-                     ('4', 'CS_EN_N')):
-        net_label(sh, net, spur(sh, decoder, pin, 8), 180, is_global=True)
-    # G1 and G2B sit at the ends of the side, so their rails have room
-    rail_symbol(sh, '+3V3', spur(sh, decoder, '6', 3))
-    ground(sh, spur(sh, decoder, '5', 3))
+    for pin, net in (('23', 'CS_ADDR_A'), ('22', 'CS_ADDR_B'), ('21', 'CS_ADDR_C'),
+                     ('20', 'CS_ADDR_D'), ('18', 'CS_EN_N')):
+        net_label(sh, net, spur(sh, decoder, pin, 8), 0, is_global=True)
+    ground(sh, spur(sh, decoder, '19', 3))
     for pin, net in CS_DECODER_OUTPUTS:
-        net_label(sh, net, spur(sh, decoder, pin, 4), 0, is_global=True)
-    supply = pin_cell(decoder, '16')
+        net_label(sh, net, spur(sh, decoder, pin, 4), 180, is_global=True)
+    for pin in (*CS_DECODER_SPARE_PINS, '25'):
+        sh.nc(decoder, pin)
+    supply = pin_cell(decoder, '24')
     wire(sh, supply, (supply[0], supply[1] - 4))
     rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
-    drop_ground(sh, pin_cell(decoder, '8'), 2)
-    drop_ground(sh, pin_cell(decoder, '17'), 2)
+    drop_ground(sh, pin_cell(decoder, '12'), 2)
     with kicadgen.pinned_refs('C', CS_DECODER_LAST['C']):
         place_blocks(
             sh,
-            [('SN74LVC138A DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
+            [('74HC154 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
             76,
             70,
         )
@@ -438,7 +446,7 @@ def cs_decoder(sh):
         if keeps_test_point('+3V3'):
             wire(sh, (supply[0], supply[1] - 4), (supply[0] + 4, supply[1] - 4))
             test_point(sh, '+3V3', (supply[0] + 4, supply[1] - 4))
-        gnd_cell = pin_cell(decoder, '17')
+        gnd_cell = pin_cell(decoder, '12')
         if keeps_test_point('GND'):
             wire(sh, (gnd_cell[0], gnd_cell[1] + 2), (gnd_cell[0] + 4, gnd_cell[1] + 2))
             test_point(sh, 'GND', (gnd_cell[0] + 4, gnd_cell[1] + 2), rot=180)
@@ -452,6 +460,43 @@ def cs_decoder(sh):
             hres(sh, '10k', 31, bias_row)
             wire(sh, (34, bias_row), (36, bias_row))
             net_label(sh, net, (36, bias_row), 0, is_global=True)
+    address_d_buffer(sh)
+
+
+def address_d_buffer(sh):
+    """GPIO47 swings 1.8 V on the R16V module, too low for the 74HC154 at 3.3 V.
+    74LV1T34GX (VIH 1.37 V at 3.3 V) lifts it to CS_ADDR_D. The pull-down holds the
+    input, so address bit D reads 0 while the GPIO floats during boot.
+    """
+    sh.note('ADDRESS BIT D BUFFER', 70 * 1.27, 106 * 1.27, 1.8)
+    sh.note('GPIO47 is 1.8 V on N32R16V.', 70 * 1.27, 110 * 1.27, 1.8)
+    sh.note('74LV1T34GX: VIH 1.37 V at 3.3 V.', 70 * 1.27, 114 * 1.27, 1.8)
+    with kicadgen.pinned_refs('U', REV5_LAST['U'] + 1):
+        buffer_part = place_ic(
+            sh,
+            'cryocooler:74LV1T34GX',
+            '74LV1T34GX',
+            112,
+            132,
+            'cryocooler:Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm',
+        )
+    supply = pin_cell(buffer_part, '5')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    gnd_bus(sh, [pin_cell(buffer_part, '1'), pin_cell(buffer_part, '3')])
+    in_end = spur(sh, buffer_part, '2', 12)
+    net_label(sh, 'CS_ADDR_D_1V8', in_end, 180, is_global=True)
+    with kicadgen.pinned_refs('R', REV5_LAST['R'] + 3):
+        vres(sh, '100k', in_end[0] + 6, in_end[1])
+    drop_ground(sh, (in_end[0] + 6, in_end[1] + 6), 0)
+    net_label(sh, 'CS_ADDR_D', spur(sh, buffer_part, '4', 6), 0, is_global=True)
+    with kicadgen.pinned_refs('C', REV5_LAST['C'] + 1):
+        place_blocks(
+            sh,
+            [('74LV1T34GX DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
+            128,
+            140,
+        )
 
 
 def build_mcu(sh):
@@ -504,6 +549,7 @@ def build_mcu(sh):
         '26': 'CS_ADDR_C',
         '16': 'DISP_RST',
         '25': 'DISP_DC_1V8',
+        '24': 'CS_ADDR_D_1V8',
     }
     for pin, net in left.items():
         net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
@@ -521,8 +567,8 @@ def build_mcu(sh):
         # member text starts past the global flags on the rows around it
         label_at=11,
     )
-    # 28-30 are NC on the module; GPIO47 (1.8 V) is spare
-    for pin in ('28', '29', '30', '24'):
+    # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered
+    for pin in ('28', '29', '30'):
         sh.nc(esp, pin)
     cs_decoder(sh)
     # supplies
@@ -2691,8 +2737,9 @@ def build_gpio_expander(sh):
     )
     sh.note(
         'All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet '
-        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP2, GP3 and GP5 are '
-        'spare; firmware enables weak pull-ups on them. TSC2046 PENIRQ drives GP7.',
+        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP5 is spare; firmware '
+        'enables a weak pull-up on it. TSC2046 PENIRQ drives GP7, the ADT7320 INT and '
+        'CT outputs drive GP2 and GP3.',
         20,
         21,
     )
@@ -2739,12 +2786,13 @@ def build_gpio_expander(sh):
         ('9', 'PGP_15V'),
         ('10', 'PGN_15V'),
         ('13', 'DISP_BL_EN'),
+        ('11', 'AMBIENT_INT'),
+        ('12', 'AMBIENT_CT'),
         ('15', 'INA239_ALERT'),
         ('16', 'TOUCH_IRQ'),
     ):
         net_label(sh, net, spur(sh, expander, pin, 6), 0, is_global=True)
-    for pin in ('11', '12', '14'):
-        sh.nc(expander, pin)
+    sh.nc(expander, '14')
     # past the global labels above it, so the two label texts do not touch
     if keeps_test_point('EXPANDER_INT'):
         int_end = spur(sh, expander, '7', 22)
@@ -3709,6 +3757,67 @@ def build_supply_switches(sh):
         supply_block(sh, spec, 36 + 90 * (index // 6), 40 + 28 * (index % 6))
 
 
+def build_ambient(sh):
+    """Hand-laid: ADT7320 SPI temperature sensor for the ambient reading."""
+    sh.handwired = True
+    sh.note(
+        'ADT7320: SPI mode 3 (SCLK idles high), MSB first, on the main bus (CS from the '
+        'decoder). DOUT is released within 80 ns of CS rising (datasheet Table 2, t7), so '
+        'it shares SPI_MISO without a buffer. Pins 5-8 and 13-16 are not bonded: left '
+        'open. Exposed pad to GND.',
+        20,
+        15,
+    )
+    sh.note(
+        'INT and CT are open drain and need 10 k pull-ups; they go to expander GP2 and GP3. '
+        'Place this part far from anything that warms the board.',
+        20,
+        21,
+    )
+    with kicadgen.pinned_refs('U', REV5_LAST['U']):
+        sensor = place_ic(
+            sh,
+            'cryocooler:ADT7320UCPZ',
+            'ADT7320UCPZ',
+            80,
+            70,
+            'Package_DFN_QFN:UQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm',
+        )
+    vdd = pin_cell(sensor, '12')
+    wire(sh, vdd, (vdd[0], vdd[1] - 6))
+    rail_symbol(sh, '+3V3', (vdd[0], vdd[1] - 6))
+    gnd_bus(sh, [pin_cell(sensor, '11'), pin_cell(sensor, '17')])
+    with kicadgen.pinned_refs('C', REV5_LAST['C']):
+        place_blocks(
+            sh,
+            [('ADT7320 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
+            150,
+            100,
+        )
+    net_label(sh, 'AMBIENT_CS', spur(sh, sensor, '4', 12), 180, is_global=True)
+    spi_bus(
+        sh,
+        [
+            (spur(sh, sensor, pin, 2), net)
+            for pin, net in (('1', 'SPI_SCK'), ('3', 'SPI_MOSI'))
+        ],
+        42,
+        -1,
+        [(42, 56), (38, 56)],
+    )
+    spi_bus(sh, [(spur(sh, sensor, '2', 2), 'SPI_MISO')], 108, -1, [(108, 54), (112, 54)])
+    for pin, net in (('9', 'AMBIENT_INT'), ('10', 'AMBIENT_CT')):
+        net_label(sh, net, spur(sh, sensor, pin, 6), 0, is_global=True)
+    sh.note('BIAS', 20 * 1.27, 118 * 1.27, 1.8)
+    for index, net in enumerate(('AMBIENT_INT', 'AMBIENT_CT')):
+        bias_row = 124 + index * 8
+        rail_symbol(sh, '+3V3', (28, bias_row))
+        with kicadgen.pinned_refs('R', REV5_LAST['R'] + index):
+            hres(sh, '10k', 31, bias_row)
+        wire(sh, (34, bias_row), (36, bias_row))
+        net_label(sh, net, (36, bias_row), 0, is_global=True)
+
+
 SHEETS = [
     ('Power Input', 'power_input', build_power_input, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
@@ -3734,6 +3843,7 @@ SHEETS = [
     ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
     ('Display', 'display', build_display, 'A3'),
     ('General Purpose IO', 'aux_io', build_aux_io, 'A3'),
+    ('Ambient Temp', 'ambient', build_ambient, 'A3'),
 ]
 
 

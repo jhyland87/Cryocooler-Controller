@@ -1178,6 +1178,36 @@ def onsemi_dfn12_506ad():
     )
 
 
+def nexperia_sot815_1():
+    """Nexperia SOT815-1 DHVQFN24, 3.5 x 5.5 x 0.85 mm, 0.5 mm pitch (74HC154
+    rev 9, package outline). Pins 2-11 down the left, 12-13 along the bottom, 14-23
+    up the right, 24 and 1 along the top (top view, Fig. 6). The datasheet has no
+    land pattern: pads follow the stock 20-pin DHVQFN (SOT764-1) style, 0.825 x
+    0.25 mm with 0.35 mm outside the body, on this body size. The 4.1 x 2.1 mm
+    exposed pad (25, Dh x Eh nominal) is not a supply pin: leave it floating or
+    tie it to VCC. UNVERIFIED against Nexperia's reflow footprint drawing.
+    """
+    pads = []
+    for index in range(10):
+        row = round(-2.25 + index * 0.5, 2)
+        pads.append(smd_pad(str(index + 2), -1.6875, row, 0.825, 0.25))
+        pads.append(smd_pad(str(23 - index), 1.6875, row, 0.825, 0.25))
+    for number, x, y in (('12', -0.75, 2.6875), ('13', 0.75, 2.6875),
+                         ('24', 0.75, -2.6875), ('1', -0.75, -2.6875)):
+        pads.append(smd_pad(number, x, y, 0.25, 0.825))
+    pads.append(smd_pad('25', 0, 0, 2.1, 4.1))
+    return footprint(
+        'Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm',
+        'Nexperia SOT815-1 DHVQFN24, 3.5 x 5.5 mm body, 0.5 mm pitch, 2.1 x 4.1 mm exposed pad; '
+        'outline from https://assets.nexperia.com/documents/data-sheet/74HC_HCT154.pdf, '
+        'land pattern derived from the stock SOT764-1 footprint style (unverified)',
+        (1.75, 2.75),
+        pads,
+        circle(-2.3, -3.2, 0.15, 'F.SilkS', 0.12, fill=True),
+        courtyard=(2.35, 3.4),
+    )
+
+
 def ti_dfm0020a():
     """TI DFM0020A SOIC-20W land pattern for 8.1 mm clearance/creepage (ISOW774x
     SLLSFK1C): 20 x 1.65 x 0.6 mm pads, 1.27 mm pitch, 9.75 mm between pad centres.
@@ -1450,6 +1480,7 @@ FOOTPRINTS = {
     'Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm': nexperia_sot886,
     'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm': nexperia_sot1226_3,
     'TI_DFM0020A': ti_dfm0020a,
+    'Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm': nexperia_sot815_1,
     'RJ45_Amphenol_RJSSE-5380_Horizontal': rjsse5380,
     MICRO_LOCK_NAME: molex_505448_0891,
     'Adafruit_1769_JST-PH_1x02_P2.00mm_Horizontal_SMD': adafruit_1769,
