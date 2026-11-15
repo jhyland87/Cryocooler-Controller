@@ -61,9 +61,11 @@ static uint8_t     sHead         = 0;   // index of next write position
 static uint8_t     sCount        = 0;   // number of valid samples stored
 static float       sLastTempK    = 0.0f;
 static float       sLastTempC    = 0.0f;
-static float       sLastAmbientTempC = 0.0f;
-static float        sLastRmsVoltageV = 0.0f;
-static float        sLastRmsCurrentA = 0.0f;
+// Copies of other modules' readings. NaN until the first service() fills
+// them, so telemetry shows a gap at boot instead of a false zero.
+static float       sLastAmbientTempC = NAN;
+static float        sLastRmsVoltageV = NAN;
+static float        sLastRmsCurrentA = NAN;
 // Mock injection state — set by setLastReadings(), cleared by read().
 // When active, getCoolingRateCPerMin() and isStalled() return these values
 // directly instead of computing from the ring buffer.
