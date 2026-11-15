@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip';
 import type { ConnectionStatus } from '../types/hooks';
 import type { HeaderProps } from '../types/components';
 import * as sx from '../theme/styles';
+import { HeaderNetwork } from './HeaderNetwork';
 
 // ─── Connection badge ─────────────────────────────────────────────────────────
 
@@ -52,6 +53,7 @@ export function Header({
   timeInState,
   cooldownPct,
   frameCount,
+  network,
   loading,
   onLogout,
 }: HeaderProps) {
@@ -65,6 +67,7 @@ export function Header({
           <Box sx={sx.headerSpacer} />
           <Skeleton variant="text" width={70} height={16} sx={skeletonDimSx} />
           <Skeleton variant="text" width={70} height={16} sx={skeletonDimSx} />
+          <Skeleton variant="rounded" width={90} height={20} sx={skeletonDimSx} />
           <Skeleton variant="rounded" width={80} height={20} sx={skeletonSx} />
           <Skeleton variant="text" width={80} height={16} sx={skeletonDimSx} />
         </Toolbar>
@@ -127,6 +130,8 @@ export function Header({
         <Typography variant="caption" sx={sx.headerFrameCounter}>
           #{frameCount}
         </Typography>
+
+        <HeaderNetwork network={network} />
 
         {/* Connection status */}
         <Chip

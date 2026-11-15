@@ -13,6 +13,24 @@ export interface TileConfig {
   color: string;
 }
 
+/** A titled set of Quick Read tiles. */
+export interface TileGroup {
+  title: string;
+  tiles: TileConfig[];
+}
+
+// ─── QuickRead ───────────────────────────────────────────────────────────────
+
+export interface QuickReadProps {
+  groups:   TileGroup[];
+  data:     TelemetryData;
+  /** History points for a tile key, drawn behind the value; empty = no trend. */
+  trend:    (key: string) => DataPoint[];
+  /** Trailing window the trend covers (ms); undefined = all the points given. */
+  windowMs?: number;
+  loading?: boolean;
+}
+
 // ─── Header ──────────────────────────────────────────────────────────────────
 
 export interface HeaderProps {
@@ -23,6 +41,8 @@ export interface HeaderProps {
   timeInState:       string;
   cooldownPct:       number | undefined;
   frameCount:        number;
+  /** Network group of the latest frame, for the header network menu. */
+  network:           TelemetryData['network'];
   loading?:          boolean;
   /** Ends the dashboard session; the button shows only when this is set. */
   onLogout?:         () => void;
@@ -42,11 +62,10 @@ export interface StatusPanelProps {
   loading?: boolean;
 }
 
-// ─── NetworkPanel ────────────────────────────────────────────────────────────
+// ─── HeaderNetwork ───────────────────────────────────────────────────────────
 
-export interface NetworkPanelProps {
+export interface HeaderNetworkProps {
   network: TelemetryData['network'];
-  loading?: boolean;
 }
 
 // ─── CollapsiblePanel ────────────────────────────────────────────────────────
@@ -151,15 +170,6 @@ export interface CoolingChartProps {
   coolantTemp: DataPoint[];
   flowRate:    DataPoint[];
   overlays?:   ChartOverlay[];
-}
-
-export interface PowerChartProps {
-  coldHeadVolts: DataPoint[];
-  coldHeadAmps:  DataPoint[];
-  coldHeadWatts: DataPoint[];
-  systemVolts:   DataPoint[];
-  systemAmps:    DataPoint[];
-  overlays?:     ChartOverlay[];
 }
 
 // ─── Sparkline panels ────────────────────────────────────────────────────────

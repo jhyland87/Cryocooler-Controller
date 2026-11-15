@@ -87,6 +87,20 @@ export const quickReadTile: SxProps<Theme> = {
   border: '1px solid',
   borderColor: 'divider',
   textAlign: 'center',
+  position: 'relative',
+  overflow: 'hidden',
+  // Text sits above the trend background.
+  '& > :not(svg)': { position: 'relative' },
+};
+
+/** Faint history line filling a quick-read tile, behind its value. */
+export const quickReadTrend: SxProps<Theme> = {
+  position: 'absolute',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  opacity: 0.22,
+  pointerEvents: 'none',
 };
 
 /** CSS Grid cell — children fill the cell regardless of their own flex/minWidth. */
@@ -245,6 +259,34 @@ export const headerConnectionChip: SxProps<Theme> = {
   fontSize: '0.65rem',
   height: 20,
   flexShrink: 0,
+};
+
+/** Network name + signal bars; opens the network details popover. */
+export const headerNetworkButton: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 0.75,
+  px: 1,
+  py: 0.5,
+  borderRadius: 1,
+  flexShrink: 0,
+  color: 'rgba(255,255,255,0.7)',
+  fontSize: '0.75rem',
+  // Unlit signal bars need a light tint on the dark header.
+  '& [aria-hidden] > *': { bgcolor: 'rgba(255,255,255,0.18)' },
+  '&:hover, &:focus-visible': { bgcolor: 'rgba(255,255,255,0.08)' },
+};
+
+export const headerNetworkName: SxProps<Theme> = {
+  maxWidth: 160,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+};
+
+export const headerNetworkPopover: SxProps<Theme> = {
+  p: 2,
+  minWidth: 240,
 };
 
 export const headerClock: SxProps<Theme> = {
@@ -547,6 +589,23 @@ export const faultHistorySpacer: SxProps<Theme> = {
   mt: 2,
 };
 
+/** Stack of titled tile groups in the Quick Read panel. */
+export const quickReadGroups: SxProps<Theme> = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 1.5,
+};
+
+export const quickReadGroupTitle: SxProps<Theme> = {
+  display: 'block',
+  mb: 0.5,
+  color: 'text.secondary',
+  fontSize: '0.62rem',
+  fontWeight: 700,
+  letterSpacing: 0.8,
+  textTransform: 'uppercase',
+};
+
 export const quickReadContainer: SxProps<Theme> = {
   display: 'flex',
   gap: 1.5,
@@ -795,9 +854,9 @@ export const skeletonConsoleDarkLine: SxProps<Theme> = {
   flex: 1,
 };
 
-// ─── Network panel ──────────────────────────────────────────────────────────
+// ─── Header network menu ────────────────────────────────────────────────────
 
-/** Two-column label / value grid in the Network panel. */
+/** Two-column label / value grid in the header network menu. */
 export const networkGrid: SxProps<Theme> = {
   display: 'grid',
   gridTemplateColumns: 'max-content 1fr',
@@ -818,11 +877,6 @@ export const networkValue: SxProps<Theme> = {
   fontSize: '0.85rem',
   minWidth: 0,
   overflowWrap: 'anywhere',
-};
-
-/** Loading placeholder spanning both columns. */
-export const networkSkeleton: SxProps<Theme> = {
-  gridColumn: '1 / -1',
 };
 
 export const signalMeter: SxProps<Theme> = {

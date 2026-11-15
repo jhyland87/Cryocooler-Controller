@@ -24,10 +24,21 @@ const STALE_TIMEOUT_MS = 5000;
 /** How often (ms) to check for staleness. */
 const STALE_CHECK_MS = 2000;
 
+/** Interval (ms) between generated frames in mock mode; matches the device's 1 Hz. */
+const MOCK_FRAME_MS = 1000;
+
+/** True under `vite dev`, false in the firmware bundle (vite.config.ts). */
+declare const __DEV_SERVER__: boolean;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function wsUrl(): string {
   return deviceWsUrl('/ws');
+}
+
+/** True when the page URL asks for generated telemetry (`?mock`). */
+function mockRequested(): boolean {
+  return new URLSearchParams(window.location.search).has('mock');
 }
 
 // A refused socket closes without saying why. Asking for the session tells a
@@ -190,10 +201,26 @@ export function useTelemetry(): TelemetryState & {
   useEffect(() => {
     mountedRef.current = true;
 
-    connect();
+    // Dev server with ?mock: generated frames stand in for the WebSocket.
+    let mockTimer: ReturnType<typeof setInterval> | undefined;
+    if (__DEV_SERVER__ && mockRequested()) {
+      const startMock = async () => {
+        const { mockFrame } = await import('../utils/mockTelemetry');
+        if (!mountedRef.current) return;
+        const startedAt = Date.now();
+        const emit = () => applyFrame(mockFrame(Date.now() - startedAt));
+        updateStatus('connected');
+        emit();
+        mockTimer = setInterval(emit, MOCK_FRAME_MS);
+      };
+      void startMock();
+    } else {
+      connect();
+    }
 
     return () => {
       mountedRef.current = false;
+      if (mockTimer) clearInterval(mockTimer);
       if (staleRef.current) { clearInterval(staleRef.current); staleRef.current = null; }
       if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null; }
       wsRef.current?.close();

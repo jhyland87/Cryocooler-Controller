@@ -278,13 +278,21 @@ const HISTORY_KEYS = [
 
 ### 7b — Quick-read tile (App.tsx)
 
-To show the value as a large numeric tile in the top row:
+To show the value as a numeric tile in the Quick Read panel, add it to one of
+the groups in `TILE_GROUPS` (or add a group). A tile whose key is also in
+`HISTORY_KEYS` gets a faint trend line behind the number:
 
 ```typescript
 // dashboard/src/App.tsx
-const TILES: TileConfig[] = [
+const TILE_GROUPS: TileGroup[] = [
   ...
-  { label: 'Pump P', key: 'cooling.pump_pressure_bar', unit: 'bar', dp: 2, color: '#80cbc4' },
+  {
+    title: 'System',
+    tiles: [
+      ...
+      { label: 'Pump P', key: 'cooling.pump_pressure_bar', unit: 'bar', dp: 2, color: '#80cbc4' },
+    ],
+  },
 ];
 ```
 
@@ -311,7 +319,7 @@ the data.
 | 5  | `dashboard/src/types/telemetry.ts` | Add `field?: type` to the appropriate nested interface |
 | 6  | `dashboard/src/utils/decodeTelemetry.ts` | Map `f.<message>.<camelCaseField>` to `out.<group>.<snake_case_field>` |
 | 7a | `dashboard/src/App.tsx` — `HISTORY_KEYS` | Add key for chart history (optional) |
-| 7b | `dashboard/src/App.tsx` — `TILES` | Add tile entry for quick-read display (optional) |
+| 7b | `dashboard/src/App.tsx` — `TILE_GROUPS` | Add tile entry for quick-read display (optional) |
 | 7c | Dashboard component | Wire `getHistory('group.key')` into a chart (optional) |
 
 ---
