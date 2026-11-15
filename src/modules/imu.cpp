@@ -532,6 +532,9 @@ module::InitStatus init() {
 
     if (!sensor.begin_SPI(LSM6DSOX_CS, &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
         _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS=GPIO" + String(LSM6DSOX_CS) + ")");
+        // 0x00 or 0xFF: nothing is driving MISO. Any other value: bus or clock fault.
+        _Log.printf("WHO_AM_I read 0x%02X, expected 0x%02X\n",
+                    lsmReadReg(LSM6DS_WHOAMI), LSM6DSOX_CHIP_ID);
         sImuAvailable = false;
         return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
     }
