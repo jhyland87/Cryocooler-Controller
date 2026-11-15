@@ -76,6 +76,8 @@ static const Channel CHANNELS[] = {
     {"network.rssi_dbm",                [](const cryocooler_TelemetryFrame& frame) {
         return frame.network.connected ? static_cast<float>(frame.network.rssi_dbm) : NAN;
     }},
+    {"amplifier.active_power_w",        [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.active_power_w; }},
+    {"amplifier.power_factor",          [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.power_factor; }},
 };
 
 static_assert(sizeof(CHANNELS) / sizeof(CHANNELS[0]) == run_history::CHANNEL_COUNT,

@@ -208,6 +208,19 @@ float getLastRmsCurrent();
  */
 float getApparentPowerWatts();
 
+/**
+ * Most recently measured active (real) power in Watts (from ACS37800).
+ * Negative when power flows back toward the source. NaN when the sensor is
+ * unavailable.
+ */
+float getActivePowerWatts();
+
+/**
+ * Most recently measured power factor (active / apparent power), -1 to 1.
+ * NaN when the sensor is unavailable.
+ */
+float getPowerFactor();
+
 /** Alias for getLastRmsVoltage(). */
 float getOutputRmsVoltage();
 

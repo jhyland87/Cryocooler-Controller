@@ -17,6 +17,8 @@
 #include <Wire.h>
 #include <SPI.h>
 
+#include "ACS37800_fields.h"
+
 class ACS37800
 {
 public:
@@ -155,12 +157,14 @@ public:
     reactivePowerMilliwatts = (int32_t)pimag * pinstantMult >> pinstantShift >> 1;
   }
 
-  /// Reads apparent power and returns it in mW.
+  /// Reads apparent power and returns it in mW. Also updates powerFactor,
+  /// which shares register 0x22.
   int32_t readApparentPowerMilliwatts()
   {
     uint32_t reg = readReg(0x22);
     uint16_t papparent = (uint16_t)reg;
     apparentPowerMilliwatts = (int32_t)papparent * pinstantMult >> pinstantShift >> 1;
+    powerFactor = acs37800::decodePowerFactor(reg);
     return apparentPowerMilliwatts;
   }
 
@@ -259,6 +263,7 @@ public:
   int32_t activePowerMilliwatts;
   int32_t reactivePowerMilliwatts;
   int32_t apparentPowerMilliwatts;
+  float powerFactor;  ///< -1 to 1; negative when power flows back to the source.
 
 private:
 

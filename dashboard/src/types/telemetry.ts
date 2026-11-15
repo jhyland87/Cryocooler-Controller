@@ -39,7 +39,9 @@ export interface TelemetryData {
   amplifier?: {
     voltage_v?: number;
     current_a?: number;
-    power_w?:   number;
+    power_w?:   number;  // apparent power (VA)
+    active_power_w?: number;
+    power_factor?:   number;
   };
 
   system?: {
