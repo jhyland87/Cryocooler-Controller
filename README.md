@@ -248,7 +248,7 @@ Connects to WiFi and serves a Preact single-page application with real-time tele
 
 - **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`), a JSON telemetry endpoint at `GET /api/telemetry`, and the run history at `GET /api/history` (see run_recorder)
 - **WebSocket** (`ws://<hostname>/ws` on port 80): streams Protobuf-encoded telemetry frames at 1 Hz
-- **Network panel**: hostname, IP address, joined WiFi network and signal strength, from the `network.*` telemetry group
+- **Network menu** (header): shows the joined WiFi network and signal bars; click it for hostname, IP address and signal strength, from the `network.*` telemetry group
 - **mDNS**: `cryocooler.local` by default. Change `HOSTNAME` in `include/config/config.h`; the firmware and the dashboard build both read it, so rebuild both (a full `pio run`).
 
 The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials are set from the serial console (`wifi set`) and saved in NVS flash; see [WiFi credentials](#wifi-credentials).
@@ -257,7 +257,7 @@ The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware fla
 
 ### run_recorder
 
-Keeps the last 24 h of the dashboard's 19 chart channels, plus the FSM state, in a ring buffer in PSRAM (86,400 samples at 1 Hz, about 7.6 MB). It samples through `telemetry::fillFrame()`, so the values match the WebSocket frames. `GET /api/history?from=<seq>` streams the samples as length-delimited Protobuf (`RunHistoryHeader`, then `HistorySample` messages). The dashboard loads it on every (re)connect, fetching only the gap after a drop-out, and its time-range toggle (2 min / 30 min / 4 h / All) charts the whole run. The history lives in RAM, so a reset or power cycle clears it.
+Keeps the last 6 h of 33 measured telemetry channels, plus the FSM state, in a ring buffer in PSRAM (21,600 samples at 1 Hz, about 3.1 MB of the 16 MB). The length is `RUN_RECORDER_HOURS` in `include/config/config_advanced.h`; each hour costs about 0.5 MB, and the dashboard build reads the same value, so rebuild both (a full `pio run`). It samples through `telemetry::fillFrame()`, so the values match the WebSocket frames. `GET /api/history?from=<seq>` streams the samples as length-delimited Protobuf (`RunHistoryHeader`, then `HistorySample` messages). The dashboard loads it on every (re)connect, fetching only the gap after a drop-out, and its time-range toggle (2 min / 30 min / 4 h / All) charts the whole run. The history lives in RAM, so a reset or power cycle clears it.
 
 ---
 
@@ -563,7 +563,7 @@ wifi set My Network    the name is the rest of the line, spaces included
 
 - The passphrase line is never echoed or logged, and scan results are printed to
   the serial port only, so neither shows in the dashboard's log panel. The
-  dashboard's Network panel does show the network the board is joined to.
+  dashboard's header network menu does show the network the board is joined to.
 - `wifi forget` erases the saved network. `wifi off` / `wifi on` switch the radio
   until reboot; `wifi onboot off` keeps it off at boot.
 - NVS is not encrypted: the passphrase is plaintext in flash, readable by anyone
@@ -600,6 +600,9 @@ board. A correct login gets a session cookie.
 - Open the dashboard from the board itself (`http://cryocooler.local/` or its IP).
   The Vite dev server can't log in, so `npm run dev` only works against a board
   with no dashboard password.
+- No board at hand: run `npm run dev` in `dashboard/` and open
+  `http://localhost:5173/?mock`. The dev server then shows generated telemetry
+  (`dashboard/src/utils/mockTelemetry.ts`) instead of connecting to a board.
 
 **OTA.** `curl --digest -u admin ...`, or `OTA_PASSWORD=... bash scripts/ota-update.sh`.
 

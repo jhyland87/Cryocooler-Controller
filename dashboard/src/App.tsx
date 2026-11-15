@@ -3,7 +3,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme/theme';
@@ -15,10 +14,10 @@ import { useFaultHistory } from './hooks/useFaultHistory';
 import { useSession } from './hooks/useSession';
 import { Header } from './components/Header';
 import { StatusPanel } from './components/StatusPanel';
-import { NetworkPanel } from './components/NetworkPanel';
 import { FaultHistoryPanel } from './components/FaultHistoryPanel';
 import { TemperatureChart } from './components/TemperatureChart';
-import { PowerChart } from './components/PowerChart';
+import { QuickRead } from './components/QuickRead';
+import { TelemetryLineChart } from './components/TelemetryLineChart';
 import { CoolingChart } from './components/CoolingChart';
 import { AccelSparklines } from './components/AccelSparklines';
 import { SystemSparklines } from './components/SystemSparklines';
@@ -26,8 +25,7 @@ import { ConsoleLog } from './components/ConsoleLog';
 import { CollapsiblePanel } from './components/CollapsiblePanel';
 import { HistoryRangeToggle, rangeWindowMs } from './components/HistoryRangeToggle';
 import type { TelemetryData } from './types/telemetry';
-import type { ChartOverlay, HistoryRangeId, TileConfig } from './types/components';
-import { getField } from './types/telemetry';
+import type { ChartOverlay, HistoryRangeId, TileGroup } from './types/components';
 
 // ─── History buffer keys ──────────────────────────────────────────────────────
 
@@ -51,24 +49,69 @@ const HISTORY_KEYS = [
   'system.cpu_usage_percent',
   'system.heap_usage_percent',
   'system.psram_usage_percent',
+  'cold_head.cooling_rate',
+  'cold_head.cooldown_pct',
+  'cold_head.delta_below_ambient_c',
+  'amplifier.voltage_v',
+  'amplifier.current_a',
+  'system.power_w',
+  'imu.roll_deg',
+  'imu.pitch_deg',
+  'imu.yaw_deg',
+  'imu.temp_c',
+  'cooling.fan_rpm',
+  'cooling.pump_speed',
+  'cooling.pump_rpm',
+  'network.rssi_dbm',
 ] as const;
 
 /** Bucket limit for line charts (≤ 2 points per bucket, about one per pixel). */
 const CHART_BUCKETS = 600;
+
+/** Bucket limit for the Quick Read tile trends (tiles are about 100 px wide). */
+const TILE_BUCKETS = 60;
 
 /** Points shown in sparklines (100 s at 1 Hz). */
 const SPARK_POINTS = 100;
 
 // ─── Quick-read tile data ─────────────────────────────────────────────────────
 
-const TILES: TileConfig[] = [
-  { label: 'Cold Head', key: 'cold_head.temp_c',         unit: '°C',   dp: 2, color: '#29b6f6' },
-  { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',   dp: 2, color: '#ffa726' },
-  { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: '°C/min',dp: 3, color: '#80cbc4' },
-  { label: 'Sys V',     key: 'system.voltage_v',          unit: 'V',    dp: 2, color: '#ce93d8' },
-  { label: 'Sys A',     key: 'system.current_a',         unit: 'A',    dp: 3, color: '#f48fb1' },
-  { label: 'Sys W',     key: 'system.power_w',           unit: 'W',    dp: 3, color: '#ffcc80' },
-  { label: 'Fan Speed', key: 'cooling.fan_speed',        unit: '%',    dp: 0, color: '#4dd0e1' },
+/** Line / tile colours shared by the Quick Read tiles and the power charts. */
+const POWER_COLORS = {
+  cryoVolts:   '#ce93d8',
+  cryoAmps:    '#f48fb1',
+  cryoWatts:   '#ef5350',
+  systemVolts: '#80cbc4',
+  systemAmps:  '#ffcc80',
+  systemWatts: '#a1887f',
+};
+
+const TILE_GROUPS: TileGroup[] = [
+  {
+    title: 'Temperature',
+    tiles: [
+      { label: 'Cold Head', key: 'cold_head.temp_c',         unit: '°C',     dp: 2, color: '#29b6f6' },
+      { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',     dp: 2, color: '#ffa726' },
+      { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: '°C/min', dp: 3, color: '#80cbc4' },
+    ],
+  },
+  {
+    title: 'Cryocooler',
+    tiles: [
+      { label: 'Volts', key: 'cold_head.voltage_v', unit: 'V', dp: 2, color: POWER_COLORS.cryoVolts },
+      { label: 'Amps',  key: 'cold_head.current_a', unit: 'A', dp: 3, color: POWER_COLORS.cryoAmps },
+      { label: 'Watts', key: 'amplifier.power_w',   unit: 'W', dp: 2, color: POWER_COLORS.cryoWatts },
+    ],
+  },
+  {
+    title: 'System',
+    tiles: [
+      { label: 'Volts',     key: 'system.voltage_v',  unit: 'V', dp: 2, color: POWER_COLORS.systemVolts },
+      { label: 'Amps',      key: 'system.current_a',  unit: 'A', dp: 3, color: POWER_COLORS.systemAmps },
+      { label: 'Watts',     key: 'system.power_w',    unit: 'W', dp: 3, color: POWER_COLORS.systemWatts },
+      { label: 'Fan Speed', key: 'cooling.fan_speed', unit: '%', dp: 0, color: '#4dd0e1' },
+    ],
+  },
 ];
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -103,6 +146,7 @@ export function App() {
 
   const series = (key: string) => history.getSeries(key, windowMs, CHART_BUCKETS);
   const recent = (key: string) => history.getRecent(key, SPARK_POINTS);
+  const tileTrend = (key: string) => history.getSeries(key, windowMs, TILE_BUCKETS);
 
   useEffect(() => {
     onData(handleFrame);
@@ -148,6 +192,7 @@ export function App() {
           timeInState={String(data.status?.time_in_state ?? '')}
           cooldownPct={typeof data.cold_head?.cooldown_pct === 'number' ? data.cold_head.cooldown_pct : undefined}
           frameCount={frameCount}
+          network={data.network}
           loading={loading}
           onLogout={logout}
         />
@@ -189,34 +234,13 @@ export function App() {
             {/* ── Row 1 right: quick-read numeric tiles ────────────────── */}
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
               <CollapsiblePanel title="Quick Read">
-                <Box sx={sx.quickReadContainer}>
-                  {TILES.map(({ label, key, unit, dp, color }) => {
-                    const value = getField(data, key);
-                    return (
-                      <Box key={`${label}-${unit}`} sx={sx.quickReadTile}>
-                        {loading ? (
-                          <>
-                            <Skeleton variant="text" width={50} height={28} sx={sx.skeletonCentered} />
-                            <Skeleton variant="text" width={24} height={10} sx={sx.skeletonCentered} />
-                            <Skeleton variant="text" width={54} height={10} sx={sx.skeletonCentered} />
-                          </>
-                        ) : (
-                          <>
-                            <Typography sx={sx.tileValueColored(color)}>
-                              {typeof value === 'number' ? value.toFixed(dp) : '—'}
-                            </Typography>
-                            <Typography variant="caption" sx={sx.tileUnit}>
-                              {unit}
-                            </Typography>
-                            <Typography variant="caption" sx={sx.tileLabel}>
-                              {label}
-                            </Typography>
-                          </>
-                        )}
-                      </Box>
-                    );
-                  })}
-                </Box>
+                <QuickRead
+                  groups={TILE_GROUPS}
+                  data={data}
+                  trend={tileTrend}
+                  windowMs={windowMs}
+                  loading={loading}
+                />
               </CollapsiblePanel>
             </Grid>
 
@@ -238,20 +262,36 @@ export function App() {
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <CollapsiblePanel title="Power Consumption">
-                <PowerChart
-                  coldHeadVolts={series('cold_head.voltage_v')}
-                  coldHeadAmps={series('cold_head.current_a')}
-                  coldHeadWatts={series('amplifier.power_w')}
-                  systemVolts={series('system.voltage_v')}
-                  systemAmps={series('system.current_a')}
+              <CollapsiblePanel title="Cryocooler Power">
+                <TelemetryLineChart
+                  title=""
+                  series={[
+                    { label: 'Volts', data: series('cold_head.voltage_v'), color: POWER_COLORS.cryoVolts },
+                    { label: 'Amps',  data: series('cold_head.current_a'), color: POWER_COLORS.cryoAmps },
+                    { label: 'Watts', data: series('amplifier.power_w'),   color: POWER_COLORS.cryoWatts },
+                  ]}
                   overlays={faultOverlays}
                   windowMs={windowMs}
                 />
               </CollapsiblePanel>
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <CollapsiblePanel title="System Power">
+                <TelemetryLineChart
+                  title=""
+                  series={[
+                    { label: 'Volts', data: series('system.voltage_v'), color: POWER_COLORS.systemVolts },
+                    { label: 'Amps',  data: series('system.current_a'), color: POWER_COLORS.systemAmps },
+                    { label: 'Watts', data: series('system.power_w'),   color: POWER_COLORS.systemWatts },
+                  ]}
+                  overlays={faultOverlays}
+                  windowMs={windowMs}
+                />
+              </CollapsiblePanel>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
               <CollapsiblePanel title="Cooling System">
                 <CoolingChart
                   fanSpeed={series('cooling.fan_speed')}
@@ -284,12 +324,6 @@ export function App() {
                   heapUsage={recent('system.heap_usage_percent')}
                   psramUsage={recent('system.psram_usage_percent')}
                 />
-              </CollapsiblePanel>
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <CollapsiblePanel title="Network">
-                <NetworkPanel network={data.network} loading={loading} />
               </CollapsiblePanel>
             </Grid>
 

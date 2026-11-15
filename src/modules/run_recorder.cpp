@@ -59,6 +59,23 @@ static const Channel CHANNELS[] = {
     {"system.cpu_usage_percent",   [](const cryocooler_TelemetryFrame& frame) { return frame.system.cpu_usage_percent; }},
     {"system.heap_usage_percent",  [](const cryocooler_TelemetryFrame& frame) { return frame.system.heap_usage_percent; }},
     {"system.psram_usage_percent", [](const cryocooler_TelemetryFrame& frame) { return frame.system.psram_usage_percent; }},
+    {"cold_head.cooling_rate",          [](const cryocooler_TelemetryFrame& frame) { return frame.cold_head.cooling_rate; }},
+    {"cold_head.cooldown_pct",          [](const cryocooler_TelemetryFrame& frame) { return frame.cold_head.cooldown_pct; }},
+    {"cold_head.delta_below_ambient_c", [](const cryocooler_TelemetryFrame& frame) { return frame.cold_head.delta_below_ambient_c; }},
+    {"amplifier.voltage_v",             [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.voltage_v; }},
+    {"amplifier.current_a",             [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.current_a; }},
+    {"system.power_w",                  [](const cryocooler_TelemetryFrame& frame) { return frame.system.power_w; }},
+    {"imu.roll_deg",                    [](const cryocooler_TelemetryFrame& frame) { return frame.imu.roll_deg; }},
+    {"imu.pitch_deg",                   [](const cryocooler_TelemetryFrame& frame) { return frame.imu.pitch_deg; }},
+    {"imu.yaw_deg",                     [](const cryocooler_TelemetryFrame& frame) { return frame.imu.yaw_deg; }},
+    {"imu.temp_c",                      [](const cryocooler_TelemetryFrame& frame) { return frame.imu.temp_c; }},
+    {"cooling.fan_rpm",                 [](const cryocooler_TelemetryFrame& frame) { return static_cast<float>(frame.cooling.fan_rpm); }},
+    {"cooling.pump_speed",              [](const cryocooler_TelemetryFrame& frame) { return frame.cooling.pump_speed; }},
+    {"cooling.pump_rpm",                [](const cryocooler_TelemetryFrame& frame) { return static_cast<float>(frame.cooling.pump_rpm); }},
+    // No reading while WiFi is down, so the chart shows a gap.
+    {"network.rssi_dbm",                [](const cryocooler_TelemetryFrame& frame) {
+        return frame.network.connected ? static_cast<float>(frame.network.rssi_dbm) : NAN;
+    }},
 };
 
 static_assert(sizeof(CHANNELS) / sizeof(CHANNELS[0]) == run_history::CHANNEL_COUNT,
@@ -193,7 +210,8 @@ private:
         return pendingLen_ > 0;
     }
 
-    uint8_t  pending_[640];   // header with all channel keys is the largest message
+    // The header with all channel keys is the largest message; +3 for the length prefix.
+    uint8_t  pending_[cryocooler_RunHistoryHeader_size + 3];
     size_t   pendingLen_ = 0;
     size_t   pendingPos_ = 0;
     uint32_t nextSeq_    = 0;

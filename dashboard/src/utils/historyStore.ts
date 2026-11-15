@@ -25,8 +25,11 @@ export interface HistoryBatch {
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
-/** Samples kept: 24 h at 1 Hz, matching the firmware's RUN_RECORDER_CAPACITY. */
-export const HISTORY_CAPACITY = 86_400;
+/** Firmware RUN_RECORDER_HOURS, injected by Vite (vite.config.ts). */
+declare const __RUN_RECORDER_HOURS__: number;
+
+/** Samples kept: the firmware's history length at 1 Hz, matching RUN_RECORDER_CAPACITY. */
+export const HISTORY_CAPACITY = __RUN_RECORDER_HOURS__ * 3_600;
 
 /** Extra slots so trimming happens once per SLACK pushes, not every push. */
 const SLACK = 4_096;

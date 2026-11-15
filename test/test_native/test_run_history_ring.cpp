@@ -73,7 +73,8 @@ void test_rhr_copy_returns_stored_fields(void) {
     TEST_ASSERT_EQUAL_UINT32(2000, sample.uptimeMs);
     TEST_ASSERT_EQUAL_INT8(2, sample.stateId);
     TEST_ASSERT_EQUAL_FLOAT(2.0f, sample.values[0]);
-    TEST_ASSERT_EQUAL_FLOAT(2.0f + 18 * 0.5f, sample.values[run_history::CHANNEL_COUNT - 1]);
+    TEST_ASSERT_EQUAL_FLOAT(2.0f + static_cast<float>(run_history::CHANNEL_COUNT - 1) * 0.5f,
+                            sample.values[run_history::CHANNEL_COUNT - 1]);
 }
 
 void test_rhr_copy_past_end_fails(void) {

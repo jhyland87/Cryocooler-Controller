@@ -15,7 +15,7 @@
 namespace run_history {
 
 /// Channels per sample; the run recorder's channel table must match.
-static constexpr size_t CHANNEL_COUNT = 19;
+static constexpr size_t CHANNEL_COUNT = 33;
 
 /// One recorded sample. NaN in @c values marks a channel with no valid reading.
 struct Sample {

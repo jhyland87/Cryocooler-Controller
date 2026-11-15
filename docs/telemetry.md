@@ -13,7 +13,7 @@ Both paths share the same dot-notation key convention (`group.field_name`).
 
 The **run recorder** (`src/modules/run_recorder.cpp`) is not a third frame path:
 it samples the dashboard's chart channels from `telemetry::fillFrame()` once a
-second into PSRAM and serves the last 24 h at `GET /api/history` (messages
+second into PSRAM and serves the last `RUN_RECORDER_HOURS` (6 h) at `GET /api/history` (messages
 `RunHistoryHeader` and `HistorySample` in `telemetry.proto`). A new field only
 reaches it if you add it as a chart channel (Step 7a).
 
@@ -273,7 +273,7 @@ These are only needed if you want the field visible in the Preact dashboard.
 ### 7a — History buffer (App.tsx)
 
 To chart the field, add the key to `HISTORY_KEYS`. The dashboard keeps up to
-24 h of these in its history store (`dashboard/src/utils/historyStore.ts`):
+`RUN_RECORDER_HOURS` of these in its history store (`dashboard/src/utils/historyStore.ts`):
 
 ```typescript
 // dashboard/src/App.tsx
@@ -303,11 +303,11 @@ selected time range, decimated) or `recent(...)` for sparklines.
 
 ### 7d — Run recorder (optional)
 
-To keep the field in the device's 24 h run history (so it survives a page reload
+To keep the field in the device's run history (so it survives a page reload
 or WiFi drop-out), add it to `CHANNELS` in `src/modules/run_recorder.cpp` with
 the same key, and raise `run_history::CHANNEL_COUNT` in
-`include/run_history_ring.h`. Each channel adds 4 bytes per sample (about 340 KB
-of PSRAM at 86,400 samples); past 24 channels, raise the `max_count` options in
+`include/run_history_ring.h`. Each channel adds 4 bytes per sample (about 14 KB
+of PSRAM per hour of `RUN_RECORDER_HOURS`); past 40 channels, raise the `max_count` options in
 `telemetry.options`.
 
 ---
@@ -329,7 +329,7 @@ of PSRAM at 86,400 samples); past 24 channels, raise the `max_count` options in
 | 7a | `dashboard/src/App.tsx` — `HISTORY_KEYS` | Add key for chart history (optional) |
 | 7b | `dashboard/src/App.tsx` — `TILES` | Add tile entry for quick-read display (optional) |
 | 7c | Dashboard component | Wire `series('group.key')` into a chart (optional) |
-| 7d | `src/modules/run_recorder.cpp` — `CHANNELS` | Keep it in the 24 h run history (optional) |
+| 7d | `src/modules/run_recorder.cpp` — `CHANNELS` | Keep it in the run history (optional) |
 
 ---
 

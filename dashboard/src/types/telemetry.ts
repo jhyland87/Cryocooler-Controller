@@ -30,6 +30,7 @@ export interface TelemetryData {
     ambient_temp_c?: number;
     cooling_rate?: number;
     cooldown_pct?: number;
+    delta_below_ambient_c?: number;
     voltage_v?: number;
     current_a?: number;
     target_temp_c?: number;

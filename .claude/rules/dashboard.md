@@ -16,6 +16,9 @@ paths:
   Google TypeScript conventions.
 - Run the dev server through the preview tools (`dashboard-dev` in
   `.claude/launch.json`, port 5173), not a raw shell. Verify UI changes in the browser.
+- With no board, open `http://localhost:5173/?mock`: the dev server then generates
+  telemetry (`src/utils/mockTelemetry.ts`). Mock code must stay out of the firmware
+  bundle, so load it only behind `__DEV_SERVER__`.
 - Type-check with `npx tsc --noEmit` and build with `npm run build` before calling
   work done. The firmware build embeds `data/`, so a broken dashboard build breaks
   `pio run`.

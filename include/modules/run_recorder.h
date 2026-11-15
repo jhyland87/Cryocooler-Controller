@@ -1,8 +1,8 @@
 /**
  * @file run_recorder.h
- * @brief PSRAM run recorder: the dashboard's chart channels at 1 Hz for the last 24 h.
+ * @brief PSRAM run recorder: measured telemetry channels at 1 Hz for the last RUN_RECORDER_HOURS.
  *
- * Samples the 19 channels the dashboard charts, plus the FSM state id, once a
+ * Samples the measured telemetry channels, plus the FSM state id, once a
  * second into a ring buffer in PSRAM (RUN_RECORDER_CAPACITY samples). The ring
  * is served at GET /api/history so the dashboard can show the whole run after a
  * page reload or a WiFi drop-out.
