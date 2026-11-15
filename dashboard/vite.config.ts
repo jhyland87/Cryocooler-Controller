@@ -13,6 +13,16 @@ function firmwareHostname(): string {
   return match[1];
 }
 
+/** RUN_RECORDER_HOURS from the firmware config: how much history the board keeps. */
+function firmwareHistoryHours(): number {
+  const configPath = path.resolve(__dirname, '../include/config/config_advanced.h');
+  const match = fs.readFileSync(configPath, 'utf8').match(/^#define\s+RUN_RECORDER_HOURS\s.*\((\d+)\)\s*$/m);
+  if (!match) {
+    throw new Error(`RUN_RECORDER_HOURS not found in ${configPath}`);
+  }
+  return Number(match[1]);
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
   plugins: [preact()],
@@ -20,6 +30,7 @@ export default defineConfig(({ command }) => ({
   define: {
     __ESP32_HOSTNAME__: JSON.stringify(firmwareHostname()),
     __DEV_SERVER__: JSON.stringify(command === 'serve'),
+    __RUN_RECORDER_HOURS__: JSON.stringify(firmwareHistoryHours()),
   },
 
   resolve: {

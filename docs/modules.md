@@ -194,16 +194,17 @@ Initialised once at boot. Never re-initialised on `reinit`. These provide the co
 ```mermaid
 flowchart LR
     logger --> imu --> commands --> ota --> dashboard --> espnow["espnow
-    (conditional)"] --> telemetry --> sysinfo
+    (conditional)"] --> telemetry --> sysinfo --> display --> run_recorder
 
     classDef mod fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
     classDef cond fill:#e0e7ff,stroke:#6366f1,color:#312e81,stroke-dasharray: 5 5
-    class logger,imu,commands,ota,dashboard,telemetry,sysinfo mod
+    class logger,imu,commands,ota,dashboard,telemetry,sysinfo,display,run_recorder mod
     class espnow cond
 ```
 
 - OTA before dashboard (routes must be registered before the HTTP server starts)
 - dashboard before espnow (WiFi must be up)
+- run_recorder is persistent so a `reinit` keeps the recorded history
 
 ### Control modules
 
@@ -228,10 +229,10 @@ Serviced every `loop()` iteration with health-transition logging:
 
 ```mermaid
 flowchart LR
-    sysinfo --> imu --> amplifier --> cooling
+    sysinfo --> imu --> amplifier --> cooling --> display --> run_recorder
 
     classDef mod fill:#e0e7ff,stroke:#6366f1,color:#312e81
-    class sysinfo,imu,amplifier,cooling mod
+    class sysinfo,imu,amplifier,cooling,display,run_recorder mod
 ```
 
 ### Boot banner

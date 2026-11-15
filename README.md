@@ -255,12 +255,18 @@ Drives the on-board WS2812 RGB LED (GPIO 38) according to the state machine's re
 
 Connects to WiFi and serves a Preact single-page application with real-time telemetry:
 
-- **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`) and a JSON telemetry endpoint at `GET /api/telemetry`
+- **HTTP** (port 80): serves the embedded SPA (`index.html`, `app.js`, `style.css`), a JSON telemetry endpoint at `GET /api/telemetry`, and the run history at `GET /api/history` (see run_recorder)
 - **WebSocket** (`ws://<hostname>/ws` on port 80): streams Protobuf-encoded telemetry frames at 1 Hz
 - **Network menu** (header): shows the joined WiFi network and signal bars; click it for hostname, IP address and signal strength, from the `network.*` telemetry group
 - **mDNS**: `cryocooler.local` by default. Change `HOSTNAME` in `include/config/config.h`; the firmware and the dashboard build both read it, so rebuild both (a full `pio run`).
 
 The dashboard frontend uses Preact + MUI + Vite and is bundled into firmware flash at build time via `scripts/embed_web.py`. WiFi credentials are set from the serial console (`wifi set`) and saved in NVS flash; see [WiFi credentials](#wifi-credentials).
+
+---
+
+### run_recorder
+
+Keeps the last 6 h of 33 measured telemetry channels, plus the FSM state, in a ring buffer in PSRAM (21,600 samples at 1 Hz, about 3.1 MB of the 16 MB). The length is `RUN_RECORDER_HOURS` in `include/config/config_advanced.h`; each hour costs about 0.5 MB, and the dashboard build reads the same value, so rebuild both (a full `pio run`). It samples through `telemetry::fillFrame()`, so the values match the WebSocket frames. `GET /api/history?from=<seq>` streams the samples as length-delimited Protobuf (`RunHistoryHeader`, then `HistorySample` messages). The dashboard loads it on every (re)connect, fetching only the gap after a drop-out, and its time-range toggle (2 min / 30 min / 4 h / All) charts the whole run. The history lives in RAM, so a reset or power cycle clears it.
 
 ---
 

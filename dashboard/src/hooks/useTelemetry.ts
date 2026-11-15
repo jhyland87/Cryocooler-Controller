@@ -70,6 +70,7 @@ export function useTelemetry(): TelemetryState & {
   const [status, setStatus]         = useState<ConnectionStatus>('connecting');
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
   const [frameCount, setFrameCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
 
   const wsRef        = useRef<WebSocket | null>(null);
   const mountedRef   = useRef(true);
@@ -157,6 +158,7 @@ export function useTelemetry(): TelemetryState & {
       if (statusRef.current !== 'connected') {
         wasConnectedRef.current = true;
         updateStatus('connected');
+        setConnectionCount((count) => count + 1);
 
         // (Re)start the staleness watchdog.
         if (staleRef.current) clearInterval(staleRef.current);
@@ -230,5 +232,5 @@ export function useTelemetry(): TelemetryState & {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { data, status, lastUpdate, frameCount, onData, onFaultHistory };
+  return { data, status, lastUpdate, frameCount, connectionCount, onData, onFaultHistory };
 }

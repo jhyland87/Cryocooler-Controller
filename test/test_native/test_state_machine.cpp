@@ -41,6 +41,9 @@ void run_power_good_tests();
 void run_reading_stabilizer_tests();
 void run_session_table_tests();
 
+// Run recorder sample ring tests (defined in test_run_history_ring.cpp)
+void run_run_history_ring_tests();
+
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
 // ---------------------------------------------------------------------------
@@ -1677,6 +1680,9 @@ int main(int argc, char **argv) {
     run_power_good_tests();
     run_reading_stabilizer_tests();
     run_session_table_tests();
+
+    // Run recorder sample ring
+    run_run_history_ring_tests();
 
     return UNITY_END();
 }

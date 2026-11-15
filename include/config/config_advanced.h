@@ -223,6 +223,22 @@
 #define FAULT_HISTORY_LIMIT  static_cast<uint8_t>(8)
 
 // =============================================================================
+// Run recorder (PSRAM)
+// =============================================================================
+
+// Hours of history the run recorder keeps; the oldest sample is overwritten once
+// full. Each hour is 3,600 samples of 144 B at 1 Hz, about 0.5 MB of the 16 MB
+// PSRAM. The dashboard build reads this too, so rebuild both (a full `pio run`).
+// Served at GET /api/history.
+#define RUN_RECORDER_HOURS      static_cast<uint32_t>(6)
+
+// Interval between run recorder samples (milliseconds).
+#define RUN_RECORDER_PERIOD_MS  static_cast<uint32_t>(1000)
+
+// Samples kept by the run recorder.
+#define RUN_RECORDER_CAPACITY   (RUN_RECORDER_HOURS * 3600u * 1000u / RUN_RECORDER_PERIOD_MS)
+
+// =============================================================================
 // FSM oscillation detection
 // =============================================================================
 

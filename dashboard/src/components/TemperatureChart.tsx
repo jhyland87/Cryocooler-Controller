@@ -1,7 +1,7 @@
 import type { TemperatureChartProps } from '../types/components';
 import { TelemetryLineChart } from './TelemetryLineChart';
 
-export function TemperatureChart({ actualC, ambientC, targetC, overlays }: TemperatureChartProps) {
+export function TemperatureChart({ actualC, ambientC, targetC, overlays, windowMs }: TemperatureChartProps) {
   const series = [
     { label: 'Actual (°C)',  data: actualC,  color: '#1565c0' },
     { label: 'Ambient (°C)', data: ambientC, color: '#ffa726' },
@@ -14,6 +14,7 @@ export function TemperatureChart({ actualC, ambientC, targetC, overlays }: Tempe
       series={series}
       yAxis={{}}
       overlays={overlays}
+      windowMs={windowMs}
     />
   );
 }
