@@ -45,8 +45,34 @@
     mode changes between devices make the first-frame shift more likely (gotcha 4).
   - Verify every part and pin against its datasheet before changing the schematic.
 
+# [11/15/2026] INA239 sense routing: check this board
+- [ ] **Not yet checked on rev 4.** The bench board on the `main` line read system current about
+  2.9x high because its INA239 sense lines tap the 12 V copper away from the shunt pads (details
+  under "Rev 5 ideas" below and in `hardware/TODO.md` on `main`).
+  - Check the rev 4 layout: both sense lines must start on the shunt's own pads and carry no
+    load current.
+  - Check a built rev 4 board: compare the dashboard's system amps with a multimeter in series
+    in the 12 V lead. If they differ, measure millivolts across the shunt end caps and at the
+    shunt-side pads of the filter resistors.
+  - The firmware correction on `main` (effective shunt value in `src/modules/sysinfo.cpp`) was
+    measured on that one board and is deliberately not ported here.
+
 # Rev 5 ideas (only if there is ever a rev 5)
 
+- [ ] **Kelvin-connect the INA239 shunt sense lines.** On the bench board (the `main` line) the
+  system current read about 2.9x high: 0.60 A shown for 0.21 A real.
+  - Measured there at 0.21 A: 2.7 mV across the 15 mΩ shunt's end caps, but 8.3 mV where the
+    sense lines pick up the signal. The sense lines tapped the 12 V copper away from the shunt
+    pads, so the supply current's drop in about 25 mΩ of copper was measured as shunt voltage.
+  - Rule: both sense lines start on the shunt's own pads (inside edge) and run as a thin
+    dedicated pair carrying no load current, straight to the filter resistors. Give the shunt
+    a 4-terminal footprint or net-tie the sense nets so the router cannot join them elsewhere,
+    and check the routed board before ordering.
+  - Also: do not hang VBUS on the filtered IN− line. Its 12 µA through the 49.9 Ω filter
+    resistor adds 0.6 mV (0.04 A at 15 mΩ). Take VBUS from the rail directly, or use 10 Ω.
+  - A larger shunt value makes stray copper matter less; the cost is more drop and heat.
+  - Firmware on `main` works around it with a measured effective shunt value
+    (`src/modules/sysinfo.cpp`); see `hardware/TODO.md` on `main`, 11/15/2026.
 - [ ] **Auto power-on.** Let the system turn on as soon as 12 V reaches the board, with no button
   press. Maybe enabled by a jumper, or in software if that is possible.
   - Idea: a 2.2 µF capacitor from the LTC2954 PB pin to GND, with a jumper in series. PB's
