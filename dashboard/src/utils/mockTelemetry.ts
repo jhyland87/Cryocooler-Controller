@@ -72,6 +72,7 @@ export function mockFrame(elapsedMs: number): TelemetryData {
           active_power_w: cryoVolts * cryoAmps * cryoPowerFactor,
           power_factor: cryoPowerFactor,
           back_emf_v: cryoVolts * 0.85,
+          commanded_voltage_v: cryoVolts + 1.5,
         }
       : {},
     system: {

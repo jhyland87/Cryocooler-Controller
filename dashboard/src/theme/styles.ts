@@ -164,6 +164,47 @@ export const tileUnit: SxProps<Theme> = {
   display: 'block',
 };
 
+/** "Set …" chip: the commanded value under a tile's reading. */
+export const tileTargetChip: SxProps<Theme> = {
+  display: 'inline-block',
+  my: 0.5,
+  px: 1,
+  py: 0.125,
+  border: '1px solid',
+  borderColor: 'divider',
+  borderRadius: 999,
+  color: 'text.secondary',
+  fontFamily: 'monospace',
+  fontSize: '0.65rem',
+  lineHeight: 1.6,
+};
+
+/** Progress bar toward a tile's target, with its two labels. */
+export const tileProgress: SxProps<Theme> = { mt: 0.75, mb: 0.5 };
+
+export const tileProgressTrack: SxProps<Theme> = {
+  height: 4,
+  borderRadius: 2,
+  bgcolor: 'divider',
+  overflow: 'hidden',
+};
+
+export const tileProgressFill = (color: string, percent: number): SxProps<Theme> => ({
+  width: `${percent}%`,
+  height: '100%',
+  bgcolor: color,
+});
+
+export const tileProgressLabels: SxProps<Theme> = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: 1,
+  mt: 0.25,
+  color: 'text.secondary',
+  fontSize: '0.6rem',
+  whiteSpace: 'nowrap',
+};
+
 /** Small uppercase label under tile values. */
 export const tileLabel: SxProps<Theme> = {
   color: 'text.secondary',

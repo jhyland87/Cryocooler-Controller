@@ -43,6 +43,7 @@ export interface TelemetryData {
     active_power_w?: number;
     power_factor?:   number;
     back_emf_v?:     number;  // estimated motor back-EMF, V RMS
+    commanded_voltage_v?: number;  // RMS voltage the DAC is commanding
   };
 
   system?: {

@@ -544,6 +544,11 @@ uint16_t getDacCurrent() {
     return dacCurrent_;
 }
 
+float getCommandedVoltage() {
+    return static_cast<float>(dacCurrent_) / static_cast<float>(AMPLIFIER_RESOLUTION)
+           * AMPLIFIER_MAX_VOLTAGE_VAC;
+}
+
 void setVoutOverride(float fraction) {
     voutOverrideActive_ = true;
     voutOverride_       = fraction;
