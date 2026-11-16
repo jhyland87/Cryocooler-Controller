@@ -95,7 +95,7 @@
     X(DEPENDENCY_ERROR, "dependency error", "a required dependency (bus, other module) is unavailable") \
     X(CONFIG_ERROR,     "config error",     "invalid or missing configuration")                        \
     X(TIMEOUT,          "timeout",          "init() exceeded its allowed time budget")                 \
-    X(UNDERVOLTAGE,     "undervoltage",     "system voltage below module minimum — reinit required")   \
+    X(UNDERVOLTAGE,     "undervoltage",     "system voltage below module minimum — re-initialised when it recovers")   \
     X(UNKNOWN_ERROR,    "unknown error",    "catch-all for unexpected failures")
 
 /** ServiceStatus values.  Shared by the enum definition and serviceStatusName(). */
@@ -199,8 +199,9 @@ struct ModuleBase {
     /**
      * Minimum system voltage (V) required for this module to operate.
      * When the measured bus voltage drops below this threshold the module is
-     * disabled and demoted to MODULE_INIT_UNDERVOLTAGE.  It will NOT
-     * re-enable automatically when voltage recovers — a reinit is required.
+     * disabled and demoted to MODULE_INIT_UNDERVOLTAGE.  The main loop
+     * re-initialises it once the voltage has recovered (see
+     * module::recoverFromUndervoltage()).
      *
      * Default: 0.0f (no voltage requirement / not monitored).
      */
@@ -454,8 +455,8 @@ inline void serviceWithLog(const ModuleEntry& entry,
  * For every module in the array whose minSystemVoltage > 0 and whose
  * current init status is SUCCESS: if @p voltage is valid (> 0) and below
  * the module's minimum, the module is disabled and demoted to
- * MODULE_INIT_UNDERVOLTAGE.  Recovery requires a reinit — the module
- * will NOT re-enable automatically when voltage recovers.
+ * MODULE_INIT_UNDERVOLTAGE.  recoverFromUndervoltage() brings it back
+ * once the voltage has recovered.
  *
  * @param entries  Array of ModuleEntry descriptors.
  * @param count    Number of entries in the array.
@@ -478,7 +479,7 @@ inline bool checkVoltage(const ModuleEntry* entries, size_t count,
         if (m.getInitStatus() != MODULE_INIT_SUCCESS)        continue;
 
         if (voltage < m.minSystemVoltage) {
-            logFn("[voltage] %s: %.2fV below minimum %.1fV — disabling (reinit required)\n",
+            logFn("[voltage] %s: %.2fV below minimum %.1fV — disabling until the supply recovers\n",
                   m.name, static_cast<double>(voltage),
                   static_cast<double>(m.minSystemVoltage));
             m.disableFn();
@@ -487,6 +488,34 @@ inline bool checkVoltage(const ModuleEntry* entries, size_t count,
         }
     }
     return anyShutDown;
+}
+
+/**
+ * Re-initialise every module that checkVoltage() demoted to
+ * MODULE_INIT_UNDERVOLTAGE, once the supply is healthy again.
+ *
+ * The caller decides when the supply counts as recovered (threshold above
+ * the module minimum, held for some time).  Each module's own init() runs,
+ * so outputs start from their safe power-on state.
+ *
+ * @param entries  Array of ModuleEntry descriptors.
+ * @param count    Number of entries in the array.
+ * @param logFn    Printf-style log function.
+ * @return         true if any module was re-initialised this call.
+ */
+template<typename LogFn>
+inline bool recoverFromUndervoltage(const ModuleEntry* entries, size_t count, LogFn&& logFn) {
+    bool anyRecovered = false;
+    for (size_t index = 0; index < count; ++index) {
+        const auto& entry = entries[index];
+        if (entry.getInitStatus() != MODULE_INIT_UNDERVOLTAGE) continue;
+
+        const InitStatus status = entry.initFn();
+        logFn("[voltage] %s: supply recovered — re-initialised (%s)\n",
+              entry.name, initStatusName(status));
+        anyRecovered = true;
+    }
+    return anyRecovered;
 }
 
 /**

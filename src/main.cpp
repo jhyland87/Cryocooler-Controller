@@ -329,26 +329,43 @@ void loop() {
 
     const float rmsV        = amplifier::getLastRmsVoltage();
 
-    const bool  overstroke  = imu::hasOverstroke();
-    //Serial.printf("overstroke: %d\n", overstroke);
+    // Two independent overstroke detectors: IMU tap and electrical back-EMF.
+    const bool  imuOverstroke        = imu::hasOverstroke();
+    const bool  electricalOverstroke = amplifier::hasElectricalOverstroke();
+    const bool  overstroke           = imuOverstroke || electricalOverstroke;
     const float sysVoltage  = sysinfo::getVoltage();
     //Serial.printf("sysVoltage: %f\n", sysVoltage);
 
     // ── Module undervoltage protection ───────────────────────────────────
     // Check every control module's minSystemVoltage() against the current
     // bus reading.  Modules whose threshold is breached are disabled and
-    // demoted to UNDERVOLTAGE; they require a reinit to come back.
+    // demoted to UNDERVOLTAGE until the supply recovers.
     // If any module was shut down, transition the FSM to Fault.
     if (module::checkVoltage(controlModules, NUM_CONTROL, sysVoltage, logPrintf)) {
         state_machine::triggerFault(state_machine::FaultReason::LowSystemVoltage);
     }
 
+    // Bring those modules back once the supply has held above the FSM
+    // threshold for a while.  The FSM fault stays latched until cleared.
+    {
+        static bool     supplyHealthy   = false;
+        static uint32_t healthySinceMs  = 0;
+        const bool healthyNow = sysVoltage >= MIN_SYSTEM_VOLTAGE_VDC;  // false for NaN
+        if (healthyNow && !supplyHealthy) {
+            healthySinceMs = nowMs;
+        }
+        supplyHealthy = healthyNow;
+        if (supplyHealthy && (nowMs - healthySinceMs) >= MODULE_VOLTAGE_RECOVERY_HOLD_MS) {
+            module::recoverFromUndervoltage(controlModules, NUM_CONTROL, logPrintf);
+        }
+    }
+
     // ---- 2. Advance state machine ---------------------------------------
     const auto out = state_machine::update(tempC, coolingRate, rmsV, stalled, overstroke, sysVoltage);
-    // Clear edge-triggered overstroke flag after the state machine has consumed
-    // it.  In real mode the flag was set by readCurrent(); in mock mode it was
-    // set by setLastReadings().  Either way, clear it so it fires only once.
-    if (overstroke) { imu::clearOverstroke(); }
+    // Clear the latched flags now the state machine has consumed them, so
+    // each event counts once.
+    if (imuOverstroke)        { imu::clearOverstroke(); }
+    if (electricalOverstroke) { amplifier::clearElectricalOverstroke(); }
 
     // ---- 3. Drive actuators ---------------------------------------------
     indicator::setFaultMode(out.faultIndMode);

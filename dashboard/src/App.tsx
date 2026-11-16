@@ -38,6 +38,7 @@ const HISTORY_KEYS = [
   'amplifier.power_w',
   'amplifier.active_power_w',
   'amplifier.power_factor',
+  'amplifier.back_emf_v',
   'system.voltage_v',
   'system.current_a',
   'cooling.fan_speed',
@@ -85,6 +86,7 @@ const POWER_COLORS = {
   cryoWatts:   '#ef5350',
   cryoVoltAmps: '#ffab91',
   cryoPowerFactor: '#b39ddb',
+  cryoBackEmf: '#dce775',
   systemVolts: '#80cbc4',
   systemAmps:  '#ffcc80',
   systemWatts: '#a1887f',
@@ -107,6 +109,7 @@ const TILE_GROUPS: TileGroup[] = [
       { label: 'Watts', key: 'amplifier.active_power_w', unit: 'W',  dp: 2, color: POWER_COLORS.cryoWatts },
       { label: 'VA',    key: 'amplifier.power_w',        unit: 'VA', dp: 2, color: POWER_COLORS.cryoVoltAmps },
       { label: 'PF',    key: 'amplifier.power_factor',   unit: '',   dp: 3, color: POWER_COLORS.cryoPowerFactor },
+      { label: 'Back-EMF', key: 'amplifier.back_emf_v',  unit: 'V',  dp: 2, color: POWER_COLORS.cryoBackEmf },
     ],
   },
   {
@@ -276,6 +279,7 @@ export function App() {
                     { label: 'Amps',  data: series('cold_head.current_a'), color: POWER_COLORS.cryoAmps },
                     { label: 'Watts', data: series('amplifier.active_power_w'), color: POWER_COLORS.cryoWatts },
                     { label: 'VA',    data: series('amplifier.power_w'),        color: POWER_COLORS.cryoVoltAmps },
+                    { label: 'Back-EMF', data: series('amplifier.back_emf_v'),  color: POWER_COLORS.cryoBackEmf },
                   ]}
                   overlays={faultOverlays}
                   windowMs={windowMs}

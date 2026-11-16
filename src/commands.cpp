@@ -592,6 +592,33 @@ static void handleVoutGet(const char* /*args*/, Print& out) {
     out.println(buf);
 }
 
+/** `get bemf`: print the back-EMF estimate and the limit in force. */
+static void handleBackEmfGet(const char* /*args*/, Print& out) {
+    char buf[96];
+    snprintf(buf, sizeof(buf), "[OK] back-EMF %.2f V RMS, limit %.2f V (config %.2f V; 0 = off)",
+             amplifier::getBackEmfVrms(), amplifier::getBackEmfLimitVrms(),
+             static_cast<float>(BACK_EMF_LIMIT_VRMS));
+    out.println(buf);
+}
+
+/**
+ * `set bemf limit <V>`: temporary back-EMF limit for testing the trip at a
+ * safe drive level.  Can only tighten the check; 0 removes it.
+ */
+static void handleBackEmfLimitSet(const char* args, Print& out) {
+    char* parseEnd = nullptr;
+    const float limitVrms = strtof(args, &parseEnd);
+    if (parseEnd == args || *parseEnd != '\0' || limitVrms < 0.0f) {
+        out.println(F("[ERR] Usage: set bemf limit <V RMS>  (0 = remove the test limit)"));
+        return;
+    }
+    amplifier::setBackEmfTestLimitVrms(limitVrms);
+    char buf[80];
+    snprintf(buf, sizeof(buf), "[OK] back-EMF limit now %.2f V RMS until reboot (0 = off)",
+             amplifier::getBackEmfLimitVrms());
+    out.println(buf);
+}
+
 static void handleVoutSet(const char* args, Print& out) {
     if (*args == '\0') {
         out.println(F("[ERR] Usage: set vout <0-120V> | <0-100%> | auto"));
@@ -1420,10 +1447,12 @@ static const Command commandMap[] = {
     {"wifi txpower",        handleWifiTxPower,  "Set max WiFi TX power in dBm until reboot; retries if not connected"},
     // "mock" is a catch-all; subcommands are parsed inside mock_commands::handleMock().
     // Must follow any more-specific "mock ..." entries if those are ever added.
-    {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall|stroke"},
+    {"mock",                mock_commands::handleMock, "Sensor mock: enable|disable|status|temp|rate|rms|current|voltage|stall"},
     {"dac raw",             handleDacRaw,          "Raw SPI write to MCP4921 (0-4095) — bypasses firmware DAC management"},
     {"set vout",            handleVoutSet,         "Set dac output voltage (0-120V, 0-100%, or 'auto' to resume FSM)"},
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
+    {"set bemf limit",      handleBackEmfLimitSet, "Temporary back-EMF overstroke limit in V RMS (can only tighten; 0 removes)"},
+    {"get bemf",            handleBackEmfGet,      "Show the back-EMF estimate and the limit in force"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
     {"relay amplifier",     handleRelayAmplifier,   "Energise or de-energise the amplifier relay (on|off)"},
     {"relay compressor",    handleRelayCompressor,  "Energise or de-energise the compressor relay (on|off)"},

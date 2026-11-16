@@ -42,6 +42,7 @@ export interface TelemetryData {
     power_w?:   number;  // apparent power (VA)
     active_power_w?: number;
     power_factor?:   number;
+    back_emf_v?:     number;  // estimated motor back-EMF, V RMS
   };
 
   system?: {

@@ -17,7 +17,6 @@
  *   mock current <A>                     -- INA239 current
  *   mock voltage <V>                     -- INA239 bus voltage
  *   mock stall  <0|1>                    -- temperature-stall flag
- *   mock stroke <0|1>                    -- back-EMF overstroke flag
  * @endverbatim
  *
  * Dynamic / time-varying behaviour
@@ -71,7 +70,6 @@ struct Overrides {
 
     // ── Flags ────────────────────────────────────────────────────────────────
     bool  stalled     = false;    ///< Temperature-stall detection output
-    bool  overstroke  = false;    ///< Back-EMF overstroke flag
 
 };
 

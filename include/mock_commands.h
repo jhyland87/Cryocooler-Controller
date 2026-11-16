@@ -37,7 +37,6 @@ namespace mock_commands {
  *   current \<A\>                        INA239 current
  *   voltage \<V\>                        INA239 bus voltage
  *   stall  <0|1>                       Temperature-stall flag
- *   stroke <0|1>                       Back-EMF overstroke flag
  *   relay                              Print compressor and amplifier relay states
  *   relay <amplifier|compressor> on    Energise the named relay (SM may override next tick)
  *   relay <amplifier|compressor> off   De-energise the named relay

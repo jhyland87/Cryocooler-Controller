@@ -21,6 +21,7 @@
  * Output struct so that callers (main.cpp) handle I/O.
  */
 #include <Arduino.h>
+#include <math.h>
 #include "tick.h"
 #include "state_machine.h"
 #include "state_machine_history.h"
@@ -233,7 +234,7 @@ static const char* statusTextForState(State s) {
             case FaultReason::TooManyBackoffs:  return "Fault: Too many back-EMF stroke events; output backed off";
             case FaultReason::LowSystemVoltage: return "Fault: DC system voltage below minimum threshold";
             case FaultReason::StateOscillation: return "Fault: FSM oscillating between states — manual clearFault() required";
-            case FaultReason::SensorFault:      return "Fault: Temperature sensor hardware fault or reading out of range";
+            case FaultReason::SensorFault:      return "Fault: Sensor hardware fault or reading missing / out of range";
             case FaultReason::RmsOvercurrent:   return "Fault: RMS output current exceeded safe limit";
             case FaultReason::ModuleNotReady:   return "Fault: A required control module was not initialised — reinit and try again";
             default:                            return "Fault: Unknown reason";
@@ -248,22 +249,23 @@ static const char* statusTextForState(State s) {
 }
 
 /**
+ * Convert a drive fraction to DAC counts with the accumulated overstroke
+ * backoff subtracted (floor at 0).
+ */
+static uint16_t backedOffDacTarget(float fraction) {
+    const uint16_t dacTarget = static_cast<uint16_t>(
+        fraction * static_cast<float>(AMPLIFIER_RESOLUTION));
+    return (backoffDacOffset >= dacTarget)
+               ? static_cast<uint16_t>(0)
+               : static_cast<uint16_t>(dacTarget - backoffDacOffset);
+}
+
+/**
  * Build the Output struct for a given state.
  * Relay and indicator assignments follow the design spec exactly.
  */
-static Output buildOutput(State s, float fraction) {
+static Output buildOutput(State s, uint16_t dacTarget) {
     using Mode = indicator::Mode;
-
-    // Convert fraction to DAC counts for the Output struct.
-    uint16_t dacTarget = static_cast<uint16_t>(
-        fraction * static_cast<float>(AMPLIFIER_RESOLUTION));
-
-    // Apply accumulated backoff reduction (floor at 0).
-    if (backoffDacOffset > 0 && dacTarget > 0) {
-        dacTarget = (backoffDacOffset >= dacTarget)
-                        ? static_cast<uint16_t>(0)
-                        : static_cast<uint16_t>(dacTarget - backoffDacOffset);
-    }
 
     Output o{};
     o.state        = s;
@@ -742,6 +744,14 @@ Output update(float    tempC,
             _Log.printf("Fault: Sensor fault detected (tempC=%.2f)\n", tempC);
         }
 
+        // Missing drive voltage or current reading: the overvoltage, overcurrent
+        // and back-EMF checks cannot see the load, so stop.
+        if (running && (!isfinite(amplifier::getLastRmsVoltage()) ||
+                        !isfinite(amplifier::getLastRmsCurrent()))) {
+            faultMask |= static_cast<uint8_t>(FaultReason::SensorFault);
+            _Log.println(F("Fault: amplifier voltage / current reading missing"));
+        }
+
         // RMS overcurrent — checked only while running (amplifier is active).
         // AMPLIFIER_MAX_CURRENT_A = 0.0f disables this check.
         if (running &&
@@ -756,15 +766,24 @@ Output update(float    tempC,
         // Overstroke / back-EMF backoff — accumulates a counter independently
         // of other fault conditions so both can be recorded simultaneously.
         if (overstroke && running) {
-            _Log.printf("Backoff count: %d\n", backoffCount);
-            // @todo: add a delay here to prevent the backoff count from being incremented too quickly
             ++backoffCount;
+            _Log.printf("Overstroke backoff %u of %u\n", backoffCount,
+                        static_cast<unsigned>(BACKOFF_MAX_COUNT));
             const uint32_t newOffset =
                 static_cast<uint32_t>(backoffDacOffset) +
                 static_cast<uint32_t>(BACKOFF_DAC_STEP);
             backoffDacOffset = (newOffset > static_cast<uint32_t>(AMPLIFIER_RESOLUTION))
                                    ? static_cast<uint16_t>(AMPLIFIER_RESOLUTION)
                                    : static_cast<uint16_t>(newOffset);
+            // Step the drive down now; this also covers the states that hold
+            // the DAC without re-targeting it each tick.
+            const uint16_t dacNow = amplifier::getDacCurrent();
+            const uint16_t dacReduced = (dacNow > BACKOFF_DAC_STEP)
+                                            ? static_cast<uint16_t>(dacNow - BACKOFF_DAC_STEP)
+                                            : static_cast<uint16_t>(0);
+            amplifier::rampTo(static_cast<float>(dacReduced) /
+                                  static_cast<float>(AMPLIFIER_RESOLUTION),
+                              BACKOFF_DAC_STEP);
             if (backoffCount >= static_cast<uint16_t>(BACKOFF_MAX_COUNT)) {
                 faultMask |= static_cast<uint8_t>(FaultReason::TooManyBackoffs);
                 _Log.println(F("Fault: Too many back-EMF stroke events; output backed off"));
@@ -887,14 +906,17 @@ Output update(float    tempC,
     // ------------------------------------------------------------------
     // 4. Compute output fraction, drive amplifier, and assemble output
     // ------------------------------------------------------------------
-    float fraction = 0.0f;
+    uint16_t dacTarget = 0;
     if (currentState == State::CoarseCooldown ||
         currentState == State::FineCooldown) {
         // Honour a manual "set vout" override; fall back to temperature-proportional target.
-        fraction = amplifier::hasVoutOverride()
+        const float fraction = amplifier::hasVoutOverride()
                        ? amplifier::getVoutOverride()
                        : conversions::tempCToFraction(tempC, AMBIENT_START_C, SETPOINT_C);
-        amplifier::rampTo(fraction);
+        // The overstroke backoff lowers the target the DAC actually ramps to.
+        dacTarget = backedOffDacTarget(fraction);
+        amplifier::rampTo(static_cast<float>(dacTarget) /
+                          static_cast<float>(AMPLIFIER_RESOLUTION));
     } else if (currentState == State::Shutdown) {
         amplifier::rampTowardShutdown();
     }
@@ -908,7 +930,7 @@ Output update(float    tempC,
         amplifier::setTargetVoltage(trackFraction * AMPLIFIER_MAX_VOLTAGE_VAC);
     }
 
-    return buildOutput(currentState, fraction);
+    return buildOutput(currentState, dacTarget);
 }
 
 State getState() {

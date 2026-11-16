@@ -123,7 +123,8 @@ diagram above to keep it readable.
 | Fault | 127 | Bypass + **Alarm** | Flash Fast Red | Off | 0 |
 
 The DAC target is computed proportional to how far `tempK` has dropped from
-`AMBIENT_START_K` toward `SETPOINT_K`, and is only non-zero during
+`AMBIENT_START_K` toward `SETPOINT_K`, less the accumulated overstroke backoff
+(see Behavioural Notes), and is only non-zero during
 CoarseCooldown and FineCooldown.  The amplifier ramps toward the target each
 tick; Shutdown uses a faster ramp rate via `amplifier::rampTowardShutdown()`.
 
@@ -138,6 +139,7 @@ tick; Shutdown uses a faster ramp rate via `amplifier::rampTowardShutdown()`.
 | TooManyBackoffs | 3 | `backoffCount >= BACKOFF_MAX_COUNT` | All running states |
 | LowSystemVoltage | 4 | `systemVoltage < MIN_SYSTEM_VOLTAGE_VDC` (0.0 ignored) | Any non-Fault |
 | StateOscillation | 5 | FSM oscillation detector fired | Any non-Fault |
+| SensorFault | 6 | `cold_head::hasSensorFault()`, or the amplifier RMS voltage / current reading is missing (NaN) | All running states |
 
 Fault is a **terminal state**. The only exits are `clearFault()` to Idle and
 `reinit()` to Initialize. Both paths reset `faultReason`, `backoffCount`, and
@@ -157,10 +159,36 @@ setpoint band (`SETPOINT_K +/- SETPOINT_TOLERANCE_K`).  Any excursion out of
 band resets the timer to zero; the full `SETTLE_DURATION_MS` must elapse
 continuously in-band before the transition to Baseline fires.
 
-**Back-EMF backoff** — Each overstroke event detected by the IMU reduces the
-effective DAC target by `BACKOFF_DAC_STEP`.  The penalty accumulates until
-`BACKOFF_MAX_COUNT` is reached, at which point the `TooManyBackoffs` fault is
-triggered.  The offset and counter both reset on `clearFault()` and `reinit()`.
+**Overstroke backoff** — Two independent detectors raise an overstroke event,
+and `main.cpp` ORs them into `update()`'s `overstroke` argument:
+
+- **IMU tap** (`imu::hasOverstroke()`): the LSM6DSOX single-tap interrupt on
+  INT1 (2 g) sees the piston hitting its stop.
+- **Electrical** (`amplifier::hasElectricalOverstroke()`): the amplifier
+  module estimates the motor back-EMF from the ACS37800 readings
+  (`include/back_emf.h`).  With the current as phase reference,
+  `E = (P/I - I*R) + j(Q/I - I*w*L)`, using `MOTOR_COIL_RESISTANCE_OHM` and
+  `MOTOR_COIL_INDUCTANCE_H`; the sign of Q comes from the chip's POSANGLE bit.
+  At a fixed drive frequency `|E|` is proportional to piston stroke.  The
+  estimate is smoothed over `BACK_EMF_SMOOTHING_MS` and is not reported below
+  `BACK_EMF_MIN_CURRENT_A`.  Two checks can trip, at most once per
+  `BACK_EMF_HOLDOFF_MS`:
+  - smoothed `|E|` above `BACK_EMF_LIMIT_VRMS`;
+  - load impedance `V / I` falling more than
+    `BACK_EMF_IMPEDANCE_DROP_FRACTION` below its slow baseline (a piston that
+    hits its stop loses velocity, so back-EMF and impedance drop suddenly).
+
+  **Both thresholds are 0 (off) in `config.h` until they are set from measured
+  runs**; the estimate is still reported as `amplifier.back_emf_v`.  The serial
+  command `set bemf limit <V>` applies a temporary limit that can only tighten
+  the check, for testing the trip at a safe drive level.
+
+Each event, while running, increments `backoffCount`, steps the DAC down by
+`BACKOFF_DAC_STEP` at once, and lowers the cooldown drive target by the
+accumulated `backoffDacOffset`.  The reduction lasts for the rest of the run
+(no decay).  At `BACKOFF_MAX_COUNT` events the `TooManyBackoffs` fault is
+raised.  The offset and counter both reset on `start()`, `clearFault()` and
+`reinit()`.
 
 **Delay state** — A generic timed hold reachable from any non-Fault state via
 `startDelay(nowMs, durationMs, nextState)`.  The destination is either Idle or

@@ -252,13 +252,15 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("amplifier.voltage_v", "%.2f", amplifier::getLastRmsVoltage())
             .field("amplifier.current_a", "%.2f", amplifier::getLastRmsCurrent())
             .field("amplifier.active_power_w", "%.2f", amplifier::getActivePowerWatts())
-            .field("amplifier.power_factor",   "%.3f", amplifier::getPowerFactor());
+            .field("amplifier.power_factor",   "%.3f", amplifier::getPowerFactor())
+            .field("amplifier.back_emf_v",     "%.2f", amplifier::getBackEmfVrms());
     } else {
         frame
             .field("amplifier.voltage_v", "%s", "")
             .field("amplifier.current_a", "%s", "")
             .field("amplifier.active_power_w", "%s", "")
-            .field("amplifier.power_factor",   "%s", "");
+            .field("amplifier.power_factor",   "%s", "")
+            .field("amplifier.back_emf_v",     "%s", "");
     }
     // ── Cold head ─────────────────────────────────────────────────────────
     if (coldHeadReady) {
@@ -610,6 +612,7 @@ void emit(const state_machine::Output& out)
         .field("amplifier.current_a",               "%.2f", amplifier::getLastRmsCurrent())
         .field("amplifier.active_power_w",          "%.2f", amplifier::getActivePowerWatts())
         .field("amplifier.power_factor",            "%.3f", amplifier::getPowerFactor())
+        .field("amplifier.back_emf_v",              "%.2f", amplifier::getBackEmfVrms())
         .field("cold_head.cooldown_pct",           "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))

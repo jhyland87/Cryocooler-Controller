@@ -106,7 +106,7 @@ enum class FaultReason : uint8_t {
     TooManyBackoffs   = 1u << 2,  ///< back-EMF backoff event count reached BACKOFF_MAX_COUNT
     LowSystemVoltage  = 1u << 3,  ///< DC supply voltage fell below MIN_SYSTEM_VOLTAGE_VDC
     StateOscillation  = 1u << 4,  ///< FSM bouncing between the same two states too many times
-    SensorFault       = 1u << 5,  ///< RTD hardware fault or tempC outside MIN/MAX_PLAUSIBLE_COLDHEAD_TEMP_C
+    SensorFault       = 1u << 5,  ///< RTD fault, implausible tempC, or amplifier V/I reading missing
     RmsOvercurrent    = 1u << 6,  ///< amplifier RMS current exceeded AMPLIFIER_MAX_CURRENT_A
     ModuleNotReady    = 1u << 7,  ///< a required control module was not initialised when a cooling
                                   // state was entered
@@ -189,10 +189,10 @@ uint32_t getOnStateDuration();
  * @param rmsVoltage    Measured RMS voltage in VDC (stub returns 0)
  * @param stalled       True when stall-detection window has expired without a
  *                      sufficient temperature drop
- * @param overstroke    True when the ACS712 detected a back-EMF current spike
- *                      this tick.  Triggers a DAC backoff and increments the
- *                      backoff counter in the returned Output.  Defaults to
- *                      false for backward compatibility.
+ * @param overstroke    True when the IMU tap interrupt or the electrical
+ *                      back-EMF detector reported an overstroke this tick.
+ *                      Lowers the drive by BACKOFF_DAC_STEP and increments
+ *                      the backoff counter in the returned Output.
  * @param systemVoltage DC supply voltage in volts.  Pass 0.0f (default) when
  *                      no measurement is available — 0.0f is treated as "not
  *                      monitored" and never triggers the LowSystemVoltage fault.

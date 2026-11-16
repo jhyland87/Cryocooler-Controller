@@ -66,36 +66,41 @@
 #define AMPLIFIER_DAC_MAX_OUTPUT_VOLTAGE_V   static_cast<float>(10.0f)
 
 // =============================================================================
-// ACS712 AC Current Sensor — internal ADC constants
+// Overstroke detection — algorithm internals
 // =============================================================================
 
-// ADC supply voltage on the ESP32-S3 (3.3 V rail).
-#define ACS712_ADC_VOLTS      static_cast<float>(3.3f)
+// Time constant (ms) of the filter on the back-EMF and impedance readings.
+// The ACS37800 reports one line cycle at a time, so single readings wander.
+#define BACK_EMF_SMOOTHING_MS         static_cast<uint32_t>(500)
 
-// Maximum ADC output value for ADC_RESOLUTION = 12 → (2^12) − 1 = 4095.
-#define ACS712_ADC_MAX_VALUE  static_cast<uint16_t>((1u << ADC_RESOLUTION) - 1u)
+// Time constant (ms) of the slow impedance baseline, and how long valid
+// readings must run before the impedance-drop check arms.
+#define BACK_EMF_BASELINE_MS          static_cast<uint32_t>(10000)
+#define BACK_EMF_BASELINE_SETTLE_MS   static_cast<uint32_t>(20000)
 
-// ESP32 ADC attenuation for ACS712_CURRENT_PIN.
-// ADC_11db → 0–3.3 V (full 5 A range; default safe choice).
-#ifdef ARDUINO
-#  define ACS712_ADC_ATTENUATION  ADC_11db
-#endif
+// Minimum time (ms) between two electrical overstroke events, so the drive
+// has time to respond to one backoff before the next.
+#define BACK_EMF_HOLDOFF_MS           static_cast<uint32_t>(2000)
 
 // =============================================================================
-// Overstroke (back-EMF spike) detection — algorithm internals
+// Sensor re-detection
 // =============================================================================
 
-// EMA smoothing factor for the current baseline (0 < α ≤ 1).
-// Smaller values track more slowly so brief spikes stand out more clearly.
-#define OVERSTROKE_EMA_ALPHA          static_cast<float>(0.08f)
+// How often (ms) a module looks again for a sensor that is missing or stopped
+// responding (cable unplugged, supply jumper pulled), so readings come back
+// without a reinit.
+#define AMPLIFIER_ACS_REPROBE_INTERVAL_MS   static_cast<uint32_t>(2000)
+#define SYSINFO_INA239_REPROBE_INTERVAL_MS  static_cast<uint32_t>(2000)
+#define COLD_HEAD_ADC_REPROBE_INTERVAL_MS   static_cast<uint32_t>(2000)
 
-// Number of readCurrent() calls to prime the EMA before detection is armed.
-// At LOOP_INTERVAL_MS = 200 ms this is ~4 seconds.
-#define OVERSTROKE_PRIME_READINGS     static_cast<uint8_t>(20)
+// IMU: WHO_AM_I is checked this often (ms); this many wrong answers in a row
+// mark it missing.
+#define IMU_PRESENCE_CHECK_INTERVAL_MS      static_cast<uint32_t>(1000)
+#define IMU_PRESENCE_MISSED_CHECKS          static_cast<uint8_t>(3)
 
-// Minimum time between consecutive overstroke detections (milliseconds).
-// Prevents a single physical event from generating many consecutive flags.
-#define OVERSTROKE_DEBOUNCE_MS        static_cast<uint32_t>(200)
+// A module disabled for low supply voltage is re-initialised once the supply
+// has stayed at or above MIN_SYSTEM_VOLTAGE_VDC for this long (ms).
+#define MODULE_VOLTAGE_RECOVERY_HOLD_MS     static_cast<uint32_t>(3000)
 
 // DAC counts subtracted from the target per confirmed backoff event.
 // At AMPLIFIER_RESOLUTION = 4095, each step is ~4.9 % of full scale.

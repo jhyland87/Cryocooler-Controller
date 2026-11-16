@@ -210,6 +210,17 @@ flowchart LR
 
 Re-initialised on every FSM `reinit()` (entering the Initialize state). This allows hardware peripherals to be reconfigured after a logical system reset without a full MCU reboot.
 
+**Sensors come back by themselves.** A sensor that is missing at boot or stops answering (cable unplugged, supply jumper pulled) reports no reading, and its module looks for it again every couple of seconds (intervals in `config_advanced.h`, "Sensor re-detection"):
+
+| Sensor | Module | Offline when | On return |
+|--------|--------|--------------|-----------|
+| ACS37800 | `amplifier` | a read is all ones (JP3 / isolated supply off) | full probe and setup |
+| INA239 | `sysinfo` | 3 ID reads fail | shunt calibration rewritten |
+| LSM6DSOX | `imu` | 3 WHO_AM_I reads fail | ranges, FIFO and tap interrupts set again; the boot calibration offsets are kept (zero if it was absent at boot) |
+| ADS1220 | `cold_head` | absent at init, or a conversion reads all zeros / ones | configuration rewritten |
+
+A control module disabled for low supply voltage (`MIN_MODULE_VOLTAGE_VDC`) is re-initialised once the supply has held at or above `MIN_SYSTEM_VOLTAGE_VDC` for `MODULE_VOLTAGE_RECOVERY_HOLD_MS`. The FSM fault raised by the drop stays latched until it is cleared.
+
 ```mermaid
 flowchart LR
     compressor["compressor

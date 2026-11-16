@@ -31,6 +31,7 @@
 #include "tick.h"
 #include "logger.h"
 #include "power_good.h"
+#include "back_emf.h"
 #include "gpio_expander.h"
 
 /// How often the four expander-read rail flags are sampled (ms).
@@ -82,6 +83,13 @@ float lastRmsCurrent_      = 0.0f;
 float lastApparentPowerW_  = 0.0f;
 float lastActivePowerW_    = 0.0f;
 float lastPowerFactor_     = 0.0f;
+
+// Back-EMF estimate and electrical overstroke detector (include/back_emf.h)
+static const back_emf::CoilModel sMotorCoil{MOTOR_COIL_RESISTANCE_OHM, MOTOR_COIL_INDUCTANCE_H};
+static back_emf::Detector sBackEmfDetector(back_emf::DetectorConfig{
+    BACK_EMF_LIMIT_VRMS, BACK_EMF_IMPEDANCE_DROP_FRACTION, BACK_EMF_SMOOTHING_MS,
+    BACK_EMF_BASELINE_MS, BACK_EMF_BASELINE_SETTLE_MS, BACK_EMF_HOLDOFF_MS});
+static bool sElectricalOverstroke = false;
 
 // Latest measured frequency from IMU FFT
 float lastFrequency_ = 0.0f;
@@ -555,6 +563,27 @@ float getVoutOverride() {
     return voutOverride_;
 }
 
+/// Feeds the latest readings to the back-EMF detector and latches a trip.
+static void updateBackEmf() {
+    const back_emf::Reading reading{lastRmsVoltage_, lastRmsCurrent_, lastActivePowerW_,
+                                    acs_.currentLagging};
+    const float frequencyHz = frequency_ > 0.0f ? frequency_
+                                                : static_cast<float>(AMPLIFIER_FREQ_HZ);
+    const float backEmfV = back_emf::estimateVrms(reading, sMotorCoil, frequencyHz,
+                                                  BACK_EMF_MIN_CURRENT_A);
+    const float impedanceOhm = isfinite(backEmfV) ? lastRmsVoltage_ / lastRmsCurrent_ : NAN;
+
+    const back_emf::Trip trip = sBackEmfDetector.update(backEmfV, impedanceOhm, tick::nowMs());
+    if (trip == back_emf::Trip::None) {
+        return;
+    }
+    sElectricalOverstroke = true;
+    _Log.printf("OVERSTROKE(ELEC) %s: back-EMF %.1f V (limit %.1f V), impedance %.2f ohm (baseline %.2f)\n",
+                back_emf::tripName(trip), sBackEmfDetector.smoothedVrms(),
+                sBackEmfDetector.effectiveLimitVrms(), sBackEmfDetector.smoothedImpedanceOhm(),
+                sBackEmfDetector.baselineImpedanceOhm());
+}
+
 // ---------------------------------------------------------------------------
 // Service -- reads ACS37800; must be called every main-loop tick
 // ---------------------------------------------------------------------------
@@ -591,31 +620,44 @@ module::ServiceStatus service() {
         }
     }
 
-    // Skip all ACS37800 SPI traffic when the chip is absent or offline.
+    // Chip absent or offline: look for it again every so often, so refitting
+    // JP3 brings the readings back without a reinit.
+    if (!sAcsAvailable) {
+        static uint32_t lastAcsProbeMs = 0;
+        const uint32_t probeNowMs = tick::nowMs();
+        if (static_cast<uint32_t>(probeNowMs - lastAcsProbeMs) >= AMPLIFIER_ACS_REPROBE_INTERVAL_MS) {
+            lastAcsProbeMs = probeNowMs;
+            // Only run the full (logging) probe once the bus stops idling high.
+            if (!acs37800::isBusIdleWord(acs_.readReg(0x20))) {
+                initAcs();
+            }
+        }
+    }
     if (!sAcsAvailable) {
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
         lastApparentPowerW_ = NAN;
         lastActivePowerW_   = NAN;
         lastPowerFactor_    = NAN;
+        sBackEmfDetector.reset();
         lastFrequency_      = imu::getFrequency();
         return module::MODULE_SERVICE_OK;
     }
 
     acs_.readRMSVoltageAndCurrent();
 
-    // Safety net: if the read returned garbage (device gone or SPI error),
-    // permanently disable the ACS37800.
-    if (acs_.rmsVoltageMillivolts >= 500000) {  // >500V is impossible
-        ESP_LOGW(TAG, "ACS37800 read returned garbage (%d mV) — permanently disabled",
-                 acs_.rmsVoltageMillivolts);
-        _Log.println(F("ACS37800 bad read — disabled"));
+    // An all-ones word means the chip lost power (JP3 / ISO_3V3) or MISO is
+    // floating.  Stop using it until the re-probe above finds it again.
+    if (acs37800::isBusIdleWord(acs_.rmsRegisterRaw)) {
+        ESP_LOGW(TAG, "ACS37800 read 0xFFFFFFFF (unpowered? check JP3 / ISO_3V3): power monitor disabled");
+        _Log.println(F("ACS37800 not responding: power monitor disabled"));
         sAcsAvailable = false;
         lastRmsVoltage_     = NAN;
         lastRmsCurrent_     = NAN;
         lastApparentPowerW_ = NAN;
         lastActivePowerW_   = NAN;
         lastPowerFactor_    = NAN;
+        sBackEmfDetector.reset();
         lastFrequency_      = NAN;
         return module::MODULE_SERVICE_ERROR;
     }
@@ -625,6 +667,7 @@ module::ServiceStatus service() {
     lastApparentPowerW_ = static_cast<float>(acs_.readApparentPowerMilliwatts()) / 1000.0f;
     lastPowerFactor_    = acs_.powerFactor;
     lastActivePowerW_   = static_cast<float>(acs_.readActivePowerMilliwatts()) / 1000.0f;
+    updateBackEmf();
     lastFrequency_  = imu::getFrequency();
 
     // Frequency tracker: only advance when active and the IMU has a valid FFT
@@ -652,6 +695,11 @@ float getLastRmsCurrent()       { return lastRmsCurrent_; }
 float getApparentPowerWatts()   { return lastApparentPowerW_; }
 float getActivePowerWatts()     { return lastActivePowerW_; }
 float getPowerFactor()          { return lastPowerFactor_; }
+float getBackEmfVrms()          { return sBackEmfDetector.smoothedVrms(); }
+bool  hasElectricalOverstroke() { return sElectricalOverstroke; }
+void  clearElectricalOverstroke() { sElectricalOverstroke = false; }
+void  setBackEmfTestLimitVrms(float limitVrms) { sBackEmfDetector.setTestLimitVrms(limitVrms); }
+float getBackEmfLimitVrms()     { return sBackEmfDetector.effectiveLimitVrms(); }
 float getOutputRmsVoltage()     { return lastRmsVoltage_; }
 float getOutputRmsCurrent()     { return lastRmsCurrent_; }
 

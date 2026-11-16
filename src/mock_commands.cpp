@@ -148,18 +148,6 @@ static void handleStall(const char* args, Print& out) {
     out.println(buf);
 }
 
-static void handleStroke(const char* args, Print& out) {
-    bool v;
-    if (!parseBool(args, &v)) {
-        out.println(F("[ERR] Usage: mock stroke <0|1>"));
-        return;
-    }
-    sensor_mock::get().overstroke = v;
-    char buf[40];
-    snprintf(buf, sizeof(buf), "[OK] mock.stroke = %d", static_cast<int>(v));
-    out.println(buf);
-}
-
 /**
  * Handle: `mock coldhead [<K> | off]`
  *
@@ -407,8 +395,6 @@ static void handleStatus(const char* /*args*/, Print& out) {
     out.println(buf);
     snprintf(buf, sizeof(buf), "  stall    : %s", mo.stalled    ? "true" : "false");
     out.println(buf);
-    snprintf(buf, sizeof(buf), "  stroke   : %s", mo.overstroke ? "true" : "false");
-    out.println(buf);
 
     // Relay states (always shown; state machine may override next tick)
     snprintf(buf, sizeof(buf), "  relay.compressor : %s",
@@ -464,7 +450,6 @@ static const SubCommand kSubCommands[] = {
     { "relay",    handleRelay    },
     { "rms",      handleRms      },
     { "stall",    handleStall    },
-    { "stroke",   handleStroke   },
     { "temp",     handleTemp     },
     { "voltage",  handleVoltage  },
 };

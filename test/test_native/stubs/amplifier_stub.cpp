@@ -13,6 +13,8 @@ static float sLastRmsCurrent = 0.0f;
 static float sVoutOverride   = -1.0f;  // < 0 means no override
 static bool  sRelayState     = false;
 static float sTargetVoltage  = 0.0f;
+static float sLastRampFraction = -1.0f;  // < 0 means rampTo() not called
+static uint16_t sDacCurrent  = 0;
 
 namespace amplifier {
 
@@ -33,13 +35,13 @@ void  enable()                      {}
 void  disable()                     {}
 void  setFrequency(float)           {}
 float getFrequency()                { return 0.0f; }
-void  rampTo(float, uint16_t)       {}
+void  rampTo(float fraction, uint16_t) { sLastRampFraction = fraction; }
 void  rampTowardShutdown()          {}
 void  hardStop()                    { sLastRmsVoltage = 0.0f; sLastRmsCurrent = 0.0f; }
 void  initCoarseCooldown()          {}
 void  initFineCooldown()            {}
 void  setOutput(float)              {}
-uint16_t getDacCurrent()            { return 0; }
+uint16_t getDacCurrent()            { return sDacCurrent; }
 void  setVoutOverride(float f)      { sVoutOverride = f; }
 void  clearVoutOverride()           { sVoutOverride = -1.0f; }
 bool  hasVoutOverride()             { return sVoutOverride >= 0.0f; }
@@ -62,7 +64,17 @@ void stub_amplifier_setRmsCurrent(float a) {
     sLastRmsCurrent = a;
 }
 
+float stub_amplifier_lastRampFraction() {
+    return sLastRampFraction;
+}
+
+void stub_amplifier_setDacCurrent(uint16_t counts) {
+    sDacCurrent = counts;
+}
+
 void stub_amplifier_reset() {
+    sLastRampFraction = -1.0f;
+    sDacCurrent       = 0;
     sLastRmsVoltage = 0.0f;
     sLastRmsCurrent = 0.0f;
     sVoutOverride   = -1.0f;

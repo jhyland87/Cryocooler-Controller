@@ -71,7 +71,7 @@ flowchart TD
     end
 
     CH  -->|tempC, coolingRate, stalled| SM
-    AMP -->|rmsV, overstroke| SM
+    AMP -->|rmsV, electrical overstroke| SM
     IMU -->|overstroke| SM
     SYS -->|sysVoltage| SM
 
@@ -140,6 +140,11 @@ The core of the controller. Ingests sensor readings every tick and outputs a com
 | `STALL_DETECT_WINDOW_MS` | 600 000 ms | Stall detection observation window |
 | `STALL_MIN_DROP_C` | 2.0 °C | Minimum temp drop required in the window |
 | `BACKOFF_MAX_COUNT` | 10 | Max overstroke events before TooManyBackoffs fault |
+| `MOTOR_COIL_RESISTANCE_OHM` | 3.5 Ω | Motor coil resistance, for the back-EMF estimate |
+| `MOTOR_COIL_INDUCTANCE_H` | 2.5 mH | Motor coil inductance, for the back-EMF estimate |
+| `BACK_EMF_LIMIT_VRMS` | 0 (off) | Estimated back-EMF that raises an overstroke backoff |
+| `BACK_EMF_IMPEDANCE_DROP_FRACTION` | 0 (off) | Sudden load-impedance drop that raises an overstroke backoff |
+| `BACK_EMF_MIN_CURRENT_A` | 0.3 A | Below this current no back-EMF estimate is made |
 
 ---
 
@@ -167,7 +172,7 @@ Drives the AD9833 DDS (60 Hz sine wave), the MCP4921 12-bit SPI DAC (amplifier a
 - `rampToVoltage(target)` — smooth ramp at ±`DAC_MAX_STEP_PER_INTERVAL` per tick
 - `rampTowardShutdown(target)` — fast ramp at ±`DAC_SHUTDOWN_STEP_PER_INTERVAL` per tick
 
-**Overstroke (back-EMF) detection:** A slow-tracking EMA forms the baseline. A reading exceeding `baseline + OVERSTROKE_CURRENT_THRESHOLD_A` fires `hasOverstroke()`, subject to `OVERSTROKE_DEBOUNCE_MS`. The EMA is primed for `OVERSTROKE_PRIME_READINGS` ticks on startup.
+**Electrical overstroke detection:** the module estimates the motor back-EMF from the ACS37800 voltage, current, real power and lead/lag bit, using the coil constants `MOTOR_COIL_RESISTANCE_OHM` / `MOTOR_COIL_INDUCTANCE_H` (`include/back_emf.h`). `hasElectricalOverstroke()` fires when the smoothed estimate exceeds `BACK_EMF_LIMIT_VRMS`, or the load impedance drops by `BACK_EMF_IMPEDANCE_DROP_FRACTION` below its baseline. Both thresholds are 0 (off) until set from measured runs; the estimate is reported as `amplifier.back_emf_v`. See [`docs/state_machine.md`](docs/state_machine.md).
 
 ---
 
@@ -182,7 +187,7 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 | Function | Returns |
 |----------|---------|
 | `isInitialized()` | True if sensor was found and configured |
-| `hasOverstroke()` | True while motion/overstroke is active |
+| `hasOverstroke()` | True after a single-tap interrupt (INT1, 2 g) until the main loop clears it |
 | `getRoll()` / `getPitch()` | Orientation angles in degrees |
 | `getAccelMag()` | Calibrated acceleration magnitude (m/s²) |
 | `getFrequencyHz()` | Detected compressor frequency (Hz), or NAN |
@@ -192,7 +197,7 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ### sysinfo
 
-Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module disables itself until `reinit`. It also tracks CPU load, heap and PSRAM.
+Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module stops reading, then looks for the chip again every 2 s and resumes when it answers. It also tracks CPU load, heap and PSRAM.
 
 ---
 
@@ -304,6 +309,8 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `set vout <V>` | Set DAC output voltage (0–120 V, 0–100 %, or `auto`) |
 | `dac raw <N>` | Raw SPI write to the MCP4921 (0–4095), bypassing firmware DAC management |
 | `get vout` | Get current DAC output voltage |
+| `set bemf limit <V>` | Temporary back-EMF overstroke limit (V RMS) until reboot. It can only tighten the check; `0` removes it |
+| `get bemf` | Show the back-EMF estimate and the limit in force |
 | `relay` | Show current state of both relays |
 | `relay amplifier on/off` | Control amplifier relay |
 | `relay compressor on/off` | Control compressor relay |

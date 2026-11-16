@@ -132,12 +132,14 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
         frame.amplifier.power_w   = amplifier::getApparentPowerWatts();
         frame.amplifier.active_power_w = amplifier::getActivePowerWatts();
         frame.amplifier.power_factor   = amplifier::getPowerFactor();
+        frame.amplifier.back_emf_v     = amplifier::getBackEmfVrms();
     } else {
         frame.amplifier.voltage_v = NAN;
         frame.amplifier.current_a = NAN;
         frame.amplifier.power_w   = NAN;
         frame.amplifier.active_power_w = NAN;
         frame.amplifier.power_factor   = NAN;
+        frame.amplifier.back_emf_v     = NAN;
     }
 
     // ── System ───────────────────────────────────────────────────────────────
