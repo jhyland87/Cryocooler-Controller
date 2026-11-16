@@ -62,9 +62,6 @@ void clearOverstroke();
 /** Cumulative count of hardware tap (overstroke) events since boot (INT1). */
 uint32_t getOverstrokeCount();
 
-/** Cumulative count of hardware wake-up (overstroke) events since boot (INT2). */
-uint32_t getWakeupCount();
-
 
 // ---------------------------------------------------------------------------
 // Latest readings  (valid after the first successful service() call)

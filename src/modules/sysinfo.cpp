@@ -18,6 +18,7 @@
 #include <esp_freertos_hooks.h>
 
 #include "config.h"
+#include "tick.h"
 #include "sysinfo.h"
 #include "hardware.h"
 #include "imu.h"
@@ -148,15 +149,25 @@ module::ServiceStatus service() {
         return module::MODULE_SERVICE_OK;
     }
 
-    // INA239 reads are only valid when the chip was found during init.
-    // Reading a missing device returns all-zero or all-one frames every tick.
-    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
-        return module::MODULE_SERVICE_SKIPPED;
-    }
-
-    // Disabled after consecutive ID-read failures until reinit.
-    if (sIna239Disabled) {
-        return module::MODULE_SERVICE_SKIPPED;
+    // Chip missing at boot or lost since: look for it again every so often
+    // instead of reading all-zero or all-one frames every tick.
+    if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS || sIna239Disabled) {
+        static uint32_t lastProbeMs = 0;
+        const uint32_t nowMs = tick::nowMs();
+        if (static_cast<uint32_t>(nowMs - lastProbeMs) < SYSINFO_INA239_REPROBE_INTERVAL_MS) {
+            return module::MODULE_SERVICE_SKIPPED;
+        }
+        lastProbeMs = nowMs;
+        if (!ina239Present()) {
+            return module::MODULE_SERVICE_SKIPPED;
+        }
+        // A power-cycled chip has lost its shunt calibration.
+        ina239.begin();
+        ina239.setMaxCurrentShunt(SHUNT_MAX_AMPS, SHUNT_OHMS);
+        sIna239Errors   = 0;
+        sIna239Disabled = false;
+        Module::overrideInitStatus(module::MODULE_INIT_SUCCESS);
+        ESP_LOGI("sysinfo", "INA239 found — readings resumed");
     }
 
     // ID check: when 12 V drops, the INA239 loses its supply and MISO floats.
@@ -166,7 +177,7 @@ module::ServiceStatus service() {
         ++sIna239Errors;
         if (sIna239Errors >= MAX_SPI_ERRORS) {
             sIna239Disabled = true;
-            ESP_LOGW("sysinfo", "INA239 offline after %u consecutive errors — disabled until reinit",
+            ESP_LOGW("sysinfo", "INA239 offline after %u consecutive errors — disabled until it answers again",
                      sIna239Errors);
             voltage = NAN;
             current = NAN;

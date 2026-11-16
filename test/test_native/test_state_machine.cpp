@@ -10,6 +10,7 @@
  * Run with:  pio test -e native
  */
 
+#include <cmath>
 #include <cstring>
 #include <unity.h>
 #include "state_machine.h"
@@ -22,6 +23,8 @@ extern "C" void stub_setMillis(uint32_t ms);
 
 // Amplifier stub control (provided by stubs/amplifier_stub.cpp)
 extern "C" void stub_amplifier_setRmsVoltage(float volts);
+extern "C" void stub_amplifier_setRmsCurrent(float a);
+extern "C" float stub_amplifier_lastRampFraction();
 extern "C" void stub_amplifier_reset();
 
 // Serial command tests (defined in test_serial_commands.cpp)
@@ -46,6 +49,9 @@ void run_run_history_ring_tests();
 
 // ACS37800 register field decoders (defined in test_acs37800_fields.cpp)
 void run_acs37800_fields_tests();
+
+// Back-EMF estimate and detector tests (defined in test_back_emf.cpp)
+void run_back_emf_tests();
 
 // ---------------------------------------------------------------------------
 // Helper: fast-forward the state machine by skipping time
@@ -578,6 +584,61 @@ void test_overstroke_reduces_dac_target(void) {
                                   ? static_cast<uint16_t>(baseOut.dacTarget - BACKOFF_DAC_STEP)
                                   : 0u;
     TEST_ASSERT_EQUAL_UINT16(expected, backoffOut.dacTarget);
+}
+
+void test_overstroke_lowers_the_drive_sent_to_the_amplifier(void) {
+    // The reduced target must reach amplifier::rampTo(), not only the Output.
+    const uint32_t tStart = initAndStart();
+    tick::setNowMs(tStart + 1);
+    const auto baseOut = state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    const float baseRamp = stub_amplifier_lastRampFraction();
+    TEST_ASSERT_TRUE(baseOut.dacTarget > BACKOFF_DAC_STEP);
+
+    tick::setNowMs(tStart + 2);
+    const auto backoffOut = state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    const float backoffRamp = stub_amplifier_lastRampFraction();
+
+    const float resolution = static_cast<float>(AMPLIFIER_RESOLUTION);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, static_cast<float>(baseOut.dacTarget), baseRamp * resolution);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, static_cast<float>(backoffOut.dacTarget), backoffRamp * resolution);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, static_cast<float>(BACKOFF_DAC_STEP),
+                             (baseRamp - backoffRamp) * resolution);
+}
+
+// ---------------------------------------------------------------------------
+// Missing amplifier voltage / current reading
+// ---------------------------------------------------------------------------
+
+void test_missing_voltage_reading_faults_while_running(void) {
+    const uint32_t tStart = initAndStart();
+    stub_amplifier_setRmsVoltage(NAN);
+    tick::setNowMs(tStart + 1);
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::SensorFault),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_missing_current_reading_faults_while_running(void) {
+    const uint32_t tStart = initAndStart();
+    stub_amplifier_setRmsCurrent(NAN);
+    tick::setNowMs(tStart + 1);
+    auto out = state_machine::update(200.0f, 0.5f, 0.0f, false);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::SensorFault),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
+}
+
+void test_missing_reading_ignored_when_not_running(void) {
+    tick::setNowMs(0); state_machine::init();
+    stub_amplifier_setRmsVoltage(NAN);
+    stub_amplifier_setRmsCurrent(NAN);
+    tick::setNowMs(1);
+    auto out = state_machine::update(295.0f, 0.0f, 0.0f, false);
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
+                      static_cast<int8_t>(out.state));
 }
 
 void test_overstroke_triggers_fault_at_max_count(void) {
@@ -1592,6 +1653,10 @@ int main(int argc, char **argv) {
     // Back-EMF backoff
     RUN_TEST(test_overstroke_increments_backoff_count);
     RUN_TEST(test_overstroke_reduces_dac_target);
+    RUN_TEST(test_overstroke_lowers_the_drive_sent_to_the_amplifier);
+    RUN_TEST(test_missing_voltage_reading_faults_while_running);
+    RUN_TEST(test_missing_current_reading_faults_while_running);
+    RUN_TEST(test_missing_reading_ignored_when_not_running);
     RUN_TEST(test_overstroke_triggers_fault_at_max_count);
     RUN_TEST(test_overstroke_ignored_when_not_running);
     RUN_TEST(test_backoff_count_resets_on_start);
@@ -1689,6 +1754,7 @@ int main(int argc, char **argv) {
 
     // ACS37800 register field decoders
     run_acs37800_fields_tests();
+    run_back_emf_tests();
 
     return UNITY_END();
 }

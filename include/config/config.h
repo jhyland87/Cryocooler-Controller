@@ -177,28 +177,36 @@
 // Minimum voltage (V) for 12 V-dependent control hardware modules
 // (cooling, amplifier, cold_head, compressor).  When the bus voltage
 // drops below this threshold, each module is individually disabled and
-// demoted to UNDERVOLTAGE.  Recovery requires a reinit — modules do NOT
-// re-enable automatically when voltage returns.
+// demoted to UNDERVOLTAGE.  It is re-initialised once the voltage has held
+// at or above MIN_SYSTEM_VOLTAGE_VDC for MODULE_VOLTAGE_RECOVERY_HOLD_MS; the
+// FSM fault stays latched until cleared.
 //
 // This fires before the FSM-level MIN_SYSTEM_VOLTAGE_VDC fault (11.5 V)
 // to give the modules a chance to shut down outputs gracefully.
 #define MIN_MODULE_VOLTAGE_VDC  static_cast<float>(11.0f)
 
 // =============================================================================
-// ACS712 AC Current Sensor — calibration
+// Safety — overstroke detection
 // =============================================================================
 
-// Sensitivity of the ACS712-05B module in mV per amp.
-// Nominal 185 mV/A; adjust to the measured value of your specific module.
-#define ACS712_SENSITIVITY_MV_PER_A  static_cast<float>(185.0f)
+// Cryocooler motor coil, measured at the motor leads with the cooler
+// disconnected.  Used to estimate back-EMF (include/back_emf.h).
+#define MOTOR_COIL_RESISTANCE_OHM  static_cast<float>(3.5f)
+#define MOTOR_COIL_INDUCTANCE_H    static_cast<float>(0.0025f)
 
-// =============================================================================
-// Safety — overstroke / back-EMF detection
-// =============================================================================
+// Estimated back-EMF (V RMS) above which an overstroke backoff is raised.
+// Back-EMF is proportional to piston stroke at a fixed drive frequency.
+// 0.0f disables the check; `set bemf limit` can lower it for a test.
+#define BACK_EMF_LIMIT_VRMS  static_cast<float>(0.0f)
 
-// A current reading is flagged as a spike when it exceeds the EMA baseline
-// by more than this many amps.
-#define OVERSTROKE_CURRENT_THRESHOLD_A  static_cast<float>(2.0f)
+// Sudden fall of the load impedance (V / I) below its slow baseline, as a
+// fraction of the baseline, that raises an overstroke backoff (0.2 = 20 %).
+// 0.0f disables the check.
+#define BACK_EMF_IMPEDANCE_DROP_FRACTION  static_cast<float>(0.0f)
+
+// Below this RMS current the power readings are noise: no back-EMF estimate
+// is reported and the electrical checks cannot trip.
+#define BACK_EMF_MIN_CURRENT_A  static_cast<float>(0.3f)
 
 // Maximum number of backoff events before the state machine enters Fault.
 // Cumulative DAC reduction at this point = BACKOFF_MAX_COUNT × BACKOFF_DAC_STEP.

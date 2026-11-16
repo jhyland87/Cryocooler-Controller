@@ -25,4 +25,34 @@ inline float decodePowerFactor(uint32_t apparentPowerReg)
   return static_cast<float>(code) / 1024.0f;
 }
 
+/**
+ * Decodes POSANGLE from a register 0x22 word.
+ *
+ * ACS37800 datasheet, Register 0x22: bit 27, 0 = current leading the voltage,
+ * 1 = current lagging.  Taken from zero-crossing timing, so it is only
+ * meaningful for a linear load.
+ *
+ * @param apparentPowerReg Raw 32-bit contents of register 0x22.
+ * @return true when the current lags the voltage (inductive load).
+ */
+inline bool decodeCurrentLagging(uint32_t apparentPowerReg)
+{
+  return (apparentPowerReg & (1UL << 27)) != 0;
+}
+
+/**
+ * Tells whether a register 0x20 word is what an unpowered chip returns.
+ *
+ * With the isolated supply off the isolator's MISO output idles high, so every
+ * read is 0xFFFFFFFF.  A live chip cannot report full-scale VRMS and IRMS at
+ * the same time.
+ *
+ * @param rmsReg Raw 32-bit contents of register 0x20.
+ * @return true when the word is all ones.
+ */
+inline bool isBusIdleWord(uint32_t rmsReg)
+{
+  return rmsReg == 0xFFFFFFFFUL;
+}
+
 } // namespace acs37800

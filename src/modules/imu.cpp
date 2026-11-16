@@ -546,19 +546,14 @@ static void runFft() {
 // Public API
 // ---------------------------------------------------------------------------
 
-module::InitStatus init() {
-    // Restore SPI pins after AD9833 library's begin() may have reset them.
-    SPI.end();
-    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
-
+/**
+ * Find the LSM6DSOX and set its ranges, data rate and FIFO.
+ * @return false when the sensor does not answer.
+ */
+static bool configureSensor() {
     if (!sensor.begin_SPI(sImuDevice.chipSelectId(), &SPI, 0, LSM6DSOX_SPI_FREQUENCY_HZ)) {
-        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS decoder Y" + String(sImuDevice.chipSelectId() - CS_ID_BASE) + ")");
-        sImuAvailable = false;
-        return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
+        return false;
     }
-    _Log.println(F("LSM6DSOX found on SPI — continuing"));
-    sImuAvailable = true;
-
     disableI2cInterface();
 
     sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
@@ -570,6 +565,21 @@ module::InitStatus init() {
     sensor.setFIFOAccelBatchRate(LSM6DS_FIFO_RATE_833_HZ);
     sensor.setFIFOGyroBatchRate(LSM6DS_FIFO_RATE_833_HZ);
     sensor.setFIFOMode(LSM6DS_FIFO_CONTINUOUS);
+    return true;
+}
+
+module::InitStatus init() {
+    // Restore SPI pins after AD9833 library's begin() may have reset them.
+    SPI.end();
+    SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
+
+    if (!configureSensor()) {
+        _Log.println("LSM6DSOX not found on SPI — check the J14 cable (CS decoder Y" + String(sImuDevice.chipSelectId() - CS_ID_BASE) + ")");
+        sImuAvailable = false;
+        return module::InitStatus::MODULE_INIT_SUCCESS;   // non-fatal
+    }
+    _Log.println(F("LSM6DSOX found on SPI — continuing"));
+    sImuAvailable = true;
 
     performCalibration();
     configureTapDetection();
@@ -596,8 +606,46 @@ static void clearReadings() {
     wakeupISR_          = false;
 }
 
+/**
+ * Looks for a missing sensor again, and checks a present one still answers.
+ * A reconnected sensor is set up without the blocking calibration: it keeps
+ * the offsets from the last one (zero if it was absent at boot).
+ * @return true when the sensor is usable this tick.
+ */
+static bool checkPresence() {
+    static uint32_t lastCheckMs  = 0u;
+    static uint8_t  missedChecks = 0u;
+
+    const uint32_t nowMs = millis();
+    if ((nowMs - lastCheckMs) < IMU_PRESENCE_CHECK_INTERVAL_MS) {
+        return sImuAvailable;
+    }
+    lastCheckMs = nowMs;
+
+    const bool answering = lsmReadReg(LSM6DS_WHOAMI) == LSM6DSOX_CHIP_ID;
+    if (sImuAvailable) {
+        missedChecks = answering ? 0u : static_cast<uint8_t>(missedChecks + 1u);
+        if (missedChecks >= IMU_PRESENCE_MISSED_CHECKS) {
+            sImuAvailable = false;
+            missedChecks  = 0u;
+            clearReadings();
+            _Log.println(F("LSM6DSOX stopped responding — check the J14 cable"));
+        }
+        return sImuAvailable;
+    }
+
+    if (!answering || !configureSensor()) {
+        return false;
+    }
+    configureTapDetection();
+    configureWakeupDetection();
+    sImuAvailable = true;
+    _Log.println(F("LSM6DSOX found on SPI — readings resumed (calibration not re-run)"));
+    return true;
+}
+
 module::ServiceStatus service() {
-    if (!sImuAvailable) { return module::MODULE_SERVICE_SKIPPED; }
+    if (!checkPresence()) { return module::MODULE_SERVICE_SKIPPED; }
 
     // Drain all available FIFO samples.
     uint16_t count = sensor.getFIFOCount();
@@ -615,6 +663,12 @@ module::ServiceStatus service() {
             const float az = (static_cast<float>(rz) * ACCEL_SCALE_MPS2) - accelOffsetZ_;
 
             // First-order low-pass filter
+            // First sample after a gap seeds the filter.
+            if (!isfinite(filtAccelX_)) {
+                filtAccelX_ = ax;
+                filtAccelY_ = ay;
+                filtAccelZ_ = az;
+            }
             filtAccelX_ = FILTER_ALPHA * ax + (1.0f - FILTER_ALPHA) * filtAccelX_;
             filtAccelY_ = FILTER_ALPHA * ay + (1.0f - FILTER_ALPHA) * filtAccelY_;
             filtAccelZ_ = FILTER_ALPHA * az + (1.0f - FILTER_ALPHA) * filtAccelZ_;
@@ -755,7 +809,6 @@ bool     isMotionDetected()   { return motionDetected_;  }
 bool     hasOverstroke()      { return overstrokeDetected_;  }
 void     clearOverstroke()    { overstrokeDetected_ = false; }
 uint32_t getOverstrokeCount() { return overstrokeCount_; }
-uint32_t getWakeupCount()     { return wakeupCount_; }
 float getRoll()          { return roll_;            }
 float getPitch()         { return pitch_;           }
 float getYaw()           { return yaw_;             }

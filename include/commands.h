@@ -27,6 +27,8 @@
  *   wifi status          - Print WiFi state, saved settings, signal and last disconnect reason
  *   wifi retry           - Start a new WiFi connection attempt now
  *   wifi txpower \<dBm\>  - Set max WiFi TX power until reboot
+ *   set bemf limit \<V\> - Temporary back-EMF overstroke limit (can only tighten)
+ *   get bemf             - Show the back-EMF estimate and the limit in force
  *   wifi on              - Turn WiFi on until reboot
  *   wifi off             - Turn WiFi off until reboot
  *   wifi onboot <on|off> - Save whether WiFi starts at boot (also true/false/1/0)
@@ -49,7 +51,6 @@
  *   mock current \<A\>     - Set INA239 current
  *   mock voltage \<V\>     - Set INA239 bus voltage
  *   mock stall <0|1>     - Set temperature-stall flag
- *   mock stroke <0|1>    - Set back-EMF overstroke flag
  *   ota status           - Print OTA partition info, firmware version, and upload URL
  *   update image         - Flash new firmware via browser upload (prompts for confirmation)
  *   log level <0-5|off>  - Set runtime log level (0=off, 1=error … 5=verbose)

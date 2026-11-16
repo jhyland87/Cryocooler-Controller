@@ -567,8 +567,8 @@ module::InitStatus init() {
 // service
 // ---------------------------------------------------------------------------
 module::ServiceStatus service() {
-    // UNDERVOLTAGE is an intentional shutdown; the operator must reinit once
-    // system voltage is restored.
+    // UNDERVOLTAGE is an intentional shutdown; the main loop re-initialises
+    // the module once system voltage is restored.
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS) {
         return module::MODULE_SERVICE_NOT_STARTED;
     }

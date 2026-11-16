@@ -221,6 +221,34 @@ float getActivePowerWatts();
  */
 float getPowerFactor();
 
+/**
+ * Estimated motor back-EMF in volts RMS, smoothed (see include/back_emf.h).
+ * NaN when the sensor is unavailable or the current is below
+ * BACK_EMF_MIN_CURRENT_A.
+ */
+float getBackEmfVrms();
+
+/**
+ * True when the electrical overstroke detector has tripped since the last
+ * clearElectricalOverstroke().  The main loop passes it to the state machine
+ * and then clears it.
+ */
+bool hasElectricalOverstroke();
+
+/** Clears the flag returned by hasElectricalOverstroke(). */
+void clearElectricalOverstroke();
+
+/**
+ * Sets a temporary back-EMF limit for testing the trip at a safe drive level.
+ * It can only tighten the check: the lower of this and BACK_EMF_LIMIT_VRMS
+ * applies.  Not stored; a reboot removes it.
+ * @param limitVrms  Test limit in volts RMS; 0 removes it.
+ */
+void setBackEmfTestLimitVrms(float limitVrms);
+
+/** Back-EMF limit in force, volts RMS (0 = the limit check is off). */
+float getBackEmfLimitVrms();
+
 /** Alias for getLastRmsVoltage(). */
 float getOutputRmsVoltage();
 

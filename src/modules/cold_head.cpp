@@ -229,11 +229,31 @@ module::InitStatus initRTD() {
     return module::MODULE_INIT_SUCCESS;
 }
 
+/// Looks again for an ADS1220 that was missing at init, every few seconds.
+static void retryAdcInit() {
+    static uint32_t lastProbeMs = 0;
+    const uint32_t nowMs = tick::nowMs();
+    if (static_cast<uint32_t>(nowMs - lastProbeMs) < COLD_HEAD_ADC_REPROBE_INTERVAL_MS) {
+        return;
+    }
+    lastProbeMs = nowMs;
+    if (!ads1220.init()) {
+        return;
+    }
+    configureAdc();
+    Module::overrideInitStatus(module::MODULE_INIT_SUCCESS);
+    _Log.println(F("ADS1220 found — temperature readings resumed"));
+}
+
 module::ServiceStatus service() {
     // If hardware init failed, don't touch the SPI bus — a missing ADS1220
     // would only return all-zero or all-one frames every tick.
     // V/I (amplifier) and ambient (IMU) come from other modules, so keep them
     // current even when the RTD is unusable.
+    if (Module::getInitStatus() == module::MODULE_INIT_HARDWARE_ERROR
+        && !sensor_mock::isActive() && !sLocalMockEnabled) {
+        retryAdcInit();
+    }
     if (Module::getInitStatus() != module::MODULE_INIT_SUCCESS
         && !sensor_mock::isActive() && !sLocalMockEnabled) {
         sLastRmsVoltageV  = amplifier::getLastRmsVoltage();

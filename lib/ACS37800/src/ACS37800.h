@@ -133,6 +133,7 @@ public:
   void readRMSVoltageAndCurrent()
   {
     uint32_t reg = readReg(0x20);
+    rmsRegisterRaw = reg;
     uint16_t vrms = (uint16_t)reg;
     uint16_t irms = (uint16_t)(reg >> 16);
     rmsVoltageMillivolts = (int32_t)vrms * vcodesMult >> vcodesShift >> 1;
@@ -149,14 +150,15 @@ public:
     reactivePowerMilliwatts = (int32_t)pimag * pinstantMult >> pinstantShift >> 1;
   }
 
-  /// Reads apparent power and returns it in mW. Also updates powerFactor,
-  /// which shares register 0x22.
+  /// Reads apparent power and returns it in mW. Also updates powerFactor and
+  /// currentLagging, which share register 0x22.
   int32_t readApparentPowerMilliwatts()
   {
     uint32_t reg = readReg(0x22);
     uint16_t papparent = (uint16_t)reg;
     apparentPowerMilliwatts = (int32_t)papparent * pinstantMult >> pinstantShift >> 1;
     powerFactor = acs37800::decodePowerFactor(reg);
+    currentLagging = acs37800::decodeCurrentLagging(reg);
     return apparentPowerMilliwatts;
   }
 
@@ -250,12 +252,14 @@ public:
   int32_t instCurrentMilliamps;
   int32_t instPowerMilliwatts;
 
+  uint32_t rmsRegisterRaw = 0;  ///< Last raw register 0x20 word.
   int32_t rmsVoltageMillivolts;
   int32_t rmsCurrentMilliamps;
   int32_t activePowerMilliwatts;
   int32_t reactivePowerMilliwatts;
   int32_t apparentPowerMilliwatts;
   float powerFactor;  ///< -1 to 1; negative when power flows back to the source.
+  bool currentLagging = false;  ///< true when current lags voltage (inductive load).
 
 private:
 
