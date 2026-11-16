@@ -63,6 +63,7 @@ message Amplifier {
   float active_power_w = 4;  // real power, signed
   float power_factor   = 5;  // -1 to 1
   float back_emf_v     = 6;  // estimated motor back-EMF, V RMS
+  float commanded_voltage_v = 7;  // RMS voltage the DAC is commanding
 }
 
 message SystemInfo {

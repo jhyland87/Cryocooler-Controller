@@ -303,6 +303,19 @@ const TILE_GROUPS: TileGroup[] = [
 ];
 ```
 
+When the firmware also reports what it is commanding for that reading, add a
+`target` so the tile shows a "Set …" chip under the measured value. Give the
+target a `progressKey` (a 0-100 field, as the Cold Head tile does with
+`cold_head.cooldown_pct`) to draw a progress bar toward it instead:
+
+```typescript
+{
+  label: 'Fan', key: 'cooling.fan_rpm', unit: 'RPM', dp: 0, color: '#4dd0e1',
+  // scale converts the telemetry value (PWM duty 0-255) to the shown unit.
+  target: { key: 'cooling.fan_speed', unit: '%', dp: 0, scale: 100 / 255 },
+},
+```
+
 ### 7c — Chart component
 
 Pass the history to whichever chart component is appropriate, or create a new

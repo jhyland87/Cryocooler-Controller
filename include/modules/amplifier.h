@@ -173,6 +173,13 @@ void setOutput(float fraction);
 uint16_t getDacCurrent();
 
 /**
+ * RMS output voltage the DAC is commanding right now, in volts: the DAC value
+ * as a fraction of full scale times AMPLIFIER_MAX_VOLTAGE_VAC.  This is the
+ * request, not a measurement; compare it with getLastRmsVoltage().
+ */
+float getCommandedVoltage();
+
+/**
  * Manual vout override — prevents the FSM tick from re-applying its
  * computed cooldown target each cycle.  Call setVoutOverride() with the
  * desired fraction immediately after a manual setOutput() call.

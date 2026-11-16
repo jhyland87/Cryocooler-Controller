@@ -96,7 +96,10 @@ const TILE_GROUPS: TileGroup[] = [
   {
     title: 'Temperature',
     tiles: [
-      { label: 'Cold Head', key: 'cold_head.temp_c',         unit: '°C',     dp: 2, color: '#29b6f6' },
+      {
+        label: 'Cold Head', key: 'cold_head.temp_c', unit: '°C', dp: 2, color: '#29b6f6',
+        target: { key: 'cold_head.target_temp_c', unit: '°C', dp: 1, progressKey: 'cold_head.cooldown_pct' },
+      },
       { label: 'Ambient',   key: 'cold_head.ambient_temp_c', unit: '°C',     dp: 2, color: '#ffa726' },
       { label: 'Cool Rate', key: 'cold_head.cooling_rate',   unit: '°C/min', dp: 3, color: '#80cbc4' },
     ],
@@ -104,7 +107,10 @@ const TILE_GROUPS: TileGroup[] = [
   {
     title: 'Cryocooler',
     tiles: [
-      { label: 'Volts', key: 'cold_head.voltage_v', unit: 'V', dp: 2, color: POWER_COLORS.cryoVolts },
+      {
+        label: 'Volts', key: 'cold_head.voltage_v', unit: 'V', dp: 2, color: POWER_COLORS.cryoVolts,
+        target: { key: 'amplifier.commanded_voltage_v', unit: 'V', dp: 1, zeroMeansNone: true },
+      },
       { label: 'Amps',  key: 'cold_head.current_a', unit: 'A', dp: 3, color: POWER_COLORS.cryoAmps },
       { label: 'Watts', key: 'amplifier.active_power_w', unit: 'W',  dp: 2, color: POWER_COLORS.cryoWatts },
       { label: 'VA',    key: 'amplifier.power_w',        unit: 'VA', dp: 2, color: POWER_COLORS.cryoVoltAmps },
@@ -118,7 +124,15 @@ const TILE_GROUPS: TileGroup[] = [
       { label: 'Volts',     key: 'system.voltage_v',  unit: 'V', dp: 2, color: POWER_COLORS.systemVolts },
       { label: 'Amps',      key: 'system.current_a',  unit: 'A', dp: 3, color: POWER_COLORS.systemAmps },
       { label: 'Watts',     key: 'system.power_w',    unit: 'W', dp: 3, color: POWER_COLORS.systemWatts },
-      { label: 'Fan Speed', key: 'cooling.fan_speed', unit: '%', dp: 0, color: '#4dd0e1' },
+      {
+        // fan_speed is the commanded PWM duty, 0-255.
+        label: 'Fan', key: 'cooling.fan_rpm', unit: 'RPM', dp: 0, color: '#4dd0e1',
+        target: { key: 'cooling.fan_speed', unit: '%', dp: 0, scale: 100 / 255 },
+      },
+      {
+        label: 'Pump', key: 'cooling.pump_rpm', unit: 'RPM', dp: 0, color: '#4db6ac',
+        target: { key: 'cooling.pump_speed', unit: '%', dp: 0 },
+      },
     ],
   },
 ];

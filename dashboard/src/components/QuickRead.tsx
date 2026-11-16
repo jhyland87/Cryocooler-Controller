@@ -6,7 +6,7 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import type { QuickReadProps, TileConfig } from '../types/components';
+import type { QuickReadProps, TileConfig, TileTarget } from '../types/components';
 import type { DataPoint, TelemetryData } from '../types/telemetry';
 import { getField } from '../types/telemetry';
 import * as sx from '../theme/styles';
@@ -78,6 +78,52 @@ interface TileProps {
   loading?: boolean;
 }
 
+/** A finite number from a telemetry field, or null. */
+function finiteField(data: TelemetryData, key: string): number | null {
+  const value = getField(data, key);
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+interface TileTargetProps {
+  target: TileTarget;
+  data: TelemetryData;
+  color: string;
+}
+
+/**
+ * What the firmware is commanding for a tile: a progress bar toward the target
+ * when the tile has a progress field, otherwise a "Set …" chip. Nothing at all
+ * while there is no target.
+ */
+function TileTargetView({ target, data, color }: TileTargetProps) {
+  const value = finiteField(data, target.key);
+  if (value === null || (target.zeroMeansNone && value === 0)) return null;
+
+  const text = `${(value * (target.scale ?? 1)).toFixed(target.dp)} ${target.unit}`;
+  const progress = target.progressKey === undefined ? null : finiteField(data, target.progressKey);
+
+  if (progress === null) {
+    return (
+      <Box>
+        <Box component="span" sx={sx.tileTargetChip}>Set {text}</Box>
+      </Box>
+    );
+  }
+
+  const percent = Math.min(100, Math.max(0, progress));
+  return (
+    <Box sx={sx.tileProgress}>
+      <Box sx={sx.tileProgressTrack}>
+        <Box sx={sx.tileProgressFill(color, percent)} />
+      </Box>
+      <Box sx={sx.tileProgressLabels}>
+        <span>{percent.toFixed(0)} %</span>
+        <span>Target {text}</span>
+      </Box>
+    </Box>
+  );
+}
+
 /** One value tile; a dash when the field has no reading. */
 function Tile({ tile, data, points, windowMs, loading }: TileProps) {
   if (loading) {
@@ -98,6 +144,7 @@ function Tile({ tile, data, points, windowMs, loading }: TileProps) {
         {typeof value === 'number' ? value.toFixed(tile.dp) : '—'}
       </Typography>
       <Typography variant="caption" sx={sx.tileUnit}>{tile.unit}</Typography>
+      {tile.target && <TileTargetView target={tile.target} data={data} color={tile.color} />}
       <Typography variant="caption" sx={sx.tileLabel}>{tile.label}</Typography>
     </Box>
   );

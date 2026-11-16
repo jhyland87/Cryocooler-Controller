@@ -89,6 +89,7 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
       active_power_w: f.amplifier.activePowerW ?? undefined,
       power_factor:   f.amplifier.powerFactor  ?? undefined,
       back_emf_v:     f.amplifier.backEmfV     ?? undefined,
+      commanded_voltage_v: f.amplifier.commandedVoltageV ?? undefined,
     };
   }
 

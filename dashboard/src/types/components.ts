@@ -5,12 +5,27 @@ import type { ConnectionStatus } from './hooks';
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 
+/** The commanded value a tile shows under its reading. */
+export interface TileTarget {
+  key:  string;
+  unit: string;
+  dp:   number;
+  /** Multiplier from the telemetry value to the shown one; default 1. */
+  scale?: number;
+  /** Field holding progress toward the target, 0-100; draws a bar when set. */
+  progressKey?: string;
+  /** Treat a value of 0 as "no target" (an output that is simply off). */
+  zeroMeansNone?: boolean;
+}
+
 export interface TileConfig {
   label: string;
   key:   string;
   unit:  string;
   dp:    number;
   color: string;
+  /** Commanded value ("Set …") shown with the reading, when the tile has one. */
+  target?: TileTarget;
 }
 
 /** A titled set of Quick Read tiles. */
