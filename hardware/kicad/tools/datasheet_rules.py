@@ -26,6 +26,9 @@ from verify_netlist import load
 # ('fetdrive', value, pin, ohms, net)  pin is the drain of a BSS138 (or one
 # BSS138DW element) with source on GND and its gate through `ohms` to `net`
 # ('nores', value, pin, rail)          no resistor joins the pin's net to rail
+# ('each', value, pin, ohms, rail)     as 'res', for every part of that value
+# ('eachjoin', value, pin, ohms, pin2) every part of that value has the resistor
+# between its own two pins
 # ('caps', net, value, count, net2)   at least `count` capacitors of that value
 # sit between net and net2
 # N-FETs the open-drain rules accept: (value, gate, source, drain) per element.
@@ -53,6 +56,14 @@ def element_pins(ref):
     return [('1', '2')]
 
 
+# universal I/O: the per-channel net of each signal, any channel
+IO_NETS = {
+    name: tuple(f'IO{n}_{name}' for n in range(1, 5))
+    for name in ('PIN', 'DAC', 'GATE', 'OUT_EN', 'AMP_FLT_N', 'DIV', 'DIRECT', 'PULLUP',
+                 'BURDEN', 'SENS_EN', 'SENS_FLT_N', 'BUF_OE_N', 'LOGIC', 'BUF', 'LEVEL',
+                 'DRV')
+}
+
 RULES = [
     # 4-pin fans (Intel 4-wire spec): PWM open drain through a BSS138 with the
     # gate pulled to +3V3 (0% drive at reset), tach open collector with a
@@ -77,47 +88,38 @@ RULES = [
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '17', '10k', '+3V3'),
     ('res', 'ESP32-S3-WROOM-2-N32R16V', '22', '10k', '+3V3'),
     # ECS-2520MV (ECS datasheet): 1 tri-state (high = enabled), 2 GND, 3 OUT, 4 VDD
-    ('net', 'ECS-2520MV-160-BN-TR', '4', '+3V3_SG'),
-    ('net', 'ECS-2520MV-160-BN-TR', '1', '+3V3_SG'),
-    ('net', 'ECS-2520MV-160-BN-TR', '2', 'GND'),
+    ('net', 'ECS-2520MV-160-BN-TR', '4', ('+3V3_SG', '+3V3')),
+    ('net', 'ECS-2520MV-160-BN-TR', '1', ('+3V3_SG', '+3V3')),
+    ('net', 'ECS-2520MV-160-BN-TR', '2', ('GND',)),
     # AD9837 (ADI rev A): 16 MHz MCLK max (B grade), so the 16 MHz oscillator
     ('join', 'ECS-2520MV-160-BN-TR', '3', 'AD9837BCPZ', '5'),
-    # LT3097: both regulators from the ADP5071 rails, enables tied to their
-    # inputs, VOUT = 100 uA x RSET (147k = 14.7 V, the +15 V side is limited
-    # to 15 V), pad 23 = GND and pad 24 = INN, ILIM pins grounded
-    ('net', 'LT3097ADJC', '1', '+16V5'),
-    ('net', 'LT3097ADJC', '2', '+16V5'),
-    ('same', 'LT3097ADJC', '3', '1'),
-    ('net', 'LT3097ADJC', '6', '-16V5'),
-    ('net', 'LT3097ADJC', '7', '-16V5'),
-    ('net', 'LT3097ADJC', '24', '-16V5'),
-    ('same', 'LT3097ADJC', '8', '6'),
-    ('net', 'LT3097ADJC', '21', '+15V'),
-    ('net', 'LT3097ADJC', '22', '+15V'),
-    ('same', 'LT3097ADJC', '20', '21'),
-    ('net', 'LT3097ADJC', '15', '-15V'),
-    ('net', 'LT3097ADJC', '16', '-15V'),
-    ('same', 'LT3097ADJC', '14', '15'),
-    ('net', 'LT3097ADJC', '13', 'GND'),
-    ('net', 'LT3097ADJC', '19', 'GND'),
-    ('net', 'LT3097ADJC', '23', 'GND'),
-    ('net', 'LT3097ADJC', '5', 'GND'),
-    ('net', 'LT3097ADJC', '11', 'GND'),
-    ('res', 'LT3097ADJC', '18', '147k', 'GND'),
-    ('res', 'LT3097ADJC', '12', '147k', 'GND'),
+    # LT3045 (ADI rev D, MSE): 1-3 IN, 4 EN/UV, 5 PG, 6 ILIM, 7 PGFB, 8 SET, 9 GND,
+    # 10 OUTS, 11-12 OUT, pad 13 GND. LT3094 (DD): 1-2 IN, 3 EN/UV, 4 PG, 5 PGFB,
+    # 6 ILIM, 7 VIOC (float), 8 SET, 9 GND, 10 OUTS, 11-12 OUT, pad 13 IN.
+    # Both: EN/UV to IN, ILIM to GND when unused, VOUT = 100 uA x RSET (147k = 14.7 V;
+    # the LT3045 stops at 15 V), inputs within +-20 V
+    *(('net', 'LT3045HMSE', pin, '+16V5') for pin in ('1', '2', '3', '4')),
+    *(('net', 'LT3045HMSE', pin, '+15V') for pin in ('11', '12', '10')),
+    *(('net', 'LT3045HMSE', pin, 'GND') for pin in ('9', '13', '6')),
+    ('res', 'LT3045HMSE', '8', '147k', 'GND'),
+    *(('net', 'LT3094HDD', pin, '-16V5') for pin in ('1', '2', '13', '3')),
+    *(('net', 'LT3094HDD', pin, '-15V') for pin in ('11', '12', '10')),
+    *(('net', 'LT3094HDD', pin, 'GND') for pin in ('9', '6')),
+    ('nc', 'LT3094HDD', '7'),
+    ('res', 'LT3094HDD', '8', '147k', 'GND'),
     # power-good thresholds: 0.3 V x (1 + 432k / 10k) = 13.3 V
-    ('res', 'LT3097ADJC', '17', '432k', '+15V'),
-    ('res', 'LT3097ADJC', '17', '10k', 'GND'),
-    ('res', 'LT3097ADJC', '10', '432k', '-15V'),
-    ('res', 'LT3097ADJC', '10', '10k', 'GND'),
-    # PGP and PGN each pull their own node low; each node is fed from +15 V so
-    # it reads 0 V when its rail is missing (the two are ANDed into PG_15V)
-    ('net', 'LT3097ADJC', '4', 'PGP_15V'),
-    ('net', 'LT3097ADJC', '9', 'PGN_15V'),
-    ('res', 'LT3097ADJC', '4', '220k', '+15V'),
-    ('res', 'LT3097ADJC', '4', '62k', 'GND'),
-    ('res', 'LT3097ADJC', '9', '220k', '+15V'),
-    ('res', 'LT3097ADJC', '9', '62k', 'GND'),
+    ('res', 'LT3045HMSE', '7', '432k', '+15V'),
+    ('res', 'LT3045HMSE', '7', '10k', 'GND'),
+    ('res', 'LT3094HDD', '5', '432k', '-15V'),
+    ('res', 'LT3094HDD', '5', '10k', 'GND'),
+    # each PG pin pulls its own node low; each node is fed from +15 V so it reads
+    # 0 V when its rail is missing (the two are ANDed into PG_15V)
+    ('net', 'LT3045HMSE', '5', 'PGP_15V'),
+    ('net', 'LT3094HDD', '4', 'PGN_15V'),
+    ('res', 'LT3045HMSE', '5', '220k', '+15V'),
+    ('res', 'LT3045HMSE', '5', '62k', 'GND'),
+    ('res', 'LT3094HDD', '4', '220k', '+15V'),
+    ('res', 'LT3094HDD', '4', '62k', 'GND'),
     # ADP5071 LFCSP (datasheet pin table, Fig. 47, Tables 9-11): inputs and enables
     # on 5 V, SEQ on VREG starts both channels together, SYNC/FREQ low = 1.2 MHz,
     # SLEW on AGND = slowest edges, SS open
@@ -185,54 +187,47 @@ RULES = [
     ('net', 'RTD PT1000 4-wire', '2', 'RTD_2'),
     ('net', 'RTD PT1000 4-wire', '3', 'RTD_3'),
     ('net', 'RTD PT1000 4-wire', '4', 'RTD_4'),
-    # TPD1E05U06 (TI SLVSBO5): 1 IO, 2 GND; one on the power button line, one at
-    # each general-purpose header
+    # TPD1E05U06 (TI SLVSBO5): 1 IO, 2 GND; on the power button and display lines
     ('net', 'TPD1E05U06DPYR', '2', ('GND',)),
     ('net', 'TPD1E05U06DPYR', '1',
-     ('PWR_BTN', 'IO5_HDR', 'IO7_HDR', 'IO11_HDR', 'IO13_HDR', 'ESP_EN',
-      'DISP_PWR_BTN', 'DISP_RESET')),
+     ('PWR_BTN', 'ESP_EN', 'DISP_PWR_BTN', 'DISP_RESET')),
     ('net', 'LTC2954CDDB-2', '3', 'PWR_BTN'),
     # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
     ('net', 'EN SG3', '1', '+3V3'),
     ('net', 'EN SG3', '2', '+3V3_SG'),
     ('net', 'EN PS15', '1', '+5V'),
     ('net', 'EN PS15', '2', '+5V_PS15'),
-    ('net', 'EN ISO5', '1', '+5V_OR'),
-    ('net', 'EN ISO5', '2', '+5V_ISO'),
+    ('net', 'EN ISO3', '1', '+3V3'),
+    ('net', 'EN ISO3', '2', '+3V3_ISO'),
     ('net', 'EN COOL', '1', '+3V3'),
     ('net', 'EN COOL', '2', '+3V3_COOL'),
     # the cold head feed has a ferrite ahead of its jumper
     ('between', 'BLM18PG121SN1D', ('NET', '+3V3'), ('EN CH', '1')),
     ('net', 'EN CH', '2', '+3V3_CH'),
-    # ISOW7741 (TI SLLSEZ3, DFM): VSEL on VISOOUT = 5 V, EN_IO2 on the isolated side,
-    # beads from VISOOUT to VISOIN and GND2 to GISOIN, EN/FLT pulled up (fault use
-    # needs at least 5 k), no F suffix = outputs default high when an input is lost
-    ('net', 'ISOW7741DFMR', '1', '+3V3'),
-    ('net', 'ISOW7741DFMR', '7', '+3V3'),
-    ('net', 'ISOW7741DFMR', '9', '+5V_ISO'),
-    ('net', 'ISOW7741DFMR', '6', 'GND'),
-    ('net', 'ISOW7741DFMR', '10', 'GND'),
-    ('res', 'ISOW7741DFMR', '8', '10k', '+3V3'),
-    ('net', 'ISOW7741DFMR', '12', 'VISOOUT'),
-    ('net', 'ISOW7741DFMR', '13', 'VISOOUT'),
-    ('net', 'ISOW7741DFMR', '20', 'ISO_5V'),
-    ('net', 'ISOW7741DFMR', '14', 'ISO_5V'),
-    ('net', 'ISOW7741DFMR', '15', 'ISO_GND'),
-    ('net', 'ISOW7741DFMR', '11', 'ISO_GND2'),
-    ('between', 'BLM15EX331SN1D', ('NET', 'VISOOUT'), ('NET', 'ISO_5V')),
-    ('between', 'BLM15EX331SN1D', ('NET', 'ISO_GND'), ('NET', 'ISO_GND2')),
+    # ISOW7841A-Q1 (TI SLLSFG1B, DWE): 1 VCC, 2 and 8 GND1, 3-5 INA-INC, 6 OUTD, 7 NC,
+    # 9 and 15 GND2, 10 SEL, 11 IND, 12-14 OUTC-OUTA, 16 VISO. VIH = 0.7 x VCC, so VCC
+    # is 3.3 V like the logic that drives it; SEL on VISO = 5 V out, 40 mA from 3.3 V.
+    # No F suffix = outputs default high when an input is lost
+    ('net', 'ISOW7841AQDWERQ1', '1', '+3V3_ISO'),
+    ('net', 'ISOW7841AQDWERQ1', '2', 'GND'),
+    ('net', 'ISOW7841AQDWERQ1', '8', 'GND'),
+    ('net', 'ISOW7841AQDWERQ1', '16', 'ISO_5V'),
+    ('net', 'ISOW7841AQDWERQ1', '10', 'ISO_5V'),
+    ('net', 'ISOW7841AQDWERQ1', '9', 'ISO_GND'),
+    ('net', 'ISOW7841AQDWERQ1', '15', 'ISO_GND'),
+    ('nc', 'ISOW7841AQDWERQ1', '7'),
     # rev 4: the ACS37800 shares the SPI bus. Its datasheet says MISO stays driven
     # with CS high and is silent on SCLK with CS high, so SN74LVC1G125 gates (TI
     # SCES223, DRY: 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC; off while OE is high) pass
     # SCK in and MISO out only while ACS_CS is low
-    ('net', 'ISOW7741DFMR', '2', 'SPI_MOSI'),
-    ('net', 'ISOW7741DFMR', '3', 'ACS_SCK'),
-    ('net', 'ISOW7741DFMR', '4', 'ACS_CS'),
-    ('net', 'ISOW7741DFMR', '5', 'ACS_MISO'),
-    ('res', 'ISOW7741DFMR', '3', '10k', '+3V3'),
-    ('net', 'SN74LVC1G125DRYR', '1', ('ACS_CS',)),
-    ('net', 'SN74LVC1G125DRYR', '2', ('SPI_SCK', 'ACS_MISO')),
-    ('net', 'SN74LVC1G125DRYR', '4', ('ACS_SCK', 'SPI_MISO')),
+    ('net', 'ISOW7841AQDWERQ1', '3', 'SPI_MOSI'),
+    ('net', 'ISOW7841AQDWERQ1', '4', 'ACS_SCK'),
+    ('net', 'ISOW7841AQDWERQ1', '5', 'ACS_CS'),
+    ('net', 'ISOW7841AQDWERQ1', '6', 'ACS_MISO'),
+    ('res', 'ISOW7841AQDWERQ1', '4', '10k', '+3V3'),
+    ('net', 'SN74LVC1G125DRYR', '1', ('ACS_CS', 'EXP_CS_A', 'EXP_CS_B', *IO_NETS['BUF_OE_N'])),
+    ('net', 'SN74LVC1G125DRYR', '2', ('SPI_SCK', 'ACS_MISO', 'EXP_MISO', *IO_NETS['LOGIC'])),
+    ('net', 'SN74LVC1G125DRYR', '4', ('ACS_SCK', 'SPI_MISO', *IO_NETS['BUF'])),
     ('net', 'SN74LVC1G125DRYR', '3', ('GND',)),
     ('net', 'SN74LVC1G125DRYR', '6', ('+3V3',)),
     ('nc', 'SN74LVC1G125DRYR', '5'),
@@ -241,10 +236,10 @@ RULES = [
     ('net', 'ACS37800KMACTR-015B5-SPI', '14', 'ISO_GND'),
     ('net', 'ACS37800KMACTR-015B5-SPI', '15', 'ISO_GND'),
     # isolated SPI: OUTA/OUTB/OUTC carry MOSI/SCK/CS forward, IND returns MISO
-    ('join', 'ISOW7741DFMR', '19', 'ACS37800KMACTR-015B5-SPI', '10'),
-    ('join', 'ISOW7741DFMR', '18', 'ACS37800KMACTR-015B5-SPI', '11'),
-    ('join', 'ISOW7741DFMR', '17', 'ACS37800KMACTR-015B5-SPI', '9'),
-    ('join', 'ISOW7741DFMR', '16', 'ACS37800KMACTR-015B5-SPI', '12'),
+    ('join', 'ISOW7841AQDWERQ1', '14', 'ACS37800KMACTR-015B5-SPI', '10'),
+    ('join', 'ISOW7841AQDWERQ1', '13', 'ACS37800KMACTR-015B5-SPI', '11'),
+    ('join', 'ISOW7841AQDWERQ1', '12', 'ACS37800KMACTR-015B5-SPI', '9'),
+    ('join', 'ISOW7841AQDWERQ1', '11', 'ACS37800KMACTR-015B5-SPI', '12'),
     # AD5453 (ADI, CP-8-3): 1 IOUT1, 2 GND, 3 SCLK, 4 SDIN, 5 SYNC, 6 VDD, 7 VREF,
     # 8 RFB, 9 exposed pad. U5B (OPA2991) is its output stage; VREF is clamped because
     # the datasheet limits it to +/-12 V while U5A swings further
@@ -276,9 +271,20 @@ RULES = [
     ('net', 'INA239AIDGSR', '6', '+3V3'),
     ('net', 'INA239AIDGSR', '7', 'GND'),
     # VBUS shares the filtered IN- node (adjacent pins, 0.6 mV drop)
-    ('join', 'INA239AIDGSR', '8', 'INA239AIDGSR', '9'),
-    ('between', '49.9', ('INA239AIDGSR', '10'), ('NET', 'VSW')),
-    ('between', '49.9', ('INA239AIDGSR', '9'), ('NET', '+12V')),
+    # 4-terminal shunt (Vishay WSK2512, doc 30108): 4 and 1 carry the current, 3 and 2 are the
+    # sense pads at the same two ends. The filter starts on the sense pads only, and
+    # VBUS sits on the rail, not on the filtered IN- node (hardware/TODO.md, rev 5)
+    # 12 V input: Mini-Fit Jr 2 x 2 pinned as the ATX 12 V connector (1, 2 ground;
+    # 3, 4 +12 V) into a 10 A fuse (Littelfuse 453 series, same land as the 5 A)
+    ('net', '12V IN (ATX 4-PIN)', '1', 'GND'),
+    ('net', '12V IN (ATX 4-PIN)', '2', 'GND'),
+    ('same', '12V IN (ATX 4-PIN)', '3', '4'),
+    ('between', '10A backup', ('12V IN (ATX 4-PIN)', '3'), ('NET', 'VIN')),
+    ('net', '10m', '4', 'VSW'),
+    ('net', '10m', '1', '+12V'),
+    ('net', 'INA239AIDGSR', '8', '+12V'),
+    ('between', '49.9', ('INA239AIDGSR', '10'), ('10m', '3')),
+    ('between', '49.9', ('INA239AIDGSR', '9'), ('10m', '2')),
     ('between', '470nF', ('INA239AIDGSR', '10'), ('INA239AIDGSR', '9')),
     ('net', 'INA239AIDGSR', '1', 'INA239_CS'),
     ('net', 'INA239AIDGSR', '2', 'SPI_MOSI'),
@@ -319,11 +325,11 @@ RULES = [
     ('net', 'MCP23S08-E/ML', '4', '+3V3'),
     ('net', 'MCP23S08-E/ML', '9', 'PGP_15V'),
     ('net', 'MCP23S08-E/ML', '10', 'PGN_15V'),
-    ('nc', 'MCP23S08-E/ML', '13'),
+    ('net', 'MCP23S08-E/ML', '13', 'IO_EXP_INT_N'),
     ('net', 'MCP23S08-E/ML', '15', 'INA239_ALERT'),
     ('nc', 'MCP23S08-E/ML', '16'),
-    ('nc', 'MCP23S08-E/ML', '14'),
-    # -15 V guard: an unpowered LT3097 cannot pull PGN low, so the midpoint of two
+    ('net', 'MCP23S08-E/ML', '14', 'IO_ADC_DRDY_N'),
+    # -15 V guard: an unpowered LT3094 cannot pull PGN low, so the midpoint of two
     # 470k between the rails turns this FET on when -15 V is missing
     ('net', 'BSS138W', '3', 'PGN_15V'),
     ('net', 'BSS138W', '2', 'GND'),
@@ -449,11 +455,16 @@ RULES = [
     ('net', '74HC154BQ', '2', 'AD5453_SYNC'),
     ('net', '74HC154BQ', '3', 'INA239_CS'),
     ('net', '74HC154BQ', '4', 'EXPANDER_CS'),
-    ('nc', '74HC154BQ', '5'),
+    ('net', '74HC154BQ', '5', 'IO_DAC_CS'),
     ('net', '74HC154BQ', '6', 'ACS_CS'),
     ('net', '74HC154BQ', '7', 'ADS1220_CS'),
     ('net', '74HC154BQ', '8', 'IMU_CS'),
     ('net', '74HC154BQ', '9', 'AMBIENT_CS'),
+    ('net', '74HC154BQ', '10', 'IO_ADC_CS'),
+    ('net', '74HC154BQ', '11', 'IO_EXP_CS'),
+    ('net', '74HC154BQ', '13', 'RS485_CS'),
+    ('net', '74HC154BQ', '14', 'EXP_CS_A'),
+    ('net', '74HC154BQ', '15', 'EXP_CS_B'),
     # address bit D: GPIO47 is 1.8 V, so 74LV1T34GX lifts it (VIH 1.37 V at 3.3 V)
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '24', 'CS_ADDR_D_1V8'),
     # ADT7320 (Analog Devices rev 0, CP-16-17): 1 SCLK, 2 DOUT, 3 DIN, 4 CS, 9 INT, 10 CT,
@@ -476,44 +487,202 @@ RULES = [
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '36', 'CS_ADDR_B'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '26', 'CS_ADDR_C'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '39', 'PWR_INT'),
-    # general-purpose I/O (rev 4): GPIO5, 7, 11, 12, 13 on module pins 5, 7, 19, 20,
-    # 21, each with a 100k / 100k divider to GND (the LED driver's input) and 100 R to
-    # its header; clamps on the header side
+    # ── universal I/O (rev 5) ──
+    # fast channels 1-4 keep GPIO5, 7, 11 and 13 (module pins 5, 7, 19, 21)
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '5', 'AUX_IO5'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '7', 'AUX_IO7'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '19', 'AUX_IO11'),
-    ('net', 'ESP32-S3-WROOM-2-N32R16V', '21', 'AUX_IO13'),
-    ('between', '100k', ('NET', 'AUX_IO5'), ('NET', 'IO5_SENSE')),
-    ('between', '100k', ('NET', 'AUX_IO7'), ('NET', 'IO7_SENSE')),
-    ('between', '100k', ('NET', 'AUX_IO11'), ('NET', 'IO11_SENSE')),
-    ('between', '100k', ('NET', 'AUX_IO13'), ('NET', 'IO13_SENSE')),
-    ('between', '100k', ('NET', 'IO5_SENSE'), ('NET', 'GND')),
-    ('between', '100k', ('NET', 'IO7_SENSE'), ('NET', 'GND')),
-    ('between', '100k', ('NET', 'IO11_SENSE'), ('NET', 'GND')),
-    ('between', '100k', ('NET', 'IO13_SENSE'), ('NET', 'GND')),
-    ('between', '100', ('IO5 / GND', '1'), ('NET', 'AUX_IO5')),
-    ('between', '100', ('IO7 / GND', '1'), ('NET', 'AUX_IO7')),
-    ('between', '100', ('IO11 / GND', '1'), ('NET', 'AUX_IO11')),
-    ('between', '100', ('IO13 / GND', '1'), ('NET', 'AUX_IO13')),
-    ('net', 'IO5 / GND', '2', 'GND'),
-    ('net', 'IO7 / GND', '2', 'GND'),
-    ('net', 'IO11 / GND', '2', 'GND'),
-    ('net', 'IO13 / GND', '2', 'GND'),
-    # OPA4990 (TI SBOS933, RUC): IN+ 2 / 4 / 9 / 11, V+ 3, V- 10; 2.7-40 V. Inputs are
-    # diode-clamped to the rails (10 mA max), so the supply is +5V_OR, which is up
-    # whenever +3V3 is (also on USB alone), and each input sits behind the divider's
-    # 100k. Half the pin voltage plus the green die's VF stays under 5 V. Spare
-    # sections are followers on the supply pin beside them (VCM reaches both rails)
-    ('net', 'OPA4990IRUCR', '3', ('+5V_OR',)),
-    ('net', 'OPA4990IRUCR', '10', ('GND',)),
-    ('net', 'OPA4990IRUCR', '2', ('IO7_SENSE', '+5V_OR')),
-    ('net', 'OPA4990IRUCR', '4', ('IO13_SENSE', '+5V_OR')),
-    ('net', 'OPA4990IRUCR', '9', ('IO11_SENSE', 'GND')),
-    ('net', 'OPA4990IRUCR', '11', ('GND', 'IO5_SENSE')),
-    ('resjoin', 'IO5 G=active', '2', '3.3k', 'IO5 / GND', '2'),
-    ('resjoin', 'IO7 G=active', '2', '3.3k', 'IO7 / GND', '2'),
-    ('resjoin', 'IO11 G=active', '2', '3.3k', 'IO11 / GND', '2'),
-    ('resjoin', 'IO13 G=active', '2', '3.3k', 'IO13 / GND', '2'),
+    # GPIO11 and GPIO13 are spare on rev 5 (the fast pins of the removed channels)
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '19'),
+    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '21'),
+    # Output drivers: TSB582 (ST DS13378 rev 2, DFN8): 1 Out1, 2 In1-, 3 In1+, 4 VCC-,
+    # 5 In2+, 6 In2-, 7 Out2, 8 VCC+, pad floating or VCC-. 4-36 V, inputs from VCC- to
+    # VCC+ - 1.5 V (0-2.5 V is inside), 150 mA min output. Gain 1 + 191k / 49.9k = 4.83,
+    # feedback ahead of the switch
+    ('net', 'TSB582IQ2T', '8', ('+12V',)),
+    ('net', 'TSB582IQ2T', '4', ('GND',)),
+    ('net', 'TSB582IQ2T', '9', ('GND',)),
+    *(('net', 'TSB582IQ2T', pin, (*IO_NETS['LEVEL'][:2], *IO_NETS['DAC'][2:]))
+      for pin in ('3', '5')),
+    *(('net', 'TSB582IQ2T', pin, IO_NETS['DRV']) for pin in ('1', '7')),
+    *(('each', 'TSB582IQ2T', pin, '49.9k', 'GND') for pin in ('2', '6')),
+    *(('eachjoin', 'TSB582IQ2T', minus, '191k', out) for minus, out in (('2', '1'), ('6', '7'))),
+    ('caps', '+12V', '100nF', 4, 'GND'),
+    # SN74LVC1G3157 (TI SCES424O, DSF): 1 B2, 2 GND, 3 B1, 4 A, 5 VCC, 6 S; A to B1
+    # while S is low. B1 on GND, so the driver input is 0 V while the GPIO floats
+    ('net', 'SN74LVC1G3157DSFR', '5', ('+3V3',)),
+    ('net', 'SN74LVC1G3157DSFR', '2', ('GND',)),
+    ('net', 'SN74LVC1G3157DSFR', '3', ('GND',)),
+    ('net', 'SN74LVC1G3157DSFR', '1', IO_NETS['DAC']),
+    ('net', 'SN74LVC1G3157DSFR', '4', IO_NETS['LEVEL']),
+    ('net', 'SN74LVC1G3157DSFR', '6', IO_NETS['GATE']),
+    ('each', 'SN74LVC1G3157DSFR', '6', '100k', 'GND'),
+    # fast channels: pin -> 1 M -> buffer input (clamped to +3V3) -> 1 k -> GPIO; the
+    # buffer enable is pulled high (off) and the GPIO reaches the gate through 1 k
+    *(('between', '1M', ('NET', f'IO{n}_PIN'), ('NET', f'IO{n}_LOGIC')) for n in range(1, 3)),
+    *(('between', '1N4148W', ('NET', f'IO{n}_LOGIC'), ('NET', '+3V3')) for n in range(1, 3)),
+    *(('between', '10k', ('NET', f'IO{n}_BUF_OE_N'), ('NET', '+3V3')) for n in range(1, 3)),
+    *(('between', '1k', ('NET', f'IO{n}_BUF'), ('NET', f'AUX_IO{gpio}'))
+      for n, gpio in ((1, 5), (2, 7))),
+    *(('between', '1k', ('NET', f'IO{n}_GATE'), ('NET', f'AUX_IO{gpio}'))
+      for n, gpio in ((1, 5), (2, 7))),
+    # ── RS-485 port ──
+    # SC16IS750 (NXP rev 7.1, HVQFN24): 1 RESET, 2 XTAL1, 4 VDD, 5 I2C/SPI (low = SPI),
+    # 6 CS, 7 SI, 8 SO, 9 SCLK, 10 VSS in SPI mode, 11 IRQ (open drain, 1 k pull-up at
+    # 3.3 V), 16 VSS, 21 RTS, 22 CTS, 23 TX, 24 RX
+    ('net', 'SC16IS750IBS', '4', '+3V3'),
+    *(('net', 'SC16IS750IBS', pin, 'GND') for pin in ('5', '10', '16', '25', '22')),
+    ('net', 'SC16IS750IBS', '6', 'RS485_CS'),
+    ('net', 'SC16IS750IBS', '9', 'SPI_SCK'),
+    ('net', 'SC16IS750IBS', '7', 'SPI_MOSI'),
+    ('net', 'SC16IS750IBS', '8', 'SPI_MISO'),
+    ('net', 'SC16IS750IBS', '1', 'ESP_EN'),
+    ('net', 'SC16IS750IBS', '11', 'RS485_IRQ_N'),
+    ('res', 'SC16IS750IBS', '11', '1k', '+3V3'),
+    # clocked by a second ECS-2520MV-160 (16 MHz); its supply pins are covered by the
+    # oscillator rules above, and UART_CLK having two nodes by the single-node check
+    ('net', 'SC16IS750IBS', '2', 'UART_CLK'),
+    ('nc', 'SC16IS750IBS', '3'),
+    # THVD2410 (TI SLLSF20B, DRB): 1 R, 2 /RE, 3 DE, 4 D, 5 GND, 6 A, 7 B, 8 VCC
+    ('net', 'THVD2410DRBR', '8', '+3V3'),
+    ('net', 'THVD2410DRBR', '5', 'GND'),
+    ('net', 'THVD2410DRBR', '9', 'GND'),
+    ('join', 'THVD2410DRBR', '1', 'SC16IS750IBS', '24'),
+    ('join', 'THVD2410DRBR', '4', 'SC16IS750IBS', '23'),
+    ('same', 'THVD2410DRBR', '3', '2'),
+    ('res', 'THVD2410DRBR', '3', '10k', '+3V3'),
+    ('res', 'THVD2410DRBR', '1', '10k', '+3V3'),
+    ('join', 'THVD2410DRBR', '6', 'RS-485 (A / B / GND / NC)', '1'),
+    ('join', 'THVD2410DRBR', '7', 'RS-485 (A / B / GND / NC)', '2'),
+    ('net', 'RS-485 (A / B / GND / NC)', '3', 'GND'),
+    # XKB makes no 3-pin X2510WRS: the 3-wire ports use the 4-pin part, pin 4 unused
+    ('nc', 'RS-485 (A / B / GND / NC)', '4'),
+    *(('nc', f'PRESSURE {n} (5V / SIG / GND / NC)', '4') for n in (1, 2)),
+    *(('nc', f'IO{n} (V+ / IO / GND / NC)', '4') for n in range(1, 5)),
+    # SPI expansion header: MISO reaches the bus only through the two CS-gated buffers
+    ('net', 'SPI EXPANSION', '1', '+3V3'),
+    ('net', 'SPI EXPANSION', '2', '+5V'),
+    ('net', 'SPI EXPANSION', '9', 'GND'),
+    ('net', 'SPI EXPANSION', '10', 'GND'),
+    ('net', 'SPI EXPANSION', '5', 'EXP_MISO'),
+    ('net', 'SPI EXPANSION', '6', 'EXP_INT_N'),
+    ('between', '100', ('SPI EXPANSION', '3'), ('NET', 'SPI_SCK')),
+    ('between', '100', ('SPI EXPANSION', '4'), ('NET', 'SPI_MOSI')),
+    ('between', '100', ('SPI EXPANSION', '7'), ('NET', 'EXP_CS_A')),
+    ('between', '100', ('SPI EXPANSION', '8'), ('NET', 'EXP_CS_B')),
+    # DAC60508Z (TI SLASEL1D, RTE): 1 REF, 2-5 OUT0-3, 6 GND, 7 VDD, 8-11 OUT4-7,
+    # 12 CS, 13 SCLK, 14 SDI, 15 SDO, 16 VIO; >= 150 nF on REF
+    ('net', 'DAC60508ZRTER', '7', '+3V3'),
+    ('net', 'DAC60508ZRTER', '16', '+3V3'),
+    ('net', 'DAC60508ZRTER', '6', 'GND'),
+    ('net', 'DAC60508ZRTER', '17', 'GND'),
+    ('net', 'DAC60508ZRTER', '12', 'IO_DAC_CS'),
+    ('net', 'DAC60508ZRTER', '13', 'SPI_SCK'),
+    ('net', 'DAC60508ZRTER', '14', 'SPI_MOSI'),
+    ('net', 'DAC60508ZRTER', '15', 'SPI_MISO'),
+    *(('net', 'DAC60508ZRTER', pin, f'IO{n}_DAC')
+      for n, pin in enumerate(('2', '3', '4', '5'), 1)),
+    *(('nc', 'DAC60508ZRTER', pin) for pin in ('8', '9', '10', '11')),
+    # ADS124S08 (TI SBAS660C, RHB): 1 AINCOM, 2-7 AIN5-0, 8 START, 9 CS, 10 DIN,
+    # 11 SCLK, 12 DOUT, 13 DRDY, 14 DGND, 15 IOVDD, 16 DVDD, 17 CLK, 18 RESET,
+    # 23 REFOUT, 24 REFCOM, 26 AVDD, 27 AVSS, 28 AVSS-SW, 31 AIN7, 32 AIN6. START and
+    # CLK to DGND, RESET to IOVDD, REFCOM to AVSS (section 10.1.5)
+    ('net', 'ADS124S08IRHBR', '26', '+5V_IO'),
+    ('net', 'ADS124S08IRHBR', '16', '+3V3'),
+    ('net', 'ADS124S08IRHBR', '15', '+3V3'),
+    ('net', 'ADS124S08IRHBR', '18', '+3V3'),
+    *(('net', 'ADS124S08IRHBR', pin, 'GND')
+      for pin in ('27', '28', '14', '33', '24', '17', '8', '1')),
+    ('net', 'ADS124S08IRHBR', '9', 'IO_ADC_CS'),
+    ('net', 'ADS124S08IRHBR', '11', 'SPI_SCK'),
+    ('net', 'ADS124S08IRHBR', '10', 'SPI_MOSI'),
+    ('net', 'ADS124S08IRHBR', '12', 'SPI_MISO'),
+    ('net', 'ADS124S08IRHBR', '13', 'IO_ADC_DRDY_N'),
+    *(('net', 'ADS124S08IRHBR', pin, f'IO{n}_ADC')
+      for n, pin in enumerate(('7', '6', '5', '4'), 1)),
+    # pressure ports on AIN4 / AIN5: 5 V excitation on pin 1, signal behind 2.2 k with
+    # 100k to ground; AIN6 / AIN7 unused (left open, section 10.1.5)
+    ('net', 'ADS124S08IRHBR', '3', 'PRESS1_ADC'),
+    ('net', 'ADS124S08IRHBR', '2', 'PRESS2_ADC'),
+    *(('nc', 'ADS124S08IRHBR', pin) for pin in ('32', '31')),
+    *(('net', f'PRESSURE {n} (5V / SIG / GND / NC)', '1', 'PREC_EXC') for n in (1, 2)),
+    *(('net', f'PRESSURE {n} (5V / SIG / GND / NC)', '3', 'GND') for n in (1, 2)),
+    *(('between', '2.2k', (f'PRESSURE {n} (5V / SIG / GND / NC)', '2'), ('NET', f'PRESS{n}_ADC'))
+      for n in (1, 2)),
+    *(('between', '100k', ('NET', f'PRESS{n}_ADC'), ('NET', 'GND')) for n in (1, 2)),
+    # precision ports: AIN8 / AIN9 port A, AIN10 / AIN11 port B, each behind 2.2 k;
+    # REFP0 / REFN0 take the excitation and its ground through 1 k (VREF up to AVDD).
+    # AVDD is 5 V (2.7-5.25 V allowed) so a bridge gets 5 V and still fits the reference
+    ('net', 'ADS124S08IRHBR', '22', 'PREC_A_P'),
+    ('net', 'ADS124S08IRHBR', '21', 'PREC_A_N'),
+    ('net', 'ADS124S08IRHBR', '20', 'PREC_B_P'),
+    ('net', 'ADS124S08IRHBR', '19', 'PREC_B_N'),
+    ('net', 'ADS124S08IRHBR', '30', 'PREC_REFP'),
+    ('net', 'ADS124S08IRHBR', '29', 'PREC_REFN'),
+    ('between', '1k', ('NET', 'PREC_EXC'), ('NET', 'PREC_REFP')),
+    ('between', '1k', ('NET', 'GND'), ('NET', 'PREC_REFN')),
+    *(('between', '2.2k', (f'SENSOR {port} (EXC / IN+ / IN- / GND)', pin),
+       ('NET', f'PREC_{port}_{side}'))
+      for port in 'AB' for pin, side in (('2', 'P'), ('3', 'N'))),
+    *(('net', f'SENSOR {port} (EXC / IN+ / IN- / GND)', '1', 'PREC_EXC') for port in 'AB'),
+    *(('net', f'SENSOR {port} (EXC / IN+ / IN- / GND)', '4', 'GND') for port in 'AB'),
+    *(('between', '100k', ('NET', f'IO{n}_PIN'), ('NET', f'IO{n}_ADC')) for n in range(1, 5)),
+    *(('between', '20k', ('NET', f'IO{n}_ADC'), ('NET', f'IO{n}_DIV')) for n in range(1, 5)),
+    # MCP23S17 (Microchip DS20001952C, QFN): 5 VDD, 6 VSS, 7 CS, 8 SCK, 9 SI, 10 SO,
+    # 11-13 A0-A2, 14 RESET, 15 INTB, 16 INTA. A2 low on every device (errata DS80311A)
+    ('net', 'MCP23S17-E/ML', '5', ('+3V3',)),
+    ('net', 'MCP23S17-E/ML', '6', ('GND',)),
+    ('net', 'MCP23S17-E/ML', '29', ('GND',)),
+    ('net', 'MCP23S17-E/ML', '7', ('IO_EXP_CS',)),
+    ('net', 'MCP23S17-E/ML', '8', ('SPI_SCK',)),
+    ('net', 'MCP23S17-E/ML', '9', ('SPI_MOSI',)),
+    ('net', 'MCP23S17-E/ML', '10', ('SPI_MISO',)),
+    ('net', 'MCP23S17-E/ML', '14', ('ESP_EN',)),
+    ('net', 'MCP23S17-E/ML', '13', ('GND',)),
+    ('net', 'MCP23S17-E/ML', '11', ('GND', '+3V3')),
+    ('net', 'MCP23S17-E/ML', '12', ('GND', '+3V3')),
+    ('net', 'MCP23S17-E/ML', '16', ('IO_EXP_INT_N',)),
+    ('net', 'MCP23S17-E/ML', '15', ('IO_EXP_INT_N',)),
+    ('res', 'MCP23S17-E/ML', '16', '10k', '+3V3'),
+    # TMUX1111 (TI, RSV): 1 S1, 3 GND, 4 S4, 5 D4, 6 SEL4, 7 SEL3, 8 D3, 9 S3, 11 VDD,
+    # 12 S2, 13 D2, 14 SEL2, 15 SEL1, 16 D1; closed while SEL is low
+    ('net', 'TMUX1111RSVR', '11', ('+5V_IO',)),
+    ('net', 'TMUX1111RSVR', '3', ('GND',)),
+    *(('net', 'TMUX1111RSVR', pin, ('GND',)) for pin in ('16', '13', '8', '5')),
+    *(('net', 'TMUX1111RSVR', pin, IO_NETS['DIV']) for pin in ('1', '12', '9', '4')),
+    *(('net', 'TMUX1111RSVR', pin, IO_NETS['DIRECT']) for pin in ('15', '14', '7', '6')),
+    *(('between', '100k', ('NET', f'IO{n}_DIRECT'), ('NET', 'GND')) for n in range(1, 5)),
+    # TMUX7412F (TI, RRP): same signal pins, 2 VSS, 10 FF, pad to GND; 8-44 V single
+    # supply, closed while SEL is high, source pins fault protected to +-60 V, 100 mA
+    # continuous. Two are the pull-up switches (drain through 10k to +3V3), two the
+    # output switches (drain on the driver, FF to the expander)
+    ('net', 'TMUX7412FRRPR', '11', ('+12V',)),
+    *(('net', 'TMUX7412FRRPR', pin, ('GND',)) for pin in ('2', '3', '17')),
+    *(('net', 'TMUX7412FRRPR', pin, IO_NETS['PIN']) for pin in ('1', '12', '9', '4')),
+    *(('net', 'TMUX7412FRRPR', pin, (*IO_NETS['PULLUP'], *IO_NETS['OUT_EN']))
+      for pin in ('15', '14', '7', '6')),
+    *(('between', '100k', ('NET', f'IO{n}_PULLUP'), ('NET', 'GND')) for n in range(1, 5)),
+    *(('between', '100k', ('NET', f'IO{n}_OUT_EN'), ('NET', 'GND')) for n in range(1, 5)),
+    ('between', '10k', ('NET', 'IO_OUT_FLT_A_N'), ('NET', '+3V3')),
+    # TPS26625 (TI SLVSDT4F, DRC): 1 IN, 2 UVLO, 3 OVP, 4 SHDN, 5 RTN, 6 GND, 7 ILIM,
+    # 8 dVdT, 9 FLT, 10 OUT. UVLO to IN through >= 1 M, OVP to RTN when unused; SHDN
+    # floats high (on), so 22k holds it low; ILIM 53.6k -> 6.636 / 53.6 = 124 mA
+    *(('net', 'TPS26625DRCR', pin, ('GND',)) for pin in ('3', '5', '6', '11')),
+    ('net', 'TPS26625DRCR', '4', (*IO_NETS['SENS_EN'], 'PREC_EXC_EN')),
+    ('net', 'TPS26625DRCR', '9', (*IO_NETS['SENS_FLT_N'], 'PREC_EXC_FLT_N')),
+    ('eachjoin', 'TPS26625DRCR', '2', '1M', '1'),
+    ('each', 'TPS26625DRCR', '4', '22k', 'GND'),
+    ('each', 'TPS26625DRCR', '7', '53.6k', 'GND'),
+    ('each', 'TPS26625DRCR', '9', '10k', '+3V3'),
+    # TVS1800 (TI, DRV): 1-3 and pad GND, 4-6 IN
+    *(('net', 'TVS1800DRVR', pin, ('GND',)) for pin in ('1', '2', '3', '7')),
+    # burden switch CSD17381F4: 1 gate, 2 source, 3 drain (SLPS411G top view)
+    ('net', 'CSD17381F4', '2', ('GND',)),
+    ('net', 'CSD17381F4', '1', (*IO_NETS['BURDEN'], 'RS485_RTS_N')),
+    *(('between', '100k', ('NET', f'IO{n}_BURDEN'), ('NET', 'GND')) for n in range(1, 5)),
+    # RS-485 direction: RTS (high after reset) -> FET gate, drain -> DE and /RE
+    ('net', 'SC16IS750IBS', '21', 'RS485_RTS_N'),
+    *(('net', f'IO{n} (V+ / IO / GND / NC)', '2', f'IO{n}_PIN') for n in range(1, 5)),
+    *(('net', f'IO{n} (V+ / IO / GND / NC)', '3', 'GND') for n in range(1, 5)),
     ('nc', 'ALPHACOOL ES FLOW (pin 4 NC)', '4'),
     # 74LV1T34GX (Nexperia rev 4, X2SON5): 1 n.c. (grounded for the footprint
     # bridge), 2 A, 3 GND, 4 Y, 5 VCC; VIH 1.37 V at VCC 3.0-3.3 V
@@ -550,17 +719,22 @@ RULES = [
     ('net', 'TCAN3414DRBR', '4', 'CAN_RX'),
     ('res', 'TCAN3414DRBR', '1', '10k', '+3V3'),
     ('between', '120', ('TCAN3414DRBR', '7'), ('TCAN3414DRBR', '6')),
-    ('join', 'TCAN3414DRBR', '7', 'DISPLAY 12V / CAN', '3'),
-    ('join', 'TCAN3414DRBR', '6', 'DISPLAY 12V / CAN', '4'),
-    ('net', 'DISPLAY 12V / CAN', '1', 'GND'),
-    ('net', 'DISPLAY 12V / CAN', '2', 'VIN'),
+    ('join', 'TCAN3414DRBR', '7', 'DISPLAY (CAN H / L / BTN / RST)', '1'),
+    ('join', 'TCAN3414DRBR', '6', 'DISPLAY (CAN H / L / BTN / RST)', '2'),
+    ('net', 'DISPLAY PWR (GND / 12V)', '1', 'GND'),
+    # the display feed has its own resettable fuse (Bourns MF-MSMF050/24X: 24 V, 0.5 A
+    # hold, 1 A trip)
+    ('between', 'MF-MSMF050/24X', ('DISPLAY PWR (GND / 12V)', '2'),
+     ('NET', 'VIN')),
+    # ESD2CAN24 (TI SLVSFW5D): 1 and 2 the bus lines, 3 GND
+    ('net', 'ESD2CAN24DBZR', '1', 'CAN_H'),
+    ('net', 'ESD2CAN24DBZR', '2', 'CAN_L'),
+    ('net', 'ESD2CAN24DBZR', '3', 'GND'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '10', 'CAN_TX'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '20', 'CAN_RX'),
     # the display's open-collector outputs act as the power and reset buttons
-    ('net', 'DISPLAY PWR BTN / RESET', '1', 'GND'),
-    ('between', '100', ('DISPLAY PWR BTN / RESET', '2'), ('NET', 'PWR_BTN')),
-    ('between', '100', ('DISPLAY PWR BTN / RESET', '3'), ('NET', 'ESP_EN')),
-    ('nc', 'DISPLAY PWR BTN / RESET', '4'),
+    ('between', '100', ('DISPLAY (CAN H / L / BTN / RST)', '3'), ('NET', 'PWR_BTN')),
+    ('between', '100', ('DISPLAY (CAN H / L / BTN / RST)', '4'), ('NET', 'ESP_EN')),
     # J12 pin 3 (cryocooler protective ground) on board GND; J11 / J12 minus
     # on the isolated side
     ('net', 'CRYOCOOLER (+ / - / GND)', '3', 'GND'),
@@ -756,6 +930,21 @@ def run(path, rules=RULES):
                 f'{value}.{rule[2]} driven by BSS138, gate {rule[3]} to '
                 f'{rule[4]}',
             )
+        elif kind in ('each', 'eachjoin'):
+            # every part of this value: its pin has the resistor to the rail ('each')
+            # or to another pin of the same part ('eachjoin')
+            bad = []
+            for part_ref in refs:
+                want = rule[4] if kind == 'each' else pin_net.get((part_ref, rule[4]))
+                if not any(
+                    value_of[other_ref] == rule[3] and other_ref.startswith('R')
+                    and pin_net.get((other_ref, far_pin(other_ref, other_pin))) == want
+                    for other_ref, other_pin, _ in members.get(
+                        pin_net.get((part_ref, rule[2])), [])
+                ):
+                    bad.append(part_ref)
+            check(not bad, f'every {value}.{rule[2]} has {rule[3]} to {rule[4]} '
+                  f'(missing on {bad or "none"})')
         elif kind == 'res':
             net = pin_net.get((ref, rule[2]))
             found = False

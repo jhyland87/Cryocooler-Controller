@@ -64,10 +64,6 @@ DESCRIPTIONS = {
            'ACS_CS is low (the ACS37800 never releases MISO)',
     'J11': 'Amplifier output in (+ / -): the cryocooler drive from the audio amplifier',
     'J12': 'Cryocooler drive out (+ / - / GND), after the ACS37800 current path',
-    'FB1': 'Ferrite bead between the isolated DC-DC output (VISOOUT) and the '
-           'isolated 5 V rail: filters converter noise',
-    'FB2': 'Ferrite bead in the isolated DC-DC ground return (GND2 to ISO_GND)',
-    'R22': 'Pull-up resistor for the ISOW7741 EN/FLT pin: converter enabled',
     'R63': 'Lower resistor of the ACS37800 voltage sense divider (4 x 1 M over 4.02 k)',
     'R64': 'Voltage sense divider, upper string 1 of 4 (drive voltage to ACS37800 VINP)',
     'R65': 'Voltage sense divider, upper string 2 of 4 (drive voltage to ACS37800 VINP)',
@@ -75,18 +71,12 @@ DESCRIPTIONS = {
     'R67': 'Voltage sense divider, upper string 4 of 4 (drive voltage to ACS37800 VINP)',
     'R501': 'Pull-up resistor for the gated ACS_SCK line: idles high (SPI mode 3) '
             'while gate U41 is off',
-    'C6': 'Bulk input capacitor for the ISOW7741 DC-DC supply pin VDD (+5V_ISO)',
-    'C7': 'Bulk output capacitor on the ISOW7741 isolated output VISOOUT',
+    'C6': 'Bulk input capacitor for the ISOW7841 supply pin VCC (+3V3_ISO)',
+    'C7': 'Output capacitor on the ISOW7841 isolated 5 V output VISO',
     'C31': 'Decoupling capacitor for the ACS37800 U18 (isolated 5 V)',
     'C45': 'Decoupling capacitor for the ACS37800 U18 (isolated 5 V)',
-    'C51': 'Decoupling capacitor for the ISOW7741 logic supply VIO (+3V3)',
-    'C52': 'Decoupling capacitor for the ISOW7741 DC-DC supply pin VDD (+5V_ISO)',
-    'C53': 'Decoupling capacitor on the ISOW7741 isolated output VISOOUT',
-    'C54': 'Decoupling capacitor for the ISOW7741 isolated-side supply VISOIN',
-    'C72': 'High-frequency decoupling capacitor for the ISOW7741 logic supply VIO',
-    'C73': 'High-frequency decoupling capacitor for the ISOW7741 DC-DC supply pin VDD',
-    'C74': 'High-frequency decoupling capacitor on the ISOW7741 output VISOOUT',
-    'C75': 'High-frequency decoupling capacitor for the ISOW7741 supply VISOIN',
+    'C52': 'Decoupling capacitor for the ISOW7841 supply pin VCC (+3V3_ISO)',
+    'C53': 'Decoupling capacitor on the ISOW7841 isolated 5 V output VISO',
     'C301': 'Decoupling capacitor for the ACS bus gates U41 / U42 (+3V3)',
     'C302': 'Decoupling capacitor for the ACS bus gates U41 / U42 (+3V3)',
     # ── cold head temperature ────────────────────────────────────────────
@@ -133,10 +123,10 @@ DESCRIPTIONS = {
     'DS1': 'Off-board: the 16-way screw terminal strip on the back of the Waveshare '
            'touch display, drawn to show where the J15 and J21 cables land; not a '
            'part of this board',
-    'J15': 'Display link header: unswitched 12 V and GND to power the Waveshare '
-           'touch display, and the CAN bus pair',
-    'J21': 'Display button header: the display pulls PWR_BTN or RESET low through '
-           'its two open-collector outputs',
+    'J15': 'Display signal header: 1 CAN_H, 2 CAN_L, 3 power button, 4 reset, to the '
+           'Waveshare touch display',
+    'J21': 'Display supply header: 1 GND, 2 fused unswitched 12 V for the Waveshare touch '
+           'display',
     'U52': 'CAN transceiver: carries telemetry to, and commands from, the Waveshare '
            'touch display',
     'U53': 'ESD clamp on the power button line from the display header J21',
@@ -152,35 +142,6 @@ DESCRIPTIONS = {
     'U25': 'SPI GPIO expander: reads the +-15 V power-good flags, the INA239 alert '
            'and the ambient sensor interrupts',
     'C35': 'Decoupling capacitor for the GPIO expander U25 (+3V3)',
-    # ── general-purpose I/O ──────────────────────────────────────────────
-    'J16': 'General-purpose I/O header: GPIO5 and GND',
-    'J17': 'General-purpose I/O header: GPIO7 and GND',
-    'J18': 'General-purpose I/O header: GPIO11 and GND',
-    'J20': 'General-purpose I/O header: GPIO13 and GND',
-    'U43': 'Quad op amp: LED driver for IO11 (three sections spare, wired as '
-           'followers)',
-    'U44': 'Quad op amp: LED drivers for IO5, IO7 and IO13 (one section spare, '
-           'wired as a follower)',
-    'U45': 'ESD clamp on the IO5 header pin',
-    'U46': 'ESD clamp on the IO13 header pin',
-    'U47': 'ESD clamp on the IO7 header pin',
-    'U48': 'ESD clamp on the IO11 header pin',
-    'D81': 'IO5 activity LED (green): brightness follows the pin voltage',
-    'D82': 'IO7 activity LED (green): brightness follows the pin voltage',
-    'D83': 'IO11 activity LED (green): brightness follows the pin voltage',
-    'D85': 'IO13 activity LED (green): brightness follows the pin voltage',
-    'RN3': 'Series protection resistors (100 R) between GPIO5, 7, 11, 13 and their '
-           'headers',
-    'RN4': 'Upper resistors of the IO5, IO7, IO11, IO13 sense dividers (pin to the '
-           'LED driver input)',
-    'RN5': 'Lower resistors of the IO5, IO7, IO11, IO13 sense dividers; with RN4 '
-           'they also pull an open pin low',
-    'R506': 'LED current-set resistor for the IO5 LED driver (I = Vpin / 6.6 k)',
-    'R507': 'LED current-set resistor for the IO7 LED driver (I = Vpin / 6.6 k)',
-    'R508': 'LED current-set resistor for the IO11 LED driver (I = Vpin / 6.6 k)',
-    'R510': 'LED current-set resistor for the IO13 LED driver (I = Vpin / 6.6 k)',
-    'C303': 'Decoupling capacitor for the LED driver op amps U43 / U44 (+5V_OR)',
-    'C304': 'Decoupling capacitor for the LED driver op amps U43 / U44 (+5V_OR)',
     # ── IMU ──────────────────────────────────────────────────────────────
     'J14': 'IMU cable header: SPI, chip select, two interrupts and 3.3 V to the '
            'LSM6DSOX on the cryocooler',
@@ -245,8 +206,9 @@ DESCRIPTIONS = {
     'R404': 'Pull-up resistor for the Q52 gate: red die on when Q24 is off',
     'R405': 'Current-limit resistor for the red die of D12',
     # ── power input ──────────────────────────────────────────────────────
-    'J2': '12 V DC input jack (5.5 x 2.1 mm, centre positive)',
-    'F1': 'Backup input fuse (5 A) on the 12 V input',
+    'J2': '12 V input, Mini-Fit Jr 2 x 2 pinned as the ATX 12 V (CPU) connector: 1 and 2 '
+          'ground, 3 and 4 +12 V',
+    'F1': 'Backup input fuse (10 A) on the 12 V input',
     'D1': 'TVS diode on the 12 V input: clamps surges, and blows the fuse on '
           'reverse polarity',
     'C65': 'Bulk capacitor on the 12 V input rail (VIN)',
@@ -254,24 +216,26 @@ DESCRIPTIONS = {
     # ── +-15 V rails ─────────────────────────────────────────────────────
     'U20': 'Dual switching converter: boosts 5 V to +16.5 V and inverts it to '
            '-16.5 V ahead of the linear regulator',
-    'U21': 'Dual low-noise linear regulator: makes the +-15 V analog rails (about '
-           '+-14.7 V) and their power-good flags',
+    'U21': '+15 V linear regulator: post-regulates +16V5 to a quiet +14.7 V, with '
+           'a power-good output',
+    'U22': '-15 V linear regulator: post-regulates -16V5 to a quiet -14.7 V, with '
+           'a power-good output',
     'L2': 'Boost inductor of the ADP5071 positive converter (+16.5 V)',
     'L3': 'Inductor of the ADP5071 inverting converter (-16.5 V)',
     'D4': 'Rectifier diode of the ADP5071 boost converter (+16.5 V)',
     'D5': 'Rectifier diode of the ADP5071 inverting converter (-16.5 V)',
-    'R11': 'Lower resistor of the LT3097 +15 V power-good threshold divider (PGFBP)',
-    'R12': 'Lower resistor of the LT3097 -15 V power-good threshold divider (PGFBN)',
+    'R11': 'Lower resistor of the LT3045 +15 V power-good threshold divider (PGFB)',
+    'R12': 'Lower resistor of the LT3094 -15 V power-good threshold divider (PGFB)',
     'R68': 'Compensation resistor on ADP5071 COMP1 (boost loop), in series with C79',
     'R69': 'Compensation resistor on ADP5071 COMP2 (inverting loop), in series with C55',
     'R70': 'Upper feedback resistor setting the +16.5 V rail (ADP5071 FB1)',
     'R71': 'Lower feedback resistor setting the +16.5 V rail (ADP5071 FB1)',
     'R72': 'Feedback resistor from the -16.5 V rail to ADP5071 FB2',
     'R73': 'Feedback resistor from ADP5071 FB2 to VREF: with R72 it sets -16.5 V',
-    'R74': 'Upper resistor of the LT3097 +15 V power-good threshold divider (PGFBP)',
-    'R75': 'Upper resistor of the LT3097 -15 V power-good threshold divider (PGFBN)',
-    'R76': 'LT3097 SETP resistor: sets the positive output (100 uA x 147 k = 14.7 V)',
-    'R77': 'LT3097 SETN resistor: sets the negative output (100 uA x 147 k = -14.7 V)',
+    'R74': 'Upper resistor of the LT3045 +15 V power-good threshold divider (PGFB)',
+    'R75': 'Upper resistor of the LT3094 -15 V power-good threshold divider (PGFB)',
+    'R76': 'LT3045 SET resistor: sets the positive output (100 uA x 147 k = 14.7 V)',
+    'R77': 'LT3094 SET resistor: sets the negative output (100 uA x 147 k = -14.7 V)',
     'C11': 'Input capacitor for the ADP5071 U20 (+5V_PS15)',
     'C12': 'Input capacitor for the ADP5071 U20 (+5V_PS15)',
     'C40': 'High-frequency input bypass capacitor for the ADP5071 U20',
@@ -279,19 +243,19 @@ DESCRIPTIONS = {
     'C50': 'Bypass capacitor on the ADP5071 reference (VREF)',
     'C55': 'Compensation capacitor on ADP5071 COMP2, in series with R69',
     'C56': 'Output capacitor of the +16.5 V converter and input capacitor of the '
-           'LT3097 positive channel',
-    'C57': 'Output capacitor on the +15 V rail (LT3097)',
-    'C58': 'Output capacitor on the -15 V rail (LT3097)',
-    'C59': 'Output capacitor on the +15 V rail (LT3097)',
-    'C60': 'Output capacitor on the -15 V rail (LT3097)',
+           'LT3045 (+15 V regulator)',
+    'C57': 'Output capacitor on the +15 V rail (LT3045)',
+    'C58': 'Output capacitor on the -15 V rail (LT3094)',
+    'C59': 'Output capacitor on the +15 V rail (LT3045)',
+    'C60': 'Output capacitor on the -15 V rail (LT3094)',
     'C61': 'Output capacitor of the -16.5 V converter and input capacitor of the '
-           'LT3097 negative channel',
+           'LT3094 (-15 V regulator)',
     'C62': 'Output capacitor of the -16.5 V converter and input capacitor of the '
-           'LT3097 negative channel',
+           'LT3094 (-15 V regulator)',
     'C79': 'Compensation capacitor on ADP5071 COMP1, in series with R68',
-    'C81': 'Capacitor across the LT3097 SETP resistor: filters reference noise and '
+    'C81': 'Capacitor across the LT3045 SET resistor: filters reference noise and '
            'sets the soft start',
-    'C82': 'Capacitor across the LT3097 SETN resistor: filters reference noise and '
+    'C82': 'Capacitor across the LT3094 SET resistor: filters reference noise and '
            'sets the soft start',
     # ── 5 V and 3.3 V rails ──────────────────────────────────────────────
     'U15': 'Buck regulator: 12 V to the +5V rail',
@@ -350,16 +314,20 @@ DESCRIPTIONS = {
     # ── supply jumpers ───────────────────────────────────────────────────
     'JP1': 'Zero-ohm jumper: +3V3 to the signal generator (+3V3_SG)',
     'JP2': 'Zero-ohm jumper: +5V to the +-15 V converter (+5V_PS15)',
-    'JP3': 'Zero-ohm jumper: +5V_OR to the isolated supply (+5V_ISO)',
+    'JP3': 'Zero-ohm jumper: +3V3 to the isolator and its isolated supply (+3V3_ISO)',
     'JP4': 'Zero-ohm jumper: +3V3 to the water cooling pull-ups (+3V3_COOL)',
     'JP5': 'Zero-ohm jumper: +3V3 to the cold head ADC (+3V3_CH)',
     'FB3': 'Ferrite bead: filters buck regulator noise from the cold head ADC supply',
+    'JP6': 'Zero-ohm jumper: +5V to the universal I/O ADC, range switches and sensor '
+           'excitation (+5V_IO)',
+    'FB4': 'Ferrite bead: filters buck regulator noise from the universal I/O ADC supply',
     # ── system current ───────────────────────────────────────────────────
     'U23': 'Power monitor: measures the 12 V rail voltage, current and power '
            'across shunt R78, on the shared SPI bus',
     'D6': 'INA239 ALERT indicator LED (red)',
     'R9': 'Pull-up resistor for the INA239 ALERT output (open drain)',
-    'R78': 'Current shunt (15 mOhm) in the switched 12 V rail, sensed by the INA239',
+    'R78': 'Current shunt (10 mOhm, 4-terminal) in the switched 12 V rail; its two '
+           'sense pads feed the INA239 input filter',
     'R79': 'Series resistor of the INA239 input filter (IN- / VBUS side)',
     'R80': 'Series resistor of the INA239 input filter (IN+ side)',
     'R81': 'Current-limit resistor for the ALERT LED D6',
@@ -445,9 +413,9 @@ NET_DESCRIPTIONS = {
     'STATUS_RA': 'Red anode of the status LED D7, fed from VIN and shorted by Q41 '
                  'once +3V3 is up (standby)',
     # +-15 V power good
-    'PGP_15V': '+15 V power-good node: about 3.2 V when good, low when the LT3097 '
+    'PGP_15V': '+15 V power-good node: about 3.2 V when good, low when the regulator '
                'PGP pin pulls it down',
-    'PGN_15V': '-15 V power-good node: about 3.2 V when good, low when the LT3097 '
+    'PGN_15V': '-15 V power-good node: about 3.2 V when good, low when the regulator '
                'PGN pin or the guard Q42 pulls it down',
     'PG_15V': 'Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: '
               'gates the amplifier REM switch',
@@ -501,17 +469,237 @@ NET_DESCRIPTIONS = {
     'PUMP_TACH': 'Pump tach pulses to GPIO21 (2 per revolution)',
     'FLOW_TACH': 'Coolant flow sensor pulses to GPIO18',
     'NTC_ADC': 'Coolant NTC divider voltage to GPIO4 (ADC1)',
-    # general-purpose I/O
-    'AUX_IO5': 'General-purpose I/O on GPIO5 (ADC1), MCU side of the 100 R resistor',
-    'AUX_IO7': 'General-purpose I/O on GPIO7 (ADC1), MCU side of the 100 R resistor',
-    'AUX_IO11': 'General-purpose I/O on GPIO11 (ADC2), MCU side of the 100 R resistor',
-    'AUX_IO13': 'General-purpose I/O on GPIO13 (ADC2), MCU side of the 100 R resistor',
-    'IO5_HDR': 'IO5 at its header J16, after the 100 R resistor',
-    'IO7_HDR': 'IO7 at its header J17, after the 100 R resistor',
-    'IO11_HDR': 'IO11 at its header J18, after the 100 R resistor',
-    'IO13_HDR': 'IO13 at its header J20, after the 100 R resistor',
-    'IO5_SENSE': 'Half the IO5 pin voltage (divider tap) into its LED driver',
-    'IO7_SENSE': 'Half the IO7 pin voltage (divider tap) into its LED driver',
-    'IO11_SENSE': 'Half the IO11 pin voltage (divider tap) into its LED driver',
-    'IO13_SENSE': 'Half the IO13 pin voltage (divider tap) into its LED driver',
+    # universal I/O fast channels
+    'AUX_IO5': 'GPIO5: PWM gate and pulse input of universal I/O channel 1, '
+               'MCU side of the two 1 k resistors',
+    'AUX_IO7': 'GPIO7: PWM gate and pulse input of universal I/O channel 2, '
+               'MCU side of the two 1 k resistors',
+}
+
+
+# ── universal I/O (rev 5) ────────────────────────────────────────────────
+# The four channels are one circuit drawn four times, so their parts and nets
+# are described by role; gen_schematic.py fills in the channel number {n} (and
+# {gpio} on the fast channels) and adds each entry to the tables above.
+IO_PART_ROLES = {
+    'amp': 'Output drivers of I/O channels {first} and {last}: each section multiplies its '
+           'channel level by 4.83 (0-12 V, up to 100 mA through the output switch)',
+    'gain_low': 'Gain resistor to ground for the channel {n} output driver '
+                '(gain 1 + 191k / 49.9k = 4.83)',
+    'gain_high': 'Feedback resistor of the channel {n} output driver (gain 4.83)',
+    'gain_cap': 'Feedback capacitor across the 191k of the channel {n} output driver '
+                '(cancels the input capacitance)',
+    'gate': 'Analog switch for channel {n}: passes the DAC level to the output driver while '
+            'GPIO{gpio} is high and ground while it is low (PWM at the configured level)',
+    'divider_top': 'Series resistor from the channel {n} pin to its ADC input: top of the '
+                   '6:1 divider and the fault-current limit for the ADC',
+    'divider_bottom': 'Bottom leg of the channel {n} 6:1 input divider, grounded through the '
+                      'range switch (open for the direct 0-2.5 V range)',
+    'adc_filter': 'Filter capacitor at the channel {n} ADC input (16 Hz with the 100k)',
+    'burden': 'Loop burden for channel {n}: 4-20 mA reads 0.48-2.4 V in the direct range; '
+              '2512 so it survives 12 V on the pin',
+    'burden_fet': 'Switch that grounds the channel {n} loop burden while IO{n}_BURDEN is high',
+    'fast_series': 'Series resistor from the channel {n} pin to its GPIO{gpio} input buffer: '
+                   'limits the clamp current when the pin is above 3.3 V',
+    'fast_clamp': 'Clamp diode to +3V3 at the channel {n} input buffer, so a 5 V or 12 V '
+                  'signal reads as a 3.3 V logic level',
+    'fast_buffer': 'Tri-state buffer from the channel {n} pin to GPIO{gpio} (pulse and tach '
+                   'input), off while IO{n}_BUF_OE_N is high',
+    'fast_out': 'Series resistor between the channel {n} input buffer and GPIO{gpio}: limits '
+                'the current if both drive at once',
+    'gate_series': 'Series resistor from GPIO{gpio} to the channel {n} output gate select',
+    'sensor_switch': 'Sensor supply switch for I/O channel {n}: feeds connector pin 1 from '
+                     'the jumper-selected 5 V or 12 V while IO{n}_SENS_EN is high, limited '
+                     'to 124 mA, with a fault flag',
+    'jumper_5v': 'Fit to give the channel {n} sensor supply 5 V (fitted by default; never '
+                 'fit both jumpers of a channel)',
+    'jumper_12v': 'Fit instead of the 5 V jumper to give the channel {n} sensor supply 12 V '
+                  '(left open by default)',
+    'uvlo': 'Ties TPS26625 UVLO to IN for channel {n} (the datasheet asks for at least 1 M '
+            'when the lockout is unused)',
+    'sensor_in_cap': 'Input capacitor of the channel {n} sensor supply switch',
+    'sensor_out_cap': 'Output capacitor of the channel {n} sensor supply at the connector',
+    'sensor_limit': 'Current-limit resistor on TPS26625 ILIM for channel {n}: '
+                    '53.6k gives 124 mA',
+    'connector': 'Universal I/O channel {n}: 1 switched sensor supply (5 V or 12 V), '
+                 '2 signal (0-12 V in or out), 3 GND, 4 not connected',
+    'supply_clamp': 'Surge clamp on the channel {n} sensor supply pin at the connector',
+    'pin_clamp': 'Surge clamp on the channel {n} signal pin at the connector',
+    'pull_sens_flt': 'Pull-up resistor for the channel {n} sensor supply fault flag '
+                     '(open drain)',
+    'pull_out_en': 'Pull-down resistor for IO{n}_OUT_EN: output switch open until the expander '
+                   'drives it',
+    'pull_sens_en': 'Pull-down resistor for IO{n}_SENS_EN: overrides the TPS26625 internal '
+                    'pull-up so the sensor supply is off until the expander drives it',
+    'pull_burden': 'Pull-down resistor for IO{n}_BURDEN: loop burden off until the expander '
+                   'drives it',
+    'pull_buf_oe': 'Pull-up resistor for IO{n}_BUF_OE_N: input buffer off until the expander '
+                   'drives it',
+    'pull_gate': 'Pull-down resistor for the channel {n} output gate select: ground level '
+                 'selected while GPIO{gpio} floats at boot',
+    'decoupling': 'Decoupling capacitor for the I/O channel {n} ICs',
+    'dac': '8-channel DAC: sets the output level of each universal I/O channel '
+           '(pin voltage = DAC output x 4.83)',
+    'dac_ref': 'DAC60508 reference capacitor (two 100 nF for the 150 nF minimum)',
+    'adc': '24-bit ADC: reads the four universal I/O pins (AIN0-3) against ground, the two pressure ports and the two precision ports',
+    'adc_ref': 'ADS124S08 reference capacitor, REFOUT to REFCOM',
+    'core_decoupling': 'Decoupling capacitor for the universal I/O DAC or ADC',
+    'range_switch': 'Range switches of I/O channels {first}-{last}: each grounds a 20k '
+                    'divider leg (0-15 V range) and opens for the direct 0-2.5 V range',
+    'pull_switch': 'Pull-up switches of I/O channels {first}-{last}: each joins a pin to '
+                   '10k / +3V3 for an NTC or a contact, and blocks a pin above 3.3 V',
+    'pull_resistor': 'Switched pull-up resistor to +3V3 for the I/O channel {n} pin',
+    'pull_direct': 'Pull-down resistor for IO{n}_DIRECT: divider engaged (0-15 V range) '
+                   'until the expander drives it',
+    'pull_pullup': 'Pull-down resistor for IO{n}_PULLUP: pull-up off until the expander '
+                   'drives it',
+    'switch_decoupling': 'Decoupling capacitor for the universal I/O range and pull-up '
+                         'switches',
+    'expander': 'I/O expander at address {address}: mode bits and fault flags of I/O '
+                'channel {a} (port A) and channel {b} (port B)',
+    'pull_exp_int': 'Pull-up resistor for IO_EXP_INT_N (open-drain interrupt outputs of '
+                    'the two I/O expanders)',
+    'expander_decoupling': 'Decoupling capacitor for the universal I/O expanders',
+    'display_fuse': 'Resettable fuse in the 12 V feed to the display (J15 pin 2): 0.5 A '
+                    'hold, so a shorted cable does not blow the main fuse F1',
+    'can_clamp': 'ESD clamp on CAN_H and CAN_L at the display connector J15',
+    'auto_on_jumper': 'Fit for auto power-on: connects the 2.2 uF capacitor to the LTC2954 '
+                      'PB pin (left open by default)',
+    'auto_on_cap': 'Auto power-on capacitor: holds PB low for a moment after 12 V '
+                   'arrives (only in circuit with its jumper fitted)',
+    'auto_on_diode': 'Empties the auto power-on capacitor into VIN when the supply drops, '
+                     'so a short interruption still gives a turn-on pulse',
+    'press_connector': 'Pressure port {n} ({scale} transmitter): 1 switched 5 V excitation, '
+                       '2 signal (0.5-4.5 V), 3 GND, 4 not connected',
+    'press_series': 'Series resistor from the pressure port {n} signal to its ADC pin: limits '
+                    'the current into the ADC if the pin is taken above 5 V',
+    'press_pull': 'Pull-down resistor on the pressure port {n} signal: an unplugged sensor '
+                  'reads 0 V',
+    'press_filter': 'Filter capacitor to ground at the pressure port {n} ADC input',
+    'press_clamp': 'Surge clamp on the pressure port {n} signal at the connector',
+    'prec_connector': 'Precision sensor port {p}: 1 switched 5 V excitation, 2 IN+, 3 IN-, '
+                      '4 GND; for a bridge, RTD, thermocouple or millivolt sensor',
+    'prec_series': 'Series resistor from a precision port {p} input to its ADC pin: limits '
+                   'the fault current into the ADC and forms the input filter',
+    'prec_filter': 'Filter capacitor to ground at a precision port {p} ADC input',
+    'prec_diff_filter': 'Filter capacitor across the precision port {p} input pair',
+    'prec_clamp': 'Surge clamp on a precision port {p} input at the connector',
+    'prec_switch': 'Excitation switch for both precision ports: feeds their pin 1 from '
+                   '+5V_IO while PREC_EXC_EN is high, limited to 124 mA, with a fault flag',
+    'prec_uvlo': 'Ties the excitation switch UVLO to IN (lockout unused)',
+    'prec_in_cap': 'Input capacitor of the precision port excitation switch',
+    'prec_out_cap': 'Output capacitor on the precision port excitation',
+    'prec_limit': 'Current-limit resistor of the excitation switch: 53.6k gives 124 mA',
+    'prec_exc_clamp': 'Surge clamp on the precision port excitation at the connectors',
+    'prec_ref_series': 'Series resistor from the excitation (or its ground) to the ADC '
+                       'external reference input',
+    'prec_ref_filter': 'Filter capacitor across the ADC external reference inputs',
+    'pull_prec_flt': 'Pull-up resistor for the excitation switch fault flag (open drain)',
+    'pull_prec_en': 'Pull-down resistor for PREC_EXC_EN: excitation off until the expander '
+                    'drives it',
+    'out_switch': 'Output switches of I/O channels {first}-{last}: each joins a driver to '
+                  'its pin while OUT_EN is high and opens if the pin is forced past the rails',
+    'pull_out_flt': 'Pull-up resistor for the output switch fault flag FF (open drain), '
+                    'channels group {g}',
+    'driver_decoupling': 'Decoupling capacitor for the universal I/O output drivers and '
+                         'switches (+12V)',
+    'uart': 'SPI to UART bridge for the RS-485 port; its RTS output switches the bus '
+            'direction by itself',
+    'rs485_phy': 'RS-485 transceiver for the Modbus port on J34',
+    'rs485_rx_pull': 'Pull-up resistor on the UART RX line: idle level while the RS-485 '
+                     'receiver output is off (during transmit)',
+    'rs485_inverter': 'Inverts the UART RTS output onto RS-485 DE and /RE: receive after '
+                      'reset, transmit while RTS is low',
+    'rs485_de_pull': 'Pull-up resistor (drain load) of the RS-485 direction inverter',
+    'rs485_termination': 'RS-485 bus termination, in circuit only with its jumper fitted',
+    'rs485_term_jumper': 'Fit when this board is at an end of the RS-485 bus: connects the '
+                         '120 R termination (left open by default)',
+    'rs485_connector': 'RS-485 / Modbus port: 1 A, 2 B, 3 GND, 4 not connected',
+    'uart_clock': '16 MHz clock for the SC16IS750 UART (same part as the signal generator clock)',
+    'exp_miso_gate': 'Buffer that passes the expansion header MISO to the SPI bus only '
+                     'while chip select {which} is low',
+    'exp_series': 'Series resistor between the SPI bus and the expansion header: limits '
+                  'the damage a shorted daughterboard line can do and damps the ribbon',
+    'exp_header': 'SPI expansion header: SPI bus, two chip selects, an interrupt line, '
+                  '+3V3, +5V and GND for a future daughterboard',
+    'pull_rs485_irq': 'Pull-up resistor for the SC16IS750 IRQ output (open drain; the '
+                      'datasheet asks for 1 k at 3.3 V)',
+    'pull_exp_hdr_int': 'Pull-up resistor for the expansion header interrupt line',
+    'pull_exp_miso': 'Pull-down resistor on the expansion header MISO: defined level with '
+                     'no daughterboard fitted',
+    'expansion_decoupling': 'Decoupling capacitor for the RS-485 port or the expansion '
+                            'header buffers',
+}
+
+# key -> (net name, description)
+IO_NET_ROLES = {
+    'pin': ('IO{n}_PIN', 'I/O channel {n} signal pin (connector pin 2): 0-12 V in or out'),
+    'dac': ('IO{n}_DAC', 'DAC output {n}: 0-2.5 V level for the channel {n} output driver '
+                         '(pin voltage / 4.83)'),
+    'adc': ('IO{n}_ADC', 'Channel {n} pin after the 100k series resistor, to the ADC input'),
+    'div': ('IO{n}_DIV', 'Bottom of the channel {n} 20k divider leg, to the range switch'),
+    'gate': ('IO{n}_GATE', 'Channel {n} output gate select: high passes the DAC level, low '
+                           'grounds the driver input'),
+    'out_en': ('IO{n}_OUT_EN', 'Expander output, high closes the channel {n} output '
+                               'switch; pulled low'),
+    'direct': ('IO{n}_DIRECT', 'Expander output, high opens the channel {n} divider leg '
+                               '(direct 0-2.5 V range); pulled low = 0-15 V range'),
+    'burden': ('IO{n}_BURDEN', 'Expander output, high switches in the channel {n} 120 R '
+                               'loop burden; pulled low'),
+    'pullup': ('IO{n}_PULLUP', 'Expander output, high connects 10k to +3V3 on the channel '
+                               '{n} pin; pulled low'),
+    'sens_en': ('IO{n}_SENS_EN', 'Expander output, high turns on the channel {n} sensor '
+                                 'supply; pulled low'),
+    'level': ('IO{n}_LEVEL', 'Channel {n} output level after the GPIO gate, to its driver'),
+    'drv': ('IO{n}_DRV', 'Channel {n} driver output, ahead of the output switch'),
+    'out_flt': ('IO_OUT_FLT_{g}_N', 'Output switch fault flag of channels 1-4 (group {g}): '
+                                    'low while a pin is forced past the rails, '
+                                    'open drain, to the expander'),
+    'sens_flt': ('IO{n}_SENS_FLT_N', 'Channel {n} sensor supply fault flag, open drain, '
+                                     'active low, to the expander'),
+    'dac_cs': ('IO_DAC_CS', 'Chip select (active low) for the universal I/O DAC, '
+                            'decoder Y4'),
+    'adc_cs': ('IO_ADC_CS', 'Chip select (active low) for the universal I/O ADC, '
+                            'decoder Y9'),
+    'exp_cs': ('IO_EXP_CS', 'Chip select (active low) shared by the four universal I/O '
+                            'expanders, decoder Y10'),
+    'adc_drdy': ('IO_ADC_DRDY_N', 'ADS124S08 data ready, active low, read on expander GP5'),
+    'exp_int': ('IO_EXP_INT_N', 'Interrupt of the four universal I/O expanders, open '
+                                'drain, active low, read on expander GP4'),
+    'logic': ('IO{n}_LOGIC', 'Channel {n} pin behind 1 M, clamped to +3V3: input of the '
+                             'pulse buffer'),
+    'buf': ('IO{n}_BUF', 'Channel {n} pulse buffer output, ahead of its 1 k to the ESP32 pin'),
+    'rs485_cs': ('RS485_CS', 'Chip select (active low) for the SC16IS750 UART bridge, '
+                             'decoder Y11'),
+    'rs485_irq': ('RS485_IRQ_N', 'SC16IS750 interrupt, open drain, active low, read on '
+                                 'I/O expander 2 port A bit 7'),
+    'rs485_rts': ('RS485_RTS_N', 'SC16IS750 RTS: low while the UART sends, high after '
+                                 'reset; gate of the direction inverter'),
+    'uart_clk': ('UART_CLK', '16 MHz oscillator output to SC16IS750 XTAL1'),
+    'exp_cs_a': ('EXP_CS_A', 'Chip select A (active low) for the SPI expansion header, '
+                             'decoder Y12'),
+    'exp_cs_b': ('EXP_CS_B', 'Chip select B (active low) for the SPI expansion header, '
+                             'decoder Y13'),
+    'hdr_int': ('EXP_INT_N', 'Expansion header interrupt line, active low, read on I/O '
+                             'expander 2 port B bit 7'),
+    'exp_sck': ('EXP_SCK', 'SPI clock at the expansion header, behind 100 R'),
+    'exp_mosi': ('EXP_MOSI', 'SPI MOSI at the expansion header, behind 100 R'),
+    'exp_miso': ('EXP_MISO', 'MISO from the expansion header, to the two bus buffers'),
+    'exp_csa': ('EXP_CSA', 'Chip select A at the expansion header, behind 100 R'),
+    'exp_csb': ('EXP_CSB', 'Chip select B at the expansion header, behind 100 R'),
+    'press_pin': ('PRESS{n}_PIN', 'Pressure port {n} signal at the connector (pin 2)'),
+    'press_adc': ('PRESS{n}_ADC', 'Pressure port {n} signal, filtered, to the ADC'),
+    'prec_p': ('PREC_{p}_P', 'Precision port {p} IN+, filtered, to the ADC'),
+    'prec_n': ('PREC_{p}_N', 'Precision port {p} IN-, filtered, to the ADC'),
+    'prec_p_pin': ('PREC_{p}_P_PIN', 'Precision port {p} IN+ at the connector'),
+    'prec_n_pin': ('PREC_{p}_N_PIN', 'Precision port {p} IN- at the connector'),
+    'prec_exc': ('PREC_EXC', 'Switched 5 V excitation for the precision and pressure ports (pin 1)'),
+    'prec_refp': ('PREC_REFP', 'Excitation voltage to ADC REFP0 (ratiometric reference)'),
+    'prec_refn': ('PREC_REFN', 'Excitation ground to ADC REFN0'),
+    'prec_exc_en': ('PREC_EXC_EN', 'I/O expander 3 port A bit 7, high turns the precision '
+                                   'port excitation on; pulled low'),
+    'prec_exc_flt': ('PREC_EXC_FLT_N', 'Excitation switch fault flag, open drain, active '
+                                       'low, read on I/O expander 3 port B bit 7'),
+    'buf_oe': ('IO{n}_BUF_OE_N', 'Expander output, low enables the channel {n} input buffer '
+                                 'to the ESP32 pin; pulled high'),
 }

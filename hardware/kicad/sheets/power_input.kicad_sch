@@ -10,244 +10,6 @@
 		(company "Cryocooler Controller")
 	)
 	(lib_symbols
-		(symbol "Connector:Barrel_Jack_Switch"
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 5.334 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Barrel_Jack_Switch"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 1.27 -1.016 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 1.27 -1.016 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "DC Barrel Jack with an internal switch"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "DC power barrel jack connector"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "BarrelJack*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "Barrel_Jack_Switch_0_1"
-				(rectangle
-					(start -5.08 3.81)
-					(end 5.08 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(polyline
-					(pts
-						(xy -3.81 -2.54) (xy -2.54 -2.54) (xy -1.27 -1.27) (xy 0 -2.54) (xy 2.54 -2.54) (xy 5.08 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start -3.302 1.905)
-					(mid -3.9343 2.54)
-					(end -3.302 3.175)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start -3.302 1.905)
-					(mid -3.9343 2.54)
-					(end -3.302 3.175)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -2.286) (xy 1.905 -1.651)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start 3.683 3.175)
-					(end -3.302 1.905)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 5.08 2.54) (xy 3.81 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 5.08 0) (xy 1.27 0) (xy 1.27 -2.286) (xy 0.635 -1.651)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "Barrel_Jack_Switch_1_1"
-				(pin passive line
-					(at 7.62 2.54 180)
-					(length 2.54)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 -2.54 180)
-					(length 2.54)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -898,6 +660,172 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "cryocooler:ATX12V_2x2"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 5.08 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "ATX12V_2x2"
+				(at -5.08 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Connector_Molex:Molex_Mini-Fit_Jr_5569-04A2_2x02_P4.20mm_Horizontal"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" "https://www.molex.com/pdm_docs/sd/039300020_sd.pdf"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Molex Mini-Fit Jr 2 x 2 right-angle header wired as the ATX 12 V (CPU) connector: circuits 1 and 2 ground, 3 and 4 +12 V; 9 A per circuit"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "atx 12v mini-fit power input"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "ATX12V_2x2_0_1"
+				(rectangle
+					(start -5.08 5.08)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "ATX12V_2x2_1_1"
+				(pin passive line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "COM"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 2.54)
+					(hide yes)
+					(name "COM"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 2.54 180)
+					(length 2.54)
+					(name "+12V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 2.54 180)
+					(length 2.54)
+					(hide yes)
+					(name "+12V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:+12V"
 			(power global)
 			(pin_numbers
@@ -1268,17 +1196,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "F1 is a backup only: add an inline high-breaking-capacity fuse (7.5-10 A) at the PSU end. Reverse polarity: TVS forward-clamps and blows the fuse."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "3413a280-cff0-52a7-adca-bb3c1fc2c481")
-	)
 	(text "12 V input from a Dell XYK93 (DPS-2000EB class, ~12.2 V, ~160 A available): use the main 12 V rail with PS_ON held low."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -1288,67 +1205,42 @@
 			)
 			(justify left top)
 		)
-		(uuid "ace67d88-17f9-5260-b5a4-2fd647a20b09")
+		(uuid "fb7f8310-9055-5721-abef-3b509c175958")
 	)
-	(junction
-		(at 88.9 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1951a00b-48ac-5b31-8bcd-4bf194afc5f2")
-	)
-	(junction
-		(at 76.2 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1ee86e6b-6722-5a3e-b91a-fe0cd93c0523")
-	)
-	(junction
-		(at 44.45 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2fc9849b-2754-582d-8815-52b8b11cd22f")
-	)
-	(junction
-		(at 124.46 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "777d1909-7e83-5f19-b6f2-48f474e94183")
+	(text "Sized for 10 A (about 7.5 A continuous): fans and pump up to 4.2 A plus the I/O. F1 is a backup only: add an inline high-breaking-capacity fuse at the PSU end. Reverse polarity: the TVS forward-clamps and blows the fuse."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "fdbcd34f-789e-5a3f-8974-0e42c57f153b")
 	)
 	(junction
 		(at 114.3 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "bae9a9ea-916a-5192-9c65-5eec317196c1")
+		(uuid "7f1d8f7e-0865-56c3-b330-2628b831d93c")
 	)
-	(wire
-		(pts
-			(xy 49.53 76.2) (xy 54.61 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "20716281-f8ab-5d75-b183-d0d45c6e7b33")
+	(junction
+		(at 76.2 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8a3413b7-3e02-592f-b14b-a5324de6f9e6")
 	)
-	(wire
-		(pts
-			(xy 124.46 73.66) (xy 124.46 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2cc2e9fd-413a-5ea0-a8b7-91641f46d8b0")
+	(junction
+		(at 88.9 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "dbf077ad-5e40-5d10-85e2-9bbdd4c44db7")
 	)
-	(wire
-		(pts
-			(xy 76.2 76.2) (xy 88.9 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2fe6a3fb-1f1b-5124-bf40-6c30bbe7c75f")
+	(junction
+		(at 124.46 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "dd3a5e89-1446-5690-8157-5f145945e90a")
 	)
 	(wire
 		(pts
@@ -1358,57 +1250,57 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "335652d3-8027-5c46-8908-6fab70c07c13")
+		(uuid "11d1c7d6-4190-5be4-9055-c5421d72869a")
 	)
 	(wire
 		(pts
-			(xy 43.18 81.28) (xy 48.26 81.28)
+			(xy 124.46 73.66) (xy 124.46 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5185621f-06fe-5634-a5ba-be83cb402a8f")
+		(uuid "2b6b1efd-9cd0-544a-b410-a3db6d874357")
 	)
 	(wire
 		(pts
-			(xy 48.26 81.28) (xy 52.07 81.28)
+			(xy 38.1 78.74) (xy 40.64 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "761492d4-f071-58a9-97ce-826b94d4102b")
+		(uuid "46131902-038f-5042-9c95-473233a0aab1")
 	)
 	(wire
 		(pts
-			(xy 43.18 78.74) (xy 44.45 78.74)
+			(xy 44.45 76.2) (xy 54.61 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9ba4fc4d-f2f7-5010-b20f-cddcb8f22941")
+		(uuid "50207182-0f20-53a7-ac38-efb65501dd1e")
 	)
 	(wire
 		(pts
-			(xy 43.18 76.2) (xy 49.53 76.2)
+			(xy 40.64 83.82) (xy 46.99 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c8309d50-1f33-5f83-8a8d-88d2c848a686")
+		(uuid "6c17dbde-cf74-5760-981e-7f99e0bf0e27")
 	)
 	(wire
 		(pts
-			(xy 44.45 78.74) (xy 44.45 81.28)
+			(xy 40.64 78.74) (xy 40.64 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c9278a3a-2cdd-58a3-9be9-89862d1090e9")
+		(uuid "ab357978-3004-507a-a109-6903c26ee24a")
 	)
 	(wire
 		(pts
@@ -1418,7 +1310,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ec5dbeff-661c-5a58-8261-2b198696370d")
+		(uuid "aca5fd1f-f76a-5b99-a9b2-2678851fc1e7")
 	)
 	(wire
 		(pts
@@ -1428,7 +1320,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ec7e53ad-fe0c-5c68-a2de-a8b98f422c3d")
+		(uuid "b41f1fef-0754-5cd7-b646-c4cf46cc3cb8")
+	)
+	(wire
+		(pts
+			(xy 76.2 76.2) (xy 88.9 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c0f39d5d-56ad-5b3e-9ed6-0975e48cbb29")
+	)
+	(wire
+		(pts
+			(xy 38.1 76.2) (xy 44.45 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4376579-ae98-59f5-bd89-534ebcbd63e6")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -1508,10 +1420,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1956b39c-e8d1-5b5a-bfef-057e2560f830")
+			(uuid "e17a675a-7328-522c-96d5-7c63ea520d04")
 		)
 		(pin "2"
-			(uuid "b35fd6b3-24ba-5dfb-af87-08123e281f0b")
+			(uuid "2426eb60-3a86-55e9-9038-d60c796c3578")
 		)
 		(instances
 			(project "cryocooler"
@@ -1589,7 +1501,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c01bec44-f230-501c-bee6-98d5a66196a9")
+			(uuid "abc1b9f2-bc77-5fa1-baee-19bcedb34d62")
 		)
 		(instances
 			(project "cryocooler"
@@ -1667,7 +1579,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "88393c9c-a9c6-517b-a59e-5f8fa9881705")
+			(uuid "46974812-f0c2-506b-ae16-f8f01709acc8")
 		)
 		(instances
 			(project "cryocooler"
@@ -1680,7 +1592,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 49.53 76.2 0)
+		(at 44.45 76.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1690,7 +1602,7 @@
 		(dnp no)
 		(uuid "7182ea94-18bd-52d7-9e99-bf56f89b6fdb")
 		(property "Reference" "#FLG029"
-			(at 49.53 76.2 0)
+			(at 44.45 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1701,7 +1613,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 49.53 76.2 0)
+			(at 44.45 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1712,7 +1624,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 49.53 76.2 0)
+			(at 44.45 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1723,7 +1635,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 49.53 76.2 0)
+			(at 44.45 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1734,7 +1646,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 49.53 76.2 0)
+			(at 44.45 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1745,7 +1657,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "14e35353-44a6-556e-9f98-b5d21bfc2530")
+			(uuid "e3954a02-30f5-5b4c-9e62-00d880c2440d")
 		)
 		(instances
 			(project "cryocooler"
@@ -1758,7 +1670,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 52.07 81.28 0)
+		(at 46.99 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1768,7 +1680,7 @@
 		(dnp no)
 		(uuid "888c9da0-d32b-5703-9c51-23dac4702652")
 		(property "Reference" "#FLG031"
-			(at 52.07 81.28 0)
+			(at 46.99 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1779,7 +1691,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 52.07 81.28 0)
+			(at 46.99 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1790,7 +1702,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 81.28 0)
+			(at 46.99 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1801,7 +1713,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 52.07 81.28 0)
+			(at 46.99 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1812,7 +1724,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 52.07 81.28 0)
+			(at 46.99 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1823,7 +1735,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c1e41b3e-28a6-5506-8990-83c38862ae79")
+			(uuid "a37dd956-72c0-5fd1-b3ae-126ff9c7ce6a")
 		)
 		(instances
 			(project "cryocooler"
@@ -1901,7 +1813,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "daf38b13-8fe5-5433-942c-52014ed8bb4d")
+			(uuid "6bccfa2b-f897-5964-a6a5-a088cf4e23df")
 		)
 		(instances
 			(project "cryocooler"
@@ -1914,7 +1826,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 48.26 81.28 0)
+		(at 40.64 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1924,7 +1836,7 @@
 		(dnp no)
 		(uuid "964ff778-bf45-5ab2-b403-5164b8b124a3")
 		(property "Reference" "#PWR030"
-			(at 48.26 81.28 0)
+			(at 40.64 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1935,7 +1847,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 48.26 81.28 0)
+			(at 40.64 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1946,7 +1858,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 48.26 81.28 0)
+			(at 40.64 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1957,7 +1869,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 48.26 81.28 0)
+			(at 40.64 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1968,7 +1880,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 48.26 81.28 0)
+			(at 40.64 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1979,7 +1891,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "4ee226f5-add1-5049-bec0-c46aa3c0b0ed")
+			(uuid "68a94801-6a92-5fc9-a4d7-76cdc4924cda")
 		)
 		(instances
 			(project "cryocooler"
@@ -1991,8 +1903,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:Barrel_Jack_Switch")
-		(at 35.56 78.74 0)
+		(lib_id "cryocooler:ATX12V_2x2")
+		(at 30.48 78.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2002,7 +1914,7 @@
 		(dnp no)
 		(uuid "9abb7ca4-bddd-5fbf-b7f5-473e5999aeb7")
 		(property "Reference" "J2"
-			(at 45.38 70.07 0)
+			(at 25.4 68.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2012,8 +1924,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "12V IN"
-			(at 45.38 72.17 0)
+		(property "Value" "12V IN (ATX 4-PIN)"
+			(at 25.4 70.66 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2023,8 +1935,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "cryocooler:Tensility_54-00164_5.5x2.1mm_Horizontal_SMD"
-			(at 35.56 78.74 0)
+		(property "Footprint" "Connector_Molex:Molex_Mini-Fit_Jr_5569-04A2_2x02_P4.20mm_Horizontal"
+			(at 30.48 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2034,8 +1946,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/detail/tensility/54-00164/10459298"
-			(at 35.56 78.74 0)
+		(property "Datasheet" "https://www.molex.com/pdm_docs/sd/039300020_sd.pdf"
+			(at 30.48 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2045,8 +1957,8 @@
 				)
 			)
 		)
-		(property "Description" "12 V DC input jack (5.5 x 2.1 mm, centre positive)"
-			(at 35.56 78.74 0)
+		(property "Description" "12 V input, Mini-Fit Jr 2 x 2 pinned as the ATX 12 V (CPU) connector: 1 and 2 ground, 3 and 4 +12 V"
+			(at 30.48 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2056,8 +1968,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=54-00164"
-			(at 35.56 78.74 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=39-30-0040"
+			(at 30.48 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2066,15 +1978,18 @@
 					(size 1.27 1.27)
 				)
 			)
-		)
-		(pin "1"
-			(uuid "eb3ff691-1a7d-5dce-8887-e292a27dbcb9")
-		)
-		(pin "2"
-			(uuid "ed59f163-3b84-5b6f-9ba3-94ba28a22013")
 		)
 		(pin "3"
-			(uuid "f3eea313-974f-5aee-9e96-85dac23ef6bf")
+			(uuid "eeb48976-61c9-5df8-92cb-1364271d7510")
+		)
+		(pin "4"
+			(uuid "8300be71-88c8-5a6f-a955-fd0850403b54")
+		)
+		(pin "1"
+			(uuid "44ce6fa0-057e-5c1b-983e-7ec464c045d0")
+		)
+		(pin "2"
+			(uuid "bb9ef8f1-46ad-5dae-8e7f-0366be1f7528")
 		)
 		(instances
 			(project "cryocooler"
@@ -2152,7 +2067,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "32647266-4c7b-5e20-a668-e608572b73ed")
+			(uuid "c4106e67-a013-575b-9372-849df7a8a875")
 		)
 		(instances
 			(project "cryocooler"
@@ -2239,10 +2154,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "978344cd-b529-5644-8c25-a8f3a36ceb8d")
+			(uuid "7612ae35-3935-5091-8a17-dba09e847105")
 		)
 		(pin "2"
-			(uuid "c1f94034-7e16-521f-b54b-501b1ae6c4a0")
+			(uuid "54a10f39-4e91-58e3-8298-0757e0472429")
 		)
 		(instances
 			(project "cryocooler"
@@ -2319,7 +2234,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c6dda624-262c-5c8d-b126-549125f4f6ac")
+			(uuid "22211299-4665-56ee-b4f1-b3d8c40b6e6a")
 		)
 		(instances
 			(project "cryocooler"
@@ -2342,7 +2257,7 @@
 		(dnp no)
 		(uuid "ba69662a-7b3a-5f31-8bf9-066e4ad4e9fa")
 		(property "Reference" "F1"
-			(at 59.69 70.338 270)
+			(at 58.42 70.338 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2351,8 +2266,8 @@
 				)
 			)
 		)
-		(property "Value" "5A backup"
-			(at 59.69 72.438 270)
+		(property "Value" "10A backup"
+			(at 58.42 72.438 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2372,7 +2287,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=0453005.MR"
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=0453010.MR"
 			(at 58.42 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -2383,7 +2298,7 @@
 				)
 			)
 		)
-		(property "Description" "Backup input fuse (5 A) on the 12 V input"
+		(property "Description" "Backup input fuse (10 A) on the 12 V input"
 			(at 58.42 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -2394,7 +2309,7 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=0453005.MR"
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=0453010.MR"
 			(at 58.42 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -2406,10 +2321,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "eccafa96-81bd-5da1-8dea-de4825c2563f")
+			(uuid "53e6965f-64e8-5189-84ae-5832d1e73837")
 		)
 		(pin "2"
-			(uuid "5535ab23-acb3-567d-855f-931e878b1479")
+			(uuid "f11eb77f-65a9-5429-be17-4e36c550d790")
 		)
 		(instances
 			(project "cryocooler"
@@ -2498,10 +2413,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "eef1d1ba-1833-5e5c-87de-7aea2eccf4aa")
+			(uuid "48a2a5f0-1813-5ac1-b22d-90d69c3b339e")
 		)
 		(pin "2"
-			(uuid "ca5712fa-49e7-543a-b764-e6c408af721a")
+			(uuid "fbdc683a-ab42-576b-a24a-ad00fa9cd02f")
 		)
 		(instances
 			(project "cryocooler"
