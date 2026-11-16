@@ -197,7 +197,7 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ### sysinfo
 
-Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module stops reading, then looks for the chip again every 2 s and resumes when it answers. It also tracks CPU load, heap and PSRAM.
+Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module stops reading, then looks for the chip again every 2 s and resumes when it answers. The current is scaled with an effective shunt value of 39.6 mΩ measured on the bench board, because its sense lines include some 12 V copper, and a small offset from the VBUS pin is subtracted (constants in `src/modules/sysinfo.cpp`); `get ina` prints the raw shunt voltage for re-measuring it on another board. It also tracks CPU load, heap and PSRAM.
 
 ---
 
@@ -311,6 +311,7 @@ Non-blocking USB serial command handler. `service()` accumulates characters and 
 | `get vout` | Get current DAC output voltage |
 | `set bemf limit <V>` | Temporary back-EMF overstroke limit (V RMS) until reboot. It can only tighten the check; `0` removes it |
 | `get bemf` | Show the back-EMF estimate and the limit in force |
+| `get ina` | Show the INA239 raw registers and shunt voltage |
 | `relay` | Show current state of both relays |
 | `relay amplifier on/off` | Control amplifier relay |
 | `relay compressor on/off` | Control compressor relay |

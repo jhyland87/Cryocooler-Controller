@@ -26,3 +26,14 @@
 - [x] The plug the cryocooler uses has 3 pins since its normally connected to a 3 pin socket that outputs AC voltage from a variac. Hot, Live and Ground. The amplifier output only has the + and - pins, so we need a 2 pin connector for the amplifier to connect to, then the + and - get ran through the ACS37800, and then it needs to connect to a three pin connector for the cryocooler. The 3rd pin should connect to ground.  — done (J11 2-pin from amp, J12 3-pin to cryocooler with pin 3 on GND)
 - [x] The PCB should be blue. — done
 - [x] Again, the board in this branch needs to be optimized to use both sides of the PCB, its pretty crowded on one side and baren on the other. — done
+
+# [11/15/2026] INA239 system current read about 2.9x high (bench board)
+- [x] **Found and worked around in firmware.** The dashboard showed 0.60 A / 7.1 W while a series multimeter and the bench supply showed 0.21 A / 2.5 W.
+  - Measured on the board at 0.21 A: 2.7 mV across the shunt's own end caps (correct for 15 mΩ, marked R015F), but 8.3 mV at the shunt-side pads of the two 49.9 Ω filter resistors, and 8.9 mV reported by the chip.
+  - Cause: the sense lines do not start at the shunt pads. They tap the 12 V copper further away, so the supply current's drop in that copper (about 25 mΩ, more than the shunt itself) is measured as shunt voltage. The chip, its settings, the shunt and the filter resistors (both 49.9 Ω) are all correct.
+  - Firmware fix (`src/modules/sysinfo.cpp`): effective shunt value 39.6 mΩ, plus a small offset correction for the VBUS pin current through the 49.9 Ω filter resistor (about 0.6 mV, 0.015 A). After it: 0.210 A / 2.51 W.
+  - Limits of the fix: calibrated at one load point only; copper drifts about 0.4 %/°C; the chip's ±163.84 mV input range now ends near 4.1 A where it was nominally 10.9 A; the value belongs to this one board.
+  - `get ina` on the serial console prints the raw shunt voltage and registers, for re-measuring on another board.
+  - Hardware fix, not done: lift the shunt-side end of each filter resistor and wire it straight to its shunt end cap, then set the constant back to 15 mΩ.
+- [ ] **Layout rule for every future board:** route the two INA239 sense lines as a Kelvin pair that starts on the shunt's own pads (inside edge), as thin dedicated traces carrying no load current, and check it in the PCB file before ordering. The autorouter treats the sense taps as ordinary connections to the VSW and +12V nets and will join them anywhere.
+- [ ] The PCB file on `main` is newer than the bench board and was not measured. Read from the file, its output-side sense trace is dedicated, but the input (VSW) side appears to share a few millimetres with the supply path. Check before the next order.

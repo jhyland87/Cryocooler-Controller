@@ -28,6 +28,7 @@
  *   wifi txpower \<dBm\>  - Set max WiFi TX power until reboot
  *   set bemf limit \<V\> - Temporary back-EMF overstroke limit (can only tighten)
  *   get bemf             - Show the back-EMF estimate and the limit in force
+ *   get ina              - Show the INA239 raw registers and shunt voltage
  *   wifi on              - Turn WiFi on until reboot
  *   wifi off             - Turn WiFi off until reboot
  *   wifi onboot <on|off> - Save whether WiFi starts at boot (also true/false/1/0)

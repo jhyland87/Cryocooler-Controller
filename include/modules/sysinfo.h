@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include "module.h"
 
+class Print;
+
 namespace sysinfo {
 
 /**
@@ -36,6 +38,13 @@ float getVoltage();
 float getCurrent();
 float getPower();
 float getAmbientTemperature();
+
+/**
+ * Prints the INA239's raw registers and the shunt voltage, for checking the
+ * current reading against a meter across the shunt.
+ * @param out  Where to print.
+ */
+void printIna239Diagnostics(Print& out);
 
 /**
  * Inject cached readings directly, bypassing the INA239 hardware read.

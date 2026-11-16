@@ -592,6 +592,12 @@ static void handleVoutGet(const char* /*args*/, Print& out) {
     out.println(buf);
 }
 
+/** `get ina`: print the INA239 raw registers and shunt voltage. */
+static void handleInaGet(const char* /*args*/, Print& out) {
+    sysinfo::printIna239Diagnostics(out);
+    out.println(F("[OK]"));
+}
+
 /** `get bemf`: print the back-EMF estimate and the limit in force. */
 static void handleBackEmfGet(const char* /*args*/, Print& out) {
     char buf[96];
@@ -1453,6 +1459,7 @@ static const Command commandMap[] = {
     {"get vout",            handleVoutGet,         "Get dac output voltage"},
     {"set bemf limit",      handleBackEmfLimitSet, "Temporary back-EMF overstroke limit in V RMS (can only tighten; 0 removes)"},
     {"get bemf",            handleBackEmfGet,      "Show the back-EMF estimate and the limit in force"},
+    {"get ina",             handleInaGet,          "Show the INA239 raw registers and shunt voltage"},
     // "relay amplifier/compressor" must precede bare "relay" so the longer prefix wins.
     {"relay amplifier",     handleRelayAmplifier,   "Energise or de-energise the amplifier relay (on|off)"},
     {"relay compressor",    handleRelayCompressor,  "Energise or de-energise the compressor relay (on|off)"},
