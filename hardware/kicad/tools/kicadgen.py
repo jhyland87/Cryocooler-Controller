@@ -780,13 +780,16 @@ class Sheet:
                 # pad test points are bare copper: nothing to order
                 '\t\t(in_bom yes)'
                 if not getattr(part, 'is_power', False)
+                and not getattr(part, 'off_board', False)
                 and not part.ref.startswith('#')
                 and 'TestPoint_Pad' not in (part.footprint or '')
                 else '\t\t(in_bom no)'
             ),
             (
+                # off_board: drawn for reference only, e.g. the display's terminals
                 '\t\t(on_board yes)'
                 if not part.ref.startswith('#')
+                and not getattr(part, 'off_board', False)
                 else '\t\t(on_board no)'
             ),
             '\t\t(in_pos_files yes)',

@@ -153,6 +153,15 @@ def datasheet_url(mpn):
     return product_url(mpn)
 
 
+# Parts drawn for reference that are not on this board, by symbol value.
+OFF_BOARD_LINKS = {
+    'TERMINALS': {
+        'Datasheet': 'https://docs.waveshare.com/ESP32-S3-Touch-LCD-4.3B',
+        'Product': 'https://www.waveshare.com/esp32-s3-touch-lcd-4.3b.htm',
+    },
+}
+
+
 def links(ref, value, footprint):
     """{'Datasheet': url, 'Product': url} for one part, or {} if it has no
     orderable part (test points, parts without a chosen MPN).

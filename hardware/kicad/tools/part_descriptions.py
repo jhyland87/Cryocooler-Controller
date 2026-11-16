@@ -130,6 +130,9 @@ DESCRIPTIONS = {
     'TP37': 'Test point: DDS output sine (AD9837 VOUT)',
     'TP38': 'Test point: sine drive signal at the amplifier output jack',
     # ── display link (CAN) ──────────────────────────────────────────────────────────
+    'DS1': 'Off-board: the 16-way screw terminal strip on the back of the Waveshare '
+           'touch display, drawn to show where the J15 and J21 cables land; not a '
+           'part of this board',
     'J15': 'Display link header: unswitched 12 V and GND to power the Waveshare '
            'touch display, and the CAN bus pair',
     'J21': 'Display button header: the display pulls PWR_BTN or RESET low through '

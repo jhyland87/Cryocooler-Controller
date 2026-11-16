@@ -820,11 +820,12 @@ def build_power_input(sh):
     drop_ground(sh, (90, 66), 0)
 
 
-def display_buttons(sh, column, row):
+def display_buttons(sh, column, row, header):
     """J21: the off-board display's two open-collector outputs (DO0, DO1) act as
     the power button and the RESET button. Each line has 100 R in series and an
-    ESD clamp on the cable side. Header centred on (column, row), pin 1 at the
-    bottom; the lines run left from it.
+    ESD clamp on the cable side. The resistors and clamps sit left of
+    (column, row); the header goes at `header`, beside the display's terminals,
+    and joins them through the DISP_PWR_BTN and DISP_RESET labels.
     """
     sh.note('POWER BUTTON AND RESET FROM THE DISPLAY', 20 * 1.27, (row - 30) * 1.27, 1.8)
     sh.note(
@@ -841,8 +842,8 @@ def display_buttons(sh, column, row):
         'Connector_Generic:Conn_01x04',
         buttons_ref,
         'DISPLAY PWR BTN / RESET',
-        column * 1.27,
-        row * 1.27,
+        header[0] * 1.27,
+        header[1] * 1.27,
         rot=180,
         mirror=True,
         auto=False,
@@ -850,24 +851,23 @@ def display_buttons(sh, column, row):
     )
     drop_ground(sh, spur(sh, buttons, '1', 4), 2)
     sh.nc(buttons, '4')
-    press, reset = pin_cell(buttons, '2'), pin_cell(buttons, '3')
-    reset_row = reset[1] - 16
+    net_label(sh, 'DISP_PWR_BTN', spur(sh, buttons, '2', 4), 180)
+    net_label(sh, 'DISP_RESET', spur(sh, buttons, '3', 4), 180)
+    press_row, reset_row = row, row - 16
     left = column - 60
-    wire(sh, press, (left + 3, press[1]))
-    net_label(sh, 'DISP_PWR_BTN', (column - 28, press[1]), 0)
-    wire(sh, reset, (column - 14, reset[1]), (column - 14, reset_row), (left + 3, reset_row))
-    net_label(sh, 'DISP_RESET', (column - 27, reset_row), 0)
     with kicadgen.pinned_refs('U', REV5_LAST['U'] + 3), kicadgen.pinned_refs(
         'R', REV5_LAST['R'] + 6
     ):
         clamp_refs = (next_ref('U'), next_ref('U'))
-        for net, line, tap, clamp_ref, is_global in (
-            ('ESP_EN', reset_row, column - 40, clamp_refs[1], True),
-            ('PWR_BTN', press[1], column - 50, clamp_refs[0], False),
+        for net, cable_net, line, tap, clamp_ref in (
+            ('ESP_EN', 'DISP_RESET', reset_row, column - 40, clamp_refs[1]),
+            ('PWR_BTN', 'DISP_PWR_BTN', press_row, column - 50, clamp_refs[0]),
         ):
             hres(sh, '100', left, line)
             wire(sh, (left - 3, line), (left - 16, line))
-            net_label(sh, net, (left - 16, line), 180, is_global=is_global)
+            net_label(sh, net, (left - 16, line), 180, is_global=True)
+            wire(sh, (left + 3, line), (column - 28, line))
+            net_label(sh, cable_net, (column - 28, line), 0)
             clamp = sh.add(
                 'cryocooler:TPD1E05U06DPYR',
                 clamp_ref,
@@ -919,8 +919,9 @@ def build_power_button(sh):
     # push button, ONT left open
     pb = pin_cell(u, '3')
     wire(sh, pb, (40, pb[1]), (36, pb[1]))
-    net_label(sh, 'PWR_BTN', (40, pb[1]), 0)
-    display_buttons(sh, 100, 158)
+    # global: the display's DO0 presses the same line from the Display sheet
+    wire(sh, (40, pb[1]), (40, pb[1] - 3))
+    net_label(sh, 'PWR_BTN', (40, pb[1] - 3), 180, is_global=True)
     sw = sh.add(
         'Switch:SW_Push',
         next_ref('SW'),
@@ -3341,30 +3342,64 @@ def build_display(sh):
     display_link(sh)
 
 
-def waveshare_drawing(sh, x, y):
-    """Outline of the off-board Waveshare touchscreen (drawing only, mm): bezel,
-    screen and the terminal strip the two headers are wired to.
+# Screw terminals on the back of the Waveshare ESP32-S3-Touch-LCD-4.3B, left to
+# right as printed on the board (Waveshare "What's On Board" back view, read
+# 2026-11-15): L / H are CAN, B / A are RS485, COM is DI COM.
+WAVESHARE_TERMINALS = (
+    'VIN', 'GND', 'VOUT', 'GND', 'SDA', 'SCL', 'L', 'H',
+    'B', 'A', 'DO0', 'DO1', 'COM', 'GND', 'DI0', 'DI1',
+)
+
+
+def waveshare_drawing(sh, column, row):
+    """Back view of the off-board Waveshare touchscreen, about 3/4 scale and
+    landscape: board outline with its top-left corner on cell (column, row) and
+    the main parts placed by eye from Waveshare's picture (drawing only). The
+    16-way terminal strip on the bottom edge is a real symbol, marked off-board,
+    so the nets of the two cables show on its pins. Returns that part.
     """
-    sh.note('OFF-BOARD: WAVESHARE TOUCHSCREEN WITH ITS OWN ESP32-S3', x, y - 8, 1.8)
-    sh.rectangle(x, y, x + 84, y + 54, 0.5)
-    sh.rectangle(x + 5, y + 5, x + 79, y + 45)
-    sh.note('WAVESHARE', x + 24, y + 13, 3.0)
-    sh.note('ESP32-S3-Touch-LCD-4.3B', x + 21, y + 21, 1.8)
-    sh.note('4.3 in, 800 x 480, capacitive touch', x + 20, y + 27, 1.5)
-    sh.note('runs its own firmware', x + 28, y + 32, 1.5)
-    # terminal strip on the back, eight of its screws shown
-    strip = y + 57
-    sh.rectangle(x + 18, strip, x + 66, strip + 6)
-    for index in range(1, 8):
-        sh.polyline([(x + 18 + 6 * index, strip), (x + 18 + 6 * index, strip + 6)])
-    sh.note('J15: VIN (12 V), GND, CAN H, CAN L terminals', x, strip + 10, 1.5)
-    sh.note('J21 (Power Button sheet): DO0 = power button, DO1 = reset, GND', x, strip + 14, 1.5)
+    def mm(cells):
+        return cells * 1.27
+
+    def box(left, top, right, bottom, text, text_left, text_top, size=1.2):
+        sh.rectangle(mm(column + left), mm(row + top), mm(column + right), mm(row + bottom))
+        sh.note(text, mm(column + text_left), mm(row + text_top), size)
+
+    sh.note('OFF-BOARD: WAVESHARE ESP32-S3-Touch-LCD-4.3B, BACK VIEW', mm(column), mm(row - 8), 1.8)
+    sh.note('own ESP32-S3 and firmware; 4.3 in, 800 x 480 touchscreen on the other side',
+            mm(column), mm(row - 4), 1.5)
+    sh.rectangle(mm(column), mm(row), mm(column + 66), mm(row + 44), 0.5)
+    box(2, 3, 10, 13, 'SD card', 2.8, 8)
+    box(12, 2, 25, 17, 'ESP32-S3', 14.5, 9, 1.5)
+    box(0, 20, 5, 25, 'USB-C', 6, 22.5)
+    box(2, 28, 5, 31, 'BOOT', 6, 29.5)
+    box(2, 33, 5, 36, 'RESET', 6, 34.5)
+    box(38, 20, 53, 23, 'LCD FPC', 42, 18.5)
+    box(56, 17, 62, 23, 'RTC', 57.2, 20)
+    terminals = sh.add(
+        'Connector_Generic:Conn_01x16',
+        'DS1',
+        'TERMINALS',
+        (column + 34) * 1.27,
+        (row + 43) * 1.27,
+        rot=90,
+        auto=False,
+    )
+    terminals.off_board = True
+    for index, name in enumerate(WAVESHARE_TERMINALS):
+        pin_column = pin_cell(terminals, str(index + 1))[0]
+        # neighbours alternate between two rows so the names never touch
+        sh.note(name, mm(pin_column - 0.9), mm(row + 35 + 2.5 * (index % 2)), 1.0)
+    sh.note('CAN', mm(pin_cell(terminals, '7')[0] - 0.5), mm(row + 32), 1.2)
+    sh.note('RS485', mm(pin_cell(terminals, '9')[0] - 0.5), mm(row + 32), 1.2)
+    return terminals
 
 
 def display_link(sh):
     """Hand-laid: the off-board Waveshare ESP32-S3-Touch-LCD-4.3B runs its own
-    firmware. CAN transceiver on the left, its header on the right. The header
-    for the display's two digital outputs is on the Power Button sheet.
+    firmware. CAN transceiver on the left with the digital-output circuits below
+    it; both headers sit beside the terminals they wire to on the back-view
+    drawing of the display.
     """
     sh.handwired = True
     sh.note(
@@ -3388,12 +3423,35 @@ def display_link(sh):
         27,
     )
     sh.note(
-        'Its two digital outputs press the power button and RESET through J21 on the '
-        'Power Button sheet.',
+        'Its two digital outputs press the power button and RESET through J21: '
+        'global labels PWR_BTN (Power Button sheet) and ESP_EN (MCU sheet).',
         20,
         33,
     )
-    waveshare_drawing(sh, 300, 78)
+    terminals = waveshare_drawing(sh, 240, 48)
+    # the two cables land on the display's terminals with the same nets
+    feed_pin = pin_cell(terminals, '1')
+    wire(sh, feed_pin, (feed_pin[0], feed_pin[1] + 5), (feed_pin[0] - 4, feed_pin[1] + 5),
+         (feed_pin[0] - 4, feed_pin[1] + 4))
+    rail_symbol(sh, 'VIN', (feed_pin[0] - 4, feed_pin[1] + 4))
+    for pin in ('2', '14'):
+        drop_ground(sh, pin_cell(terminals, pin), 3)
+    # vertical labels; the first of each pair steps one pin left so the texts
+    # are two pins apart
+    for pin, net, step in (
+        ('7', 'CAN_L', -2), ('8', 'CAN_H', 0),
+        ('11', 'DISP_PWR_BTN', -2), ('12', 'DISP_RESET', 0),
+    ):
+        tip = pin_cell(terminals, pin)
+        end = (tip[0] + step, tip[1] + 4)
+        wire(sh, tip, (tip[0], tip[1] + 2), (end[0], tip[1] + 2), end)
+        net_label(sh, net, end, 270)
+    for pin in ('3', '4', '5', '6', '9', '10', '13', '15', '16'):
+        sh.nc(terminals, pin)
+    # on-board headers the cables plug into, left of the display
+    sh.note('ON-BOARD HEADERS', 186 * 1.27, 48 * 1.27, 1.8)
+    link_cell = (206, 66)
+    buttons_cell = (206, 84)
     with kicadgen.pinned_refs('U', REV5_LAST['U'] + 2):
         phy = place_ic(
             sh,
@@ -3440,8 +3498,8 @@ def display_link(sh):
             'Connector_Generic:Conn_01x04',
             link_ref,
             'DISPLAY 12V / CAN',
-            200 * 1.27,
-            74 * 1.27,
+            link_cell[0] * 1.27,
+            link_cell[1] * 1.27,
             rot=180,
             mirror=True,
             auto=False,
@@ -3460,6 +3518,7 @@ def display_link(sh):
             40,
             150,
         )
+    display_buttons(sh, 100, 124, buttons_cell)
 
 
 def build_indicators(sh):
@@ -4059,7 +4118,10 @@ def link_parts(sheets):
             footprint = part.footprint or kicadgen.symbol_prop(
                 kicadgen.get_symbol(part.lib_id), 'Footprint'
             )
-            found = part_links.links(part.ref, part.value, footprint)
+            if getattr(part, 'off_board', False):
+                found = part_links.OFF_BOARD_LINKS.get(part.value, {})
+            else:
+                found = part_links.links(part.ref, part.value, footprint)
             if not found and not part.ref.startswith('TP'):
                 unlinked.append(part.ref)
             part.props.update(found)

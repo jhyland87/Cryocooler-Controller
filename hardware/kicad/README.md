@@ -13,7 +13,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 |---|---|
 | `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, USB-C (GCT USB4205-GF-A, flag type) + ESD |
 | `power_input` | 12 V DC jack (5.5 x 2.1 mm), 5 A fuse, SMBJ16A TVS, bulk caps |
-| `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (the J7 panel header went in rev 4). Rev 5: J21 (X2510WRS-04: 1 GND, 2 power button, 3 reset, 4 unused) lets the off-board display's two open-collector outputs press `PWR_BTN` like SW3 and pull `ESP_EN` low like the RESET button, each through 100 Ω with a TPD1E05U06 clamp |
+| `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (the J7 panel header went in rev 4). Rev 5: `PWR_BTN` is a global label, so the display's digital output on the `display` sheet (J21) presses the same line as SW3 |
 | `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
 | `rails_15v` | ADP5071ACPZ dual converter at 1.2 MHz with SRP7050TA-3R3M and -6R8M (rev 1 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); the LT3097 PGP / PGN go to the `power_good` sheet |
 | `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
@@ -29,7 +29,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `indicators` | WS2812B-2020 status LED behind a 74AHCT1G125 level shifter |
 | `debug` | Test points on rails, grounds and control lines; LEDs on +5V and ISO 5V |
 | `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below); FB3 ahead of JP5 |
-| `display` | Rev 5: link to the off-board Waveshare ESP32-S3-Touch-LCD-4.3B, which runs its own firmware. TCAN3414 CAN transceiver (U52, `CAN_TX` GPIO17 with a 10 kΩ pull-up, `CAN_RX` GPIO12, 120 Ω termination R516) to J15 (X2510WRS-04: 1 GND, 2 unswitched 12 V `VIN`, 3 CAN_H, 4 CAN_L). The header for the display's two digital outputs, J21, is on the `power_button` sheet. Rev 4 and earlier: FH12-14S FPC to the Phoenix 2.4" ST7789V display with a TSC2046 touch controller |
+| `display` | Rev 5: link to the off-board Waveshare ESP32-S3-Touch-LCD-4.3B, which runs its own firmware. TCAN3414 CAN transceiver (U52, `CAN_TX` GPIO17 with a 10 kΩ pull-up, `CAN_RX` GPIO12, 120 Ω termination R516) to J15 (X2510WRS-04: 1 GND, 2 unswitched 12 V `VIN`, 3 CAN_H, 4 CAN_L). J21 (X2510WRS-04: 1 GND, 2 power button, 3 reset, 4 unused) lets the display's two open-collector outputs press the global `PWR_BTN` like SW3 and pull `ESP_EN` low like the RESET button, each through 100 Ω with a TPD1E05U06 clamp. Rev 4 and earlier: FH12-14S FPC to the Phoenix 2.4" ST7789V display with a TSC2046 touch controller |
 | `aux_io` ("General Purpose IO") | GPIO 5, 7, 11, 13 each on a 2-pin XKB X2510WRS-02 header J16-J18 and J20 (rev 5; rev 4 also had GPIO12 on J19, now `CAN_RX`) (signal, GND) with an ESD clamp, 100 Ω in series and a 100 kΩ / 100 kΩ divider to GND; one OPA4990 section per pin (on `+5V_OR`, so it also runs on USB power) takes the divider tap and drives a green LED with Vpin / 6.6 kΩ |
 
 ## ±15 V rails and power good
@@ -100,6 +100,8 @@ Bypass/decoupling capacitors for each IC are drawn together in a labelled block 
 
 **Drawings.** `sh.rectangle()` and `sh.polyline()` add drawing-only shapes that connect nothing; the display sheet
 uses them for the outline of the off-board Waveshare touchscreen (`waveshare_drawing()`).
+A part with `off_board = True` (the display's terminal strip, DS1) is drawn and wired like any other but is left out
+of the BOM, the netlist and the board.
 
 **No-overlap text rule.** Reference, value, net-label and note text may not overlap other text or a symbol body
 (plus 1 mm for pin numbers). `tools/textlayout.py` places each field in the first free spot, hides a field only
