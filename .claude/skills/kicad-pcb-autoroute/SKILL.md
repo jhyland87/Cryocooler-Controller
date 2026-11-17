@@ -122,3 +122,12 @@ Use the repair loop in `kicad-pcb-edit` (`gridroute.py`, `plane_ties.py`,
 
 DeepPCB (cloud, paid credits, uploads the design) and older Freerouting versions were
 considered and not tested.
+
+## Counting clearance spots
+
+- Pass `--all-track-errors` to `kicad-cli pcb drc` when counting. Without it KiCad
+  reports one error per track and the count changes from run to run.
+- Always `--refill-zones` first; stale pours add false zone hits.
+- `via_in_pad_clearance` gives every 0.2 mm-hole via 0.1 mm to other copper. The
+  0.3 mm-hole vias (0.6 mm pad) still need the full 0.15 mm, and `gridroute.py`
+  routes new vias at 0.1 mm either way.

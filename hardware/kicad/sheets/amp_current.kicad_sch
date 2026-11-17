@@ -2447,6 +2447,73 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 27.94 83.82) (xy 33.02 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0a5bb0a-5302-5ef6-a16b-5fca16b3acd8")
+	)
+	(bus
+		(pts
+			(xy 241.3 124.46) (xy 246.38 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8da1399-7ba8-5c1e-befb-773d379b564c")
+	)
+	(bus
+		(pts
+			(xy 33.02 73.66) (xy 33.02 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d23a0c13-c0e8-5752-a517-fb7724352182")
+	)
+	(bus
+		(pts
+			(xy 246.38 124.46) (xy 246.38 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f60e3785-377a-5711-8e92-280fa70f1d53")
+	)
+	(bus_entry
+		(at 35.56 71.12)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d956c790-6fa8-5325-b1a1-427a963edad6")
+	)
+	(bus_entry
+		(at 248.92 132.08)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "59930a39-206d-5866-a81a-100616ea4084")
+	)
+	(bus_entry
+		(at 248.92 165.1)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3da84831-2023-5905-96ff-e99e59e55b90")
+	)
 	(text "Amplifier output V/I monitor: ACS37800 (SPI, 15 mA max) on an isolated 5 V domain from the ISOW7841A (SEL on VISO selects 5 V). It runs from +3V3_ISO because its one supply pin also sets the logic thresholds; 3.3 V in gives 40 mA at 5 V out."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -2630,33 +2697,6 @@
 		(at 283.21 134.62)
 		(uuid "5383d116-b55a-5bcd-abe4-1cc77c049b51")
 	)
-	(bus_entry
-		(at 248.92 165.1)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3da84831-2023-5905-96ff-e99e59e55b90")
-	)
-	(bus_entry
-		(at 248.92 132.08)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59930a39-206d-5866-a81a-100616ea4084")
-	)
-	(bus_entry
-		(at 35.56 71.12)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d956c790-6fa8-5325-b1a1-427a963edad6")
-	)
 	(wire
 		(pts
 			(xy 248.92 218.44) (xy 264.16 218.44)
@@ -2696,6 +2736,16 @@
 			(type default)
 		)
 		(uuid "0dad3b6a-af00-53b9-876a-6a3a549fed1c")
+	)
+	(wire
+		(pts
+			(xy 60.96 71.12) (xy 63.5 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18eab27a-45ae-5036-83df-e6a370585940")
 	)
 	(wire
 		(pts
@@ -2829,7 +2879,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 132.08) (xy 262.89 132.08)
+			(xy 248.92 132.08) (xy 260.35 132.08)
 		)
 		(stroke
 			(width 0)
@@ -2846,6 +2896,16 @@
 			(type default)
 		)
 		(uuid "4836f3e9-395b-5850-b82e-4fe988e00e88")
+	)
+	(wire
+		(pts
+			(xy 260.35 132.08) (xy 262.89 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "493ec2e5-204b-5e9a-ac22-5796f778d15c")
 	)
 	(wire
 		(pts
@@ -2939,7 +2999,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 165.1) (xy 262.89 165.1)
+			(xy 248.92 165.1) (xy 260.35 165.1)
 		)
 		(stroke
 			(width 0)
@@ -3036,6 +3096,16 @@
 			(type default)
 		)
 		(uuid "a35558f7-b1a0-57d2-8032-6619b5534d3e")
+	)
+	(wire
+		(pts
+			(xy 260.35 165.1) (xy 262.89 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a5a7f4a4-4429-59ad-8357-220b5145db6f")
 	)
 	(wire
 		(pts
@@ -3147,16 +3217,6 @@
 		)
 		(uuid "ce8ab8a1-7e2e-5418-adc4-e234f554df21")
 	)
-	(bus
-		(pts
-			(xy 33.02 73.66) (xy 33.02 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d23a0c13-c0e8-5752-a517-fb7724352182")
-	)
 	(wire
 		(pts
 			(xy 33.02 172.72) (xy 48.26 172.72)
@@ -3197,16 +3257,6 @@
 		)
 		(uuid "dd8e637e-8706-5ecd-8d9d-7cd6e47cea9c")
 	)
-	(bus
-		(pts
-			(xy 27.94 83.82) (xy 33.02 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e0a5bb0a-5302-5ef6-a16b-5fca16b3acd8")
-	)
 	(wire
 		(pts
 			(xy 201.93 73.66) (xy 220.98 73.66)
@@ -3239,7 +3289,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 71.12) (xy 63.5 71.12)
+			(xy 35.56 71.12) (xy 60.96 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3256,16 +3306,6 @@
 			(type default)
 		)
 		(uuid "e7be259c-2dc7-539e-9e68-5158ebe2ffb3")
-	)
-	(bus
-		(pts
-			(xy 241.3 124.46) (xy 246.38 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e8da1399-7ba8-5c1e-befb-773d379b564c")
 	)
 	(wire
 		(pts
@@ -3286,16 +3326,6 @@
 			(type default)
 		)
 		(uuid "f56ee6c2-da80-584a-89ff-c4c797ff94c0")
-	)
-	(bus
-		(pts
-			(xy 246.38 124.46) (xy 246.38 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f60e3785-377a-5711-8e92-280fa70f1d53")
 	)
 	(wire
 		(pts

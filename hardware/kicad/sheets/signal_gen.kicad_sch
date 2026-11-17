@@ -2253,6 +2253,82 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 39.37 63.5) (xy 44.45 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11073948-0d77-5e8a-b3ce-2388fe1dc686")
+	)
+	(bus
+		(pts
+			(xy 209.55 88.9) (xy 214.63 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d46b9c6a-203d-5224-b35e-a02910ca83f1")
+	)
+	(bus
+		(pts
+			(xy 44.45 63.5) (xy 44.45 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa0fd159-7bbd-523a-96eb-9b499f2e7228")
+	)
+	(bus
+		(pts
+			(xy 209.55 83.82) (xy 209.55 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fb493ba-2d26-5991-ab80-108f549c4500")
+	)
+	(bus_entry
+		(at 46.99 71.12)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ca751fb-f876-5281-a5fd-2ea60403313f")
+	)
+	(bus_entry
+		(at 46.99 73.66)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d24a212d-96b7-5ca1-b2ad-ee41cdf402a5")
+	)
+	(bus_entry
+		(at 212.09 81.28)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "605be14a-7d5c-5afd-83de-df8c76d05458")
+	)
+	(bus_entry
+		(at 212.09 83.82)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "03244cc3-13a5-55f3-8329-6a5b61f57f0c")
+	)
 	(text "OPA2991 -15V DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
 		(at 215.9 129.54 0)
@@ -2442,42 +2518,6 @@
 		(at 180.34 96.52)
 		(uuid "b3e1f46c-f034-5ab2-8fec-fa3efda5f853")
 	)
-	(bus_entry
-		(at 212.09 83.82)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "03244cc3-13a5-55f3-8329-6a5b61f57f0c")
-	)
-	(bus_entry
-		(at 46.99 71.12)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ca751fb-f876-5281-a5fd-2ea60403313f")
-	)
-	(bus_entry
-		(at 212.09 81.28)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "605be14a-7d5c-5afd-83de-df8c76d05458")
-	)
-	(bus_entry
-		(at 46.99 73.66)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d24a212d-96b7-5ca1-b2ad-ee41cdf402a5")
-	)
 	(wire
 		(pts
 			(xy 170.18 76.2) (xy 226.06 76.2)
@@ -2500,7 +2540,7 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 73.66) (xy 60.96 73.66)
+			(xy 46.99 73.66) (xy 58.42 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2527,16 +2567,6 @@
 			(type default)
 		)
 		(uuid "0e7eb0cb-0d27-50c7-b99c-a56c1343f041")
-	)
-	(bus
-		(pts
-			(xy 39.37 63.5) (xy 44.45 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "11073948-0d77-5e8a-b3ce-2388fe1dc686")
 	)
 	(wire
 		(pts
@@ -2610,6 +2640,26 @@
 	)
 	(wire
 		(pts
+			(xy 58.42 73.66) (xy 60.96 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "341bf89b-7a23-50c9-98dc-40546ce7b94c")
+	)
+	(wire
+		(pts
+			(xy 58.42 71.12) (xy 60.96 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36c45702-1cb6-5086-8c95-d75762948738")
+	)
+	(wire
+		(pts
 			(xy 292.1 73.66) (xy 297.18 73.66)
 		)
 		(stroke
@@ -2637,6 +2687,16 @@
 			(type default)
 		)
 		(uuid "3cdf9224-2960-523b-afd5-7de404493092")
+	)
+	(wire
+		(pts
+			(xy 223.52 81.28) (xy 226.06 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "40562d15-f9dc-515f-ae20-a075437499af")
 	)
 	(wire
 		(pts
@@ -2850,7 +2910,7 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 71.12) (xy 60.96 71.12)
+			(xy 46.99 71.12) (xy 58.42 71.12)
 		)
 		(stroke
 			(width 0)
@@ -2860,23 +2920,13 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 83.82) (xy 226.06 83.82)
+			(xy 212.09 83.82) (xy 223.52 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "6e5fa07f-28f0-5435-91c1-0a80392779b2")
-	)
-	(bus
-		(pts
-			(xy 209.55 83.82) (xy 209.55 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6fb493ba-2d26-5991-ab80-108f549c4500")
 	)
 	(wire
 		(pts
@@ -2937,6 +2987,16 @@
 			(type default)
 		)
 		(uuid "8144ed93-0f91-5b42-922f-b95ed51359d1")
+	)
+	(wire
+		(pts
+			(xy 223.52 83.82) (xy 226.06 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8820a537-0641-51c9-840b-893a9590a59f")
 	)
 	(wire
 		(pts
@@ -3130,7 +3190,7 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 81.28) (xy 226.06 81.28)
+			(xy 212.09 81.28) (xy 223.52 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3177,16 +3237,6 @@
 			(type default)
 		)
 		(uuid "d43b4dbc-9162-5470-b6c9-7f2a1990c0dd")
-	)
-	(bus
-		(pts
-			(xy 209.55 88.9) (xy 214.63 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d46b9c6a-203d-5224-b35e-a02910ca83f1")
 	)
 	(wire
 		(pts
@@ -3327,16 +3377,6 @@
 			(type default)
 		)
 		(uuid "f926b8d1-9860-5743-8d87-f2bbc90a8434")
-	)
-	(bus
-		(pts
-			(xy 44.45 63.5) (xy 44.45 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fa0fd159-7bbd-523a-96eb-9b499f2e7228")
 	)
 	(wire
 		(pts

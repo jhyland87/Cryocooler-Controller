@@ -26,3 +26,14 @@ Delete this folder once the routed board is in `cryocooler.kicad_pcb`.
   put the neighbours back, keep the trial only if the open count falls. `reach.py`: boxed-in pin report.
 - Do not use gridroute `FINE=1` here: it routes at 0.1 mm clearance and the board rule is 0.15 mm.
 - `7_merged_5_open` (+ its .kicad_pro/.kicad_dru with the 0.1 mm rules for the last nets): hand fixes g1-g3, g5 merged. 5 signals open (U107.18/.19, U104.5, U108.21, U105.12).
+
+## 2026-11-17
+
+- `12_connected_169_tight.*`: first board with 0 open and 0 errors (committed in 0772da0).
+- `15_vias_clear_12v_widened.*`: current best. 0 open, 0 errors. 214 track-segment
+  pairs under 0.15 mm (none under 0.1, none at a via), counted with
+  `--all-track-errors` and the `tight_*` rules removed (`tight_list.py`). Thin +12V
+  segments widened in place (`widen.py`); channel 1 DIRECT is on U108 GPB5.
+- `localfix.py` re-routes the track at each tight spot at 0.15 mm; `fix12.py` and
+  `nudge.py` are one-off moves; `bottleneck.py` gives the narrowest track feeding
+  each pad of a net.

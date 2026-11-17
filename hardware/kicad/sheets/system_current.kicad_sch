@@ -1721,6 +1721,53 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 190.5 66.04) (xy 195.58 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5bda8ca5-5249-5659-8f99-e87beb5180fc")
+	)
+	(bus
+		(pts
+			(xy 190.5 66.04) (xy 190.5 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4426549d-446c-5710-ba7e-332df17c29d1")
+	)
+	(bus_entry
+		(at 187.96 73.66)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1687d967-8fd6-5765-993e-0e7954c69301")
+	)
+	(bus_entry
+		(at 187.96 76.2)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cdf2a7a2-0710-5faf-b3fa-8994e5d47f78")
+	)
+	(bus_entry
+		(at 187.96 78.74)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa1fe9aa-a0c7-5ed2-8fc7-f848dbc8cbec")
+	)
 	(text "INA239 monitors the switched 12 V rail: 10 mOhm 4-terminal shunt (1 W at 10 A), SPI mode 1 on the main bus (CS from the decoder), +/-163.84 mV range (16.4 A). ALERT drives its LED and MCP23S08 GP6."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -1793,32 +1840,15 @@
 		(at 200.66 99.06)
 		(uuid "ccf235ae-ad4b-5350-81e2-eb5f7451025b")
 	)
-	(bus_entry
-		(at 187.96 73.66)
-		(size 2.54 -2.54)
+	(wire
+		(pts
+			(xy 157.48 78.74) (xy 187.96 78.74)
+		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1687d967-8fd6-5765-993e-0e7954c69301")
-	)
-	(bus_entry
-		(at 187.96 78.74)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aa1fe9aa-a0c7-5ed2-8fc7-f848dbc8cbec")
-	)
-	(bus_entry
-		(at 187.96 76.2)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cdf2a7a2-0710-5faf-b3fa-8994e5d47f78")
+		(uuid "00f803d9-874e-5e0c-a0cb-a71e32e2e4b9")
 	)
 	(wire
 		(pts
@@ -1862,7 +1892,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 78.74) (xy 187.96 78.74)
+			(xy 154.94 78.74) (xy 157.48 78.74)
 		)
 		(stroke
 			(width 0)
@@ -1899,16 +1929,6 @@
 			(type default)
 		)
 		(uuid "380ac7f3-4682-5b92-860c-f46e4c370a89")
-	)
-	(bus
-		(pts
-			(xy 190.5 66.04) (xy 190.5 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4426549d-446c-5710-ba7e-332df17c29d1")
 	)
 	(wire
 		(pts
@@ -1980,16 +2000,6 @@
 		)
 		(uuid "56dc9b3a-74a8-5bf0-999c-56105f11d3d6")
 	)
-	(bus
-		(pts
-			(xy 190.5 66.04) (xy 195.58 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5bda8ca5-5249-5659-8f99-e87beb5180fc")
-	)
 	(wire
 		(pts
 			(xy 154.94 71.12) (xy 170.18 71.12)
@@ -2042,7 +2052,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 73.66) (xy 187.96 73.66)
+			(xy 154.94 73.66) (xy 157.48 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2052,7 +2062,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 76.2) (xy 187.96 76.2)
+			(xy 154.94 76.2) (xy 157.48 76.2)
 		)
 		(stroke
 			(width 0)
@@ -2092,6 +2102,16 @@
 	)
 	(wire
 		(pts
+			(xy 157.48 76.2) (xy 187.96 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bdea2e66-5ce7-591b-9cd9-d6c6da61ff2d")
+	)
+	(wire
+		(pts
 			(xy 118.11 71.12) (xy 124.46 71.12)
 		)
 		(stroke
@@ -2119,6 +2139,16 @@
 			(type default)
 		)
 		(uuid "ca5e361e-4db4-55d8-a316-b39dfbf03e3a")
+	)
+	(wire
+		(pts
+			(xy 157.48 73.66) (xy 187.96 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d4a619a8-31f4-5b2a-81e1-04cf1742a485")
 	)
 	(wire
 		(pts

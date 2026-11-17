@@ -3618,6 +3618,9 @@ IO_SPARE_INPUTS = {3: 'rs485_irq', 4: 'hdr_int'}
 IO_DRIVER_FLAGS = {1: 'A'}
 # bit 5 of the other ports carries the precision excitation enable and fault
 IO_SPARE_FLAGS = {2: 'prec_exc_en', 3: 'prec_exc_flt'}
+# routing: channel 1 DIRECT is on channel 4's spare bit 5 (expander 1 GPB5),
+# and its own bit 1 (expander 0 GPA1) is left spare
+IO_DIRECT_PORT = {1: 4}
 # ADS124S08 pins: AIN0-3 read the channels, AIN4 / AIN5 the pressure ports
 ADC_CHANNEL_PINS = ('7', '6', '5', '4')
 ADC_PRESSURE_PINS = ('3', '2')
@@ -4394,8 +4397,8 @@ def build_io_expanders(sh):
         20, 15,
     )
     sh.note(
-        'Per port: bit 0 OUT_EN, 1 DIRECT, 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), '
-        '5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N '
+        'Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, '
+        '4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N '
         '(fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are '
         'inputs after reset, so the pull resistors on each line set the off state.',
         20, 21,
@@ -4446,6 +4449,13 @@ def build_io_expanders(sh):
                     continue
                 if key == 'buf_oe' and n not in IO_FAST:
                     sh.nc(expander, pin)
+                    continue
+                if key == 'direct' and n in IO_DIRECT_PORT:
+                    sh.nc(expander, pin)
+                    continue
+                moved = [c for c, port in IO_DIRECT_PORT.items() if port == n]
+                if key == 'amp_flt' and moved:
+                    io_label(sh, 'direct', spur(sh, expander, pin, 4), 0, n=moved[0])
                     continue
                 if key == 'amp_flt':
                     # one flag per output switch (four channels): on the first channel

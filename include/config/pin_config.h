@@ -206,6 +206,7 @@
 // port B = channel 2k + 2). Every line has a pull resistor to its off level.
 #define IO_BIT_OUT_EN                0   // output: HIGH closes the output switch
 #define IO_BIT_DIRECT                1   // output: HIGH = 0-2.5 V range, LOW = 0-15 V
+                                         // (channels 2-4; channel 1 uses the pin below)
 #define IO_BIT_BURDEN                2   // output: HIGH adds the 120 Ohm loop burden
 #define IO_BIT_PULLUP                3   // output: HIGH adds 10 kOhm to 3.3 V
 #define IO_BIT_SENS_EN               4   // output: HIGH turns the sensor supply on
@@ -224,6 +225,9 @@
 // Bit 5 of channel 2 (expander 0 port B) and channel 3 (expander 1 port A):
 #define IO_EXPANDER0_PIN_PREC_EXC_EN 13  // port B bit 5, output: HIGH turns the excitation on
 #define IO_EXPANDER1_PIN_PREC_EXC_FLT 5  // port A bit 5, input: excitation fault (active LOW)
+// Channel 1 DIRECT moved for routing: expander 1 port B bit 5. Expander 0 port A
+// bit 1 is spare.
+#define IO_EXPANDER1_PIN_CH1_DIRECT  13  // port B bit 5, output: HIGH = 0-2.5 V range
 
 // MCP23S08 inputs added on rev 5 (replace DISP_BL and SPARE_5 above).
 #define EXPANDER_PIN_IO_EXP_INT      4   // input: MCP23S17 interrupts (open drain, active LOW)

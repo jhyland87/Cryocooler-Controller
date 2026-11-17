@@ -854,6 +854,73 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 48.26 71.12) (xy 53.34 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a26637a-ad09-51d5-80b5-ec601bb13885")
+	)
+	(bus
+		(pts
+			(xy 137.16 68.58) (xy 142.24 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06791ec1-c29e-57b4-b2dd-92ccd55be2cf")
+	)
+	(bus
+		(pts
+			(xy 53.34 71.12) (xy 53.34 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88822150-511b-5891-992e-d5479d54962b")
+	)
+	(bus
+		(pts
+			(xy 137.16 68.58) (xy 137.16 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d129d485-1c1e-5a16-8094-16136c82cc8e")
+	)
+	(bus_entry
+		(at 55.88 78.74)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5f5e271-fee7-5c26-aabd-48f12e2ba133")
+	)
+	(bus_entry
+		(at 55.88 81.28)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c75f271-4126-561d-9572-8e996b27cc59")
+	)
+	(bus_entry
+		(at 134.62 76.2)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac0a3443-6994-555c-ab58-5096bd8ed63d")
+	)
 	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP7 is spare; firmware enables a weak pull-up on it. The ADT7320 INT and CT outputs drive GP2 and GP3, the universal I/O expander interrupt GP4 and the I/O ADC data-ready GP5."
 		(exclude_from_sim no)
 		(at 20 21 0)
@@ -895,33 +962,6 @@
 		(at 116.84 99.06)
 		(uuid "b9b1504f-f2cf-5211-9b5c-8b0a6f6bf3a2")
 	)
-	(bus_entry
-		(at 55.88 81.28)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c75f271-4126-561d-9572-8e996b27cc59")
-	)
-	(bus_entry
-		(at 134.62 76.2)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ac0a3443-6994-555c-ab58-5096bd8ed63d")
-	)
-	(bus_entry
-		(at 55.88 78.74)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5f5e271-fee7-5c26-aabd-48f12e2ba133")
-	)
 	(wire
 		(pts
 			(xy 116.84 93.98) (xy 124.46 93.98)
@@ -942,16 +982,6 @@
 		)
 		(uuid "05ed6e35-5323-536c-a098-9ce836f3e2ae")
 	)
-	(bus
-		(pts
-			(xy 137.16 68.58) (xy 142.24 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06791ec1-c29e-57b4-b2dd-92ccd55be2cf")
-	)
 	(wire
 		(pts
 			(xy 71.12 76.2) (xy 86.36 76.2)
@@ -971,16 +1001,6 @@
 			(type default)
 		)
 		(uuid "0dda72a7-374b-578f-9e7b-ecf10bf2ffe7")
-	)
-	(bus
-		(pts
-			(xy 48.26 71.12) (xy 53.34 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a26637a-ad09-51d5-80b5-ec601bb13885")
 	)
 	(wire
 		(pts
@@ -1014,6 +1034,26 @@
 	)
 	(wire
 		(pts
+			(xy 119.38 76.2) (xy 134.62 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "44bcf6b0-86d6-5827-9e89-c9e6c8d9a5cc")
+	)
+	(wire
+		(pts
+			(xy 83.82 81.28) (xy 86.36 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "795bb4cc-8891-5dc3-b12b-eb32b334b57e")
+	)
+	(wire
+		(pts
 			(xy 116.84 78.74) (xy 124.46 78.74)
 		)
 		(stroke
@@ -1031,16 +1071,6 @@
 			(type default)
 		)
 		(uuid "84352aa6-0d1a-5fad-bb0c-621ba9a83d0f")
-	)
-	(bus
-		(pts
-			(xy 53.34 71.12) (xy 53.34 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "88822150-511b-5891-992e-d5479d54962b")
 	)
 	(wire
 		(pts
@@ -1104,7 +1134,17 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 81.28) (xy 86.36 81.28)
+			(xy 83.82 78.74) (xy 86.36 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfba319c-53ad-5d1a-87de-6e9e3476d32c")
+	)
+	(wire
+		(pts
+			(xy 55.88 81.28) (xy 83.82 81.28)
 		)
 		(stroke
 			(width 0)
@@ -1112,19 +1152,9 @@
 		)
 		(uuid "c8f49352-02fc-5707-ab8f-1b830556d21f")
 	)
-	(bus
-		(pts
-			(xy 137.16 68.58) (xy 137.16 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d129d485-1c1e-5a16-8094-16136c82cc8e")
-	)
 	(wire
 		(pts
-			(xy 55.88 78.74) (xy 86.36 78.74)
+			(xy 55.88 78.74) (xy 83.82 78.74)
 		)
 		(stroke
 			(width 0)
@@ -1154,7 +1184,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 76.2) (xy 134.62 76.2)
+			(xy 116.84 76.2) (xy 119.38 76.2)
 		)
 		(stroke
 			(width 0)

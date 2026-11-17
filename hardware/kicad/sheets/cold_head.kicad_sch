@@ -1405,6 +1405,53 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 22.86 81.28) (xy 27.94 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31fbbaf4-2355-5b7a-8627-486c9fe1e547")
+	)
+	(bus
+		(pts
+			(xy 27.94 73.66) (xy 27.94 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9eb862fc-bc71-5670-a7f2-b436fb1d2975")
+	)
+	(bus_entry
+		(at 30.48 71.12)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1894299-61d6-56fa-ac59-e414857092f9")
+	)
+	(bus_entry
+		(at 30.48 73.66)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "009d79fa-73b1-5c83-aa45-5dbb19d4b2d5")
+	)
+	(bus_entry
+		(at 30.48 76.2)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d8d2eff-3b39-54ed-bf88-e7661cb8db80")
+	)
 	(text "DRDY goes to its test point only: firmware polls the conversion. The ESD clamp sits on the connector side of the 1k resistors; 10 nA of leakage is about 0.01 K."
 		(exclude_from_sim no)
 		(at 20 21 0)
@@ -1536,33 +1583,6 @@
 		(at 91.44 71.12)
 		(uuid "949a38a0-95bd-5701-bc9a-1561a88e9b04")
 	)
-	(bus_entry
-		(at 30.48 73.66)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "009d79fa-73b1-5c83-aa45-5dbb19d4b2d5")
-	)
-	(bus_entry
-		(at 30.48 76.2)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9d8d2eff-3b39-54ed-bf88-e7661cb8db80")
-	)
-	(bus_entry
-		(at 30.48 71.12)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d1894299-61d6-56fa-ac59-e414857092f9")
-	)
 	(wire
 		(pts
 			(xy 176.53 127) (xy 180.34 127)
@@ -1605,7 +1625,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 73.66) (xy 45.72 73.66)
+			(xy 30.48 73.66) (xy 43.18 73.66)
 		)
 		(stroke
 			(width 0)
@@ -1672,16 +1692,6 @@
 			(type default)
 		)
 		(uuid "22ee61c7-0b18-5284-9d15-44f520f5c8dc")
-	)
-	(bus
-		(pts
-			(xy 22.86 81.28) (xy 27.94 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "31fbbaf4-2355-5b7a-8627-486c9fe1e547")
 	)
 	(wire
 		(pts
@@ -1935,6 +1945,16 @@
 	)
 	(wire
 		(pts
+			(xy 43.18 71.12) (xy 45.72 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ad6dd6d-5772-55c8-9c2c-a6f4848016c1")
+	)
+	(wire
+		(pts
 			(xy 111.76 71.12) (xy 111.76 86.36)
 		)
 		(stroke
@@ -2003,15 +2023,15 @@
 		)
 		(uuid "97bc7d0e-a3e8-519f-a3e3-364a4e26664a")
 	)
-	(bus
+	(wire
 		(pts
-			(xy 27.94 73.66) (xy 27.94 81.28)
+			(xy 43.18 76.2) (xy 45.72 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9eb862fc-bc71-5670-a7f2-b436fb1d2975")
+		(uuid "97eace34-4d5e-59d3-9727-9e41b73d746c")
 	)
 	(wire
 		(pts
@@ -2035,7 +2055,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 71.12) (xy 45.72 71.12)
+			(xy 30.48 71.12) (xy 43.18 71.12)
 		)
 		(stroke
 			(width 0)
@@ -2045,13 +2065,23 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 76.2) (xy 45.72 76.2)
+			(xy 30.48 76.2) (xy 43.18 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "b9d0c028-cf4c-59f7-943f-69c383f3e9ae")
+	)
+	(wire
+		(pts
+			(xy 43.18 73.66) (xy 45.72 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfd5c87b-704a-5e02-b496-8bdb1a0c0900")
 	)
 	(wire
 		(pts

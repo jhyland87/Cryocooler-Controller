@@ -3541,6 +3541,53 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 302.26 152.4) (xy 307.34 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ea30efe-42f7-5fc8-83f1-e4c5e5a5b37b")
+	)
+	(bus
+		(pts
+			(xy 302.26 137.16) (xy 302.26 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "055753ae-5781-5222-a8a1-275243f6f58b")
+	)
+	(bus_entry
+		(at 299.72 134.62)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f7443d61-ab6e-5031-8382-2b381d958f13")
+	)
+	(bus_entry
+		(at 299.72 137.16)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "033c25fb-82da-5ce6-a38c-d82693d87529")
+	)
+	(bus_entry
+		(at 299.72 139.7)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8bc6327-dfb1-510a-9eed-07759fece90a")
+	)
 	(text "POWER WIRE COLOURS (ATX SUPPLY CODE)"
 		(exclude_from_sim no)
 		(at 30 28 0)
@@ -3911,33 +3958,6 @@
 		(at 353.06 129.54)
 		(uuid "fe6891f3-d1ec-50bf-93af-1b5e4864eb58")
 	)
-	(bus_entry
-		(at 299.72 137.16)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "033c25fb-82da-5ce6-a38c-d82693d87529")
-	)
-	(bus_entry
-		(at 299.72 134.62)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f7443d61-ab6e-5031-8382-2b381d958f13")
-	)
-	(bus_entry
-		(at 299.72 139.7)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8bc6327-dfb1-510a-9eed-07759fece90a")
-	)
 	(wire
 		(pts
 			(xy 152.4 121.92) (xy 152.4 124.46)
@@ -3957,16 +3977,6 @@
 			(type default)
 		)
 		(uuid "0163089a-d800-5ed5-8a08-737011277db9")
-	)
-	(bus
-		(pts
-			(xy 302.26 137.16) (xy 302.26 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "055753ae-5781-5222-a8a1-275243f6f58b")
 	)
 	(wire
 		(pts
@@ -4020,7 +4030,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 137.16) (xy 299.72 137.16)
+			(xy 269.24 137.16) (xy 287.02 137.16)
 		)
 		(stroke
 			(width 0)
@@ -4200,6 +4210,16 @@
 	)
 	(wire
 		(pts
+			(xy 287.02 137.16) (xy 299.72 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f2c66ee-5361-5b50-b361-90960919be10")
+	)
+	(wire
+		(pts
 			(xy 349.25 106.68) (xy 353.06 106.68)
 		)
 		(stroke
@@ -4287,16 +4307,6 @@
 			(type default)
 		)
 		(uuid "4e2dfa09-5f53-55b0-995e-32b581b5d064")
-	)
-	(bus
-		(pts
-			(xy 302.26 152.4) (xy 307.34 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4ea30efe-42f7-5fc8-83f1-e4c5e5a5b37b")
 	)
 	(wire
 		(pts
@@ -4500,6 +4510,16 @@
 	)
 	(wire
 		(pts
+			(xy 287.02 139.7) (xy 299.72 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88393c9c-a9c6-517b-a59e-5f8fa9881705")
+	)
+	(wire
+		(pts
 			(xy 347.98 114.3) (xy 347.98 116.84)
 		)
 		(stroke
@@ -4690,7 +4710,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 134.62) (xy 299.72 134.62)
+			(xy 269.24 134.62) (xy 287.02 134.62)
 		)
 		(stroke
 			(width 0)
@@ -4700,7 +4720,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 139.7) (xy 299.72 139.7)
+			(xy 269.24 139.7) (xy 287.02 139.7)
 		)
 		(stroke
 			(width 0)
@@ -4727,6 +4747,16 @@
 			(type default)
 		)
 		(uuid "c58fd6f4-20e6-5226-9050-ac400f70b410")
+	)
+	(wire
+		(pts
+			(xy 287.02 134.62) (xy 299.72 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c6dda624-262c-5c8d-b126-549125f4f6ac")
 	)
 	(wire
 		(pts

@@ -1223,6 +1223,100 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 38.1 88.9) (xy 43.18 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fe39092-0e45-5b68-94dd-905c9aa9028c")
+	)
+	(bus
+		(pts
+			(xy 127 88.9) (xy 132.08 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bbd3fe0f-b810-5737-88a5-2fda03009840")
+	)
+	(bus
+		(pts
+			(xy 43.18 88.9) (xy 43.18 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d9e38d0d-13a4-59b0-aff1-ecb31191e5f2")
+	)
+	(bus
+		(pts
+			(xy 132.08 88.9) (xy 132.08 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "519e8843-b572-586f-8d42-fd7cb740ee80")
+	)
+	(bus_entry
+		(at 45.72 104.14)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7b5d02c7-e8d0-557e-bd00-cb1b55471b0e")
+	)
+	(bus_entry
+		(at 45.72 106.68)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dffc55e1-3438-5557-a272-81d1d0b23df7")
+	)
+	(bus_entry
+		(at 45.72 109.22)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "74b93a2a-e037-57d0-8b23-89ed31cf4cd9")
+	)
+	(bus_entry
+		(at 134.62 104.14)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "189e99a3-7c73-55c8-af8d-e198c8745b19")
+	)
+	(bus_entry
+		(at 134.62 106.68)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5694fbda-f222-5424-88d4-8b1067e0c2fb")
+	)
+	(bus_entry
+		(at 134.62 109.22)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9523b336-c7be-5d2b-a2b9-8bb5f1dedb6d")
+	)
 	(text "MCP23S17 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
 		(at 127 185.42 0)
@@ -1289,7 +1383,7 @@
 		)
 		(uuid "ad9a928f-f089-57d0-8516-a83ae905a3e9")
 	)
-	(text "Per port: bit 0 OUT_EN, 1 DIRECT, 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
+	(text "Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
 		(exclude_from_sim no)
 		(at 20 21 0)
 		(effects
@@ -1337,66 +1431,12 @@
 		(uuid "f56b84fa-2e49-5fab-8227-0e2090d70760")
 	)
 	(no_connect
-		(at 180.34 137.16)
+		(at 91.44 106.68)
 		(uuid "5a39cd78-b869-5681-ab11-5c7da9e59863")
-	)
-	(bus_entry
-		(at 134.62 104.14)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "189e99a3-7c73-55c8-af8d-e198c8745b19")
-	)
-	(bus_entry
-		(at 134.62 106.68)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5694fbda-f222-5424-88d4-8b1067e0c2fb")
-	)
-	(bus_entry
-		(at 45.72 109.22)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "74b93a2a-e037-57d0-8b23-89ed31cf4cd9")
-	)
-	(bus_entry
-		(at 45.72 104.14)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7b5d02c7-e8d0-557e-bd00-cb1b55471b0e")
-	)
-	(bus_entry
-		(at 134.62 109.22)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9523b336-c7be-5d2b-a2b9-8bb5f1dedb6d")
-	)
-	(bus_entry
-		(at 45.72 106.68)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dffc55e1-3438-5557-a272-81d1d0b23df7")
 	)
 	(wire
 		(pts
-			(xy 142.24 114.3) (xy 149.86 114.3)
+			(xy 180.34 114.3) (xy 185.42 114.3)
 		)
 		(stroke
 			(width 0)
@@ -1416,7 +1456,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 129.54) (xy 185.42 129.54)
+			(xy 91.44 132.08) (xy 96.52 132.08)
 		)
 		(stroke
 			(width 0)
@@ -1436,7 +1476,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 111.76) (xy 185.42 111.76)
+			(xy 53.34 114.3) (xy 60.96 114.3)
 		)
 		(stroke
 			(width 0)
@@ -1446,7 +1486,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 144.78) (xy 149.86 144.78)
+			(xy 91.44 116.84) (xy 96.52 116.84)
 		)
 		(stroke
 			(width 0)
@@ -1466,7 +1506,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 116.84) (xy 185.42 116.84)
+			(xy 91.44 121.92) (xy 96.52 121.92)
 		)
 		(stroke
 			(width 0)
@@ -1486,7 +1526,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 142.24) (xy 149.86 142.24)
+			(xy 180.34 142.24) (xy 185.42 142.24)
 		)
 		(stroke
 			(width 0)
@@ -1506,7 +1546,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 144.78) (xy 144.78 144.78)
+			(xy 144.78 144.78) (xy 149.86 144.78)
 		)
 		(stroke
 			(width 0)
@@ -1516,7 +1556,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 144.78) (xy 55.88 144.78)
+			(xy 55.88 144.78) (xy 60.96 144.78)
 		)
 		(stroke
 			(width 0)
@@ -1526,7 +1566,17 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 109.22) (xy 96.52 109.22)
+			(xy 58.42 106.68) (xy 60.96 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3dc75c2f-3c9e-55a5-a96a-c3f60deea69d")
+	)
+	(wire
+		(pts
+			(xy 134.62 109.22) (xy 147.32 109.22)
 		)
 		(stroke
 			(width 0)
@@ -1536,7 +1586,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 119.38) (xy 96.52 119.38)
+			(xy 121.92 119.38) (xy 149.86 119.38)
 		)
 		(stroke
 			(width 0)
@@ -1546,7 +1596,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 134.62) (xy 96.52 134.62)
+			(xy 144.78 134.62) (xy 149.86 134.62)
 		)
 		(stroke
 			(width 0)
@@ -1556,7 +1606,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 119.38) (xy 60.96 119.38)
+			(xy 91.44 119.38) (xy 96.52 119.38)
 		)
 		(stroke
 			(width 0)
@@ -1566,7 +1616,7 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 119.38) (xy 149.86 119.38)
+			(xy 180.34 119.38) (xy 185.42 119.38)
 		)
 		(stroke
 			(width 0)
@@ -1576,7 +1626,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 111.76) (xy 149.86 111.76)
+			(xy 180.34 111.76) (xy 185.42 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1594,19 +1644,9 @@
 		)
 		(uuid "4e5971da-101b-561a-bc85-cc066f34b29a")
 	)
-	(bus
-		(pts
-			(xy 132.08 88.9) (xy 132.08 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "519e8843-b572-586f-8d42-fd7cb740ee80")
-	)
 	(wire
 		(pts
-			(xy 180.34 142.24) (xy 185.42 142.24)
+			(xy 50.8 144.78) (xy 55.88 144.78)
 		)
 		(stroke
 			(width 0)
@@ -1616,7 +1656,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 109.22) (xy 149.86 109.22)
+			(xy 147.32 109.22) (xy 149.86 109.22)
 		)
 		(stroke
 			(width 0)
@@ -1626,7 +1666,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 104.14) (xy 60.96 104.14)
+			(xy 45.72 104.14) (xy 58.42 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1646,7 +1686,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 106.68) (xy 185.42 106.68)
+			(xy 45.72 109.22) (xy 58.42 109.22)
 		)
 		(stroke
 			(width 0)
@@ -1656,7 +1696,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 119.38) (xy 185.42 119.38)
+			(xy 55.88 127) (xy 60.96 127)
 		)
 		(stroke
 			(width 0)
@@ -1666,7 +1706,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 114.3) (xy 185.42 114.3)
+			(xy 55.88 119.38) (xy 60.96 119.38)
 		)
 		(stroke
 			(width 0)
@@ -1676,7 +1716,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 142.24) (xy 96.52 142.24)
+			(xy 144.78 142.24) (xy 149.86 142.24)
 		)
 		(stroke
 			(width 0)
@@ -1686,7 +1726,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 106.68) (xy 149.86 106.68)
+			(xy 147.32 106.68) (xy 149.86 106.68)
 		)
 		(stroke
 			(width 0)
@@ -1716,7 +1756,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 129.54) (xy 96.52 129.54)
+			(xy 180.34 129.54) (xy 185.42 129.54)
 		)
 		(stroke
 			(width 0)
@@ -1726,7 +1766,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 106.68) (xy 60.96 106.68)
+			(xy 45.72 106.68) (xy 58.42 106.68)
 		)
 		(stroke
 			(width 0)
@@ -1746,7 +1786,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 104.14) (xy 149.86 104.14)
+			(xy 134.62 104.14) (xy 147.32 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1756,7 +1796,27 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 134.62) (xy 60.96 134.62)
+			(xy 180.34 106.68) (xy 185.42 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ce3d770-b201-5252-8479-ac3feecb62e4")
+	)
+	(wire
+		(pts
+			(xy 58.42 104.14) (xy 60.96 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7cfd35a6-aa30-5568-8900-adae8911c704")
+	)
+	(wire
+		(pts
+			(xy 91.44 134.62) (xy 96.52 134.62)
 		)
 		(stroke
 			(width 0)
@@ -1766,7 +1826,17 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 137.16) (xy 96.52 137.16)
+			(xy 91.44 109.22) (xy 96.52 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "846afa20-82fc-5534-b71c-d0ce824e2e28")
+	)
+	(wire
+		(pts
+			(xy 180.34 137.16) (xy 185.42 137.16)
 		)
 		(stroke
 			(width 0)
@@ -1776,7 +1846,17 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 116.84) (xy 96.52 116.84)
+			(xy 180.34 109.22) (xy 185.42 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a14ca6f-5172-534b-9d8e-5975be79ccdd")
+	)
+	(wire
+		(pts
+			(xy 180.34 116.84) (xy 185.42 116.84)
 		)
 		(stroke
 			(width 0)
@@ -1786,7 +1866,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 134.62) (xy 185.42 134.62)
+			(xy 55.88 142.24) (xy 60.96 142.24)
 		)
 		(stroke
 			(width 0)
@@ -1796,7 +1876,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 142.24) (xy 60.96 142.24)
+			(xy 91.44 142.24) (xy 96.52 142.24)
 		)
 		(stroke
 			(width 0)
@@ -1804,19 +1884,9 @@
 		)
 		(uuid "8daacf34-54d0-53fe-abc1-6b6c37dd5cd6")
 	)
-	(bus
-		(pts
-			(xy 38.1 88.9) (xy 43.18 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8fe39092-0e45-5b68-94dd-905c9aa9028c")
-	)
 	(wire
 		(pts
-			(xy 144.78 127) (xy 149.86 127)
+			(xy 180.34 127) (xy 185.42 127)
 		)
 		(stroke
 			(width 0)
@@ -1836,7 +1906,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 111.76) (xy 60.96 111.76)
+			(xy 91.44 111.76) (xy 96.52 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1856,7 +1926,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 132.08) (xy 96.52 132.08)
+			(xy 180.34 132.08) (xy 185.42 132.08)
 		)
 		(stroke
 			(width 0)
@@ -1866,7 +1936,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 109.22) (xy 60.96 109.22)
+			(xy 58.42 109.22) (xy 60.96 109.22)
 		)
 		(stroke
 			(width 0)
@@ -1876,7 +1946,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 121.92) (xy 185.42 121.92)
+			(xy 91.44 124.46) (xy 96.52 124.46)
 		)
 		(stroke
 			(width 0)
@@ -1886,7 +1956,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 111.76) (xy 96.52 111.76)
+			(xy 142.24 111.76) (xy 149.86 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1896,7 +1966,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 109.22) (xy 185.42 109.22)
+			(xy 53.34 111.76) (xy 60.96 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1946,7 +2016,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 114.3) (xy 60.96 114.3)
+			(xy 91.44 114.3) (xy 96.52 114.3)
 		)
 		(stroke
 			(width 0)
@@ -1966,6 +2036,16 @@
 	)
 	(wire
 		(pts
+			(xy 147.32 104.14) (xy 149.86 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7160374-2fb4-5c22-86cf-e31482a1db80")
+	)
+	(wire
+		(pts
 			(xy 165.1 93.98) (xy 165.1 99.06)
 		)
 		(stroke
@@ -1976,23 +2056,13 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 134.62) (xy 149.86 134.62)
+			(xy 180.34 134.62) (xy 185.42 134.62)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "ba2983f4-9298-5842-b38a-07157d97ee52")
-	)
-	(bus
-		(pts
-			(xy 127 88.9) (xy 132.08 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbd3fe0f-b810-5737-88a5-2fda03009840")
 	)
 	(wire
 		(pts
@@ -2026,7 +2096,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 106.68) (xy 96.52 106.68)
+			(xy 134.62 106.68) (xy 147.32 106.68)
 		)
 		(stroke
 			(width 0)
@@ -2036,7 +2106,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 127) (xy 185.42 127)
+			(xy 55.88 134.62) (xy 60.96 134.62)
 		)
 		(stroke
 			(width 0)
@@ -2056,7 +2126,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 121.92) (xy 96.52 121.92)
+			(xy 180.34 121.92) (xy 185.42 121.92)
 		)
 		(stroke
 			(width 0)
@@ -2066,7 +2136,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 124.46) (xy 96.52 124.46)
+			(xy 180.34 124.46) (xy 185.42 124.46)
 		)
 		(stroke
 			(width 0)
@@ -2084,19 +2154,9 @@
 		)
 		(uuid "d726b9e7-23c3-5fac-8c5c-d4e7b44e2694")
 	)
-	(bus
-		(pts
-			(xy 43.18 88.9) (xy 43.18 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d9e38d0d-13a4-59b0-aff1-ecb31191e5f2")
-	)
 	(wire
 		(pts
-			(xy 55.88 127) (xy 60.96 127)
+			(xy 91.44 127) (xy 96.52 127)
 		)
 		(stroke
 			(width 0)
@@ -2106,7 +2166,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 127) (xy 96.52 127)
+			(xy 144.78 127) (xy 149.86 127)
 		)
 		(stroke
 			(width 0)
@@ -2136,7 +2196,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 132.08) (xy 185.42 132.08)
+			(xy 91.44 137.16) (xy 96.52 137.16)
 		)
 		(stroke
 			(width 0)
@@ -2146,7 +2206,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 124.46) (xy 185.42 124.46)
+			(xy 91.44 129.54) (xy 96.52 129.54)
 		)
 		(stroke
 			(width 0)
@@ -2176,7 +2236,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 114.3) (xy 96.52 114.3)
+			(xy 142.24 114.3) (xy 149.86 114.3)
 		)
 		(stroke
 			(width 0)
@@ -2186,35 +2246,13 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 144.78) (xy 60.96 144.78)
+			(xy 139.7 144.78) (xy 144.78 144.78)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "ff3bcd42-f9f9-5215-9bd7-1a48ba004495")
-	)
-	(label "SPI_MISO"
-		(at 147.32 109.22 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "36aaa4e1-852d-5d15-87a2-a66865b09b11")
-		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
-			(at 147.32 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 	)
 	(label "SPI_MISO"
 		(at 58.42 109.22 180)
@@ -2238,8 +2276,30 @@
 			)
 		)
 	)
-	(label "SPI_MOSI"
-		(at 147.32 106.68 180)
+	(label "SPI_SCK"
+		(at 147.32 104.14 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "61eaba30-3927-5cd0-b7ff-ecad41167154")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 147.32 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_MISO"
+		(at 147.32 109.22 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2247,8 +2307,8 @@
 			(justify right bottom)
 		)
 		(uuid "6602c068-548e-567c-ae17-f895e43432ee")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 147.32 106.68 0)
+		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
+			(at 147.32 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2282,8 +2342,8 @@
 			)
 		)
 	)
-	(label "SPI_SCK"
-		(at 147.32 104.14 180)
+	(label "SPI_MOSI"
+		(at 147.32 106.68 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2291,8 +2351,8 @@
 			(justify right bottom)
 		)
 		(uuid "ded69d78-f8a2-59a6-a69b-ec356a5dc37e")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 147.32 104.14 0)
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 147.32 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2326,9 +2386,9 @@
 			)
 		)
 	)
-	(global_label "PREC_EXC_FLT_N"
+	(global_label "IO3_SENS_FLT_N"
 		(shape bidirectional)
-		(at 185.42 116.84 0)
+		(at 185.42 119.38 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2338,7 +2398,7 @@
 		)
 		(uuid "03b09bfd-3461-581f-bd99-8214bb1b155f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 116.84 0)
+			(at 185.42 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2349,8 +2409,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
-			(at 185.42 116.84 0)
+		(property "Description" "Channel 3 sensor supply fault flag, open drain, active low, to the expander"
+			(at 185.42 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2362,9 +2422,9 @@
 			)
 		)
 	)
-	(global_label "IO1_SENS_EN"
+	(global_label "IO_OUT_FLT_A_N"
 		(shape bidirectional)
-		(at 96.52 114.3 0)
+		(at 96.52 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2374,7 +2434,7 @@
 		)
 		(uuid "07f35bed-8e19-5335-8254-8d3b69d8ac99")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 114.3 0)
+			(at 96.52 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2385,8 +2445,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
-			(at 96.52 114.3 0)
+		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
+			(at 96.52 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2434,9 +2494,9 @@
 			)
 		)
 	)
-	(global_label "IO1_PULLUP"
+	(global_label "IO1_SENS_EN"
 		(shape bidirectional)
-		(at 96.52 111.76 0)
+		(at 96.52 114.3 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2446,7 +2506,7 @@
 		)
 		(uuid "11c89ef7-c9d3-52a0-b302-bdcc985ca13e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 111.76 0)
+			(at 96.52 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2457,8 +2517,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
-			(at 96.52 111.76 0)
+		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
+			(at 96.52 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2470,9 +2530,9 @@
 			)
 		)
 	)
-	(global_label "IO3_DIRECT"
+	(global_label "IO3_BURDEN"
 		(shape bidirectional)
-		(at 185.42 106.68 0)
+		(at 185.42 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2482,7 +2542,7 @@
 		)
 		(uuid "127f53ef-e54f-556a-bb94-32f4317ab17d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 106.68 0)
+			(at 185.42 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2493,8 +2553,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 185.42 106.68 0)
+		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
+			(at 185.42 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2503,6 +2563,150 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+	)
+	(global_label "IO1_BUF_OE_N"
+		(shape bidirectional)
+		(at 96.52 121.92 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1acc2ee5-0cd3-50d8-8d6f-836eeb57e14b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
+			(at 96.52 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO4_DIRECT"
+		(shape bidirectional)
+		(at 185.42 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1c1f2df2-c947-5f0a-960b-72f3b555541c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 185.42 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO2_DIRECT"
+		(shape bidirectional)
+		(at 96.52 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "2a163785-bac2-5022-af10-a37b07e70c8e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 96.52 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "{SPI}"
+		(shape bidirectional)
+		(at 127 88.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "36aaa4e1-852d-5d15-87a2-a66865b09b11")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 127 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 127 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 	)
@@ -2516,7 +2720,7 @@
 			)
 			(justify left)
 		)
-		(uuid "1acc2ee5-0cd3-50d8-8d6f-836eeb57e14b")
+		(uuid "3adb2258-cb2f-5cf1-9323-e1ebcbca7cf1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 96.52 119.38 0)
 			(hide yes)
@@ -2531,114 +2735,6 @@
 		)
 		(property "Description" "Channel 1 sensor supply fault flag, open drain, active low, to the expander"
 			(at 96.52 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO4_OUT_EN"
-		(shape bidirectional)
-		(at 185.42 124.46 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1c1f2df2-c947-5f0a-960b-72f3b555541c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
-			(at 185.42 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_OUT_EN"
-		(shape bidirectional)
-		(at 96.52 124.46 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "2a163785-bac2-5022-af10-a37b07e70c8e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
-			(at 96.52 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO_OUT_FLT_A_N"
-		(shape bidirectional)
-		(at 96.52 116.84 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3adb2258-cb2f-5cf1-9323-e1ebcbca7cf1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
-			(at 96.52 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2686,9 +2782,9 @@
 			)
 		)
 	)
-	(global_label "IO3_PULLUP"
+	(global_label "IO3_SENS_EN"
 		(shape bidirectional)
-		(at 185.42 111.76 0)
+		(at 185.42 114.3 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2698,7 +2794,7 @@
 		)
 		(uuid "44b8bf50-3247-5039-a3b7-48e8bd95079e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 111.76 0)
+			(at 185.42 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2709,8 +2805,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
-			(at 185.42 111.76 0)
+		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
+			(at 185.42 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2722,9 +2818,9 @@
 			)
 		)
 	)
-	(global_label "IO3_OUT_EN"
+	(global_label "IO3_DIRECT"
 		(shape bidirectional)
-		(at 185.42 104.14 0)
+		(at 185.42 106.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2734,7 +2830,7 @@
 		)
 		(uuid "49d37cd8-923f-5eaf-b092-3a2c39414fcd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 104.14 0)
+			(at 185.42 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2745,8 +2841,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
-			(at 185.42 104.14 0)
+		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2794,9 +2890,9 @@
 			)
 		)
 	)
-	(global_label "IO_EXP_CS"
+	(global_label "ESP_EN"
 		(shape bidirectional)
-		(at 142.24 111.76 180)
+		(at 142.24 114.3 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2806,7 +2902,7 @@
 		)
 		(uuid "5d0793a8-9ddd-563a-8840-3f77e7ef9f13")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 111.76 0)
+			(at 142.24 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2817,8 +2913,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
-			(at 142.24 111.76 0)
+		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J21)"
+			(at 142.24 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2830,9 +2926,9 @@
 			)
 		)
 	)
-	(global_label "IO1_BUF_OE_N"
+	(global_label "IO2_OUT_EN"
 		(shape bidirectional)
-		(at 96.52 121.92 0)
+		(at 96.52 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2842,7 +2938,7 @@
 		)
 		(uuid "5e0a76cb-0039-50b4-806b-4aa7dd3110dc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 121.92 0)
+			(at 96.52 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2853,44 +2949,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
-			(at 96.52 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_SENS_FLT_N"
-		(shape bidirectional)
-		(at 96.52 139.7 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5f2b4e76-d288-5d9d-b34c-e3ad09393f1a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
-			(at 96.52 139.7 0)
+		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
+			(at 96.52 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2912,7 +2972,7 @@
 			)
 			(justify left)
 		)
-		(uuid "61eaba30-3927-5cd0-b7ff-ecad41167154")
+		(uuid "5f2b4e76-d288-5d9d-b34c-e3ad09393f1a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 96.52 142.24 0)
 			(hide yes)
@@ -2938,19 +2998,19 @@
 			)
 		)
 	)
-	(global_label "IO_EXP_INT_N"
+	(global_label "IO3_OUT_EN"
 		(shape bidirectional)
-		(at 139.7 144.78 180)
+		(at 185.42 104.14 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "69a0730f-2609-536b-830b-3de013f91db4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 139.7 144.78 0)
+			(at 185.42 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2958,11 +3018,11 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 139.7 144.78 0)
+		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
+			(at 185.42 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2970,7 +3030,115 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO2_SENS_FLT_N"
+		(shape bidirectional)
+		(at 96.52 139.7 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "75ed295e-1ef3-512e-b055-77464325aa4a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
+			(at 96.52 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO1_BURDEN"
+		(shape bidirectional)
+		(at 96.52 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "799d2dd7-0246-5ab1-84e8-ba19e7a4e999")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
+			(at 96.52 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO2_BURDEN"
+		(shape bidirectional)
+		(at 96.52 129.54 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7c8e823c-7ef2-52bd-84cd-bffb548cc8b1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
@@ -2984,7 +3152,7 @@
 			)
 			(justify left)
 		)
-		(uuid "75ed295e-1ef3-512e-b055-77464325aa4a")
+		(uuid "8b3d8d19-9444-52c1-a895-09bd11c46a9b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 96.52 137.16 0)
 			(hide yes)
@@ -2999,114 +3167,6 @@
 		)
 		(property "Description" "I/O expander 3 port A bit 7, high turns the precision port excitation on; pulled low"
 			(at 96.52 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_DIRECT"
-		(shape bidirectional)
-		(at 96.52 106.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "799d2dd7-0246-5ab1-84e8-ba19e7a4e999")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 96.52 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_DIRECT"
-		(shape bidirectional)
-		(at 96.52 127 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "7c8e823c-7ef2-52bd-84cd-bffb548cc8b1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 96.52 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_SENS_EN"
-		(shape bidirectional)
-		(at 96.52 134.62 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8b3d8d19-9444-52c1-a895-09bd11c46a9b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
-			(at 96.52 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3154,9 +3214,9 @@
 			)
 		)
 	)
-	(global_label "IO3_SENS_EN"
+	(global_label "PREC_EXC_FLT_N"
 		(shape bidirectional)
-		(at 185.42 114.3 0)
+		(at 185.42 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3166,7 +3226,7 @@
 		)
 		(uuid "8c7f7eb8-61ed-5f54-8c71-c52c16a3985d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 114.3 0)
+			(at 185.42 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3177,8 +3237,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
-			(at 185.42 114.3 0)
+		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
+			(at 185.42 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3190,9 +3250,9 @@
 			)
 		)
 	)
-	(global_label "ESP_EN"
+	(global_label "IO_EXP_INT_N"
 		(shape bidirectional)
-		(at 142.24 114.3 180)
+		(at 139.7 144.78 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3202,7 +3262,7 @@
 		)
 		(uuid "9ad55e30-723e-5943-9d03-1cc03b4b519b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 114.3 0)
+			(at 139.7 144.78 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3213,8 +3273,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J21)"
-			(at 142.24 114.3 0)
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 139.7 144.78 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3226,9 +3286,9 @@
 			)
 		)
 	)
-	(global_label "IO4_SENS_EN"
+	(global_label "IO1_DIRECT"
 		(shape bidirectional)
-		(at 185.42 134.62 0)
+		(at 185.42 137.16 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3238,7 +3298,7 @@
 		)
 		(uuid "a1bb7afc-fdd9-5590-b525-1363db0267cd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 134.62 0)
+			(at 185.42 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3249,8 +3309,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
-			(at 185.42 134.62 0)
+		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3262,9 +3322,9 @@
 			)
 		)
 	)
-	(global_label "IO3_BURDEN"
+	(global_label "IO3_PULLUP"
 		(shape bidirectional)
-		(at 185.42 109.22 0)
+		(at 185.42 111.76 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3274,7 +3334,7 @@
 		)
 		(uuid "a1e26125-5c7c-5c77-8eb8-01923bf20311")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 109.22 0)
+			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3285,8 +3345,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
-			(at 185.42 109.22 0)
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
+			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3370,9 +3430,9 @@
 			)
 		)
 	)
-	(global_label "RS485_IRQ_N"
+	(global_label "IO4_OUT_EN"
 		(shape bidirectional)
-		(at 185.42 121.92 0)
+		(at 185.42 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3382,7 +3442,7 @@
 		)
 		(uuid "c804efe9-d3e8-5838-b67b-60252b7817b8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 121.92 0)
+			(at 185.42 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3393,8 +3453,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "SC16IS750 interrupt, open drain, active low, read on I/O expander 2 port A bit 7"
-			(at 185.42 121.92 0)
+		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
+			(at 185.42 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3442,9 +3502,9 @@
 			)
 		)
 	)
-	(global_label "IO4_PULLUP"
+	(global_label "IO4_SENS_EN"
 		(shape bidirectional)
-		(at 185.42 132.08 0)
+		(at 185.42 134.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3454,7 +3514,7 @@
 		)
 		(uuid "d81f6d42-9276-5eef-87bf-faa7e2922f66")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 132.08 0)
+			(at 185.42 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3465,8 +3525,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
-			(at 185.42 132.08 0)
+		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
+			(at 185.42 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3478,9 +3538,9 @@
 			)
 		)
 	)
-	(global_label "IO3_SENS_FLT_N"
+	(global_label "RS485_IRQ_N"
 		(shape bidirectional)
-		(at 185.42 119.38 0)
+		(at 185.42 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3490,7 +3550,7 @@
 		)
 		(uuid "dda29f50-954b-59e6-8fd5-29b9e29341e9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 119.38 0)
+			(at 185.42 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3501,8 +3561,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Channel 3 sensor supply fault flag, open drain, active low, to the expander"
-			(at 185.42 119.38 0)
+		(property "Description" "SC16IS750 interrupt, open drain, active low, read on I/O expander 2 port A bit 7"
+			(at 185.42 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3514,9 +3574,9 @@
 			)
 		)
 	)
-	(global_label "IO4_DIRECT"
+	(global_label "IO4_BURDEN"
 		(shape bidirectional)
-		(at 185.42 127 0)
+		(at 185.42 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3526,7 +3586,7 @@
 		)
 		(uuid "df3ecbaf-b15e-5265-9657-b8a9fa6dd90d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 127 0)
+			(at 185.42 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3537,8 +3597,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 185.42 127 0)
+		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
+			(at 185.42 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3586,9 +3646,9 @@
 			)
 		)
 	)
-	(global_label "{SPI}"
+	(global_label "IO_EXP_CS"
 		(shape bidirectional)
-		(at 127 88.9 180)
+		(at 142.24 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3598,7 +3658,7 @@
 		)
 		(uuid "efcb875a-d473-54a9-9f00-7f27b34deb28")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 127 88.9 0)
+			(at 142.24 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3609,8 +3669,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
-			(at 127 88.9 0)
+		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
+			(at 142.24 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3622,9 +3682,9 @@
 			)
 		)
 	)
-	(global_label "IO4_BURDEN"
+	(global_label "IO4_PULLUP"
 		(shape bidirectional)
-		(at 185.42 129.54 0)
+		(at 185.42 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3634,7 +3694,7 @@
 		)
 		(uuid "f109fe3e-9b90-58e3-a2c4-c54d8c48e34b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 129.54 0)
+			(at 185.42 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3645,44 +3705,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
-			(at 185.42 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_BURDEN"
-		(shape bidirectional)
-		(at 96.52 129.54 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f49449d7-8a6d-59bc-93ce-ac2b6757412e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
-			(at 96.52 129.54 0)
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
+			(at 185.42 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3704,7 +3728,7 @@
 			)
 			(justify left)
 		)
-		(uuid "f84cb491-dd47-5c63-9e48-09a0fbda4479")
+		(uuid "f49449d7-8a6d-59bc-93ce-ac2b6757412e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 96.52 132.08 0)
 			(hide yes)
@@ -3730,9 +3754,9 @@
 			)
 		)
 	)
-	(global_label "IO1_BURDEN"
+	(global_label "IO2_SENS_EN"
 		(shape bidirectional)
-		(at 96.52 109.22 0)
+		(at 96.52 134.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3740,9 +3764,9 @@
 			)
 			(justify left)
 		)
-		(uuid "fee1b64b-860f-5ec6-88b3-5b713c935298")
+		(uuid "f84cb491-dd47-5c63-9e48-09a0fbda4479")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 109.22 0)
+			(at 96.52 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3753,8 +3777,44 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
-			(at 96.52 109.22 0)
+		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
+			(at 96.52 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "IO1_PULLUP"
+		(shape bidirectional)
+		(at 96.52 111.76 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fee1b64b-860f-5ec6-88b3-5b713c935298")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
+			(at 96.52 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
