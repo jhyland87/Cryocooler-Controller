@@ -72,6 +72,10 @@ def load_netlist(schematic=None):
                 sval(find_all(prop, 'name')[0][1]) == 'exclude_from_bom'
                 for prop in find_all(comp, 'property')
             ),
+            'dnp': any(
+                sval(find_all(prop, 'name')[0][1]) == 'dnp'
+                for prop in find_all(comp, 'property')
+            ),
         }
         # the symbol's own extra fields (Product, ...)
         for block in find_all(comp, 'fields'):

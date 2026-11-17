@@ -10,6 +10,8 @@ Usage (KiCad's python):
     rev5_board.py preroute in.kicad_pcb out.kicad_pcb    planes and locked copper only
     rev5_board.py route in.kicad_pcb out.kicad_pcb [rounds]
     rev5_board.py reroute in.kicad_pcb out.kicad_pcb drc.json
+    rev5_board.py labels board.kicad_pcb   (0.8 mm silk part labels)
+    rev5_board.py sections board.kicad_pcb   (section lines and names, after labels)
     rev5_board.py finish board.kicad_pcb
 """
 import math
@@ -513,6 +515,25 @@ base_pre_route = base.pre_route
 base.pre_route = pre_route
 base.ISO_OUTLINE = [(0.0, 49.2), (34.0, 49.2), (34.0, 83.5), (12.5, 83.5), (12.5, 85.2), (0.0, 85.2)]
 base.PAD_BRIDGES = {}
+# part labels: function names printed with (or instead of) the reference
+base.LED_LABELS = {}
+# the dense I/O block needs a wider search than rev 4 did
+base.PART_GAPS = (0.25, 0.5, 0.75, 1.0, 1.5, 2.0)
+base.SHIFTS = (0.0, -0.5, 0.5, -1.0, 1.0, -1.5, 1.5, -2.0, 2.0, -2.5, 2.5)
+base.LABEL_FUNCTIONS = {
+    'J1': 'USB', 'J2': '12V IN', 'J3': 'FAN', 'J4': 'PUMP', 'J5': 'FLOW', 'J6': 'NTC',
+    'J8': 'AMP REM', 'J9': 'SINE OUT', 'J10': 'RTD', 'J11': 'AMP OUT', 'J12': 'CRYO',
+    'J13': 'RELAY', 'J14': 'IMU', 'J15': 'DISPLAY', 'J21': 'DISP 12V',
+    'J30': 'SENSOR A', 'J31': 'SENSOR B', 'J32': 'PRESS 1', 'J33': 'PRESS 2',
+    'J34': 'RS-485', 'J35': 'SPI EXP', 'J36': 'IO1', 'J37': 'IO2', 'J38': 'IO3', 'J39': 'IO4',
+    'JP1': 'SG 3V3', 'JP2': 'PS15', 'JP3': 'ISO5', 'JP4': 'COOL', 'JP5': 'CH', 'JP6': 'IO',
+    'JP10': 'AUTO ON', 'JP11': 'TERM',
+    **{f'JP{12 + 2 * n}': f'IO{n + 1} 5V' for n in range(4)},
+    **{f'JP{13 + 2 * n}': f'IO{n + 1} 12V' for n in range(4)},
+    'SW1': 'RESET', 'SW2': 'BOOT', 'SW3': 'POWER',
+    'D13': 'STATE', 'D7': 'PWR', 'D11': '+15V', 'D12': '-15V', 'D2': 'AMP', 'D3': 'COMP',
+    'D6': 'ALERT', 'D10': 'ISO 5V',
+}
 base.pre_route_current = pre_route_current
 
 
@@ -599,6 +620,138 @@ def place(in_path, out_path):
     pcbnew.SaveBoard(out_path, board)
 
 
+SECTION_GROUP = 'section outlines'
+SECTION_STEP = 0.25
+SECTION_MIN_RUN = 2.0
+# where the full name finds no free spot in its section
+SECTION_SHORT = {'SIGNAL GENERATOR': 'SIG GEN', 'WATER COOLING & RELAY': 'COOLING', 'EXPANSION': 'EXP',
+                 'AMP CONTROL': 'AMP CTL', 'CRYOCOOLER SENSORS': 'SENSORS', 'RAILS ±15V': '±15V'}
+# sections as printed: the floorplan plus the channel strip behind the I/O connectors
+PRINTED_SECTIONS = {**SECTIONS, 'I/O CHANNELS': [Rect(44, 72, 86, 100)]}
+
+
+def silk_obstacles(board):
+    """One SilkMap per side holding pads, part bodies and existing silk."""
+    sides = {'F': (pcbnew.F_SilkS, pcbnew.F_Cu, pcbnew.F_Fab, base.SilkMap()),
+             'B': (pcbnew.B_SilkS, pcbnew.B_Cu, pcbnew.B_Fab, base.SilkMap())}
+    for footprint in board.GetFootprints():
+        own = 'B' if footprint.IsFlipped() else 'F'
+        silk, _copper, fab, silk_map = sides[own]
+        silk_map.add(base.body_rect(footprint, fab, silk).inflated(0.2))
+        for silk, copper, _fab, silk_map in sides.values():
+            for pad in footprint.Pads():
+                if pad.IsOnLayer(copper):
+                    silk_map.add(base.box_rect(pad.GetBoundingBox()).inflated(0.2))
+    for drawing in board.GetDrawings():
+        for silk, _copper, _fab, silk_map in sides.values():
+            if drawing.GetLayer() == silk:
+                silk_map.add(base.box_rect(drawing.GetBoundingBox()).inflated(0.2))
+    return sides
+
+
+def add_section_outlines(path):
+    """Section border lines where they clear parts and text, and each section's
+    name, on both silk layers. Replaces an earlier run."""
+    board = pcbnew.LoadBoard(path)
+    keep = []
+    for group in list(board.Groups()):
+        if group.GetName() == SECTION_GROUP:
+            for item in list(group.GetItems()):
+                keep.append(item)
+                board.Remove(item)
+            keep.append(group)
+            board.Remove(group)
+    sides = silk_obstacles(board)
+    group = pcbnew.PCB_GROUP(board)
+    group.SetName(SECTION_GROUP)
+    board.Add(group)
+    # border points on a grid; a point on two sections' borders is drawn once
+    points = set()
+    for rects in PRINTED_SECTIONS.values():
+        for rect in rects:
+            for index in range(int(round((rect.max_x - rect.min_x) / SECTION_STEP)) + 1):
+                x = rect.min_x + index * SECTION_STEP
+                points.update({(round(x, 2), rect.min_y, 'h'), (round(x, 2), rect.max_y, 'h')})
+            for index in range(int(round((rect.max_y - rect.min_y) / SECTION_STEP)) + 1):
+                y = rect.min_y + index * SECTION_STEP
+                points.update({(rect.min_x, round(y, 2), 'v'), (rect.max_x, round(y, 2), 'v')})
+    lines = names = 0
+    missed = []
+    for key, (silk, _copper, _fab, silk_map) in sides.items():
+        free = set()
+        for x, y, way in points:
+            dot = Rect(x - 0.1, y - 0.1, x + 0.1, y + 0.1)
+            if not base.outline_problem(dot.inflated(0.5)) and not silk_map.blocked(dot, SECTION_GROUP):
+                free.add((x, y, way))
+        runs = []
+        for way, along, across in (('h', 0, 1), ('v', 1, 0)):
+            rows = {}
+            for point in free:
+                if point[2] == way:
+                    rows.setdefault(point[across], []).append(point[along])
+            for fixed, values in rows.items():
+                values.sort()
+                start = previous = values[0]
+                for value in values[1:] + [None]:
+                    if value is None or value - previous > SECTION_STEP + 0.01:
+                        if previous - start >= SECTION_MIN_RUN:
+                            runs.append((way, fixed, start, previous))
+                        start = value
+                    previous = value
+        for way, fixed, start, end in runs:
+            line = pcbnew.PCB_SHAPE(board)
+            line.SetShape(pcbnew.SHAPE_T_SEGMENT)
+            line.SetLayer(silk)
+            line.SetWidth(MM(0.12))
+            first, second = ((start, fixed), (end, fixed)) if way == 'h' else ((fixed, start), (fixed, end))
+            line.SetStart(pcbnew.VECTOR2I(MM(first[0]), MM(first[1])))
+            line.SetEnd(pcbnew.VECTOR2I(MM(second[0]), MM(second[1])))
+            board.Add(line)
+            group.AddItem(line)
+            silk_map.add(Rect(min(first[0], second[0]) - 0.2, min(first[1], second[1]) - 0.2,
+                              max(first[0], second[0]) + 0.2, max(first[1], second[1]) + 0.2))
+            lines += 1
+        for name, rects in PRINTED_SECTIONS.items():
+            if not any(place_section_name(board, group, text, rects, silk, silk_map)
+                       for text in (name, SECTION_SHORT.get(name, name))):
+                missed.append(f'{name} ({key})')
+            else:
+                names += 1
+    pcbnew.SaveBoard(path, board)
+    print(f'section outlines: {lines} lines, {names} names, no room for:', ', '.join(missed) or 'none')
+
+
+def place_section_name(board, group, name, rects, silk, silk_map):
+    """First free spot for a section's name, top-left first, inside its own rectangles."""
+    for height in (1.0, 0.8):
+        for rect in rects:
+            y = rect.min_y + 0.5 + height / 2
+            while y < rect.max_y - 0.5:
+                x = rect.min_x + 0.6
+                while x < rect.max_x - 0.6:
+                    label = pcbnew.PCB_TEXT(board)
+                    label.SetText(name)
+                    label.SetLayer(silk)
+                    label.SetTextSize(pcbnew.VECTOR2I(MM(height * 0.9), MM(height)))
+                    label.SetTextThickness(MM(0.15 if height == 1.0 else 0.12))
+                    label.SetMirrored(silk == pcbnew.B_SilkS)
+                    label.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_LEFT if silk == pcbnew.F_SilkS
+                                          else pcbnew.GR_TEXT_H_ALIGN_RIGHT)
+                    label.SetVertJustify(pcbnew.GR_TEXT_V_ALIGN_CENTER)
+                    label.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
+                    box = base.box_rect(label.GetBoundingBox())
+                    inside = (box.min_x >= rect.min_x + 0.4 and box.max_x <= rect.max_x - 0.4
+                              and box.min_y >= rect.min_y + 0.4 and box.max_y <= rect.max_y - 0.4)
+                    if inside and not base.outline_problem(box) and not silk_map.blocked(box.inflated(0.15), SECTION_GROUP):
+                        board.Add(label)
+                        group.AddItem(label)
+                        silk_map.add(box.inflated(0.2))
+                        return True
+                    x += 0.5
+                y += 0.5
+    return False
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ''
     if mode == 'place' and len(sys.argv) == 4:
@@ -610,6 +763,10 @@ def main():
         base.reroute(sys.argv[2], sys.argv[3], sys.argv[4])
     elif mode == 'finish' and len(sys.argv) == 3:
         base.finish(sys.argv[2])
+    elif mode == 'labels' and len(sys.argv) == 3:
+        base.add_part_labels(sys.argv[2])
+    elif mode == 'sections' and len(sys.argv) == 3:
+        add_section_outlines(sys.argv[2])
     else:
         sys.exit(__doc__)
 

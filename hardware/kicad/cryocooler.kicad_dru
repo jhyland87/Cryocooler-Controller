@@ -36,3 +36,21 @@
 (rule usb_c_own_holes
   (condition "A.memberOfFootprint('J1') && B.memberOfFootprint('J1')")
   (constraint hole_clearance (min 0mm)))
+
+# Last stuck nets: 0.1 mm (JLCPCB 4-layer minimum is 0.09 mm), approved by the user 2026-11-16
+(rule tight_last_nets
+  (condition "A.NetName == 'IO3_PULLUP' || A.NetName == 'IO1_DIRECT' || A.NetName == 'RS485_CS' || A.NetName == 'SPI_MOSI' || A.NetName == '/IO Output Drivers/IO4_DRV' || A.NetName == 'Net-(U22-SET)' || A.NetName == 'IO3_SENS_EN' || A.NetName == '/Amp Control/AMP_REM_LED' || A.NetName == 'IO2_DIV' || A.NetName == 'IO1_BURDEN' || A.NetName == 'IO1_PULLUP' || A.NetName == 'IO1_ADC' || A.NetName == 'IO2_DAC' || A.NetName == 'IO2_DIRECT' || A.NetName == 'IO3_BURDEN' || A.NetName == 'IO3_DAC' || A.NetName == 'IO3_OUT_EN' || A.NetName == 'IO3_PIN' || A.NetName == 'IO4_DIRECT' || A.NetName == 'IO4_OUT_EN' || A.NetName == 'IO4_PIN' || A.NetName == 'IO1_DAC' || A.NetName == 'IO1_DIV' || A.NetName == 'IO4_SENS_FLT_N' || A.NetName == 'EXP_INT_N' || A.NetName == 'IO4_PULLUP' || A.NetName == 'RS485_IRQ_N' || A.NetName == 'IO3_DIRECT' || A.NetName == 'IO4_DAC' || A.NetName == 'AUX_IO7' || A.NetName == 'IO2_PIN' || A.NetName == 'IO3_SENS_FLT_N' || A.NetName == 'IO4_DIV' || A.NetName == '/IO Channel 2/IO2_BUF' || A.NetName == 'IO2_ADC' || A.NetName == 'IO4_SENS_EN' || A.NetName == 'IO1_PIN' || A.NetName == 'IO2_BUF_OE_N' || A.NetName == 'IO2_PULLUP' || A.NetName == 'IO2_SENS_EN' || A.NetName == 'IO_OUT_FLT_A_N'")
+  (constraint clearance (min 0.1mm)))
+
+(rule tight_moved_h
+  (condition "A.NetName == 'IO1_SENS_EN' || A.NetName == 'IO1_PULLUP' || A.NetName == 'IO4_OUT_EN' || A.NetName == '/IO Output Drivers/IO4_DRV'")
+  (constraint clearance (min 0.1mm)))
+
+(rule tight_moved_v
+  (condition "A.NetName == 'IO1_DAC' || A.NetName == 'IO2_PIN' || A.NetName == 'IO2_PULLUP' || A.NetName == 'IO3_DAC' || A.NetName == 'IO3_PIN' || A.NetName == 'IO3_PULLUP' || A.NetName == 'Net-(U103A--)' || A.NetName == 'Net-(U106-D2)'")
+  (constraint clearance (min 0.1mm)))
+
+# +12V links to the output switches: 0.1 mm only beside these three pads
+(rule tight_12v_links
+  (condition "A.NetName == '+12V' && (B.memberOfFootprint('C416') || B.memberOfFootprint('R624') || B.NetName == '/IO Output Drivers/IO3_DRV')")
+  (constraint clearance (min 0.1mm)))

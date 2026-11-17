@@ -415,6 +415,7 @@ def link_to_symbol(footprint, part):
     # match the symbol's attributes (the stock test points exclude
     # themselves from the BOM)
     footprint.SetExcludedFromBOM(part.get('exclude_from_bom', False))
+    footprint.SetDNP(part.get('dnp', False))
     for field, value in part.get('fields', {}).items():
         footprint.SetField(field, value)
         footprint.GetField(field).SetVisible(False)
