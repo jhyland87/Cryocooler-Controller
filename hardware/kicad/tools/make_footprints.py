@@ -1347,7 +1347,8 @@ def te_1571300_2():
 
 def xkb_x2510wrs(pins):
     """XKB X2510WRS-0N-9TSN right-angle SMT wafer, 2.54 mm (drawing X-X2510WRS-02-9TSN
-    rev A0, which covers 2, 4 and 5 poles). Origin on pin 1's pad; +y points out of the
+    rev A0, which covers 2, 4 and 5 poles; XKB makes no 3- or 6-pole part). Origin on
+    pin 1's pad; +y points out of the
     mating side. Signal pads 1.2 x 4.0; hold-down pads 1.1 x 3.4, 1.73 outside the end
     pins and ending 6.0 from the signal pads' rear edge. Body (N + 1) x 2.54 wide and
     4.35 deep; tails 2.25 behind it, pins and friction wall 7.0 ahead (13.6 overall).
@@ -1451,7 +1452,80 @@ def gct_usb4205():
     )
 
 
+def ti_dsf0006a():
+    """TI DSF0006A X2SON-6, 1.0 x 1.0 x 0.4 mm (drawing 4220597/B, 06/2022, land
+    pattern example): six 0.6 x 0.17 mm lands on a 0.35 mm pitch, the two columns
+    0.8 mm apart. Top view: 1-3 down the left side, 4-6 up the right.
+    """
+    pads = [
+        smd_pad(number, x, y, 0.6, 0.17)
+        for number, x, y in (
+            ('1', -0.4, -0.35), ('2', -0.4, 0), ('3', -0.4, 0.35),
+            ('4', 0.4, 0.35), ('5', 0.4, 0), ('6', 0.4, -0.35),
+        )
+    ]
+    outline = (
+        box(-0.5, -0.5, 0.5, 0.5, 'F.Fab', 0.05)
+        + line(-0.7, -0.62, 0.7, -0.62, 'F.SilkS', 0.08)
+        + line(-0.7, 0.62, 0.7, 0.62, 'F.SilkS', 0.08)
+        + circle(-0.9, -0.5, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-1.05, -0.75, 0.95, 0.75, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Texas_DSF0006A_X2SON-6_1x1mm_P0.35mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "TI DSF0006A X2SON-6 1.0 x 1.0 mm, 0.35 mm pitch; land pattern from '
+        'drawing 4220597/B in https://www.ti.com/lit/ds/symlink/sn74lvc1g3157.pdf")\n'
+        '\t(tags "X2SON DSF")\n'
+        + text('Reference', 'REF**', 0, -1.3, 'F.SilkS')
+        + text('Value', 'SN74LVC1G3157DSF', 0, 1.3, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
+def ti_femtofet_f4():
+    """TI FemtoFET F4, 1.0 x 0.6 x 0.36 mm (CSD17381F4 SLPS411G, section 7.2
+    recommended minimum PCB layout): gate (1) and source (2) lands 0.25 x 0.15 mm,
+    0.35 mm apart, and the drain (3) land 0.25 x 0.5 mm, 0.65 mm from them. Top
+    view: 1 top left, 2 bottom left, 3 right.
+    """
+    pads = [
+        smd_pad('1', -0.325, -0.175, 0.25, 0.15),
+        smd_pad('2', -0.325, 0.175, 0.25, 0.15),
+        smd_pad('3', 0.325, 0, 0.25, 0.5),
+    ]
+    outline = (
+        box(-0.5, -0.3, 0.5, 0.3, 'F.Fab', 0.05)
+        + line(-0.6, -0.48, 0.6, -0.48, 'F.SilkS', 0.08)
+        + line(-0.6, 0.48, 0.6, 0.48, 'F.SilkS', 0.08)
+        + circle(-0.8, -0.3, 0.07, 'F.SilkS', 0.05, fill=True)
+        + box(-0.95, -0.6, 0.75, 0.6, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Texas_FemtoFET_F4_1.0x0.6mm"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "TI FemtoFET F4 1.0 x 0.6 mm (1 gate, 2 source, 3 drain); land pattern '
+        'from https://www.ti.com/lit/ds/symlink/csd17381f4.pdf section 7.2")\n'
+        '\t(tags "FemtoFET F4")\n'
+        + text('Reference', 'REF**', 0, -1.2, 'F.SilkS')
+        + text('Value', 'CSD17381F4', 0, 1.2, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 FOOTPRINTS = {
+    'Texas_FemtoFET_F4_1.0x0.6mm': ti_femtofet_f4,
+    'Texas_DSF0006A_X2SON-6_1x1mm_P0.35mm': ti_dsf0006a,
     'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal': xkb_x2510wrs_02,
     'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal': xkb_x2510wrs_04,
     'USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag': gct_usb4205,

@@ -12,6 +12,32 @@ import gen_bom
 
 # MPN prefix -> datasheet URL (longest prefix wins)
 DATASHEETS = {
+    'TSB582': 'https://www.st.com/resource/en/datasheet/tsb582.pdf',
+    '39-30-0040': 'https://www.molex.com/pdm_docs/sd/039300020_sd.pdf',
+    'WSK2512': 'https://www.vishay.com/docs/30108/wsk2512.pdf',
+    '691322110004': 'https://www.we-online.com/components/products/datasheet/691322110004.pdf',
+    'LT3045': 'https://www.analog.com/media/en/technical-documentation/data-sheets/lt3045.pdf',
+    'LT3094': 'https://www.analog.com/media/en/technical-documentation/data-sheets/lt3094.pdf',
+    'ISOW7841A': 'https://www.ti.com/lit/ds/symlink/isow7841a-q1.pdf',
+    'LVK24': 'https://www.ohmite.com/assets/docs/res_lvk.pdf',
+    'SC16IS750': 'https://www.nxp.com/docs/en/data-sheet/SC16IS740_750_760.pdf',
+    'THVD2410': 'https://www.ti.com/lit/ds/symlink/thvd2410.pdf',
+    'ESD2CAN24': 'https://www.ti.com/lit/ds/symlink/esd2can24-q1.pdf',
+    'MF-MSMF': 'https://www.bourns.com/docs/Product-Datasheets/mfmsmf.pdf',
+    '691322110006': 'https://www.we-online.com/components/products/datasheet/691322110006.pdf',
+    'ECS-2520MV': 'https://ecsxtal.com/store/pdf/ECS-2520MV.pdf',
+    'OPA593': 'https://www.ti.com/lit/ds/symlink/opa593.pdf',
+    'DAC60508': 'https://www.ti.com/lit/ds/symlink/dac60508.pdf',
+    'ADS124S08': 'https://www.ti.com/lit/ds/symlink/ads124s08.pdf',
+    'MCP23S17': 'https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf',
+    'TMUX1111': 'https://www.ti.com/lit/ds/symlink/tmux1111.pdf',
+    'TMUX7412F': 'https://www.ti.com/lit/ds/symlink/tmux7411f.pdf',
+    'TPS26625': 'https://www.ti.com/lit/ds/symlink/tps2662.pdf',
+    'TVS1800': 'https://www.ti.com/lit/ds/symlink/tvs1800.pdf',
+    'SN74LVC1G3157': 'https://www.ti.com/lit/ds/symlink/sn74lvc1g3157.pdf',
+    'CSD17381F4': 'https://www.ti.com/lit/ds/symlink/csd17381f4.pdf',
+    '691322110003': 'https://www.we-online.com/components/products/datasheet/691322110003.pdf',
+    'CRM2512': 'https://www.bourns.com/docs/Product-Datasheets/CRM2512.pdf',
     '1571300': 'https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv'
     '&DocNm=1571300&DocType=Customer+Drawing&DocLang=English',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
@@ -30,6 +56,7 @@ DATASHEETS = {
     'BSS138DW': 'https://www.diodes.com/assets/Datasheets/ds30203.pdf',
     'X2510WRS-02': 'https://www.lcsc.com/datasheet/C908467.pdf',
     'X2510WRS-04': 'https://www.lcsc.com/datasheet/C908468.pdf',
+    # no sheet of their own found: the 2 / 4 / 5-pole drawing and XKB's series page
     'USB4205': 'https://gct.co/files/drawings/usb4205.pdf',
     'USB4210': 'https://gct.co/files/drawings/usb4210.pdf',
     '505448': 'https://www.molex.com/content/dam/molex/molex-dot-com/products/'

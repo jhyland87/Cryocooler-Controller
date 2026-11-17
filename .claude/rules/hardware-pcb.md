@@ -10,7 +10,8 @@ verification and selection rules are in `hardware-schematic.md`.
 
 ## Before editing the board
 
-- Use the skills: `kicad-pcb-edit` (board edits, DRC with schematic parity),
+- Use the skills: `kicad-pcb-autoroute` (routing a new placement with Freerouting),
+  `kicad-pcb-edit` (board edits, DRC with schematic parity),
   `kicad-part-labels` (mask / silk labels), `kicad-fab-export` (Gerbers, renders,
   board ID stamp).
 - The board file (~5 MB) is read-blocked in `.claude/settings.json`. Query it with

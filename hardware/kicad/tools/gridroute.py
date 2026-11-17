@@ -3,7 +3,7 @@
 Usage: gridroute.py board.kicad_pcb drc.json [out.kicad_pcb [NET,...]]
 Routes each unconnected pair from a kicad-cli DRC report on F.Cu / In2.Cu /
 B.Cu (In1 is the GND plane), with 0.45/0.2 through vias, then saves.
-Env knobs: FIRST=U20,U21 (pairs on those parts first), FINE=1 (0.1 mm
+Env knobs: FIRST=U20,U21 (pairs on those parts first), CLEAR=0.15 (clearance, mm), FINE=1 (0.1 mm
 clearance), IN1=1 / IN1_COST, VIA_COST, HWEIGHT, MAX_EXPAND.
 """
 import heapq
@@ -53,7 +53,7 @@ W_MM, H_MM = board_size()
 NX, NY = int(W_MM / CELL) + 1, int(H_MM / CELL) + 1
 N = NX * NY
 FINE = os.environ.get('FINE') == '1'
-CLEAR = 0.1 if FINE else 0.15
+CLEAR = float(os.environ.get('CLEAR', 0.1 if FINE else 0.15))
 EDGE = 0.35
 VIA_D, VIA_DRILL = 0.45, 0.2
 HOLE_GAP = 0.25

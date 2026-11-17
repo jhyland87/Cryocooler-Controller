@@ -26,7 +26,7 @@ from sexpr import find_all, parse, sval
 PORTS = {
     'cryocooler': {
         'J1': ('USB-C', 'ESP32 USB, 5 V in'),
-        'J2': ('12 V in', '5.5 x 2.1 mm barrel jack'),
+        'J2': ('12 V in', 'Mini-Fit Jr 2x2 (ATX 12 V)'),
         'J3': ('Fan', '4-pin PWM'),
         'J4': ('Pump', '4-pin PWM'),
         'J5': ('Flow sensor', 'Alphacool ES'),
@@ -38,7 +38,8 @@ PORTS = {
         'J12': ('Cryocooler', '+ / - / GND'),
         'J13': ('Compressor relay', '12 V / GND'),
         'J14': ('IMU', 'cable to IMU board'),
-        'J15': ('Display', '14-pin FPC'),
+        'J15': ('Display', 'CAN, button, reset'),
+        'J21': ('Display 12 V', 'fused supply for the display'),
         'J16': ('IO5', 'GPIO / GND'),
         'J17': ('IO7', 'GPIO / GND'),
         'J18': ('IO11', 'GPIO / GND'),

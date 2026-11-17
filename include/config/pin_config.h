@@ -146,7 +146,7 @@
 // =============================================================================
 // +-15 V power good (active LOW)
 // =============================================================================
-// Low when both LT3097 outputs are in regulation. The hardware already blocks
+// Low when both +-15 V regulator outputs are in regulation. The hardware already blocks
 // AMP_REM while it is high; read it before starting the signal generator.
 // GPIO43 is U0TXD (it toggles with ROM boot messages), behind a 1 kOhm series
 // resistor; the console is native USB CDC, so UART0 is otherwise unused.
@@ -166,14 +166,68 @@
 // =============================================================================
 // MCP23S08 expander pins (read / written over SPI, see gpio_expander.h)
 // =============================================================================
-#define EXPANDER_PIN_PGP_15V         0   // input: LT3097 +15 V power good
-#define EXPANDER_PIN_PGN_15V         1   // input: LT3097 -15 V power good
+#define EXPANDER_PIN_PGP_15V         0   // input: +15 V regulator power good
+#define EXPANDER_PIN_PGN_15V         1   // input: -15 V regulator power good
 #define EXPANDER_PIN_AMBIENT_INT     2   // input: ADT7320 INT (active LOW, R pull-up)
 #define EXPANDER_PIN_AMBIENT_CT      3   // input: ADT7320 CT (active LOW, R pull-up)
 #define EXPANDER_PIN_DISP_BL         4   // output: display backlight enable
 #define EXPANDER_PIN_SPARE_5         5   // input with weak pull-up, not wired
 #define EXPANDER_PIN_INA239_ALERT    6   // input: INA239 ALERT (active LOW, R9 pull-up)
 #define EXPANDER_PIN_TOUCH_IRQ       7   // input: TSC2046 PENIRQ (active LOW, internal pull-up)
+
+// =============================================================================
+// Rev 5 board additions (schematic only so far: no firmware uses these yet)
+// =============================================================================
+// Not yet applied above, because the display and ACS37800 firmware change with
+// them: on rev 5 ACS37800_CS is CS_ID_BASE + 5, the on-board display is gone
+// (DISP_*, TOUCH_CS_PIN, EXPANDER_PIN_DISP_BL, EXPANDER_PIN_TOUCH_IRQ) and
+// AUX_IO12_PIN is CAN_RX. IO_DAC_CS reuses the old display ID.
+#define CAN_TX_PIN                   17  // TCAN3414 TXD (10 kOhm pull-up)
+#define CAN_RX_PIN                   12  // TCAN3414 RXD
+
+// Universal I/O (four channels): DAC60508 (SPI mode 1), ADS124S08 (SPI mode 1), two
+// MCP23S17 (hardware addresses 0 and 1, one chip select).
+#define IO_DAC_CS                    (CS_ID_BASE + 4)
+#define IO_ADC_CS                    (CS_ID_BASE + 9)
+#define IO_EXPANDER_CS               (CS_ID_BASE + 10)
+// SC16IS750 UART for the RS-485 port: SPI mode 0, 4 MHz max.
+#define RS485_UART_CS                (CS_ID_BASE + 11)
+// SPI expansion header chip selects A and B. IDs + 14 and + 15 are spare.
+#define EXPANSION_CS_A               (CS_ID_BASE + 12)
+#define EXPANSION_CS_B               (CS_ID_BASE + 13)
+
+// Channels 1 and 2 keep a GPIO: high passes the DAC level to the output driver (PWM),
+// and with IOn_BUF_OE_N low the pin reads back through a buffer (pulse input).
+#define IO_CH1_FAST_PIN              5
+#define IO_CH2_FAST_PIN              7
+// GPIO11 and GPIO13 are spare on rev 5.
+
+// MCP23S17 port bits, one port per channel (expander k: port A = channel 2k + 1,
+// port B = channel 2k + 2). Every line has a pull resistor to its off level.
+#define IO_BIT_OUT_EN                0   // output: HIGH closes the output switch
+#define IO_BIT_DIRECT                1   // output: HIGH = 0-2.5 V range, LOW = 0-15 V
+#define IO_BIT_BURDEN                2   // output: HIGH adds the 120 Ohm loop burden
+#define IO_BIT_PULLUP                3   // output: HIGH adds 10 kOhm to 3.3 V
+#define IO_BIT_SENS_EN               4   // output: HIGH turns the sensor supply on
+#define IO_BIT_OUT_FLT_N             5   // input, channel 1 only: output switch fault for
+                                         // channels 1-4 (active LOW)
+#define IO_BIT_SENS_FLT_N            6   // input: sensor supply fault (active LOW)
+#define IO_BIT_BUF_OE_N              7   // output, channels 1 and 2: LOW enables the pulse buffer
+// Bit 7 of channels 3 and 4 (expander 1) carries two interrupts instead.
+#define IO_EXPANDER1_PIN_RS485_IRQ   7   // port A, input: SC16IS750 IRQ (active LOW)
+#define IO_EXPANDER1_PIN_HEADER_INT  15  // port B bit 7, input: expansion header INT (active LOW)
+// Precision sensor ports A and B (load cell, O2 cell): ADS124S08 AIN8 / AIN9 and
+// AIN10 / AIN11. Pressure ports 1 (100 psi) and 2 (30 psi): AIN4 and AIN5 against
+// AINCOM. All four use the switched 5 V excitation, which is also REFP0 / REFN0.
+#define IO_ADC_AIN_PRESSURE_1        4
+#define IO_ADC_AIN_PRESSURE_2        5
+// Bit 5 of channel 2 (expander 0 port B) and channel 3 (expander 1 port A):
+#define IO_EXPANDER0_PIN_PREC_EXC_EN 13  // port B bit 5, output: HIGH turns the excitation on
+#define IO_EXPANDER1_PIN_PREC_EXC_FLT 5  // port A bit 5, input: excitation fault (active LOW)
+
+// MCP23S08 inputs added on rev 5 (replace DISP_BL and SPARE_5 above).
+#define EXPANDER_PIN_IO_EXP_INT      4   // input: MCP23S17 interrupts (open drain, active LOW)
+#define EXPANDER_PIN_IO_ADC_DRDY     5   // input: ADS124S08 DRDY (active LOW)
 
 // =============================================================================
 

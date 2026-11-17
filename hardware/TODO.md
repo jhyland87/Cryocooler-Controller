@@ -47,7 +47,7 @@
 
 # Rev 5 ideas (only if there is ever a rev 5)
 
-- [ ] **Kelvin-connect the INA239 shunt sense lines.** On the bench board (the `main` line) the
+- [x] **Kelvin-connect the INA239 shunt sense lines.** — schematic done on `rev5-schematic` (4-terminal shunt, VBUS on the rail); the routed board still has to be checked. On the bench board (the `main` line) the
   system current read about 2.9x high: 0.60 A shown for 0.21 A real.
   - Measured there at 0.21 A: 2.7 mV across the 15 mΩ shunt's end caps, but 8.3 mV where the
     sense lines pick up the signal. The sense lines tapped the 12 V copper away from the shunt
@@ -61,7 +61,7 @@
   - A larger shunt value makes stray copper matter less; the cost is more drop and heat.
   - Firmware on `main` works around it with a measured effective shunt value
     (`src/modules/sysinfo.cpp`); see `hardware/TODO.md` on `main`, 11/15/2026.
-- [ ] **Auto power-on.** Let the system turn on as soon as 12 V reaches the board, with no button
+- [x] **Auto power-on.** — drawn on `rev5-schematic` as an option (jumper not fitted, with the diode); still not bench tested. Let the system turn on as soon as 12 V reaches the board, with no button
   press. Maybe enabled by a jumper, or in software if that is possible.
   - Idea: a 2.2 µF capacitor from the LTC2954 PB pin to GND, with a jumper in series. PB's
     internal 100 k pull-up (to 1.9 V) charges it, so PB is low for roughly 80-500 ms after 12 V
@@ -80,7 +80,7 @@
   the same device.
   - Adjacent headers keep the stock cables. If the Alphacool unit's two plugs allow it, one
     6-pin connector would also work (not checked).
-- [ ] **GPIO output level set in software.** Possibly let each GPIO header drive up to 3.3 V, 5 V
+- [x] **GPIO output level set in software.** — done on `rev5-schematic` as four universal I/O channels (cut from eight on 2026-11-16 so the board routes on 4 layers) (see `kicad/DESIGN_REVIEW.md`); schematic only. Possibly let each GPIO header drive up to 3.3 V, 5 V
   or 12 V, chosen by a software setting, so it can switch devices that need different levels
   (the air compressor needs a 12 V "enable" signal, for example).
   - Idea: one circuit for this and the analog outputs below. A DAC on the SPI bus feeds an
@@ -93,7 +93,7 @@
   - If the headers stay usable as inputs, their protection has to survive 12 V applied from
     outside.
   - No parts chosen or checked against a datasheet yet.
-- [ ] **Drop J8 (amp remote) and J13 (compressor relay).** With configurable GPIO outputs they
+- [x] **Drop J8 (amp remote) and J13 (compressor relay).** — decided 2026-11-15: both stay, so the hardware ±15 V interlock on J8 is kept. With configurable GPIO outputs they
   can go away: each becomes a GPIO output set to 12 V.
   - J8 is interlocked in hardware today: REM only switches on while both ±15 V rails are good.
     The firmware already reads the ±15 V power-good signals (`src/modules/amplifier.cpp`), so
@@ -101,9 +101,12 @@
     Unlike the hardware one, a software interlock does not act if the firmware hangs.
   - J13 drives a relay coil at up to 130 mA with a flyback diode. That is more than an op-amp
     output stage sources, so the GPIO output it moves to needs a stronger driver and the diode.
-- [ ] **Analog outputs follow that setting**: an analog output should cover the range up to the
+- [x] **Analog outputs follow that setting** — same circuit, schematic only: an analog output should cover the range up to the
   voltage configured for it.
   - With the DAC and op-amp stage above, this is the same output set anywhere between zero and
     the ceiling, with the ceiling enforced in software.
 - [ ] **Ambient Temperature**: ADT7320 added in the rev 5 schematic (branch `rev5-schematic`). PCB placement still to do: far from anything that warms the board.
 - [ ] **Display**: an off-board Waveshare ESP32-S3-Touch-LCD-4.3B on CAN replaces the on-board display in the rev 5 schematic (branch `rev5-schematic`; see `kicad/DESIGN_REVIEW.md`). Still to do: CAN firmware on both sides, the `pin_config.h` changes (ACS37800 CS to decoder Y5, GPIO12 and GPIO17 to CAN), removing the ST7789V / TSC2046 display module, a fuse for the display feed, PCB.
+- Try to stick to leadless packages as much as possible (PDFN, QFN, etc).
+- Do not use any IC's that you cant find in stock at Digikey or Mouser. This means replacing the LT3097ADJC#PBF and ISOW7741DFMR.
+- If there is an IC in use on one of the revisions that you cant find in stock and need to remove it, check first to make sure I don't have some on hand (eg: I have INA239AIDGSR on hand already)

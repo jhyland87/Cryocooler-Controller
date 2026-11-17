@@ -91,6 +91,9 @@ CAPS = {
         'CL21B105KBFNNNE', 'CAP CER 1UF 50V X7R 0805', ''),
     ('10uF', 'C_0805_2012Metric'): (
         'CL21A106KAYNNNE', 'CAP CER 10UF 25V X5R 0805', ''),
+    ('2.2uF', 'C_0805_2012Metric'): (
+        'CL21B225KAFNNNE', 'CAP CER 2.2UF 25V X7R 0805',
+        'auto power-on capacitor on the LTC2954 PB pin; stock not checked'),
     ('4.7uF', 'C_0805_2012Metric'): (
         'CL21A475KAQNNNE', 'CAP CER 4.7UF 25V X5R 0805', 'USB VBUS filter'),
     ('470nF', 'C_0805_2012Metric'): (
@@ -104,12 +107,12 @@ CAPS = {
         'CL31A106KAHNNNE', 'CAP CER 10UF 25V X5R 1206', '12 V rail'),
     ('22uF/25V X7R', 'C_1210_3225Metric'): (
         'GRM32ER71E226KE15L', 'CAP CER 22UF 25V X7R 1210',
-        'ADP5071 outputs / LT3097 inputs and LT3097 outputs; the LT3097 needs '
+        'ADP5071 outputs / regulator inputs and the +-15 V outputs; the LT3045 / LT3094 need '
         '>= 10 uF effective at 15 V DC bias (INN and both outputs have two in '
         'parallel; INP needs 4.7 uF), so check the DC-bias curve'),
     ('1uF/50V', 'C_1206_3216Metric'): (
         'CL31B105KBHNNNE', 'CAP CER 1UF 50V X7R 1206',
-        'LT3097 SETP / SETN bypass (the pins sit at 14.7 V DC)'),
+        'LT3045 / LT3094 SET bypass (the pins sit at 14.7 V DC)'),
     ('22uF/10V', 'C_1206_3216Metric'): (
         'CL31A226KPHNNNE', 'CAP CER 22UF 10V X5R 1206',
         '5 V and 3.3 V buck outputs, ISOW7741 VDD and VISOOUT, ESP32'),
@@ -124,6 +127,61 @@ CAP_MAKERS = {
 # ── everything else, keyed by (value, footprint) ────────────────────────────
 # (manufacturer, MPN, description, basis, note)
 PARTS = {
+    ('ISOW7841AQDWERQ1', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
+        'Texas Instruments', 'ISOW7841AQDWERQ1', 'DGTL ISO 5KV 4CH GEN PURP 16SOIC',
+        'design', 'isolated SPI and 5 V for the ACS37800; replaces the ISOW7741 (no stock). '
+        'Mouser showed 644 in stock on 2026-11-15. Runs from 3.3 V: 40 mA at 5 V out'),
+    # ── expansion and display link (rev 5) ──
+    ('SC16IS750IBS', 'HVQFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm'): (
+        'NXP', 'SC16IS750IBS,128', 'IC UART SPI/I2C 64B FIFO 24HVQFN', 'design',
+        'RS-485 port UART; Mouser showed 8,243 in stock on 2026-11-15'),
+    ('THVD2410DRBR', 'VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm'): (
+        'Texas Instruments', 'THVD2410DRBR', 'IC TRANSCEIVER RS485 HALF 8VSON', 'design',
+        'RS-485 port; +-70 V bus fault protection'),
+    ('ESD2CAN24DBZR', 'SOT-23'): (
+        'Texas Instruments', 'ESD2CAN24DBZRQ1', 'TVS DIODE 24VWM CAN 2CH SOT23', 'design',
+        'CAN bus clamp at the display connector; no leadless CAN clamp was in stock'),
+    ('MF-MSMF050/24X', 'Fuse_1812_4532Metric'): (
+        'Bourns', 'MF-MSMF050/24X-2', 'PTC RESET FUSE 24V 500MA 1812', 'design',
+        'display feed: 0.5 A hold, 1 A trip; the display draws about 0.2 A'),
+    ('SPI EXPANSION', 'PinHeader_2x05_P2.54mm_Vertical_SMD'): (
+        'Samtec', 'TSM-105-01-L-DV', 'CONN HEADER SMD 10POS 2.54MM', 'suggested',
+        'SPI expansion header; any surface-mount 2 x 5 2.54 mm pin header fits. Part '
+        'number and stock not checked'),
+    # ── universal I/O (rev 5) ──
+    ('120', 'R_2512_6332Metric'): (
+        'Bourns', 'CRM2512-FX-1200ELF', 'RES 120 OHM 1% 2W 2512', 'suggested',
+        'loop burden of the universal I/O channels; 2 W so 12 V on the pin (1.2 W) does '
+        'not damage it. Stock not checked'),
+    ('DAC60508ZRTER', 'Texas_RTE0016D_WQFN-16-1EP_3x3mm_P0.5mm_EP0.8x0.8mm'): (
+        'Texas Instruments', 'DAC60508ZRTER', 'IC DAC 12BIT 8CH SPI 16WQFN', 'design',
+        'universal I/O output levels; Z = outputs reset to zero scale'),
+    ('ADS124S08IRHBR', 'Texas_RHB0032M_VQFN-32-1EP_5x5mm_P0.5mm_EP2.1x2.1mm'): (
+        'Texas Instruments', 'ADS124S08IRHBR', 'IC ADC 24BIT SIGMA-DELTA 32VQFN', 'design',
+        'universal I/O inputs; run with the PGA bypassed'),
+    ('MCP23S17-E/ML', 'QFN-28-1EP_6x6mm_P0.65mm_EP4.25x4.25mm'): (
+        'Microchip', 'MCP23S17-E/ML', 'IC I/O EXPANDER SPI 16B 28QFN', 'design',
+        'universal I/O mode bits and fault flags; four on one chip select'),
+    ('TMUX1111RSVR', 'UQFN-16_1.8x2.6mm_P0.4mm'): (
+        'Texas Instruments', 'TMUX1111RSVR', 'IC SWITCH SPST X4 16UQFN', 'design',
+        'universal I/O range switches (divider legs)'),
+    ('TMUX7412FRRPR', 'Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm'): (
+        'Texas Instruments', 'TMUX7412FRRPR', 'IC SWITCH SPST X4 FAULT PROT 16WQFN',
+        'design', 'universal I/O pull-up and output switches (4 needed); 32 at Mouser on '
+        '2026-11-15, 0 at Digi-Key'),
+    ('TPS26625DRCR', 'Texas_DRC0010J'): (
+        'Texas Instruments', 'TPS26625DRCR', 'IC EFUSE 60V 880MA 10VSON', 'design',
+        'universal I/O sensor supply switches, auto-retry'),
+    ('TVS1800DRVR', 'WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm'): (
+        'Texas Instruments', 'TVS1800DRVR', 'TVS DIODE 18VWM 6WSON', 'design',
+        'surge clamps at the universal I/O and precision port connectors (21 needed); '
+        'over 1,000 at Digi-Key (checked by the user, 2026-11-16), 50 at Mouser'),
+    ('SN74LVC1G3157DSFR', 'Texas_DSF0006A_X2SON-6_1x1mm_P0.35mm'): (
+        'Texas Instruments', 'SN74LVC1G3157DSFR', 'IC SWITCH SPDT 6SON', 'design',
+        'output gates of the fast universal I/O channels'),
+    ('CSD17381F4', 'Texas_FemtoFET_F4_1.0x0.6mm'): (
+        'Texas Instruments', 'CSD17381F4', 'MOSFET N-CH 30V 3.1A 3PICOSTAR', 'design',
+        'loop burden switches of the universal I/O channels'),
     ('100uF/25V', 'CP_Elec_8x10'): (
         'Panasonic', 'EEE-FK1E101P',
         'CAP ALUM 100UF 20% 25V SMD 8x10.2', 'suggested', 'switched +12 V rail'),
@@ -132,6 +190,9 @@ PARTS = {
         'CAP ALUM 100UF 20% 35V SMD 8x10.2', 'suggested',
         'C65 sits on the input rail behind a 26 V TVS clamp; rating taken from '
         'distributor listings, not a Panasonic datasheet'),
+    ('120', 'R_1206_3216Metric'): (
+        'Yageo', 'RC1206FR-07120RL', 'RES 120 OHM 1% 1/4W 1206', 'suggested',
+        'CAN and RS-485 bus terminations'),
     ('1N4148W', 'D_SOD-123'): (
         'Diodes Incorporated', '1N4148W-7-F',
         'DIODE GEN PURP 75V 150MA SOD123', 'design', ''),
@@ -146,11 +207,10 @@ PARTS = {
         'LED RGB NEOPIXEL NANO WS2812B-2020 2 X 2 MM (10 pack)', 'design',
         'Adafruit listed the 10 pack out of stock on 2026-11-06; the 100 pack is '
         'Adafruit 6428. Check JLCPCB/LCSC for a WS2812B-2020 if you assemble there'),
-    ('5A backup', 'Fuse_Littelfuse-NANO2-451_453'): (
-        'Littelfuse', '0453005.MR', 'FUSE BRD MNT 5A 125VAC/VDC 2SMD',
-        'suggested',
-        'NANO2 453 series, fast acting, 2410 package (6.1 x 2.7 mm); backup '
-        'only: add a fuse at the PSU end (see DESIGN_REVIEW.md)'),
+    ('10A backup', 'Fuse_Littelfuse-NANO2-451_453'): (
+        'Littelfuse', '0453010.MR', 'FUSE BRD MNT 10A 125VAC/VDC 2SMD', 'suggested',
+        'NANO2 453 series, fast acting, same 2410 land as the 5 A part it replaces; '
+        'backup only: add a fuse at the PSU end. Stock not checked'),
     ('SRP4020TA-4R7M', 'L_Bourns_SRP4020TA'): (
         'Bourns', 'SRP4020TA-4R7M', 'FIXED IND 4.7UH 2.6A 105MOHM SMD',
         'design', 'AP63205 buck inductor, shielded; Isat 3.5 A against the 2 A buck'),
@@ -242,11 +302,10 @@ PARTS = {
     ('BSS84', 'SOT-23'): (
         'Diodes Incorporated', 'BSS84-7-F', 'MOSFET P-CH 50V 130MA SOT23-3',
         'suggested', 'output stage is limited to about 130 mA'),
-    ('15m', 'R_2512_6332Metric'): (
-        'Vishay Dale', 'WSL2512R0150FEA18', 'RES 0.015 OHM 1% 2W 2512',
-        'suggested',
-        'INA239 shunt, about 1.5 W at 10 A: needs 2 W or more; the "18" '
-        'suffix is the 2 W part (WSL2512R0150FEA is 1 W)'),
+    ('10m', 'R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm'): (
+        'Vishay Dale', 'WSK2512R0100FEA', 'RES 0.01 OHM 1% 1W 2512 4-TERMINAL', 'design',
+        'INA239 shunt with separate sense pads (Kelvin): 0.56 W at 7.5 A, 1 W at the 10 A '
+        'fuse rating. Mouser showed 18,857 in stock on 2026-11-15'),
     ('USB_C', 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal'): (
         'GCT', 'USB4105-GF-A', 'USB-C 2.0 RECEPTACLE 16P, TOP MOUNT',
         'suggested', 'footprint is the GCT USB4105-xx-A'),
@@ -261,17 +320,22 @@ PARTS = {
     ('', 'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-02-9TSN',
         'CONN HEADER R/A SMT 2POS 2.54MM, 4 A', 'design',
-        'J6 NTC, J13 relay 12 V out, J16-J18 and J20 general-purpose I/O; mates with '
-        'X2510H-02 housings and X2510T terminals'),
+        'J6 NTC, J13 relay 12 V out, J21 display supply; mates with X2510H-02 housings and '
+        'X2510T terminals'),
     ('', 'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-04-9TSN',
         'CONN HEADER R/A SMT 4POS 2.54MM, 4 A', 'design',
-        'J3 fan, J4 pump, J5 flow sensor (pin 4 unused), J15 display 12 V and CAN, '
-        'J21 display power button and reset; mates with X2510H-04 housings, so fan, '
-        'pump and flow leads are re-housed'),
+        'J3 fan, J4 pump, J5 flow sensor (pin 4 unused), J30 and J31 precision sensor '
+        'ports, J15 display signals, and the 3-wire ports with pin 4 unused (J32 / J33 '
+        'pressure, J34 RS-485, J36-J39 I/O); mates with X2510H-04 housings, so fan, pump '
+        'and flow leads are re-housed'),
     ('OPA4990IRUCR', 'Texas_S-PX2QFN-14'): (
-        'Texas Instruments', 'OPA4990IRUCR', 'IC OPAMP GP 4 CIRCUIT 14X2QFN',
-        'design', 'general-purpose I/O LED drivers, on +5V_OR'),
+        'Texas Instruments', 'OPA4990IRUCR', 'IC OPAMP GP 4 CIRCUIT 14X2QFN', 'design',
+        'not used on rev 5 (rev 4 general-purpose I/O LED drivers)'),
+    ('TSB582IQ2T', 'DFN-8-1EP_3x3mm_P0.65mm_EP1.55x2.4mm'): (
+        'STMicroelectronics', 'TSB582IQ2T', 'IC OPAMP GP 2 CIRCUIT 8DFN', 'design',
+        'universal I/O output drivers, four duals for eight channels (150 mA min output). '
+        'Mouser showed 798 in stock on 2026-11-16 (1,462 of the automotive TSB582IYQ2T)'),
     ('SN74LVC1G125DRYR', 'Texas_USON-6_1x1.45mm_P0.5mm_SMD'): (
         'Texas Instruments', 'SN74LVC1G125DRYR', 'IC BUF NON-INVERT 5.5V 6SON',
         'design', 'ACS37800 SCK and MISO gates, enabled by ACS_CS'),
@@ -292,10 +356,11 @@ PARTS = {
         '2 screws through the 3.81 mm ear holes. Listed mating plugs: TE 350766-1, '
         '770018-1; one distributor lists 12 A / 600 V (confirm plug and rating with TE '
         'before ordering)'),
-    ('', 'Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'): (
-        'Tensility', '54-00164', 'CONN JACK R/A SMT 5.5X2.1MM',
-        'design', 'J2 12 V in, centre pin positive; 5.5 A up to 40 C, derates '
-        'to 0 at 70 C; do not mate under load'),
+    ('', 'Molex_Mini-Fit_Jr_5569-04A2_2x02_P4.20mm_Horizontal'): (
+        'Molex', '39-30-0040', 'CONN HEADER R/A 4POS 4.2MM MINI-FIT JR', 'design',
+        'J2 12 V in, pinned as the ATX 12 V (CPU) connector: 1 and 2 ground, 3 and 4 '
+        '+12 V; mates with housing 39-01-2040. Part number taken from the KiCad footprint; '
+        'stock not checked. Check the cable polarity with a meter before first use'),
     ('', 'SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'): (
         'Same Sky', 'MJ-3523-SMT-TR', 'CONN JACK MONO 3.5MM SMD',
         'design', 'J9 amplifier signal: tip = signal, sleeve = GND'),
@@ -370,11 +435,14 @@ PARTS = {
         'Amphenol', 'RJSSE-5380', 'CONN MOD JACK 8P8C R/A SHIELDED SMD',
         'design', 'J14 IMU cable; plain jack, no magnetics (drawing '
         'P-RJSSE-5380 rev E)'),
-    ('LT3097ADJC', 'DFN-22-2EP_6x3mm_P0.5mm_LT3097'): (
-        'Analog Devices', 'LT3097ADJC#PBF',
-        'IC REG LINEAR POS/NEG ADJ 500MA 22DFN', 'suggested',
-        '#PBF is the tube, #TRPBF the reel; DFN with two exposed pads '
-        '(23 = GND, 24 = INN = -16.5 V)'),
+    ('LT3045HMSE', 'MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm'): (
+        'Analog Devices', 'LT3045HMSE#TRPBF', 'IC REG LINEAR POS ADJ 500MA 12MSOP', 'design',
+        '+15 V regulator, replaces half of the LT3097 (no stock). MSOP because that is '
+        'the package Mouser had (4,805 on 2026-11-15); the 3 x 3 mm DFN stock was not seen'),
+    ('LT3094HDD', 'DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm'): (
+        'Analog Devices', 'LT3094HDD#TRPBF', 'IC REG LINEAR NEG ADJ 500MA 12DFN', 'design',
+        '-15 V regulator, replaces half of the LT3097; exposed pad is IN (-16.5 V), not '
+        'ground. Mouser showed 304 in stock on 2026-11-15'),
     ('AP63205WU-7', 'TSOT-23-6'): (
         'Diodes Incorporated', 'AP63205WU-7', 'IC REG BUCK 5V 2A TSOT26',
         'design', ''),
@@ -475,6 +543,13 @@ def load_netlist():
         root = parse(path.read_text())
     parts = []
     for comp in find_all(find_all(root, 'components')[0], 'comp'):
+        # parts marked do-not-populate (the unfitted jumper of a pair) are not ordered
+        if any(
+            sval(name[1]) == 'dnp'
+            for prop in find_all(comp, 'property')
+            for name in find_all(prop, 'name')
+        ):
+            continue
         footprint = find_all(comp, 'footprint')
         parts.append(
             (
@@ -558,6 +633,16 @@ def sort_key(ref):
 
 def classify(value, footprint):
     """Returns (manufacturer, mpn, description, basis, note) for one group."""
+    if value == 'AUTO ON':
+        return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
+                'auto power-on jumper: land left empty by default')
+    if value == 'RS485 TERM':
+        return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
+                'RS-485 termination jumper: land left empty unless this board ends the bus')
+    if re.fullmatch(r'IO\d (5|12)V', value):
+        return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
+                'sensor supply voltage jumpers of the universal I/O channels: one per '
+                'channel is fitted (5 V by default), the 12 V land is left empty')
     if value.startswith('EN '):
         return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
                 'supply disable jumpers JP1-JP5 ("true zero ohm", 0603 '
@@ -577,8 +662,8 @@ def classify(value, footprint):
                 f'RES ARRAY 4 RES {value.upper()} OHM 5% 0804', 'suggested',
                 'four isolated 0402 elements, 2.0 x 1.0 mm')
     if footprint.startswith('R_'):
-        if value == '15m':
-            return PARTS[('15m', footprint)]
+        if (value, footprint) in PARTS:
+            return PARTS[(value, footprint)]
         series = {
             R1206: 'RC1206FR-07',
             R0402: 'RC0402FR-07',
@@ -636,7 +721,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'PhoenixContact', 'TE_', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'Tensility_', 'SameSky_', 'TestPoint_Keystone',
-    'XKB_',
+    'XKB_', 'Molex_Mini-Fit',
 )
 
 

@@ -1050,6 +1050,14 @@ def pre_route_current(board):
     add_track(board, plus, pcbnew.B_Cu, [(j11_x, j11_top + 1.0), (j11_x, j11_top + 2.0)], CURRENT_WIDTH)
 
 
+ROUTER_ARGS = []  # extra Freerouting arguments
+
+
+def patch_dsn(text):
+    """In1 is the GND / ISO_GND plane: no signal routing on it."""
+    return text.replace('(layer In1.Cu\n      (type signal)', '(layer In1.Cu\n      (type power)')
+
+
 def run_freerouting(board, work_dir, rounds):
     import gen_pcb
 
@@ -1059,10 +1067,10 @@ def run_freerouting(board, work_dir, rounds):
         ses = work_dir / f'board{round_index}.ses'
         if not pcbnew.ExportSpecctraDSN(board, str(dsn)):
             raise RuntimeError('DSN export failed')
-        # In1 is the GND / ISO_GND plane: no signal routing on it
-        dsn.write_text(dsn.read_text().replace('(layer In1.Cu\n      (type signal)', '(layer In1.Cu\n      (type power)'))
+        dsn.write_text(patch_dsn(dsn.read_text()))
         subprocess.run(
-            [java, '-jar', str(FREEROUTING_JAR), '-de', str(dsn), '-do', str(ses), '-mp', '20', '-mt', '0'],
+            [java, '-jar', str(FREEROUTING_JAR), '-de', str(dsn), '-do', str(ses), '-mp', gen_pcb.MAX_PASSES, '-mt', '0',
+             *ROUTER_ARGS],
             check=False,
             env=gen_pcb.freerouting_env(),
             timeout=gen_pcb.FREEROUTING_TIMEOUT,

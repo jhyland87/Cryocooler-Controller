@@ -783,6 +783,7 @@ class Sheet:
                 and not getattr(part, 'off_board', False)
                 and not part.ref.startswith('#')
                 and 'TestPoint_Pad' not in (part.footprint or '')
+                and not getattr(part, 'dnp', False)
                 else '\t\t(in_bom no)'
             ),
             (
@@ -793,7 +794,8 @@ class Sheet:
                 else '\t\t(on_board no)'
             ),
             '\t\t(in_pos_files yes)',
-            '\t\t(dnp no)',
+            # dnp: a land left empty at assembly, e.g. the unfitted jumper of a pair
+            '\t\t(dnp yes)' if getattr(part, 'dnp', False) else '\t\t(dnp no)',
             f'\t\t(uuid {q(part.uid)})',
         ]
         is_power = part.ref.startswith('#')

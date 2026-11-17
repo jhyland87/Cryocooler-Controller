@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import kicadgen
+import sexpr
 from ref_map import REF_MAP
 from kicadgen import (
     Sheet,
@@ -68,9 +69,9 @@ PITCH = 12.7
 # more parts than the ADP5071 stage it replaced).
 NEW_REFS = {'R': 150, 'C': 120, 'D': 40, 'Q': 20}
 
-# The ADP5071 output capacitors also serve as the LT3097 inputs. No 22 uF / 50 V
+# The ADP5071 output capacitors also serve as the LT3045 / LT3094 inputs. No 22 uF / 50 V
 # X7R 1210 could be sourced, so the rails use 25 V parts, doubled on -16V5 and
-# both LT3097 outputs to hold the required 10 uF effective at 15 V DC.
+# both regulator outputs to hold the required 10 uF effective at 15 V DC.
 RAIL_CAP = '22uF/25V X7R'
 
 # Rev 3 parts take numbers above everything earlier, so a surviving part keeps
@@ -384,9 +385,15 @@ CS_DECODER_OUTPUTS = (
     ('7', 'ADS1220_CS'),
     ('8', 'IMU_CS'),
     ('9', 'AMBIENT_CS'),
+    ('5', 'IO_DAC_CS'),
+    ('10', 'IO_ADC_CS'),
+    ('11', 'IO_EXP_CS'),
+    ('13', 'RS485_CS'),
+    ('14', 'EXP_CS_A'),
+    ('15', 'EXP_CS_B'),
 )
-# Y4 (the display until rev 5) and Y9-Y15 are spare chip selects
-CS_DECODER_SPARE_PINS = ('5', '10', '11', '13', '14', '15', '16', '17')
+# Y14 and Y15 are spare chip selects
+CS_DECODER_SPARE_PINS = ('16', '17')
 # Highest numbers on the rev 4 board; rev 5 parts count up from here so no earlier
 # part is renumbered. The ambient sensor sheet takes U+1, C+1, R+1..2, the
 # address bit D buffer U+2, C+2, R+3 and the display link (CAN transceiver,
@@ -580,9 +587,7 @@ def mcu_and_usb(sh):
         '12': 'CS_EN_N',
         '17': 'FAN_PWM',
         '18': 'PWR_KILL',
-        '19': 'AUX_IO11',
         '20': 'CAN_RX',
-        '21': 'AUX_IO13',
         '22': 'PUMP_PWM',
         '8': 'FAN_TACH',
         '9': 'COMP_RELAY_EN',
@@ -616,8 +621,9 @@ def mcu_and_usb(sh):
         label_at=11,
     )
     # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered;
-    # GPIO46 (pin 16, strap) and GPIO48 (pin 25, 1.8 V) are spare
-    for pin in ('16', '25', '28', '29', '30'):
+    # GPIO46 (pin 16, strap), GPIO48 (pin 25, 1.8 V), GPIO11 (pin 19) and GPIO13
+    # (pin 21) are spare
+    for pin in ('16', '19', '21', '25', '28', '29', '30'):
         sh.nc(esp, pin)
     # supplies
     vdd = pin_cell(esp, '2')
@@ -748,7 +754,7 @@ def mcu_and_usb(sh):
 
 
 def build_power_input(sh):
-    """Hand-laid: DC jack -> fuse -> VIN rail with TVS and bulk/bypass
+    """Hand-laid: ATX 12 V header -> fuse -> VIN rail with TVS and bulk/bypass
     caps.
     """
     sh.handwired = True
@@ -759,45 +765,40 @@ def build_power_input(sh):
         15,
     )
     sh.note(
-        'F1 is a backup only: add an inline high-breaking-capacity fuse '
-        '(7.5-10 A) at the PSU end. Reverse polarity: TVS forward-clamps and '
-        'blows the fuse.',
+        'Sized for 10 A (about 7.5 A continuous): fans and pump up to 4.2 A plus the I/O. '
+        'F1 is a backup only: add an inline high-breaking-capacity fuse at the PSU end. '
+        'Reverse polarity: the TVS forward-clamps and blows the fuse.',
         20,
         21,
     )
-    # Tensility 54-00164: centre pin positive; the switch contact is tied to the
-    # sleeve so a plug can never open the ground return
+    # Molex Mini-Fit Jr 2 x 2, pinned like the ATX 12 V (CPU) connector: 1 and 2
+    # ground, 3 and 4 +12 V. The 5.5 A barrel jack it replaces limited the board
     j_in = sh.add(
-        'Connector:Barrel_Jack_Switch',
+        'cryocooler:ATX12V_2x2',
         next_ref('J'),
-        '12V IN',
-        28 * 1.27,
+        '12V IN (ATX 4-PIN)',
+        24 * 1.27,
         62 * 1.27,
         rot=0,
         auto=False,
-        footprint=POWER_JACK,
+        footprint='Connector_Molex:Molex_Mini-Fit_Jr_5569-04A2_2x02_P4.20mm_Horizontal',
     )
-    raw = pin_cell(j_in, '1')
+    raw = pin_cell(j_in, '3')
     fuse = aux(
         sh,
         'Device:Fuse',
         'F',
-        '5A backup',
+        '10A backup',
         {},
-        pose=at(46, 60, 90),
+        pose=at(46, raw[1], 90),
         fp='Fuse:Fuse_Littelfuse-NANO2-451_453',
     )
-    wire(sh, raw, pin_cell(fuse, '1'))
+    wire(sh, raw, (raw[0] + 5, raw[1]), pin_cell(fuse, '1'))
     rail_flag(sh, (raw[0] + 5, raw[1]))
-    gnd = spur(sh, j_in, '2', 2)
-    switch = pin_cell(j_in, '3')
-    wire(sh, switch, (gnd[0] - 1, switch[1]))
-    wire(sh, (gnd[0] - 1, switch[1]), (gnd[0] - 1, gnd[1]))
-    # two cells right, so the symbol clears the switch pin's wire
-    wire(sh, gnd, (gnd[0] + 2, gnd[1]))
-    ground(sh, (gnd[0] + 2, gnd[1]))
-    wire(sh, (gnd[0] + 2, gnd[1]), (gnd[0] + 5, gnd[1]))
-    rail_flag(sh, (gnd[0] + 5, gnd[1]))
+    gnd = spur(sh, j_in, '1', 2)
+    wire(sh, gnd, (gnd[0], gnd[1] + 4), (gnd[0] + 5, gnd[1] + 4))
+    ground(sh, (gnd[0], gnd[1] + 4))
+    rail_flag(sh, (gnd[0] + 5, gnd[1] + 4))
     out = pin_cell(fuse, '2')
     wire(sh, out, (102, out[1]))
     rail_symbol(sh, 'VIN', (102, out[1]))
@@ -820,12 +821,11 @@ def build_power_input(sh):
     drop_ground(sh, (90, 66), 0)
 
 
-def display_buttons(sh, column, row, header):
-    """J21: the off-board display's two open-collector outputs (DO0, DO1) act as
-    the power button and the RESET button. Each line has 100 R in series and an
-    ESD clamp on the cable side. The resistors and clamps sit left of
-    (column, row); the header goes at `header`, beside the display's terminals,
-    and joins them through the DISP_PWR_BTN and DISP_RESET labels.
+def display_buttons(sh, column, row):
+    """The off-board display's two open-collector outputs (DO0, DO1) act as the
+    power button and the RESET button. Each line has 100 R in series and an ESD
+    clamp on the cable side, left of (column, row); they reach the display
+    connector through the DISP_PWR_BTN and DISP_RESET labels.
     """
     sh.note('POWER BUTTON AND RESET FROM THE DISPLAY', 20 * 1.27, (row - 30) * 1.27, 1.8)
     sh.note(
@@ -836,23 +836,6 @@ def display_buttons(sh, column, row, header):
         (row - 26) * 1.27,
         1.5,
     )
-    with kicadgen.pinned_refs('J', 20):
-        buttons_ref = next_ref('J')
-    buttons = sh.add(
-        'Connector_Generic:Conn_01x04',
-        buttons_ref,
-        'DISPLAY PWR BTN / RESET',
-        header[0] * 1.27,
-        header[1] * 1.27,
-        rot=180,
-        mirror=True,
-        auto=False,
-        footprint=X2510_4P,
-    )
-    drop_ground(sh, spur(sh, buttons, '1', 4), 2)
-    sh.nc(buttons, '4')
-    net_label(sh, 'DISP_PWR_BTN', spur(sh, buttons, '2', 4), 180)
-    net_label(sh, 'DISP_RESET', spur(sh, buttons, '3', 4), 180)
     press_row, reset_row = row, row - 16
     left = column - 60
     with kicadgen.pinned_refs('U', REV5_LAST['U'] + 3), kicadgen.pinned_refs(
@@ -1070,6 +1053,47 @@ def build_power_button(sh):
     gate = pin_cell(shunt, '1')
     wire(sh, gate, (gate[0] - 4, gate[1]))
     rail_symbol(sh, '+3V3', (gate[0] - 4, gate[1]))
+    auto_power_on(sh)
+
+
+def auto_power_on(sh):
+    """Optional: with the jumper fitted, 2.2 uF holds PB low while its internal
+    pull-up charges it after 12 V arrives, which the LTC2954 takes as a button
+    press. The diode empties the capacitor into VIN when the supply drops.
+    """
+    sh.note('AUTO POWER-ON (OPTIONAL, NOT BENCH TESTED)', 20 * 1.27, 140 * 1.27, 1.8)
+    sh.note(
+        'Fit the jumper to switch on as soon as 12 V arrives. PB then stays low for '
+        'roughly 80-500 ms (2.2 uF on the 100k pull-up to 1.9 V), longer than the 32 ms '
+        'turn-on debounce. Holding the button still forces power off.',
+        20 * 1.27, 144 * 1.27, 1.5,
+    )
+    sh.note(
+        'Assumed, not verified: the LTC2954 accepts PB low from power-up as a turn-on '
+        '(its datasheet describes a high-to-low transition). Try it on a rev 4 board with '
+        'a capacitor across SW3 first.',
+        20 * 1.27, 147 * 1.27, 1.5,
+    )
+    with io_refs():
+        net_label(sh, 'PWR_BTN', (30, 166), 180, is_global=True)
+        jumper = sh.add(
+            'Jumper:Jumper_2_Open', next_ref('JP'), 'AUTO ON', 40 * 1.27, 166 * 1.27,
+            auto=False, footprint=SWITCH_HEADER,
+        )
+        jumper.dnp = True
+        role(jumper, 'auto_on_jumper')
+        wire(sh, (30, 166), pin_cell(jumper, '1'))
+        wire(sh, pin_cell(jumper, '2'), (52, 166), (62, 166), (62, 163))
+        role(vcap(sh, '2.2uF', 52, 166), 'auto_on_cap')
+        drop_ground(sh, (52, 172), 2)
+        discharge = sh.add(
+            'Device:D', next_ref('D'), '1N4148W', 62 * 1.27, 160 * 1.27, rot=270, auto=False,
+            footprint='Diode_SMD:D_SOD-123',
+        )
+        role(discharge, 'auto_on_diode')
+        top = pin_cell(discharge, '1')
+        wire(sh, top, (top[0], top[1] - 2))
+        rail_symbol(sh, 'VIN', (top[0], top[1] - 2))
 
 
 def wire(sh, *points):
@@ -1530,18 +1554,18 @@ def place_ic(
 
 def build_rails_15v(sh):
     """Hand-laid: ADP5071 with its input rail to the left, boost channel upper
-    right, inverting channel lower right, one LT3097 below.
+    right, inverting channel lower right, the two linear regulators below.
     """
     sh.handwired = True
     sh.note(
         'ADP5071ACPZ (5 V in): +16.4 V boost and -16.5 V inverting rails; '
-        'one LT3097 post-regulates them to +/-14.7 V.',
+        'an LT3045 and an LT3094 post-regulate them to +/-14.7 V.',
         20,
         15,
     )
     sh.note(
-        'ADP5071 values from datasheet Fig. 47 / Tables 9-11. LT3097: VOUT = '
-        '100 uA x RSET (147k = 14.7 V, +15 V is the top of its range); '
+        'ADP5071 values from datasheet Fig. 47 / Tables 9-11. LT3045 / LT3094: VOUT = '
+        '100 uA x RSET (147k = 14.7 V, +15 V is the top of the LT3045 range); '
         'PGFB dividers 432k/10k trip power good near 13.3 V (also enables '
         'fast start-up).',
         20,
@@ -1664,35 +1688,44 @@ def build_rails_15v(sh):
     drop_ground(sh, (130, 130), 0)
     # the rev 2 stage used two more capacitors than this one
     kicadgen.retire_refs('C', 2)
-    # LT3097: +15 V regulator on top, -15 V regulator below, both inputs on
-    # the left, feedback and power-good parts on the right
-    reg = place_ic(
+    # LT3045 (+15 V) on top and LT3094 (-15 V) below: the two halves of the LT3097
+    # they replace, with the same external parts. Inputs on the left, feedback and
+    # power-good parts on the right. The LT3094 takes the number the ADP7182 had.
+    positive = place_ic(
         sh,
-        'cryocooler:LT3097ADJC',
-        'LT3097ADJC',
+        'cryocooler:LT3045MSE',
+        'LT3045HMSE',
         84,
-        172,
-        'cryocooler:DFN-22-2EP_6x3mm_P0.5mm_LT3097',
+        156,
+        'Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm',
     )
-    kicadgen.retire_refs('U', 1)  # U22 was the ADP7182
-    for rail, input_pin, enable_pin in (
-        ('+16V5', '1', '3'),
-        ('-16V5', '6', '8'),
+    negative = place_ic(
+        sh,
+        'cryocooler:LT3094DD',
+        'LT3094HDD',
+        84,
+        198,
+        'Package_DFN_QFN:DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm',
+    )
+    sh.nc(negative, '7')
+    for reg, rail, input_pin, enable_pin in (
+        (positive, '+16V5', '1', '4'),
+        (negative, '-16V5', '1', '3'),
     ):
         vin, enable = pin_cell(reg, input_pin), pin_cell(reg, enable_pin)
         wire(sh, vin, (vin[0] - 14, vin[1]))
         rail_symbol(sh, rail, (vin[0] - 14, vin[1]))
-        # ENP/UVP and ENN/UVN tied to the input: on whenever the rail is up
+        # EN/UV tied to the input: on whenever the rail is up
         wire(sh, enable, (enable[0] - 2, enable[1]), (enable[0] - 2, vin[1]))
-    # grounds and the unused current-limit pins share one bar
-    gnd_bus(sh, [pin_cell(reg, number) for number in ('5', '13', '11')])
+        # ground and the unused current-limit pin share one bar
+        gnd_bus(sh, [pin_cell(reg, '6'), pin_cell(reg, '9')])
     channels = (
-        # output, sense, PGFB, PG, SET pin, rail net, power-good node
-        ('21', '20', '17', '4', '18', '+15V', 'PGP_15V'),
-        ('15', '14', '10', '9', '12', '-15V', 'PGN_15V'),
+        # regulator, output, sense, PGFB, PG, SET pin, rail net, power-good node
+        (positive, '11', '10', '7', '5', '8', '+15V', 'PGP_15V'),
+        (negative, '11', '10', '5', '4', '8', '-15V', 'PGN_15V'),
     )
     for index, channel in enumerate(channels):
-        out, sense, feedback, good, setpoint, rail, good_net = channel
+        reg, out, sense, feedback, good, setpoint, rail, good_net = channel
         o, s = pin_cell(reg, out), pin_cell(reg, sense)
         # output rail: Kelvin sense joins the output wire, 2 x 22 uF at the end
         wire(sh, o, (o[0] + 46, o[1]))
@@ -1726,7 +1759,7 @@ def build_rails_15v(sh):
 
 
 def build_power_good(sh):
-    """Hand-laid: one node and LED per LT3097 power-good pin, their AND as
+    """Hand-laid: one node and LED per regulator power-good pin, their AND as
     PG_15V, the active-low flag for the ESP32 and the -15 V guard.
     """
     sh.handwired = True
@@ -1755,13 +1788,13 @@ def build_power_good(sh):
 
 
 def power_good_guard(sh, column, row):
-    """An unpowered LT3097 negative channel can't pull PGN low, so PGN_15V would
+    """An unpowered LT3094 can't pull PGN low, so PGN_15V would
     read good with -15 V missing. The midpoint of two 470k resistors between the
     rails sits near 0 V when both are up and about +7.5 V when -15 V is gone, which
     turns a BSS138W on and pulls the node low.
     """
     sh.note(
-        '-15 V GUARD: an unpowered LT3097 cannot pull PGN low. Midpoint near 0 V with '
+        '-15 V GUARD: an unpowered LT3094 cannot pull PGN low. Midpoint near 0 V with '
         'both rails up, about +7.5 V with -15 V missing.',
         (column - 10) * 1.27,
         (row - 10) * 1.27,
@@ -2300,109 +2333,64 @@ def build_amp_current(sh):
     """
     sh.handwired = True
     sh.note(
-        'Amplifier output V/I monitor: ACS37800 (SPI) on an isolated 5 V domain from '
-        'the ISOW7741 (110 mA max at 5 V to 5 V; VSEL on VISOOUT selects 5 V). Beads '
-        'on VISOOUT-VISOIN and GND2-GISOIN follow the ISOW774x datasheet for emissions.',
+        'Amplifier output V/I monitor: ACS37800 (SPI, 15 mA max) on an isolated 5 V domain '
+        'from the ISOW7841A (SEL on VISO selects 5 V). It runs from +3V3_ISO because its one '
+        'supply pin also sets the logic thresholds; 3.3 V in gives 40 mA at 5 V out.',
         20,
         15,
     )
     sh.note(
         'Mains-class creepage/clearance applies between ISO_GND domain and '
-        'the logic side on the PCB. EN/FLT is an open-drain fault flag as well as '
-        'the enable, so it has a pull-up rather than a tie to VIO.',
+        'the logic side on the PCB. No F suffix: the isolated outputs go high (CS '
+        'inactive, SCK idle) if the logic side loses power.',
         20,
         21,
     )
+    # the isolator sits so its outputs line up with the ACS37800 pins they drive
+    iso_row = 62 + pin_offset('cryocooler:ACS37800KMACTR-015B5-SPI', '10')[1] - pin_offset(
+        'cryocooler:ISOW7841A', '14')[1]
     iso = place_ic(
         sh,
-        'cryocooler:ISOW7741DFMR',
-        'ISOW7741DFMR',
+        'cryocooler:ISOW7841A',
+        'ISOW7841AQDWERQ1',
         60,
-        58,
-        'cryocooler:TI_DFM0020A',
+        iso_row,
+        'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
     )
     # logic-side SPI: MOSI straight from the shared bus; SCK and MISO pass through
     # the gates drawn by acs_bus_gates
-    for pin, net in (('3', 'ACS_SCK'), ('4', 'ACS_CS'), ('5', 'ACS_MISO')):
+    for pin, net in (('4', 'ACS_SCK'), ('5', 'ACS_CS'), ('6', 'ACS_MISO')):
         net_label(sh, net, spur(sh, iso, pin, 3), 180, is_global=True)
-    spi_bus(sh, [(spur(sh, iso, '2', 2), 'SPI_MOSI')], 26, 1, [(26, 66), (22, 66)])
-    # logic-side enables: EN/FLT through 10k, EN_IO1 tied to +3V3
-    enable = pin_cell(iso, '8')
-    wire(sh, enable, (40, enable[1]))
+    spi_bus(sh, [(spur(sh, iso, '3', 2), 'SPI_MOSI')], 26, 1, [(26, 66), (22, 66)])
+    sh.nc(iso, '7')
     # the removed logic pull-ups, DC-DC module, its capacitors and enable resistor
     kicadgen.retire_refs('R', 3)
     kicadgen.retire_refs('PS', 1)
     kicadgen.retire_refs('C', 2)
     kicadgen.retire_refs('R', 1)
     kicadgen.retire_refs('C', 2)
+    # the ISOW7741 EN/FLT pull-up and its two ferrite beads keep their numbers free
     with rev3_refs('R'):
-        hres(sh, '10k', 37, enable[1])
-    rail_symbol(sh, '+3V3', (34, enable[1]))
-    channel_enable = pin_cell(iso, '7')
-    wire(sh, channel_enable, (28, channel_enable[1]), (28, channel_enable[1] - 6))
-    rail_symbol(sh, '+3V3', (28, channel_enable[1] - 6))
-    # logic and supply inputs
-    vio, vdd = pin_cell(iso, '1'), pin_cell(iso, '9')
-    wire(sh, vio, (vio[0], 44))
-    rail_symbol(sh, '+3V3', (vio[0], 44))
-    wire(sh, vdd, (vdd[0], 40))
-    rail_symbol(sh, '+5V_ISO', (vdd[0], 40))
-    gnd_bus(sh, [pin_cell(iso, '6'), pin_cell(iso, '10')])
-    # isolated output: VSEL on VISOOUT sets 5 V, a bead feeds VISOIN, EN_IO2 and
-    # the ACS37800
-    iso_out, iso_in = pin_cell(iso, '12'), pin_cell(iso, '20')
-    wire(sh, iso_out, (iso_out[0], 40), (66, 40), (72, 40), (82, 40))
-    rail_symbol(sh, 'VISOOUT', (72, 40))
-    voltage_select = pin_cell(iso, '13')
-    wire(sh, voltage_select, (82, voltage_select[1]), (82, 40))
+        kicadgen.retire_refs('R', 1)
     with rev3_refs('FB'):
-        aux(
-            sh,
-            'Device:FerriteBead',
-            'FB',
-            'BLM15EX331SN1D',
-            {},
-            pose=at(66, 43),
-            fp=BEAD_0402,
-        )
-    wire(sh, iso_in, (66, 46))
-    side_two_enable = pin_cell(iso, '14')
-    wire(
-        sh,
-        side_two_enable,
-        (78, side_two_enable[1]),
-        (78, 46),
-        (70, 46),
-        (66, 46),
-    )
-    rail_symbol(sh, 'ISO_5V', (70, 46))
-    # isolated grounds, joined through the second bead
-    iso_return, side_two_ground = pin_cell(iso, '15'), pin_cell(iso, '11')
-    wire(sh, iso_return, (iso_return[0], 74), (72, 74))
-    rail_symbol(sh, 'ISO_GND', (iso_return[0], 74))
-    with rev3_refs('FB'):
-        aux(
-            sh,
-            'Device:FerriteBead',
-            'FB',
-            'BLM15EX331SN1D',
-            {},
-            pose=at(75, 74, 90),
-            fp=BEAD_0402,
-        )
-    wire(sh, side_two_ground, (side_two_ground[0], 70), (80, 70), (80, 74))
-    wire(sh, (78, 74), (80, 74))
-    rail_symbol(sh, 'ISO_GND2', (80, 74))
-    # the isolated rails have no power output pin of their own on these two nets
-    wire(sh, (24, 100), (30, 100))
-    rail_symbol(sh, 'ISO_5V', (24, 100))
-    rail_flag(sh, (30, 100))
+        kicadgen.retire_refs('FB', 2)
+    # one supply: +3V3_ISO feeds the converter and sets the logic levels
+    supply = pin_cell(iso, '1')
+    wire(sh, supply, (supply[0], 40))
+    rail_symbol(sh, '+3V3_ISO', (supply[0], 40))
+    drop_ground(sh, pin_cell(iso, '2'), 2)
+    # isolated output: SEL on VISO selects 5 V
+    iso_out, select = pin_cell(iso, '16'), pin_cell(iso, '10')
+    wire(sh, iso_out, (iso_out[0], iso_out[1] - 3), (select[0], select[1] - 3), select)
+    wire(sh, (iso_out[0], iso_out[1] - 3), (iso_out[0], 40))
+    rail_symbol(sh, 'ISO_5V', (iso_out[0], 40))
+    iso_return = pin_cell(iso, '9')
+    wire(sh, iso_return, (iso_return[0], iso_return[1] + 2))
+    rail_symbol(sh, 'ISO_GND', (iso_return[0], iso_return[1] + 2))
+    # ISO_5V is driven by VISO; the isolated ground has no power output pin
     wire(sh, (24, 112), (30, 112))
     rail_symbol(sh, 'ISO_GND', (24, 112))
     rail_flag(sh, (30, 112))
-    wire(sh, (50, 112), (56, 112))
-    rail_symbol(sh, 'ISO_GND2', (50, 112))
-    rail_flag(sh, (56, 112))
     # ACS37800
     acs = place_ic(
         sh,
@@ -2413,13 +2401,13 @@ def build_amp_current(sh):
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
         mirror=True,
     )
-    # isolated SPI: the ACS37800 pins are ordered like the ISOW7741 outputs
+    # isolated SPI: the ACS37800 pins are ordered like the isolator outputs
     # (MOSI, SCK, CS, MISO) so each signal is a straight wire across
     for iso_pin, acs_pin in (
-        ('19', '10'),
-        ('18', '11'),
-        ('17', '9'),
-        ('16', '12'),
+        ('14', '10'),
+        ('13', '11'),
+        ('12', '9'),
+        ('11', '12'),
     ):
         wire(sh, pin_cell(iso, iso_pin), pin_cell(acs, acs_pin))
     gnd = pin_cell(acs, '14')
@@ -2470,15 +2458,14 @@ def build_amp_current(sh):
         place_blocks(
             sh,
             [
-                ('ISOW7741 VIO DECOUPLING', '+3V3', ('1uF', '10nF')),
-                ('ISOW7741 VDD DECOUPLING', '+5V_ISO', ('22uF/10V', '1uF', '10nF')),
-                (
-                    'ISOW7741 VISOOUT DECOUPLING',
-                    'VISOOUT',
-                    ('22uF/10V', '1uF', '10nF'),
-                    'ISO_GND2',
-                ),
-                ('ISOW7741 VISOIN DECOUPLING', 'ISO_5V', ('1uF', '10nF'), 'ISO_GND'),
+                # the ISOW7741 had ten capacitors on four pins: the six that are gone
+                # keep their numbers free
+                2,
+                ('ISOW7841 VCC DECOUPLING', '+3V3_ISO', ('22uF/10V', '100nF')),
+                1,
+                ('ISOW7841 VISO DECOUPLING', 'ISO_5V', ('10uF', '100nF'), 'ISO_GND'),
+                1,
+                2,
             ],
             20,
             130,
@@ -2509,7 +2496,7 @@ def acs_bus_gates(sh):
     """
     sh.note('ACS37800 SPI GATES (LOGIC SIDE)', 190 * 1.27, 80 * 1.27, 1.8)
     sh.note(
-        'ACS37800 and ISOW7741 drive MISO all the time, so MISO reaches the shared bus '
+        'The ACS37800 and the isolator drive MISO all the time, so MISO reaches the shared bus '
         'only while ACS_CS is low.',
         190 * 1.27,
         84 * 1.27,
@@ -2581,13 +2568,13 @@ def acs_bus_gates(sh):
 
 
 def build_system_current(sh):
-    """Hand-laid: 15 mOhm shunt between VSW and +12V with kelvin sense lines
+    """Hand-laid: 10 mOhm 4-terminal shunt between VSW and +12V, its sense pins
     through the 49.9 ohm / 470 nF input filter into the INA239 (SPI).
     """
     sh.handwired = True
     sh.note(
-        'INA239 monitors the switched 12 V rail: 15 mOhm shunt, SPI mode 1 '
-        'on the main bus (CS from the decoder), +/-163.84 mV range (~10.9 A). ALERT '
+        'INA239 monitors the switched 12 V rail: 10 mOhm 4-terminal shunt (1 W at 10 A), '
+        'SPI mode 1 on the main bus (CS from the decoder), +/-163.84 mV range (16.4 A). ALERT '
         'drives its LED and MCP23S08 GP6.',
         20,
         15,
@@ -2605,8 +2592,15 @@ def build_system_current(sh):
     # shunt: VSW (IN+ side) on the left, +12V (IN- and VBUS side) on the right
     shunt_row = row - 22
     shunt_x = tip_x - 40
-    left, right = shunt_x - 3, shunt_x + 3
-    hres(sh, '15m', shunt_x, shunt_row, fp=R2512)
+    left, right = shunt_x - 4, shunt_x + 4
+    # 4-terminal shunt: the sense pins are nets of their own, so the board can only
+    # pick the signal up at the shunt's own sense pads (rev 4 read 2.9x high through
+    # shared 12 V copper)
+    shunt = sh.add(
+        'Device:R_Shunt_US', next_ref('R'), '10m', shunt_x * 1.27, shunt_row * 1.27, rot=270,
+        auto=False, footprint='Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm',
+    )
+    sense_minus, sense_plus = pin_cell(shunt, '2'), pin_cell(shunt, '3')
     wire(sh, (left, shunt_row), (left - 6, shunt_row))
     rail_symbol(sh, 'VSW', (left - 6, shunt_row))
     # +12V rail to the right with its bulk and bypass caps
@@ -2625,17 +2619,17 @@ def build_system_current(sh):
         sh, '100uF/25V', '', '', pose=at(right + 16, shunt_row + 3), fp=CP_ELEC
     )
     drop_ground(sh, (right + 16, shunt_row + 6), 0)
-    # kelvin taps: IN- and IN+ through the filter; VBUS shares the filtered
-    # IN- node (its 1 Mohm input draws ~12 uA, a 0.6 mV drop in 49.9 ohm)
+    # kelvin taps from the shunt's sense pins through the filter. VBUS goes straight
+    # to +12V: on the filtered IN- node its 12 uA dropped 0.6 mV in the 49.9 ohm
     filter_x = right + 7
     cap_x = filter_x + 8
     jog_x = cap_x + (tip_x - cap_x) // 2
-    wire(sh, (right, shunt_row), (right, row + 2))
-    wire(sh, vbus, (tip_x - 3, row), (tip_x - 3, row + 2))
-    wire(sh, (right, row + 2), (filter_x - 3, row + 2))
+    wire(sh, vbus, (tip_x - 5, row), (tip_x - 5, row - 6))
+    rail_symbol(sh, '+12V', (tip_x - 5, row - 6))
+    wire(sh, sense_minus, (sense_minus[0], row + 2), (filter_x - 3, row + 2))
     hres(sh, '49.9', filter_x, row + 2)
     wire(sh, (filter_x + 3, row + 2), (cap_x, row + 2), in_minus)
-    wire(sh, (left, shunt_row), (left, row + 8), (filter_x - 3, row + 8))
+    wire(sh, sense_plus, (sense_plus[0], row + 8), (filter_x - 3, row + 8))
     hres(sh, '49.9', filter_x, row + 8)
     wire(
         sh,
@@ -2849,9 +2843,9 @@ def build_gpio_expander(sh):
     )
     sh.note(
         'All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet '
-        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP4, GP5 and GP7 are spare; '
-        'firmware enables a weak pull-up on them. The ADT7320 INT and CT outputs '
-        'drive GP2 and GP3.',
+        'Table 1-1). Exposed pad to VSS, in addition to pin 17. GP7 is spare; firmware enables '
+        'a weak pull-up on it. The ADT7320 INT and CT outputs drive GP2 and GP3, the '
+        'universal I/O expander interrupt GP4 and the I/O ADC data-ready GP5.',
         20,
         21,
     )
@@ -2899,11 +2893,12 @@ def build_gpio_expander(sh):
         ('10', 'PGN_15V'),
         ('11', 'AMBIENT_INT'),
         ('12', 'AMBIENT_CT'),
+        ('13', 'IO_EXP_INT_N'),
+        ('14', 'IO_ADC_DRDY_N'),
         ('15', 'INA239_ALERT'),
     ):
         net_label(sh, net, spur(sh, expander, pin, 6), 0, is_global=True)
-    for spare in ('13', '14', '16'):
-        sh.nc(expander, spare)
+    sh.nc(expander, '16')
     # past the global labels above it, so the two label texts do not touch
     if keeps_test_point('EXPANDER_INT'):
         int_end = spur(sh, expander, '7', 22)
@@ -3398,7 +3393,7 @@ def waveshare_drawing(sh, column, row):
 def display_link(sh):
     """Hand-laid: the off-board Waveshare ESP32-S3-Touch-LCD-4.3B runs its own
     firmware. CAN transceiver on the left with the digital-output circuits below
-    it; both headers sit beside the terminals they wire to on the back-view
+    it; the connector sits beside the terminals it wires to on the back-view
     drawing of the display.
     """
     sh.handwired = True
@@ -3423,7 +3418,7 @@ def display_link(sh):
         27,
     )
     sh.note(
-        'Its two digital outputs press the power button and RESET through J21: '
+        'Its two digital outputs press the power button and RESET through J15 pins 5 and 6: '
         'global labels PWR_BTN (Power Button sheet) and ESP_EN (MCU sheet).',
         20,
         33,
@@ -3448,10 +3443,9 @@ def display_link(sh):
         net_label(sh, net, end, 270)
     for pin in ('3', '4', '5', '6', '9', '10', '13', '15', '16'):
         sh.nc(terminals, pin)
-    # on-board headers the cables plug into, left of the display
-    sh.note('ON-BOARD HEADERS', 186 * 1.27, 48 * 1.27, 1.8)
-    link_cell = (206, 66)
-    buttons_cell = (206, 84)
+    # on-board connector the cable plugs into, left of the display
+    sh.note('ON-BOARD CONNECTOR', 186 * 1.27, 48 * 1.27, 1.8)
+    link_cell = (206, 72)
     with kicadgen.pinned_refs('U', REV5_LAST['U'] + 2):
         phy = place_ic(
             sh,
@@ -3491,26 +3485,48 @@ def display_link(sh):
         vres(sh, '120', end, high[1], fp=R1206)
         net_label(sh, 'CAN_H', (end + 6, high[1]), 0)
         net_label(sh, 'CAN_L', (end + 6, high[1] + 6), 0)
-        # header: pin 1 at the bottom; pins 1 and 2 match the fan headers (GND, 12 V)
+        # the display cable ends in two wafer headers (pin 1 at the bottom): J21 with
+        # the supply and J15 with the signals. XKB makes no 6-pin X2510WRS
+        with kicadgen.pinned_refs('J', 20):
+            power_ref = next_ref('J')
         with kicadgen.pinned_refs('J', 14):
             link_ref = next_ref('J')
+        power = sh.add(
+            'Connector_Generic:Conn_01x02', power_ref, 'DISPLAY PWR (GND / 12V)',
+            link_cell[0] * 1.27, (link_cell[1] + 8) * 1.27, rot=180, mirror=True, auto=False,
+            footprint=X2510_2P,
+        )
         link = sh.add(
-            'Connector_Generic:Conn_01x04',
-            link_ref,
-            'DISPLAY 12V / CAN',
-            link_cell[0] * 1.27,
-            link_cell[1] * 1.27,
-            rot=180,
-            mirror=True,
-            auto=False,
+            'Connector_Generic:Conn_01x04', link_ref, 'DISPLAY (CAN H / L / BTN / RST)',
+            link_cell[0] * 1.27, (link_cell[1] - 2) * 1.27, rot=180, mirror=True, auto=False,
             footprint=X2510_4P,
         )
-        drop_ground(sh, spur(sh, link, '1', 4), 2)
-        feed = spur(sh, link, '2', 16)
-        wire(sh, feed, (feed[0], feed[1] - 10))
-        rail_symbol(sh, 'VIN', (feed[0], feed[1] - 10))
-        net_label(sh, 'CAN_H', spur(sh, link, '3', 4), 180)
-        net_label(sh, 'CAN_L', spur(sh, link, '4', 4), 180)
+        drop_ground(sh, spur(sh, power, '1', 4), 2)
+        feed = spur(sh, power, '2', 24)
+        net_label(sh, 'CAN_H', spur(sh, link, '1', 4), 180)
+        net_label(sh, 'CAN_L', spur(sh, link, '2', 4), 180)
+        net_label(sh, 'DISP_PWR_BTN', spur(sh, link, '3', 4), 180)
+        net_label(sh, 'DISP_RESET', spur(sh, link, '4', 4), 180)
+    with io_refs():
+        # resettable fuse in the display feed: a shorted cable no longer takes F1
+        fuse = sh.add(
+            'Device:Polyfuse', 'F2', 'MF-MSMF050/24X', feed[0] * 1.27, (feed[1] - 9) * 1.27,
+            auto=False, footprint='Fuse:Fuse_1812_4532Metric',
+        )
+        role(fuse, 'display_fuse')
+        wire(sh, feed, pin_cell(fuse, '2'))
+        top = pin_cell(fuse, '1')
+        wire(sh, top, (top[0], top[1] - 2))
+        rail_symbol(sh, 'VIN', (top[0], top[1] - 2))
+        sh.note('CAN BUS CLAMP (AT THE CONNECTOR)', 130 * 1.27, 136 * 1.27, 1.8)
+        clamp = role(
+            place_ic(sh, 'cryocooler:ESD2CAN24DBZ', 'ESD2CAN24DBZR', 160, 148,
+                     'Package_TO_SOT_SMD:SOT-23', ref_prefix='D'),
+            'can_clamp',
+        )
+        net_label(sh, 'CAN_H', spur(sh, clamp, '1', 4), 180)
+        net_label(sh, 'CAN_L', spur(sh, clamp, '2', 4), 180)
+        drop_ground(sh, pin_cell(clamp, '3'), 2)
     with kicadgen.pinned_refs('C', REV5_LAST['C'] + 2):
         place_blocks(
             sh,
@@ -3518,7 +3534,7 @@ def display_link(sh):
             40,
             150,
         )
-    display_buttons(sh, 100, 124, buttons_cell)
+    display_buttons(sh, 100, 124)
 
 
 def build_indicators(sh):
@@ -3584,196 +3600,1093 @@ def build_indicators(sh):
     sh.nc(rgb, '1')
 
 
-# General-purpose I/O (rev 4): the GPIO number of each header, in channel order.
-# The first four share the resistor arrays.
-AUX_IO_GPIOS = (5, 7, 11, 13)
-# GPIO12 became CAN_RX in rev 5; its header, clamp, LED and LED resistor keep
-# their numbers free
-AUX_IO_REMOVED = 12
-# LED driver of each pin: (op amp package, section). The pins are spread over both
-# packages so every used section faces open board; four on one package did not route.
-AUX_IO_DRIVERS = {5: (1, 4), 7: (1, 1), 11: (0, 3), 13: (1, 2)}
-# order the header clamps take their references in (IO13's was U46 first)
-AUX_IO_CLAMP_ORDER = (5, 13, 7, 11)
-# spare sections: followers on the supply pin that sits between their IN+ pins
-AUX_IO_SPARES = ((0, 1, '+5V_OR'), (0, 2, '+5V_OR'), (1, 3, 'GND'), (0, 4, 'GND'))
-# OPA4990 RUC (TI SBOS933 Table 5-5): each section's (IN+, IN-, OUT) pins
-QUAD_OPAMP_PINS = {
-    1: ('2', '1', '14'),
-    2: ('4', '5', '6'),
-    3: ('9', '8', '7'),
-    4: ('11', '12', '13'),
-}
+# ═════════════════════════════════════════════════════════════════════════
+# Universal I/O (rev 5): four software-configured channels, two pressure ports
+# ═════════════════════════════════════════════════════════════════════════
+IO_CHANNELS = 4
+# channels that keep a direct ESP32 pin for PWM and pulse input: channel -> GPIO
+IO_FAST = {1: 5, 2: 7}
+# Universal I/O parts take numbers above every earlier part (last used numbers)
+IO_REFS = {'U': 99, 'R': 599, 'C': 399, 'D': 99, 'Q': 99, 'J': 29, 'JP': 9}
+# expander bit of each per-channel signal (port A holds the odd channel of a pair)
+IO_EXPANDER_BITS = (
+    'OUT_EN', 'DIRECT', 'BURDEN', 'PULLUP', 'SENS_EN', 'AMP_FLT_N', 'SENS_FLT_N', 'BUF_OE_N',
+)
+# bit 7 of a slow channel's port has no buffer enable: these carry other signals
+IO_SPARE_INPUTS = {3: 'rs485_irq', 4: 'hdr_int'}
+# channel whose port bit 5 reads each output switch's fault flag: channel -> group
+IO_DRIVER_FLAGS = {1: 'A'}
+# bit 5 of the other ports carries the precision excitation enable and fault
+IO_SPARE_FLAGS = {2: 'prec_exc_en', 3: 'prec_exc_flt'}
+# ADS124S08 pins: AIN0-3 read the channels, AIN4 / AIN5 the pressure ports
+ADC_CHANNEL_PINS = ('7', '6', '5', '4')
+ADC_PRESSURE_PINS = ('3', '2')
+ADC_SPARE_PINS = ('32', '31')
+PRESSURE_PORTS = {1: '100 psi', 2: '30 psi'}
+# TSB582 DFN8 (ST DS13378 Fig. 1): each section's (IN+, IN-, OUT) pins; unit 3 holds
+# VCC- (4), VCC+ (8) and the exposed pad (9)
+DRIVER_OPAMP_PINS = {1: ('3', '2', '1'), 2: ('5', '6', '7')}
+TVS1800_FP = 'Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm'
+FEMTOFET_FP = 'cryocooler:Texas_FemtoFET_F4_1.0x0.6mm'
+BUFFER_FP = 'Package_SON:Texas_USON-6_1x1.45mm_P0.5mm_SMD'
 
 
-def opamp_quad(sh, ref, unit, column, row):
-    """One section of an OPA4990 quad op amp; unit 5 holds V+ (3) and V- (10)."""
-    return sh.add(
-        'cryocooler:OPA4990IRUC',
-        ref,
-        'OPA4990IRUCR',
-        column * 1.27,
-        row * 1.27,
-        unit=unit,
-        auto=False,
-        footprint='Package_DFN_QFN:Texas_S-PX2QFN-14',
+def io_refs():
+    """Numbers parts created inside the block from the universal I/O ranges."""
+    return ranged_refs(IO_REFS, tuple(IO_REFS))
+
+
+def role(part, key, **fields):
+    """Sets a part's description from a part_descriptions.IO_PART_ROLES template."""
+    import part_descriptions
+
+    part_descriptions.DESCRIPTIONS[part.ref] = part_descriptions.IO_PART_ROLES[key].format(
+        **fields
     )
+    return part
 
 
-def aux_io_channel(sh, gpio, row, shared, element):
-    """One general-purpose pin, drawn left to right from `row`: GPIO -> 100k / 100k
-    divider to GND (its tap feeds the LED driver) -> 100 R -> 2-pin header.
-    `element` is the pin's place in the shared arrays (1-4), or None for discrete
-    resistors.
+def io_label(sh, key, cell, angle=0, is_global=True, **fields):
+    """Net label named and described from a part_descriptions.IO_NET_ROLES template."""
+    import part_descriptions
+
+    name, text = part_descriptions.IO_NET_ROLES[key]
+    net = name.format(**fields)
+    part_descriptions.NET_DESCRIPTIONS[net] = text.format(**fields)
+    net_label(sh, net, cell, angle, is_global=is_global)
+    return net
+
+
+def pull_up_row(sh, value, key, column, row, part_key, rail='+3V3', **fields):
+    """Rail -> resistor -> labelled net, drawn left to right."""
+    rail_symbol(sh, rail, (column, row))
+    role(hres(sh, value, column + 3, row), part_key, **fields)
+    wire(sh, (column + 6, row), (column + 8, row))
+    io_label(sh, key, (column + 8, row), 0, **fields)
+
+
+def pull_down_row(sh, value, key, column, row, part_key, is_global=True, **fields):
+    """Labelled net -> resistor -> ground, drawn left to right."""
+    io_label(sh, key, (column, row), 180, is_global=is_global, **fields)
+    wire(sh, (column, row), (column + 2, row))
+    role(hres(sh, value, column + 5, row), part_key, **fields)
+    wire(sh, (column + 8, row), (column + 10, row))
+    drop_ground(sh, (column + 10, row), 2)
+
+
+def io_output_gate(sh, n, gpio):
+    """Fast channel only: the ESP32 pin switches the output driver's input between
+    the DAC level and ground (PWM at the configured level).
     """
-    net_label(sh, f'AUX_IO{gpio}', (24, row), 180, is_global=True)
-    wire(sh, (24, row), (32, row), (40, row))
-    if element:
-        # pin n on top in both, so on the board the three arrays sit in a row and
-        # face each other pin for pin: series 9 - n to upper n, upper 9 - n to lower n
-        array_res(sh, shared['upper'], element, '100k', 32, row, rot=180)
-        array_res(sh, shared['lower'], element, '100k', 32, row + 6, rot=180)
-        array_res(sh, shared['series'], element, '100', 43, row, rot=90)
-    else:
-        vres(sh, '100k', 32, row)
-        vres(sh, '100k', 32, row + 6)
-        hres(sh, '100', 43, row)
-    wire(sh, (32, row + 6), (36, row + 6))
-    net_label(sh, f'IO{gpio}_SENSE', (36, row + 6), 0)
-    drop_ground(sh, (32, row + 12), 0)
+    sh.note(f'OUTPUT GATE (GPIO{gpio})', 20 * 1.27, 40 * 1.27, 1.8)
+    gate = role(
+        place_ic(sh, 'cryocooler:SN74LVC1G3157DSF', 'SN74LVC1G3157DSFR', 46, 76,
+                 'cryocooler:Texas_DSF0006A_X2SON-6_1x1mm_P0.35mm'),
+        'gate', n=n, gpio=gpio,
+    )
+    out = pin_cell(gate, '4')
+    wire(sh, out, (out[0] + 12, out[1]))
+    io_label(sh, 'level', (out[0] + 12, out[1]), 0, n=n)
+    wire(sh, pin_cell(gate, '1'), (24, 72))
+    io_label(sh, 'dac', (24, 72), 180, n=n)
+    wire(sh, pin_cell(gate, '6'), (34, 74))
+    io_label(sh, 'gate', (34, 74), 180, is_global=False, n=n)
+    wire(sh, pin_cell(gate, '3'), (36, 76))
+    drop_ground(sh, (36, 76), 2)
+    supply = pin_cell(gate, '5')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    drop_ground(sh, pin_cell(gate, '2'), 2)
+
+
+def io_measurement(sh, n):
+    """Pin -> 100k -> ADC input, with the 20k divider leg (switched to ground on
+    the range switch sheet) and the switched 120 R loop burden.
+    """
+    sh.note('MEASUREMENT', 20 * 1.27, 104 * 1.27, 1.8)
+    io_label(sh, 'pin', (30, 116), 180, n=n)
+    wire(sh, (30, 116), (40, 116), (47, 116))
+    role(hres(sh, '100k', 50, 116), 'divider_top', n=n)
+    wire(sh, (53, 116), (58, 116), (64, 116), (72, 116))
+    io_label(sh, 'adc', (72, 116), 0, n=n)
+    role(vcap(sh, '100nF', 58, 116), 'adc_filter', n=n)
+    drop_ground(sh, (58, 122), 2)
+    role(vres(sh, '20k', 64, 116), 'divider_bottom', n=n)
+    wire(sh, (64, 122), (64, 126), (72, 126))
+    io_label(sh, 'div', (72, 126), 0, n=n)
+    wire(sh, (40, 116), (40, 122))
+    role(vres(sh, '120', 40, 122, fp=R2512), 'burden', n=n)
+    switch = sh.add(
+        'Transistor_FET:BSS138', next_ref('Q'), 'CSD17381F4', 38 * 1.27, 134 * 1.27,
+        auto=False, footprint=FEMTOFET_FP,
+    )
+    role(switch, 'burden_fet', n=n)
+    wire(sh, (40, 128), pin_cell(switch, '3'))
+    drop_ground(sh, pin_cell(switch, '2'), 2)
+    wire(sh, pin_cell(switch, '1'), (30, 134))
+    io_label(sh, 'burden', (30, 134), 180, n=n)
+
+
+def io_fast_path(sh, n, gpio):
+    """Fast channel only: the pin, clamped to 3.3 V behind 1 M, through a tri-state
+    buffer back to the ESP32 pin; and that pin's 1 k feed to the output gate.
+    """
+    sh.note(f'FAST PATH (GPIO{gpio})', 20 * 1.27, 150 * 1.27, 1.8)
+    io_label(sh, 'pin', (30, 170), 180, n=n)
+    wire(sh, (30, 170), (37, 170))
+    role(hres(sh, '1M', 40, 170), 'fast_series', n=n, gpio=gpio)
+    buffer = role(
+        place_ic(sh, 'cryocooler:SN74LVC1G125DRY', 'SN74LVC1G125DRYR', 74, 172, BUFFER_FP),
+        'fast_buffer', n=n, gpio=gpio,
+    )
+    data_in = pin_cell(buffer, '2')
+    wire(sh, (43, 170), (48, 170), (50, 170), (data_in[0], 170), data_in)
+    io_label(sh, 'logic', (50, 170), 0, is_global=False, n=n)
+    clamp = sh.add(
+        'Device:D', next_ref('D'), '1N4148W', 48 * 1.27, 164 * 1.27, rot=270, auto=False,
+        footprint='Diode_SMD:D_SOD-123',
+    )
+    role(clamp, 'fast_clamp', n=n, gpio=gpio)
+    wire(sh, pin_cell(clamp, '2'), (48, 170))
+    top = pin_cell(clamp, '1')
+    wire(sh, top, (top[0], top[1] - 2))
+    rail_symbol(sh, '+3V3', (top[0], top[1] - 2))
+    sh.nc(buffer, '5')
+    data_out = pin_cell(buffer, '4')
+    wire(sh, data_out, (data_out[0] + 1, data_out[1]), (data_out[0] + 11, data_out[1]))
+    io_label(sh, 'buf', (data_out[0] + 1, data_out[1]), 0, is_global=False, n=n)
+    role(hres(sh, '1k', data_out[0] + 14, data_out[1]), 'fast_out', n=n, gpio=gpio)
+    wire(sh, (data_out[0] + 17, data_out[1]), (data_out[0] + 20, data_out[1]))
+    net_label(sh, f'AUX_IO{gpio}', (data_out[0] + 20, data_out[1]), 0, is_global=True)
+    supply = pin_cell(buffer, '6')
+    wire(sh, supply, (supply[0], supply[1] - 3))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 3))
+    drop_ground(sh, pin_cell(buffer, '3'), 2)
+    enable = pin_cell(buffer, '1')
+    wire(sh, enable, (enable[0], enable[1] + 4), (enable[0] - 8, enable[1] + 4))
+    io_label(sh, 'buf_oe', (enable[0] - 8, enable[1] + 4), 180, n=n)
+    net_label(sh, f'AUX_IO{gpio}', (30, 194), 180, is_global=True)
+    wire(sh, (30, 194), (37, 194))
+    role(hres(sh, '1k', 40, 194), 'gate_series', n=n, gpio=gpio)
+    wire(sh, (43, 194), (50, 194))
+    io_label(sh, 'gate', (50, 194), 0, is_global=False, n=n)
+
+
+def io_sensor_supply(sh, n):
+    """5 V or 12 V (one jumper fitted) -> TPS26625 -> connector pin 1, and the
+    3-pin connector with its two surge clamps.
+    """
+    sh.note('SENSOR SUPPLY AND CONNECTOR', 164 * 1.27, 34 * 1.27, 1.8)
+    fuse = role(
+        place_ic(sh, 'cryocooler:TPS26625DRC', 'TPS26625DRCR', 215, 60,
+                 'Package_SON:Texas_DRC0010J'),
+        'sensor_switch', n=n,
+    )
+    wire(sh, pin_cell(fuse, '1'), (199, 54), (191, 54), (181, 54))
+    for value, rail, row, lib, key in (
+        (f'IO{n} 5V', '+5V', 54, 'Jumper:Jumper_2_Bridged', 'jumper_5v'),
+        (f'IO{n} 12V', '+12V', 44, 'Jumper:Jumper_2_Open', 'jumper_12v'),
+    ):
+        jumper = sh.add(
+            lib, next_ref('JP'), value, 177 * 1.27, row * 1.27, auto=False,
+            footprint=SWITCH_HEADER,
+        )
+        role(jumper, key, n=n)
+        jumper.dnp = lib.endswith('Open')
+        rail_symbol(sh, rail, (169, row))
+        wire(sh, (169, row), pin_cell(jumper, '1'))
+    wire(sh, (181, 44), (181, 54))
+    role(vres(sh, '1M', 199, 54), 'uvlo', n=n)
+    wire(sh, (199, 60), pin_cell(fuse, '2'))
+    role(vcap(sh, '1uF/50V', 191, 54), 'sensor_in_cap', n=n)
+    drop_ground(sh, (191, 60), 2)
+    wire(sh, pin_cell(fuse, '4'), (197, 62), (197, 66), (183, 66))
+    io_label(sh, 'sens_en', (183, 66), 180, n=n)
+    gnd_bus(sh, [pin_cell(fuse, pin) for pin in ('5', '6', '11')])
+    wire(sh, pin_cell(fuse, '3'), (201, 64), (201, 72), (211, 72))
+    wire(sh, pin_cell(fuse, '9'), (233, 56))
+    io_label(sh, 'sens_flt', (233, 56), 0, n=n)
+    sh.nc(fuse, '8')
+    wire(sh, pin_cell(fuse, '7'), (231, 60))
+    role(vres(sh, '53.6k', 231, 60), 'sensor_limit', n=n)
+    drop_ground(sh, (231, 66), 2)
     header = conn(
-        sh,
-        'Connector_Generic:Conn_01x02',
-        f'IO{gpio} / GND',
-        70 * 1.27,
-        row * 1.27,
-        {},
-        X2510_2P,
+        sh, 'Connector_Generic:Conn_01x04', f'IO{n} (V+ / IO / GND / NC)', 290 * 1.27,
+        80 * 1.27, {'4': None}, X2510_4P,
     )
-    wire(sh, (46, row), (50, row), pin_cell(header, '1'))
-    net_label(sh, f'IO{gpio}_HDR', (50, row), 0)
-    ground(sh, spur(sh, header, '2', 2))
-
-
-def aux_io_led(sh, gpio, column, row, driver, unit):
-    """LED driver for one general-purpose pin: the op amp holds half the pin
-    voltage (the divider tap) across 3.3k, with the green die in its feedback
-    path, so the LED carries Vpin / 6.6k.
-    """
-    plus, minus, out = QUAD_OPAMP_PINS[unit]
-    amp = opamp_quad(sh, driver, unit, column, row)
-    net_label(sh, f'IO{gpio}_SENSE', spur(sh, amp, plus, 4), 180)
-    indicator = rg_led(sh, f'IO{gpio} G=active', column + 16, row + 2, {'3': None, '4': None})
-    wire(sh, pin_cell(amp, out), pin_cell(indicator, '1'))
-    sense = (column + 26, row + 8)
-    wire(
-        sh,
-        pin_cell(indicator, '2'),
-        (sense[0], row),
-        sense,
-        (column - 10, row + 8),
-        (column - 10, row + 2),
-        pin_cell(amp, minus),
+    role(header, 'connector', n=n)
+    wire(sh, pin_cell(fuse, '10'), (257, 54), (275, 54), (275, 78), pin_cell(header, '1'))
+    role(vcap(sh, '1uF/50V', 257, 54), 'sensor_out_cap', n=n)
+    drop_ground(sh, (257, 60), 2)
+    supply_clamp = role(
+        place_ic(sh, 'cryocooler:TVS1800DRV', 'TVS1800DRVR', 285, 56, TVS1800_FP,
+                 ref_prefix='D'),
+        'supply_clamp', n=n,
     )
-    vres(sh, '3.3k', *sense)
-    drop_ground(sh, (sense[0], sense[1] + 6), 0)
+    wire(sh, (275, 54), pin_cell(supply_clamp, '4'))
+    drop_ground(sh, pin_cell(supply_clamp, '1'), 2)
+    wire(sh, pin_cell(header, '2'), (259, 80), (249, 80))
+    io_label(sh, 'pin', (249, 80), 180, n=n)
+    pin_clamp = role(
+        place_ic(sh, 'cryocooler:TVS1800DRV', 'TVS1800DRVR', 265, 90, TVS1800_FP,
+                 ref_prefix='D'),
+        'pin_clamp', n=n,
+    )
+    wire(sh, (259, 80), pin_cell(pin_clamp, '4'))
+    drop_ground(sh, pin_cell(pin_clamp, '1'), 2)
+    wire(sh, pin_cell(header, '3'), (282, 82))
+    drop_ground(sh, (282, 82), 2)
 
 
-def build_aux_io(sh):
-    """Hand-laid: the five general-purpose pins with their headers on the left,
-    ESD clamps in the middle, LED drivers on the right.
+def build_io_channel(n):
+    """Builder for the sheet of universal I/O channel n."""
+
+    def build(sh):
+        sh.handwired = True
+        gpio = IO_FAST.get(n)
+        sh.note(
+            f'Universal I/O channel {n}: connector pin 1 = switched sensor supply, 2 = '
+            'signal, 3 = GND. Output: DAC level x 4.83 from a TSB582 section through a '
+            'switch (IO Output Drivers sheet), up to 100 mA, open while OUT_EN is low.',
+            20, 15,
+        )
+        sh.note(
+            'Input: the pin through 100k to the ADC; with the 20k leg grounded (default) '
+            '15 V reads 2.5 V, with DIRECT high the range is 0-2.5 V. BURDEN adds 120 R for '
+            '4-20 mA loops; PULLUP (range switch sheet) adds 10k to +3V3.',
+            20, 21,
+        )
+        sh.note(
+            'Every control line is pulled to its off level, so the channel is high '
+            'impedance with the sensor supply off until firmware sets the expander.'
+            + (f' GPIO{gpio} gates the DAC level (PWM) and reads the pin through the buffer.'
+               if gpio else ''),
+            20, 27,
+        )
+        with io_refs():
+            if gpio:
+                io_output_gate(sh, n, gpio)
+            io_measurement(sh, n)
+            if gpio:
+                io_fast_path(sh, n, gpio)
+            io_sensor_supply(sh, n)
+            sh.note('BIAS', 164 * 1.27, 116 * 1.27, 1.8)
+            pull_up_row(sh, '10k', 'sens_flt', 172, 124, 'pull_sens_flt', n=n)
+            pull_down_row(sh, '22k', 'sens_en', 232, 124, 'pull_sens_en', n=n)
+            pull_down_row(sh, '100k', 'burden', 232, 132, 'pull_burden', n=n)
+            blocks = []
+            if gpio:
+                pull_up_row(sh, '10k', 'buf_oe', 172, 140, 'pull_buf_oe', n=n)
+                pull_down_row(sh, '100k', 'gate', 232, 148, 'pull_gate', is_global=False,
+                              n=n, gpio=gpio)
+                blocks.append(
+                    ('GATE AND BUFFER DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))
+                )
+            first = kicadgen._ref_counters['C']
+            place_blocks(sh, blocks, 164, 176, max_column=300)
+            for part in sh.parts:
+                if part.ref.startswith('C') and first < int(part.ref[1:]) :
+                    role(part, 'decoupling', n=n)
+
+    return build
+
+
+def build_io_core(sh):
+    """Hand-laid: the DAC that sets the four output levels and the ADC that reads
+    the four pins and the two pressure ports.
     """
     sh.handwired = True
     sh.note(
-        'General-purpose I/O: GPIO5, 7, 11 and 13 each on a 2-pin header (signal, '
-        'GND), 3.3 V only. 100 R in series, ESD clamp at the header, 200k to GND (the '
-        'LED divider) so an open pin reads low.',
-        20,
-        15,
+        'DAC60508Z: 12-bit, outputs at zero after reset. On 3.3 V its 2.5 V reference needs '
+        'the divider on with gain 2 (GAIN register), giving 0-2.5 V; until firmware writes '
+        'that, the reference alarm holds every output at 0 V. SDI is latched on falling '
+        'SCLK edges (SPI mode 1).',
+        20, 15,
     )
     sh.note(
-        'GPIO5 and GPIO7 are ADC1 (analog input works with WiFi on); GPIO11 and 13 are '
-        'ADC2, digital only while WiFi runs. GPIO12 is CAN_RX since rev 5.',
-        20,
-        21,
+        'ADS124S08: SPI mode 1, AVDD 5 V, logic 3.3 V. AIN0-3 read channels 1-4 against '
+        'AINCOM = ground with the internal 2.5 V reference and the PGA bypassed (a '
+        'ground-referenced input is outside the PGA range). AIN4 / AIN5 read the pressure '
+        'ports against REFP0 / REFN0 (the 5 V excitation). AIN8-11 serve the precision '
+        'ports. START and CLK low. DAC outputs 4-7 and AIN6 / AIN7 are not used.',
+        20, 21,
     )
     sh.note(
-        'LED per pin: an OPA4990 section holds half the pin voltage across 3.3k with the '
-        'green die in its feedback path: 0.5 mA at 3.3 V, proportional below that.',
-        20,
-        27,
+        'Both release their data output when CS is high (DAC60508 section 8.5, ADS124S08 '
+        'section 9.5.1), so they share SPI_MISO without a buffer.',
+        20, 27,
     )
-    sh.note(
-        'The op amps run from +5V_OR, so the LEDs also work on USB power. Their inputs '
-        'are diode-clamped to that rail; the 100k from each pin limits the current.',
-        20,
-        33,
-    )
-    with rev4_refs('U', 'R', 'C', 'D', 'J', 'RN'):
-        shared = {name: next_ref('RN') for name in ('series', 'upper', 'lower')}
-        drivers = (next_ref('U'), next_ref('U'))
-        for index, gpio in enumerate(AUX_IO_GPIOS):
-            if gpio > AUX_IO_REMOVED > AUX_IO_GPIOS[index - 1]:
-                kicadgen.retire_refs('J', 1)
-            aux_io_channel(sh, gpio, 54 + 20 * index, shared, index + 1)
-        # IO13 moved onto the arrays' fourth elements: its three discrete
-        # resistors keep their numbers free
-        kicadgen.retire_refs('R', 3)
-        # header-side clamps: one single-line part per pin, so each sits at its own
-        # header (a four-line array tied the four header nets into a knot on the board)
-        sh.note('ESD CLAMPS (HEADER SIDE)', 92 * 1.27, 54 * 1.27, 1.8)
-        for gpio in AUX_IO_CLAMP_ORDER:
-            row = 64 + 14 * AUX_IO_GPIOS.index(gpio)
-            clamp = place_ic(
-                sh,
-                'cryocooler:TPD1E05U06DPYR',
-                'TPD1E05U06DPYR',
-                106,
-                row,
-                'Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
-            )
-            net_label(sh, f'IO{gpio}_HDR', spur(sh, clamp, '1', 3), 180)
-            drop_ground(sh, pin_cell(clamp, '2'), 2)
-        kicadgen.retire_refs('U', 1)
-        sh.note('LED DRIVERS', 132 * 1.27, 44 * 1.27, 1.8)
-        cells = ((146, 56), (146, 84), (146, 112), (206, 56), (206, 84))
-        for index, (gpio, (column, row)) in enumerate(zip(AUX_IO_GPIOS, cells)):
-            if gpio > AUX_IO_REMOVED > AUX_IO_GPIOS[index - 1]:
-                kicadgen.retire_refs('D', 1)
-                kicadgen.retire_refs('R', 1)
-            package, unit = AUX_IO_DRIVERS[gpio]
-            aux_io_led(sh, gpio, column, row, drivers[package], unit)
-        sh.note('SPARE SECTIONS (FOLLOWERS ON THE SUPPLY PIN BESIDE THEM)', 196 * 1.27, 108 * 1.27, 1.8)
-        for (package, unit, rail), column in zip(AUX_IO_SPARES, (204, 226, 248, 270)):
-            plus, minus, out = QUAD_OPAMP_PINS[unit]
-            spare = opamp_quad(sh, drivers[package], unit, column, 120)
-            tie = spur(sh, spare, plus, 2)
-            if rail == 'GND':
-                ground(sh, tie)
+    with io_refs():
+        dac = role(
+            place_ic(sh, 'cryocooler:DAC60508ZRTE', 'DAC60508ZRTER', 80, 80,
+                     'Package_DFN_QFN:Texas_RTE0016D_WQFN-16-1EP_3x3mm_P0.5mm_EP0.8x0.8mm'),
+            'dac',
+        )
+        sh.note('OUTPUT LEVEL DAC', 20 * 1.27, 44 * 1.27, 1.8)
+        spi_bus(
+            sh,
+            [(spur(sh, dac, pin, 2), net)
+             for pin, net in (('13', 'SPI_SCK'), ('14', 'SPI_MOSI'), ('15', 'SPI_MISO'))],
+            42, -1, [(42, 62), (38, 62)],
+        )
+        io_label(sh, 'dac_cs', spur(sh, dac, '12', 12), 180)
+        reference = spur(sh, dac, '1', 6)
+        wire(sh, reference, (reference[0] - 8, reference[1]))
+        for index in range(2):
+            column = reference[0] - 8 * index
+            role(vcap(sh, '100nF', column, reference[1]), 'dac_ref')
+            drop_ground(sh, (column, reference[1] + 6), 2)
+        for index, pin in enumerate(('2', '3', '4', '5', '8', '9', '10', '11')):
+            if index < IO_CHANNELS:
+                io_label(sh, 'dac', spur(sh, dac, pin, 6), 0, n=index + 1)
             else:
-                wire(sh, tie, (tie[0], tie[1] - 3))
-                rail_symbol(sh, rail, (tie[0], tie[1] - 3))
-            wire(
-                sh,
-                pin_cell(spare, minus),
-                (column - 6, 126),
-                (column + 8, 126),
-                (column + 8, 120),
-                pin_cell(spare, out),
-            )
-        for driver, column in zip(drivers, (270, 286)):
-            power = opamp_quad(sh, driver, 5, column, 60)
-            supply = pin_cell(power, '3')
-            wire(sh, supply, (supply[0], supply[1] - 2))
-            rail_symbol(sh, '+5V_OR', (supply[0], supply[1] - 2))
-            drop_ground(sh, pin_cell(power, '10'), 2)
+                sh.nc(dac, pin)
+        supply = [pin_cell(dac, '7'), pin_cell(dac, '16')]
+        for cell in supply:
+            wire(sh, cell, (cell[0], cell[1] - 3))
+        wire(sh, (supply[0][0], supply[0][1] - 3), (supply[1][0], supply[1][1] - 3))
+        wire(sh, (supply[0][0], supply[0][1] - 3), (supply[0][0], supply[0][1] - 5))
+        rail_symbol(sh, '+3V3', (supply[0][0], supply[0][1] - 5))
+        gnd_bus(sh, [pin_cell(dac, '6'), pin_cell(dac, '17')])
+
+        sh.note('INPUT ADC', 150 * 1.27, 44 * 1.27, 1.8)
+        adc = role(
+            place_ic(sh, 'cryocooler:ADS124S08IRHB', 'ADS124S08IRHBR', 200, 90,
+                     'Package_DFN_QFN:Texas_RHB0032M_VQFN-32-1EP_5x5mm_P0.5mm_EP2.1x2.1mm'),
+            'adc',
+        )
+        for index, pin in enumerate(ADC_CHANNEL_PINS):
+            io_label(sh, 'adc', spur(sh, adc, pin, 6), 180, n=index + 1)
+        for index, pin in enumerate(ADC_PRESSURE_PINS):
+            io_label(sh, 'press_adc', spur(sh, adc, pin, 6), 180, n=index + 1)
+        for pin in ADC_SPARE_PINS:
+            sh.nc(adc, pin)
+        # AIN8-11 and the external reference pair serve the two precision ports
+        for pin, key, port in (
+            ('22', 'prec_p', 'A'), ('21', 'prec_n', 'A'), ('20', 'prec_p', 'B'),
+            ('19', 'prec_n', 'B'), ('30', 'prec_refp', ''), ('29', 'prec_refn', ''),
+        ):
+            io_label(sh, key, spur(sh, adc, pin, 6), 180, p=port)
+        sh.nc(adc, '25')
+        common = spur(sh, adc, '1', 22)
+        wire(sh, common, (common[0], common[1] + 8))
+        rail_symbol(sh, 'GND', (common[0], common[1] + 8))
+        reset = spur(sh, adc, '18', 4)
+        wire(sh, reset, (reset[0], reset[1] - 3))
+        rail_symbol(sh, '+3V3', (reset[0], reset[1] - 3))
+        spi_bus(
+            sh,
+            [(spur(sh, adc, pin, 2), net)
+             for pin, net in (('11', 'SPI_SCK'), ('10', 'SPI_MOSI'), ('12', 'SPI_MISO'))],
+            236, -1, [(236, 62), (240, 62)],
+        )
+        io_label(sh, 'adc_cs', spur(sh, adc, '9', 12), 0)
+        io_label(sh, 'adc_drdy', spur(sh, adc, '13', 12), 0)
+        # reference capacitor REFOUT - REFCOM; REFCOM, CLK and START on one ground bar
+        ref_out = spur(sh, adc, '23', 8)
+        role(vcap(sh, '1uF', ref_out[0], ref_out[1]), 'adc_ref')
+        bar = [spur(sh, adc, pin, 4) for pin in ('24', '17', '8')]
+        bottom = bar[-1][1] + 4
+        wire(sh, bar[0], (bar[0][0], bottom))
+        wire(sh, (ref_out[0], ref_out[1] + 6), (ref_out[0], bottom), (bar[0][0], bottom))
+        drop_ground(sh, (bar[0][0], bottom), 2)
+        analog, digital, io = (pin_cell(adc, pin) for pin in ('26', '16', '15'))
+        wire(sh, analog, (analog[0], analog[1] - 5))
+        rail_symbol(sh, '+5V_IO', (analog[0], analog[1] - 5))
+        wire(sh, digital, (digital[0], digital[1] - 2), (io[0], io[1] - 2), io)
+        wire(sh, (io[0], io[1] - 2), (io[0], io[1] - 5))
+        rail_symbol(sh, '+3V3', (io[0], io[1] - 5))
+        gnd_bus(sh, [pin_cell(adc, pin) for pin in ('27', '28', '14', '33')])
+        first = kicadgen._ref_counters['C']
         place_blocks(
             sh,
-            [('OPA4990 DECOUPLING CAPACITORS', '+5V_OR', ('100nF', '100nF'))],
-            132,
-            152,
-            max_column=300,
+            [
+                ('DAC60508 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF', '1uF')),
+                ('ADS124S08 AVDD DECOUPLING CAPACITORS', '+5V_IO', ('100nF', '1uF')),
+                ('ADS124S08 DVDD / IOVDD DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF')),
+            ],
+            30, 150, max_column=300,
         )
+        for part in sh.parts:
+            if part.ref.startswith('C') and first < int(part.ref[1:]):
+                role(part, 'core_decoupling')
+
+
+def precision_port(sh, port, row):
+    """One precision port: 4-pin header (excitation, IN+, IN-, GND), each input
+    through 2.2 k and 10 nF to its ADC pin with 100 nF across the pair, and a
+    surge clamp on both input pins.
+    """
+    sh.note(f'PRECISION PORT {port}', 20 * 1.27, (row - 14) * 1.27, 1.8)
+    header = sh.add(
+        'Connector_Generic:Conn_01x04', next_ref('J'), f'SENSOR {port} (EXC / IN+ / IN- / GND)',
+        50 * 1.27, (row + 4) * 1.27, mirror=True, auto=False, footprint=X2510_4P,
+    )
+    role(header, 'prec_connector', p=port)
+    io_label(sh, 'prec_exc', spur(sh, header, '1', 22), 0)
+    io_label(sh, 'prec_p_pin', spur(sh, header, '2', 4), 0, is_global=False, p=port)
+    io_label(sh, 'prec_n_pin', spur(sh, header, '3', 4), 0, is_global=False, p=port)
+    drop_ground(sh, spur(sh, header, '4', 2), 2)
+    for index, (pin_key, adc_key) in enumerate(
+        (('prec_p_pin', 'prec_p'), ('prec_n_pin', 'prec_n'))
+    ):
+        line = row + 16 * index
+        io_label(sh, pin_key, (110, line), 180, is_global=False, p=port)
+        wire(sh, (110, line), (117, line))
+        role(hres(sh, '2.2k', 120, line), 'prec_series', p=port)
+        wire(sh, (123, line), (126, line), (134, line), (142, line))
+        io_label(sh, adc_key, (142, line), 0, p=port)
+        role(vcap(sh, '10nF', 134, line), 'prec_filter', p=port)
+        drop_ground(sh, (134, line + 6), 2)
+        clamp = role(
+            place_ic(sh, 'cryocooler:TVS1800DRV', 'TVS1800DRVR', 200, line + 2, TVS1800_FP,
+                     ref_prefix='D'),
+            'prec_clamp', p=port,
+        )
+        io_label(sh, pin_key, spur(sh, clamp, '4', 4), 180, is_global=False, p=port)
+        drop_ground(sh, pin_cell(clamp, '1'), 2)
+    role(vcap(sh, '100nF', 126, row + 5), 'prec_diff_filter', p=port)
+    wire(sh, (126, row), (126, row + 5))
+    wire(sh, (126, row + 11), (126, row + 16))
+
+
+def build_io_precision(sh):
+    """Hand-laid: two precision sensor ports on the ADC's four spare inputs, their
+    shared switched 5 V excitation, and its return to the ADC as a reference.
+    """
+    sh.handwired = True
+    sh.note(
+        'Two ports for sensors the universal channels suit badly: bridges (load cells, '
+        'bare pressure sensors), RTDs, thermocouples, millivolt cells. Each has a '
+        'differential pair straight into the ADS124S08 (port A: AIN8 / AIN9, port B: '
+        'AIN10 / AIN11).',
+        20, 15,
+    )
+    sh.note(
+        'Gain, the 10 uA-2 mA current sources, the thermocouple bias and burn-out '
+        'detection are ADC register settings. The 5 V excitation also feeds REFP0 / REFN0, '
+        'so a bridge read against that reference ignores drift in the 5 V rail.',
+        20, 21,
+    )
+    sh.note(
+        'Inputs must stay between 0 V and 5 V. 2.2 k limits the current into the ADC to '
+        '3 mA with 12 V on a pin (10 mA allowed), so a wiring mistake does no damage; the '
+        'reading of every ADC input is disturbed while it lasts. Excitation is off until '
+        'PREC_EXC_EN is high.',
+        20, 27,
+    )
+    with io_refs():
+        sh.note('EXCITATION (BOTH PORTS)', 20 * 1.27, 44 * 1.27, 1.8)
+        fuse = role(
+            place_ic(sh, 'cryocooler:TPS26625DRC', 'TPS26625DRCR', 70, 64,
+                     'Package_SON:Texas_DRC0010J'),
+            'prec_switch',
+        )
+        wire(sh, pin_cell(fuse, '1'), (54, 58), (46, 58), (38, 58))
+        rail_symbol(sh, '+5V_IO', (38, 58))
+        role(vres(sh, '1M', 54, 58), 'prec_uvlo')
+        wire(sh, (54, 64), pin_cell(fuse, '2'))
+        role(vcap(sh, '1uF', 46, 58), 'prec_in_cap')
+        drop_ground(sh, (46, 64), 2)
+        wire(sh, pin_cell(fuse, '4'), (52, 66), (52, 70), (38, 70))
+        io_label(sh, 'prec_exc_en', (38, 70), 180)
+        gnd_bus(sh, [pin_cell(fuse, pin) for pin in ('5', '6', '11')])
+        wire(sh, pin_cell(fuse, '3'), (56, 68), (56, 76), (66, 76))
+        wire(sh, pin_cell(fuse, '9'), (88, 60))
+        io_label(sh, 'prec_exc_flt', (88, 60), 0)
+        sh.nc(fuse, '8')
+        wire(sh, pin_cell(fuse, '7'), (86, 64))
+        role(vres(sh, '53.6k', 86, 64), 'prec_limit')
+        drop_ground(sh, (86, 70), 2)
+        wire(sh, pin_cell(fuse, '10'), (112, 58), (122, 58))
+        io_label(sh, 'prec_exc', (122, 58), 0)
+        role(vcap(sh, '1uF', 112, 58), 'prec_out_cap')
+        drop_ground(sh, (112, 64), 2)
+        clamp = role(
+            place_ic(sh, 'cryocooler:TVS1800DRV', 'TVS1800DRVR', 200, 80, TVS1800_FP,
+                     ref_prefix='D'),
+            'prec_exc_clamp',
+        )
+        io_label(sh, 'prec_exc', spur(sh, clamp, '4', 4), 180)
+        drop_ground(sh, pin_cell(clamp, '1'), 2)
+        sh.note('EXCITATION AS THE ADC REFERENCE', 150 * 1.27, 44 * 1.27, 1.8)
+        io_label(sh, 'prec_exc', (160, 56), 180)
+        wire(sh, (160, 56), (167, 56))
+        role(hres(sh, '1k', 170, 56), 'prec_ref_series')
+        wire(sh, (173, 56), (180, 56), (188, 56))
+        io_label(sh, 'prec_refp', (188, 56), 0)
+        wire(sh, (164, 68), (167, 68))
+        drop_ground(sh, (164, 68), 2)
+        role(hres(sh, '1k', 170, 68), 'prec_ref_series')
+        wire(sh, (173, 68), (180, 68), (188, 68))
+        io_label(sh, 'prec_refn', (188, 68), 0)
+        role(vcap(sh, '100nF', 180, 56), 'prec_ref_filter')
+        wire(sh, (180, 62), (180, 68))
+        precision_port(sh, 'A', 114)
+        precision_port(sh, 'B', 168)
+        sh.note('BIAS', 236 * 1.27, 44 * 1.27, 1.8)
+        pull_up_row(sh, '10k', 'prec_exc_flt', 240, 52, 'pull_prec_flt')
+        pull_down_row(sh, '22k', 'prec_exc_en', 250, 62, 'pull_prec_en')
+
+
+def pressure_port(sh, n, row):
+    """One pressure port: 4-pin header (5 V excitation, signal, GND, unused), the signal
+    through 2.2 k and 10 nF to its ADC pin, a pull-down so an open port reads 0 V,
+    and a surge clamp at the connector.
+    """
+    scale = PRESSURE_PORTS[n]
+    sh.note(f'PRESSURE PORT {n} ({scale.upper()})', 20 * 1.27, (row - 14) * 1.27, 1.8)
+    header = sh.add(
+        'Connector_Generic:Conn_01x04', next_ref('J'), f'PRESSURE {n} (5V / SIG / GND / NC)',
+        50 * 1.27, (row + 4) * 1.27, mirror=True, auto=False, footprint=X2510_4P,
+    )
+    sh.nc(header, '4')
+    role(header, 'press_connector', n=n, scale=scale)
+    io_label(sh, 'prec_exc', spur(sh, header, '1', 22), 0)
+    io_label(sh, 'press_pin', spur(sh, header, '2', 4), 0, is_global=False, n=n)
+    drop_ground(sh, spur(sh, header, '3', 2), 2)
+    io_label(sh, 'press_pin', (110, row), 180, is_global=False, n=n)
+    wire(sh, (110, row), (117, row))
+    role(hres(sh, '2.2k', 120, row), 'press_series', n=n)
+    wire(sh, (123, row), (126, row), (134, row), (142, row))
+    io_label(sh, 'press_adc', (142, row), 0, n=n)
+    role(vres(sh, '100k', 126, row), 'press_pull', n=n)
+    drop_ground(sh, (126, row + 6), 2)
+    role(vcap(sh, '10nF', 134, row), 'press_filter', n=n)
+    drop_ground(sh, (134, row + 6), 2)
+    clamp = role(
+        place_ic(sh, 'cryocooler:TVS1800DRV', 'TVS1800DRVR', 200, row + 2, TVS1800_FP,
+                 ref_prefix='D'),
+        'press_clamp', n=n,
+    )
+    io_label(sh, 'press_pin', spur(sh, clamp, '4', 4), 180, is_global=False, n=n)
+    drop_ground(sh, pin_cell(clamp, '1'), 2)
+
+
+def build_io_pressure(sh):
+    """Hand-laid: two ports for 5 V ratiometric pressure transmitters."""
+    sh.handwired = True
+    sh.note(
+        'Two ports for 3-wire pressure transmitters with a 0.5-4.5 V output on a 5 V '
+        'supply (port 1: 100 psi ahead of the nitrogen membrane, port 2: 30 psi in the '
+        'dewar). Pin 1 is the switched 5 V excitation shared with the precision ports.',
+        20, 15,
+    )
+    sh.note(
+        'The ADC reads each signal against REFP0 / REFN0, which is that same excitation, '
+        'so the reading does not move with the 5 V rail. PGA bypassed. With nothing '
+        'plugged in the 100k pull-down gives 0 V, below the 0.5 V a working sensor sends.',
+        20, 21,
+    )
+    with io_refs():
+        for n in PRESSURE_PORTS:
+            pressure_port(sh, n, 60 + 40 * (n - 1))
+
+
+def driver_opamp(sh, ref, unit, column, row):
+    """One unit of a TSB582 dual output driver."""
+    return sh.add(
+        'cryocooler:TSB582IQ2', ref, 'TSB582IQ2T', column * 1.27, row * 1.27, unit=unit,
+        auto=False, footprint='Package_DFN_QFN:DFN-8-1EP_3x3mm_P0.65mm_EP1.55x2.4mm',
+    )
+
+
+def build_io_drivers(sh):
+    """Hand-laid: the four output drivers as two dual op amps, each output through
+    one section of a fault-protected switch to its channel pin.
+    """
+    sh.handwired = True
+    sh.note(
+        'Output drivers: each TSB582 section multiplies its channel level by 1 + 191k / '
+        '49.9k = 4.83 (0-12 V from +12V). A TMUX7412F section joins it to the pin while '
+        'OUT_EN is high. Feedback is taken ahead of the switch.',
+        20, 15,
+    )
+    sh.note(
+        'Open, the switch leaves only leakage on the pin. It also opens by itself when '
+        'the pin is forced above +12V or below ground (FF goes low), so an outside source '
+        'cannot feed the 12 V rail. Up to 100 mA per output: the switch rating (the op amp '
+        'gives 150 mA min).',
+        20, 21,
+    )
+    sh.note(
+        'At 100 mA the pin sits about 1.5 V under the rail (0.55 V typ in the op amp, about '
+        '1 V in the 8-11 ohm switch). The ADC reads every pin, so firmware can check it. '
+        'Channels 1 and 2 take their level from the GPIO gate on their own sheet.',
+        20, 27,
+    )
+    with io_refs():
+        for half, group in enumerate('AB'[:IO_CHANNELS // 4]):
+            column = 20 + 150 * half
+            channels = range(4 * half + 1, 4 * half + 5)
+            sh.note(f'CHANNELS {channels[0]}-{channels[-1]}', column * 1.27, 44 * 1.27, 1.8)
+            amp_refs = (next_ref('U'), next_ref('U'))
+            for index, n in enumerate(channels):
+                row = 58 + 34 * index
+                unit = index % 2 + 1
+                plus, minus, out = DRIVER_OPAMP_PINS[unit]
+                amp = driver_opamp(sh, amp_refs[index // 2], unit, column + 50, row)
+                if unit == 1:
+                    role(amp, 'amp', first=n, last=n + 1)
+                level = pin_cell(amp, plus)
+                wire(sh, level, (level[0] - 14, level[1]))
+                io_label(sh, 'level' if n in IO_FAST else 'dac', (level[0] - 14, level[1]),
+                         180, n=n)
+                invert, drive = pin_cell(amp, minus), pin_cell(amp, out)
+                node = (invert[0] - 4, invert[1])
+                wire(sh, (node[0] - 4, node[1]), node, invert)
+                role(hres(sh, '49.9k', node[0] - 7, node[1]), 'gain_low', n=n)
+                drop_ground(sh, (node[0] - 10, node[1]), 2)
+                centre = column + 50
+                wire(sh, node, (node[0], row + 10), (centre - 6, row + 10), (centre - 3, row + 10))
+                role(hres(sh, '191k', centre, row + 10), 'gain_high', n=n)
+                wire(sh, (centre + 3, row + 10), (centre + 6, row + 10), (drive[0] + 4, row + 10),
+                     (drive[0] + 4, drive[1]))
+                wire(sh, (centre - 6, row + 10), (centre - 6, row + 16), (centre - 3, row + 16))
+                role(hcap(sh, '2pF/C0G', centre, row + 16), 'gain_cap', n=n)
+                wire(sh, (centre + 3, row + 16), (centre + 6, row + 16), (centre + 6, row + 10))
+                wire(sh, drive, (drive[0] + 4, drive[1]), (drive[0] + 10, drive[1]))
+                io_label(sh, 'drv', (drive[0] + 10, drive[1]), 0, is_global=False, n=n)
+            for index, amp_ref in enumerate(amp_refs):
+                power = driver_opamp(sh, amp_ref, 3, column + 92 + 16 * index, 62)
+                supply = pin_cell(power, '8')
+                wire(sh, supply, (supply[0], supply[1] - 2))
+                rail_symbol(sh, '+12V', (supply[0], supply[1] - 2))
+                gnd_bus(sh, [pin_cell(power, '4'), pin_cell(power, '9')])
+            switch = role(
+                place_ic(
+                    sh, 'cryocooler:TMUX7412FRRP', 'TMUX7412FRRPR', column + 104, 120,
+                    'Package_DFN_QFN:Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm',
+                ),
+                'out_switch', first=channels[0], last=channels[-1],
+            )
+            for n, source, select, drain in zip(
+                channels, ('1', '12', '9', '4'), ('15', '14', '7', '6'),
+                ('16', '13', '8', '5'),
+            ):
+                io_label(sh, 'pin', spur(sh, switch, source, 6), 180, n=n)
+                io_label(sh, 'out_en', spur(sh, switch, select, 6), 180, n=n)
+                io_label(sh, 'drv', spur(sh, switch, drain, 4), 0, is_global=False, n=n)
+            io_label(sh, 'out_flt', spur(sh, switch, '10', 4), 0, g=group)
+            supply = pin_cell(switch, '11')
+            wire(sh, supply, (supply[0], supply[1] - 4))
+            rail_symbol(sh, '+12V', (supply[0], supply[1] - 4))
+            gnd_bus(sh, [pin_cell(switch, pin) for pin in ('2', '3', '17')])
+            sh.note('BIAS', column * 1.27, 186 * 1.27, 1.8)
+            for index, n in enumerate(channels):
+                pull_down_row(sh, '100k', 'out_en', column + 14, 192 + 8 * index,
+                              'pull_out_en', n=n)
+            pull_up_row(sh, '10k', 'out_flt', column + 44, 192, 'pull_out_flt', g=group)
+        first = kicadgen._ref_counters['C']
+        place_blocks(
+            sh,
+            [
+                ('TSB582 DECOUPLING', '+12V', ('100nF', '100nF', '10uF/25V')),
+            ],
+            84, 206, max_column=240,
+        )
+        place_blocks(
+            sh, [('OUTPUT SWITCH DECOUPLING', '+12V', ('100nF',))], 258, 160,
+            max_column=310,
+        )
+        for part in sh.parts:
+            if part.ref.startswith('C') and first < int(part.ref[1:]):
+                role(part, 'driver_decoupling')
+
+
+def build_io_switches(sh):
+    """Hand-laid: the range switch (divider legs to ground) and the pull-up
+    switch of the four channels.
+    """
+    sh.handwired = True
+    sh.note(
+        'Range: TMUX1111 closes while its select is low, grounding the 20k divider leg '
+        '(0-15 V range). DIRECT high opens it. The switch only ever sees the ADC-side '
+        'voltage, never the pin.',
+        20, 15,
+    )
+    sh.note(
+        'Pull-up: TMUX7412F on +12 V joins the pin to 10k / +3V3 while PULLUP is high. Its '
+        'source pins block in both directions and survive +-60 V, so a pin above 3.3 V '
+        'is not loaded while the switch is open. FF (fault flag) is not used.',
+        20, 21,
+    )
+    with io_refs():
+        for index in range(IO_CHANNELS // 4):
+            column = 70 + 150 * index
+            channels = range(4 * index + 1, 4 * index + 5)
+            sh.note(f'RANGE SWITCH, CHANNELS {channels[0]}-{channels[-1]}',
+                    (column - 40) * 1.27, 40 * 1.27, 1.8)
+            leg = role(
+                place_ic(sh, 'cryocooler:TMUX1111RSV', 'TMUX1111RSVR', column, 64,
+                         'Package_DFN_QFN:UQFN-16_1.8x2.6mm_P0.4mm'),
+                'range_switch', first=channels[0], last=channels[-1],
+            )
+            for n, source, select in zip(channels, ('1', '12', '9', '4'),
+                                         ('15', '14', '7', '6')):
+                io_label(sh, 'div', spur(sh, leg, source, 6), 180, n=n)
+                io_label(sh, 'direct', spur(sh, leg, select, 6), 180, n=n)
+            drains = [spur(sh, leg, pin, 4) for pin in ('16', '13', '8', '5')]
+            wire(sh, drains[0], (drains[0][0], drains[-1][1] + 6))
+            drop_ground(sh, (drains[0][0], drains[-1][1] + 6), 2)
+            sh.nc(leg, '2')
+            sh.nc(leg, '10')
+            supply = pin_cell(leg, '11')
+            wire(sh, supply, (supply[0], supply[1] - 4))
+            rail_symbol(sh, '+5V_IO', (supply[0], supply[1] - 4))
+            drop_ground(sh, pin_cell(leg, '3'), 2)
+
+            sh.note(f'PULL-UP SWITCH, CHANNELS {channels[0]}-{channels[-1]}',
+                    (column - 40) * 1.27, 96 * 1.27, 1.8)
+            pull = role(
+                place_ic(
+                    sh, 'cryocooler:TMUX7412FRRP', 'TMUX7412FRRPR', column, 124,
+                    'Package_DFN_QFN:Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm',
+                ),
+                'pull_switch', first=channels[0], last=channels[-1],
+            )
+            for n, source, select, drain in zip(
+                channels, ('1', '12', '9', '4'), ('15', '14', '7', '6'),
+                ('16', '13', '8', '5'),
+            ):
+                io_label(sh, 'pin', spur(sh, pull, source, 6), 180, n=n)
+                io_label(sh, 'pullup', spur(sh, pull, select, 6), 180, n=n)
+                end = spur(sh, pull, drain, 4)
+                role(hres(sh, '10k', end[0] + 3, end[1]), 'pull_resistor', n=n)
+                wire(sh, (end[0] + 6, end[1]), (end[0] + 16, end[1]))
+            top = pin_cell(pull, '16')
+            rail = (top[0] + 20, top[1])
+            wire(sh, rail, (rail[0], pin_cell(pull, '5')[1]))
+            wire(sh, rail, (rail[0], rail[1] - 3))
+            rail_symbol(sh, '+3V3', (rail[0], rail[1] - 3))
+            sh.nc(pull, '10')
+            supply = pin_cell(pull, '11')
+            wire(sh, supply, (supply[0], supply[1] - 4))
+            rail_symbol(sh, '+12V', (supply[0], supply[1] - 4))
+            gnd_bus(sh, [pin_cell(pull, pin) for pin in ('2', '3', '17')])
+        sh.note('BIAS (EVERY SELECT PULLED TO ITS DEFAULT)', 20 * 1.27, 156 * 1.27, 1.8)
+        for n in range(1, IO_CHANNELS + 1):
+            row = 164 + 8 * ((n - 1) % 4)
+            column = 30 + 60 * ((n - 1) // 4)
+            pull_down_row(sh, '100k', 'direct', column, row, 'pull_direct', n=n)
+            pull_down_row(sh, '100k', 'pullup', column + 130, row, 'pull_pullup', n=n)
+        first = kicadgen._ref_counters['C']
+        place_blocks(
+            sh,
+            [
+                ('TMUX1111 DECOUPLING CAPACITORS', '+5V_IO', ('100nF',)),
+                ('TMUX7412F DECOUPLING CAPACITORS', '+12V', ('100nF',)),
+            ],
+            30, 206, max_column=300,
+        )
+        for part in sh.parts:
+            if part.ref.startswith('C') and first < int(part.ref[1:]):
+                role(part, 'switch_decoupling')
+
+
+def build_io_expanders(sh):
+    """Hand-laid: two MCP23S17 on one chip select, one port per channel."""
+    sh.handwired = True
+    sh.note(
+        'Two MCP23S17 share IO_EXP_CS: hardware addresses 0 and 1 on A0 (A2 low on both, so '
+        'one write of IOCON.HAEN reaches every device: errata DS80311A). Port A serves the '
+        'odd channel of a pair, port B the even one.',
+        20, 15,
+    )
+    sh.note(
+        'Per port: bit 0 OUT_EN, 1 DIRECT, 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), '
+        '5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N '
+        '(fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are '
+        'inputs after reset, so the pull resistors on each line set the off state.',
+        20, 21,
+    )
+    sh.note(
+        'RESET on ESP_EN: an ESP32 reset also returns every channel to off. INTA and INTB '
+        'must be set open drain (IOCON.ODR) before interrupts are enabled: all four share '
+        'IO_EXP_INT_N.',
+        20, 27,
+    )
+    with io_refs():
+        for index in range(IO_CHANNELS // 2):
+            column = 60 + 70 * index
+            expander = role(
+                place_ic(sh, 'cryocooler:MCP23S17-E/ML', 'MCP23S17-E/ML', column, 100,
+                         'Package_DFN_QFN:QFN-28-1EP_6x6mm_P0.65mm_EP4.25x4.25mm'),
+                'expander', a=2 * index + 1, b=2 * index + 2, address=index,
+            )
+            sh.note(f'ADDRESS {index}', (column - 10) * 1.27, 62 * 1.27, 1.8)
+            spi_bus(
+                sh,
+                [(spur(sh, expander, pin, 2), net)
+                 for pin, net in (('8', 'SPI_SCK'), ('9', 'SPI_MOSI'), ('10', 'SPI_MISO'))],
+                column - 26, -1, [(column - 26, 70), (column - 30, 70)],
+            )
+            io_label(sh, 'exp_cs', spur(sh, expander, '7', 6), 180)
+            net_label(sh, 'ESP_EN', spur(sh, expander, '14', 6), 180, is_global=True)
+            for bit, pin in enumerate(('11', '12', '13')):
+                if index >> bit & 1:
+                    # past the chip select and reset labels above
+                    end = spur(sh, expander, pin, 22 + 4 * bit)
+                    wire(sh, end, (end[0], end[1] - 2))
+                    rail_symbol(sh, '+3V3', (end[0], end[1] - 2))
+                else:
+                    drop_ground(sh, spur(sh, expander, pin, 4), 2)
+            first_int, second_int = spur(sh, expander, '16', 4), spur(sh, expander, '15', 4)
+            wire(sh, first_int, second_int, (second_int[0] - 4, second_int[1]))
+            io_label(sh, 'exp_int', (second_int[0] - 4, second_int[1]), 180)
+            pins = ('17', '18', '19', '20', '21', '22', '23', '24',
+                    '25', '26', '27', '28', '1', '2', '3', '4')
+            keys = ('out_en', 'direct', 'burden', 'pullup', 'sens_en', 'amp_flt',
+                    'sens_flt', 'buf_oe')
+            for position, pin in enumerate(pins):
+                n = 2 * index + 1 + position // 8
+                key = keys[position % 8]
+                if key == 'buf_oe' and n in IO_SPARE_INPUTS:
+                    io_label(sh, IO_SPARE_INPUTS[n], spur(sh, expander, pin, 4), 0)
+                    continue
+                if key == 'buf_oe' and n not in IO_FAST:
+                    sh.nc(expander, pin)
+                    continue
+                if key == 'amp_flt':
+                    # one flag per output switch (four channels): on the first channel
+                    if n in IO_DRIVER_FLAGS:
+                        io_label(sh, 'out_flt', spur(sh, expander, pin, 4), 0,
+                                 g=IO_DRIVER_FLAGS[n])
+                    elif n in IO_SPARE_FLAGS:
+                        io_label(sh, IO_SPARE_FLAGS[n], spur(sh, expander, pin, 4), 0)
+                    else:
+                        sh.nc(expander, pin)
+                    continue
+                io_label(sh, key, spur(sh, expander, pin, 4), 0, n=n)
+            supply = pin_cell(expander, '5')
+            wire(sh, supply, (supply[0], supply[1] - 4))
+            rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+            gnd_bus(sh, [pin_cell(expander, '6'), pin_cell(expander, '29')])
+        sh.note('BIAS', 20 * 1.27, 140 * 1.27, 1.8)
+        pull_up_row(sh, '10k', 'exp_int', 28, 148, 'pull_exp_int')
+        first = kicadgen._ref_counters['C']
+        place_blocks(
+            sh,
+            [('MCP23S17 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))],
+            100, 154, max_column=300,
+        )
+        for part in sh.parts:
+            if part.ref.startswith('C') and first < int(part.ref[1:]):
+                role(part, 'expander_decoupling')
+
+
+def pin_offset(lib_id, pin):
+    """Cell offset of a symbol's pin from its centre (unrotated)."""
+    for number, _name, x, y, *_rest in sexpr.pins(kicadgen.get_symbol(lib_id)):
+        if number == pin:
+            return (round(x / 1.27), round(-y / 1.27))
+    raise KeyError(pin)
+
+
+def expansion_rs485(sh):
+    """SC16IS750 SPI-UART bridge -> THVD2410 -> 3-pin header (A, B, GND)."""
+    sh.note('RS-485 / MODBUS PORT', 20 * 1.27, 40 * 1.27, 1.8)
+    bridge = role(
+        place_ic(sh, 'cryocooler:SC16IS750IBS', 'SC16IS750IBS', 70, 84,
+                 'Package_DFN_QFN:HVQFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm'),
+        'uart',
+    )
+    spi_bus(
+        sh,
+        [(spur(sh, bridge, pin, 2), net)
+         for pin, net in (('9', 'SPI_SCK'), ('7', 'SPI_MOSI'), ('8', 'SPI_MISO'))],
+        30, -1, [(30, 60), (26, 60)],
+    )
+    io_label(sh, 'rs485_cs', spur(sh, bridge, '6', 12), 180)
+    net_label(sh, 'ESP_EN', spur(sh, bridge, '1', 12), 180, is_global=True)
+    io_label(sh, 'rs485_irq', spur(sh, bridge, '11', 12), 180)
+    io_label(sh, 'uart_clk', spur(sh, bridge, '2', 12), 180)
+    drop_ground(sh, spur(sh, bridge, '5', 4), 2)
+    for pin in ('3', '12', '13', '14', '15', '17', '18', '19', '20'):
+        sh.nc(bridge, pin)
+    drop_ground(sh, spur(sh, bridge, '22', 4), 2)
+    supply = pin_cell(bridge, '4')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    gnd_bus(sh, [pin_cell(bridge, pin) for pin in ('16', '10', '25')])
+    receive, transmit, direction = (pin_cell(bridge, pin) for pin in ('24', '23', '21'))
+    left = receive[0] + 40
+    offset = pin_offset('cryocooler:THVD2410DRB', '1')
+    phy = role(
+        place_ic(sh, 'cryocooler:THVD2410DRB', 'THVD2410DRBR', left - offset[0],
+                 receive[1] - offset[1], 'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm'),
+        'rs485_phy',
+    )
+    wire(sh, receive, (receive[0] + 20, receive[1]), pin_cell(phy, '1'))
+    # R is high impedance while the driver is on: hold RX at the idle (high) level
+    role(vres(sh, '10k', receive[0] + 20, receive[1] - 6), 'rs485_rx_pull')
+    rail_symbol(sh, '+3V3', (receive[0] + 20, receive[1] - 6))
+    wire(sh, transmit, pin_cell(phy, '4'))
+    # RTS is high (inactive) after reset: the FET inverts it, so DE is low (receive)
+    # until the UART sends
+    enable, receive_enable = pin_cell(phy, '3'), pin_cell(phy, '2')
+    node = (enable[0] - 4, receive_enable[1])
+    wire(sh, enable, (node[0], enable[1]), node, receive_enable)
+    drain = (node[0], node[1] + 12)
+    wire(sh, node, drain)
+    inverter = sh.add(
+        'Transistor_FET:BSS138', next_ref('Q'), 'CSD17381F4', (drain[0] - 2) * 1.27,
+        (drain[1] + 4) * 1.27, auto=False, footprint=FEMTOFET_FP,
+    )
+    role(inverter, 'rs485_inverter')
+    drop_ground(sh, pin_cell(inverter, '2'), 2)
+    gate = pin_cell(inverter, '1')
+    wire(sh, direction, (direction[0] + 2, direction[1]), (direction[0] + 18, direction[1]),
+         (direction[0] + 18, gate[1]), gate)
+    io_label(sh, 'rs485_rts', (direction[0] + 2, direction[1]), 0, is_global=False)
+    rail_symbol(sh, '+3V3', (drain[0] - 12, drain[1]))
+    role(hres(sh, '10k', drain[0] - 9, drain[1]), 'rs485_de_pull')
+    wire(sh, (drain[0] - 6, drain[1]), drain)
+    supply = pin_cell(phy, '8')
+    wire(sh, supply, (supply[0], supply[1] - 4))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
+    gnd_bus(sh, [pin_cell(phy, '5'), pin_cell(phy, '9')])
+    # bus pair: A up and over, B down and under, the switched 120 R between them
+    line_a, line_b = pin_cell(phy, '6'), pin_cell(phy, '7')
+    right, top, bottom = line_a[0], line_a[1] - 8, line_b[1] + 10
+    header = conn(
+        sh, 'Connector_Generic:Conn_01x04', 'RS-485 (A / B / GND / NC)', (right + 40) * 1.27,
+        (line_a[1] + 2) * 1.27, {'4': None}, X2510_4P,
+    )
+    role(header, 'rs485_connector')
+    wire(sh, line_a, (right + 6, line_a[1]), (right + 6, top), (right + 16, top),
+         (right + 32, top), (right + 32, line_a[1]), pin_cell(header, '1'))
+    wire(sh, line_b, (right + 4, line_b[1]), (right + 4, bottom), (right + 16, bottom),
+         (right + 28, bottom), (right + 28, line_b[1]), pin_cell(header, '2'))
+    role(vres(sh, '120', right + 16, top, fp=R1206), 'rs485_termination')
+    jumper = sh.add(
+        'Jumper:Jumper_2_Open', next_ref('JP'), 'RS485 TERM', (right + 16) * 1.27,
+        (top + 14) * 1.27, rot=90, auto=False, footprint=SWITCH_HEADER,
+    )
+    jumper.dnp = True
+    role(jumper, 'rs485_term_jumper')
+    ends = sorted((pin_cell(jumper, '1'), pin_cell(jumper, '2')), key=lambda cell: cell[1])
+    wire(sh, (right + 16, top + 6), ends[0])
+    wire(sh, ends[1], (right + 16, bottom))
+    ground_pin = pin_cell(header, '3')
+    wire(sh, ground_pin, (ground_pin[0] - 2, ground_pin[1]))
+    drop_ground(sh, (ground_pin[0] - 2, ground_pin[1]), 2)
+    # UART clock
+    sh.note('UART CLOCK', 20 * 1.27, 140 * 1.27, 1.8)
+    clock = role(
+        place_ic(sh, 'cryocooler:ECS-2520MV', 'ECS-2520MV-160-BN-TR', 40, 156,
+                 'Oscillator:Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm'),
+        'uart_clock',
+    )
+    enable, supply = pin_cell(clock, '1'), pin_cell(clock, '4')
+    wire(sh, enable, (enable[0], enable[1] - 3), (supply[0], supply[1] - 3), supply)
+    wire(sh, (supply[0], supply[1] - 3), (supply[0], supply[1] - 5))
+    rail_symbol(sh, '+3V3', (supply[0], supply[1] - 5))
+    drop_ground(sh, pin_cell(clock, '2'), 2)
+    io_label(sh, 'uart_clk', spur(sh, clock, '3', 6), 0)
+
+
+def expansion_header(sh):
+    """2 x 5 header with the SPI bus, two chip selects, an interrupt line and both
+    logic supplies. Each chip select opens one buffer onto SPI_MISO.
+    """
+    sh.note('SPI EXPANSION HEADER', 196 * 1.27, 40 * 1.27, 1.8)
+    for index, (enable, row) in enumerate((('exp_cs_a', 62), ('exp_cs_b', 92))):
+        gate = role(
+            place_ic(sh, 'cryocooler:SN74LVC1G125DRY', 'SN74LVC1G125DRYR', 240, row, BUFFER_FP),
+            'exp_miso_gate', which='AB'[index],
+        )
+        sh.nc(gate, '5')
+        io_label(sh, 'exp_miso', spur(sh, gate, '2', 6), 180, is_global=False)
+        supply = pin_cell(gate, '6')
+        wire(sh, supply, (supply[0], supply[1] - 3))
+        rail_symbol(sh, '+3V3', (supply[0], supply[1] - 3))
+        drop_ground(sh, pin_cell(gate, '3'), 2)
+        select = pin_cell(gate, '1')
+        wire(sh, select, (select[0], select[1] + 4), (select[0] - 8, select[1] + 4))
+        io_label(sh, enable, (select[0] - 8, select[1] + 4), 180)
+        spi_bus(sh, [(spur(sh, gate, '4', 2), 'SPI_MISO')], 266, -1,
+                [(266, row - 12), (270, row - 12)])
+    sh.note('100 R IN SERIES WITH EVERY LINE THE BOARD DRIVES', 196 * 1.27, 118 * 1.27, 1.8)
+    for index, (key, net) in enumerate((('exp_sck', 'SPI_SCK'), ('exp_mosi', 'SPI_MOSI'))):
+        row = 126 + 8 * index
+        role(hres(sh, '100', 233, row), 'exp_series')
+        wire(sh, (236, row), (240, row))
+        io_label(sh, key, (240, row), 0, is_global=False)
+        wire(sh, (226, row), (230, row))
+    spi_bus(sh, [((226, 126), 'SPI_SCK'), ((226, 134), 'SPI_MOSI')], 204, -1,
+            [(204, 122), (200, 122)])
+    for index, (key, enable) in enumerate((('exp_csa', 'exp_cs_a'), ('exp_csb', 'exp_cs_b'))):
+        row = 146 + 8 * index
+        io_label(sh, enable, (224, row), 180)
+        wire(sh, (224, row), (230, row))
+        role(hres(sh, '100', 233, row), 'exp_series')
+        wire(sh, (236, row), (240, row))
+        io_label(sh, key, (240, row), 0, is_global=False)
+    header = conn(
+        sh, 'Connector_Generic:Conn_02x05_Odd_Even', 'SPI EXPANSION', 290 * 1.27, 150 * 1.27,
+        {}, 'Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical_SMD',
+    )
+    role(header, 'exp_header')
+    for pin, rail in (('1', '+3V3'), ('2', '+5V')):
+        end = spur(sh, header, pin, 6 if pin == '1' else 4)
+        wire(sh, end, (end[0], end[1] - 3))
+        rail_symbol(sh, rail, (end[0], end[1] - 3))
+    for pin, key in (('3', 'exp_sck'), ('5', 'exp_miso'), ('7', 'exp_csa')):
+        io_label(sh, key, spur(sh, header, pin, 4), 180, is_global=False)
+    # the chip select label sits past the interrupt label on the row above it
+    for pin, key, length in (('4', 'exp_mosi', 4), ('8', 'exp_csb', 20)):
+        io_label(sh, key, spur(sh, header, pin, length), 0, is_global=False)
+    io_label(sh, 'hdr_int', spur(sh, header, '6', 4), 0)
+    for pin in ('9', '10'):
+        drop_ground(sh, spur(sh, header, pin, 4), 2)
+
+
+def build_expansion(sh):
+    """Hand-laid: the RS-485 port on the left, the SPI expansion header on the right."""
+    sh.handwired = True
+    sh.note(
+        'RS-485: SC16IS750 (SPI mode 0 only, 4 MHz max) with the same 16 MHz oscillator as '
+        'the signal generator: 9600, 19200 and 38400 baud are 0.16 % off; 57600 (2.1 %) and '
+        '115200 (3.5 %) are not usable. Direction: EFCR.RTSCON = 1, RTSINVER = 0.',
+        20, 15,
+    )
+    sh.note(
+        'RTS goes low while sending, and the FET turns that into DE high. After reset RTS '
+        'is high, so the driver is off. CTS and the bridge GPIOs are unused.',
+        20, 21,
+    )
+    sh.note(
+        'THVD2410: fail-safe receiver, +-70 V bus fault, +-12 kV IEC ESD, so no bias '
+        'resistors and no extra clamp. Fit the jumper to end the bus with 120 R here.',
+        20, 27,
+    )
+    sh.note(
+        'SPI expansion header: 1 +3V3, 2 +5V, 3 SCK, 4 MOSI, 5 MISO, 6 INT (active low, to '
+        'the I/O expander), 7 CS A, 8 CS B, 9 and 10 GND. MISO reaches the bus only while '
+        'a chip select is low.',
+        20, 33,
+    )
+    with io_refs():
+        expansion_rs485(sh)
+        expansion_header(sh)
+        sh.note('BIAS', 100 * 1.27, 140 * 1.27, 1.8)
+        pull_up_row(sh, '1k', 'rs485_irq', 104, 148, 'pull_rs485_irq')
+        pull_up_row(sh, '10k', 'hdr_int', 104, 156, 'pull_exp_hdr_int')
+        pull_down_row(sh, '100k', 'exp_miso', 108, 164, 'pull_exp_miso', is_global=False)
+        first = kicadgen._ref_counters['C']
+        place_blocks(
+            sh,
+            [
+                ('SC16IS750 AND CLOCK DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF')),
+                ('THVD2410 DECOUPLING CAPACITOR', '+3V3', ('100nF',)),
+                ('MISO BUFFER DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF')),
+            ],
+            30, 196, max_column=300,
+        )
+        for part in sh.parts:
+            if part.ref.startswith('C') and first < int(part.ref[1:]):
+                role(part, 'expansion_decoupling')
 
 
 # ═════════════════════════════════════════════════════════════════════════
@@ -3793,17 +4706,15 @@ SWITCH_HEADER = 'Resistor_SMD:R_0603_1608Metric'
 SWITCHES = (
     ('SG3', '+3V3', '+3V3_SG', 'SIGNAL GEN +3V3'),
     ('PS15', '+5V', '+5V_PS15', '+-15V RAILS ENABLE (+5V IN)'),
-    ('ISO5', '+5V_OR', '+5V_ISO', 'ISOLATED SUPPLY +5V IN'),
+    ('ISO3', '+3V3', '+3V3_ISO', 'ISOLATED SUPPLY +3V3 IN (ISOW7841)'),
     ('COOL', '+3V3', '+3V3_COOL', 'WATER COOLING +3V3 (FAN, PUMP, FLOW, NTC)'),
     ('CH', '+3V3', '+3V3_CH', 'COLD HEAD +3V3 (ADS1220 RTD ADC)'),
+    ('IO', '+5V', '+5V_IO', 'UNIVERSAL I/O ANALOG +5V (ADC, RANGE SWITCHES, EXCITATION)'),
 )
 kicadgen.POWER_SYMBOLS.update({spec[2]: spec[1] for spec in SWITCHES})
-kicadgen.POWER_SYMBOLS['+5V_ISO'] = '+5V'
-kicadgen.POWER_SYMBOLS['VISOOUT'] = '+5VA'
-kicadgen.POWER_SYMBOLS['ISO_GND2'] = 'GNDREF'
 # The ADS1220 reference is ratiometric but its supply is shared with the buck, so
 # the cold head feed gets a ferrite ahead of its jumper.
-BEAD_AHEAD_OF_JUMPER = {'CH'}
+BEAD_AHEAD_OF_JUMPER = {'CH', 'IO'}
 
 
 def supply_block(sh, spec, column, row):
@@ -3942,8 +4853,20 @@ SHEETS = [
     ('Debug', 'debug', build_debug, 'A3'),
     ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
     ('Display', 'display', build_display, 'A3'),
-    ('General Purpose IO', 'aux_io', build_aux_io, 'A3'),
     ('Ambient Temp', 'ambient', build_ambient, 'A3'),
+]
+SHEETS += [
+    ('IO DAC and ADC', 'io_core', build_io_core, 'A3'),
+    ('IO Output Drivers', 'io_drivers', build_io_drivers, 'A3'),
+    ('IO Range and Pull-up', 'io_switches', build_io_switches, 'A3'),
+    ('IO Expanders', 'io_expanders', build_io_expanders, 'A3'),
+    ('IO Precision Ports', 'io_precision', build_io_precision, 'A3'),
+    ('IO Pressure Ports', 'io_pressure', build_io_pressure, 'A3'),
+    ('Expansion', 'expansion', build_expansion, 'A3'),
+]
+SHEETS += [
+    (f'IO Channel {n}', f'io_ch{n}', build_io_channel(n), 'A3')
+    for n in range(1, IO_CHANNELS + 1)
 ]
 
 
@@ -3978,7 +4901,7 @@ NET_CLASSES = [
         (200, 0, 0),
         (255, 40, 40),
         '5 V rails and USB VBUS (red)',
-        ['+5V', '+5V_OR', '+5V_PS15', '+5V_ISO', 'USB_VBUS'],
+        ['+5V', '+5V_OR', '+5V_PS15', '+5V_IO', 'USB_VBUS'],
         'Power',
     ),
     ('Power12V', (175, 140, 0), (255, 220, 0), '12 V input (yellow)', [], None),
@@ -4002,8 +4925,8 @@ NET_CLASSES = [
         'PowerIso',
         (130, 0, 170),
         (190, 90, 255),
-        'Isolated 5 V, ISOW7741 output (purple)',
-        ['ISO_5V', 'VISOOUT'],
+        'Isolated 5 V, ISOW7841 output (purple)',
+        ['ISO_5V'],
         'Power',
     ),
     ('Usb', None, None, None, [], None),
@@ -4035,7 +4958,7 @@ NET_CLASSES = [
          'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB'],
         'Default',
     ),
-    ('Ground', None, (110, 110, 110), None, ['GND', 'ISO_GND', 'ISO_GND2'],
+    ('Ground', None, (110, 110, 110), None, ['GND', 'ISO_GND'],
      'Default'),
 ]
 NO_COLOUR = 'rgba(0, 0, 0, 0.000)'

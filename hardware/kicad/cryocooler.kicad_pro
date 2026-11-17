@@ -561,7 +561,7 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Ground",
-        "pcb_color": "rgba(110, 110, 110, 1.000)",
+        "pcb_color": "rgb(110, 110, 110)",
         "priority": -1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.25,
@@ -580,9 +580,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power",
-        "pcb_color": "rgba(255, 140, 0, 1.000)",
+        "pcb_color": "rgb(255, 140, 0)",
         "priority": -1,
-        "schematic_color": "rgba(215, 110, 0, 1.000)",
+        "schematic_color": "rgb(215, 110, 0)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -599,9 +599,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power12V",
-        "pcb_color": "rgba(255, 220, 0, 1.000)",
+        "pcb_color": "rgb(255, 220, 0)",
         "priority": -1,
-        "schematic_color": "rgba(175, 140, 0, 1.000)",
+        "schematic_color": "rgb(175, 140, 0)",
         "track_width": 0.8,
         "tuning_profile": "",
         "via_diameter": 0.7,
@@ -618,9 +618,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power5V",
-        "pcb_color": "rgba(255, 40, 40, 1.000)",
+        "pcb_color": "rgb(255, 40, 40)",
         "priority": -1,
-        "schematic_color": "rgba(200, 0, 0, 1.000)",
+        "schematic_color": "rgb(200, 0, 0)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -637,9 +637,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogNeg",
-        "pcb_color": "rgba(60, 120, 255, 1.000)",
+        "pcb_color": "rgb(60, 120, 255)",
         "priority": -1,
-        "schematic_color": "rgba(0, 60, 200, 1.000)",
+        "schematic_color": "rgb(0, 60, 200)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -656,9 +656,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogPos",
-        "pcb_color": "rgba(190, 40, 40, 1.000)",
+        "pcb_color": "rgb(190, 40, 40)",
         "priority": -1,
-        "schematic_color": "rgba(130, 0, 0, 1.000)",
+        "schematic_color": "rgb(130, 0, 0)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -675,9 +675,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerIso",
-        "pcb_color": "rgba(190, 90, 255, 1.000)",
+        "pcb_color": "rgb(190, 90, 255)",
         "priority": -1,
-        "schematic_color": "rgba(130, 0, 170, 1.000)",
+        "schematic_color": "rgb(130, 0, 170)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -791,7 +791,7 @@
       },
       {
         "netclass": "Power5V",
-        "pattern": "+5V_ISO"
+        "pattern": "+5V_IO"
       },
       {
         "netclass": "Power5V",
@@ -816,10 +816,6 @@
       {
         "netclass": "PowerIso",
         "pattern": "ISO_5V"
-      },
-      {
-        "netclass": "PowerIso",
-        "pattern": "VISOOUT"
       },
       {
         "netclass": "SPI",
@@ -944,10 +940,6 @@
       {
         "netclass": "Ground",
         "pattern": "ISO_GND"
-      },
-      {
-        "netclass": "Ground",
-        "pattern": "ISO_GND2"
       }
     ]
   },
@@ -1098,7 +1090,7 @@
         "uuid": "8aa5b67b-a486-4448-878d-4d9f2d51f462"
       }
     ],
-    "used_designators": "",
+    "used_designators": "#PWR334-335,J7,J19",
     "variants": []
   },
   "sheets": [
@@ -1179,12 +1171,52 @@
       "Display"
     ],
     [
-      "00dc38f6-6e2e-535b-91be-df8825d85f9f",
-      "General Purpose IO"
-    ],
-    [
       "c237b8ba-e38e-5701-8fce-ddc9374652fa",
       "Ambient Temp"
+    ],
+    [
+      "67590499-4c02-53dd-8c5e-7d88e2574bfb",
+      "IO DAC and ADC"
+    ],
+    [
+      "890faa73-8f74-570d-94d9-86edb43427b9",
+      "IO Output Drivers"
+    ],
+    [
+      "3e02e222-3460-5308-abf4-d618802948a4",
+      "IO Range and Pull-up"
+    ],
+    [
+      "63c46ec4-8250-5e97-a431-93814bfd8717",
+      "IO Expanders"
+    ],
+    [
+      "dc0bab4d-f89e-5d62-afa9-390a2b1e075d",
+      "IO Precision Ports"
+    ],
+    [
+      "9f26a4d0-db15-56c2-82f9-df94d69edd52",
+      "IO Pressure Ports"
+    ],
+    [
+      "7692ca94-5ccb-5be3-8150-2a9580c279b9",
+      "Expansion"
+    ],
+    [
+      "deeca7ce-2e6e-5cad-ba1f-75962668eea1",
+      "IO Channel 1"
+    ],
+    [
+      "3fb11d3c-ed3d-534e-8d3a-c31f45fc7635",
+      "IO Channel 2"
+    ],
+    [
+      "8f0703f0-e9be-5509-94b3-eeb2d4eb32e4",
+      "IO Channel 3"
+    ],
+    [
+      "9a4af401-1ac8-5095-b0fb-8aaad49c74d4",
+      "IO Channel 4"
     ]
   ],
   "text_variables": {},
