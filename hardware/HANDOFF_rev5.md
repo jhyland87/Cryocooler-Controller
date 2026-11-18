@@ -54,14 +54,18 @@ on the back), 2 `lib_footprint_mismatch`, 1 `silk_overlap` (C65 and D1 outlines)
   10 A 0453010.MR.
 - 116 parts without a label and 27 parts outside their floorplan section (accepted,
   see `DESIGN_REVIEW.md`).
-- Not verified: JLCPCB's 0.2 mm via-to-track figure; TMUX7412F supply current; the
-  pressure sensors and the OOM202 cell (no datasheet read); ADC input range at 4.5 V.
-- Firmware: `SHUNT_OHMS` is still 0.015 (the rev 5 shunt is 10 mOhm).
+- JLCPCB's 0.2 mm row is "Via hole to Track" (capabilities page, read 2026-11-17).
+  The board's `min_hole_clearance` is 0.2 mm, so DRC checks it: 0 errors. One via is
+  0.5 / 0.3 mm (0.1 mm ring); the rest are 0.45 / 0.2 and 0.6 / 0.3.
+- Not verified: TMUX7412F supply current; the pressure sensors and the OOM202 cell
+  (no datasheet read); ADC input range at 4.5 V.
+- Firmware: `SHUNT_OHMS` is 0.010 for the rev 5 shunt (builds; not bench tested).
 - Unused items waiting for the owner's OK to delete: `sheets/aux_io.kicad_sch`, the
   ISOW7741 symbol and `ti_dfm0020a` footprint, the OPA593DNT and OPA4990IRUC symbols
   and the OPA4990 BOM entry, the LT3097 symbol / DFN-22 footprint / 3D envelope, the
   BLM15EX331SN1D and WSL2512 BOM entries, the Tensility jack footprint and
   `POWER_JACK`. `tools/softroute.py` is broken (it calls a missing
   `gridroute.apply_iso`).
-- `tight_last_nets` lists more nets than still need 0.1 mm; prune it against a DRC
-  run before ordering.
+- The `tight_*` rules were checked net by net on 2026-11-17 (DRC with
+  `--all-track-errors`): all 44 nets they name still have a spot under 0.15 mm, so
+  none can be dropped without re-routing. `SPI_MOSI` and `Net-(U22-SET)` are among them.

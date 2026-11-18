@@ -12,7 +12,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Cold-stage sensor | ADS1220 + PT1000 RTD | SPI mode 1 (main bus) | CS: decoder Y6 | Cold-stage temperature (4-wire, ratiometric) |
 | Waveform generator | AD9837 DDS (AD9833 register set, 16 MHz clock) | SPI (main bus) | FSYNC (CS): decoder Y0 | 60 Hz sine wave for compressor |
 | DAC | AD5453 14-bit multiplying | SPI mode 1 (main bus), write only | SYNC: decoder Y1 | Amplifier amplitude control |
-| Power monitor | INA239 + 15 mΩ shunt | SPI mode 1 (main bus) | CS: decoder Y2, ALERT: expander GP6 | 12 V rail voltage, current and power |
+| Power monitor | INA239 + 10 mΩ shunt | SPI mode 1 (main bus) | CS: decoder Y2, ALERT: expander GP6 | 12 V rail voltage, current and power |
 | IMU | LSM6DSOX on the cryocooler: its own 18 x 18 mm board (`hardware/kicad/imu/`, not yet built) or the Adafruit breakout it replaces | SPI (main bus) via header J14 | CS: decoder Y7, INT1: GPIO 2, INT2: GPIO 39 | Vibration / overstroke detection |
 | Fan / pump | 4-pin PWM through a BSS138DW dual driver | LEDC PWM + PCNT tach | PWM: GPIO 9 / 14, tach: GPIO 15 / 21 | Cooling fan + pump |
 | Current sensor | ACS37800-015B5 (±15 A) behind an ISOW7741 isolator | SPI mode 3 (main bus, through two gates) | CS: decoder Y5 (rev 5; GPIO 17 on rev 4) | Amplifier AC current monitoring |
@@ -203,7 +203,7 @@ A periodic FFT (`calculateFrequency()`) detects the compressor vibration frequen
 
 ### sysinfo
 
-Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (15 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module disables itself until `reinit`. It also tracks CPU load, heap and PSRAM.
+Reads the 12 V rail voltage, current and power from the INA239 power monitor over SPI (10 mΩ shunt, 10 A calibration; GPIO 3 chip select) and exposes `getVoltage()`, `getCurrent()` and `getPower()`. SPI has no ACK, so each tick first reads the INA239 manufacturer and device ID registers; after 3 consecutive failures (for example when 12 V drops) the module disables itself until `reinit`. It also tracks CPU load, heap and PSRAM.
 
 ---
 

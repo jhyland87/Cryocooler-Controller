@@ -77,7 +77,7 @@ namespace sysinfo {
 
 static constexpr uint16_t INA239_MANUFACTURER_ID = 0x5449;  // "TI"
 static constexpr uint16_t INA239_DIE_ID         = 0x239;
-static constexpr float    SHUNT_OHMS            = 0.015f;   // 15 mΩ
+static constexpr float    SHUNT_OHMS            = 0.010f;   // 10 mΩ (rev 5 Kelvin shunt)
 static constexpr float    SHUNT_MAX_AMPS        = 10.0f;    // ±163.84 mV range
 
 // Shares the main SPI bus; the library applies SPI mode 1 per transaction.
