@@ -12,6 +12,7 @@ Usage (KiCad's python):
     rev5_board.py reroute in.kicad_pcb out.kicad_pcb drc.json
     rev5_board.py labels board.kicad_pcb   (0.8 mm silk part labels)
     rev5_board.py sections board.kicad_pcb   (section lines and names, after labels)
+    rev5_board.py pins board.kicad_pcb   (connector pin names, after sections)
     rev5_board.py finish board.kicad_pcb
 """
 import math
@@ -752,6 +753,95 @@ def place_section_name(board, group, name, rects, silk, silk_map):
     return False
 
 
+PIN_NAME_GROUP = 'pin names'
+FAN = {'1': 'GND', '2': '12V', '3': 'TACH', '4': 'PWM'}
+SENSOR = {'1': 'EXC', '2': 'IN+', '3': 'IN-', '4': 'GND'}
+PRESSURE = {'1': '5V', '2': 'SIG', '3': 'GND', '4': 'NC'}
+CHANNEL = {'1': 'V+', '2': 'IO', '3': 'GND', '4': 'NC'}
+# connector -> [(body sides to try: N/S/E/W on the board, {pad: name})]. Names run
+# away from the body, in line with their pads. J1 and J14 are too fine to name.
+PIN_NAMES = {
+    'J2': [('SN', {'1': 'GND', '3': '12V'})],
+    'J3': [('S', FAN)], 'J4': [('S', FAN)],
+    'J5': [('S', {'1': 'GND', '2': '12V', '3': 'SIG', '4': 'NC'})],
+    'J6': [('S', {'1': 'NTC', '2': 'GND'})],
+    'J8': [('W', {'1': 'REM', '2': 'GND'})],
+    'J9': [('NS', {'1': 'GND', '2': 'SIG'})],
+    'J10': [('E', {'1': 'EXC', '2': 'S+', '3': 'S-', '4': 'RET'})],
+    'J11': [('E', {'1': '+', '2': '-'})],
+    'J12': [('E', {'1': '+', '2': '-', '3': 'GND'})],
+    'J13': [('S', {'1': '12V', '2': 'GND'})],
+    'J15': [('N', {'1': 'CANH', '2': 'CANL', '3': 'BTN', '4': 'RST'})],
+    'J21': [('N', {'1': 'GND', '2': '12V'})],
+    'J30': [('W', SENSOR)], 'J31': [('W', SENSOR)],
+    'J32': [('N', PRESSURE)], 'J33': [('N', PRESSURE)],
+    'J34': [('W', {'1': 'A', '2': 'B', '3': 'GND', '4': 'NC'})],
+    # J35 pad 9 (GND, beside pad 10 GND) is left out: R514 sits where its name would go
+    'J35': [('W', {'1': '3V3', '3': 'SCK', '5': 'MISO', '7': 'CSA'}),
+            ('E', {'2': '5V', '4': 'MOSI', '6': 'INT', '8': 'CSB', '10': 'GND'})],
+    **{f'J{36 + n}': [('N', CHANNEL)] for n in range(4)},
+}
+PIN_NAME_REACH = 2.0  # furthest a row of names may start from the body
+
+
+def pin_name_row(board, footprint, silk, side, names, start):
+    """The row's texts, each beginning `start` mm off the body's `side` edge."""
+    body = base.box_rect(footprint.GetBoundingBox(False, False))
+    row = []
+    for pad in footprint.Pads():
+        text = names.get(pad.GetNumber())
+        if text is None:
+            continue
+        x, y = pcbnew.ToMM(pad.GetPosition().x), pcbnew.ToMM(pad.GetPosition().y)
+        probe = base.new_label(board, text, silk, 0, 0, False)
+        size = base.box_rect(probe.GetBoundingBox())
+        reach = start + (size.max_x - size.min_x) / 2
+        spot = {'N': (x, body.min_y - reach), 'S': (x, body.max_y + reach),
+                'W': (body.min_x - reach, y), 'E': (body.max_x + reach, y)}[side]
+        row.append(base.new_label(board, text, silk, *spot, side in 'NS'))
+    return row
+
+
+def add_pin_names(path):
+    """Connector pin names in 0.8 mm silk, one aligned row per connector side,
+    at the nearest distance where the whole row is clear. Replaces an earlier run."""
+    board = pcbnew.LoadBoard(path)
+    keep = []
+    for group in list(board.Groups()):
+        if group.GetName() == PIN_NAME_GROUP:
+            for item in list(group.GetItems()):
+                keep.append(item)
+                board.Remove(item)
+            keep.append(group)
+            board.Remove(group)
+    sides = silk_obstacles(board)
+    group = pcbnew.PCB_GROUP(board)
+    group.SetName(PIN_NAME_GROUP)
+    board.Add(group)
+    placed, missed = 0, []
+    for ref, rows in PIN_NAMES.items():
+        footprint = board.FindFootprintByReference(ref)
+        silk, _copper, _fab, silk_map = sides['B' if footprint.IsFlipped() else 'F']
+        for tries, names in rows:
+            starts = [0.3 + 0.25 * step for step in range(int(PIN_NAME_REACH / 0.25))]
+            for side, start in ((side, start) for start in starts for side in tries):
+                row = pin_name_row(board, footprint, silk, side, names, start)
+                boxes = [base.box_rect(label.GetBoundingBox()) for label in row]
+                if any(base.outline_problem(box) or silk_map.blocked(box.inflated(0.1), PIN_NAME_GROUP)
+                       for box in boxes):
+                    continue
+                for label, box in zip(row, boxes):
+                    board.Add(label)
+                    group.AddItem(label)
+                    silk_map.add(box.inflated(0.2))
+                placed += len(row)
+                break
+            else:
+                missed.append(f'{ref} ({tries})')
+    pcbnew.SaveBoard(path, board)
+    print(f'pin names: {placed} placed, no room for:', ', '.join(missed) or 'none')
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ''
     if mode == 'place' and len(sys.argv) == 4:
@@ -767,6 +857,8 @@ def main():
         base.add_part_labels(sys.argv[2])
     elif mode == 'sections' and len(sys.argv) == 3:
         add_section_outlines(sys.argv[2])
+    elif mode == 'pins' and len(sys.argv) == 3:
+        add_pin_names(sys.argv[2])
     else:
         sys.exit(__doc__)
 

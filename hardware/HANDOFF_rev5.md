@@ -13,7 +13,7 @@ this file covers the board and what is left.
 | Board | Routed on 4 layers. DRC with schematic parity: 0 errors, 0 unconnected, 0 parity |
 | Part labels | 375 of 491 parts (`rev5_board.py labels`) |
 | Section lines and names | Applied (`rev5_board.py sections`) |
-| Connector pin names | **Not done** |
+| Connector pin names | J2, J11, J12, J15, J21, J35 (`rev5_board.py pins`); no room at the other 18 |
 | Board ID stamp, Gerbers, final renders | **Not done**: they wait for review and the final commit |
 | BOM and CPL | Regenerated (`gen_bom.py`): 142 BOM lines, 476 placements |
 
@@ -32,7 +32,8 @@ on the back), 2 `lib_footprint_mismatch`, 1 `silk_overlap` (C65 and D1 outlines)
 ## Tools
 
 - `kicad/tools/rev5_board.py`: `place`, `preroute`, `route`, `reroute`, `finish`,
-  `labels`, `sections`. `gen_pcb.py` placement tables are stale for rev 5; only its
+  `pins`, `labels`, `sections` (run in that order: pin names take the spots beside
+  the pads first). `gen_pcb.py` placement tables are stale for rev 5; only its
   `link` mode is used (it now carries the do-not-populate flag).
 - Routing notes: `.claude/skills/kicad-pcb-autoroute/SKILL.md`.
 - `kicad/backup_rev5_routing_wip/`: routing snapshots and the one-off repair scripts.
@@ -43,9 +44,12 @@ on the back), 2 `lib_footprint_mismatch`, 1 `silk_overlap` (C65 and D1 outlines)
 
 ## Open items
 
-- Connector pin names on the silkscreen, and `PORTS` in `tools/render_callouts.py`
-  for the rev 5 connectors.
-- J2 (Mini-Fit Jr) has no 3D model. The F1 model is printed "5A"; the BOM part is the
+- Connector pin names: parts sit right behind J3-J6, J8-J10, J13, J30-J34 and
+  J36-J39, so their names do not fit. Their pin order is in `PORTS` in
+  `tools/render_callouts.py` (printed on the fab renders) and in each connector's
+  schematic value. J1 and J14 are too fine to name.
+- J2 (Mini-Fit Jr) has no 3D model: KiCad ships none and the Molex drawing could not
+  be fetched for the housing height. The F1 model is printed "5A"; the BOM part is the
   10 A 0453010.MR.
 - 116 parts without a label and 27 parts outside their floorplan section (accepted,
   see `DESIGN_REVIEW.md`).
