@@ -43,18 +43,21 @@ build, not a warning.
   and protection parts. Still check whether the leadless version differs
   electrically, and that a boxed-in centre pad can be escaped.
 - Don't reverse a part the user chose (connectors, switches, LEDs, protection parts)
-  without flagging it as a reversal (`general.md`). The user prefers bi-colour LEDs
-  (green good / red bad in one part) where they fit.
+  without flagging it as a reversal (`general.md`). An indicator
+  that shows two states (green good / red bad) uses a bi-directional LED: two leads,
+  dies anti-parallel. A single-state indicator uses a plain LED. Never fit a
+  bi-colour part and leave one die unused.
 - Put the reference designator(s) in the customer-reference field when ordering.
 
 ## Drawing conventions
 
-Power symbols upright (supplies up, grounds down), US zig-zag resistors
-(`Device:R_US`), and signal flow left to right. Supplies are shared rails with
-decoupling hanging off them. Use wires rather than net labels except for global
-signals. Each IC's bypass caps sit in a labelled block at the side of the sheet. No
-text may overlap other text or a symbol body. The full description is in
-`hardware/kicad/README.md`, "Drawing conventions".
+Load the `kicad-schematic-design` skill before drawing or tidying a sheet. The rules
+that are never bent: supplies point up and grounds point down; no text, wire or symbol
+overlaps another; a reference, value or label sits beside its own part; no 4-way
+junctions; resistors are US zig-zag (`Device:R_US`); every part and label has a
+description of its job. Join nearby points with a wire and keep label pairs for long
+runs and global signals. Project-specific detail (helpers, buses, net-class colours)
+is in `hardware/kicad/README.md`, "Drawing conventions".
 
 ## Keep hardware and firmware in sync
 

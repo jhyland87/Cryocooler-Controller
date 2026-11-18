@@ -72,6 +72,11 @@ by the octal flash/PSRAM and are left unconnected.
 
 ## Drawing conventions
 
+The drawing rules that apply to every sheet and every board revision are in the
+`kicad-schematic-design` skill (`.claude/skills/kicad-schematic-design/SKILL.md`). Two points
+close together are joined by a wire; a label pair is for a long or crowding run. This section
+describes how this generator carries those rules out.
+
 Power symbols are always upright (supplies point up, grounds hang down) and resistors use the US zig-zag symbol
 (`Device:R_US`). Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
 shared rails with decoupling caps hanging off them, switching loops are kept compact, and nets are wired with
