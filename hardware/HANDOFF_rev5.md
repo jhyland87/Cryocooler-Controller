@@ -15,7 +15,7 @@ this file covers the board and what is left.
 | Section lines and names | Applied (`rev5_board.py sections`) |
 | Connector pin names | J2, J11, J12, J15, J21, J35 (`rev5_board.py pins`); no room at the other 18 |
 | Revision mark | `REV5` on the back silk at the board ID spot (`rev5_board.py revmark`). The owner chose this over the board ID block for now (2026-11-17) |
-| Gerbers, final renders | **Not done**: they wait for review and the final commit |
+| Gerbers, JLCPCB zip, renders | Exported from commit 69ca347 (`export_fab.py`). `fabrication/pcb-layer-stack.gif` is still the older board (captured by hand in KiCad) |
 | BOM and CPL | Regenerated (`gen_bom.py`): 142 BOM lines, 476 placements |
 
 Accepted DRC warnings (13): 6 `silk_edge_clearance`, 4 `silk_over_copper` (U32 outline
