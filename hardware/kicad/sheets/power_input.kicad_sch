@@ -1268,17 +1268,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "F1 is a backup only: add an inline high-breaking-capacity fuse (7.5-10 A) at the PSU end. Reverse polarity: TVS forward-clamps and blows the fuse."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "5185621f-06fe-5634-a5ba-be83cb402a8f")
-	)
 	(text "12 V input from a Dell XYK93 (DPS-2000EB class, ~12.2 V, ~160 A available): use the main 12 V rail with PS_ON held low."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -1288,107 +1277,48 @@
 			)
 			(justify left top)
 		)
-		(uuid "ec5dbeff-661c-5a58-8261-2b198696370d")
+		(uuid "761492d4-f071-58a9-97ce-826b94d4102b")
+	)
+	(text "F1 is a backup only: add an inline high-breaking-capacity fuse (7.5-10 A) at the PSU end. Reverse polarity: TVS forward-clamps and blows the fuse."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9ba4fc4d-f2f7-5010-b20f-cddcb8f22941")
 	)
 	(junction
 		(at 88.9 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "20716281-f8ab-5d75-b183-d0d45c6e7b33")
-	)
-	(junction
-		(at 44.45 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
 		(uuid "2fe6a3fb-1f1b-5124-bf40-6c30bbe7c75f")
-	)
-	(junction
-		(at 124.46 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "335652d3-8027-5c46-8908-6fab70c07c13")
-	)
-	(junction
-		(at 76.2 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c8309d50-1f33-5f83-8a8d-88d2c848a686")
 	)
 	(junction
 		(at 114.3 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
+		(uuid "335652d3-8027-5c46-8908-6fab70c07c13")
+	)
+	(junction
+		(at 124.46 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5185621f-06fe-5634-a5ba-be83cb402a8f")
+	)
+	(junction
+		(at 44.45 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ec5dbeff-661c-5a58-8261-2b198696370d")
+	)
+	(junction
+		(at 76.2 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
 		(uuid "ec7e53ad-fe0c-5c68-a2de-a8b98f422c3d")
-	)
-	(wire
-		(pts
-			(xy 43.18 78.74) (xy 44.45 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0bceed79-cd84-52e8-b04f-76e8897e6d28")
-	)
-	(wire
-		(pts
-			(xy 44.45 78.74) (xy 44.45 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1859a5f4-6a45-5664-a822-f0e96bbea20a")
-	)
-	(wire
-		(pts
-			(xy 48.26 81.28) (xy 52.07 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "37d517df-fb6e-5bcd-bb38-1da751431974")
-	)
-	(wire
-		(pts
-			(xy 49.53 76.2) (xy 54.61 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3f0d8ed3-a44f-5a7d-831d-129ea623af0b")
-	)
-	(wire
-		(pts
-			(xy 43.18 76.2) (xy 49.53 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59a32fe3-ee62-573b-b223-8b07a37f0e5a")
-	)
-	(wire
-		(pts
-			(xy 88.9 76.2) (xy 114.3 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8adc8989-6d88-5ba1-bb9d-6d729ccb2d1c")
-	)
-	(wire
-		(pts
-			(xy 124.46 73.66) (xy 124.46 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b8169a9-c32a-5fec-83e3-a4ad7422e33c")
 	)
 	(wire
 		(pts
@@ -1398,7 +1328,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "93b361cb-9970-5924-b6a6-32ffc5e90755")
+		(uuid "0bceed79-cd84-52e8-b04f-76e8897e6d28")
+	)
+	(wire
+		(pts
+			(xy 48.26 81.28) (xy 52.07 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1859a5f4-6a45-5664-a822-f0e96bbea20a")
+	)
+	(wire
+		(pts
+			(xy 124.46 73.66) (xy 124.46 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20716281-f8ab-5d75-b183-d0d45c6e7b33")
 	)
 	(wire
 		(pts
@@ -1408,7 +1358,37 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ba1bf25f-a2f7-5a0f-885f-9859152a5c29")
+		(uuid "37d517df-fb6e-5bcd-bb38-1da751431974")
+	)
+	(wire
+		(pts
+			(xy 62.23 76.2) (xy 76.2 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8adc8989-6d88-5ba1-bb9d-6d729ccb2d1c")
+	)
+	(wire
+		(pts
+			(xy 43.18 78.74) (xy 44.45 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b8169a9-c32a-5fec-83e3-a4ad7422e33c")
+	)
+	(wire
+		(pts
+			(xy 88.9 76.2) (xy 114.3 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93b361cb-9970-5924-b6a6-32ffc5e90755")
 	)
 	(wire
 		(pts
@@ -1418,11 +1398,31 @@
 			(width 0)
 			(type default)
 		)
+		(uuid "ba1bf25f-a2f7-5a0f-885f-9859152a5c29")
+	)
+	(wire
+		(pts
+			(xy 49.53 76.2) (xy 54.61 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
 		(uuid "bb73dbe3-591b-5490-8188-2694e40e0d7a")
 	)
 	(wire
 		(pts
-			(xy 62.23 76.2) (xy 76.2 76.2)
+			(xy 44.45 78.74) (xy 44.45 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c8309d50-1f33-5f83-8a8d-88d2c848a686")
+	)
+	(wire
+		(pts
+			(xy 43.18 76.2) (xy 49.53 76.2)
 		)
 		(stroke
 			(width 0)
@@ -1497,7 +1497,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "bae9a9ea-916a-5192-9c65-5eec317196c1")
+			(uuid "777d1909-7e83-5f19-b6f2-48f474e94183")
 		)
 		(instances
 			(project "cryocooler"
@@ -1575,7 +1575,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c1e41b3e-28a6-5506-8990-83c38862ae79")
+			(uuid "32647266-4c7b-5e20-a668-e608572b73ed")
 		)
 		(instances
 			(project "cryocooler"
@@ -1639,7 +1639,7 @@
 				)
 			)
 		)
-		(property "Description" "Fuse"
+		(property "Description" "Backup input fuse (5 A) on the 12 V input"
 			(at 58.42 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -1662,10 +1662,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2cc2e9fd-413a-5ea0-a8b7-91641f46d8b0")
+			(uuid "1951a00b-48ac-5b31-8bcd-4bf194afc5f2")
 		)
 		(pin "2"
-			(uuid "1ee86e6b-6722-5a3e-b91a-fe0cd93c0523")
+			(uuid "bae9a9ea-916a-5192-9c65-5eec317196c1")
 		)
 		(instances
 			(project "cryocooler"
@@ -1743,7 +1743,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ace67d88-17f9-5260-b5a4-2fd647a20b09")
+			(uuid "eb3ff691-1a7d-5dce-8887-e292a27dbcb9")
 		)
 		(instances
 			(project "cryocooler"
@@ -1821,7 +1821,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ed59f163-3b84-5b6f-9ba3-94ba28a22013")
+			(uuid "eccafa96-81bd-5da1-8dea-de4825c2563f")
 		)
 		(instances
 			(project "cryocooler"
@@ -1885,7 +1885,7 @@
 				)
 			)
 		)
-		(property "Description" "Bidirectional transient-voltage-suppression diode"
+		(property "Description" "TVS diode on the 12 V input: clamps surges, and blows the fuse on reverse polarity"
 			(at 76.2 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -1908,10 +1908,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "3413a280-cff0-52a7-adca-bb3c1fc2c481")
+			(uuid "ed59f163-3b84-5b6f-9ba3-94ba28a22013")
 		)
 		(pin "2"
-			(uuid "eb3ff691-1a7d-5dce-8887-e292a27dbcb9")
+			(uuid "f3eea313-974f-5aee-9e96-85dac23ef6bf")
 		)
 		(instances
 			(project "cryocooler"
@@ -1989,7 +1989,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2fc9849b-2754-582d-8815-52b8b11cd22f")
+			(uuid "ace67d88-17f9-5260-b5a4-2fd647a20b09")
 		)
 		(instances
 			(project "cryocooler"
@@ -2055,7 +2055,7 @@
 				)
 			)
 		)
-		(property "Description" "DC Barrel Jack with an internal switch"
+		(property "Description" "12 V DC input jack (5.5 x 2.1 mm, centre positive)"
 			(at 35.56 78.74 0)
 			(hide yes)
 			(show_name no)
@@ -2078,13 +2078,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "761492d4-f071-58a9-97ce-826b94d4102b")
+			(uuid "c9278a3a-2cdd-58a3-9be9-89862d1090e9")
 		)
 		(pin "2"
-			(uuid "9ba4fc4d-f2f7-5010-b20f-cddcb8f22941")
+			(uuid "2cc2e9fd-413a-5ea0-a8b7-91641f46d8b0")
 		)
 		(pin "3"
-			(uuid "c9278a3a-2cdd-58a3-9be9-89862d1090e9")
+			(uuid "1ee86e6b-6722-5a3e-b91a-fe0cd93c0523")
 		)
 		(instances
 			(project "cryocooler"
@@ -2162,7 +2162,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "5535ab23-acb3-567d-855f-931e878b1479")
+			(uuid "4ee226f5-add1-5049-bec0-c46aa3c0b0ed")
 		)
 		(instances
 			(project "cryocooler"
@@ -2228,7 +2228,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "High-frequency bypass capacitor on the 12 V input rail (VIN)"
 			(at 114.3 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -2251,10 +2251,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "14e35353-44a6-556e-9f98-b5d21bfc2530")
+			(uuid "c1e41b3e-28a6-5506-8990-83c38862ae79")
 		)
 		(pin "2"
-			(uuid "4ee226f5-add1-5049-bec0-c46aa3c0b0ed")
+			(uuid "c6dda624-262c-5c8d-b126-549125f4f6ac")
 		)
 		(instances
 			(project "cryocooler"
@@ -2320,7 +2320,7 @@
 				)
 			)
 		)
-		(property "Description" "Polarized capacitor"
+		(property "Description" "Bulk capacitor on the 12 V input rail (VIN)"
 			(at 88.9 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -2343,10 +2343,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "f3eea313-974f-5aee-9e96-85dac23ef6bf")
+			(uuid "5535ab23-acb3-567d-855f-931e878b1479")
 		)
 		(pin "2"
-			(uuid "eccafa96-81bd-5da1-8dea-de4825c2563f")
+			(uuid "14e35353-44a6-556e-9f98-b5d21bfc2530")
 		)
 		(instances
 			(project "cryocooler"
@@ -2423,7 +2423,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "777d1909-7e83-5f19-b6f2-48f474e94183")
+			(uuid "3413a280-cff0-52a7-adca-bb3c1fc2c481")
 		)
 		(instances
 			(project "cryocooler"
@@ -2501,7 +2501,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1951a00b-48ac-5b31-8bcd-4bf194afc5f2")
+			(uuid "2fc9849b-2754-582d-8815-52b8b11cd22f")
 		)
 		(instances
 			(project "cryocooler"

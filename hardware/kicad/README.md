@@ -73,6 +73,11 @@ by the octal flash/PSRAM and are left unconnected.
 
 ## Drawing conventions
 
+The drawing rules that apply to every sheet and every board revision are in the
+`kicad-schematic-design` skill (`.claude/skills/kicad-schematic-design/SKILL.md`). Two points
+close together are joined by a wire; a label pair is for a long or crowding run. This section
+describes how this generator carries those rules out.
+
 Power symbols are always upright (supplies point up, grounds hang down) and resistors use the US zig-zag symbol
 (`Device:R_US`). Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
 shared rails with decoupling caps hanging off them, switching loops are kept compact, and nets are wired with
@@ -102,6 +107,18 @@ Bypass/decoupling capacitors for each IC are drawn together in a labelled block 
 (plus 1 mm for pin numbers). `tools/textlayout.py` places each field in the first free spot, hides a field only
 if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. Pin names and
 numbers drawn inside a library symbol, and labels that sit on their own wire, are outside the rule.
+
+**Descriptions.** Every part and every label carries a hidden Description saying what it does in this
+circuit ("Pull-up resistor for ACS_CS", not "Resistor"). They live in `tools/part_descriptions.py`, by final
+reference and by label name; `gen_schematic.py` fails if a part or label has none or an entry names something
+that is gone. Add the entry when you add the part or label.
+
+**Wires, labels and stray text.** A wire or bus drawn across a label's text counts as an overlap and fails the
+build. A reference or value that the stacked layout would leave more than 5 mm from its part is pulled back to
+the nearest free spot beside it. `gen_schematic.py` also prints two review reports that do not fail the build:
+`stray text report` (text nearer to another part than to its own) and `label pair report` (labels of one net
+less than 60 mm apart on a sheet, which are candidates to join with a wire). Where a net is wired, one label
+stays on the wire so the net keeps its name.
 
 ## Regenerating
 

@@ -319,7 +319,54 @@ class TextLayout:
         for part in parts:
             if not getattr(part, 'pinned_fields', None):
                 self.place_part(part)
+        for part in parts:
+            if not getattr(part, 'pinned_fields', None):
+                self.pull_in(part)
         self.place_power_text()
+
+    def pull_in(self, part):
+        """Move a field that ended up far from its part to the nearest free spot
+        beside it, each field on its own (the stacked block had no room).
+        """
+        body = part.bbox()
+        x0, y0, x1, y1 = body
+        for name in ('Reference', 'Value'):
+            info = part.fields.get(name)
+            if not info or info.get('hide'):
+                continue
+            text = part.ref if name == 'Reference' else part.value
+            width = text_width(text)
+            if name == 'Value':
+                width += getattr(part, 'value_margin', 0.0)
+            current = field_box(info['x'], info['y'], width, info['justify'])
+            if box_gap(current, body) <= FIELD_REACH:
+                continue
+            self.placed.remove(current)
+            best = (box_gap(current, body), info['x'], info['y'], info['justify'], current)
+            half = LINE_H / 2
+            spots = []
+            y = y0 - GAP - half
+            while y <= y1 + GAP + half + 1e-6:
+                spots.append((x1 + GAP, y, 'left'))
+                spots.append((x0 - GAP, y, 'right'))
+                y += STEP / 2
+            x = x0 - width
+            while x <= x1 + 1e-6:
+                spots.append((x, y0 - GAP - half, 'left'))
+                spots.append((x, y1 + GAP + half, 'left'))
+                x += STEP / 2
+            for x, y, justify in spots:
+                box = field_box(x, y, width, justify)
+                if not self.hard_free(box) or self.wire_hits(box):
+                    continue
+                # nearest to the body, then to its centre line
+                centre = abs((box[0] + box[2]) / 2 - (x0 + x1) / 2) + abs(y - (y0 + y1) / 2)
+                gap = box_gap(box, body) + centre * 0.01
+                if gap < best[0] - 0.5:
+                    best = (gap, x, y, justify, box)
+            _, x, y, justify, box = best
+            part.fields[name] = {'x': x, 'y': y, 'justify': justify, 'hide': False}
+            self.placed.append(box)
 
 
 def unlabeled_power(sheet):
@@ -334,6 +381,120 @@ def unlabeled_power(sheet):
         if fields.get('Value', {}).get('hide', True):
             missing.append(f'{part.value} at ({part.x:.1f}, {part.y:.1f})')
     return missing
+
+
+def label_text_box(kind, net, x, y, angle):
+    """Area a label's text (and a global label's flag) covers. A local label's
+    text sits beside its wire; a global label is centred on it.
+    """
+    length = text_width(net) + (2.2 if kind == 'global_label' else 0.3)
+    near, far = (-1.3, 1.3) if kind == 'global_label' else (-1.9, -0.2)
+    angle = int(angle) % 360
+    if angle == 0:
+        return (x, y + near, x + length, y + far)
+    if angle == 180:
+        return (x - length, y + near, x, y + far)
+    if angle == 90:
+        return (x + near, y - length, x + far, y)
+    return (x + near, y, x + far, y + length)
+
+
+def segment_inside(start, end, box, trim=0.1):
+    """True if more than a point of the segment lies inside the box shrunk by
+    `trim`, so a wire that only ends on the box edge does not count.
+    """
+    x0, y0, x1, y1 = box[0] + trim, box[1] + trim, box[2] - trim, box[3] - trim
+    low, high = 0.0, 1.0
+    for origin, delta, near, far in (
+        (start[0], end[0] - start[0], x0, x1),
+        (start[1], end[1] - start[1], y0, y1),
+    ):
+        if abs(delta) < 1e-9:
+            if not near < origin < far:
+                return False
+            continue
+        first, second = sorted(((near - origin) / delta, (far - origin) / delta))
+        low, high = max(low, first), min(high, second)
+    return high - low > 1e-6
+
+
+def wires_over_labels(sheet):
+    """Wires and buses drawn across a label's text. The wire a label sits on
+    ends at a global label's connection point and runs under a local label's
+    text, so neither is reported.
+    """
+    problems = []
+    for kind, net, (x, y), angle in sheet.labels:
+        box = label_text_box(kind, net, x, y, angle)
+        for start, end in sheet.wires + sheet.buses:
+            if segment_inside(start, end, box):
+                problems.append(
+                    f'wire ({start[0]:.2f}, {start[1]:.2f}) to '
+                    f'({end[0]:.2f}, {end[1]:.2f}) crosses label {net}'
+                )
+    return problems
+
+
+def box_gap(a, b):
+    """Clear distance between two boxes (0 if they touch or overlap)."""
+    dx = max(a[0] - b[2], b[0] - a[2], 0.0)
+    dy = max(a[1] - b[3], b[1] - a[3], 0.0)
+    return (dx * dx + dy * dy) ** 0.5
+
+
+FIELD_REACH = 5.0  # a stacked reference sits 4.3 to 4.6 mm out; beyond this it reads as stray
+FIELD_LEAD = 1.0  # how much nearer another part must be before the text reads as its
+
+
+def stray_fields(sheet):
+    """Visible Reference / Value text that sits far from its own part, or
+    nearer to another part than to its own.
+    """
+    bodies = [(part, part.bbox()) for part in sheet.parts
+              if not part.ref.startswith('#')]
+    problems = []
+    for part, body in bodies:
+        fields = getattr(part, 'fields', {})
+        for name in ('Reference', 'Value'):
+            info = fields.get(name)
+            if not info or info.get('hide'):
+                continue
+            text = part.ref if name == 'Reference' else part.value
+            box = field_box(info['x'], info['y'], text_width(text), info['justify'])
+            own = box_gap(box, body)
+            other, nearest = min(
+                ((box_gap(box, b), o.ref) for o, b in bodies if o is not part),
+                default=(1e9, ''),
+            )
+            if own > FIELD_REACH:
+                problems.append(f'{part.ref}.{name} is {own:.1f} mm from its part')
+            elif other < own - FIELD_LEAD:
+                problems.append(
+                    f'{part.ref}.{name} is nearer to {nearest} '
+                    f'({other:.1f} mm) than to its own part ({own:.1f} mm)'
+                )
+    return problems
+
+
+LABEL_PAIR_REACH = 60.0  # same-net labels closer than this could be one wire
+
+
+def close_label_pairs(sheet):
+    """Labels of one net on the same sheet that are close enough to join with
+    a wire. A report for review, not a failure: a pair is fine where the wire
+    would crowd the sheet.
+    """
+    by_net = {}
+    for kind, net, (x, y), _ in sheet.labels:
+        by_net.setdefault(net, []).append((x, y))
+    pairs = []
+    for net, points in sorted(by_net.items()):
+        for index, (x1, y1) in enumerate(points):
+            for x2, y2 in points[index + 1:]:
+                distance = abs(x1 - x2) + abs(y1 - y2)
+                if distance < LABEL_PAIR_REACH:
+                    pairs.append(f'{net}: labels {distance:.0f} mm apart')
+    return pairs
 
 
 def place_text(sheet):

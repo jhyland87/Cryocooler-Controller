@@ -3061,280 +3061,28 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "3.3 V rails (orange)"
-		(exclude_from_sim no)
-		(at 30 32 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 215 110 0 1)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 238.76 152.4) (xy 243.84 152.4)
 		)
-		(uuid "0e5742ba-3933-5212-97dd-c531b60565ed")
-	)
-	(text "GPIO3 pull-up and GPIO45 pull-down are strap defaults."
-		(exclude_from_sim no)
-		(at 25.4 73.66 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "1c9d742c-3a19-55af-87f6-199d6b1e6d72")
+		(uuid "9e1e3a65-eb78-5866-a8b2-5566c823191c")
 	)
-	(text "-15 V and -16.5 V analog rails (blue)"
-		(exclude_from_sim no)
-		(at 30 44 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 0 60 200 1)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 238.76 137.16) (xy 238.76 152.4)
 		)
-		(uuid "1e97de58-c620-5f55-bac6-98b4480614ac")
-	)
-	(text "POWER WIRE COLOURS (ATX SUPPLY CODE)"
-		(exclude_from_sim no)
-		(at 30 28 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "22ec44d3-927d-590a-81dc-3f7de9e14ed7")
-	)
-	(text "Isolated 5 V, ISOW7741 output (purple)"
-		(exclude_from_sim no)
-		(at 30 47 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 130 0 170 1)
-			)
-			(justify left top)
-		)
-		(uuid "4124b18d-c796-5b99-a9b3-7fa4622fd4d9")
-	)
-	(text "+15 V and +16.5 V analog rails (dark red)"
-		(exclude_from_sim no)
-		(at 30 41 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 130 0 0 1)
-			)
-			(justify left top)
-		)
-		(uuid "4225b229-7d8a-5f94-bd55-4035df94dd88")
-	)
-	(text "ESP32-S3 DECOUPLING CAPACITORS"
-		(exclude_from_sim no)
-		(at 241.3 38.1 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "43fc8ea6-62c1-5348-94e4-25ed0831123c")
-	)
-	(text "SN74LVC138A DECOUPLING CAPACITOR"
-		(exclude_from_sim no)
-		(at 96.52 78.74 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "4a652f6d-2609-52ea-bcf0-cc7ffea3dad2")
-	)
-	(text "12 V input (yellow)"
-		(exclude_from_sim no)
-		(at 30 38 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 175 140 0 1)
-			)
-			(justify left top)
-		)
-		(uuid "6d3a7859-d6f4-5003-b579-b6b63c53d362")
-	)
-	(text "ESP32-S3-WROOM-2-N32R16V: 32 MB octal flash + 16 MB octal PSRAM (GPIO26-37 reserved by module)"
-		(exclude_from_sim no)
-		(at 30 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "6f7cf893-c390-5fe9-af0a-98f93fd780d0")
-	)
-	(text "5 V rails and USB VBUS (red)"
-		(exclude_from_sim no)
-		(at 30 35 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-				(color 200 0 0 1)
-			)
-			(justify left top)
-		)
-		(uuid "8bea825f-a6ee-5ae4-a556-ab39ea2bbd9c")
-	)
-	(text "BIAS"
-		(exclude_from_sim no)
-		(at 25.4 149.86 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "9381fcad-6243-57ce-9735-91a516042a8a")
-	)
-	(text "One output low at a time. G2A pull-up: all outputs high at reset."
-		(exclude_from_sim no)
-		(at 25.4 68.58 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "998ac46e-0c4d-519e-90f3-395529258f7f")
-	)
-	(text "SPI CHIP SELECT DECODER"
-		(exclude_from_sim no)
-		(at 25.4 63.5 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "cc14ae71-d393-596f-aa85-26eca3432833")
-	)
-	(text "Signals and grounds: default colour"
-		(exclude_from_sim no)
-		(at 30 50 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "d6040e64-8539-5f87-8a63-894c6f072538")
-	)
-	(text "GPIO map follows include/config/pin_config.h"
-		(exclude_from_sim no)
-		(at 30 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "ead631fd-edb2-5840-8983-73d693970376")
-	)
-	(junction
-		(at 284.48 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "11c45ddd-fb8c-5214-a96f-653413fbc2a0")
-	)
-	(junction
-		(at 160.02 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3709c91c-995b-5798-a657-74601485e80e")
-	)
-	(junction
-		(at 248.92 48.26)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5e95aeb7-48df-5ca5-893d-27534a4b662e")
-	)
-	(junction
-		(at 172.72 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "6d3d987e-83e1-59e7-822a-de4a6d9a60dd")
-	)
-	(junction
-		(at 157.48 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "76a3445f-6a90-5bc2-b081-512ef7301895")
-	)
-	(junction
-		(at 284.48 124.46)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aaa776d6-fe69-54a9-ad70-ed2e7156b5ad")
-	)
-	(junction
-		(at 248.92 55.88)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "af45d35a-e68b-57b5-b3db-1ad2e3180229")
-	)
-	(junction
-		(at 147.32 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bea127cb-6b36-512e-9df3-f1a3aaeb4188")
-	)
-	(junction
-		(at 266.7 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d9dba240-2b67-5be5-9b12-e50ed20085f4")
-	)
-	(junction
-		(at 142.24 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "eefacad5-3d37-58c5-9e09-a3746b3a09c4")
-	)
-	(junction
-		(at 147.32 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f52aefaf-f662-5a88-8c54-6310c3f8f423")
-	)
-	(no_connect
-		(at 289.56 139.7)
-		(uuid "0f56d88a-b03e-5596-814a-7b7273d36f13")
-	)
-	(no_connect
-		(at 205.74 127)
-		(uuid "2584cdfb-c263-5bfc-b0ac-33037af41ca5")
-	)
-	(no_connect
-		(at 205.74 147.32)
-		(uuid "64f1052a-fbe9-518c-a71e-1f2d4874804f")
-	)
-	(no_connect
-		(at 205.74 124.46)
-		(uuid "8dbec4a2-d88c-50ba-89c3-1728f440ccd9")
-	)
-	(no_connect
-		(at 289.56 142.24)
-		(uuid "e3450225-7bc3-5806-945c-b25edd4234e9")
-	)
-	(no_connect
-		(at 205.74 121.92)
-		(uuid "e6bd4611-d6cd-5ea8-ade7-a8083b857748")
+		(uuid "67af7c36-740d-5171-8deb-5aab8c7fd488")
 	)
 	(bus_entry
-		(at 236.22 139.7)
+		(at 236.22 134.62)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
@@ -3349,16 +3097,294 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "67af7c36-740d-5171-8deb-5aab8c7fd488")
+		(uuid "ee1b4764-8255-539c-b8ce-5bbc54913137")
 	)
 	(bus_entry
-		(at 236.22 134.62)
+		(at 236.22 139.7)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9e1e3a65-eb78-5866-a8b2-5566c823191c")
+		(uuid "68282bc6-4324-5d79-92b0-f7d9dd704e21")
+	)
+	(text "BIAS"
+		(exclude_from_sim no)
+		(at 25.4 149.86 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "0897d580-d08e-5b9e-9765-614b4cfa9ce2")
+	)
+	(text "GPIO map follows include/config/pin_config.h"
+		(exclude_from_sim no)
+		(at 30 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "0e5742ba-3933-5212-97dd-c531b60565ed")
+	)
+	(text "SPI CHIP SELECT DECODER"
+		(exclude_from_sim no)
+		(at 25.4 63.5 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "1c9d742c-3a19-55af-87f6-199d6b1e6d72")
+	)
+	(text "12 V input (yellow)"
+		(exclude_from_sim no)
+		(at 30 38 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 175 140 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "1e97de58-c620-5f55-bac6-98b4480614ac")
+	)
+	(text "ESP32-S3-WROOM-2-N32R16V: 32 MB octal flash + 16 MB octal PSRAM (GPIO26-37 reserved by module)"
+		(exclude_from_sim no)
+		(at 30 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "22ec44d3-927d-590a-81dc-3f7de9e14ed7")
+	)
+	(text "+15 V and +16.5 V analog rails (dark red)"
+		(exclude_from_sim no)
+		(at 30 41 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 130 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "4124b18d-c796-5b99-a9b3-7fa4622fd4d9")
+	)
+	(text "5 V rails and USB VBUS (red)"
+		(exclude_from_sim no)
+		(at 30 35 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 200 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "4225b229-7d8a-5f94-bd55-4035df94dd88")
+	)
+	(text "SN74LVC138A DECOUPLING CAPACITOR"
+		(exclude_from_sim no)
+		(at 96.52 78.74 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "43fc8ea6-62c1-5348-94e4-25ed0831123c")
+	)
+	(text "One output low at a time. G2A pull-up: all outputs high at reset."
+		(exclude_from_sim no)
+		(at 25.4 68.58 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "4a652f6d-2609-52ea-bcf0-cc7ffea3dad2")
+	)
+	(text "3.3 V rails (orange)"
+		(exclude_from_sim no)
+		(at 30 32 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 215 110 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "6d3a7859-d6f4-5003-b579-b6b63c53d362")
+	)
+	(text "POWER WIRE COLOURS (ATX SUPPLY CODE)"
+		(exclude_from_sim no)
+		(at 30 28 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "8bea825f-a6ee-5ae4-a556-ab39ea2bbd9c")
+	)
+	(text "GPIO3 pull-up and GPIO45 pull-down are strap defaults."
+		(exclude_from_sim no)
+		(at 25.4 73.66 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9381fcad-6243-57ce-9735-91a516042a8a")
+	)
+	(text "Signals and grounds: default colour"
+		(exclude_from_sim no)
+		(at 30 50 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "998ac46e-0c4d-519e-90f3-395529258f7f")
+	)
+	(text "Isolated 5 V, ISOW7741 output (purple)"
+		(exclude_from_sim no)
+		(at 30 47 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 130 0 170 1)
+			)
+			(justify left top)
+		)
+		(uuid "cc14ae71-d393-596f-aa85-26eca3432833")
+	)
+	(text "-15 V and -16.5 V analog rails (blue)"
+		(exclude_from_sim no)
+		(at 30 44 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+				(color 0 60 200 1)
+			)
+			(justify left top)
+		)
+		(uuid "d6040e64-8539-5f87-8a63-894c6f072538")
+	)
+	(text "ESP32-S3 DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 241.3 38.1 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "e5b5d5ad-a3d6-5558-b34b-03641a2db584")
+	)
+	(junction
+		(at 142.24 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "11c45ddd-fb8c-5214-a96f-653413fbc2a0")
+	)
+	(junction
+		(at 147.32 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3709c91c-995b-5798-a657-74601485e80e")
+	)
+	(junction
+		(at 157.48 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5e95aeb7-48df-5ca5-893d-27534a4b662e")
+	)
+	(junction
+		(at 147.32 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6d3d987e-83e1-59e7-822a-de4a6d9a60dd")
+	)
+	(junction
+		(at 266.7 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "76a3445f-6a90-5bc2-b081-512ef7301895")
+	)
+	(junction
+		(at 284.48 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8dbec4a2-d88c-50ba-89c3-1728f440ccd9")
+	)
+	(junction
+		(at 248.92 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "aaa776d6-fe69-54a9-ad70-ed2e7156b5ad")
+	)
+	(junction
+		(at 172.72 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "af45d35a-e68b-57b5-b3db-1ad2e3180229")
+	)
+	(junction
+		(at 160.02 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d9dba240-2b67-5be5-9b12-e50ed20085f4")
+	)
+	(junction
+		(at 284.48 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e6bd4611-d6cd-5ea8-ade7-a8083b857748")
+	)
+	(junction
+		(at 248.92 48.26)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "eefacad5-3d37-58c5-9e09-a3746b3a09c4")
+	)
+	(junction
+		(at 254 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f52aefaf-f662-5a88-8c54-6310c3f8f423")
+	)
+	(no_connect
+		(at 205.74 127)
+		(uuid "0f56d88a-b03e-5596-814a-7b7273d36f13")
+	)
+	(no_connect
+		(at 205.74 121.92)
+		(uuid "2584cdfb-c263-5bfc-b0ac-33037af41ca5")
+	)
+	(no_connect
+		(at 205.74 124.46)
+		(uuid "64f1052a-fbe9-518c-a71e-1f2d4874804f")
+	)
+	(no_connect
+		(at 289.56 142.24)
+		(uuid "65dd5759-0e28-5c2c-bbcd-e8a3b9fc3938")
+	)
+	(no_connect
+		(at 289.56 139.7)
+		(uuid "d3043d97-278b-57e9-abba-807174967402")
+	)
+	(no_connect
+		(at 205.74 147.32)
+		(uuid "e3450225-7bc3-5806-945c-b25edd4234e9")
 	)
 	(wire
 		(pts
@@ -3372,7 +3398,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 88.9) (xy 172.72 88.9)
+			(xy 147.32 88.9) (xy 157.48 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3412,7 +3438,7 @@
 	)
 	(wire
 		(pts
-			(xy 276.86 106.68) (xy 287.02 106.68)
+			(xy 266.7 106.68) (xy 276.86 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3452,6 +3478,16 @@
 	)
 	(wire
 		(pts
+			(xy 223.52 139.7) (xy 236.22 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a7502df-75e8-5104-98c8-8de87afab8eb")
+	)
+	(wire
+		(pts
 			(xy 171.45 137.16) (xy 175.26 137.16)
 		)
 		(stroke
@@ -3472,7 +3508,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 105.41) (xy 142.24 109.22)
+			(xy 172.72 88.9) (xy 172.72 104.14)
 		)
 		(stroke
 			(width 0)
@@ -3482,7 +3518,7 @@
 	)
 	(wire
 		(pts
-			(xy 284.48 129.54) (xy 284.48 132.08)
+			(xy 284.48 124.46) (xy 284.48 127)
 		)
 		(stroke
 			(width 0)
@@ -3492,7 +3528,7 @@
 	)
 	(wire
 		(pts
-			(xy 241.3 55.88) (xy 248.92 55.88)
+			(xy 248.92 48.26) (xy 264.16 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3512,7 +3548,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 88.9) (xy 147.32 88.9)
+			(xy 96.52 88.9) (xy 104.14 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3532,7 +3568,7 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 96.52) (xy 104.14 96.52)
+			(xy 157.48 88.9) (xy 172.72 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3542,7 +3578,7 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 157.48) (xy 45.72 157.48)
+			(xy 96.52 96.52) (xy 104.14 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3592,7 +3628,17 @@
 	)
 	(wire
 		(pts
-			(xy 312.42 149.86) (xy 312.42 152.4)
+			(xy 223.52 137.16) (xy 236.22 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "397b7809-b4eb-51bb-9cc3-98a47ba00eee")
+	)
+	(wire
+		(pts
+			(xy 304.8 149.86) (xy 304.8 152.4)
 		)
 		(stroke
 			(width 0)
@@ -3602,7 +3648,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 139.7) (xy 236.22 139.7)
+			(xy 205.74 139.7) (xy 223.52 139.7)
 		)
 		(stroke
 			(width 0)
@@ -3622,7 +3668,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 85.09) (xy 172.72 88.9)
+			(xy 190.5 154.94) (xy 190.5 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3642,7 +3688,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 91.44) (xy 190.5 99.06)
+			(xy 73.66 142.24) (xy 73.66 144.78)
 		)
 		(stroke
 			(width 0)
@@ -3652,7 +3698,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 104.14) (xy 209.55 104.14)
+			(xy 172.72 104.14) (xy 175.26 104.14)
 		)
 		(stroke
 			(width 0)
@@ -3662,7 +3708,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 134.62) (xy 236.22 134.62)
+			(xy 205.74 134.62) (xy 223.52 134.62)
 		)
 		(stroke
 			(width 0)
@@ -3672,7 +3718,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 142.24) (xy 73.66 144.78)
+			(xy 68.58 142.24) (xy 68.58 144.78)
 		)
 		(stroke
 			(width 0)
@@ -3682,7 +3728,7 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 167.64) (xy 45.72 167.64)
+			(xy 43.18 157.48) (xy 45.72 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3702,7 +3748,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 106.68) (xy 71.12 111.76)
+			(xy 248.92 55.88) (xy 264.16 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3722,7 +3768,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 48.26) (xy 264.16 48.26)
+			(xy 241.3 48.26) (xy 248.92 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3732,7 +3778,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 114.3) (xy 285.75 116.84)
+			(xy 287.02 106.68) (xy 287.02 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3742,7 +3788,7 @@
 	)
 	(wire
 		(pts
-			(xy 284.48 124.46) (xy 284.48 127)
+			(xy 226.06 116.84) (xy 226.06 127)
 		)
 		(stroke
 			(width 0)
@@ -3752,7 +3798,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 55.88) (xy 264.16 55.88)
+			(xy 241.3 55.88) (xy 248.92 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3790,16 +3836,6 @@
 		)
 		(uuid "65a9c35d-934d-5f96-be33-990d32b85b5c")
 	)
-	(bus
-		(pts
-			(xy 238.76 137.16) (xy 238.76 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "65dd5759-0e28-5c2c-bbcd-e8a3b9fc3938")
-	)
 	(wire
 		(pts
 			(xy 226.06 127) (xy 241.3 127)
@@ -3832,7 +3868,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 114.3) (xy 228.6 124.46)
+			(xy 142.24 105.41) (xy 142.24 109.22)
 		)
 		(stroke
 			(width 0)
@@ -3862,7 +3898,7 @@
 	)
 	(wire
 		(pts
-			(xy 304.8 149.86) (xy 304.8 152.4)
+			(xy 285.75 114.3) (xy 285.75 116.84)
 		)
 		(stroke
 			(width 0)
@@ -3872,7 +3908,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 106.68) (xy 254 116.84)
+			(xy 274.32 127) (xy 274.32 129.54)
 		)
 		(stroke
 			(width 0)
@@ -3882,7 +3918,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 104.14) (xy 175.26 104.14)
+			(xy 276.86 106.68) (xy 287.02 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3892,7 +3928,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 154.94) (xy 190.5 157.48)
+			(xy 190.5 91.44) (xy 190.5 99.06)
 		)
 		(stroke
 			(width 0)
@@ -3912,7 +3948,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 137.16) (xy 236.22 137.16)
+			(xy 205.74 137.16) (xy 223.52 137.16)
 		)
 		(stroke
 			(width 0)
@@ -3942,7 +3978,7 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 177.8) (xy 45.72 177.8)
+			(xy 43.18 167.64) (xy 45.72 167.64)
 		)
 		(stroke
 			(width 0)
@@ -3972,7 +4008,7 @@
 	)
 	(wire
 		(pts
-			(xy 274.32 127) (xy 274.32 129.54)
+			(xy 284.48 129.54) (xy 284.48 132.08)
 		)
 		(stroke
 			(width 0)
@@ -3992,7 +4028,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 142.24) (xy 68.58 144.78)
+			(xy 71.12 106.68) (xy 71.12 111.76)
 		)
 		(stroke
 			(width 0)
@@ -4029,6 +4065,16 @@
 			(type default)
 		)
 		(uuid "a6add807-3a36-51e5-a099-ef10092c1bf3")
+	)
+	(wire
+		(pts
+			(xy 223.52 134.62) (xy 236.22 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a732ffe1-4300-57d6-977f-ed6dc46e641e")
 	)
 	(wire
 		(pts
@@ -4082,7 +4128,17 @@
 	)
 	(wire
 		(pts
-			(xy 241.3 48.26) (xy 248.92 48.26)
+			(xy 312.42 149.86) (xy 312.42 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bea127cb-6b36-512e-9df3-f1a3aaeb4188")
+	)
+	(wire
+		(pts
+			(xy 43.18 177.8) (xy 45.72 177.8)
 		)
 		(stroke
 			(width 0)
@@ -4112,7 +4168,7 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 106.68) (xy 287.02 111.76)
+			(xy 254 137.16) (xy 254 142.24)
 		)
 		(stroke
 			(width 0)
@@ -4122,7 +4178,7 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 106.68) (xy 276.86 106.68)
+			(xy 254 106.68) (xy 266.7 106.68)
 		)
 		(stroke
 			(width 0)
@@ -4132,7 +4188,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 106.68) (xy 266.7 106.68)
+			(xy 248.92 106.68) (xy 254 106.68)
 		)
 		(stroke
 			(width 0)
@@ -4142,23 +4198,13 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 88.9) (xy 172.72 104.14)
+			(xy 172.72 85.09) (xy 172.72 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "d2c90f27-c6de-50b0-b3c0-a1292dc4a421")
-	)
-	(bus
-		(pts
-			(xy 238.76 152.4) (xy 243.84 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d3043d97-278b-57e9-abba-807174967402")
 	)
 	(wire
 		(pts
@@ -4222,7 +4268,7 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 88.9) (xy 104.14 88.9)
+			(xy 205.74 104.14) (xy 209.55 104.14)
 		)
 		(stroke
 			(width 0)
@@ -4232,7 +4278,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 137.16) (xy 254 142.24)
+			(xy 254 106.68) (xy 254 116.84)
 		)
 		(stroke
 			(width 0)
@@ -4302,7 +4348,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 116.84) (xy 226.06 127)
+			(xy 228.6 114.3) (xy 228.6 124.46)
 		)
 		(stroke
 			(width 0)
@@ -4312,7 +4358,7 @@
 	)
 	(wire
 		(pts
-			(xy 147.32 88.9) (xy 157.48 88.9)
+			(xy 137.16 88.9) (xy 147.32 88.9)
 		)
 		(stroke
 			(width 0)
@@ -4328,65 +4374,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "480966d2-16a6-57d5-ade3-975f6f44ebac")
-	)
-	(label "SPI_MISO"
-		(at 223.52 134.62 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7e43ce6b-22d7-5670-8a66-3c0dbcf7e099")
-	)
-	(label "SPI_SCK"
-		(at 223.52 139.7 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "96327278-5b7d-5242-9d1e-1f84a7bb0cc6")
-	)
-	(global_label "AUX_IO5"
-		(shape bidirectional)
-		(at 171.45 121.92 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "01581009-1da3-548b-91e9-ed39635ff526")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "AD9833_FSYNC"
-		(shape output)
-		(at 91.44 116.84 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "08db8cd6-1b21-5857-8672-a87b895a2287")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 116.84 0)
+		(uuid "48675988-cecd-567e-9af9-6f849a192176")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 223.52 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4398,9 +4388,53 @@
 			)
 		)
 	)
-	(global_label "ESP_BOOT"
-		(shape bidirectional)
-		(at 142.24 105.41 180)
+	(label "SPI_MISO"
+		(at 223.52 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "96327278-5b7d-5242-9d1e-1f84a7bb0cc6")
+		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
+			(at 223.52 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "SPI_SCK"
+		(at 223.52 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b2370698-1ccd-5632-b915-9b9458f33f3e")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 223.52 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PWR_INT"
+		(shape input)
+		(at 171.45 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4408,9 +4442,9 @@
 			)
 			(justify right)
 		)
-		(uuid "098cd009-2902-5fbc-a970-4a0bb061eb77")
+		(uuid "01581009-1da3-548b-91e9-ed39635ff526")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 105.41 0)
+			(at 171.45 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4421,68 +4455,8 @@
 				(justify right)
 			)
 		)
-	)
-	(global_label "CS_ADDR_A"
-		(shape output)
-		(at 171.45 116.84 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "113ba64f-1a26-5892-a17e-63f2a81f8ead")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "AUX_IO13"
-		(shape bidirectional)
-		(at 171.45 142.24 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1330bc5f-c544-5d83-a583-db1c14ab9162")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "COMP_RELAY_EN"
-		(shape output)
-		(at 171.45 149.86 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1eebe661-c170-5678-ae09-4e1bc030b83d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 149.86 0)
+		(property "Description" "LTC2954 INT# to GPIO1: pulses low when the button asks for a shutdown"
+			(at 171.45 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4496,7 +4470,187 @@
 	)
 	(global_label "CS_ADDR_C"
 		(shape output)
-		(at 209.55 142.24 0)
+		(at 45.72 124.46 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "08db8cd6-1b21-5857-8672-a87b895a2287")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit C (GPIO45, strap pulled low)"
+			(at 45.72 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "CS_ADDR_C"
+		(shape output)
+		(at 45.72 177.8 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "098cd009-2902-5fbc-a970-4a0bb061eb77")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit C (GPIO45, strap pulled low)"
+			(at 45.72 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "FAN_TACH"
+		(shape input)
+		(at 171.45 147.32 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "113ba64f-1a26-5892-a17e-63f2a81f8ead")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
+			(at 171.45 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "AUX_IO11"
+		(shape bidirectional)
+		(at 171.45 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1330bc5f-c544-5d83-a583-db1c14ab9162")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "General-purpose I/O on GPIO11 (ADC2), MCU side of the 100 R resistor"
+			(at 171.45 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "PUMP_PWM"
+		(shape output)
+		(at 171.45 144.78 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1eebe661-c170-5678-ae09-4e1bc030b83d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "GPIO14: pump PWM to the open-drain driver (high = 0 % drive)"
+			(at 171.45 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "CS_ADDR_B"
+		(shape output)
+		(at 209.55 106.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4506,7 +4660,127 @@
 		)
 		(uuid "20f2c2d6-010f-543e-9bc3-55b1fc276dc2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 142.24 0)
+			(at 209.55 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit B (GPIO44)"
+			(at 209.55 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PUMP_TACH"
+		(shape input)
+		(at 209.55 119.38 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "25390570-319b-5202-a6e0-63b89690b49e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
+			(at 209.55 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "CS_ADDR_A"
+		(shape output)
+		(at 45.72 119.38 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "28efc886-9ad6-53f3-950b-9c85b2f8d0d4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit A (GPIO3, strap pulled high)"
+			(at 45.72 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "ACS_CS"
+		(shape output)
+		(at 209.55 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "296acb5c-8c6d-56dd-bead-4a61e733b09c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the ACS37800 current monitor, straight from GPIO17; also opens the two bus gates U41 / U42"
+			(at 209.55 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4528,7 +4802,7 @@
 			)
 			(justify left)
 		)
-		(uuid "25390570-319b-5202-a6e0-63b89690b49e")
+		(uuid "2b94cca0-eb73-5fcc-afee-3938856d79e1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 209.55 132.08 0)
 			(hide yes)
@@ -4541,10 +4815,22 @@
 				(justify left)
 			)
 		)
+		(property "Description" "LSM6DSOX interrupt 2 from the IMU cable to GPIO39"
+			(at 209.55 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 	)
-	(global_label "CS_ADDR_C"
-		(shape output)
-		(at 45.72 124.46 180)
+	(global_label "IMU_INT1"
+		(shape input)
+		(at 171.45 114.3 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4552,9 +4838,21 @@
 			)
 			(justify right)
 		)
-		(uuid "28efc886-9ad6-53f3-950b-9c85b2f8d0d4")
+		(uuid "2f72d109-31a0-58bc-91b3-bbd0837f6eeb")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 124.46 0)
+			(at 171.45 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
+			(at 171.45 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4566,9 +4864,9 @@
 			)
 		)
 	)
-	(global_label "PUMP_TACH"
-		(shape input)
-		(at 209.55 119.38 0)
+	(global_label "DISP_CS"
+		(shape bidirectional)
+		(at 91.44 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4576,9 +4874,597 @@
 			)
 			(justify left)
 		)
-		(uuid "296acb5c-8c6d-56dd-bead-4a61e733b09c")
+		(uuid "3bed852e-2913-5b54-a8f5-49c00dcac2a9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 119.38 0)
+			(at 91.44 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the display, decoder Y4"
+			(at 91.44 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "CS_EN_N"
+		(shape output)
+		(at 45.72 167.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "415731ad-7796-5007-9796-1c582edbdaf1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip-select decoder enable, active low (GPIO8): high at reset, so no device is selected"
+			(at 45.72 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "DISP_DC_1V8"
+		(shape bidirectional)
+		(at 209.55 149.86 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "480966d2-16a6-57d5-ade3-975f6f44ebac")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Display data / command select from GPIO48 (1.8 V), before the buffer U31"
+			(at 209.55 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "AUX_IO5"
+		(shape bidirectional)
+		(at 171.45 121.92 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4b27edbb-87e1-56b2-afe1-30f3484c514d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "General-purpose I/O on GPIO5 (ADC1), MCU side of the 100 R resistor"
+			(at 171.45 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "EXPANDER_CS"
+		(shape output)
+		(at 91.44 124.46 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4df9ad01-61c5-522e-979d-19b0963096d9")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 91.44 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
+			(at 91.44 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "TOUCH_CS"
+		(shape bidirectional)
+		(at 91.44 129.54 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4fab72ee-7c7b-57de-9027-107833b7b4b3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 91.44 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the TSC2046 touch controller, decoder Y5"
+			(at 91.44 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "AUX_IO13"
+		(shape bidirectional)
+		(at 171.45 142.24 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5a77f97a-c32b-547e-bb49-ce7d530a7f4c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "General-purpose I/O on GPIO13 (ADC2), MCU side of the 100 R resistor"
+			(at 171.45 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "CS_EN_N"
+		(shape output)
+		(at 171.45 129.54 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5ecf0c5a-bc28-5f96-887e-8e216e9e3fcd")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Chip-select decoder enable, active low (GPIO8): high at reset, so no device is selected"
+			(at 171.45 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "ESP_BOOT"
+		(shape bidirectional)
+		(at 142.24 105.41 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6f7cf893-c390-5fe9-af0a-98f93fd780d0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 142.24 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "ESP32 GPIO0 boot strap: held low at reset for USB download mode"
+			(at 142.24 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "CS_ADDR_A"
+		(shape output)
+		(at 45.72 157.48 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7382740e-53ef-5d46-ad00-917c7141e0e8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit A (GPIO3, strap pulled high)"
+			(at 45.72 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "AMP_REM_EN"
+		(shape output)
+		(at 171.45 124.46 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7622eb12-95af-5015-a7bf-685075698405")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "GPIO6: high turns the amplifier REM (remote on) line on"
+			(at 171.45 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "DISP_RST"
+		(shape bidirectional)
+		(at 209.55 144.78 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7e43ce6b-22d7-5670-8a66-3c0dbcf7e099")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Display reset from GPIO46, active low (strap pulled low by R14)"
+			(at 209.55 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "FAN_PWM"
+		(shape output)
+		(at 171.45 132.08 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "852bc207-dad4-5b7d-a3a2-0a6b553cba65")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "GPIO9: fan PWM to the open-drain driver (high = 0 % drive)"
+			(at 171.45 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "COMP_RELAY_EN"
+		(shape output)
+		(at 171.45 149.86 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8fd1450c-5316-5cd7-8964-b06085d857d4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "GPIO16: high switches the compressor relay on"
+			(at 171.45 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "AD9833_FSYNC"
+		(shape output)
+		(at 91.44 116.84 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "98b79446-371d-55cb-909e-f2c07ce22d60")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 91.44 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (FSYNC, active low) for the AD9837 DDS, decoder Y0"
+			(at 91.44 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "STATUS_RGB"
+		(shape output)
+		(at 209.55 129.54 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9c68b646-2710-5741-b7f4-8eb15622d0c9")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Data line to the WS2812B status LED (GPIO38, before the level shifter)"
+			(at 209.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "INA239_CS"
+		(shape output)
+		(at 91.44 121.92 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a708eabc-4591-533b-89cb-4b5d033e941b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 91.44 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the INA239 power monitor, decoder Y2"
+			(at 91.44 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4600,8 +5486,20 @@
 			)
 			(justify left)
 		)
-		(uuid "2b94cca0-eb73-5fcc-afee-3938856d79e1")
+		(uuid "a7fafa2b-0298-5308-a7be-4f94db20ee11")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "+-15 V power-good flag to GPIO43, active low: low when both rails are good"
 			(at 209.55 104.14 0)
 			(hide yes)
 			(show_name no)
@@ -4624,7 +5522,7 @@
 			)
 			(justify right)
 		)
-		(uuid "2f72d109-31a0-58bc-91b3-bbd0837f6eeb")
+		(uuid "b0b2ecd1-aaf9-5366-a09e-cf83ac18da1c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 171.45 119.38 0)
 			(hide yes)
@@ -4637,10 +5535,22 @@
 				(justify right)
 			)
 		)
+		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
+			(at 171.45 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 	)
-	(global_label "ADS1220_CS"
-		(shape output)
-		(at 91.44 132.08 0)
+	(global_label "FLOW_TACH"
+		(shape input)
+		(at 209.55 111.76 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4648,9 +5558,21 @@
 			)
 			(justify left)
 		)
-		(uuid "3bed852e-2913-5b54-a8f5-49c00dcac2a9")
+		(uuid "b6d99084-b875-5065-8401-c918bd7fe441")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 132.08 0)
+			(at 209.55 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Coolant flow sensor pulses to GPIO18"
+			(at 209.55 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4662,19 +5584,19 @@
 			)
 		)
 	)
-	(global_label "ESP_EN"
+	(global_label "AUX_IO12"
 		(shape bidirectional)
-		(at 172.72 85.09 0)
+		(at 171.45 139.7 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
-		(uuid "415731ad-7796-5007-9796-1c582edbdaf1")
+		(uuid "b81e10c1-713a-5f48-95aa-3fc89769333e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 85.09 0)
+			(at 171.45 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4682,23 +5604,11 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 243.84 152.4 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "48675988-cecd-567e-9af9-6f849a192176")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 243.84 152.4 0)
+		(property "Description" "General-purpose I/O on GPIO12 (ADC2), MCU side of the 100 R resistor"
+			(at 171.45 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4706,7 +5616,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 	)
@@ -4720,7 +5630,7 @@
 			)
 			(justify right)
 		)
-		(uuid "4b27edbb-87e1-56b2-afe1-30f3484c514d")
+		(uuid "bc7ebe59-56ca-5bef-b601-1d7ab015fc42")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 171.45 127 0)
 			(hide yes)
@@ -4733,10 +5643,22 @@
 				(justify right)
 			)
 		)
+		(property "Description" "General-purpose I/O on GPIO7 (ADC1), MCU side of the 100 R resistor"
+			(at 171.45 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 	)
-	(global_label "TOUCH_CS"
+	(global_label "{SPI}"
 		(shape bidirectional)
-		(at 91.44 129.54 0)
+		(at 243.84 152.4 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4744,9 +5666,129 @@
 			)
 			(justify left)
 		)
-		(uuid "4df9ad01-61c5-522e-979d-19b0963096d9")
+		(uuid "c92bacc9-1f3b-5c57-a634-65fd898791dd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 129.54 0)
+			(at 243.84 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 243.84 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PWR_KILL"
+		(shape output)
+		(at 171.45 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cf388bdc-3996-5d46-95df-8372900f5d7e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 171.45 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "GPIO10 to LTC2954 KILL#: driven low to cut the board power"
+			(at 171.45 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "ESP_EN"
+		(shape bidirectional)
+		(at 172.72 85.09 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cfc4758f-193b-5b81-bef6-b089ab76e21a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 172.72 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "ESP32 enable / reset, active low: RESET button and power-on RC delay"
+			(at 172.72 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "CS_ADDR_C"
+		(shape output)
+		(at 209.55 142.24 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d1081749-acee-53a6-8966-17c1e5183fb6")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 209.55 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit C (GPIO45, strap pulled low)"
+			(at 209.55 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4768,7 +5810,7 @@
 			)
 			(justify left)
 		)
-		(uuid "4fab72ee-7c7b-57de-9027-107833b7b4b3")
+		(uuid "d86e8c99-1f88-55de-866b-3b106b129cf8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 91.44 134.62 0)
 			(hide yes)
@@ -4781,92 +5823,8 @@
 				(justify left)
 			)
 		)
-	)
-	(global_label "FAN_TACH"
-		(shape input)
-		(at 171.45 147.32 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5a77f97a-c32b-547e-bb49-ce7d530a7f4c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PWR_KILL"
-		(shape output)
-		(at 171.45 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5ecf0c5a-bc28-5f96-887e-8e216e9e3fcd")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PWR_INT"
-		(shape input)
-		(at 171.45 111.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "68282bc6-4324-5d79-92b0-f7d9dd704e21")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "CS_ADDR_C"
-		(shape output)
-		(at 45.72 177.8 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "7382740e-53ef-5d46-ad00-917c7141e0e8")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 177.8 0)
+		(property "Description" "Chip select (active low) for the LSM6DSOX IMU on the cable, decoder Y7"
+			(at 91.44 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4875,204 +5833,12 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-	)
-	(global_label "CS_EN_N"
-		(shape output)
-		(at 171.45 129.54 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7622eb12-95af-5015-a7bf-685075698405")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "AUX_IO11"
-		(shape bidirectional)
-		(at 171.45 137.16 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "852bc207-dad4-5b7d-a3a2-0a6b553cba65")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "ACS_CS"
-		(shape output)
-		(at 209.55 109.22 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8fd1450c-5316-5cd7-8964-b06085d857d4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "INA239_CS"
-		(shape output)
-		(at 91.44 121.92 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "98b79446-371d-55cb-909e-f2c07ce22d60")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "CS_ADDR_B"
-		(shape output)
-		(at 209.55 106.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9c68b646-2710-5741-b7f4-8eb15622d0c9")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "DISP_CS"
-		(shape bidirectional)
-		(at 91.44 127 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a708eabc-4591-533b-89cb-4b5d033e941b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "DISP_RST"
-		(shape bidirectional)
-		(at 209.55 144.78 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a7fafa2b-0298-5308-a7be-4f94db20ee11")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "AMP_REM_EN"
-		(shape output)
-		(at 171.45 124.46 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "b0b2ecd1-aaf9-5366-a09e-cf83ac18da1c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 			)
 		)
 	)
 	(global_label "CS_ADDR_A"
 		(shape output)
-		(at 45.72 119.38 180)
+		(at 171.45 116.84 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5080,9 +5846,21 @@
 			)
 			(justify right)
 		)
-		(uuid "b2370698-1ccd-5632-b915-9b9458f33f3e")
+		(uuid "ddb1bceb-3733-5a98-8b5d-1d2a6f2933fc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 119.38 0)
+			(at 171.45 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Chip-select decoder address bit A (GPIO3, strap pulled high)"
+			(at 171.45 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5094,33 +5872,9 @@
 			)
 		)
 	)
-	(global_label "STATUS_RGB"
+	(global_label "CS_EN_N"
 		(shape output)
-		(at 209.55 129.54 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b6d99084-b875-5065-8401-c918bd7fe441")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PUMP_PWM"
-		(shape output)
-		(at 171.45 144.78 180)
+		(at 45.72 127 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5128,9 +5882,9 @@
 			)
 			(justify right)
 		)
-		(uuid "b81e10c1-713a-5f48-95aa-3fc89769333e")
+		(uuid "e37191c6-e49a-5f73-8c99-9130a9110e79")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 144.78 0)
+			(at 45.72 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5141,20 +5895,8 @@
 				(justify right)
 			)
 		)
-	)
-	(global_label "FAN_PWM"
-		(shape output)
-		(at 171.45 132.08 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "bc7ebe59-56ca-5bef-b601-1d7ab015fc42")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 132.08 0)
+		(property "Description" "Chip-select decoder enable, active low (GPIO8): high at reset, so no device is selected"
+			(at 45.72 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5176,7 +5918,7 @@
 			)
 			(justify right)
 		)
-		(uuid "c92bacc9-1f3b-5c57-a634-65fd898791dd")
+		(uuid "e6127730-09af-54f5-b0a4-8a0b252476a6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 45.72 121.92 0)
 			(hide yes)
@@ -5189,20 +5931,8 @@
 				(justify right)
 			)
 		)
-	)
-	(global_label "AUX_IO12"
-		(shape bidirectional)
-		(at 171.45 139.7 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "cf388bdc-3996-5d46-95df-8372900f5d7e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 139.7 0)
+		(property "Description" "Chip-select decoder address bit B (GPIO44)"
+			(at 45.72 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5216,7 +5946,7 @@
 	)
 	(global_label "USB_VBUS"
 		(shape bidirectional)
-		(at 260.35 106.68 180)
+		(at 248.92 106.68 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5224,9 +5954,21 @@
 			)
 			(justify right)
 		)
-		(uuid "cfc4758f-193b-5b81-bef6-b089ab76e21a")
+		(uuid "ead631fd-edb2-5840-8983-73d693970376")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 260.35 106.68 0)
+			(at 248.92 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "USB-C 5 V from the host: feeds +5V_OR when the 12 V supply is absent"
+			(at 248.92 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5238,33 +5980,9 @@
 			)
 		)
 	)
-	(global_label "DISP_DC_1V8"
-		(shape bidirectional)
-		(at 209.55 149.86 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d1081749-acee-53a6-8966-17c1e5183fb6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 149.86 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "CS_EN_N"
+	(global_label "ADS1220_CS"
 		(shape output)
-		(at 45.72 167.64 0)
+		(at 91.44 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5272,9 +5990,9 @@
 			)
 			(justify left)
 		)
-		(uuid "d86e8c99-1f88-55de-866b-3b106b129cf8")
+		(uuid "eb00719e-e069-5e17-b2f8-f4900a1891b5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 167.64 0)
+			(at 91.44 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5285,20 +6003,8 @@
 				(justify left)
 			)
 		)
-	)
-	(global_label "FLOW_TACH"
-		(shape input)
-		(at 209.55 111.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ddb1bceb-3733-5a98-8b5d-1d2a6f2933fc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 209.55 111.76 0)
+		(property "Description" "Chip select (active low) for the ADS1220 cold head ADC, decoder Y6"
+			(at 91.44 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5320,7 +6026,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e37191c6-e49a-5f73-8c99-9130a9110e79")
+		(uuid "f2559922-e60c-5930-9e2c-2b10e17c0898")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 91.44 119.38 0)
 			(hide yes)
@@ -5333,92 +6039,8 @@
 				(justify left)
 			)
 		)
-	)
-	(global_label "CS_EN_N"
-		(shape output)
-		(at 45.72 127 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e6127730-09af-54f5-b0a4-8a0b252476a6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "CS_ADDR_A"
-		(shape output)
-		(at 45.72 157.48 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "eb00719e-e069-5e17-b2f8-f4900a1891b5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IMU_INT1"
-		(shape input)
-		(at 171.45 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ee1b4764-8255-539c-b8ce-5bbc54913137")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.45 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "EXPANDER_CS"
-		(shape output)
-		(at 91.44 124.46 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f2559922-e60c-5930-9e2c-2b10e17c0898")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.44 124.46 0)
+		(property "Description" "Chip select (SYNC, active low) for the AD5453 amplitude DAC, decoder Y1"
+			(at 91.44 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5497,7 +6119,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "427e1ad7-f735-5bba-abf8-eb73722e85b8")
+			(uuid "3f0d8ed3-a44f-5a7d-831d-129ea623af0b")
 		)
 		(instances
 			(project "cryocooler"
@@ -5575,7 +6197,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0c023f03-576f-5650-bebb-6aadfff7a9e6")
+			(uuid "0f6fa4a1-16be-529f-a17a-5c24f7c8cecc")
 		)
 		(instances
 			(project "cryocooler"
@@ -5639,7 +6261,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-down resistor for CS_ADDR_C (GPIO45 strap: holds its default low level)"
 			(at 39.37 177.8 0)
 			(hide yes)
 			(show_name no)
@@ -5662,10 +6284,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "e6fb3863-34b8-54c7-b12a-c2543b9ed0b8")
+			(uuid "b49f39df-98f3-5d84-83d7-32a5b4d64eed")
 		)
 		(pin "2"
-			(uuid "eea63aba-1347-586c-a7b4-84e7214ed711")
+			(uuid "a2d7a382-124e-5993-a337-4c564cd51592")
 		)
 		(instances
 			(project "cryocooler"
@@ -5743,7 +6365,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "eeb03849-7334-55c8-8693-a9219122b671")
+			(uuid "1f198380-4d92-50cd-b29a-4c676dd140cf")
 		)
 		(instances
 			(project "cryocooler"
@@ -5821,7 +6443,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "49289169-e616-5bcc-9125-636a4ac23787")
+			(uuid "55da4f18-4a9d-5c9e-845e-17ad1fd222e5")
 		)
 		(instances
 			(project "cryocooler"
@@ -5899,7 +6521,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "38f00cdd-61e1-519d-9857-b20a142dba02")
+			(uuid "49289169-e616-5bcc-9125-636a4ac23787")
 		)
 		(instances
 			(project "cryocooler"
@@ -5976,7 +6598,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a2d7a382-124e-5993-a337-4c564cd51592")
+			(uuid "3e3cc284-3fac-5cc5-9ae1-513200ba54cf")
 		)
 		(instances
 			(project "cryocooler"
@@ -6042,7 +6664,7 @@
 				)
 			)
 		)
-		(property "Description" "Very low capacitance ESD protection diode, 2 data-line, SOT-23-6"
+		(property "Description" "USB ESD clamp on D+, D- and VBUS at the USB-C connector J1"
 			(at 254 127 0)
 			(hide yes)
 			(show_name no)
@@ -6065,22 +6687,22 @@
 			)
 		)
 		(pin "4"
-			(uuid "a3214aa4-46ee-5d04-8644-dd29702c6bde")
-		)
-		(pin "6"
-			(uuid "2d89ffdb-2617-50f2-9546-bbaf07f4c918")
-		)
-		(pin "3"
 			(uuid "2a10d039-42ab-5db7-aec5-6f87ee417dc8")
 		)
-		(pin "1"
+		(pin "6"
 			(uuid "11270248-0fe5-57c7-b6c5-1592d6cde351")
 		)
-		(pin "5"
+		(pin "3"
 			(uuid "d1ce14d2-305b-52a0-9adb-f947c7bbbcf0")
 		)
-		(pin "2"
+		(pin "1"
 			(uuid "71793026-7a00-5daa-b575-1747ebdedc86")
+		)
+		(pin "5"
+			(uuid "a731c943-c45c-5b10-a38f-b6c5653cccb1")
+		)
+		(pin "2"
+			(uuid "9dd50d7e-7121-534e-b042-77d04a2045fb")
 		)
 		(instances
 			(project "cryocooler"
@@ -6144,7 +6766,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-up resistor for CS_EN_N: keeps decoder U32 disabled, so every chip select is high, until firmware runs"
 			(at 39.37 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -6167,10 +6789,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "8ab23409-4f77-53da-ab44-dd5d2028857c")
+			(uuid "f8fd3f20-12b0-591b-9bf4-e22fa87a57e3")
 		)
 		(pin "2"
-			(uuid "0f6fa4a1-16be-529f-a17a-5c24f7c8cecc")
+			(uuid "e6fb3863-34b8-54c7-b12a-c2543b9ed0b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -6236,7 +6858,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Reset delay capacitor on ESP32 EN (RC with R1)"
 			(at 147.32 92.71 0)
 			(hide yes)
 			(show_name no)
@@ -6259,10 +6881,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "dcc8008d-ffda-5c02-8b16-5d9817c677ab")
+			(uuid "be3eb9ef-8e69-5a12-8b4b-3b5b55da4893")
 		)
 		(pin "2"
-			(uuid "d0ae8137-0257-5bbd-b86e-e417d118fad3")
+			(uuid "543f478d-30ef-5401-868a-d8c0faf1524f")
 		)
 		(instances
 			(project "cryocooler"
@@ -6340,7 +6962,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "11da0de2-e1ed-5ce5-9c60-f065b37f2615")
+			(uuid "2d89ffdb-2617-50f2-9546-bbaf07f4c918")
 		)
 		(instances
 			(project "cryocooler"
@@ -6418,7 +7040,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2734cba9-f920-5f2c-8f3f-b8a200f9394e")
+			(uuid "59a32fe3-ee62-573b-b223-8b07a37f0e5a")
 		)
 		(instances
 			(project "cryocooler"
@@ -6496,7 +7118,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "37250f02-3b9b-5e9e-8ea9-f6118149019b")
+			(uuid "fdac21c5-7dc0-55cc-9d86-64d51e0f9934")
 		)
 		(instances
 			(project "cryocooler"
@@ -6574,7 +7196,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "96973602-8d4c-5912-9caf-6b285be01332")
+			(uuid "7574ccb9-9e56-5b58-b6c5-f93601449bd6")
 		)
 		(instances
 			(project "cryocooler"
@@ -6652,7 +7274,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "38b0fbf9-ba40-5451-a9be-23b2545835af")
+			(uuid "b578296b-feb6-535a-ac7f-8e13de5e9c51")
 		)
 		(instances
 			(project "cryocooler"
@@ -6716,7 +7338,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-up resistor for CS_ADDR_A (GPIO3 strap: keeps the default USB-JTAG)"
 			(at 39.37 157.48 0)
 			(hide yes)
 			(show_name no)
@@ -6739,10 +7361,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "05ab8498-dc4e-53db-aa75-29710c1add7c")
+			(uuid "0c023f03-576f-5650-bebb-6aadfff7a9e6")
 		)
 		(pin "2"
-			(uuid "6779822a-949e-56d3-9d61-6249c6238b36")
+			(uuid "8ab23409-4f77-53da-ab44-dd5d2028857c")
 		)
 		(instances
 			(project "cryocooler"
@@ -6819,7 +7441,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b49f39df-98f3-5d84-83d7-32a5b4d64eed")
+			(uuid "1fcb300b-7624-56cb-bb36-057cb23ec092")
 		)
 		(instances
 			(project "cryocooler"
@@ -6885,7 +7507,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "USB VBUS filter capacitor at connector J1"
 			(at 266.7 110.49 0)
 			(hide yes)
 			(show_name no)
@@ -6908,10 +7530,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "261eccc9-b322-5292-b7cf-d3acd7fdc6c5")
+			(uuid "defca1b6-16df-588f-b25d-8aa1178d2911")
 		)
 		(pin "2"
-			(uuid "c75c8902-586a-5dc7-952a-daf17220770b")
+			(uuid "37250f02-3b9b-5e9e-8ea9-f6118149019b")
 		)
 		(instances
 			(project "cryocooler"
@@ -6977,7 +7599,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Bulk decoupling capacitor for the ESP32 module U1 (+3V3)"
 			(at 248.92 52.07 0)
 			(hide yes)
 			(show_name no)
@@ -7000,10 +7622,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "3e3cc284-3fac-5cc5-9ae1-513200ba54cf")
+			(uuid "d654093f-7fd2-59d9-b91a-fd35c512406c")
 		)
 		(pin "2"
-			(uuid "2667c568-fb67-5604-9d42-8950dc376b21")
+			(uuid "15b24a87-542f-53a5-a179-6a25e591ef31")
 		)
 		(instances
 			(project "cryocooler"
@@ -7067,7 +7689,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "USB-C CC1 pull-down (Rd, 5.1 k): tells the host this is a device"
 			(at 281.94 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -7090,10 +7712,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ce40460d-1dfb-5615-a1f8-db00b3e8c3a2")
+			(uuid "96973602-8d4c-5912-9caf-6b285be01332")
 		)
 		(pin "2"
-			(uuid "fdac21c5-7dc0-55cc-9d86-64d51e0f9934")
+			(uuid "d67d3376-3094-5180-b191-fa44f92ad36a")
 		)
 		(instances
 			(project "cryocooler"
@@ -7171,7 +7793,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0286a481-b616-56d4-b3ed-36835c930cf0")
+			(uuid "35bc3ae2-8713-5f02-8cf1-986cbef51865")
 		)
 		(instances
 			(project "cryocooler"
@@ -7235,7 +7857,7 @@
 				)
 			)
 		)
-		(property "Description" "Push button switch, generic, two pins"
+		(property "Description" "RESET button: pulls ESP32 EN low"
 			(at 137.16 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -7258,10 +7880,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "543f478d-30ef-5401-868a-d8c0faf1524f")
+			(uuid "0ba5d9e7-12c1-5a2a-b730-73acd2403e1b")
 		)
 		(pin "2"
-			(uuid "1a00aad4-9075-5540-a40d-be3e66beb73a")
+			(uuid "eb4356dc-5f80-5cc0-b92b-9d1d9ac04748")
 		)
 		(instances
 			(project "cryocooler"
@@ -7338,7 +7960,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "55da4f18-4a9d-5c9e-845e-17ad1fd222e5")
+			(uuid "9f395679-0de4-5f04-aca0-0c038b2c0203")
 		)
 		(instances
 			(project "cryocooler"
@@ -7416,7 +8038,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "92ca12a6-e8da-5989-826d-eda252397264")
+			(uuid "c75c8902-586a-5dc7-952a-daf17220770b")
 		)
 		(instances
 			(project "cryocooler"
@@ -7482,7 +8104,7 @@
 				)
 			)
 		)
-		(property "Description" "RF Module, ESP32-S3 SoC, Wi-Fi 802.11b/g/n, Bluetooth, BLE, 32-bit, 3.3V, onboard antenna, SMD"
+		(property "Description" "ESP32-S3 module (32 MB flash, 16 MB PSRAM): runs the cooldown state machine, WiFi dashboard and every peripheral on this board"
 			(at 190.5 127 0)
 			(hide yes)
 			(show_name no)
@@ -7505,127 +8127,127 @@
 			)
 		)
 		(pin "1"
-			(uuid "0897d580-d08e-5b9e-9765-614b4cfa9ce2")
-		)
-		(pin "2"
-			(uuid "e5b5d5ad-a3d6-5558-b34b-03641a2db584")
-		)
-		(pin "3"
 			(uuid "39ba95d8-d352-5937-9cea-585922410663")
 		)
-		(pin "4"
+		(pin "2"
 			(uuid "d23c81d6-ca4f-5daa-80e9-6b596498efd3")
 		)
-		(pin "5"
+		(pin "3"
 			(uuid "58c12190-e144-59ff-b5cd-54c224c9794d")
 		)
-		(pin "6"
+		(pin "4"
 			(uuid "1e50c4b0-145f-5a4f-9280-a20fa696e15b")
 		)
-		(pin "7"
+		(pin "5"
 			(uuid "afbbc26d-7c04-50f9-add3-934fee8bbc1d")
 		)
-		(pin "8"
+		(pin "6"
 			(uuid "3b38a25f-9e2f-5864-89b8-1035333377c5")
 		)
-		(pin "9"
+		(pin "7"
 			(uuid "038e9072-7328-57e0-bcf7-7771e49aab5c")
 		)
-		(pin "10"
+		(pin "8"
 			(uuid "8abb2fea-c0d1-5ae5-9b5d-3508162d9d87")
 		)
-		(pin "11"
+		(pin "9"
 			(uuid "c894b2b5-103f-5a8c-b7a4-96a709d4da9f")
 		)
-		(pin "12"
+		(pin "10"
 			(uuid "3b0e6e64-9bb9-5955-b61a-d82b8e6b775f")
 		)
-		(pin "13"
+		(pin "11"
 			(uuid "2e2907c5-67fe-5b5f-bdeb-13c0fb4ca101")
 		)
-		(pin "14"
+		(pin "12"
 			(uuid "aab32e29-20e9-5a53-abbc-00fa30f6eefb")
 		)
-		(pin "15"
+		(pin "13"
 			(uuid "b8e7bb77-e747-5bdc-887a-9f24f38b939e")
 		)
-		(pin "16"
+		(pin "14"
 			(uuid "4d32b0ff-8287-5a74-8fa1-c307fb5a55b5")
 		)
-		(pin "17"
+		(pin "15"
 			(uuid "542e9f35-316c-5216-b395-b44a6a232338")
 		)
-		(pin "18"
+		(pin "16"
 			(uuid "c7862a2e-456a-5a9b-89ba-e77f3cf051dc")
 		)
-		(pin "19"
+		(pin "17"
 			(uuid "4df8baaf-4e26-5dbb-8e65-b6db80474d13")
 		)
-		(pin "20"
+		(pin "18"
 			(uuid "ad5512ca-37f1-5f42-b37d-f68e63441e03")
 		)
-		(pin "21"
+		(pin "19"
 			(uuid "7d3dad6e-7f24-563e-b0b1-5f8e082af342")
 		)
-		(pin "22"
+		(pin "20"
 			(uuid "1005392a-d3bc-5215-89d7-93f4e85d3683")
 		)
-		(pin "23"
+		(pin "21"
 			(uuid "83de9ea9-28da-52e2-8dce-cf10fbad80cf")
 		)
-		(pin "24"
+		(pin "22"
 			(uuid "e04b4529-e179-53ab-b1aa-0fba2bae2752")
 		)
-		(pin "25"
+		(pin "23"
 			(uuid "566c7c4c-7e0f-5669-a6e2-b0596b78f383")
 		)
-		(pin "26"
+		(pin "24"
 			(uuid "ebe19249-49d2-5bac-a313-75a95fae4d60")
 		)
-		(pin "27"
+		(pin "25"
 			(uuid "74e4de3d-6536-5e8e-b780-117b638547e8")
 		)
-		(pin "28"
+		(pin "26"
 			(uuid "c931bcb6-27c0-5abd-86f9-be1cf7ff7b38")
 		)
-		(pin "29"
+		(pin "27"
 			(uuid "4e66803a-1e92-553b-a623-1bc7e0b495cd")
 		)
-		(pin "30"
+		(pin "28"
 			(uuid "851421f9-bc59-5f0c-894b-8ba392e34876")
 		)
-		(pin "31"
+		(pin "29"
 			(uuid "845913b1-5b8d-5419-ada8-22b5ad6045b3")
 		)
-		(pin "32"
+		(pin "30"
 			(uuid "cbf7bd1d-0aa8-5f6a-be9b-4400f36617b2")
 		)
-		(pin "33"
+		(pin "31"
 			(uuid "f037fa16-359f-5b5a-bb2d-6ab68f4b65be")
 		)
-		(pin "34"
+		(pin "32"
 			(uuid "f08dd8ae-b844-5527-8789-b66563424cf2")
 		)
-		(pin "35"
+		(pin "33"
 			(uuid "94d707f7-17b9-54cd-8c11-ce4404926083")
 		)
-		(pin "36"
+		(pin "34"
 			(uuid "0f496d49-ef85-5933-bf12-68c75ac5f400")
 		)
-		(pin "37"
+		(pin "35"
 			(uuid "7547229a-bdbd-547f-9453-182b3b22b88b")
 		)
-		(pin "38"
+		(pin "36"
 			(uuid "2ad5bc7e-064c-59a5-bb7b-7d92cc16b38a")
 		)
-		(pin "39"
+		(pin "37"
 			(uuid "49576597-c125-5cbb-9764-3a76048c8ccc")
 		)
-		(pin "40"
+		(pin "38"
 			(uuid "795b5eb3-7a94-59b7-969c-70536398ac24")
 		)
-		(pin "41"
+		(pin "39"
 			(uuid "57fe48d6-4763-5de9-a959-b9fa3c0ab72f")
+		)
+		(pin "40"
+			(uuid "2435d227-1ca2-5fdc-8249-39d1ab14d7e1")
+		)
+		(pin "41"
+			(uuid "7cdb9bfc-47b1-59a1-9414-10434f7879b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -7702,7 +8324,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "72e4d2d1-08e1-5732-89a4-61f207bf5e33")
+			(uuid "d0ae8137-0257-5bbd-b86e-e417d118fad3")
 		)
 		(instances
 			(project "cryocooler"
@@ -7766,7 +8388,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "USB-C CC2 pull-down (Rd, 5.1 k): tells the host this is a device"
 			(at 269.24 119.38 0)
 			(hide yes)
 			(show_name no)
@@ -7789,10 +8411,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d67d3376-3094-5180-b191-fa44f92ad36a")
+			(uuid "8ef33aca-7d48-55a9-8998-9e1a6c00d6f4")
 		)
 		(pin "2"
-			(uuid "7574ccb9-9e56-5b58-b6c5-f93601449bd6")
+			(uuid "2734cba9-f920-5f2c-8f3f-b8a200f9394e")
 		)
 		(instances
 			(project "cryocooler"
@@ -7815,13 +8437,14 @@
 		(dnp no)
 		(uuid "ba2bf172-0e01-509f-ac21-0d6ea319dea4")
 		(property "Reference" "SW2"
-			(at 146.05 104.12 90)
+			(at 134.452 108.76 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "BOOT"
@@ -7856,7 +8479,7 @@
 				)
 			)
 		)
-		(property "Description" "Push button switch, generic, two pins"
+		(property "Description" "BOOT button: pulls GPIO0 low to enter the USB download mode"
 			(at 137.16 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -7879,10 +8502,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "5a161bd6-fa2c-5a94-b657-cbf89f154cbe")
+			(uuid "11da0de2-e1ed-5ce5-9c60-f065b37f2615")
 		)
 		(pin "2"
-			(uuid "35bc3ae2-8713-5f02-8cf1-986cbef51865")
+			(uuid "a3214aa4-46ee-5d04-8644-dd29702c6bde")
 		)
 		(instances
 			(project "cryocooler"
@@ -7960,7 +8583,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8ef33aca-7d48-55a9-8998-9e1a6c00d6f4")
+			(uuid "427e1ad7-f735-5bba-abf8-eb73722e85b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -8037,7 +8660,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "67466204-38c8-57a8-8a7c-cbb16c93d4f4")
+			(uuid "eda0130c-78b9-50bc-915a-aa5adeb58dd3")
 		)
 		(instances
 			(project "cryocooler"
@@ -8115,7 +8738,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1fcb300b-7624-56cb-bb36-057cb23ec092")
+			(uuid "2667c568-fb67-5604-9d42-8950dc376b21")
 		)
 		(instances
 			(project "cryocooler"
@@ -8181,7 +8804,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Debounce capacitor on the BOOT button line (GPIO0)"
 			(at 147.32 113.03 0)
 			(hide yes)
 			(show_name no)
@@ -8204,10 +8827,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "49c243a9-8ac2-5181-b733-0066fbdaad99")
+			(uuid "0286a481-b616-56d4-b3ed-36835c930cf0")
 		)
 		(pin "2"
-			(uuid "eda0130c-78b9-50bc-915a-aa5adeb58dd3")
+			(uuid "5a161bd6-fa2c-5a94-b657-cbf89f154cbe")
 		)
 		(instances
 			(project "cryocooler"
@@ -8274,7 +8897,7 @@
 				)
 			)
 		)
-		(property "Description" "USB 2.0-only 16P Type-C Receptacle connector"
+		(property "Description" "USB-C receptacle: native USB console and firmware upload, and 5 V for the logic when 12 V is absent"
 			(at 304.8 127 0)
 			(hide yes)
 			(show_name no)
@@ -8297,55 +8920,55 @@
 			)
 		)
 		(pin "A1"
-			(uuid "a731c943-c45c-5b10-a38f-b6c5653cccb1")
-		)
-		(pin "A4"
-			(uuid "9dd50d7e-7121-534e-b042-77d04a2045fb")
-		)
-		(pin "A5"
 			(uuid "25f0f2fd-317c-5b4c-ad8d-9e5715b98656")
 		)
-		(pin "A6"
+		(pin "A4"
 			(uuid "b7947342-c875-56ae-afc9-9ab4e30aa72f")
 		)
-		(pin "A7"
+		(pin "A5"
 			(uuid "6394e9b1-7b59-5096-a929-ac44d2b486bd")
 		)
-		(pin "A8"
+		(pin "A6"
 			(uuid "c29c54ee-8dbd-5be6-8473-05fc11d2e7b6")
 		)
-		(pin "A9"
+		(pin "A7"
 			(uuid "06db2988-00fa-5a81-99d5-322ab600b2ff")
 		)
-		(pin "A12"
+		(pin "A8"
 			(uuid "3dfac2fc-290e-5eab-8a27-99f5902364ad")
 		)
-		(pin "B1"
+		(pin "A9"
 			(uuid "7eb50250-4e7a-5537-9cda-dbe26c38be38")
 		)
-		(pin "B4"
+		(pin "A12"
 			(uuid "6855f029-9b87-5e95-a3ab-439d82a17a65")
 		)
-		(pin "B5"
+		(pin "B1"
 			(uuid "14af1ee6-6534-5a87-9063-81e7069b9f54")
 		)
-		(pin "B6"
+		(pin "B4"
 			(uuid "5d73d7e2-9d8b-5a86-a8ef-381428f2b5d3")
 		)
-		(pin "B7"
+		(pin "B5"
 			(uuid "dfdc0b00-8d83-59bb-a588-ba0d62c8e179")
 		)
-		(pin "B8"
+		(pin "B6"
 			(uuid "3f97251a-88d8-50eb-9d28-212b238d5cc2")
 		)
-		(pin "B9"
+		(pin "B7"
 			(uuid "8f596777-4932-5040-972b-64e0b35297a1")
 		)
-		(pin "B12"
+		(pin "B8"
 			(uuid "2f97ad30-2b56-5e58-a76a-f855951a6cde")
 		)
-		(pin "SH"
+		(pin "B9"
 			(uuid "97bd520c-983c-5133-a8bf-3541945fc029")
+		)
+		(pin "B12"
+			(uuid "92ca12a6-e8da-5989-826d-eda252397264")
+		)
+		(pin "SH"
+			(uuid "261eccc9-b322-5292-b7cf-d3acd7fdc6c5")
 		)
 		(instances
 			(project "cryocooler"
@@ -8423,7 +9046,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a0121723-2d06-57e3-b602-94e9f582b102")
+			(uuid "190467e6-1052-50c2-809a-b198835f3171")
 		)
 		(instances
 			(project "cryocooler"
@@ -8489,7 +9112,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-up resistor for ESP32 GPIO0 (BOOT strap: normal boot)"
 			(at 160.02 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -8512,10 +9135,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "eb4356dc-5f80-5cc0-b92b-9d1d9ac04748")
+			(uuid "67466204-38c8-57a8-8a7c-cbb16c93d4f4")
 		)
 		(pin "2"
-			(uuid "f092db7b-97dd-5fb3-bbf2-0ce35213cab4")
+			(uuid "49c243a9-8ac2-5181-b733-0066fbdaad99")
 		)
 		(instances
 			(project "cryocooler"
@@ -8581,7 +9204,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the ESP32 module U1 (+3V3)"
 			(at 264.16 52.07 0)
 			(hide yes)
 			(show_name no)
@@ -8604,10 +9227,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d654093f-7fd2-59d9-b91a-fd35c512406c")
+			(uuid "38b0fbf9-ba40-5451-a9be-23b2545835af")
 		)
 		(pin "2"
-			(uuid "15b24a87-542f-53a5-a179-6a25e591ef31")
+			(uuid "e132b94f-aa2d-5a9d-ad26-23c725d80b90")
 		)
 		(instances
 			(project "cryocooler"
@@ -8685,7 +9308,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0ba5d9e7-12c1-5a2a-b730-73acd2403e1b")
+			(uuid "f092db7b-97dd-5fb3-bbf2-0ce35213cab4")
 		)
 		(instances
 			(project "cryocooler"
@@ -8763,7 +9386,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1bbccdfc-b6cb-5b28-af2b-f7d81a5ad289")
+			(uuid "6779822a-949e-56d3-9d61-6249c6238b36")
 		)
 		(instances
 			(project "cryocooler"
@@ -8829,7 +9452,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-up resistor for ESP32 EN; with C42 it forms the power-on reset delay"
 			(at 157.48 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -8852,10 +9475,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "e132b94f-aa2d-5a9d-ad26-23c725d80b90")
+			(uuid "72e4d2d1-08e1-5732-89a4-61f207bf5e33")
 		)
 		(pin "2"
-			(uuid "b578296b-feb6-535a-ac7f-8e13de5e9c51")
+			(uuid "dcc8008d-ffda-5c02-8b16-5d9817c677ab")
 		)
 		(instances
 			(project "cryocooler"
@@ -8921,7 +9544,7 @@
 				)
 			)
 		)
-		(property "Description" "TI 3-line to 8-line decoder, 1.65-3.6 V, inputs tolerate 5.5 V, active-low outputs, VQFN-16 (RGY)"
+		(property "Description" "3-to-8 decoder: makes eight SPI chip selects (one low at a time) from three ESP32 address lines and an enable"
 			(at 71.12 127 0)
 			(hide yes)
 			(show_name no)
@@ -8944,55 +9567,55 @@
 			)
 		)
 		(pin "6"
-			(uuid "2435d227-1ca2-5fdc-8249-39d1ab14d7e1")
-		)
-		(pin "1"
-			(uuid "7cdb9bfc-47b1-59a1-9414-10434f7879b8")
-		)
-		(pin "2"
 			(uuid "235672fb-36b2-5fc0-ad1d-88a0b938e9ef")
 		)
-		(pin "3"
+		(pin "1"
 			(uuid "5fad9513-8745-5341-8941-7146555cc85b")
 		)
-		(pin "4"
+		(pin "2"
 			(uuid "e3b21aec-fc42-59ee-a7c3-d3f9c467c7f0")
 		)
-		(pin "5"
+		(pin "3"
 			(uuid "656a1b8f-d16f-5feb-b51f-8260de667505")
 		)
-		(pin "15"
+		(pin "4"
 			(uuid "eb3b11d8-84d3-5418-961f-472647bef5bf")
 		)
-		(pin "14"
+		(pin "5"
 			(uuid "148cfde0-5dad-5a64-926a-9630b42d50dc")
 		)
-		(pin "13"
+		(pin "15"
 			(uuid "f592a271-f440-555a-a4d1-3b48a550a789")
 		)
-		(pin "12"
+		(pin "14"
 			(uuid "cc18de8e-48d4-5009-92c3-3d6e85db9b01")
 		)
-		(pin "11"
+		(pin "13"
 			(uuid "23507c2b-b82f-59ab-936f-7adf38136d43")
 		)
-		(pin "10"
+		(pin "12"
 			(uuid "924a1d82-63ba-5a7b-ba81-2ba7facf04bd")
 		)
-		(pin "9"
+		(pin "11"
 			(uuid "642acdf4-c660-5ce2-8c35-238bade324f2")
 		)
-		(pin "7"
+		(pin "10"
 			(uuid "73411b7c-fe1e-5a0d-863f-c05f81ed1de1")
 		)
-		(pin "16"
+		(pin "9"
 			(uuid "14e18898-f11b-56d2-9ee6-f217aaee22ae")
 		)
-		(pin "8"
+		(pin "7"
 			(uuid "238633f5-a338-5be6-9e31-46b11665541e")
 		)
-		(pin "17"
+		(pin "16"
 			(uuid "10d855fe-0da8-57f9-9679-b84c8c155e51")
+		)
+		(pin "8"
+			(uuid "eeb03849-7334-55c8-8693-a9219122b671")
+		)
+		(pin "17"
+			(uuid "38f00cdd-61e1-519d-9857-b20a142dba02")
 		)
 		(instances
 			(project "cryocooler"
@@ -9058,7 +9681,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the chip-select decoder U32 (+3V3)"
 			(at 104.14 92.71 0)
 			(hide yes)
 			(show_name no)
@@ -9081,10 +9704,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "9f395679-0de4-5f04-aca0-0c038b2c0203")
+			(uuid "1bbccdfc-b6cb-5b28-af2b-f7d81a5ad289")
 		)
 		(pin "2"
-			(uuid "4178e27c-043e-5d87-931c-312dfb38bfd9")
+			(uuid "05ab8498-dc4e-53db-aa75-29710c1add7c")
 		)
 		(instances
 			(project "cryocooler"
@@ -9162,7 +9785,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "defca1b6-16df-588f-b25d-8aa1178d2911")
+			(uuid "ce40460d-1dfb-5615-a1f8-db00b3e8c3a2")
 		)
 		(instances
 			(project "cryocooler"
@@ -9239,7 +9862,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1f198380-4d92-50cd-b29a-4c676dd140cf")
+			(uuid "a0121723-2d06-57e3-b602-94e9f582b102")
 		)
 		(instances
 			(project "cryocooler"
@@ -9317,7 +9940,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "190467e6-1052-50c2-809a-b198835f3171")
+			(uuid "4178e27c-043e-5d87-931c-312dfb38bfd9")
 		)
 		(instances
 			(project "cryocooler"
@@ -9395,7 +10018,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "be3eb9ef-8e69-5a12-8b4b-3b5b55da4893")
+			(uuid "1a00aad4-9075-5540-a40d-be3e66beb73a")
 		)
 		(instances
 			(project "cryocooler"
@@ -9473,7 +10096,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f8fd3f20-12b0-591b-9bf4-e22fa87a57e3")
+			(uuid "eea63aba-1347-586c-a7b4-84e7214ed711")
 		)
 		(instances
 			(project "cryocooler"
@@ -9485,7 +10108,7 @@
 		)
 	)
 	(sheet
-		(at 206 250)
+		(at 20 250)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9501,7 +10124,7 @@
 		)
 		(uuid "00dc38f6-6e2e-535b-91be-df8825d85f9f")
 		(property "Sheetname" "General Purpose IO"
-			(at 206 249.3 0)
+			(at 20 249.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9512,7 +10135,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/aux_io.kicad_sch"
-			(at 206 263.3 0)
+			(at 20 263.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9531,7 +10154,7 @@
 		)
 	)
 	(sheet
-		(at 82 250)
+		(at 268 230)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9547,7 +10170,7 @@
 		)
 		(uuid "05b02b0f-81d0-5930-85a4-60b8b56f4edd")
 		(property "Sheetname" "Supply Switches"
-			(at 82 249.3 0)
+			(at 268 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9558,7 +10181,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/supply_switches.kicad_sch"
-			(at 82 263.3 0)
+			(at 268 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9669,7 +10292,7 @@
 		)
 	)
 	(sheet
-		(at 82 210)
+		(at 20 210)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9685,7 +10308,7 @@
 		)
 		(uuid "3de0855a-529b-5612-9ee5-5d39f8d72cc4")
 		(property "Sheetname" "Rails 5V 3V3"
-			(at 82 209.3 0)
+			(at 20 209.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9696,7 +10319,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/rails_logic.kicad_sch"
-			(at 82 223.3 0)
+			(at 20 223.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9715,7 +10338,7 @@
 		)
 	)
 	(sheet
-		(at 20 210)
+		(at 330 190)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9731,7 +10354,7 @@
 		)
 		(uuid "3de89fe9-3b86-5825-900a-b21f817f60bb")
 		(property "Sheetname" "Cold Head Temp"
-			(at 20 209.3 0)
+			(at 330 189.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9742,7 +10365,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/cold_head.kicad_sch"
-			(at 20 223.3 0)
+			(at 330 203.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9761,7 +10384,7 @@
 		)
 	)
 	(sheet
-		(at 144 250)
+		(at 330 230)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9777,7 +10400,7 @@
 		)
 		(uuid "4ac13f79-f2cc-51b8-8c31-ef563eebddd0")
 		(property "Sheetname" "Display"
-			(at 144 249.3 0)
+			(at 330 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9788,7 +10411,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/display.kicad_sch"
-			(at 144 263.3 0)
+			(at 330 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9853,7 +10476,7 @@
 		)
 	)
 	(sheet
-		(at 144 230)
+		(at 20 230)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9869,98 +10492,6 @@
 		)
 		(uuid "69960528-6120-5b43-95bc-2fb0d3581b22")
 		(property "Sheetname" "Indicators"
-			(at 144 229.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "sheets/indicators.kicad_sch"
-			(at 144 243.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "14")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 268 210)
-		(size 50.8 12.7)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0)
-		)
-		(uuid "721fca9b-85fc-59f1-b64a-1b2662f7dcab")
-		(property "Sheetname" "Rails +-15V"
-			(at 268 209.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "sheets/rails_15v.kicad_sch"
-			(at 268 223.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "11")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 20 230)
-		(size 50.8 12.7)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0)
-		)
-		(uuid "76f0855a-f763-53c4-bae1-f4998ef2ad89")
-		(property "Sheetname" "Power Good"
 			(at 20 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9971,7 +10502,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "sheets/power_good.kicad_sch"
+		(property "Sheetfile" "sheets/indicators.kicad_sch"
 			(at 20 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9985,7 +10516,7 @@
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "12")
+					(page "14")
 				)
 			)
 		)
@@ -10005,8 +10536,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "7d11f024-8900-51b3-95f7-00062a4ac386")
-		(property "Sheetname" "IMU"
+		(uuid "721fca9b-85fc-59f1-b64a-1b2662f7dcab")
+		(property "Sheetname" "Rails +-15V"
 			(at 206 209.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10017,7 +10548,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "sheets/imu.kicad_sch"
+		(property "Sheetfile" "sheets/rails_15v.kicad_sch"
 			(at 206 223.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10031,7 +10562,53 @@
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "10")
+					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 268 210)
+		(size 50.8 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "76f0855a-f763-53c4-bae1-f4998ef2ad89")
+		(property "Sheetname" "Power Good"
+			(at 268 209.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "sheets/power_good.kicad_sch"
+			(at 268 223.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
+					(page "12")
 				)
 			)
 		)
@@ -10051,8 +10628,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "83291c28-d27b-59d1-86ef-681fa5dd5a6b")
-		(property "Sheetname" "Amp Current"
+		(uuid "7d11f024-8900-51b3-95f7-00062a4ac386")
+		(property "Sheetname" "IMU"
 			(at 144 209.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10063,8 +10640,54 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "sheets/amp_current.kicad_sch"
+		(property "Sheetfile" "sheets/imu.kicad_sch"
 			(at 144 223.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
+					(page "10")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 82 210)
+		(size 50.8 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "83291c28-d27b-59d1-86ef-681fa5dd5a6b")
+		(property "Sheetname" "Amp Current"
+			(at 82 209.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "sheets/amp_current.kicad_sch"
+			(at 82 223.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10083,7 +10706,7 @@
 		)
 	)
 	(sheet
-		(at 268 250)
+		(at 82 250)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10099,7 +10722,7 @@
 		)
 		(uuid "85e79b00-c261-5cd9-b677-e89185086bd9")
 		(property "Sheetname" "Bodge"
-			(at 268 249.3 0)
+			(at 82 249.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10110,7 +10733,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/bodge.kicad_sch"
-			(at 268 263.3 0)
+			(at 82 263.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10175,7 +10798,7 @@
 		)
 	)
 	(sheet
-		(at 268 230)
+		(at 144 230)
 		(size 50.8 12.7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10191,7 +10814,7 @@
 		)
 		(uuid "90809e00-9b2b-5b93-91de-7474e3800248")
 		(property "Sheetname" "GPIO Expander"
-			(at 268 229.3 0)
+			(at 144 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10202,7 +10825,7 @@
 			)
 		)
 		(property "Sheetfile" "sheets/gpio_expander.kicad_sch"
-			(at 268 243.3 0)
+			(at 144 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10216,6 +10839,52 @@
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
 					(page "16")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 330 210)
+		(size 50.8 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "9703c636-c4a3-539b-91d5-5b30ebe0d7e3")
+		(property "Sheetname" "System Current"
+			(at 330 209.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "sheets/system_current.kicad_sch"
+			(at 330 223.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
+					(page "13")
 				)
 			)
 		)
@@ -10235,8 +10904,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "9703c636-c4a3-539b-91d5-5b30ebe0d7e3")
-		(property "Sheetname" "System Current"
+		(uuid "9fc73fbd-1c8a-5195-a45d-15bb8d7269a7")
+		(property "Sheetname" "Compressor Relay"
 			(at 82 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10247,7 +10916,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "sheets/system_current.kicad_sch"
+		(property "Sheetfile" "sheets/compressor_relay.kicad_sch"
 			(at 82 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10261,7 +10930,7 @@
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "13")
+					(page "15")
 				)
 			)
 		)
@@ -10281,8 +10950,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "9fc73fbd-1c8a-5195-a45d-15bb8d7269a7")
-		(property "Sheetname" "Compressor Relay"
+		(uuid "bae7ed1d-7fb1-5e24-871c-ffd4d5f87902")
+		(property "Sheetname" "Debug"
 			(at 206 229.3 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10293,54 +10962,8 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "sheets/compressor_relay.kicad_sch"
-			(at 206 243.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462"
-					(page "15")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 20 250)
-		(size 50.8 12.7)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0)
-		)
-		(uuid "bae7ed1d-7fb1-5e24-871c-ffd4d5f87902")
-		(property "Sheetname" "Debug"
-			(at 20 249.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
 		(property "Sheetfile" "sheets/debug.kicad_sch"
-			(at 20 263.3 0)
+			(at 206 243.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects

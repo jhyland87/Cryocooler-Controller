@@ -664,6 +664,7 @@ class Sheet:
         self.no_connects = []
         self.junctions = []
         self.text_items = []
+        self.label_descriptions = {}  # label name -> hidden Description text
         self.sheet_symbols = []
         self.used_libs = []
         self.conns = []
@@ -963,11 +964,19 @@ class Sheet:
         for kind, net, (x, y), angle in self.labels:
             rotation = int(angle) % 360
             justify = 'right' if rotation in (180, 270) else 'left'
+            described = ''
+            if net in self.label_descriptions:
+                described = (
+                    f' (property "Description" {q(self.label_descriptions[net])} '
+                    f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
+                    f'(do_not_autoplace no) '
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                )
             if kind == 'label':
                 out.append(
                     f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(effects (font (size 1.27 1.27)) (justify {justify} '
-                    f'bottom)) (uuid {q(new_uuid())}))'
+                    f'bottom)) (uuid {q(new_uuid())}){described})'
                 )
             else:
                 shape = label_shape(
@@ -982,7 +991,8 @@ class Sheet:
                     f'"${{INTERSHEET_REFS}}" '
                     f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
                     f'(do_not_autoplace no) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify}))))'
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                    f'{described})'
                 )
         for text, x, y, size, color in self.text_items:
             font = f'(size {size} {size})'

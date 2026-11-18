@@ -227,10 +227,14 @@ def diode(sh, lib_id, value, anode, cathode, fp, near=None, pose=None):
     return part
 
 
+WIRED = 'wired'
+
+
 def rg_led(sh, value, column, row, nets):
     """Kingbright APGB0607G22R23C green/red LED centred at (column, row): pins 1 GA
     (row - 2) and 4 RA (row) on the left, 2 GK (row - 2) and 3 RK (row) on the
-    right. nets maps a pin to a local label, ('global', name), or None (unused die).
+    right. nets maps a pin to a local label, ('global', name), WIRED (the caller
+    draws the wire) or None (unused die).
     """
     part = sh.add(
         'cryocooler:APGB0607G22R23C',
@@ -244,6 +248,8 @@ def rg_led(sh, value, column, row, nets):
     for pin, net in nets.items():
         if net is None:
             sh.nc(part, pin)
+            continue
+        if net is WIRED:
             continue
         is_global = isinstance(net, tuple)
         end = spur(sh, part, pin, 2)
@@ -627,7 +633,8 @@ def build_mcu(sh):
     vbus_esd = pin_cell(esd, '5')
     vbus = pin_cell(usb, 'A4')
     wire(sh, vbus_esd, (vbus_esd[0], 84), (226, 84), (226, vbus[1]), vbus)
-    net_label(sh, 'USB_VBUS', (205, 84), 180, is_global=True)
+    wire(sh, (vbus_esd[0], 84), (vbus_esd[0] - 4, 84))
+    net_label(sh, 'USB_VBUS', (vbus_esd[0] - 4, 84), 180, is_global=True)
     vcap(sh, '4.7uF', 210, 84, fp=C0805)
     drop_ground(sh, (210, 90), 0)
     rail_flag(sh, (218, 84))
@@ -893,10 +900,12 @@ def build_power_button(sh):
     with rev3_refs('R', 'D', 'Q'):
         hres(sh, '13k', 47, 104)
         indicator = rg_led(
-            sh, 'STATUS G=on R=standby', 100, 110, {'1': 'STATUS_GA', '4': 'STATUS_RA'}
+            sh, 'STATUS G=on R=standby', 116, 102, {'1': WIRED, '4': WIRED}
         )
         shunt = nfet(sh, 'BSS138', '', '', pose=at(58, 112))
-    wire(sh, (50, 104), (60, 104), (70, 104))
+    red_a = pin_cell(indicator, '4')
+    wire(sh, (50, 104), (60, 104), (70, 104), (red_a[0] - 2, 104), (red_a[0] - 2, red_a[1]), red_a)
+    # the labels only name the nets
     net_label(sh, 'STATUS_RA', (70, 104), 0)
     green_k, red_k = spur(sh, indicator, '2', 2), spur(sh, indicator, '3', 2)
     wire(sh, green_k, red_k)
@@ -905,7 +914,7 @@ def build_power_button(sh):
     wire(sh, (84, 100), (88, 100))
     with extra_refs('R'):
         hres(sh, '2.2k', 91, 100)
-    wire(sh, (94, 100), (96, 100))
+    wire(sh, (94, 100), (96, 100), pin_cell(indicator, '1'))
     net_label(sh, 'STATUS_GA', (96, 100), 0)
     wire(sh, (60, 104), pin_cell(shunt, '3'))
     ground(sh, spur(sh, shunt, '2', 2))
@@ -1709,7 +1718,7 @@ def power_good_led(sh, node_net, text, column, row):
     with high_refs('Q'):
         good = nfet(sh, 'BSS138', '', '', pose=at(column, row), fp=SOT323)
     with extra_refs('Q'):
-        bad = nfet(sh, 'BSS138', '', '', pose=at(column + 26, row), fp=SOT323)
+        bad = nfet(sh, 'BSS138', '', '', pose=at(column + 40, row), fp=SOT323)
     gate = pin_cell(good, '1')
     wire(sh, gate, (gate[0] - 4, gate[1]))
     net_label(sh, node_net, (gate[0] - 4, gate[1]), 180, is_global=True)
@@ -1719,17 +1728,15 @@ def power_good_led(sh, node_net, text, column, row):
     green_k, red_k = f'{stem}_LED_GK', f'{stem}_LED_RK'
     drain = pin_cell(good, '3')
     node = (drain[0], drain[1] - 4)
-    wire(sh, drain, node, (node[0] + 3, node[1]))
+    gate = pin_cell(bad, '1')
+    turn = (column + 34, node[1])
+    wire(sh, drain, node, (node[0] + 3, node[1]), turn, (turn[0], gate[1]), gate)
+    # the labels only name the nets
     net_label(sh, green_k, (node[0] + 3, node[1]), 0)
     with extra_refs('R'):
         vres(sh, '100k', node[0], node[1] - 6, fp=R0402)
     rail_symbol(sh, '+3V3', (node[0], node[1] - 6))
-    gate = pin_cell(bad, '1')
-    wire(sh, gate, (gate[0] - 2, gate[1]))
-    net_label(sh, green_k, (gate[0] - 2, gate[1]), 180)
-    drain = pin_cell(bad, '3')
-    wire(sh, drain, (drain[0], drain[1] - 4))
-    net_label(sh, red_k, (drain[0], drain[1] - 4), 0)
+    bad_drain = pin_cell(bad, '3')
     top = row - 26
     for offset, rail, ohms, die in ((0, '+5V', '2.2k', 'GA'), (4, '+3V3', '1.5k', 'RA')):
         cell_row = top + offset
@@ -1740,13 +1747,21 @@ def power_good_led(sh, node_net, text, column, row):
         wire(sh, (column + 3, cell_row), (column + 5, cell_row))
         net_label(sh, f'{stem}_LED_{die}', (column + 5, cell_row), 0)
     with high_refs('D'):
-        rg_led(
+        indicator = rg_led(
             sh,
             text,
-            column + 36,
+            column + 24,
             top + 4,
-            {'1': f'{stem}_LED_GA', '2': green_k, '3': red_k, '4': f'{stem}_LED_RA'},
+            {'1': WIRED, '2': WIRED, '3': WIRED, '4': WIRED},
         )
+    green_a, red_a = pin_cell(indicator, '1'), pin_cell(indicator, '4')
+    wire(sh, (column + 5, top), (green_a[0] - 2, top), (green_a[0] - 2, green_a[1]), green_a)
+    wire(sh, (column + 5, top + 4), red_a)
+    # cathodes: green down to the good FET's drain node, red to the bad FET's drain
+    led_gk, led_rk = pin_cell(indicator, '2'), pin_cell(indicator, '3')
+    wire(sh, led_gk, (turn[0], led_gk[1]), turn)
+    wire(sh, led_rk, (turn[0] + 1, led_rk[1]), (bad_drain[0], led_rk[1]), bad_drain)
+    net_label(sh, red_k, (turn[0] + 1, led_rk[1]), 0)
 
 
 def opamp_dual(sh, ref, column, row, unit):
@@ -2023,32 +2038,42 @@ def rem_switch(
     wire(sh, top, (top[0], top[1] - 4))
     rail_symbol(sh, rail, (top[0], top[1] - 4))
     # AMP_REM bus: drain, pull-down, LED branch and the REM terminal
-    wire(sh, bottom, (bottom[0], 58), (136, 58))
-    net_label(sh, bus_net, (104, 58), 0)
     vres(sh, '4.7k', 90, 58)
     drop_ground(sh, (90, 64), 0)
     # state LED dies anti-parallel between +5V/2.2k and the bus: green when the
     # bus is at +12 V, red (through the 4.7k pull-down) when it is off
-    vres(sh, '2.2k', 96, 40)
-    rail_symbol(sh, '+5V', (96, 40))
-    wire(sh, (96, 46), (96, 48))
-    net_label(sh, f'{bus_net}_LED', (96, 48), 0)
-    rg_led(
+    series = 132
+    vres(sh, '2.2k', series, 42)
+    rail_symbol(sh, '+5V', (series, 42))
+    indicator = rg_led(
         sh,
         f'{bus_net} G=on R=off',
-        134,
-        48,
-        {'1': bus_net, '3': bus_net, '2': f'{bus_net}_LED', '4': f'{bus_net}_LED'},
+        106,
+        50,
+        {'1': WIRED, '2': WIRED, '3': WIRED, '4': WIRED},
     )
+    green_a, green_k = pin_cell(indicator, '1'), pin_cell(indicator, '2')
+    red_k, red_a = pin_cell(indicator, '3'), pin_cell(indicator, '4')
+    # bus side: green anode and red cathode drop onto the bus
+    drops = (green_a[0] - 4, 58), (red_k[0] + 2, 58)
+    wire(sh, green_a, (drops[0][0], green_a[1]), drops[0])
+    wire(sh, red_k, (drops[1][0], red_k[1]), drops[1])
+    # resistor side: green cathode straight across, red anode underneath
+    wire(sh, green_k, (green_k[0] + 3, green_k[1]), (series, 48))
+    wire(sh, red_a, (red_a[0] - 2, red_a[1]), (red_a[0] - 2, 54), (series, 54), (series, 48))
+    # the labels only name the nets
+    net_label(sh, f'{bus_net}_LED', (green_k[0] + 3, green_k[1]), 0)
     j_rem = conn(
         sh,
         'Connector:Screw_Terminal_01x02',
         terminal,
-        140 * 1.27,
+        166 * 1.27,
         58 * 1.27,
         {},
         footprint or TERM_SIGNAL,
     )
+    wire(sh, bottom, (bottom[0], 58), drops[0], drops[1], (138, 58), pin_cell(j_rem, '1'))
+    net_label(sh, bus_net, (138, 58), 0)
     spur(sh, j_rem, '2', 2)
     ground(sh, (pin_cell(j_rem, '2')[0] - 2, pin_cell(j_rem, '2')[1]))
     if flyback:
@@ -2056,7 +2081,7 @@ def rem_switch(
             'Device:D',
             next_ref('D'),
             '1N4148W',
-            120 * 1.27,
+            154 * 1.27,
             61 * 1.27,
             rot=270,
             auto=False,
@@ -2505,8 +2530,6 @@ def build_system_current(sh):
     # the decoder drives CS push-pull; R68 stays retired
     kicadgen.retire_refs('R', 1)
     alert = spur(sh, ina, '3', 4)
-    wire(sh, alert, (alert[0] + 8, alert[1]))
-    net_label(sh, 'INA239_ALERT', (alert[0] + 8, alert[1]), 0, is_global=True)
     pull = (alert[0], alert[1] + 6)
     wire(sh, alert, pull)
     hres(sh, '10k', pull[0] + 3, pull[1])
@@ -2516,15 +2539,21 @@ def build_system_current(sh):
     rail_symbol(sh, '+3V3', (pull[0] - 2, row))
     wire(sh, (pull[0] - 2, row), (pull[0], row))
     hres(sh, '1.5k', pull[0] + 3, row)
-    wire(sh, (pull[0] + 6, row), (pull[0] + 8, row))
-    net_label(sh, 'ALERT_LED_A', (pull[0] + 8, row), 0)
-    rg_led(
+    indicator = rg_led(
         sh,
         'ALERT (red)',
         pull[0] + 26,
-        row + 2,
-        {'1': None, '2': None, '4': 'ALERT_LED_A', '3': ('global', 'INA239_ALERT')},
+        row,
+        {'1': None, '2': None, '4': WIRED, '3': WIRED},
     )
+    wire(sh, (pull[0] + 6, row), (pull[0] + 8, row), pin_cell(indicator, '4'))
+    # the label only names the net
+    net_label(sh, 'ALERT_LED_A', (pull[0] + 8, row), 0)
+    red_k = pin_cell(indicator, '3')
+    back = (red_k[0] + 4, alert[1])
+    wire(sh, red_k, (back[0], red_k[1]), back)
+    wire(sh, alert, back, (back[0] + 4, back[1]))
+    net_label(sh, 'INA239_ALERT', (back[0] + 4, back[1]), 0, is_global=True)
     # supply and ground
     vs = pin_cell(ina, '6')
     wire(sh, vs, (vs[0], vs[1] - 4))
@@ -2612,11 +2641,12 @@ def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
     rail_symbol(sh, net, (column, row))
     wire(sh, (column, row), (column + 3, row))
     hres(sh, ohms, column + 6, row)
-    wire(sh, (column + 9, row), (column + 11, row))
-    net_label(sh, f'{net}_LED_A', (column + 11, row), 0)
     indicator = rg_led(
-        sh, label, column + 42, row + 4, {'1': f'{net}_LED_A', '3': None, '4': None}
+        sh, label, column + 32, row + 2, {'1': WIRED, '3': None, '4': None}
     )
+    wire(sh, (column + 9, row), (column + 11, row), pin_cell(indicator, '1'))
+    # the label only names the net
+    net_label(sh, f'{net}_LED_A', (column + 11, row), 0)
     green_k = spur(sh, indicator, '2', 2)
     wire(sh, green_k, (green_k[0] + 2, green_k[1]))
     rail_symbol(sh, ground, (green_k[0] + 2, green_k[1]))
@@ -3484,49 +3514,72 @@ def opamp_quad(sh, ref, unit, column, row):
     )
 
 
-def aux_io_channel(sh, gpio, row, shared, element):
-    """One general-purpose pin, drawn left to right from `row`: GPIO -> 100k / 100k
-    divider to GND (its tap feeds the LED driver) -> 100 R -> 2-pin header.
+def aux_io_channel(sh, gpio, column, row, shared, element):
+    """One general-purpose pin, drawn left to right from (column, row): GPIO ->
+    100k / 100k divider to GND -> 100 R -> 2-pin header. Returns the divider tap
+    (it feeds the LED driver) and the point on the header wire for the clamp.
     `element` is the pin's place in the shared arrays (1-4), or None for discrete
     resistors.
     """
-    net_label(sh, f'AUX_IO{gpio}', (24, row), 180, is_global=True)
-    wire(sh, (24, row), (32, row), (40, row))
+    node, tap = (column + 8, row), (column + 8, row + 6)
+    net_label(sh, f'AUX_IO{gpio}', (column, row), 180, is_global=True)
+    wire(sh, (column, row), node, (column + 16, row))
     if element:
         # pin n on top in both, so on the board the three arrays sit in a row and
         # face each other pin for pin: series 9 - n to upper n, upper 9 - n to lower n
-        array_res(sh, shared['upper'], element, '100k', 32, row, rot=180)
-        array_res(sh, shared['lower'], element, '100k', 32, row + 6, rot=180)
-        array_res(sh, shared['series'], element, '100', 43, row, rot=90)
+        array_res(sh, shared['upper'], element, '100k', node[0], row, rot=180)
+        array_res(sh, shared['lower'], element, '100k', node[0], row + 6, rot=180)
+        array_res(sh, shared['series'], element, '100', column + 19, row, rot=90)
     else:
-        vres(sh, '100k', 32, row)
-        vres(sh, '100k', 32, row + 6)
-        hres(sh, '100', 43, row)
-    wire(sh, (32, row + 6), (36, row + 6))
-    net_label(sh, f'IO{gpio}_SENSE', (36, row + 6), 0)
-    drop_ground(sh, (32, row + 12), 0)
+        vres(sh, '100k', node[0], row)
+        vres(sh, '100k', node[0], row + 6)
+        hres(sh, '100', column + 19, row)
+    drop_ground(sh, (node[0], row + 12), 0)
     header = conn(
         sh,
         'Connector_Generic:Conn_01x02',
         f'IO{gpio} / GND',
-        70 * 1.27,
+        (column + 76) * 1.27,
         row * 1.27,
         {},
         X2510_2P,
     )
-    wire(sh, (46, row), (50, row), pin_cell(header, '1'))
-    net_label(sh, f'IO{gpio}_HDR', (50, row), 0)
+    clamp_tap = (column + 52, row)
+    wire(sh, (column + 22, row), (column + 26, row), clamp_tap, pin_cell(header, '1'))
+    # the label only names the net: the header, clamp and resistor are wired
+    net_label(sh, f'IO{gpio}_HDR', (column + 26, row), 0)
     ground(sh, spur(sh, header, '2', 2))
+    return tap, clamp_tap
 
 
-def aux_io_led(sh, gpio, column, row, driver, unit):
-    """LED driver for one general-purpose pin: the op amp holds half the pin
-    voltage (the divider tap) across 3.3k, with the green die in its feedback
-    path, so the LED carries Vpin / 6.6k.
+def aux_io_clamp(sh, clamp_tap):
+    """Header-side ESD clamp hanging from the header wire."""
+    column, row = clamp_tap
+    clamp = place_ic(
+        sh,
+        'cryocooler:TPD1E05U06DPYR',
+        'TPD1E05U06DPYR',
+        column + 8,
+        row + 8,
+        'Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
+    )
+    pin = pin_cell(clamp, '1')
+    wire(sh, clamp_tap, (column, pin[1]), pin)
+    drop_ground(sh, pin_cell(clamp, '2'), 2)
+
+
+def aux_io_led(sh, gpio, tap, driver, unit):
+    """LED driver for one general-purpose pin, drawn under its channel and wired
+    to the divider `tap`: the op amp holds half the pin voltage across 3.3k, with
+    the green die in its feedback path, so the LED carries Vpin / 6.6k.
     """
     plus, minus, out = QUAD_OPAMP_PINS[unit]
+    column, row = tap[0] + 30, tap[1] + 14
     amp = opamp_quad(sh, driver, unit, column, row)
-    net_label(sh, f'IO{gpio}_SENSE', spur(sh, amp, plus, 4), 180)
+    sense_in = pin_cell(amp, plus)
+    wire(sh, tap, (tap[0] + 4, tap[1]), (tap[0] + 14, tap[1]), (tap[0] + 14, sense_in[1]), sense_in)
+    # the label only names the net
+    net_label(sh, f'IO{gpio}_SENSE', (tap[0] + 4, tap[1]), 0)
     indicator = rg_led(sh, f'IO{gpio} G=active', column + 16, row + 2, {'3': None, '4': None})
     wire(sh, pin_cell(amp, out), pin_cell(indicator, '1'))
     sense = (column + 26, row + 8)
@@ -3544,8 +3597,9 @@ def aux_io_led(sh, gpio, column, row, driver, unit):
 
 
 def build_aux_io(sh):
-    """Hand-laid: the five general-purpose pins with their headers on the left,
-    ESD clamps in the middle, LED drivers on the right.
+    """Hand-laid, one block per pin: the channel (GPIO, divider, series resistor,
+    header) with its ESD clamp hanging from the header wire and its LED driver
+    underneath, all wired. Spare op amp sections and supplies sit at the lower right.
     """
     sh.handwired = True
     sh.note(
@@ -3573,35 +3627,28 @@ def build_aux_io(sh):
         20,
         33,
     )
+    # (column, row) of each pin's block: three down the left, two down the middle
+    cells = ((24, 50), (24, 94), (24, 138), (130, 50), (130, 94))
     with rev4_refs('U', 'R', 'C', 'D', 'J', 'RN'):
         shared = {name: next_ref('RN') for name in ('series', 'upper', 'lower')}
         drivers = (next_ref('U'), next_ref('U'))
-        for index, gpio in enumerate(AUX_IO_GPIOS):
-            aux_io_channel(sh, gpio, 54 + 20 * index, shared, index + 1 if index < 4 else None)
-        # header-side clamps: one single-line part per pin, so each sits at its own
-        # header (a four-line array tied the four header nets into a knot on the board)
-        sh.note('ESD CLAMPS (HEADER SIDE)', 92 * 1.27, 54 * 1.27, 1.8)
-        for gpio in AUX_IO_CLAMP_ORDER:
-            row = 64 + 14 * AUX_IO_GPIOS.index(gpio)
-            clamp = place_ic(
-                sh,
-                'cryocooler:TPD1E05U06DPYR',
-                'TPD1E05U06DPYR',
-                106,
-                row,
-                'Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
+        taps = {}
+        for index, (gpio, (column, row)) in enumerate(zip(AUX_IO_GPIOS, cells)):
+            sh.note(f'GPIO{gpio}', column * 1.27, (row - 8) * 1.27, 1.8)
+            taps[gpio] = aux_io_channel(
+                sh, gpio, column, row, shared, index + 1 if index < 4 else None
             )
-            net_label(sh, f'IO{gpio}_HDR', spur(sh, clamp, '1', 3), 180)
-            drop_ground(sh, pin_cell(clamp, '2'), 2)
-        sh.note('LED DRIVERS', 132 * 1.27, 44 * 1.27, 1.8)
-        cells = ((146, 56), (146, 84), (146, 112), (206, 56), (206, 84))
-        for gpio, (column, row) in zip(AUX_IO_GPIOS, cells):
+        # one single-line clamp per pin, so each sits at its own header (a four-line
+        # array tied the four header nets into a knot on the board)
+        for gpio in AUX_IO_CLAMP_ORDER:
+            aux_io_clamp(sh, taps[gpio][1])
+        for gpio in AUX_IO_GPIOS:
             package, unit = AUX_IO_DRIVERS[gpio]
-            aux_io_led(sh, gpio, column, row, drivers[package], unit)
-        sh.note('SPARE SECTIONS (FOLLOWERS ON THE SUPPLY PIN BESIDE THEM)', 196 * 1.27, 108 * 1.27, 1.8)
-        for (package, unit, rail), column in zip(AUX_IO_SPARES, (204, 226, 248)):
+            aux_io_led(sh, gpio, taps[gpio][0], drivers[package], unit)
+        sh.note('SPARE SECTIONS (FOLLOWERS ON THE SUPPLY PIN BESIDE THEM)', 130 * 1.27, 136 * 1.27, 1.8)
+        for (package, unit, rail), column in zip(AUX_IO_SPARES, (138, 160, 182)):
             plus, minus, out = QUAD_OPAMP_PINS[unit]
-            spare = opamp_quad(sh, drivers[package], unit, column, 120)
+            spare = opamp_quad(sh, drivers[package], unit, column, 150)
             tie = spur(sh, spare, plus, 2)
             if rail == 'GND':
                 ground(sh, tie)
@@ -3611,13 +3658,14 @@ def build_aux_io(sh):
             wire(
                 sh,
                 pin_cell(spare, minus),
-                (column - 6, 126),
-                (column + 8, 126),
-                (column + 8, 120),
+                (column - 6, 156),
+                (column + 8, 156),
+                (column + 8, 150),
                 pin_cell(spare, out),
             )
-        for driver, column in zip(drivers, (270, 286)):
-            power = opamp_quad(sh, driver, 5, column, 60)
+        sh.note('OP AMP SUPPLIES', 206 * 1.27, 136 * 1.27, 1.8)
+        for driver, column in zip(drivers, (210, 226)):
+            power = opamp_quad(sh, driver, 5, column, 152)
             supply = pin_cell(power, '3')
             wire(sh, supply, (supply[0], supply[1] - 2))
             rail_symbol(sh, '+5V_OR', (supply[0], supply[1] - 2))
@@ -3625,9 +3673,9 @@ def build_aux_io(sh):
         place_blocks(
             sh,
             [('OPA4990 DECOUPLING CAPACITORS', '+5V_OR', ('100nF', '100nF'))],
-            132,
-            152,
-            max_column=300,
+            130,
+            176,
+            max_column=230,
         )
 
 
@@ -4007,9 +4055,45 @@ def link_parts(sheets):
           ' '.join(unlinked))
 
 
+def describe_parts(sheets):
+    """Writes each part's role and each labelled net's meaning
+    (part_descriptions.py) into the Description fields; returns the number of
+    parts and labels without one plus stale entries.
+    """
+    import part_descriptions
+
+    table = part_descriptions.DESCRIPTIONS
+    refs = {
+        part.ref
+        for sheet in sheets
+        for part in sheet.parts
+        if not part.ref.startswith('#')
+    }
+    for sheet in sheets:
+        for part in sheet.parts:
+            if part.ref in table:
+                part.props['Description'] = table[part.ref]
+    missing = sorted(refs - table.keys())
+    stale = sorted(table.keys() - refs)
+    print(f'part descriptions: {len(missing)} parts without one:', ' '.join(missing))
+    if stale:
+        print('  descriptions for parts that no longer exist:', ' '.join(stale))
+    nets = part_descriptions.NET_DESCRIPTIONS
+    labels = {net for sheet in sheets for _kind, net, _at, _angle in sheet.labels}
+    for sheet in sheets:
+        sheet.label_descriptions = nets
+    unnamed = sorted(labels - nets.keys())
+    unused = sorted(nets.keys() - labels)
+    print(f'label descriptions: {len(unnamed)} labels without one:', ' '.join(unnamed))
+    if unused:
+        print('  descriptions for labels that no longer exist:', ' '.join(unused))
+    return len(missing) + len(stale) + len(unnamed) + len(unused)
+
+
 def check_sheets(sheets):
-    """Finalizes the sheets and runs the text overlap, 4-way junction and
-    duplicate reference checks; returns the three counts.
+    """Finalizes the sheets and runs the text overlap (including wires drawn
+    across labels), 4-way junction and duplicate reference checks; returns the
+    three counts.
     """
     import textlayout
 
@@ -4026,10 +4110,23 @@ def check_sheets(sheets):
         for problem in textlayout.check_text(sheet):
             overlaps += 1
             print(f'  [{sheet.title}] {problem}')
+        for problem in textlayout.wires_over_labels(sheet):
+            overlaps += 1
+            print(f'  [{sheet.title}] {problem}')
         for missing in textlayout.unlabeled_power(sheet):
             overlaps += 1
             print(f'  [{sheet.title}] power symbol name hidden: {missing}')
     print(f'text overlap check: {overlaps} overlaps')
+    stray = pairs = 0
+    for sheet in sheets:
+        for problem in textlayout.stray_fields(sheet):
+            stray += 1
+            print(f'  [{sheet.title}] {problem}')
+        for pair in textlayout.close_label_pairs(sheet):
+            pairs += 1
+            print(f'  [{sheet.title}] {pair}')
+    print(f'stray text report: {stray} fields away from their part')
+    print(f'label pair report: {pairs} same-net label pairs close together')
     # a reference used by two different parts silently merges them in the
     # netlist; units of one multi-unit part share theirs on purpose
     owners = {}
@@ -4061,7 +4158,7 @@ def main():
         child.path = f'/{root_uuid}/{child.uid}'
         builder(child)
         children.append(child)
-        column, row = index % 5, index // 5
+        column, row = index % 6, index // 6
         root.sheet_symbols.append(
             sheet_symbol(
                 root_uuid, child, index, 20 + column * 62, 190 + row * 20
@@ -4073,6 +4170,7 @@ def main():
             part.ref = REF_MAP.get(part.ref, part.ref)
 
     link_parts([root] + children)
+    undescribed = describe_parts([root] + children)
     pin_fields([root] + children)
     overlaps, junctions, duplicates = check_sheets([root] + children)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
@@ -4095,7 +4193,7 @@ def main():
     if duplicates:
         sys.exit(1)
     print(f'4-way junction check: {junctions} found')
-    if overlaps or junctions:
+    if overlaps or junctions or undescribed:
         sys.exit(1)
 
 

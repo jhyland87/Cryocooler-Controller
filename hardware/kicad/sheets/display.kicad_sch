@@ -2188,82 +2188,90 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "Pin 1 YU, 2 XL, 3 YD, 4 XR (raw resistive touch), 5 GND, 6 VCC, 7 /CS, 8 /RST, 9 RS (D/C), 10 SCL, 11 SDA, 12 NC, 13 A, 14 C. Backlight: 4 LEDs in parallel, 3.0 V / 60 mA typ."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 213.36 78.74) (xy 218.44 78.74)
 		)
-		(uuid "1e427445-7503-5d77-95dc-c19433c4181f")
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "43a51ad6-f00a-5d41-895b-efb88c853eef")
 	)
-	(text "74LV1T34GX DECOUPLING CAPACITOR"
-		(exclude_from_sim no)
-		(at 228.6 193.04 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 151.13 104.14) (xy 156.21 104.14)
 		)
-		(uuid "35e3d28d-3e9c-54eb-a11d-ed3ae86ca1f4")
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89e91864-f271-59f3-8d26-ded1f72069ac")
 	)
-	(text "Phoenix DCT T 2,4 QVGA S RTOUCH (in the UCS 125-87-F-GD-D2,4 lid), datasheet 109921: ST7789V, 4-wire SPI half duplex (SDA is input only), VCC 2.6-3.3 V, FPC FH12-14S-0.5SH."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 218.44 78.74) (xy 218.44 91.44)
 		)
-		(uuid "3a01dfea-5696-57cd-9dee-04fd1c69e701")
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f44407d3-9d89-5fc0-b136-466b1c1192c6")
 	)
-	(text "BACKLIGHT"
-		(exclude_from_sim no)
-		(at 25.4 142.24 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus
+		(pts
+			(xy 151.13 88.9) (xy 151.13 104.14)
 		)
-		(uuid "3f36cfab-c21e-5dfd-8599-4475ad1c6da7")
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a3363c18-8cbb-5620-b52d-2531c439b08b")
 	)
-	(text "GPIO47/48 are 1.8 V on N32R16V. 74LV1T34GX: VIH 1.37 V at 3.3 V."
-		(exclude_from_sim no)
-		(at 25.4 193.04 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus_entry
+		(at 220.98 91.44)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "53951fba-63fb-57bc-bd8e-181aec803622")
+		(uuid "e655628c-204c-53e3-91e1-bf5324735535")
 	)
-	(text "DISPLAY DECOUPLING CAPACITORS"
-		(exclude_from_sim no)
-		(at 190.5 182.88 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus_entry
+		(at 220.98 93.98)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "78f2661e-891f-535b-abcb-7afd60747a7c")
+		(uuid "3c43c27f-89c4-5e72-bcf0-771a34e10e39")
 	)
-	(text "DISPLAY LOGIC BUFFERS"
-		(exclude_from_sim no)
-		(at 25.4 187.96 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
+	(bus_entry
+		(at 148.59 86.36)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "816d14e9-d293-5df0-8016-55f0520880ff")
+		(uuid "ae57b5a6-819a-5596-ae63-796f58aaf654")
+	)
+	(bus_entry
+		(at 148.59 91.44)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "85b831d5-13ef-58a6-a79b-41a078035728")
+	)
+	(bus_entry
+		(at 148.59 93.98)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50ff96fb-b97a-5887-98bb-8e96ea46b5ac")
 	)
 	(text "STRAP PULL-DOWNS"
 		(exclude_from_sim no)
@@ -2274,18 +2282,29 @@
 			)
 			(justify left top)
 		)
-		(uuid "a1291d42-5243-5cd8-94c6-63b986a50b2d")
+		(uuid "3093f57c-1fa0-51e1-bd3a-935a6a3e3dd9")
 	)
-	(text "GPIO46 (DISP_RST) is a strapping pin: a 10k pull-down holds its default (low) level at reset. DISP_CS and TOUCH_CS come from the CS decoder on the root sheet."
+	(text "Phoenix DCT T 2,4 QVGA S RTOUCH (in the UCS 125-87-F-GD-D2,4 lid), datasheet 109921: ST7789V, 4-wire SPI half duplex (SDA is input only), VCC 2.6-3.3 V, FPC FH12-14S-0.5SH."
 		(exclude_from_sim no)
-		(at 20 27 0)
+		(at 20 15 0)
 		(effects
 			(font
 				(size 1.8 1.8)
 			)
 			(justify left top)
 		)
-		(uuid "b0bec282-d286-5ed9-8af1-d6476d387532")
+		(uuid "48716b93-cc09-54cd-9460-4dd33ed87a45")
+	)
+	(text "GPIO47/48 are 1.8 V on N32R16V. 74LV1T34GX: VIH 1.37 V at 3.3 V."
+		(exclude_from_sim no)
+		(at 25.4 193.04 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "48d1ef81-ac5c-50b1-a3b8-6f46e6481e74")
 	)
 	(text "TSC2046 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -2296,688 +2315,139 @@
 			)
 			(justify left top)
 		)
-		(uuid "ba5f62c3-a26e-592e-b3fe-a04ea0f0fb79")
+		(uuid "49b6d8a1-2619-59af-bf78-1d949a6b2653")
 	)
-	(junction
-		(at 198.12 172.72)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0eab4772-ee17-579c-97f0-4c85e9900ac2")
+	(text "GPIO46 (DISP_RST) is a strapping pin: a 10k pull-down holds its default (low) level at reset. DISP_CS and TOUCH_CS come from the CS decoder on the root sheet."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "609269c0-6183-5707-b047-ec47398cd142")
 	)
-	(junction
-		(at 99.06 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "37107be1-5464-50b3-adc0-b4fef0c9b17f")
+	(text "DISPLAY DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 190.5 182.88 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "7aa163e5-e260-5bc9-b411-e20cde3b6579")
 	)
-	(junction
-		(at 154.94 223.52)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "42cd4e77-25fe-54b4-b55a-4c7325d7e2ea")
+	(text "74LV1T34GX DECOUPLING CAPACITOR"
+		(exclude_from_sim no)
+		(at 228.6 193.04 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "8ff2239b-f778-50e8-91dd-8b388a5d7d12")
 	)
-	(junction
-		(at 198.12 193.04)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4dd5c1b6-1134-5ec2-9f71-579bb1cfb090")
+	(text "DISPLAY LOGIC BUFFERS"
+		(exclude_from_sim no)
+		(at 25.4 187.96 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "a77786d5-8ac2-53c2-9f18-44bdb4909067")
 	)
-	(junction
-		(at 198.12 200.66)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "71d686a4-bafa-5bf5-824d-95796f7f5463")
+	(text "Pin 1 YU, 2 XL, 3 YD, 4 XR (raw resistive touch), 5 GND, 6 VCC, 7 /CS, 8 /RST, 9 RS (D/C), 10 SCL, 11 SDA, 12 NC, 13 A, 14 C. Backlight: 4 LEDs in parallel, 3.0 V / 60 mA typ."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "d473d181-4de5-53ac-a966-1e7eea2548a8")
+	)
+	(text "BACKLIGHT"
+		(exclude_from_sim no)
+		(at 25.4 142.24 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "ff1e99df-52ff-5318-b1fe-f14f94b60bea")
 	)
 	(junction
 		(at 104.14 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "7c16959c-f418-51d2-b55a-eaf068b98524")
+		(uuid "082aa519-bc0a-5c15-9933-5e634ad302b1")
 	)
 	(junction
-		(at 64.77 165.1)
+		(at 198.12 172.72)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "a14e5d31-26d4-5c13-b706-a8d4d08b468a")
-	)
-	(junction
-		(at 198.12 165.1)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d0e69a94-ea2c-5bf5-8d86-e6071e1e5797")
+		(uuid "0cdb0923-dc94-5f38-9140-3744609e0769")
 	)
 	(junction
 		(at 134.62 210.82)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e319a58b-3d39-5fbb-aacf-1e9dea917b4d")
+		(uuid "15682dbe-8c25-53b6-a80d-c79f66632605")
 	)
-	(no_connect
-		(at 248.92 88.9)
-		(uuid "54450058-36b6-5d49-9671-6ec5009cb008")
+	(junction
+		(at 198.12 193.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "472c75ff-b1b7-5406-b57b-ffdfa8b777fa")
+	)
+	(junction
+		(at 64.77 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4c201be2-a4bb-5f4f-a385-0cfadcec4f62")
+	)
+	(junction
+		(at 99.06 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "582ac72f-9995-5889-b762-a476a4ca465e")
+	)
+	(junction
+		(at 198.12 200.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8f9b2be5-791e-5c68-b516-ec3dce354049")
+	)
+	(junction
+		(at 154.94 223.52)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f4687848-fd07-5501-bdf4-e6417fa11eea")
+	)
+	(junction
+		(at 198.12 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f9748e9c-5cfc-5c35-be58-300aea743df0")
 	)
 	(no_connect
 		(at 106.68 81.28)
-		(uuid "8f001d1c-5ded-55f8-901d-6e4a851eb549")
+		(uuid "68f15fde-0647-5bfb-b94f-561f4085922d")
 	)
 	(no_connect
 		(at 116.84 96.52)
-		(uuid "c174e982-24fb-584d-a0f4-06a81ddfa323")
+		(uuid "895e35b2-0be6-5b33-85d6-ff8592575bcf")
 	)
-	(bus_entry
-		(at 148.59 93.98)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4c201be2-a4bb-5f4f-a385-0cfadcec4f62")
-	)
-	(bus_entry
-		(at 220.98 93.98)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b3e2f29-cfe6-5655-ac31-f44ea10be0bd")
-	)
-	(bus_entry
-		(at 148.59 91.44)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e9e4477-49f8-58fd-a193-7be7f40adf23")
-	)
-	(bus_entry
-		(at 148.59 86.36)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f25a09a5-ed6a-550a-a87b-887b835d9546")
-	)
-	(bus_entry
-		(at 220.98 91.44)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f3f5b5c2-b7d3-5e3f-bb95-60eb7839598c")
-	)
-	(wire
-		(pts
-			(xy 220.98 93.98) (xy 248.92 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "050349b7-2bb0-5a2c-8c29-0b42fc47cf69")
-	)
-	(wire
-		(pts
-			(xy 233.68 114.3) (xy 248.92 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "05a9c221-d08c-5f9b-8950-4b87b3b42e8f")
-	)
-	(wire
-		(pts
-			(xy 228.6 203.2) (xy 236.22 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "05e6e4a8-ba00-563d-b819-7c82ce773ec4")
-	)
-	(wire
-		(pts
-			(xy 93.98 109.22) (xy 109.22 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09f72744-8051-5e36-837e-222a3ca1069e")
-	)
-	(wire
-		(pts
-			(xy 116.84 93.98) (xy 148.59 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b539820-46c7-5e39-8d4e-f683f7cc7791")
-	)
-	(wire
-		(pts
-			(xy 81.28 93.98) (xy 86.36 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "10c322d9-e527-587c-ae1e-8ba3f46dfa88")
-	)
-	(wire
-		(pts
-			(xy 215.9 104.14) (xy 248.92 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "129940f5-b6d4-56b9-b8fe-0fd63715cc5c")
-	)
-	(wire
-		(pts
-			(xy 104.14 106.68) (xy 104.14 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "158cde91-d10d-5732-84ab-22c1e97568a8")
-	)
-	(wire
-		(pts
-			(xy 147.32 147.32) (xy 147.32 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "17f5764f-59b7-5e8d-960d-6b69ceb55dc6")
-	)
-	(wire
-		(pts
-			(xy 81.28 91.44) (xy 86.36 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1f43aa2f-8207-5bda-855c-b44e7f52d4ac")
-	)
-	(wire
-		(pts
-			(xy 154.94 220.98) (xy 154.94 223.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "24046018-9660-548c-90de-ac1cc951bd80")
-	)
-	(bus
-		(pts
-			(xy 151.13 88.9) (xy 151.13 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "24d42754-0a83-5109-a049-ccf0771d1c99")
-	)
-	(wire
-		(pts
-			(xy 190.5 172.72) (xy 198.12 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "28baffd6-029d-5e6d-baa8-51e4de811b66")
-	)
-	(bus
-		(pts
-			(xy 213.36 78.74) (xy 218.44 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2be8653d-456b-5b2b-947a-f0e7190a2d82")
-	)
-	(bus
-		(pts
-			(xy 218.44 78.74) (xy 218.44 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2fcedce9-8040-5877-b6dd-68f58a628f5a")
-	)
-	(wire
-		(pts
-			(xy 116.84 88.9) (xy 121.92 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "38faf074-27e0-54ff-b813-bff23ba2ff76")
-	)
-	(wire
-		(pts
-			(xy 233.68 109.22) (xy 248.92 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a386846-1c95-56a1-9c8e-c1393fd478d7")
-	)
-	(wire
-		(pts
-			(xy 198.12 193.04) (xy 213.36 193.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "40112b91-3577-5df6-be7c-16b394dffa8a")
-	)
-	(wire
-		(pts
-			(xy 198.12 200.66) (xy 213.36 200.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "450786da-25a2-5767-a195-cf5ecdc3abe7")
-	)
-	(wire
-		(pts
-			(xy 190.5 200.66) (xy 198.12 200.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "459b9171-89fe-54f3-b1b1-089ea1c019d5")
-	)
-	(wire
-		(pts
-			(xy 190.5 165.1) (xy 198.12 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4797d450-5250-53cc-9a2f-fa79c7359739")
-	)
-	(wire
-		(pts
-			(xy 81.28 88.9) (xy 86.36 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "592245f5-51f9-5810-a448-fb16be054700")
-	)
-	(wire
-		(pts
-			(xy 152.4 200.66) (xy 152.4 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5953402d-ec79-5982-a94c-744db89adc29")
-	)
-	(wire
-		(pts
-			(xy 30.48 152.4) (xy 35.56 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "619fae40-8f05-5e1d-8050-d1dbd975935d")
-	)
-	(wire
-		(pts
-			(xy 215.9 106.68) (xy 248.92 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "624ca26d-f7a7-5798-96f5-31d8e24e4e2a")
-	)
-	(wire
-		(pts
-			(xy 64.77 165.1) (xy 71.12 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "63b10f96-14e4-551e-854e-67598bb7fe8b")
-	)
-	(wire
-		(pts
-			(xy 198.12 172.72) (xy 213.36 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6df1d65a-3a09-5249-b6d6-c2c7d029a4d2")
-	)
-	(wire
-		(pts
-			(xy 233.68 101.6) (xy 248.92 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "72904d66-d9e5-5454-b402-c1600f0bfe75")
-	)
-	(wire
-		(pts
-			(xy 81.28 86.36) (xy 86.36 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "736e7335-4b95-5403-9a28-5d2ff45b47e3")
-	)
-	(wire
-		(pts
-			(xy 233.68 86.36) (xy 248.92 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "76976b4e-f71e-53ee-8ebf-9022ecb89337")
-	)
-	(wire
-		(pts
-			(xy 101.6 76.2) (xy 101.6 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7855dafd-ae89-5aff-ba2e-bb645f64c623")
-	)
-	(wire
-		(pts
-			(xy 154.94 223.52) (xy 154.94 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "78d6ff94-9e66-5a77-be18-36b413d0936c")
-	)
-	(wire
-		(pts
-			(xy 233.68 99.06) (xy 248.92 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7f3c10c3-0f62-5611-b450-d99a7048221a")
-	)
-	(wire
-		(pts
-			(xy 78.74 170.18) (xy 78.74 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "82d61014-6dcd-5f11-96c4-e99d8da0ddb1")
-	)
-	(wire
-		(pts
-			(xy 228.6 210.82) (xy 236.22 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "83df1643-724d-5a16-8fd6-f248004a32af")
-	)
-	(wire
-		(pts
-			(xy 58.42 165.1) (xy 64.77 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "85656bc6-4ac5-57ba-8da6-8098d4dd47bf")
-	)
-	(wire
-		(pts
-			(xy 99.06 106.68) (xy 99.06 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8916fc60-fecf-5bfd-8b0b-6138bc8facf5")
-	)
-	(wire
-		(pts
-			(xy 93.98 106.68) (xy 93.98 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e165c30-d3fd-56c7-ac20-c8ef3c269067")
-	)
-	(wire
-		(pts
-			(xy 127 210.82) (xy 134.62 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8ef5cedd-cc86-5960-b4a4-d7acaedda8f2")
-	)
-	(wire
-		(pts
-			(xy 78.74 154.94) (xy 78.74 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9333248c-00d0-562a-8307-ae820bbf22f1")
-	)
-	(wire
-		(pts
-			(xy 233.68 83.82) (xy 248.92 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9362ef72-7b35-5d7a-8839-72edd5e63174")
-	)
-	(wire
-		(pts
-			(xy 104.14 109.22) (xy 104.14 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "942c8eed-cf1f-51c3-bac8-602cc6c85ca4")
-	)
-	(wire
-		(pts
-			(xy 149.86 220.98) (xy 149.86 223.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af80aa97-a94b-510c-96ac-67bb32b0b294")
-	)
-	(wire
-		(pts
-			(xy 233.68 96.52) (xy 248.92 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4877834-ccd6-5afb-84c9-191e90dbec99")
-	)
-	(bus
-		(pts
-			(xy 151.13 104.14) (xy 156.21 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bc1c5b4f-8e4b-5ddf-97fb-f5fb983c9bb5")
-	)
-	(wire
-		(pts
-			(xy 149.86 223.52) (xy 154.94 223.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd90e6bc-4409-5dd2-805e-d2959b33c8e8")
-	)
-	(wire
-		(pts
-			(xy 162.56 210.82) (xy 170.18 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bee91964-f147-5fb9-9611-d3ef66e87a82")
-	)
-	(wire
-		(pts
-			(xy 254 76.2) (xy 254 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c63557a1-b704-5025-ba8e-e814df68cd71")
-	)
-	(wire
-		(pts
-			(xy 198.12 165.1) (xy 213.36 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9ae455e-4d06-5f75-af32-776ef8f23acb")
-	)
-	(wire
-		(pts
-			(xy 116.84 86.36) (xy 148.59 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cbe074ec-cd81-57a1-8275-65cf3f663c84")
-	)
-	(wire
-		(pts
-			(xy 190.5 193.04) (xy 198.12 193.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da7a3672-5ddb-56b3-aa13-e7fd296ba7d6")
-	)
-	(wire
-		(pts
-			(xy 233.68 116.84) (xy 248.92 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da7bc68c-2509-54f5-85d3-14a62b56f983")
-	)
-	(wire
-		(pts
-			(xy 134.62 210.82) (xy 142.24 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ddb00cb6-0461-5e9b-9627-1df74bb17777")
-	)
-	(wire
-		(pts
-			(xy 116.84 91.44) (xy 148.59 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "de40ffb1-0103-5731-bc9c-59ab97dd4f2d")
-	)
-	(wire
-		(pts
-			(xy 43.18 152.4) (xy 48.26 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e1df5a23-8595-510c-a76a-a42e18c204c1")
-	)
-	(wire
-		(pts
-			(xy 116.84 99.06) (xy 121.92 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ea269f40-ad07-5171-9c27-e2fd4092abc0")
-	)
-	(wire
-		(pts
-			(xy 96.52 76.2) (xy 96.52 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eeb9ae23-69f1-5722-9ebe-1de2dbfb4ce7")
+	(no_connect
+		(at 248.92 88.9)
+		(uuid "d46ee81b-4311-5d4b-bee4-c370ecedf7d9")
 	)
 	(wire
 		(pts
@@ -2987,27 +2457,37 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "efde2fa2-6871-57e1-9445-064a0b16a637")
+		(uuid "050349b7-2bb0-5a2c-8c29-0b42fc47cf69")
 	)
 	(wire
 		(pts
-			(xy 109.22 106.68) (xy 109.22 109.22)
+			(xy 233.68 93.98) (xy 248.92 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f094dbaa-4eb0-5384-ad53-d12a11cc9184")
+		(uuid "05e6e4a8-ba00-563d-b819-7c82ce773ec4")
 	)
 	(wire
 		(pts
-			(xy 96.52 76.2) (xy 101.6 76.2)
+			(xy 233.68 116.84) (xy 248.92 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f7bfa196-d267-5f61-8124-ecaca79d972e")
+		(uuid "0b539820-46c7-5e39-8d4e-f683f7cc7791")
+	)
+	(wire
+		(pts
+			(xy 162.56 210.82) (xy 170.18 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0eab4772-ee17-579c-97f0-4c85e9900ac2")
 	)
 	(wire
 		(pts
@@ -3017,11 +2497,581 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fb571f49-a93e-53c8-8b96-63fd792829c9")
+		(uuid "10c322d9-e527-587c-ae1e-8ba3f46dfa88")
 	)
 	(wire
 		(pts
-			(xy 220.98 91.44) (xy 248.92 91.44)
+			(xy 198.12 165.1) (xy 213.36 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "158cde91-d10d-5732-84ab-22c1e97568a8")
+	)
+	(wire
+		(pts
+			(xy 190.5 200.66) (xy 198.12 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17f5764f-59b7-5e8d-960d-6b69ceb55dc6")
+	)
+	(wire
+		(pts
+			(xy 43.18 152.4) (xy 48.26 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24046018-9660-548c-90de-ac1cc951bd80")
+	)
+	(wire
+		(pts
+			(xy 147.32 147.32) (xy 147.32 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24d42754-0a83-5109-a049-ccf0771d1c99")
+	)
+	(wire
+		(pts
+			(xy 116.84 86.36) (xy 135.89 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28baffd6-029d-5e6d-baa8-51e4de811b66")
+	)
+	(wire
+		(pts
+			(xy 109.22 106.68) (xy 109.22 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2be8653d-456b-5b2b-947a-f0e7190a2d82")
+	)
+	(wire
+		(pts
+			(xy 78.74 170.18) (xy 78.74 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fcedce9-8040-5877-b6dd-68f58a628f5a")
+	)
+	(wire
+		(pts
+			(xy 101.6 76.2) (xy 101.6 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37107be1-5464-50b3-adc0-b4fef0c9b17f")
+	)
+	(wire
+		(pts
+			(xy 233.68 101.6) (xy 248.92 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "38faf074-27e0-54ff-b813-bff23ba2ff76")
+	)
+	(wire
+		(pts
+			(xy 233.68 83.82) (xy 248.92 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "40112b91-3577-5df6-be7c-16b394dffa8a")
+	)
+	(wire
+		(pts
+			(xy 254 76.2) (xy 254 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42cd4e77-25fe-54b4-b55a-4c7325d7e2ea")
+	)
+	(wire
+		(pts
+			(xy 116.84 91.44) (xy 135.89 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "450786da-25a2-5767-a195-cf5ecdc3abe7")
+	)
+	(wire
+		(pts
+			(xy 81.28 91.44) (xy 86.36 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "459b9171-89fe-54f3-b1b1-089ea1c019d5")
+	)
+	(wire
+		(pts
+			(xy 233.68 96.52) (xy 248.92 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4797d450-5250-53cc-9a2f-fa79c7359739")
+	)
+	(wire
+		(pts
+			(xy 228.6 210.82) (xy 236.22 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4dd5c1b6-1134-5ec2-9f71-579bb1cfb090")
+	)
+	(wire
+		(pts
+			(xy 233.68 114.3) (xy 248.92 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53268be8-99c7-57a6-b7bf-cbc3b612b276")
+	)
+	(wire
+		(pts
+			(xy 99.06 106.68) (xy 99.06 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54450058-36b6-5d49-9671-6ec5009cb008")
+	)
+	(wire
+		(pts
+			(xy 93.98 109.22) (xy 109.22 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56d099f0-0f0b-51fe-888a-7af426dfa954")
+	)
+	(wire
+		(pts
+			(xy 233.68 109.22) (xy 248.92 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "592245f5-51f9-5810-a448-fb16be054700")
+	)
+	(wire
+		(pts
+			(xy 198.12 200.66) (xy 213.36 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5953402d-ec79-5982-a94c-744db89adc29")
+	)
+	(wire
+		(pts
+			(xy 135.89 91.44) (xy 148.59 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "619fae40-8f05-5e1d-8050-d1dbd975935d")
+	)
+	(wire
+		(pts
+			(xy 233.68 99.06) (xy 248.92 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63b10f96-14e4-551e-854e-67598bb7fe8b")
+	)
+	(wire
+		(pts
+			(xy 215.9 104.14) (xy 248.92 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6d9ce2da-d09b-51c3-a6b6-afe101832091")
+	)
+	(wire
+		(pts
+			(xy 135.89 86.36) (xy 148.59 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6df1d65a-3a09-5249-b6d6-c2c7d029a4d2")
+	)
+	(wire
+		(pts
+			(xy 228.6 203.2) (xy 236.22 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71d686a4-bafa-5bf5-824d-95796f7f5463")
+	)
+	(wire
+		(pts
+			(xy 58.42 165.1) (xy 64.77 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7855dafd-ae89-5aff-ba2e-bb645f64c623")
+	)
+	(wire
+		(pts
+			(xy 149.86 223.52) (xy 154.94 223.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78d6ff94-9e66-5a77-be18-36b413d0936c")
+	)
+	(wire
+		(pts
+			(xy 93.98 106.68) (xy 93.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c16959c-f418-51d2-b55a-eaf068b98524")
+	)
+	(wire
+		(pts
+			(xy 198.12 193.04) (xy 213.36 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82d61014-6dcd-5f11-96c4-e99d8da0ddb1")
+	)
+	(wire
+		(pts
+			(xy 220.98 93.98) (xy 233.68 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83df1643-724d-5a16-8fd6-f248004a32af")
+	)
+	(wire
+		(pts
+			(xy 116.84 99.06) (xy 121.92 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "85656bc6-4ac5-57ba-8da6-8098d4dd47bf")
+	)
+	(wire
+		(pts
+			(xy 190.5 165.1) (xy 198.12 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8916fc60-fecf-5bfd-8b0b-6138bc8facf5")
+	)
+	(wire
+		(pts
+			(xy 149.86 220.98) (xy 149.86 223.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b3e2f29-cfe6-5655-ac31-f44ea10be0bd")
+	)
+	(wire
+		(pts
+			(xy 64.77 165.1) (xy 71.12 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e165c30-d3fd-56c7-ac20-c8ef3c269067")
+	)
+	(wire
+		(pts
+			(xy 154.94 223.52) (xy 154.94 226.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e9e4477-49f8-58fd-a193-7be7f40adf23")
+	)
+	(wire
+		(pts
+			(xy 81.28 93.98) (xy 86.36 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ef5cedd-cc86-5960-b4a4-d7acaedda8f2")
+	)
+	(wire
+		(pts
+			(xy 104.14 109.22) (xy 104.14 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f001d1c-5ded-55f8-901d-6e4a851eb549")
+	)
+	(wire
+		(pts
+			(xy 96.52 76.2) (xy 101.6 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91e72064-e061-5131-b40c-d5c21317ec3c")
+	)
+	(wire
+		(pts
+			(xy 190.5 193.04) (xy 198.12 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9333248c-00d0-562a-8307-ae820bbf22f1")
+	)
+	(wire
+		(pts
+			(xy 190.5 172.72) (xy 198.12 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "942c8eed-cf1f-51c3-bac8-602cc6c85ca4")
+	)
+	(wire
+		(pts
+			(xy 127 210.82) (xy 134.62 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a14e5d31-26d4-5c13-b706-a8d4d08b468a")
+	)
+	(wire
+		(pts
+			(xy 30.48 152.4) (xy 35.56 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af80aa97-a94b-510c-96ac-67bb32b0b294")
+	)
+	(wire
+		(pts
+			(xy 78.74 154.94) (xy 78.74 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bc1c5b4f-8e4b-5ddf-97fb-f5fb983c9bb5")
+	)
+	(wire
+		(pts
+			(xy 233.68 91.44) (xy 248.92 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd90e6bc-4409-5dd2-805e-d2959b33c8e8")
+	)
+	(wire
+		(pts
+			(xy 135.89 93.98) (xy 148.59 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bee91964-f147-5fb9-9611-d3ef66e87a82")
+	)
+	(wire
+		(pts
+			(xy 104.14 106.68) (xy 104.14 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c174e982-24fb-584d-a0f4-06a81ddfa323")
+	)
+	(wire
+		(pts
+			(xy 81.28 88.9) (xy 86.36 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c63557a1-b704-5025-ba8e-e814df68cd71")
+	)
+	(wire
+		(pts
+			(xy 81.28 86.36) (xy 86.36 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9ae455e-4d06-5f75-af32-776ef8f23acb")
+	)
+	(wire
+		(pts
+			(xy 134.62 210.82) (xy 142.24 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0e69a94-ea2c-5bf5-8d86-e6071e1e5797")
+	)
+	(wire
+		(pts
+			(xy 233.68 86.36) (xy 248.92 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da7a3672-5ddb-56b3-aa13-e7fd296ba7d6")
+	)
+	(wire
+		(pts
+			(xy 116.84 93.98) (xy 135.89 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddb00cb6-0461-5e9b-9627-1df74bb17777")
+	)
+	(wire
+		(pts
+			(xy 220.98 91.44) (xy 233.68 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1df5a23-8595-510c-a76a-a42e18c204c1")
+	)
+	(wire
+		(pts
+			(xy 96.52 76.2) (xy 96.52 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e319a58b-3d39-5fbb-aacf-1e9dea917b4d")
+	)
+	(wire
+		(pts
+			(xy 116.84 88.9) (xy 121.92 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eeb9ae23-69f1-5722-9ebe-1de2dbfb4ce7")
+	)
+	(wire
+		(pts
+			(xy 198.12 172.72) (xy 213.36 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f094dbaa-4eb0-5384-ad53-d12a11cc9184")
+	)
+	(wire
+		(pts
+			(xy 154.94 220.98) (xy 154.94 223.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f25a09a5-ed6a-550a-a87b-887b835d9546")
+	)
+	(wire
+		(pts
+			(xy 152.4 200.66) (xy 152.4 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f3f5b5c2-b7d3-5e3f-bb95-60eb7839598c")
+	)
+	(wire
+		(pts
+			(xy 215.9 106.68) (xy 248.92 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3037,67 +3087,19 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "082aa519-bc0a-5c15-9933-5e634ad302b1")
-	)
-	(label "TOUCH_XN"
-		(at 233.68 114.3 180)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(uuid "0d642d4a-c534-51c4-9940-d12480e3d463")
+		(property "Description" "Backlight LED anode at J15, after the 39 R resistor from +5V_OR"
+			(at 233.68 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
-			(justify right bottom)
 		)
-		(uuid "0cdb0923-dc94-5f38-9140-3744609e0769")
-	)
-	(label "DISP_BL_K"
-		(at 78.74 154.94 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1fed06ff-01db-5ab0-9db5-496663e487f2")
-	)
-	(label "TOUCH_YN"
-		(at 233.68 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "472c75ff-b1b7-5406-b57b-ffdfa8b777fa")
-	)
-	(label "SPI_MISO"
-		(at 135.89 93.98 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "50ff96fb-b97a-5887-98bb-8e96ea46b5ac")
-	)
-	(label "SPI_SCK"
-		(at 233.68 93.98 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "68f15fde-0647-5bfb-b94f-561f4085922d")
-	)
-	(label "SPI_MOSI"
-		(at 135.89 91.44 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "85b831d5-13ef-58a6-a79b-41a078035728")
 	)
 	(label "SPI_MOSI"
 		(at 233.68 91.44 180)
@@ -3107,17 +3109,19 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "895e35b2-0be6-5b33-85d6-ff8592575bcf")
-	)
-	(label "TOUCH_XP"
-		(at 81.28 86.36 180)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(uuid "1e427445-7503-5d77-95dc-c19433c4181f")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 233.68 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
-			(justify right bottom)
 		)
-		(uuid "89e91864-f271-59f3-8d26-ded1f72069ac")
 	)
 	(label "TOUCH_XP"
 		(at 233.68 109.22 180)
@@ -3127,17 +3131,19 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "8f9b2be5-791e-5c68-b516-ec3dce354049")
-	)
-	(label "TOUCH_XN"
-		(at 81.28 91.44 180)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(uuid "1fed06ff-01db-5ab0-9db5-496663e487f2")
+		(property "Description" "Resistive touch panel X+ line between J15 and the touch controller U27"
+			(at 233.68 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
-			(justify right bottom)
 		)
-		(uuid "a3363c18-8cbb-5620-b52d-2531c439b08b")
 	)
 	(label "SPI_SCK"
 		(at 135.89 86.36 0)
@@ -3147,17 +3153,19 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "ae57b5a6-819a-5596-ae63-796f58aaf654")
-	)
-	(label "DISP_BL_A"
-		(at 48.26 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
+		(uuid "35e3d28d-3e9c-54eb-a11d-ed3ae86ca1f4")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 135.89 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
-			(justify left bottom)
 		)
-		(uuid "cf49fc15-e92c-582d-8349-5abeb62764d0")
 	)
 	(label "DISP_BL_K"
 		(at 233.68 83.82 180)
@@ -3167,17 +3175,41 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "d46ee81b-4311-5d4b-bee4-c370ecedf7d9")
+		(uuid "3a01dfea-5696-57cd-9dee-04fd1c69e701")
+		(property "Description" "Backlight LED cathode at J15, switched to GND by Q25"
+			(at 233.68 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 	)
-	(label "TOUCH_YN"
-		(at 81.28 93.98 180)
+	(label "SPI_MISO"
+		(at 135.89 93.98 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "e655628c-204c-53e3-91e1-bf5324735535")
+		(uuid "3c5ef5cb-67e1-5fed-9799-60c85588c453")
+		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
+			(at 135.89 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 	)
 	(label "TOUCH_YP"
 		(at 81.28 88.9 180)
@@ -3187,7 +3219,217 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "f44407d3-9d89-5fc0-b136-466b1c1192c6")
+		(uuid "3f36cfab-c21e-5dfd-8599-4475ad1c6da7")
+		(property "Description" "Resistive touch panel Y+ line between J15 and the touch controller U27"
+			(at 81.28 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_MOSI"
+		(at 135.89 91.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "42eb1347-d2ae-572a-96bd-19a84bbbdc00")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 135.89 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "TOUCH_XP"
+		(at 81.28 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "78f2661e-891f-535b-abcb-7afd60747a7c")
+		(property "Description" "Resistive touch panel X+ line between J15 and the touch controller U27"
+			(at 81.28 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "TOUCH_YN"
+		(at 81.28 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "816d14e9-d293-5df0-8016-55f0520880ff")
+		(property "Description" "Resistive touch panel Y- line between J15 and the touch controller U27"
+			(at 81.28 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "TOUCH_XN"
+		(at 81.28 91.44 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a1291d42-5243-5cd8-94c6-63b986a50b2d")
+		(property "Description" "Resistive touch panel X- line between J15 and the touch controller U27"
+			(at 81.28 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_SCK"
+		(at 233.68 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b0bec282-d286-5ed9-8af1-d6476d387532")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 233.68 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "TOUCH_XN"
+		(at 233.68 114.3 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bcb261f3-a716-5e8f-a8fa-0c371b120560")
+		(property "Description" "Resistive touch panel X- line between J15 and the touch controller U27"
+			(at 233.68 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "DISP_BL_A"
+		(at 48.26 152.4 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c986fbdf-c4ee-57cf-9b41-62ec3f015a2d")
+		(property "Description" "Backlight LED anode at J15, after the 39 R resistor from +5V_OR"
+			(at 48.26 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "TOUCH_YN"
+		(at 233.68 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cf49fc15-e92c-582d-8349-5abeb62764d0")
+		(property "Description" "Resistive touch panel Y- line between J15 and the touch controller U27"
+			(at 233.68 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "DISP_BL_K"
+		(at 78.74 154.94 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e2feaae4-0e1e-5f8e-938d-b46718c6e575")
+		(property "Description" "Backlight LED cathode at J15, switched to GND by Q25"
+			(at 78.74 154.94 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 	)
 	(label "TOUCH_YP"
 		(at 233.68 116.84 180)
@@ -3197,21 +3439,9 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "f9748e9c-5cfc-5c35-be58-300aea743df0")
-	)
-	(global_label "DISP_DC"
-		(shape bidirectional)
-		(at 170.18 210.82 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "0d642d4a-c534-51c4-9940-d12480e3d463")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 170.18 210.82 0)
+		(uuid "fe03daa4-db33-59cf-9d6a-20cbf9a7b1ec")
+		(property "Description" "Resistive touch panel Y+ line between J15 and the touch controller U27"
+			(at 233.68 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3219,31 +3449,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "DISP_RST"
-		(shape bidirectional)
-		(at 147.32 147.32 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "10229dfd-3753-5db7-af7e-3d64c7b31ec0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 147.32 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
+				(justify right)
 			)
 		)
 	)
@@ -3257,7 +3463,7 @@
 			)
 			(justify right)
 		)
-		(uuid "15682dbe-8c25-53b6-a80d-c79f66632605")
+		(uuid "10229dfd-3753-5db7-af7e-3d64c7b31ec0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 233.68 99.06 0)
 			(hide yes)
@@ -3270,116 +3476,8 @@
 				(justify right)
 			)
 		)
-	)
-	(global_label "DISP_BL_EN"
-		(shape bidirectional)
-		(at 58.42 165.1 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "232bb60c-c59a-574f-9eaa-7d65f0cbfe21")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 58.42 165.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "TOUCH_CS"
-		(shape bidirectional)
-		(at 121.92 88.9 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3c43c27f-89c4-5e72-bcf0-771a34e10e39")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 121.92 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 213.36 78.74 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "43a51ad6-f00a-5d41-895b-efb88c853eef")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 213.36 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "DISP_DC"
-		(shape bidirectional)
-		(at 233.68 96.52 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "582ac72f-9995-5889-b762-a476a4ca465e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 233.68 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "DISP_DC_1V8"
-		(shape bidirectional)
-		(at 127 210.82 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5e05606a-f584-5f28-b2a6-31130b9038b2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 127 210.82 0)
+		(property "Description" "Display reset from GPIO46, active low (strap pulled low by R14)"
+			(at 233.68 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3401,8 +3499,20 @@
 			)
 			(justify left)
 		)
-		(uuid "bcb261f3-a716-5e8f-a8fa-0c371b120560")
+		(uuid "229a5e2e-8d26-5e59-b1fe-30816688036c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 121.92 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "TSC2046 PENIRQ, active low: a touch is pending; read on expander GP7"
 			(at 121.92 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -3425,9 +3535,165 @@
 			)
 			(justify right)
 		)
-		(uuid "f4687848-fd07-5501-bdf4-e6417fa11eea")
+		(uuid "232bb60c-c59a-574f-9eaa-7d65f0cbfe21")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 233.68 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Chip select (active low) for the display, decoder Y4"
+			(at 233.68 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "DISP_BL_EN"
+		(shape bidirectional)
+		(at 58.42 165.1 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "33398b54-4f6b-5f94-82a3-6f48648463f4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 58.42 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Backlight enable from expander GP4: high turns the backlight on through Q25"
+			(at 58.42 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "TOUCH_CS"
+		(shape bidirectional)
+		(at 121.92 88.9 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "53951fba-63fb-57bc-bd8e-181aec803622")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 121.92 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Chip select (active low) for the TSC2046 touch controller, decoder Y5"
+			(at 121.92 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "DISP_DC"
+		(shape bidirectional)
+		(at 233.68 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5e05606a-f584-5f28-b2a6-31130b9038b2")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 233.68 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Display data / command select at 3.3 V, after the buffer U31: low = command"
+			(at 233.68 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "DISP_DC_1V8"
+		(shape bidirectional)
+		(at 127 210.82 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6f193608-e662-5706-a73f-995d84e02b7a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 127 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Display data / command select from GPIO48 (1.8 V), before the buffer U31"
+			(at 127 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3449,9 +3715,129 @@
 			)
 			(justify left)
 		)
-		(uuid "fe03daa4-db33-59cf-9d6a-20cbf9a7b1ec")
+		(uuid "b7d20cc7-ef7a-51f6-a3c2-48eb2291fb3a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 156.21 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 156.21 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "{SPI}"
+		(shape bidirectional)
+		(at 213.36 78.74 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ba5f62c3-a26e-592e-b3fe-a04ea0f0fb79")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 213.36 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 213.36 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "DISP_RST"
+		(shape bidirectional)
+		(at 147.32 147.32 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c70dbf91-25d6-5d4b-91b9-d0cae3849aba")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 147.32 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Display reset from GPIO46, active low (strap pulled low by R14)"
+			(at 147.32 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "DISP_DC"
+		(shape bidirectional)
+		(at 170.18 210.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "edb28dfb-7c51-5371-8d36-64c1c410c4c1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 170.18 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "Display data / command select at 3.3 V, after the buffer U31: low = command"
+			(at 170.18 210.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3530,7 +3916,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "44319592-d51f-5977-9160-4fced8a82f2d")
+			(uuid "32d4ed8b-cb2e-51c2-a234-76efe2386968")
 		)
 		(instances
 			(project "cryocooler"
@@ -3607,7 +3993,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7a817ea-84ee-5b0d-a677-91c203db2a20")
+			(uuid "c0da3b74-fe85-5965-a609-7c1baa745233")
 		)
 		(instances
 			(project "cryocooler"
@@ -3685,7 +4071,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3c75f271-4126-561d-9572-8e996b27cc59")
+			(uuid "c4c5632c-cde6-50b1-95d5-1f677c4234f9")
 		)
 		(instances
 			(project "cryocooler"
@@ -3763,7 +4149,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b9b1504f-f2cf-5211-9b5c-8b0a6f6bf3a2")
+			(uuid "8f9c4bf8-26c2-5072-ac3b-78a40c7232b4")
 		)
 		(instances
 			(project "cryocooler"
@@ -3829,7 +4215,7 @@
 				)
 			)
 		)
-		(property "Description" "TI 4-wire resistive touch-screen controller, 12-bit SPI ADC, DOUT high-Z with CS high, VQFN-16 (RGV)"
+		(property "Description" "Resistive touch controller (SPI): reads the panel X/Y lines and raises PENIRQ on a touch"
 			(at 101.6 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -3852,55 +4238,55 @@
 			)
 		)
 		(pin "6"
-			(uuid "48d1ef81-ac5c-50b1-a3b8-6f46e6481e74")
+			(uuid "7d35d150-887e-505c-91d4-00f943cdda11")
 		)
 		(pin "7"
-			(uuid "8ff2239b-f778-50e8-91dd-8b388a5d7d12")
+			(uuid "c8f49352-02fc-5707-ab8f-1b830556d21f")
 		)
 		(pin "8"
-			(uuid "d753c98e-3bd4-54a5-b146-a84560a7ad01")
+			(uuid "795bb4cc-8891-5dc3-b12b-eb32b334b57e")
 		)
 		(pin "9"
-			(uuid "f292c64c-02a7-561b-8b67-812e7a55d667")
+			(uuid "4395b738-f404-577d-906b-732dd9d9d2c3")
 		)
 		(pin "4"
-			(uuid "646d79ee-7f05-5c3c-9258-e7a116463d8e")
+			(uuid "05ed6e35-5323-536c-a098-9ce836f3e2ae")
 		)
 		(pin "3"
-			(uuid "b9ae8ebc-3c3a-5e77-b1bd-e11c869cb33c")
+			(uuid "95376adc-9eb9-5e6f-9c37-158bafac0801")
 		)
 		(pin "2"
-			(uuid "7d25e1c4-7584-5de4-ade3-5081f3cadfcc")
+			(uuid "a498e924-0ad4-5256-8919-25772d695902")
 		)
 		(pin "16"
-			(uuid "bce6be01-f8b4-5d5d-9990-314ee853016c")
+			(uuid "99dc6524-7cae-513c-8483-0858eb68cbba")
 		)
 		(pin "1"
-			(uuid "08d23bc9-d689-5a7d-a9cf-4ba9b81174f4")
+			(uuid "84352aa6-0d1a-5fad-bb0c-621ba9a83d0f")
 		)
 		(pin "15"
-			(uuid "88e92606-0655-5cc0-a5b1-3c21e95a26b2")
+			(uuid "0dda72a7-374b-578f-9e7b-ecf10bf2ffe7")
 		)
 		(pin "5"
-			(uuid "cc3eccc7-a6a5-570c-81d4-c528b3965c60")
+			(uuid "ba08401d-b946-53d7-8788-fb43a69ed22b")
 		)
 		(pin "14"
-			(uuid "f52bc373-9e72-5261-8f84-091b0f1da4be")
+			(uuid "055bdf2a-8c92-5a47-ac82-50880fa4be00")
 		)
 		(pin "13"
-			(uuid "014f8f7c-a8b5-5f13-bc23-481d1206db83")
+			(uuid "1e7ebd37-f0f5-5c9f-868b-5f0007c84376")
 		)
 		(pin "10"
-			(uuid "e3b1635c-0fdb-5226-bdf4-f940c5e0f7b6")
+			(uuid "2474b403-bba1-5ef5-8134-148f5ac52960")
 		)
 		(pin "11"
-			(uuid "ac46daf3-42e8-5ec5-996e-46d230c513bc")
+			(uuid "f4174eaa-4334-542b-9630-14684a313136")
 		)
 		(pin "12"
-			(uuid "095a42af-754f-5614-8153-7498f6db20e3")
+			(uuid "abb299f6-33b8-53da-a7d8-8d2c4b591e5e")
 		)
 		(pin "17"
-			(uuid "feab2905-ae79-52e5-ab40-78e9209d687b")
+			(uuid "594bbe5f-9f74-5b7a-8c69-ff67745a877e")
 		)
 		(instances
 			(project "cryocooler"
@@ -3978,7 +4364,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "be50170b-d554-56c3-ab03-b1eac0f9f30b")
+			(uuid "2d8349e9-1bdc-5102-a16f-1c890356a086")
 		)
 		(instances
 			(project "cryocooler"
@@ -4056,7 +4442,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "00d82104-deec-5ea9-b120-6581179a1924")
+			(uuid "d407c384-39b8-58b3-b4f7-97f9c5e80efd")
 		)
 		(instances
 			(project "cryocooler"
@@ -4122,7 +4508,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the DISP_DC buffer U31 (+3V3)"
 			(at 236.22 207.01 0)
 			(hide yes)
 			(show_name no)
@@ -4145,10 +4531,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b6d600b7-84f3-5451-93e6-0b7d09bf42a4")
+			(uuid "b25d33f0-15de-51e4-a2cd-b94011d39c57")
 		)
 		(pin "2"
-			(uuid "8f9c4bf8-26c2-5072-ac3b-78a40c7232b4")
+			(uuid "0146637e-8596-567f-a7d3-6a10350688c5")
 		)
 		(instances
 			(project "cryocooler"
@@ -4226,7 +4612,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3093f57c-1fa0-51e1-bd3a-935a6a3e3dd9")
+			(uuid "d91072cc-52f4-5ca4-906f-db19c1681f86")
 		)
 		(instances
 			(project "cryocooler"
@@ -4292,7 +4678,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Bulk decoupling capacitor for the display supply at J15 (+3V3)"
 			(at 213.36 196.85 0)
 			(hide yes)
 			(show_name no)
@@ -4315,10 +4701,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0dda72a7-374b-578f-9e7b-ecf10bf2ffe7")
+			(uuid "200c381a-6e88-532f-96ab-a96e20895e29")
 		)
 		(pin "2"
-			(uuid "ba08401d-b946-53d7-8788-fb43a69ed22b")
+			(uuid "be50170b-d554-56c3-ab03-b1eac0f9f30b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4382,7 +4768,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Current-limit resistor for the display backlight LEDs (from +5V_OR)"
 			(at 39.37 152.4 0)
 			(hide yes)
 			(show_name no)
@@ -4405,10 +4791,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1e7ebd37-f0f5-5c9f-868b-5f0007c84376")
+			(uuid "2714e078-e2ce-51b2-a487-764d9693cfc0")
 		)
 		(pin "2"
-			(uuid "2474b403-bba1-5ef5-8134-148f5ac52960")
+			(uuid "44319592-d51f-5977-9160-4fced8a82f2d")
 		)
 		(instances
 			(project "cryocooler"
@@ -4474,7 +4860,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Bulk decoupling capacitor for the touch controller U27 (+3V3)"
 			(at 213.36 168.91 0)
 			(hide yes)
 			(show_name no)
@@ -4497,10 +4883,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "4395b738-f404-577d-906b-732dd9d9d2c3")
+			(uuid "3c75f271-4126-561d-9572-8e996b27cc59")
 		)
 		(pin "2"
-			(uuid "05ed6e35-5323-536c-a098-9ce836f3e2ae")
+			(uuid "ac0a3443-6994-555c-ab58-5096bd8ed63d")
 		)
 		(instances
 			(project "cryocooler"
@@ -4578,7 +4964,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "88822150-511b-5891-992e-d5479d54962b")
+			(uuid "f5648b1a-8761-592b-b269-1aa7f2d89660")
 		)
 		(instances
 			(project "cryocooler"
@@ -4644,7 +5030,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the touch controller U27 (+3V3)"
 			(at 198.12 168.91 0)
 			(hide yes)
 			(show_name no)
@@ -4667,10 +5053,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c8f49352-02fc-5707-ab8f-1b830556d21f")
+			(uuid "d129d485-1c1e-5a16-8094-16136c82cc8e")
 		)
 		(pin "2"
-			(uuid "795bb4cc-8891-5dc3-b12b-eb32b334b57e")
+			(uuid "d5f5e271-fee7-5c26-aabd-48f12e2ba133")
 		)
 		(instances
 			(project "cryocooler"
@@ -4736,7 +5122,7 @@
 				)
 			)
 		)
-		(property "Description" "50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"
+		(property "Description" "Backlight low-side switch: DISP_BL_EN high connects the backlight cathode to GND"
 			(at 76.2 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -4759,13 +5145,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "f4174eaa-4334-542b-9630-14684a313136")
+			(uuid "b7a817ea-84ee-5b0d-a677-91c203db2a20")
 		)
 		(pin "2"
-			(uuid "abb299f6-33b8-53da-a7d8-8d2c4b591e5e")
+			(uuid "00d82104-deec-5ea9-b120-6581179a1924")
 		)
 		(pin "3"
-			(uuid "594bbe5f-9f74-5b7a-8c69-ff67745a877e")
+			(uuid "b6d600b7-84f3-5451-93e6-0b7d09bf42a4")
 		)
 		(instances
 			(project "cryocooler"
@@ -4831,7 +5217,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-down resistor for the Q25 gate: backlight off until the expander drives DISP_BL_EN"
 			(at 64.77 168.91 0)
 			(hide yes)
 			(show_name no)
@@ -4854,10 +5240,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1a26637a-ad09-51d5-80b5-ec601bb13885")
+			(uuid "3d81a92f-e748-5236-9104-11175f10ead6")
 		)
 		(pin "2"
-			(uuid "06791ec1-c29e-57b4-b2dd-92ccd55be2cf")
+			(uuid "30b84409-39aa-52a2-b8ce-41c4f5536511")
 		)
 		(instances
 			(project "cryocooler"
@@ -4935,7 +5321,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7d35d150-887e-505c-91d4-00f943cdda11")
+			(uuid "88822150-511b-5891-992e-d5479d54962b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4958,25 +5344,25 @@
 		(dnp no)
 		(uuid "95adb955-e9c1-54ac-bc52-2bdb53c5ac35")
 		(property "Reference" "R33"
-			(at 137.836 223.74 0)
+			(at 131.404 209.09 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "100k"
-			(at 137.836 225.84 0)
+			(at 131.404 212.265 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
@@ -5001,7 +5387,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-down resistor for the U31 buffer input: DISP_DC defined while GPIO48 floats"
 			(at 134.62 214.63 0)
 			(hide yes)
 			(show_name no)
@@ -5024,10 +5410,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c244454c-dea9-53fd-9eb5-36806c03c3c3")
+			(uuid "a8d1b539-2acb-5f49-a2a3-124d16adcec4")
 		)
 		(pin "2"
-			(uuid "2714e078-e2ce-51b2-a487-764d9693cfc0")
+			(uuid "a0f4ef84-66bb-5ca8-b92c-cef60d99d6c2")
 		)
 		(instances
 			(project "cryocooler"
@@ -5093,7 +5479,7 @@
 				)
 			)
 		)
-		(property "Description" "Nexperia single-supply translating buffer: VIH 1.37 V at VCC 3.0-3.3 V, so 1.8 V logic in, VCC-level out; inputs 5 V tolerant. X2SON5 SOT1226-3 0.8 x 0.8 mm. Pin 1 is n.c.; tied to GND to escape the centre GND land"
+		(property "Description" "1.8 V to 3.3 V buffer: lifts DISP_DC from GPIO48 (a 1.8 V pin on this module) to the display"
 			(at 152.4 213.36 0)
 			(hide yes)
 			(show_name no)
@@ -5116,19 +5502,19 @@
 			)
 		)
 		(pin "2"
-			(uuid "ac0a3443-6994-555c-ab58-5096bd8ed63d")
+			(uuid "71add73c-180f-59b9-a8f6-e5f570287e0b")
 		)
 		(pin "4"
-			(uuid "c4c078a3-cb47-5cb4-b8be-35d26e8cce36")
+			(uuid "bd592329-895e-54c2-9f48-a543a26161c5")
 		)
 		(pin "5"
-			(uuid "dd5a6587-b07b-5f9b-b207-2c13fdd58b03")
+			(uuid "b591438c-0cf6-5d46-8ca7-d2c34c555797")
 		)
 		(pin "1"
-			(uuid "4305cbfa-d9a2-5a3b-a6d4-8bafbf1ab2d0")
+			(uuid "21012d01-a5b4-5eb8-88f4-3186cb884953")
 		)
 		(pin "3"
-			(uuid "a0bdc854-2f0f-5268-b739-3e5b6f4ac681")
+			(uuid "2136d595-0f47-5757-bf9c-7a4b1559d296")
 		)
 		(instances
 			(project "cryocooler"
@@ -5194,7 +5580,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-down resistor for DISP_RST (GPIO46 strap: holds its default low level at reset)"
 			(at 147.32 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -5217,10 +5603,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d129d485-1c1e-5a16-8094-16136c82cc8e")
+			(uuid "44a69af7-4a6f-56a5-b81e-0e8962b2d311")
 		)
 		(pin "2"
-			(uuid "d5f5e271-fee7-5c26-aabd-48f12e2ba133")
+			(uuid "f445574e-164d-51cc-81e1-d411efc68b0a")
 		)
 		(instances
 			(project "cryocooler"
@@ -5244,25 +5630,25 @@
 		(dnp no)
 		(uuid "afa8cd10-2e38-5e7d-a0db-f18be5e14f13")
 		(property "Reference" "J15"
-			(at 260.35 73.64 0)
+			(at 246.72 77.01 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "FH12-14S-0.5SH(55)"
-			(at 260.35 75.74 0)
+			(at 246.72 78.915 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Footprint" "Connector_FFC-FPC:Hirose_FH12-14S-0.5SH_1x14-1MP_P0.50mm_Horizontal"
@@ -5287,7 +5673,7 @@
 				)
 			)
 		)
-		(property "Description" "Generic connectable mounting pin connector, single row, 01x14, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "Display FPC connector (14-pin, 0.5 mm): SPI, control lines, backlight and the raw resistive touch lines of the 2.4 inch ST7789V panel"
 			(at 254 101.6 0)
 			(hide yes)
 			(show_name no)
@@ -5310,49 +5696,49 @@
 			)
 		)
 		(pin "1"
-			(uuid "42eb1347-d2ae-572a-96bd-19a84bbbdc00")
+			(uuid "d753c98e-3bd4-54a5-b146-a84560a7ad01")
 		)
 		(pin "2"
-			(uuid "3c5ef5cb-67e1-5fed-9799-60c85588c453")
+			(uuid "f292c64c-02a7-561b-8b67-812e7a55d667")
 		)
 		(pin "3"
-			(uuid "b7d20cc7-ef7a-51f6-a3c2-48eb2291fb3a")
+			(uuid "646d79ee-7f05-5c3c-9258-e7a116463d8e")
 		)
 		(pin "4"
-			(uuid "229a5e2e-8d26-5e59-b1fe-30816688036c")
+			(uuid "b9ae8ebc-3c3a-5e77-b1bd-e11c869cb33c")
 		)
 		(pin "5"
-			(uuid "c986fbdf-c4ee-57cf-9b41-62ec3f015a2d")
+			(uuid "7d25e1c4-7584-5de4-ade3-5081f3cadfcc")
 		)
 		(pin "6"
-			(uuid "e2feaae4-0e1e-5f8e-938d-b46718c6e575")
+			(uuid "bce6be01-f8b4-5d5d-9990-314ee853016c")
 		)
 		(pin "7"
-			(uuid "33398b54-4f6b-5f94-82a3-6f48648463f4")
+			(uuid "08d23bc9-d689-5a7d-a9cf-4ba9b81174f4")
 		)
 		(pin "8"
-			(uuid "c70dbf91-25d6-5d4b-91b9-d0cae3849aba")
+			(uuid "88e92606-0655-5cc0-a5b1-3c21e95a26b2")
 		)
 		(pin "9"
-			(uuid "6f193608-e662-5706-a73f-995d84e02b7a")
+			(uuid "cc3eccc7-a6a5-570c-81d4-c528b3965c60")
 		)
 		(pin "10"
-			(uuid "edb28dfb-7c51-5371-8d36-64c1c410c4c1")
+			(uuid "f52bc373-9e72-5261-8f84-091b0f1da4be")
 		)
 		(pin "11"
-			(uuid "48716b93-cc09-54cd-9460-4dd33ed87a45")
+			(uuid "014f8f7c-a8b5-5f13-bc23-481d1206db83")
 		)
 		(pin "12"
-			(uuid "d473d181-4de5-53ac-a966-1e7eea2548a8")
+			(uuid "e3b1635c-0fdb-5226-bdf4-f940c5e0f7b6")
 		)
 		(pin "13"
-			(uuid "609269c0-6183-5707-b047-ec47398cd142")
+			(uuid "ac46daf3-42e8-5ec5-996e-46d230c513bc")
 		)
 		(pin "14"
-			(uuid "49b6d8a1-2619-59af-bf78-1d949a6b2653")
+			(uuid "095a42af-754f-5614-8153-7498f6db20e3")
 		)
 		(pin "MP"
-			(uuid "7aa163e5-e260-5bc9-b411-e20cde3b6579")
+			(uuid "feab2905-ae79-52e5-ab40-78e9209d687b")
 		)
 		(instances
 			(project "cryocooler"
@@ -5430,7 +5816,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d91072cc-52f4-5ca4-906f-db19c1681f86")
+			(uuid "1a26637a-ad09-51d5-80b5-ec601bb13885")
 		)
 		(instances
 			(project "cryocooler"
@@ -5507,7 +5893,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "200c381a-6e88-532f-96ab-a96e20895e29")
+			(uuid "4fa7ca51-cc9d-5570-abf5-a296f55af3c8")
 		)
 		(instances
 			(project "cryocooler"
@@ -5585,7 +5971,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a77786d5-8ac2-53c2-9f18-44bdb4909067")
+			(uuid "bfba319c-53ad-5d1a-87de-6e9e3476d32c")
 		)
 		(instances
 			(project "cryocooler"
@@ -5662,7 +6048,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "95376adc-9eb9-5e6f-9c37-158bafac0801")
+			(uuid "c4c078a3-cb47-5cb4-b8be-35d26e8cce36")
 		)
 		(instances
 			(project "cryocooler"
@@ -5739,7 +6125,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "bfba319c-53ad-5d1a-87de-6e9e3476d32c")
+			(uuid "06791ec1-c29e-57b4-b2dd-92ccd55be2cf")
 		)
 		(instances
 			(project "cryocooler"
@@ -5805,7 +6191,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the display supply at J15 (+3V3)"
 			(at 198.12 196.85 0)
 			(hide yes)
 			(show_name no)
@@ -5828,10 +6214,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "99dc6524-7cae-513c-8483-0858eb68cbba")
+			(uuid "4305cbfa-d9a2-5a3b-a6d4-8bafbf1ab2d0")
 		)
 		(pin "2"
-			(uuid "84352aa6-0d1a-5fad-bb0c-621ba9a83d0f")
+			(uuid "a0bdc854-2f0f-5268-b739-3e5b6f4ac681")
 		)
 		(instances
 			(project "cryocooler"
@@ -5908,7 +6294,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ff1e99df-52ff-5318-b1fe-f14f94b60bea")
+			(uuid "44bcf6b0-86d6-5827-9e89-c9e6c8d9a5cc")
 		)
 		(instances
 			(project "cryocooler"
@@ -5985,7 +6371,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "055bdf2a-8c92-5a47-ac82-50880fa4be00")
+			(uuid "c244454c-dea9-53fd-9eb5-36806c03c3c3")
 		)
 		(instances
 			(project "cryocooler"
@@ -6062,7 +6448,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "44bcf6b0-86d6-5827-9e89-c9e6c8d9a5cc")
+			(uuid "b9b1504f-f2cf-5211-9b5c-8b0a6f6bf3a2")
 		)
 		(instances
 			(project "cryocooler"
@@ -6140,7 +6526,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a498e924-0ad4-5256-8919-25772d695902")
+			(uuid "dd5a6587-b07b-5f9b-b207-2c13fdd58b03")
 		)
 		(instances
 			(project "cryocooler"

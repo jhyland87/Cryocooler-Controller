@@ -1080,17 +1080,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "WS2812B-2020 status LED on GPIO38 via a 74AHCT1G125GM 3.3 V -> 5 V level shifter. Works without the SPI bus, so it can show faults the bus would hide."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "3fce3ff5-c4dc-5b9f-82dd-8eda67dbf0f0")
-	)
 	(text "74AHCT1G125GM DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
 		(at 190.5 78.74 0)
@@ -1100,7 +1089,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "5b3b7a26-39fc-5fa8-acfd-e59f15b1f8ac")
+		(uuid "8fb3378e-5ee6-5a9c-8835-ff299f443b0d")
 	)
 	(text "WS2812B-2020 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -1111,77 +1100,38 @@
 			)
 			(justify left top)
 		)
-		(uuid "d05fe8d0-e479-54d8-9239-e73251a03a79")
+		(uuid "9c6cf49f-0b41-5d30-9a60-746060544102")
+	)
+	(text "WS2812B-2020 status LED on GPIO38 via a 74AHCT1G125GM 3.3 V -> 5 V level shifter. Works without the SPI bus, so it can show faults the bus would hide."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "e7b63045-6623-516c-872f-742ad16cff0d")
 	)
 	(junction
 		(at 78.74 139.7)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "8cbf5120-abe0-5257-9752-d7da7637c15d")
+		(uuid "36289150-8ff3-507d-bdb5-12042fdacfb7")
 	)
 	(junction
 		(at 58.42 127)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "93a51a73-251d-53fd-b579-12e8008568bf")
-	)
-	(no_connect
-		(at 86.36 129.54)
-		(uuid "3d74cf40-3c65-579e-999e-6870a50605b6")
+		(uuid "63875d6e-9436-5df0-b345-63a35be71d9c")
 	)
 	(no_connect
 		(at 134.62 127)
-		(uuid "5789a4d8-8a01-5ab4-8b7f-9cba9cd8d10a")
+		(uuid "20a35ecb-f2cd-553a-84e8-60c8a6dbfbd1")
 	)
-	(wire
-		(pts
-			(xy 78.74 139.7) (xy 78.74 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "16801018-c761-5b31-a0fd-323c60402b50")
-	)
-	(wire
-		(pts
-			(xy 76.2 116.84) (xy 76.2 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1870426c-5f57-5300-bdae-f80ad04d1e10")
-	)
-	(wire
-		(pts
-			(xy 260.35 96.52) (xy 267.97 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "26e2a33d-dae1-5868-88ef-0c6eac087bae")
-	)
-	(wire
-		(pts
-			(xy 78.74 137.16) (xy 78.74 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "31be742d-6e7d-58ed-aa28-a3e3ff686d3d")
-	)
-	(wire
-		(pts
-			(xy 190.5 96.52) (xy 198.12 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3511a35a-ecd9-5716-9170-a132ebadc4cd")
+	(no_connect
+		(at 86.36 129.54)
+		(uuid "e1dda328-95d4-58ba-92d9-6ff8ff7eab27")
 	)
 	(wire
 		(pts
@@ -1191,27 +1141,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "35fbdb91-de00-5487-bd0b-f161f5b9dabb")
-	)
-	(wire
-		(pts
-			(xy 96.52 127) (xy 119.38 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4987f244-8a0b-5b98-8db1-aa7c6e6b06da")
-	)
-	(wire
-		(pts
-			(xy 58.42 127) (xy 66.04 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6c3b73f2-be69-5c5d-8760-884c1810347d")
+		(uuid "0e6e9045-fb89-5757-90ec-52f1487d54a0")
 	)
 	(wire
 		(pts
@@ -1221,7 +1151,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9b75dab8-15d1-585b-9e52-935c6b328b08")
+		(uuid "13f78a3e-12bf-5ed9-a1ee-0b6caf8ddf2b")
 	)
 	(wire
 		(pts
@@ -1231,17 +1161,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9c20c041-7847-571a-a62d-4faacd1606d5")
-	)
-	(wire
-		(pts
-			(xy 48.26 127) (xy 58.42 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b50d0432-23a5-5dbe-866c-df71b3dab492")
+		(uuid "3d74cf40-3c65-579e-999e-6870a50605b6")
 	)
 	(wire
 		(pts
@@ -1251,27 +1171,57 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d8b63273-8d8e-5512-9a65-84718f7114b4")
+		(uuid "3fce3ff5-c4dc-5b9f-82dd-8eda67dbf0f0")
 	)
 	(wire
 		(pts
-			(xy 127 111.76) (xy 127 119.38)
+			(xy 96.52 127) (xy 119.38 127)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ef1c0acb-872c-5df1-afa4-b059b24dac9d")
+		(uuid "5789a4d8-8a01-5ab4-8b7f-9cba9cd8d10a")
 	)
 	(wire
 		(pts
-			(xy 73.66 139.7) (xy 78.74 139.7)
+			(xy 190.5 96.52) (xy 198.12 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f4906429-e80f-56f3-bc01-f075cdacb512")
+		(uuid "5b3b7a26-39fc-5fa8-acfd-e59f15b1f8ac")
+	)
+	(wire
+		(pts
+			(xy 48.26 127) (xy 58.42 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cbf5120-abe0-5257-9752-d7da7637c15d")
+	)
+	(wire
+		(pts
+			(xy 78.74 137.16) (xy 78.74 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ec8e9ba-ce3a-5bd0-bc50-64e84a38574d")
+	)
+	(wire
+		(pts
+			(xy 58.42 127) (xy 66.04 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93a51a73-251d-53fd-b579-12e8008568bf")
 	)
 	(wire
 		(pts
@@ -1281,7 +1231,57 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f931e375-8bc4-5442-8063-7a4c6336607d")
+		(uuid "997b485b-80db-5a3d-b69d-2fa5267104a0")
+	)
+	(wire
+		(pts
+			(xy 73.66 139.7) (xy 78.74 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b75dab8-15d1-585b-9e52-935c6b328b08")
+	)
+	(wire
+		(pts
+			(xy 127 111.76) (xy 127 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b070232d-b11b-5c51-a428-9d27b8750e3e")
+	)
+	(wire
+		(pts
+			(xy 78.74 139.7) (xy 78.74 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b989b17e-390c-516d-b08f-1bca69f71a34")
+	)
+	(wire
+		(pts
+			(xy 260.35 96.52) (xy 267.97 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d05fe8d0-e479-54d8-9239-e73251a03a79")
+	)
+	(wire
+		(pts
+			(xy 76.2 116.84) (xy 76.2 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d10d56e3-377a-54bf-8da1-53d44868ba08")
 	)
 	(global_label "STATUS_RGB"
 		(shape input)
@@ -1293,8 +1293,20 @@
 			)
 			(justify right)
 		)
-		(uuid "0e6e9045-fb89-5757-90ec-52f1487d54a0")
+		(uuid "bf12b39d-4e33-5956-b5ae-07c949ffd2a8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 48.26 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Data line to the WS2812B status LED (GPIO38, before the level shifter)"
 			(at 48.26 127 0)
 			(hide yes)
 			(show_name no)
@@ -1374,7 +1386,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ccca11fa-8eb7-562d-a7c9-9f77bc503624")
+			(uuid "c2bb4faa-c312-5435-ba16-a1d52a7c8bac")
 		)
 		(instances
 			(project "cryocooler"
@@ -1451,7 +1463,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "bf12b39d-4e33-5956-b5ae-07c949ffd2a8")
+			(uuid "5fb125d2-b23a-5982-8869-4d8177d67bf3")
 		)
 		(instances
 			(project "cryocooler"
@@ -1515,7 +1527,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Series resistor on the WS2812B data line: damps ringing"
 			(at 92.71 127 0)
 			(hide yes)
 			(show_name no)
@@ -1538,10 +1550,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b5cad8eb-05fa-5e45-9df4-6de413b4153e")
+			(uuid "01cababd-09f4-51b5-b27b-e775e4527dec")
 		)
 		(pin "2"
-			(uuid "6c02c52a-85da-5b8f-8224-ab1fd25f572e")
+			(uuid "7b613d81-6082-543d-85fa-378c24c75d96")
 		)
 		(instances
 			(project "cryocooler"
@@ -1619,7 +1631,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "116fcf31-8e8a-5a11-b7a8-cba01472b7fa")
+			(uuid "736f3569-6e7d-5ac6-9912-6fdcb8312f88")
 		)
 		(instances
 			(project "cryocooler"
@@ -1696,7 +1708,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0681456f-1f8a-51b4-8977-6b40322b41dc")
+			(uuid "b8258d2f-d7ae-5ab4-adb4-71ffe19e7099")
 		)
 		(instances
 			(project "cryocooler"
@@ -1773,7 +1785,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3479cf39-918d-5748-89a8-999673e0dc26")
+			(uuid "c31161c3-f30a-55e2-82e5-bfce8757833a")
 		)
 		(instances
 			(project "cryocooler"
@@ -1796,7 +1808,7 @@
 		(dnp no)
 		(uuid "75ceab15-f092-5f68-8719-31f135c6664d")
 		(property "Reference" "D13"
-			(at 111.76 114.28 0)
+			(at 136.82 117.65 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1839,7 +1851,7 @@
 				)
 			)
 		)
-		(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
+		(property "Description" "Addressable RGB status LED (fault / ready indication)"
 			(at 127 127 0)
 			(hide yes)
 			(show_name no)
@@ -1862,16 +1874,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "36289150-8ff3-507d-bdb5-12042fdacfb7")
+			(uuid "57506818-76c2-58ee-af20-3ce4d3791d53")
 		)
 		(pin "2"
-			(uuid "63875d6e-9436-5df0-b345-63a35be71d9c")
+			(uuid "6d3516f1-a1db-5619-ba4f-20cc424d4d27")
 		)
 		(pin "3"
-			(uuid "e1dda328-95d4-58ba-92d9-6ff8ff7eab27")
+			(uuid "3479cf39-918d-5748-89a8-999673e0dc26")
 		)
 		(pin "4"
-			(uuid "20a35ecb-f2cd-553a-84e8-60c8a6dbfbd1")
+			(uuid "ccca11fa-8eb7-562d-a7c9-9f77bc503624")
 		)
 		(instances
 			(project "cryocooler"
@@ -1949,7 +1961,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "e7b63045-6623-516c-872f-742ad16cff0d")
+			(uuid "60d22db2-54d2-5f09-954a-e040291d94ca")
 		)
 		(instances
 			(project "cryocooler"
@@ -2015,7 +2027,7 @@
 				)
 			)
 		)
-		(property "Description" "Nexperia single 3-state buffer, TTL inputs (VIH 2.0 V at 4.5-5.5 V), VCC 4.5-5.5 V, +/-8 mA, XSON6 SOT886 1.0 x 1.45 mm. Pin 5 is not connected"
+		(property "Description" "3.3 V to 5 V level shifter for the status LED data line"
 			(at 76.2 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -2038,22 +2050,22 @@
 			)
 		)
 		(pin "2"
-			(uuid "d10d56e3-377a-54bf-8da1-53d44868ba08")
+			(uuid "c9df550c-8dc1-5f19-a9d4-2ea1adfddafa")
 		)
 		(pin "4"
-			(uuid "997b485b-80db-5a3d-b69d-2fa5267104a0")
+			(uuid "b5cad8eb-05fa-5e45-9df4-6de413b4153e")
 		)
 		(pin "5"
-			(uuid "8ec8e9ba-ce3a-5bd0-bc50-64e84a38574d")
+			(uuid "6c02c52a-85da-5b8f-8224-ab1fd25f572e")
 		)
 		(pin "6"
-			(uuid "b989b17e-390c-516d-b08f-1bca69f71a34")
+			(uuid "b14a9a85-3e1d-5ad3-85cc-d3d32bdfa1cf")
 		)
 		(pin "1"
-			(uuid "b070232d-b11b-5c51-a428-9d27b8750e3e")
+			(uuid "0681456f-1f8a-51b4-8977-6b40322b41dc")
 		)
 		(pin "3"
-			(uuid "13f78a3e-12bf-5ed9-a1ee-0b6caf8ddf2b")
+			(uuid "116fcf31-8e8a-5a11-b7a8-cba01472b7fa")
 		)
 		(instances
 			(project "cryocooler"
@@ -2131,7 +2143,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c9df550c-8dc1-5f19-a9d4-2ea1adfddafa")
+			(uuid "51258c06-201f-516c-bda8-0eedba0240f9")
 		)
 		(instances
 			(project "cryocooler"
@@ -2197,7 +2209,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the level shifter U24 (+5V)"
 			(at 198.12 92.71 0)
 			(hide yes)
 			(show_name no)
@@ -2220,10 +2232,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "57506818-76c2-58ee-af20-3ce4d3791d53")
+			(uuid "5970eca4-53c6-571c-a7c6-29eb72356691")
 		)
 		(pin "2"
-			(uuid "6d3516f1-a1db-5619-ba4f-20cc424d4d27")
+			(uuid "bf52ca3b-2201-5b4a-88a9-d0a4f9ab827b")
 		)
 		(instances
 			(project "cryocooler"
@@ -2246,25 +2258,25 @@
 		(dnp no)
 		(uuid "e51ff1b2-115a-5a21-8438-3592989fa429")
 		(property "Reference" "R10"
-			(at 61.636 139.92 0)
+			(at 55.204 125.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "10k"
-			(at 61.636 142.02 0)
+			(at 55.204 128.445 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
@@ -2289,7 +2301,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-down resistor for STATUS_RGB: buffer input defined while GPIO38 floats"
 			(at 58.42 130.81 0)
 			(hide yes)
 			(show_name no)
@@ -2312,10 +2324,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "8fb3378e-5ee6-5a9c-8835-ff299f443b0d")
+			(uuid "8c24e8bc-85e3-51f0-b137-62325315930e")
 		)
 		(pin "2"
-			(uuid "9c6cf49f-0b41-5d30-9a60-746060544102")
+			(uuid "cb485837-68ea-5d2f-9c20-3acdb4b36616")
 		)
 		(instances
 			(project "cryocooler"
@@ -2381,7 +2393,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor for the status LED D13 (+5V)"
 			(at 267.97 92.71 0)
 			(hide yes)
 			(show_name no)
@@ -2404,10 +2416,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "5fb125d2-b23a-5982-8869-4d8177d67bf3")
+			(uuid "b15afe68-f448-514c-8fe8-feea27ab72a9")
 		)
 		(pin "2"
-			(uuid "60d22db2-54d2-5f09-954a-e040291d94ca")
+			(uuid "bd779de2-8bdc-56e9-80ee-1d064d6d5125")
 		)
 		(instances
 			(project "cryocooler"
@@ -2484,7 +2496,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b14a9a85-3e1d-5ad3-85cc-d3d32bdfa1cf")
+			(uuid "2b625cad-f952-58be-a29d-c117c8919314")
 		)
 		(instances
 			(project "cryocooler"
@@ -2562,7 +2574,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8c24e8bc-85e3-51f0-b137-62325315930e")
+			(uuid "be8e502d-e606-527d-9959-3ade2c23f515")
 		)
 		(instances
 			(project "cryocooler"
