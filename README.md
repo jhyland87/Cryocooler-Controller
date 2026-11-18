@@ -22,10 +22,11 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 | Coolant temperature | NTC thermistor | ADC | GPIO 4 | Coolant temp via voltage divider |
 | Status LED | WS2812B-2020 RGB | GPIO | GPIO 38 | Fault / Ready indication |
 | Expander | MCP23S08 | SPI (main bus) | CS: decoder Y3 | ±15 V flags, INA239 ALERT, ADT7320 INT and CT, 3 spare pins (rev 5; rev 4 also has the display backlight and touch IRQ) |
-| Display (rev 5, schematic only) | Waveshare ESP32-S3-Touch-LCD-4.3B, off-board, with its own ESP32-S3 and firmware | CAN through a TCAN3414 (header J15, which also feeds it unswitched 12 V) | CAN TX: GPIO 17, RX: GPIO 12 | Shows telemetry and sends commands. Its two digital outputs press the power button and RESET through header J21. No CAN firmware yet (the firmware still drives the rev 4 ST7789V + TSC2046) |
+| Display (rev 5, schematic only) | Waveshare ESP32-S3-Touch-LCD-4.3B, off-board, with its own ESP32-S3 and firmware | CAN through a TCAN3414 (rev 6: one 6-pin JST PH header J15 inside the board, which also feeds it fused, unswitched 12 V) | CAN TX: GPIO 17, RX: GPIO 12 | Shows telemetry and sends commands. Its two digital outputs press the power button and RESET through J15 pins 5 and 6 (rev 5: header J21). No CAN firmware yet (the firmware still drives the rev 4 ST7789V + TSC2046) |
 | Ambient temperature (rev 5, schematic only) | ADT7320 | SPI mode 3 (main bus) | CS: decoder Y8, INT / CT: expander GP2 / GP3 | Ambient temperature; replaces the reading the I2C fan controller gave |
 | Power button | LTC2954 INT# / KILL# | GPIO | GPIO 1 / GPIO 10 | Button press ramps down, then cuts system power |
 | General-purpose I/O | 2-pin headers J16-J18 and J20 (rev 4 also has J19 on GPIO 12) (signal, GND), each with an LED that follows the pin voltage | GPIO; ADC on IO5 / IO7 only | GPIO 5, 7, 11, 13 | Spare 3.3 V inputs or outputs (sensors, relay triggers, LEDs) |
+| AUX header (rev 6) | 5-pin JST PH header J40 inside the board: 5 V, 3.3 V, GPIO11, GPIO13, GND; 100 Ω and an ESD clamp per line, pull-up footprints not fitted | UART, I2C, 1-Wire, touch (T11, T13) or GPIO, chosen in firmware; ADC2 only with WiFi off | GPIO 11, 13 | Spare port for a later add-on. No firmware uses it yet |
 
 **I2C:** none. Every peripheral is on SPI or a GPIO.
 
@@ -43,7 +44,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 ![Front of the controller PCB (3D render)](hardware/kicad/fabrication/circuit-board-render-front.png)
 
-The 130 x 110 mm 4-layer board is generated from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). Each module has its own outlined, labelled box on the silkscreen, and the sections with their own supply jumper and LED can be switched off one at a time.
+The 4-layer board (rev 6: 212 x 84 mm, for the Phoenix UCS 237-195 housing; see [`hardware/HANDOFF_rev6.md`](hardware/HANDOFF_rev6.md)) is generated from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). Each module has its own outlined, labelled box on the silkscreen, and the sections with their own supply jumper and LED can be switched off one at a time.
 
 ### System wiring
 

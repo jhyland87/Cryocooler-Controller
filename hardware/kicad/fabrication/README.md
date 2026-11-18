@@ -50,30 +50,31 @@ dimmed and power nets in their net-class colours. Captured by hand from KiCad, s
 
 ## Order settings to check
 
-* 4 layers, 120 x 100 mm, 1.6 mm, 1 oz copper, **black** solder mask, no impedance control.
-* Design minimums: 0.15 mm track, 0.2 mm smallest drill, 0.5 mm board edge clearance.
-  **Clearance is 0.15 mm except at 214 places between 0.10 and 0.15 mm** (track to
-  track and track to pad on the I/O control lines, none below 0.10 mm and none at a
-  0.3 mm-drill via; see `DESIGN_REVIEW.md`, "Rev 5 board"). JLCPCB's published 4-layer
-  limits are 0.09 mm spacing and 0.1 mm pad to track; its 0.2 mm via-to-track figure
-  was not confirmed, and the 0.2 mm-drill vias sit 0.1 mm from other copper.
-  The board has a routed notch in the top edge under the ESP32
-  antenna (74.5-93.5 x 0-6 mm), and the four corner squares around the mounting
-  holes have no solder mask (housing requirement).
-* **Via-in-pad:** 52 pads on 40 parts carry vias (48 vias of 0.45 mm with 0.2 mm
-  drills, 12 of 0.6 mm with 0.3 mm drills). Order filled and capped vias, and check
-  JLCPCB's current via limits first.
+* Rev 6: 4 layers, 212 x 84 mm, 1.6 mm, 1 oz copper, **black** solder mask, no
+  impedance control.
+* Design minimums: 0.15 mm track, 0.15 mm clearance everywhere (rev 5's 0.1 mm
+  exceptions are gone), 0.2 mm smallest drill, 0.3 mm copper to board edge. A
+  0.45 mm via with a 0.2 mm drill may sit 0.1 mm from a surface-mount pad
+  (`via_in_pad_clearance`), and keeps 0.15 mm from tracks and other vias. JLCPCB's
+  published 4-layer limits are 0.09 mm spacing and 0.1 mm pad to track; whether its
+  0.2 mm via-to-track figure means the hole or the pad was not confirmed.
+  The board has a routed notch in the top edge under the ESP32 antenna
+  (96.5-115.5 x 0-6 mm), and the four corner squares around the mounting holes have
+  no solder mask (housing requirement).
+* **Via-in-pad:** the exposed IC ground pads, U36 pad 4 and U32 pad 19 carry vias.
+  Order filled and capped vias, and check JLCPCB's current via limits first. The
+  board has 1,442 vias: 1,075 of 0.45 mm with 0.2 mm drills, 364 of 0.6 / 0.3 mm
+  and 3 of 0.7 / 0.35 mm.
 * **Filled and capped vias are required on the whole board:** part labels, pin names
   and section names print across vias, so an open via would break the text. Confirm
   the option covers every via.
 * **ENIG finish:** for the fine-pitch leadless parts. Rev 5 has no mask-opening labels.
-* **High-precision silkscreen printing:** 400 labels are 0.8 mm text with a 0.1 mm
+* **High-precision silkscreen printing:** the part labels (424) and pin names are 0.8 mm text with a 0.1 mm
   stroke, JLCPCB's published minimum for high-precision printing. Select it and say
   in the order notes that the small text is intentional.
-* Parts on both sides: 236 of the 495 footprints are on the back.
-* The back silkscreen carries `REV5` in place of the board ID block (top edge, beside
-  the power input); check the viewer shows it mirrored correctly from the back.
+* Parts on both sides: 278 of the 497 footprints are on the back.
+* The back silkscreen carries `REV6` in place of the board ID block (top edge, left); check the viewer shows it mirrored correctly from the back.
 
-The drill report lists every hole size: plated 0.2 mm (816), 0.3 mm (585),
-component holes 0.6 to 1.8 mm; unplated 0.8 to 3.81 mm (15, among them the four
-3.2 mm mounting holes).
+The drill report (`gerbers/drill_report.txt`) lists every hole size. The vias are
+plated 0.2 mm (1,075), 0.3 mm (364) and 0.35 mm (3); the rest are component holes
+and the unplated holes, among them the four 3.2 mm mounting holes.

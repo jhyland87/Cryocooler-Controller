@@ -30,16 +30,16 @@ RENDER_SIZE = ('4400', '2300')
 ANGLE_RENDER_SIZE = ('2400', '1700')
 # Lower lighting keeps the blue solder mask from washing out to purple at this angle.
 ANGLE_RENDER_OPTIONS = (
-    '--perspective', '--rotate', '-35,-24,2', '--zoom', '0.92', '--pan', '-0.85,0.5,0',
+    '--perspective', '--rotate', '-35,-24,2', '--zoom', '1.1', '--pan', '0,0,0',
     '--light-camera', '0.2', '--light-top', '0.3', '--light-side', '0.15',
 )
 # Edge-on views, named for the board edge facing the camera (kicad-cli's 'back'
 # and 'front' sides are the top and bottom edges). One zoom keeps the four at
 # one scale; the pan centres the parts, which stand taller above the board
 # than below it. The border is thin, so re-check after adding a taller part.
-EDGE_LONG = ('2400', '520')
-EDGE_SHORT = ('1560', '520')
-EDGE_VIEW = ('--zoom', '4.3', '--pan', '0,-0.34,0')
+EDGE_LONG = ('2400', '340')
+EDGE_SHORT = ('1000', '340')
+EDGE_VIEW = ('--zoom', '6.8', '--pan', '0,-0.34,0')
 RENDERS = (
     ('top', 'circuit-board-render-front.png', RENDER_SIZE, ('--perspective',)),
     ('bottom', 'circuit-board-render-back.png', RENDER_SIZE, ()),

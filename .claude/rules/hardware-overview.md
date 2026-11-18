@@ -17,6 +17,7 @@ Design rules are in `hardware-schematic.md` and `hardware-pcb.md`.
 | `hardware/kicad/lib/` | Project symbols, footprints, and `cryocooler.3dshapes/` 3D models. |
 | `hardware/kicad/fabrication/` | Gerbers, JLCPCB zip, and board renders, written by `tools/export_fab.py`. |
 | `hardware/kicad/imu/` | The 18 x 18 mm LSM6DSOX board on the J14 cable: its own KiCad project sharing `../lib`, built by `tools/gen_imu_schematic.py` and `tools/imu_board.py` (see `kicad/README.md`, "IMU board"). |
+| `hardware/HANDOFF_rev6.md` | Rev 6 (branch `rev6-schematic`): 212 x 84 mm board for the UCS 237-195 housing, JST PH headers, AUX header; board state and open items. |
 | `hardware/HANDOFF_rev5.md` | Rev 5 (branch `rev5-schematic`): UCS 145-125 board with universal I/O, board state and open items. |
 | `hardware/HANDOFF_ucs125_rev4.md` | Current board (branch `ucs-125-87-rev4`): what rev 4 changes on the UCS 125-87 board. |
 | `hardware/HANDOFF_ucs125_rev3.md` | Rev 3 on the 100 x 62 mm UCS 125-87 outline: the board rev 4 starts from. |

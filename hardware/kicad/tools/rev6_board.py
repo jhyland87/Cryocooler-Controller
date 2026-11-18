@@ -308,6 +308,8 @@ rev5.PIN_NAMES = {
     'J40': [('NS', {'1': '5V', '2': '3V3', '3': 'IO11', '4': 'IO13', '5': 'GND'})],
 }
 rev5.REV_MARK = 'REV6'
+# the board has room: a row of pin names may start further from its connector
+rev5.PIN_NAME_REACH = 6.0
 
 # Net classes the router sees. Rev 5 gave it 0.25 mm tracks and 0.6 / 0.3 mm vias and
 # was then repaired by hand at 0.15 mm and 0.45 / 0.2 mm; rev 6 routes at those from
