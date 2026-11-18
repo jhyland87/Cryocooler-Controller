@@ -200,7 +200,7 @@
 // and with IOn_BUF_OE_N low the pin reads back through a buffer (pulse input).
 #define IO_CH1_FAST_PIN              5
 #define IO_CH2_FAST_PIN              7
-// GPIO11 and GPIO13 are spare on rev 5.
+// GPIO11 and GPIO13 go to the AUX header J40 on rev 6 (spare on rev 5).
 
 // MCP23S17 port bits, one port per channel (expander k: port A = channel 2k + 1,
 // port B = channel 2k + 2). Every line has a pull resistor to its off level.

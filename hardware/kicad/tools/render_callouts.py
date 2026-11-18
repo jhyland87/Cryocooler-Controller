@@ -38,18 +38,18 @@ PORTS = {
         'J12': ('Cryocooler', '+ / - / GND'),
         'J13': ('Compressor relay', 'switched 12 V / GND'),
         'J14': ('IMU', 'cable to IMU board'),
-        'J15': ('Display', 'CAN H / CAN L / button / reset'),
-        'J21': ('Display 12 V', 'GND / fused 12 V'),
+        'J15': ('Display', 'JST PH: GND / 12 V / CAN H / CAN L / button / reset'),
         'J30': ('Sensor A', 'EXC / IN+ / IN- / GND'),
         'J31': ('Sensor B', 'EXC / IN+ / IN- / GND'),
         'J32': ('Pressure 1', '5 V / signal / GND / NC'),
         'J33': ('Pressure 2', '5 V / signal / GND / NC'),
-        'J34': ('RS-485', 'A / B / GND / NC'),
-        'J35': ('SPI expansion', '2x5: 3V3, 5 V, SPI, 2 CS, INT, GND'),
+        'J34': ('RS-485', 'JST PH: A / B / GND / NC'),
+        'J35': ('SPI expansion', 'JST PH: 3V3, 5 V, SPI, INT, 2 CS, GND'),
         'J36': ('IO1', 'V+ / IO / GND / NC'),
         'J37': ('IO2', 'V+ / IO / GND / NC'),
         'J38': ('IO3', 'V+ / IO / GND / NC'),
         'J39': ('IO4', 'V+ / IO / GND / NC'),
+        'J40': ('AUX', 'JST PH: 5 V / 3V3 / GPIO11 / GPIO13 / GND'),
         'SW1': ('Reset button', 'ESP32 EN'),
         'SW2': ('Boot button', 'ESP32 download mode'),
         'SW3': ('Power button', 'on / off'),
@@ -247,6 +247,8 @@ def draw_callouts(image_path, texts, boxes, flip, board_mm, board_px):
             text_width + 2 * pad,
             (NAME_SIZE + DETAIL_SIZE) * SCALE * 1.25 + 2 * pad,
         )
+        # without the detail line, for a side too crowded to show it
+        short = (draw.textlength(title, name_font) + 2 * pad, size[1])
         # arrow tip: halfway from the port's centre to its outer edge
         tip = {
             'left': ((x0 + cx) / 2, cy),
@@ -254,17 +256,20 @@ def draw_callouts(image_path, texts, boxes, flip, board_mm, board_px):
             'top': (cx, (y0 + cy) / 2),
             'bottom': (cx, (y1 + cy) / 2),
         }[side]
-        sides[side].append((tip, size, title, detail))
+        sides[side].append((tip, size, title, detail, short))
 
     for side, ports in sides.items():
         along = 1 if side in ('left', 'right') else 0  # axis labels spread on
         ports.sort(key=lambda port: port[0][along])
-        centres = spread(
-            [port[0][along] for port in ports],
-            [port[1][along] for port in ports],
-            edge,
-            (height if along else width) - edge,
-        )
+        limit = (height if along else width) - edge
+        wanted = [port[0][along] for port in ports]
+        try:
+            centres = spread(wanted, [port[1][along] for port in ports], edge, limit)
+            ports = [port[:4] for port in ports]
+        except RuntimeError:
+            # too many ports along this edge: names only
+            ports = [(tip, short, title, '') for tip, _size, title, _detail, short in ports]
+            centres = spread(wanted, [port[1][along] for port in ports], edge, limit)
         deepest = max((port[1][1 - along] for port in ports), default=0)
         for (tip, size, title, detail), centre in zip(ports, centres):
             # label box: inner edges of one side's labels line up

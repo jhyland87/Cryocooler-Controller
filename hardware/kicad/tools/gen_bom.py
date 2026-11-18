@@ -130,7 +130,8 @@ PARTS = {
     ('ISOW7841AQDWERQ1', 'SOIC-16W_7.5x10.3mm_P1.27mm'): (
         'Texas Instruments', 'ISOW7841AQDWERQ1', 'DGTL ISO 5KV 4CH GEN PURP 16SOIC',
         'design', 'isolated SPI and 5 V for the ACS37800; replaces the ISOW7741 (no stock). '
-        'Mouser showed 644 in stock on 2026-11-15. Runs from 3.3 V: 40 mA at 5 V out'),
+        'Mouser showed 41 in stock on 2026-11-18 (644 on 2026-11-15); Digi-Key had none. '
+        'Runs from 3.3 V: 40 mA at 5 V out'),
     # ── expansion and display link (rev 5) ──
     ('SC16IS750IBS', 'HVQFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm'): (
         'NXP', 'SC16IS750IBS,128', 'IC UART SPI/I2C 64B FIFO 24HVQFN', 'design',
@@ -144,10 +145,20 @@ PARTS = {
     ('MF-MSMF050/24X', 'Fuse_1812_4532Metric'): (
         'Bourns', 'MF-MSMF050/24X-2', 'PTC RESET FUSE 24V 500MA 1812', 'design',
         'display feed: 0.5 A hold, 1 A trip; the display draws about 0.2 A'),
-    ('SPI EXPANSION', 'PinHeader_2x05_P2.54mm_Vertical_SMD'): (
-        'Samtec', 'TSM-105-01-L-DV', 'CONN HEADER SMD 10POS 2.54MM', 'suggested',
-        'SPI expansion header; any surface-mount 2 x 5 2.54 mm pin header fits. Part '
-        'number and stock not checked'),
+    # JST PH top-entry SMT headers (rev 6): 2 A, 100 V, 6.6 mm tall (JST ePH.pdf)
+    ('', 'JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical'): (
+        'JST', 'B4B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 4POS 2MM, 2 A', 'design',
+        'J34 RS-485; mates with a JST PHR-4 housing'),
+    ('', 'JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical'): (
+        'JST', 'B5B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 5POS 2MM, 2 A', 'design',
+        'J40 AUX header (GPIO11, GPIO13); mates with a JST PHR-5 housing. JLCPCB stock '
+        'not checked'),
+    ('', 'JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical'): (
+        'JST', 'B6B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 6POS 2MM, 2 A', 'design',
+        'J15 display (supply, CAN, button, reset); mates with a JST PHR-6 housing'),
+    ('', 'JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical'): (
+        'JST', 'B10B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 10POS 2MM, 2 A', 'design',
+        'J35 SPI expansion; mates with a JST PHR-10 housing. JLCPCB stock not checked'),
     # ── universal I/O (rev 5) ──
     ('120', 'R_2512_6332Metric'): (
         'Bourns', 'CRM2512-FX-1200ELF', 'RES 120 OHM 1% 2W 2512', 'suggested',
@@ -320,14 +331,14 @@ PARTS = {
     ('', 'XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-02-9TSN',
         'CONN HEADER R/A SMT 2POS 2.54MM, 4 A', 'design',
-        'J6 NTC, J13 relay 12 V out, J21 display supply; mates with X2510H-02 housings and '
+        'J6 NTC, J13 relay 12 V out; mates with X2510H-02 housings and '
         'X2510T terminals'),
     ('', 'XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'): (
         'XKB Connectivity', 'X2510WRS-04-9TSN',
         'CONN HEADER R/A SMT 4POS 2.54MM, 4 A', 'design',
         'J3 fan, J4 pump, J5 flow sensor (pin 4 unused), J30 and J31 precision sensor '
-        'ports, J15 display signals, and the 3-wire ports with pin 4 unused (J32 / J33 '
-        'pressure, J34 RS-485, J36-J39 I/O); mates with X2510H-04 housings, so fan, pump '
+        'ports, and the 3-wire ports with pin 4 unused (J32 / J33 pressure, J36-J39 '
+        'I/O); mates with X2510H-04 housings, so fan, pump '
         'and flow leads are re-housed'),
     ('OPA4990IRUCR', 'Texas_S-PX2QFN-14'): (
         'Texas Instruments', 'OPA4990IRUCR', 'IC OPAMP GP 4 CIRCUIT 14X2QFN', 'design',
@@ -435,10 +446,11 @@ PARTS = {
         'Amphenol', 'RJSSE-5380', 'CONN MOD JACK 8P8C R/A SHIELDED SMD',
         'design', 'J14 IMU cable; plain jack, no magnetics (drawing '
         'P-RJSSE-5380 rev E)'),
-    ('LT3045HMSE', 'MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm'): (
-        'Analog Devices', 'LT3045HMSE#TRPBF', 'IC REG LINEAR POS ADJ 500MA 12MSOP', 'design',
-        '+15 V regulator, replaces half of the LT3097 (no stock). MSOP because that is '
-        'the package Mouser had (4,805 on 2026-11-15); the 3 x 3 mm DFN stock was not seen'),
+    ('LT3045EDD', 'DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm'): (
+        'Analog Devices', 'LT3045EDD#TRPBF', 'IC REG LINEAR POS ADJ 500MA 10DFN', 'design',
+        '+15 V regulator, replaces half of the LT3097 (no stock). Leadless 3 x 3 mm DFN on '
+        'rev 6 (rev 5 used the MSOP); E grade, -40 to 125 C. Mouser listed 6,911 on '
+        '2026-11-18'),
     ('LT3094HDD', 'DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm'): (
         'Analog Devices', 'LT3094HDD#TRPBF', 'IC REG LINEAR NEG ADJ 500MA 12DFN', 'design',
         '-15 V regulator, replaces half of the LT3097; exposed pad is IN (-16.5 V), not '
@@ -520,6 +532,8 @@ MOUSER_OUTPUT = KICAD_DIR / 'bom' / 'cryocooler_bom_mouser.csv'
 LCSC_PARTS = {
     'X2510WRS-02-9TSN': 'C908467',
     'X2510WRS-04-9TSN': 'C908468',
+    'B4B-PH-SM4-TB(LF)(SN)': 'C160354',
+    'B6B-PH-SM4-TB(LF)(SN)': 'C471518',
 }
 
 # JLCPCB: KiCad footprint -> degrees added to the KiCad rotation in the CPL.
@@ -721,7 +735,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'PhoenixContact', 'TE_', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'Tensility_', 'SameSky_', 'TestPoint_Keystone',
-    'XKB_', 'Molex_Mini-Fit',
+    'XKB_', 'Molex_Mini-Fit', 'JST_PH_',
 )
 
 

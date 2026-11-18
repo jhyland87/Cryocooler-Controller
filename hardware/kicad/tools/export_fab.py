@@ -26,7 +26,7 @@ from pcbnetlist import KICAD_CLI, KICAD_DIR
 
 BOARD = KICAD_DIR / 'cryocooler.kicad_pcb'
 # Wide enough for the port callouts beside the board (render_callouts.py).
-RENDER_SIZE = ('3000', '2100')
+RENDER_SIZE = ('4400', '2300')
 ANGLE_RENDER_SIZE = ('2400', '1700')
 # Lower lighting keeps the blue solder mask from washing out to purple at this angle.
 ANGLE_RENDER_OPTIONS = (

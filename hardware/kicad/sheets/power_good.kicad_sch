@@ -1673,18 +1673,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "4abeb73e-e0e4-50e1-9d87-5d50904fff31")
-	)
-	(text "-15 V GUARD: an unpowered LT3094 cannot pull PGN low. Midpoint near 0 V with both rails up, about +7.5 V with -15 V missing."
-		(exclude_from_sim no)
-		(at 25.4 177.8 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "5264324b-0654-5909-933c-659b0b5c1ac5")
+		(uuid "0ba2f816-8284-54d8-8622-f65e8dc497c4")
 	)
 	(text "PG_15V = the two nodes ANDed by a BAT54AW with a 470k pull-up to +3V3 (weak so it cannot lift dead nodes; 3.3 V only when both are good); it gates the amplifier REM switch and reads LOW on GPIO43 (PG_15V_N) when both rails are good."
 		(exclude_from_sim no)
@@ -1695,199 +1684,60 @@
 			)
 			(justify left top)
 		)
-		(uuid "84cdd26a-8681-5a53-8b07-50134b7b317f")
+		(uuid "36602f05-5711-50c8-a5bf-9b4143e4587d")
 	)
-	(junction
-		(at 129.54 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "32b12f4c-f1b1-561b-a422-5006b962b65c")
-	)
-	(junction
-		(at 38.1 198.12)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "90db8594-f8ad-5605-ba9f-598fcf144b8d")
-	)
-	(junction
-		(at 38.1 58.42)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "97e85e01-fc9d-550e-98b4-bb4ab70f2355")
-	)
-	(junction
-		(at 63.5 58.42)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b6e041f7-0dfb-571b-8481-a05a35679712")
-	)
-	(junction
-		(at 40.64 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bff4cdbd-1915-589c-8587-604bb66dd4f6")
+	(text "-15 V GUARD: an unpowered LT3094 cannot pull PGN low. Midpoint near 0 V with both rails up, about +7.5 V with -15 V missing."
+		(exclude_from_sim no)
+		(at 25.4 177.8 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9121cf60-e2a0-5030-b9e9-6e74e6c13744")
 	)
 	(junction
 		(at 120.65 63.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "c1a25afc-d146-5cda-b122-b2529d788d0b")
+		(uuid "1327865b-801b-5028-8895-29dfd0f18c61")
+	)
+	(junction
+		(at 38.1 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2325a421-38f8-5a87-95c5-3a5060098ae5")
+	)
+	(junction
+		(at 38.1 198.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "269ea951-f5cb-56cb-870a-e3f1dcae988b")
+	)
+	(junction
+		(at 129.54 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "442cb8c7-f398-5c01-875d-58fa3699091c")
+	)
+	(junction
+		(at 40.64 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "73f971c0-a7f8-5550-8768-8f9e994e2fd6")
+	)
+	(junction
+		(at 63.5 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "82514ecc-6671-5641-9f44-9ce6b93ed007")
 	)
 	(junction
 		(at 205.74 91.44)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "c35d3d25-495f-5367-983a-1c3764ff19f2")
-	)
-	(wire
-		(pts
-			(xy 27.94 139.7) (xy 33.02 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "01cababd-09f4-51b5-b27b-e775e4527dec")
-	)
-	(wire
-		(pts
-			(xy 38.1 58.42) (xy 43.18 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0681456f-1f8a-51b4-8977-6b40322b41dc")
-	)
-	(wire
-		(pts
-			(xy 40.64 144.78) (xy 40.64 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0749e0c6-2ee2-58c2-91d5-7122207fa44b")
-	)
-	(wire
-		(pts
-			(xy 119.38 111.76) (xy 123.19 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0c59fff4-49d6-5376-84f4-cfd8475f653b")
-	)
-	(wire
-		(pts
-			(xy 63.5 58.42) (xy 68.58 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "116fcf31-8e8a-5a11-b7a8-cba01472b7fa")
-	)
-	(wire
-		(pts
-			(xy 114.3 60.96) (xy 114.3 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "11713300-14d2-58cc-9980-c75e5c8126af")
-	)
-	(wire
-		(pts
-			(xy 205.74 106.68) (xy 205.74 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15963349-b977-55fe-92a3-a1986bb348ea")
-	)
-	(wire
-		(pts
-			(xy 205.74 91.44) (xy 205.74 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1c6e89de-0a56-5972-aaf0-ae8d3cc00efb")
-	)
-	(wire
-		(pts
-			(xy 162.56 129.54) (xy 162.56 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1c7b8a07-eb69-5b7f-a42c-d067c22e4e86")
-	)
-	(wire
-		(pts
-			(xy 130.81 111.76) (xy 133.35 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "20309637-3dac-5bc4-a988-38055e9468e1")
-	)
-	(wire
-		(pts
-			(xy 116.84 139.7) (xy 121.92 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b625cad-f952-58be-a29d-c117c8919314")
-	)
-	(wire
-		(pts
-			(xy 58.42 187.96) (xy 63.5 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2c73ff9a-4231-5044-9ddd-d0477000ff65")
-	)
-	(wire
-		(pts
-			(xy 73.66 109.22) (xy 76.2 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e387e79-6144-5d76-a7fa-8fefe36a6ba8")
-	)
-	(wire
-		(pts
-			(xy 58.42 187.96) (xy 58.42 193.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3028b801-920e-5937-a144-7227e023801b")
-	)
-	(wire
-		(pts
-			(xy 114.3 63.5) (xy 120.65 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3479cf39-918d-5748-89a8-999673e0dc26")
+		(uuid "e34d5a12-b9d1-59b2-87fe-8ba2415c31f5")
 	)
 	(wire
 		(pts
@@ -1897,317 +1747,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "34b7e165-ac55-5d36-94e5-012bf06118d2")
+		(uuid "0749e0c6-2ee2-58c2-91d5-7122207fa44b")
 	)
 	(wire
 		(pts
-			(xy 129.54 129.54) (xy 129.54 134.62)
+			(xy 116.84 139.7) (xy 121.92 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3a2b7c52-08b8-5916-9181-d97c75ab9928")
-	)
-	(wire
-		(pts
-			(xy 162.56 144.78) (xy 162.56 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3e7862c3-4765-51ca-9343-5864c1588ffe")
-	)
-	(wire
-		(pts
-			(xy 162.56 111.76) (xy 165.1 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "41221870-d15a-50f5-a671-124144c67de6")
-	)
-	(wire
-		(pts
-			(xy 180.34 109.22) (xy 182.88 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "41ac9c2a-9bb0-52f0-b966-fe5b3da0e341")
-	)
-	(wire
-		(pts
-			(xy 91.44 109.22) (xy 93.98 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4acfe7ff-17b0-5748-a2c4-8a28d8c59608")
-	)
-	(wire
-		(pts
-			(xy 58.42 203.2) (xy 58.42 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4d2b4964-d1f8-5067-952b-772287a4d39d")
-	)
-	(wire
-		(pts
-			(xy 218.44 91.44) (xy 223.52 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "51258c06-201f-516c-bda8-0eedba0240f9")
-	)
-	(wire
-		(pts
-			(xy 33.02 208.28) (xy 38.1 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5242f59b-d655-594f-b256-01fa4fd2f65d")
-	)
-	(wire
-		(pts
-			(xy 101.6 55.88) (xy 106.68 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57506818-76c2-58ee-af20-3ce4d3791d53")
-	)
-	(wire
-		(pts
-			(xy 129.54 129.54) (xy 133.35 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5970eca4-53c6-571c-a7c6-29eb72356691")
-	)
-	(wire
-		(pts
-			(xy 120.65 71.12) (xy 125.73 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5fb125d2-b23a-5982-8869-4d8177d67bf3")
-	)
-	(wire
-		(pts
-			(xy 193.04 101.6) (xy 198.12 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60d22db2-54d2-5f09-954a-e040291d94ca")
-	)
-	(wire
-		(pts
-			(xy 121.92 55.88) (xy 127 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6d3516f1-a1db-5619-ba4f-20cc424d4d27")
-	)
-	(wire
-		(pts
-			(xy 40.64 129.54) (xy 44.45 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "736f3569-6e7d-5ac6-9912-6fdcb8312f88")
-	)
-	(wire
-		(pts
-			(xy 63.5 139.7) (xy 66.04 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7b613d81-6082-543d-85fa-378c24c75d96")
-	)
-	(wire
-		(pts
-			(xy 162.56 109.22) (xy 165.1 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "801a8114-6400-5a90-8e89-5903f78f97c5")
-	)
-	(wire
-		(pts
-			(xy 38.1 198.12) (xy 50.8 198.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "854ebc95-7e35-5400-89c9-725a18130920")
-	)
-	(wire
-		(pts
-			(xy 193.04 91.44) (xy 205.74 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8c24e8bc-85e3-51f0-b137-62325315930e")
-	)
-	(wire
-		(pts
-			(xy 73.66 144.78) (xy 73.66 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9842c5f1-8234-5d84-b682-1e9bb3e4610d")
-	)
-	(wire
-		(pts
-			(xy 73.66 111.76) (xy 76.2 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b0b6a30a-62de-5a85-96e8-cbf3b724ff69")
-	)
-	(wire
-		(pts
-			(xy 130.81 106.68) (xy 133.35 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b15afe68-f448-514c-8fe8-feea27ab72a9")
-	)
-	(wire
-		(pts
-			(xy 152.4 139.7) (xy 154.94 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b8258d2f-d7ae-5ab4-adb4-71ffe19e7099")
-	)
-	(wire
-		(pts
-			(xy 30.48 111.76) (xy 34.29 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd779de2-8bdc-56e9-80ee-1d064d6d5125")
-	)
-	(wire
-		(pts
-			(xy 41.91 111.76) (xy 44.45 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be8e502d-e606-527d-9959-3ade2c23f515")
-	)
-	(wire
-		(pts
-			(xy 30.48 106.68) (xy 34.29 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf52ca3b-2201-5b4a-88a9-d0a4f9ab827b")
-	)
-	(wire
-		(pts
-			(xy 119.38 106.68) (xy 123.19 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c2bb4faa-c312-5435-ba16-a1d52a7c8bac")
-	)
-	(wire
-		(pts
-			(xy 41.91 106.68) (xy 44.45 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c31161c3-f30a-55e2-82e5-bfce8757833a")
-	)
-	(wire
-		(pts
-			(xy 40.64 129.54) (xy 40.64 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c7cfd684-6ebc-574b-a50e-1109ca1b305c")
-	)
-	(wire
-		(pts
-			(xy 205.74 91.44) (xy 210.82 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cb485837-68ea-5d2f-9c20-3acdb4b36616")
-	)
-	(wire
-		(pts
-			(xy 120.65 63.5) (xy 129.54 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ccca11fa-8eb7-562d-a7c9-9f77bc503624")
-	)
-	(wire
-		(pts
-			(xy 73.66 129.54) (xy 73.66 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf393b62-c9d4-5bd5-8f59-0425c7650f3e")
+		(uuid "0c59fff4-49d6-5376-84f4-cfd8475f653b")
 	)
 	(wire
 		(pts
@@ -2217,7 +1767,257 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d968b2b9-cfdd-597c-8bf8-42f0510c59de")
+		(uuid "11713300-14d2-58cc-9980-c75e5c8126af")
+	)
+	(wire
+		(pts
+			(xy 130.81 111.76) (xy 133.35 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15963349-b977-55fe-92a3-a1986bb348ea")
+	)
+	(wire
+		(pts
+			(xy 119.38 111.76) (xy 123.19 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c6e89de-0a56-5972-aaf0-ae8d3cc00efb")
+	)
+	(wire
+		(pts
+			(xy 33.02 208.28) (xy 38.1 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c7b8a07-eb69-5b7f-a42c-d067c22e4e86")
+	)
+	(wire
+		(pts
+			(xy 152.4 139.7) (xy 154.94 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20309637-3dac-5bc4-a988-38055e9468e1")
+	)
+	(wire
+		(pts
+			(xy 162.56 144.78) (xy 162.56 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28efea68-74bf-5f83-978f-b4458826d794")
+	)
+	(wire
+		(pts
+			(xy 63.5 58.42) (xy 68.58 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b625cad-f952-58be-a29d-c117c8919314")
+	)
+	(wire
+		(pts
+			(xy 73.66 111.76) (xy 76.2 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c73ff9a-4231-5044-9ddd-d0477000ff65")
+	)
+	(wire
+		(pts
+			(xy 30.48 106.68) (xy 34.29 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e387e79-6144-5d76-a7fa-8fefe36a6ba8")
+	)
+	(wire
+		(pts
+			(xy 114.3 60.96) (xy 114.3 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3028b801-920e-5937-a144-7227e023801b")
+	)
+	(wire
+		(pts
+			(xy 58.42 187.96) (xy 58.42 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31f392c3-5c29-5831-86b0-1498e89fe997")
+	)
+	(wire
+		(pts
+			(xy 129.54 129.54) (xy 129.54 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "32b12f4c-f1b1-561b-a422-5006b962b65c")
+	)
+	(wire
+		(pts
+			(xy 129.54 129.54) (xy 133.35 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34b7e165-ac55-5d36-94e5-012bf06118d2")
+	)
+	(wire
+		(pts
+			(xy 162.56 109.22) (xy 165.1 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a2b7c52-08b8-5916-9181-d97c75ab9928")
+	)
+	(wire
+		(pts
+			(xy 38.1 198.12) (xy 50.8 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e7862c3-4765-51ca-9343-5864c1588ffe")
+	)
+	(wire
+		(pts
+			(xy 40.64 129.54) (xy 44.45 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41221870-d15a-50f5-a671-124144c67de6")
+	)
+	(wire
+		(pts
+			(xy 130.81 106.68) (xy 133.35 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41ac9c2a-9bb0-52f0-b966-fe5b3da0e341")
+	)
+	(wire
+		(pts
+			(xy 41.91 106.68) (xy 44.45 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4acfe7ff-17b0-5748-a2c4-8a28d8c59608")
+	)
+	(wire
+		(pts
+			(xy 205.74 91.44) (xy 205.74 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d2b4964-d1f8-5067-952b-772287a4d39d")
+	)
+	(wire
+		(pts
+			(xy 30.48 111.76) (xy 34.29 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5242f59b-d655-594f-b256-01fa4fd2f65d")
+	)
+	(wire
+		(pts
+			(xy 58.42 203.2) (xy 58.42 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53230c63-baf1-5831-b3f8-dbc31143afd7")
+	)
+	(wire
+		(pts
+			(xy 114.3 63.5) (xy 120.65 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5970eca4-53c6-571c-a7c6-29eb72356691")
+	)
+	(wire
+		(pts
+			(xy 121.92 55.88) (xy 127 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "736f3569-6e7d-5ac6-9912-6fdcb8312f88")
+	)
+	(wire
+		(pts
+			(xy 38.1 58.42) (xy 43.18 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7b613d81-6082-543d-85fa-378c24c75d96")
+	)
+	(wire
+		(pts
+			(xy 119.38 106.68) (xy 123.19 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "801a8114-6400-5a90-8e89-5903f78f97c5")
+	)
+	(wire
+		(pts
+			(xy 41.91 111.76) (xy 44.45 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "854ebc95-7e35-5400-89c9-725a18130920")
 	)
 	(wire
 		(pts
@@ -2227,7 +2027,197 @@
 			(width 0)
 			(type default)
 		)
+		(uuid "90db8594-f8ad-5605-ba9f-598fcf144b8d")
+	)
+	(wire
+		(pts
+			(xy 205.74 106.68) (xy 205.74 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "97e85e01-fc9d-550e-98b4-bb4ab70f2355")
+	)
+	(wire
+		(pts
+			(xy 91.44 109.22) (xy 93.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9842c5f1-8234-5d84-b682-1e9bb3e4610d")
+	)
+	(wire
+		(pts
+			(xy 27.94 139.7) (xy 33.02 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0b6a30a-62de-5a85-96e8-cbf3b724ff69")
+	)
+	(wire
+		(pts
+			(xy 193.04 91.44) (xy 205.74 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b15afe68-f448-514c-8fe8-feea27ab72a9")
+	)
+	(wire
+		(pts
+			(xy 40.64 129.54) (xy 40.64 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6e041f7-0dfb-571b-8481-a05a35679712")
+	)
+	(wire
+		(pts
+			(xy 101.6 55.88) (xy 106.68 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b8258d2f-d7ae-5ab4-adb4-71ffe19e7099")
+	)
+	(wire
+		(pts
+			(xy 205.74 91.44) (xy 210.82 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd779de2-8bdc-56e9-80ee-1d064d6d5125")
+	)
+	(wire
+		(pts
+			(xy 218.44 91.44) (xy 223.52 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be8e502d-e606-527d-9959-3ade2c23f515")
+	)
+	(wire
+		(pts
+			(xy 120.65 63.5) (xy 129.54 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf52ca3b-2201-5b4a-88a9-d0a4f9ab827b")
+	)
+	(wire
+		(pts
+			(xy 73.66 144.78) (xy 73.66 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bff4cdbd-1915-589c-8587-604bb66dd4f6")
+	)
+	(wire
+		(pts
+			(xy 40.64 144.78) (xy 40.64 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1a25afc-d146-5cda-b122-b2529d788d0b")
+	)
+	(wire
+		(pts
+			(xy 193.04 101.6) (xy 198.12 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c2bb4faa-c312-5435-ba16-a1d52a7c8bac")
+	)
+	(wire
+		(pts
+			(xy 120.65 71.12) (xy 125.73 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c31161c3-f30a-55e2-82e5-bfce8757833a")
+	)
+	(wire
+		(pts
+			(xy 73.66 129.54) (xy 73.66 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c35d3d25-495f-5367-983a-1c3764ff19f2")
+	)
+	(wire
+		(pts
+			(xy 162.56 111.76) (xy 165.1 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7cfd684-6ebc-574b-a50e-1109ca1b305c")
+	)
+	(wire
+		(pts
+			(xy 73.66 109.22) (xy 76.2 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf393b62-c9d4-5bd5-8f59-0425c7650f3e")
+	)
+	(wire
+		(pts
+			(xy 63.5 139.7) (xy 66.04 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d968b2b9-cfdd-597c-8bf8-42f0510c59de")
+	)
+	(wire
+		(pts
+			(xy 180.34 109.22) (xy 182.88 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
 		(uuid "da7d7f18-df21-5bea-87f7-ddb5902d080f")
+	)
+	(wire
+		(pts
+			(xy 58.42 187.96) (xy 63.5 187.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ea789ab5-6fda-5725-9c52-da4a2a94e044")
 	)
 	(wire
 		(pts
@@ -2237,85 +2227,29 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ea789ab5-6fda-5725-9c52-da4a2a94e044")
+		(uuid "ea7d3c40-0ecb-502f-9bb6-7f309de2db00")
 	)
-	(label "PGN_LED_GK"
-		(at 152.4 139.7 180)
+	(wire
+		(pts
+			(xy 162.56 129.54) (xy 162.56 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ee6271e3-ff89-50ec-925c-0fe5067ef287")
+	)
+	(label "PGN_LED_RA"
+		(at 162.56 111.76 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "20b0cf10-0ddf-5da7-8a6d-e83fd1d281a9")
-		(property "Description" "Green cathode of D12, pulled low by Q24 when -15 V is good; also the Q52 gate"
-			(at 152.4 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "PGP_LED_GA"
-		(at 73.66 109.22 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2437b0f3-7277-52ba-8427-68444a59bfaf")
-		(property "Description" "Green anode of the +15 V power-good LED D11"
-			(at 73.66 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "PGP_LED_GA"
-		(at 44.45 106.68 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "269ea951-f5cb-56cb-870a-e3f1dcae988b")
-		(property "Description" "Green anode of the +15 V power-good LED D11"
-			(at 44.45 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGP_LED_RA"
-		(at 73.66 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "304944d7-e8fa-5312-a115-22d98d552d56")
-		(property "Description" "Red anode of the +15 V power-good LED D11"
-			(at 73.66 111.76 0)
+		(uuid "11e7ed55-0422-5060-8828-8c043fc48e4b")
+		(property "Description" "Red anode of the -15 V power-good LED D12"
+			(at 162.56 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2335,75 +2269,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "34e7ace9-3418-5bcb-aec7-c39d2f2a8bd1")
+		(uuid "2a54147c-817b-58ea-a46e-36afb91005ab")
 		(property "Description" "Red cathode of D12, pulled low by Q52 when -15 V is bad"
 			(at 162.56 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGN_LED_RA"
-		(at 133.35 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3ff506a3-1c0b-5855-940b-bccb22283e86")
-		(property "Description" "Red anode of the -15 V power-good LED D12"
-			(at 133.35 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGP_LED_RK"
-		(at 73.66 129.54 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "442cb8c7-f398-5c01-875d-58fa3699091c")
-		(property "Description" "Red cathode of D11, pulled low by Q51 when +15 V is bad"
-			(at 73.66 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGN_LED_GA"
-		(at 133.35 106.68 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4c40c9e3-876e-5eb9-909a-1802d0a1a99c")
-		(property "Description" "Green anode of the -15 V power-good LED D12"
-			(at 133.35 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2423,163 +2291,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "5e27884e-3288-542c-a640-b22919b1efe4")
+		(uuid "2ca8bfd8-22c9-5354-be5d-99af4c15eb9f")
 		(property "Description" "Green cathode of D12, pulled low by Q24 when -15 V is good; also the Q52 gate"
 			(at 182.88 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGP_LED_RA"
-		(at 44.45 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6e3e19b9-c67a-5072-a82a-fd56f95ca558")
-		(property "Description" "Red anode of the +15 V power-good LED D11"
-			(at 44.45 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGP_LED_GK"
-		(at 63.5 139.7 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "73f971c0-a7f8-5550-8768-8f9e994e2fd6")
-		(property "Description" "Green cathode of D11, pulled low by Q23 when +15 V is good; also the Q51 gate"
-			(at 63.5 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "PGP_LED_RK"
-		(at 93.98 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "77f70980-0f00-5e96-891c-2d482c2f174e")
-		(property "Description" "Red cathode of D11, pulled low by Q51 when +15 V is bad"
-			(at 93.98 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGN_LED_RA"
-		(at 162.56 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "782e5be0-dfca-57e5-990c-eb21ba6cb524")
-		(property "Description" "Red anode of the -15 V power-good LED D12"
-			(at 162.56 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "PGN_LED_GK"
-		(at 133.35 129.54 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7bc983b0-dedc-506e-b82c-ba79fd60f36f")
-		(property "Description" "Green cathode of D12, pulled low by Q24 when -15 V is good; also the Q52 gate"
-			(at 133.35 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGP_LED_GK"
-		(at 93.98 109.22 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7f36daa1-5d79-5940-b796-da537a34e3d8")
-		(property "Description" "Green cathode of D11, pulled low by Q23 when +15 V is good; also the Q51 gate"
-			(at 93.98 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "PGN_LED_RK"
-		(at 182.88 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9ad74426-626d-59f7-9cb7-14f6b79a7cd7")
-		(property "Description" "Red cathode of D12, pulled low by Q52 when -15 V is bad"
-			(at 182.88 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2599,9 +2313,31 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "e34d5a12-b9d1-59b2-87fe-8ba2415c31f5")
+		(uuid "34e7ace9-3418-5bcb-aec7-c39d2f2a8bd1")
 		(property "Description" "Green cathode of D11, pulled low by Q23 when +15 V is good; also the Q51 gate"
 			(at 44.45 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGP_LED_RK"
+		(at 73.66 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3ff506a3-1c0b-5855-940b-bccb22283e86")
+		(property "Description" "Red cathode of D11, pulled low by Q51 when +15 V is bad"
+			(at 73.66 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2621,7 +2357,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "e85866c9-61c7-5483-bc48-11a09a6fbead")
+		(uuid "48bee4a0-bb51-5f22-b69f-eae622e4d3c3")
 		(property "Description" "Green anode of the -15 V power-good LED D12"
 			(at 162.56 109.22 0)
 			(hide yes)
@@ -2635,6 +2371,270 @@
 			)
 		)
 	)
+	(label "PGP_LED_RA"
+		(at 73.66 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4abeb73e-e0e4-50e1-9d87-5d50904fff31")
+		(property "Description" "Red anode of the +15 V power-good LED D11"
+			(at 73.66 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PGP_LED_GK"
+		(at 63.5 139.7 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4c40c9e3-876e-5eb9-909a-1802d0a1a99c")
+		(property "Description" "Green cathode of D11, pulled low by Q23 when +15 V is good; also the Q51 gate"
+			(at 63.5 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PGN_LED_GK"
+		(at 133.35 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5264324b-0654-5909-933c-659b0b5c1ac5")
+		(property "Description" "Green cathode of D12, pulled low by Q24 when -15 V is good; also the Q52 gate"
+			(at 133.35 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGP_LED_RA"
+		(at 44.45 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5e27884e-3288-542c-a640-b22919b1efe4")
+		(property "Description" "Red anode of the +15 V power-good LED D11"
+			(at 44.45 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGP_LED_GK"
+		(at 93.98 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "782e5be0-dfca-57e5-990c-eb21ba6cb524")
+		(property "Description" "Green cathode of D11, pulled low by Q23 when +15 V is good; also the Q51 gate"
+			(at 93.98 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGN_LED_RA"
+		(at 133.35 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7c69438e-7845-5cc1-b76f-c315fbb0485c")
+		(property "Description" "Red anode of the -15 V power-good LED D12"
+			(at 133.35 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGN_LED_RK"
+		(at 182.88 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8717d1c0-b992-53bc-944a-f8835838c641")
+		(property "Description" "Red cathode of D12, pulled low by Q52 when -15 V is bad"
+			(at 182.88 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGP_LED_GA"
+		(at 73.66 109.22 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9ad74426-626d-59f7-9cb7-14f6b79a7cd7")
+		(property "Description" "Green anode of the +15 V power-good LED D11"
+			(at 73.66 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PGN_LED_GA"
+		(at 133.35 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d4e71004-768f-5798-b3cb-75f86a1fc722")
+		(property "Description" "Green anode of the -15 V power-good LED D12"
+			(at 133.35 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGP_LED_RK"
+		(at 93.98 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e2b9bfe6-322d-55b4-ae8b-65e74e400b3c")
+		(property "Description" "Red cathode of D11, pulled low by Q51 when +15 V is bad"
+			(at 93.98 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PGN_LED_GK"
+		(at 152.4 139.7 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e77db355-74b0-565b-bdcc-43260fe025a3")
+		(property "Description" "Green cathode of D12, pulled low by Q24 when -15 V is good; also the Q52 gate"
+			(at 152.4 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PGP_LED_GA"
+		(at 44.45 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e85866c9-61c7-5483-bc48-11a09a6fbead")
+		(property "Description" "Green anode of the +15 V power-good LED D11"
+			(at 44.45 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
 	(global_label "PGP_15V"
 		(shape bidirectional)
 		(at 27.94 139.7 180)
@@ -2645,7 +2645,7 @@
 			)
 			(justify right)
 		)
-		(uuid "1327865b-801b-5028-8895-29dfd0f18c61")
+		(uuid "20b0cf10-0ddf-5da7-8a6d-e83fd1d281a9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 27.94 139.7 0)
 			(hide yes)
@@ -2671,42 +2671,6 @@
 			)
 		)
 	)
-	(global_label "PG_15V"
-		(shape bidirectional)
-		(at 193.04 101.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "2325a421-38f8-5a87-95c5-3a5060098ae5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.04 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: gates the amplifier REM switch"
-			(at 193.04 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(global_label "PGN_15V"
 		(shape bidirectional)
 		(at 68.58 58.42 0)
@@ -2717,7 +2681,7 @@
 			)
 			(justify left)
 		)
-		(uuid "28efea68-74bf-5f83-978f-b4458826d794")
+		(uuid "2437b0f3-7277-52ba-8427-68444a59bfaf")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 68.58 58.42 0)
 			(hide yes)
@@ -2732,42 +2696,6 @@
 		)
 		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
 			(at 68.58 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PGN_15V"
-		(shape bidirectional)
-		(at 127 55.88 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "31f392c3-5c29-5831-86b0-1498e89fe997")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 127 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
-			(at 127 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2789,7 +2717,7 @@
 			)
 			(justify left)
 		)
-		(uuid "53230c63-baf1-5831-b3f8-dbc31143afd7")
+		(uuid "304944d7-e8fa-5312-a115-22d98d552d56")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 129.54 63.5 0)
 			(hide yes)
@@ -2815,9 +2743,9 @@
 			)
 		)
 	)
-	(global_label "PGN_15V"
+	(global_label "PG_15V"
 		(shape bidirectional)
-		(at 116.84 139.7 180)
+		(at 193.04 101.6 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2827,7 +2755,7 @@
 		)
 		(uuid "57d318c6-0ec4-50d5-911e-457f40bda3e8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 116.84 139.7 0)
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2838,8 +2766,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
-			(at 116.84 139.7 0)
+		(property "Description" "Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: gates the amplifier REM switch"
+			(at 193.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2848,6 +2776,78 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+	)
+	(global_label "PGP_15V"
+		(shape bidirectional)
+		(at 43.18 58.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6e3e19b9-c67a-5072-a82a-fd56f95ca558")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 43.18 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
+			(at 43.18 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "PGN_15V"
+		(shape bidirectional)
+		(at 127 55.88 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "77f70980-0f00-5e96-891c-2d482c2f174e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 127 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
+			(at 127 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
@@ -2861,7 +2861,7 @@
 			)
 			(justify left)
 		)
-		(uuid "82514ecc-6671-5641-9f44-9ce6b93ed007")
+		(uuid "7bc983b0-dedc-506e-b82c-ba79fd60f36f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 223.52 91.44 0)
 			(hide yes)
@@ -2887,6 +2887,78 @@
 			)
 		)
 	)
+	(global_label "PGP_15V"
+		(shape bidirectional)
+		(at 101.6 55.88 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7f36daa1-5d79-5940-b796-da537a34e3d8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 101.6 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
+			(at 101.6 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "PGN_15V"
+		(shape bidirectional)
+		(at 116.84 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "84cdd26a-8681-5a53-8b07-50134b7b317f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 116.84 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
+			(at 116.84 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
 	(global_label "PGN_15V"
 		(shape bidirectional)
 		(at 63.5 187.96 0)
@@ -2897,7 +2969,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e2b9bfe6-322d-55b4-ae8b-65e74e400b3c")
+		(uuid "cc6c91f9-b324-5ba0-a0b2-fcba6a58d712")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 63.5 187.96 0)
 			(hide yes)
@@ -2912,78 +2984,6 @@
 		)
 		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
 			(at 63.5 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 101.6 55.88 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ea7d3c40-0ecb-502f-9bb6-7f309de2db00")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.6 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
-			(at 101.6 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 43.18 58.42 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ee6271e3-ff89-50ec-925c-0fe5067ef287")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 43.18 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
-			(at 43.18 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3071,10 +3071,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "3ff3518d-68ab-59e1-abf5-e225fc9584b8")
+			(uuid "d98eea5f-e550-54ba-a836-0ba00dc14564")
 		)
 		(pin "2"
-			(uuid "36942686-1ad8-5305-92f5-4d12b79b95f4")
+			(uuid "f8613cea-12b1-5fd7-936f-833a1c755985")
 		)
 		(instances
 			(project "cryocooler"
@@ -3152,7 +3152,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b82fd68a-47f8-5f2e-a194-dff391241025")
+			(uuid "d4a619a8-31f4-5b2a-81e1-04cf1742a485")
 		)
 		(instances
 			(project "cryocooler"
@@ -3241,10 +3241,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2a54147c-817b-58ea-a46e-36afb91005ab")
+			(uuid "9b3e4b41-4fc0-5147-b672-f14b387640f9")
 		)
 		(pin "2"
-			(uuid "d4e71004-768f-5798-b3cb-75f86a1fc722")
+			(uuid "280102e6-69fc-5908-9ba0-df5923bff42c")
 		)
 		(instances
 			(project "cryocooler"
@@ -3321,7 +3321,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3813e257-2004-51eb-9589-2f0b4bbb1725")
+			(uuid "49669341-8748-558c-a422-bd465906b9e6")
 		)
 		(instances
 			(project "cryocooler"
@@ -3410,13 +3410,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "b0545eae-3e16-5a6d-aa0a-e87b17231589")
+			(uuid "097adfe7-e522-58cb-98b8-4f7cb4909832")
 		)
 		(pin "2"
-			(uuid "0bcef72d-7efb-5229-8c0f-8bb88d2209f1")
+			(uuid "336dd501-b5af-5c90-8b52-2d91ee9ea416")
 		)
 		(pin "3"
-			(uuid "24f24d33-15d3-55e2-9c89-d3d8a2a6d3cf")
+			(uuid "80557eb1-1c6d-533e-862e-24363a9a3f96")
 		)
 		(instances
 			(project "cryocooler"
@@ -3503,10 +3503,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0a3a900a-b77b-568a-8dd8-6c27f8212a1d")
+			(uuid "1796e54c-7c18-5a51-b1ae-5762076b9ed6")
 		)
 		(pin "2"
-			(uuid "4eb7c868-5e7b-5b26-ae5c-e9a13764a8e6")
+			(uuid "f628f171-d4d8-5334-b745-ccef8142d461")
 		)
 		(instances
 			(project "cryocooler"
@@ -3583,7 +3583,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "e77db355-74b0-565b-bdcc-43260fe025a3")
+			(uuid "c8d6448e-65f7-59cf-af83-0978228b26f5")
 		)
 		(instances
 			(project "cryocooler"
@@ -3661,7 +3661,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c44ccd95-df90-55f0-a2e7-8d834a44db23")
+			(uuid "6093a421-4df3-5252-9d53-7d99d2fffbae")
 		)
 		(instances
 			(project "cryocooler"
@@ -3739,7 +3739,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d27ed2bf-3b73-57d7-b1a6-83b0c08d53ef")
+			(uuid "23bf87d8-2a65-51bc-b13e-0e3e93fe8ece")
 		)
 		(instances
 			(project "cryocooler"
@@ -3817,7 +3817,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a20e1f4f-36fc-55ab-a173-9221147e5972")
+			(uuid "304d2eda-ccf3-5aff-9d05-3b81c9239421")
 		)
 		(instances
 			(project "cryocooler"
@@ -3895,7 +3895,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2ca8bfd8-22c9-5354-be5d-99af4c15eb9f")
+			(uuid "9edfea6f-40d7-51c0-9f56-3d98cd066e62")
 		)
 		(instances
 			(project "cryocooler"
@@ -3972,7 +3972,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "83010c92-2812-5695-8321-22e622c1e980")
+			(uuid "7da9a860-22ad-5b96-84bf-b565569bd427")
 		)
 		(instances
 			(project "cryocooler"
@@ -4061,10 +4061,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "93dc0d87-d2bf-5bca-8011-502109ecd6d8")
+			(uuid "977168f2-e1b9-58ff-a06e-7d600f400bc0")
 		)
 		(pin "2"
-			(uuid "381c3f21-680a-51d2-a5d8-f598fc74cff6")
+			(uuid "9a877579-7e0e-5511-b336-fa9a7b975974")
 		)
 		(instances
 			(project "cryocooler"
@@ -4153,13 +4153,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "a583389e-a810-5ae5-871f-181ada26a196")
+			(uuid "cc1d62bf-c626-5efb-b346-fad00f991c0c")
 		)
 		(pin "2"
-			(uuid "19391b24-3160-5d99-a789-9ae2a7c0dda9")
+			(uuid "cf7d69df-92f2-5a79-87cb-d04a11d993ce")
 		)
 		(pin "3"
-			(uuid "4271fd21-8680-529c-b7c2-4f860b557889")
+			(uuid "c44ccd95-df90-55f0-a2e7-8d834a44db23")
 		)
 		(instances
 			(project "cryocooler"
@@ -4248,13 +4248,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "137608f0-b066-5e52-9d0a-991e69b5039e")
+			(uuid "0a3a900a-b77b-568a-8dd8-6c27f8212a1d")
 		)
 		(pin "2"
-			(uuid "46cdb915-a42b-5abf-92e9-19c825d55dcf")
+			(uuid "4eb7c868-5e7b-5b26-ae5c-e9a13764a8e6")
 		)
 		(pin "3"
-			(uuid "5fedc287-d383-554e-b52e-992cdbd90792")
+			(uuid "bc5a89c4-d258-59d2-adc2-917b52e4072a")
 		)
 		(instances
 			(project "cryocooler"
@@ -4332,7 +4332,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "9edfea6f-40d7-51c0-9f56-3d98cd066e62")
+			(uuid "4271fd21-8680-529c-b7c2-4f860b557889")
 		)
 		(instances
 			(project "cryocooler"
@@ -4421,16 +4421,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "bc5a89c4-d258-59d2-adc2-917b52e4072a")
+			(uuid "ac5c65df-3676-5449-b3c1-1331ff8e030a")
 		)
 		(pin "4"
-			(uuid "23bf87d8-2a65-51bc-b13e-0e3e93fe8ece")
+			(uuid "8e86f96f-c388-5eaa-a836-b0f3b0d3a4be")
 		)
 		(pin "2"
-			(uuid "4df1402e-3a62-530b-99dc-28c2da982bf8")
+			(uuid "83010c92-2812-5695-8321-22e622c1e980")
 		)
 		(pin "3"
-			(uuid "977168f2-e1b9-58ff-a06e-7d600f400bc0")
+			(uuid "3efc7e50-52ae-5787-8d22-a56f6f0cb47b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4517,10 +4517,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "cc1d62bf-c626-5efb-b346-fad00f991c0c")
+			(uuid "dced5b5e-eccc-5af9-a38c-54ee75cf730a")
 		)
 		(pin "2"
-			(uuid "cf7d69df-92f2-5a79-87cb-d04a11d993ce")
+			(uuid "9209223f-1368-52b3-9efb-ad3fe7a5a26e")
 		)
 		(instances
 			(project "cryocooler"
@@ -4597,7 +4597,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d98eea5f-e550-54ba-a836-0ba00dc14564")
+			(uuid "4480a399-4d1b-5ebc-8873-5204fa2aacd6")
 		)
 		(instances
 			(project "cryocooler"
@@ -4674,7 +4674,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "df1dcdc5-9674-54e4-a611-d0a84172efe5")
+			(uuid "381c3f21-680a-51d2-a5d8-f598fc74cff6")
 		)
 		(instances
 			(project "cryocooler"
@@ -4752,7 +4752,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1d5b662d-ae8c-5163-946e-fa1d2a423c27")
+			(uuid "d27ed2bf-3b73-57d7-b1a6-83b0c08d53ef")
 		)
 		(instances
 			(project "cryocooler"
@@ -4841,10 +4841,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "7c69438e-7845-5cc1-b76f-c315fbb0485c")
+			(uuid "0dec28d5-c7d5-57be-b92a-3e43613a61de")
 		)
 		(pin "2"
-			(uuid "48bee4a0-bb51-5f22-b69f-eae622e4d3c3")
+			(uuid "9f8cfafd-c581-544b-8d2e-4ef40eefc8ab")
 		)
 		(instances
 			(project "cryocooler"
@@ -4921,7 +4921,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3efc7e50-52ae-5787-8d22-a56f6f0cb47b")
+			(uuid "216c76ed-9844-5f86-817c-bff39a6edc81")
 		)
 		(instances
 			(project "cryocooler"
@@ -5008,10 +5008,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "93bb5b48-439e-5177-83aa-72922a32a320")
+			(uuid "b0545eae-3e16-5a6d-aa0a-e87b17231589")
 		)
 		(pin "2"
-			(uuid "4adc13b9-6a24-553c-b28c-775da623a57c")
+			(uuid "0bcef72d-7efb-5229-8c0f-8bb88d2209f1")
 		)
 		(instances
 			(project "cryocooler"
@@ -5088,7 +5088,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7da9a860-22ad-5b96-84bf-b565569bd427")
+			(uuid "96298c10-477a-5c42-a1b3-2c66569a714a")
 		)
 		(instances
 			(project "cryocooler"
@@ -5177,13 +5177,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "dced5b5e-eccc-5af9-a38c-54ee75cf730a")
+			(uuid "93bb5b48-439e-5177-83aa-72922a32a320")
 		)
 		(pin "2"
-			(uuid "9209223f-1368-52b3-9efb-ad3fe7a5a26e")
+			(uuid "4adc13b9-6a24-553c-b28c-775da623a57c")
 		)
 		(pin "3"
-			(uuid "6093a421-4df3-5252-9d53-7d99d2fffbae")
+			(uuid "b1ba2a17-0b17-54f8-b154-bab33a407ad2")
 		)
 		(instances
 			(project "cryocooler"
@@ -5261,7 +5261,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1c56e4d0-b4c4-57a2-9f85-16d076b7cb14")
+			(uuid "4df1402e-3a62-530b-99dc-28c2da982bf8")
 		)
 		(instances
 			(project "cryocooler"
@@ -5338,7 +5338,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f8613cea-12b1-5fd7-936f-833a1c755985")
+			(uuid "883e2f84-7025-581d-9c8a-9272361041bd")
 		)
 		(instances
 			(project "cryocooler"
@@ -5427,10 +5427,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0630e7bc-da46-5122-abee-bf1c0cfafadc")
+			(uuid "1c56e4d0-b4c4-57a2-9f85-16d076b7cb14")
 		)
 		(pin "2"
-			(uuid "92f5593a-bafa-5296-90ea-527ba6ab1a9a")
+			(uuid "93dc0d87-d2bf-5bca-8011-502109ecd6d8")
 		)
 		(instances
 			(project "cryocooler"
@@ -5519,10 +5519,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ac5c65df-3676-5449-b3c1-1331ff8e030a")
+			(uuid "7a1166ed-9c2f-5107-8893-5b2e14aefe70")
 		)
 		(pin "2"
-			(uuid "8e86f96f-c388-5eaa-a836-b0f3b0d3a4be")
+			(uuid "3813e257-2004-51eb-9589-2f0b4bbb1725")
 		)
 		(instances
 			(project "cryocooler"
@@ -5611,16 +5611,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "b1ba2a17-0b17-54f8-b154-bab33a407ad2")
+			(uuid "24f24d33-15d3-55e2-9c89-d3d8a2a6d3cf")
 		)
 		(pin "4"
-			(uuid "027bcad0-efa5-5d1e-8240-f8052e7b3129")
+			(uuid "b82fd68a-47f8-5f2e-a194-dff391241025")
 		)
 		(pin "2"
-			(uuid "b982a197-cd48-5863-88c3-b3c68d2cdcd0")
+			(uuid "77b4f003-7863-5ab2-9d8d-11c20a5f2b65")
 		)
 		(pin "3"
-			(uuid "7a1166ed-9c2f-5107-8893-5b2e14aefe70")
+			(uuid "e79a3e26-ea38-51e8-9c86-7401d55b5742")
 		)
 		(instances
 			(project "cryocooler"
@@ -5709,13 +5709,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "9a877579-7e0e-5511-b336-fa9a7b975974")
+			(uuid "029939f7-bf39-56e2-bd51-b552c41ec3ce")
 		)
 		(pin "2"
-			(uuid "4480a399-4d1b-5ebc-8873-5204fa2aacd6")
+			(uuid "371decc4-7a1f-57e9-ae8f-973a52470566")
 		)
 		(pin "3"
-			(uuid "883e2f84-7025-581d-9c8a-9272361041bd")
+			(uuid "a20e1f4f-36fc-55ab-a173-9221147e5972")
 		)
 		(instances
 			(project "cryocooler"
@@ -5804,10 +5804,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "13ac6013-1302-5f4b-8475-c4eb0eba766b")
+			(uuid "612ce305-51ac-57be-9f92-be7493478366")
 		)
 		(pin "2"
-			(uuid "304d2eda-ccf3-5aff-9d05-3b81c9239421")
+			(uuid "56dc9b3a-74a8-5bf0-999c-56105f11d3d6")
 		)
 		(instances
 			(project "cryocooler"
@@ -5896,10 +5896,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "216c76ed-9844-5f86-817c-bff39a6edc81")
+			(uuid "ca5e361e-4db4-55d8-a316-b39dfbf03e3a")
 		)
 		(pin "2"
-			(uuid "ce4cb00f-9e21-51ac-a879-40b71bacd9ff")
+			(uuid "bf3be7d1-8d28-5be0-b48b-ebb14788cd2e")
 		)
 		(instances
 			(project "cryocooler"
@@ -5988,10 +5988,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0dec28d5-c7d5-57be-b92a-3e43613a61de")
+			(uuid "a583389e-a810-5ae5-871f-181ada26a196")
 		)
 		(pin "2"
-			(uuid "9f8cfafd-c581-544b-8d2e-4ef40eefc8ab")
+			(uuid "19391b24-3160-5d99-a789-9ae2a7c0dda9")
 		)
 		(instances
 			(project "cryocooler"
@@ -6069,7 +6069,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "9121cf60-e2a0-5030-b9e9-6e74e6c13744")
+			(uuid "92f5593a-bafa-5296-90ea-527ba6ab1a9a")
 		)
 		(instances
 			(project "cryocooler"
@@ -6158,13 +6158,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "c8d6448e-65f7-59cf-af83-0978228b26f5")
+			(uuid "df1dcdc5-9674-54e4-a611-d0a84172efe5")
 		)
 		(pin "2"
-			(uuid "9b3e4b41-4fc0-5147-b672-f14b387640f9")
+			(uuid "3ff3518d-68ab-59e1-abf5-e225fc9584b8")
 		)
 		(pin "3"
-			(uuid "280102e6-69fc-5908-9ba0-df5923bff42c")
+			(uuid "36942686-1ad8-5305-92f5-4d12b79b95f4")
 		)
 		(instances
 			(project "cryocooler"
@@ -6253,10 +6253,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "11e7ed55-0422-5060-8828-8c043fc48e4b")
+			(uuid "8cc53ed4-b78e-59a1-8917-1324e214ec71")
 		)
 		(pin "2"
-			(uuid "cc6c91f9-b324-5ba0-a0b2-fcba6a58d712")
+			(uuid "a81ea81d-7e24-5156-a77e-5ac195246216")
 		)
 		(instances
 			(project "cryocooler"
@@ -6345,10 +6345,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "0ba2f816-8284-54d8-8622-f65e8dc497c4")
+			(uuid "1d5b662d-ae8c-5163-946e-fa1d2a423c27")
 		)
 		(pin "2"
-			(uuid "36602f05-5711-50c8-a5bf-9b4143e4587d")
+			(uuid "0630e7bc-da46-5122-abee-bf1c0cfafadc")
 		)
 		(instances
 			(project "cryocooler"
@@ -6426,7 +6426,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1796e54c-7c18-5a51-b1ae-5762076b9ed6")
+			(uuid "027bcad0-efa5-5d1e-8240-f8052e7b3129")
 		)
 		(instances
 			(project "cryocooler"
@@ -6515,13 +6515,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "34cbe796-08c2-542a-b430-63442e38fba2")
+			(uuid "137608f0-b066-5e52-9d0a-991e69b5039e")
 		)
 		(pin "2"
-			(uuid "8cc53ed4-b78e-59a1-8917-1324e214ec71")
+			(uuid "46cdb915-a42b-5abf-92e9-19c825d55dcf")
 		)
 		(pin "3"
-			(uuid "a81ea81d-7e24-5156-a77e-5ac195246216")
+			(uuid "5fedc287-d383-554e-b52e-992cdbd90792")
 		)
 		(instances
 			(project "cryocooler"
@@ -6598,7 +6598,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8717d1c0-b992-53bc-944a-f8835838c641")
+			(uuid "34cbe796-08c2-542a-b430-63442e38fba2")
 		)
 		(instances
 			(project "cryocooler"
@@ -6676,7 +6676,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f628f171-d4d8-5334-b745-ccef8142d461")
+			(uuid "b982a197-cd48-5863-88c3-b3c68d2cdcd0")
 		)
 		(instances
 			(project "cryocooler"
@@ -6763,10 +6763,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "029939f7-bf39-56e2-bd51-b552c41ec3ce")
+			(uuid "ce4cb00f-9e21-51ac-a879-40b71bacd9ff")
 		)
 		(pin "2"
-			(uuid "371decc4-7a1f-57e9-ae8f-973a52470566")
+			(uuid "13ac6013-1302-5f4b-8475-c4eb0eba766b")
 		)
 		(instances
 			(project "cryocooler"

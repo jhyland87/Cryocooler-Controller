@@ -93,31 +93,31 @@ RULES = [
     ('net', 'ECS-2520MV-160-BN-TR', '2', ('GND',)),
     # AD9837 (ADI rev A): 16 MHz MCLK max (B grade), so the 16 MHz oscillator
     ('join', 'ECS-2520MV-160-BN-TR', '3', 'AD9837BCPZ', '5'),
-    # LT3045 (ADI rev D, MSE): 1-3 IN, 4 EN/UV, 5 PG, 6 ILIM, 7 PGFB, 8 SET, 9 GND,
-    # 10 OUTS, 11-12 OUT, pad 13 GND. LT3094 (DD): 1-2 IN, 3 EN/UV, 4 PG, 5 PGFB,
+    # LT3045 (ADI rev D, DD): 1-2 IN, 3 EN/UV, 4 PG, 5 ILIM, 6 PGFB, 7 SET, 8 GND,
+    # 9 OUTS, 10 OUT, pad 11 GND. LT3094 (DD): 1-2 IN, 3 EN/UV, 4 PG, 5 PGFB,
     # 6 ILIM, 7 VIOC (float), 8 SET, 9 GND, 10 OUTS, 11-12 OUT, pad 13 IN.
     # Both: EN/UV to IN, ILIM to GND when unused, VOUT = 100 uA x RSET (147k = 14.7 V;
     # the LT3045 stops at 15 V), inputs within +-20 V
-    *(('net', 'LT3045HMSE', pin, '+16V5') for pin in ('1', '2', '3', '4')),
-    *(('net', 'LT3045HMSE', pin, '+15V') for pin in ('11', '12', '10')),
-    *(('net', 'LT3045HMSE', pin, 'GND') for pin in ('9', '13', '6')),
-    ('res', 'LT3045HMSE', '8', '147k', 'GND'),
+    *(('net', 'LT3045EDD', pin, '+16V5') for pin in ('1', '2', '3')),
+    *(('net', 'LT3045EDD', pin, '+15V') for pin in ('10', '9')),
+    *(('net', 'LT3045EDD', pin, 'GND') for pin in ('8', '11', '5')),
+    ('res', 'LT3045EDD', '7', '147k', 'GND'),
     *(('net', 'LT3094HDD', pin, '-16V5') for pin in ('1', '2', '13', '3')),
     *(('net', 'LT3094HDD', pin, '-15V') for pin in ('11', '12', '10')),
     *(('net', 'LT3094HDD', pin, 'GND') for pin in ('9', '6')),
     ('nc', 'LT3094HDD', '7'),
     ('res', 'LT3094HDD', '8', '147k', 'GND'),
     # power-good thresholds: 0.3 V x (1 + 432k / 10k) = 13.3 V
-    ('res', 'LT3045HMSE', '7', '432k', '+15V'),
-    ('res', 'LT3045HMSE', '7', '10k', 'GND'),
+    ('res', 'LT3045EDD', '6', '432k', '+15V'),
+    ('res', 'LT3045EDD', '6', '10k', 'GND'),
     ('res', 'LT3094HDD', '5', '432k', '-15V'),
     ('res', 'LT3094HDD', '5', '10k', 'GND'),
     # each PG pin pulls its own node low; each node is fed from +15 V so it reads
     # 0 V when its rail is missing (the two are ANDed into PG_15V)
-    ('net', 'LT3045HMSE', '5', 'PGP_15V'),
+    ('net', 'LT3045EDD', '4', 'PGP_15V'),
     ('net', 'LT3094HDD', '4', 'PGN_15V'),
-    ('res', 'LT3045HMSE', '5', '220k', '+15V'),
-    ('res', 'LT3045HMSE', '5', '62k', 'GND'),
+    ('res', 'LT3045EDD', '4', '220k', '+15V'),
+    ('res', 'LT3045EDD', '4', '62k', 'GND'),
     ('res', 'LT3094HDD', '4', '220k', '+15V'),
     ('res', 'LT3094HDD', '4', '62k', 'GND'),
     # ADP5071 LFCSP (datasheet pin table, Fig. 47, Tables 9-11): inputs and enables
@@ -190,7 +190,7 @@ RULES = [
     # TPD1E05U06 (TI SLVSBO5): 1 IO, 2 GND; on the power button and display lines
     ('net', 'TPD1E05U06DPYR', '2', ('GND',)),
     ('net', 'TPD1E05U06DPYR', '1',
-     ('PWR_BTN', 'ESP_EN', 'DISP_PWR_BTN', 'DISP_RESET')),
+     ('PWR_BTN', 'ESP_EN', 'DISP_PWR_BTN', 'DISP_RESET', 'AUX11_HDR', 'AUX13_HDR')),
     ('net', 'LTC2954CDDB-2', '3', 'PWR_BTN'),
     # supply jumpers: pin 1 on the main rail, pin 2 on the switched rail
     ('net', 'EN SG3', '1', '+3V3'),
@@ -491,9 +491,15 @@ RULES = [
     # fast channels 1-4 keep GPIO5, 7, 11 and 13 (module pins 5, 7, 19, 21)
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '5', 'AUX_IO5'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '7', 'AUX_IO7'),
-    # GPIO11 and GPIO13 are spare on rev 5 (the fast pins of the removed channels)
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '19'),
-    ('nc', 'ESP32-S3-WROOM-2-N32R16V', '21'),
+    # AUX header (rev 6): GPIO11 (module pin 19) and GPIO13 (pin 21), each through
+    # 100 R; supplies on pins 1 and 2
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '19', 'AUX_IO11'),
+    ('net', 'ESP32-S3-WROOM-2-N32R16V', '21', 'AUX_IO13'),
+    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '1', '+5V'),
+    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '2', '+3V3'),
+    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '5', 'GND'),
+    ('between', '100', ('AUX (5V / 3V3 / IO11 / IO13 / GND)', '3'), ('NET', 'AUX_IO11')),
+    ('between', '100', ('AUX (5V / 3V3 / IO11 / IO13 / GND)', '4'), ('NET', 'AUX_IO13')),
     # Output drivers: TSB582 (ST DS13378 rev 2, DFN8): 1 Out1, 2 In1-, 3 In1+, 4 VCC-,
     # 5 In2+, 6 In2-, 7 Out2, 8 VCC+, pad floating or VCC-. 4-36 V, inputs from VCC- to
     # VCC+ - 1.5 V (0-2.5 V is inside), 150 mA min output. Gain 1 + 191k / 49.9k = 4.83,
@@ -719,12 +725,12 @@ RULES = [
     ('net', 'TCAN3414DRBR', '4', 'CAN_RX'),
     ('res', 'TCAN3414DRBR', '1', '10k', '+3V3'),
     ('between', '120', ('TCAN3414DRBR', '7'), ('TCAN3414DRBR', '6')),
-    ('join', 'TCAN3414DRBR', '7', 'DISPLAY (CAN H / L / BTN / RST)', '1'),
-    ('join', 'TCAN3414DRBR', '6', 'DISPLAY (CAN H / L / BTN / RST)', '2'),
-    ('net', 'DISPLAY PWR (GND / 12V)', '1', 'GND'),
+    ('join', 'TCAN3414DRBR', '7', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '3'),
+    ('join', 'TCAN3414DRBR', '6', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '4'),
+    ('net', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '1', 'GND'),
     # the display feed has its own resettable fuse (Bourns MF-MSMF050/24X: 24 V, 0.5 A
     # hold, 1 A trip)
-    ('between', 'MF-MSMF050/24X', ('DISPLAY PWR (GND / 12V)', '2'),
+    ('between', 'MF-MSMF050/24X', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '2'),
      ('NET', 'VIN')),
     # ESD2CAN24 (TI SLVSFW5D): 1 and 2 the bus lines, 3 GND
     ('net', 'ESD2CAN24DBZR', '1', 'CAN_H'),
@@ -733,8 +739,8 @@ RULES = [
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '10', 'CAN_TX'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '20', 'CAN_RX'),
     # the display's open-collector outputs act as the power and reset buttons
-    ('between', '100', ('DISPLAY (CAN H / L / BTN / RST)', '3'), ('NET', 'PWR_BTN')),
-    ('between', '100', ('DISPLAY (CAN H / L / BTN / RST)', '4'), ('NET', 'ESP_EN')),
+    ('between', '100', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '5'), ('NET', 'PWR_BTN')),
+    ('between', '100', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '6'), ('NET', 'ESP_EN')),
     # J12 pin 3 (cryocooler protective ground) on board GND; J11 / J12 minus
     # on the isolated side
     ('net', 'CRYOCOOLER (+ / - / GND)', '3', 'GND'),

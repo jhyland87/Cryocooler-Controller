@@ -53,6 +53,12 @@ X2510_4P = 'cryocooler:XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'
 X2510_2P = 'cryocooler:XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'
 USB_C_FLAG = 'cryocooler:USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag'
 PH_4P = 'cryocooler:Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'  # 2 A
+# Top-entry JST PH (2 A, datasheet ePH.pdf): cabled inside the housing, so these
+# sit inboard on the front and leave the board edges to the wall ports (rev 6)
+PH_V4 = 'Connector_JST:JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical'
+PH_V5 = 'Connector_JST:JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical'
+PH_V6 = 'Connector_JST:JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical'
+PH_V10 = 'Connector_JST:JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical'
 POWER_JACK = 'cryocooler:Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'
 SIGNAL_JACK = 'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'
 # pluggable SMT headers: TE 2305908 (15 A) for the amp current, Phoenix MC 0,5
@@ -587,7 +593,9 @@ def mcu_and_usb(sh):
         '12': 'CS_EN_N',
         '17': 'FAN_PWM',
         '18': 'PWR_KILL',
+        '19': 'AUX_IO11',
         '20': 'CAN_RX',
+        '21': 'AUX_IO13',
         '22': 'PUMP_PWM',
         '8': 'FAN_TACH',
         '9': 'COMP_RELAY_EN',
@@ -621,9 +629,9 @@ def mcu_and_usb(sh):
         label_at=11,
     )
     # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered;
-    # GPIO46 (pin 16, strap), GPIO48 (pin 25, 1.8 V), GPIO11 (pin 19) and GPIO13
-    # (pin 21) are spare
-    for pin in ('16', '19', '21', '25', '28', '29', '30'):
+    # GPIO46 (pin 16, strap) and GPIO48 (pin 25, 1.8 V) are spare; GPIO11 and
+    # GPIO13 go to the AUX header (Expansion sheet)
+    for pin in ('16', '25', '28', '29', '30'):
         sh.nc(esp, pin)
     # supplies
     vdd = pin_cell(esp, '2')
@@ -1693,11 +1701,11 @@ def build_rails_15v(sh):
     # power-good parts on the right. The LT3094 takes the number the ADP7182 had.
     positive = place_ic(
         sh,
-        'cryocooler:LT3045MSE',
-        'LT3045HMSE',
+        'cryocooler:LT3045DD',
+        'LT3045EDD',
         84,
         156,
-        'Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm',
+        'Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm',
     )
     negative = place_ic(
         sh,
@@ -1708,9 +1716,9 @@ def build_rails_15v(sh):
         'Package_DFN_QFN:DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm',
     )
     sh.nc(negative, '7')
-    for reg, rail, input_pin, enable_pin in (
-        (positive, '+16V5', '1', '4'),
-        (negative, '-16V5', '1', '3'),
+    for reg, rail, input_pin, enable_pin, limit_pin, ground_pin in (
+        (positive, '+16V5', '1', '3', '5', '8'),
+        (negative, '-16V5', '1', '3', '6', '9'),
     ):
         vin, enable = pin_cell(reg, input_pin), pin_cell(reg, enable_pin)
         wire(sh, vin, (vin[0] - 14, vin[1]))
@@ -1718,10 +1726,10 @@ def build_rails_15v(sh):
         # EN/UV tied to the input: on whenever the rail is up
         wire(sh, enable, (enable[0] - 2, enable[1]), (enable[0] - 2, vin[1]))
         # ground and the unused current-limit pin share one bar
-        gnd_bus(sh, [pin_cell(reg, '6'), pin_cell(reg, '9')])
+        gnd_bus(sh, [pin_cell(reg, limit_pin), pin_cell(reg, ground_pin)])
     channels = (
         # regulator, output, sense, PGFB, PG, SET pin, rail net, power-good node
-        (positive, '11', '10', '7', '5', '8', '+15V', 'PGP_15V'),
+        (positive, '10', '9', '6', '4', '7', '+15V', 'PGP_15V'),
         (negative, '11', '10', '5', '4', '8', '-15V', 'PGN_15V'),
     )
     for index, channel in enumerate(channels):
@@ -3485,28 +3493,21 @@ def display_link(sh):
         vres(sh, '120', end, high[1], fp=R1206)
         net_label(sh, 'CAN_H', (end + 6, high[1]), 0)
         net_label(sh, 'CAN_L', (end + 6, high[1] + 6), 0)
-        # the display cable ends in two wafer headers (pin 1 at the bottom): J21 with
-        # the supply and J15 with the signals. XKB makes no 6-pin X2510WRS
-        with kicadgen.pinned_refs('J', 20):
-            power_ref = next_ref('J')
+        # the display cable ends in one 6-pin JST PH housing (pin 1 at the bottom)
         with kicadgen.pinned_refs('J', 14):
             link_ref = next_ref('J')
-        power = sh.add(
-            'Connector_Generic:Conn_01x02', power_ref, 'DISPLAY PWR (GND / 12V)',
-            link_cell[0] * 1.27, (link_cell[1] + 8) * 1.27, rot=180, mirror=True, auto=False,
-            footprint=X2510_2P,
-        )
         link = sh.add(
-            'Connector_Generic:Conn_01x04', link_ref, 'DISPLAY (CAN H / L / BTN / RST)',
-            link_cell[0] * 1.27, (link_cell[1] - 2) * 1.27, rot=180, mirror=True, auto=False,
-            footprint=X2510_4P,
+            'Connector_Generic:Conn_01x06', link_ref,
+            'DISPLAY (GND / 12V / CAN H / L / BTN / RST)',
+            link_cell[0] * 1.27, (link_cell[1] + 4) * 1.27, rot=180, mirror=True, auto=False,
+            footprint=PH_V6,
         )
-        drop_ground(sh, spur(sh, power, '1', 4), 2)
-        feed = spur(sh, power, '2', 24)
-        net_label(sh, 'CAN_H', spur(sh, link, '1', 4), 180)
-        net_label(sh, 'CAN_L', spur(sh, link, '2', 4), 180)
-        net_label(sh, 'DISP_PWR_BTN', spur(sh, link, '3', 4), 180)
-        net_label(sh, 'DISP_RESET', spur(sh, link, '4', 4), 180)
+        drop_ground(sh, spur(sh, link, '1', 4), 2)
+        feed = spur(sh, link, '2', 24)
+        net_label(sh, 'CAN_H', spur(sh, link, '3', 4), 180)
+        net_label(sh, 'CAN_L', spur(sh, link, '4', 4), 180)
+        net_label(sh, 'DISP_PWR_BTN', spur(sh, link, '5', 4), 180)
+        net_label(sh, 'DISP_RESET', spur(sh, link, '6', 4), 180)
     with io_refs():
         # resettable fuse in the display feed: a shorted cable no longer takes F1
         fuse = sh.add(
@@ -4561,7 +4562,7 @@ def expansion_rs485(sh):
     right, top, bottom = line_a[0], line_a[1] - 8, line_b[1] + 10
     header = conn(
         sh, 'Connector_Generic:Conn_01x04', 'RS-485 (A / B / GND / NC)', (right + 40) * 1.27,
-        (line_a[1] + 2) * 1.27, {'4': None}, X2510_4P,
+        (line_a[1] + 2) * 1.27, {'4': None}, PH_V4,
     )
     role(header, 'rs485_connector')
     wire(sh, line_a, (right + 6, line_a[1]), (right + 6, top), (right + 16, top),
@@ -4597,8 +4598,8 @@ def expansion_rs485(sh):
 
 
 def expansion_header(sh):
-    """2 x 5 header with the SPI bus, two chip selects, an interrupt line and both
-    logic supplies. Each chip select opens one buffer onto SPI_MISO.
+    """10-pin JST PH header with the SPI bus, two chip selects, an interrupt line and
+    both logic supplies. Each chip select opens one buffer onto SPI_MISO.
     """
     sh.note('SPI EXPANSION HEADER', 196 * 1.27, 40 * 1.27, 1.8)
     for index, (enable, row) in enumerate((('exp_cs_a', 62), ('exp_cs_b', 92))):
@@ -4634,26 +4635,68 @@ def expansion_header(sh):
         wire(sh, (236, row), (240, row))
         io_label(sh, key, (240, row), 0, is_global=False)
     header = conn(
-        sh, 'Connector_Generic:Conn_02x05_Odd_Even', 'SPI EXPANSION', 290 * 1.27, 150 * 1.27,
-        {}, 'Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical_SMD',
+        sh, 'Connector_Generic:Conn_01x10', 'SPI EXPANSION', 304 * 1.27, 150 * 1.27,
+        {}, PH_V10,
     )
     role(header, 'exp_header')
-    for pin, rail in (('1', '+3V3'), ('2', '+5V')):
-        end = spur(sh, header, pin, 6 if pin == '1' else 4)
+    for pin, rail, length in (('1', '+3V3', 4), ('2', '+5V', 12)):
+        end = spur(sh, header, pin, length)
         wire(sh, end, (end[0], end[1] - 3))
         rail_symbol(sh, rail, (end[0], end[1] - 3))
-    for pin, key in (('3', 'exp_sck'), ('5', 'exp_miso'), ('7', 'exp_csa')):
+    for pin, key in (('3', 'exp_sck'), ('4', 'exp_mosi'), ('5', 'exp_miso'),
+                     ('7', 'exp_csa'), ('8', 'exp_csb')):
         io_label(sh, key, spur(sh, header, pin, 4), 180, is_global=False)
-    # the chip select label sits past the interrupt label on the row above it
-    for pin, key, length in (('4', 'exp_mosi', 4), ('8', 'exp_csb', 20)):
-        io_label(sh, key, spur(sh, header, pin, length), 0, is_global=False)
-    io_label(sh, 'hdr_int', spur(sh, header, '6', 4), 0)
-    for pin in ('9', '10'):
-        drop_ground(sh, spur(sh, header, pin, 4), 2)
+    # the interrupt's global label sits past the local labels on the rows beside it
+    io_label(sh, 'hdr_int', spur(sh, header, '6', 22), 180)
+    upper, lower = (spur(sh, header, pin, 4) for pin in ('9', '10'))
+    wire(sh, upper, lower)
+    drop_ground(sh, lower, 2)
+
+
+# last references before the rev 6 AUX header, so it shifts no other part
+REV6_AUX_AFTER = {'R': 691, 'U': 122, 'J': 39}
+
+
+def expansion_aux(sh):
+    """5-pin header with GPIO11 and GPIO13 and both logic supplies. Each line has
+    100 R in series, an ESD clamp on the cable side and an unfitted pull-up, so
+    firmware can use the pair as a UART, I2C, 1-Wire, touch or plain GPIO.
+    """
+    sh.note('AUX HEADER: GPIO11 AND GPIO13', 140 * 1.27, 124 * 1.27, 1.8)
+    sh.note('UART, I2C, 1-Wire, touch or GPIO', 140 * 1.27, 128 * 1.27, 1.5)
+    for gpio, row in ((11, 142), (13, 160)):
+        net_label(sh, f'AUX_IO{gpio}', (146, row), 180, is_global=True)
+        wire(sh, (146, row), (152, row))
+        role(hres(sh, '100', 155, row), 'aux_series', gpio=gpio)
+        wire(sh, (158, row), (190, row))
+        net_label(sh, f'AUX{gpio}_HDR', (190, row), 0)
+        clamp = sh.add(
+            'cryocooler:TPD1E05U06DPYR', next_ref('U'), 'TPD1E05U06DPYR', 170 * 1.27,
+            (row + 4) * 1.27, auto=False, footprint='Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
+        )
+        role(clamp, 'aux_clamp', gpio=gpio)
+        wire(sh, (164, row), pin_cell(clamp, '1'))
+        drop_ground(sh, pin_cell(clamp, '2'), 2)
+        pull = role(vres(sh, '4.7k', 182, row - 6), 'aux_pull', gpio=gpio)
+        pull.dnp = True
+        rail_symbol(sh, '+3V3', (182, row - 6))
+    header = conn(
+        sh, 'Connector_Generic:Conn_01x05', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', 236 * 1.27,
+        176 * 1.27, {}, PH_V5,
+    )
+    role(header, 'aux_header')
+    for pin, rail, length in (('1', '+5V', 4), ('2', '+3V3', 12)):
+        end = spur(sh, header, pin, length)
+        wire(sh, end, (end[0], end[1] - 3))
+        rail_symbol(sh, rail, (end[0], end[1] - 3))
+    for pin, gpio in (('3', 11), ('4', 13)):
+        net_label(sh, f'AUX{gpio}_HDR', spur(sh, header, pin, 4), 180)
+    drop_ground(sh, spur(sh, header, '5', 4), 2)
 
 
 def build_expansion(sh):
-    """Hand-laid: the RS-485 port on the left, the SPI expansion header on the right."""
+    """Hand-laid: the RS-485 port on the left, the SPI expansion header on the right,
+    the AUX header between them."""
     sh.handwired = True
     sh.note(
         'RS-485: SC16IS750 (SPI mode 0 only, 4 MHz max) with the same 16 MHz oscillator as '
@@ -4677,6 +4720,11 @@ def build_expansion(sh):
         'a chip select is low.',
         20, 33,
     )
+    sh.note(
+        'AUX header: 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND. Both pins are touch '
+        '(T11, T13) and ADC2 inputs; ADC2 is not usable while WiFi is on.',
+        20, 39,
+    )
     with io_refs():
         expansion_rs485(sh)
         expansion_header(sh)
@@ -4697,6 +4745,10 @@ def build_expansion(sh):
         for part in sh.parts:
             if part.ref.startswith('C') and first < int(part.ref[1:]):
                 role(part, 'expansion_decoupling')
+    with kicadgen.pinned_refs('R', REV6_AUX_AFTER['R']), kicadgen.pinned_refs(
+        'U', REV6_AUX_AFTER['U']
+    ), kicadgen.pinned_refs('J', REV6_AUX_AFTER['J']):
+        expansion_aux(sh)
 
 
 # ═════════════════════════════════════════════════════════════════════════

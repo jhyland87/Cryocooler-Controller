@@ -1300,26 +1300,26 @@ SYMBOLS = [
     ),
     # ── rev 5: the LT3097 as its two single regulators ──
     symbol(
-        'LT3045MSE',
+        'LT3045DD',
         'U',
         'Analog Devices 20 V, 500 mA positive ultra-low noise LDO with power good, VOUT = '
-        '100 uA x RSET (0-15 V), 12-lead MSOP (MSE). EN/UV to IN and ILIM to GND when '
-        'unused; PG pulls low while PGFB is under 300 mV. Exposed pad 13 is GND',
+        '100 uA x RSET (0-15 V), 10-lead DFN 3 x 3 mm (DD). EN/UV to IN and ILIM to GND '
+        'when unused; PG pulls low while PGFB is under 300 mV. Exposed pad 11 is GND',
         'https://www.analog.com/media/en/technical-documentation/data-sheets/lt3045.pdf',
-        'Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm',
-        left=[(['1', '2', '3'], 'IN', 'power_in'), ('4', 'EN/UV', 'input')],
+        'Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm',
+        left=[(['1', '2'], 'IN', 'power_in'), ('3', 'EN/UV', 'input')],
         right=[
-            (['11', '12'], 'OUT', 'power_out'),
-            ('10', 'OUTS', 'input'),
-            ('7', 'PGFB', 'input'),
-            ('5', 'PG', 'open_collector'),
-            ('8', 'SET', 'passive'),
+            ('10', 'OUT', 'power_out'),
+            ('9', 'OUTS', 'input'),
+            ('6', 'PGFB', 'input'),
+            ('4', 'PG', 'open_collector'),
+            ('7', 'SET', 'passive'),
         ],
-        bottom=[('6', 'ILIM', 'passive'), (['9', '13'], 'GND', 'power_in')],
+        bottom=[('5', 'ILIM', 'passive'), (['8', '11'], 'GND', 'power_in')],
         keywords='ldo low noise power good positive',
         y_override={
-            '1': 10.16, '4': 7.62,
-            '11': 10.16, '10': 7.62, '7': 2.54, '5': -2.54, '8': -12.7,
+            '1': 10.16, '3': 7.62,
+            '10': 10.16, '9': 7.62, '6': 2.54, '4': -2.54, '7': -12.7,
         },
     ),
     symbol(

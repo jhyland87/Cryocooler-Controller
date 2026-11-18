@@ -123,6 +123,10 @@ DATASHEETS = {
     'TCAN3414': 'https://www.ti.com/lit/ds/symlink/tcan3414.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
+    'B4B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
+    'B5B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
+    'B6B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
+    'B10B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
     '2305908': 'https://www.farnell.com/cad/2571341.pdf',
     '643228-1': 'https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=643228&DocType=Customer+Drawing&DocLang=English',
     '1821698': 'https://www.phoenixcontact.com/en-us/products/pcb-header-mc-05-2-g-254-smd-r24-1821698?type=pdf',
@@ -158,6 +162,8 @@ PRODUCT_PAGES = {
     '1769': 'https://www.adafruit.com/product/1769',
     '5001': 'https://www.keyelco.com/product.cfm/product_id/1310',
     '4392': 'https://www.adafruit.com/product/4392',
+    'B4B-PH-SM4-TB(LF)(SN)': 'https://www.lcsc.com/product-detail/C160354.html',
+    'B6B-PH-SM4-TB(LF)(SN)': 'https://www.lcsc.com/product-detail/C471518.html',
 }
 
 

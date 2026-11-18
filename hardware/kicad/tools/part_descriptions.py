@@ -121,16 +121,14 @@ DESCRIPTIONS = {
     'TP38': 'Test point: sine drive signal at the amplifier output jack',
     # ── display link (CAN) ──────────────────────────────────────────────────────────
     'DS1': 'Off-board: the 16-way screw terminal strip on the back of the Waveshare '
-           'touch display, drawn to show where the J15 and J21 cables land; not a '
+           'touch display, drawn to show where the J15 cable lands; not a '
            'part of this board',
-    'J15': 'Display signal header: 1 CAN_H, 2 CAN_L, 3 power button, 4 reset, to the '
-           'Waveshare touch display',
-    'J21': 'Display supply header: 1 GND, 2 fused unswitched 12 V for the Waveshare touch '
-           'display',
+    'J15': 'Display header (JST PH, top entry): 1 GND, 2 fused unswitched 12 V, 3 CAN_H, '
+           '4 CAN_L, 5 power button, 6 reset, to the Waveshare touch display',
     'U52': 'CAN transceiver: carries telemetry to, and commands from, the Waveshare '
            'touch display',
-    'U53': 'ESD clamp on the power button line from the display header J21',
-    'U54': 'ESD clamp on the reset line from the display header J21',
+    'U53': 'ESD clamp on the power button line from the display header J15',
+    'U54': 'ESD clamp on the reset line from the display header J15',
     'R515': 'Pull-up resistor for CAN_TX: bus stays recessive while GPIO17 floats '
             'at reset',
     'R516': 'CAN bus termination resistor (120 R) at this end of the cable',
@@ -394,20 +392,20 @@ NET_DESCRIPTIONS = {
                 'SPI_MISO',
     # ESP32 control and boot
     'ESP_EN': 'ESP32 enable / reset, active low: RESET button, power-on RC delay '
-              'and the display reset line (J21)',
+              'and the display reset line (J15)',
     'ESP_BOOT': 'ESP32 GPIO0 boot strap: held low at reset for USB download mode',
     'USB_VBUS': 'USB-C 5 V from the host: feeds +5V_OR when the 12 V supply is absent',
     'STATUS_RGB': 'Data line to the WS2812B status LED (GPIO38, before the level '
                   'shifter)',
     # power button
     'PWR_BTN': 'Power button line to the LTC2954 PB pin, active low: SW3 or the '
-               'display output on J21',
+               'display output on J15',
     'PWR_INT': 'LTC2954 INT# to GPIO1: pulses low when the button asks for a '
                'shutdown',
     'PWR_KILL': 'GPIO10 to LTC2954 KILL#: driven low to cut the board power',
-    'DISP_PWR_BTN': 'Power button line from the display header J21 (DO0), before '
+    'DISP_PWR_BTN': 'Power button line from the display header J15 (DO0), before '
                     'its 100 R series resistor',
-    'DISP_RESET': 'Reset line from the display header J21 (DO1), before its 100 R '
+    'DISP_RESET': 'Reset line from the display header J15 (DO1), before its 100 R '
                   'series resistor',
     'STATUS_GA': 'Green anode of the status LED D7, fed from +5V (on)',
     'STATUS_RA': 'Red anode of the status LED D7, fed from VIN and shorted by Q41 '
@@ -470,6 +468,12 @@ NET_DESCRIPTIONS = {
     'FLOW_TACH': 'Coolant flow sensor pulses to GPIO18',
     'NTC_ADC': 'Coolant NTC divider voltage to GPIO4 (ADC1)',
     # universal I/O fast channels
+    'AUX_IO11': 'GPIO11 to the AUX header J40 pin 3 through 100 R: spare pin for a UART, '
+                'I2C, 1-Wire, touch (T11) or GPIO',
+    'AUX_IO13': 'GPIO13 to the AUX header J40 pin 4 through 100 R: spare pin for a UART, '
+                'I2C, 1-Wire, touch (T13) or GPIO',
+    'AUX11_HDR': 'GPIO11 line at the AUX header J40 pin 3, after its series resistor',
+    'AUX13_HDR': 'GPIO13 line at the AUX header J40 pin 4, after its series resistor',
     'AUX_IO5': 'GPIO5: PWM gate and pulse input of universal I/O channel 1, '
                'MCU side of the two 1 k resistors',
     'AUX_IO7': 'GPIO7: PWM gate and pulse input of universal I/O channel 2, '
@@ -614,17 +618,26 @@ IO_PART_ROLES = {
     'rs485_termination': 'RS-485 bus termination, in circuit only with its jumper fitted',
     'rs485_term_jumper': 'Fit when this board is at an end of the RS-485 bus: connects the '
                          '120 R termination (left open by default)',
-    'rs485_connector': 'RS-485 / Modbus port: 1 A, 2 B, 3 GND, 4 not connected',
+    'rs485_connector': 'RS-485 / Modbus port (JST PH, top entry): 1 A, 2 B, 3 GND, 4 not connected',
     'uart_clock': '16 MHz clock for the SC16IS750 UART (same part as the signal generator clock)',
     'exp_miso_gate': 'Buffer that passes the expansion header MISO to the SPI bus only '
                      'while chip select {which} is low',
     'exp_series': 'Series resistor between the SPI bus and the expansion header: limits '
-                  'the damage a shorted daughterboard line can do and damps the ribbon',
-    'exp_header': 'SPI expansion header: SPI bus, two chip selects, an interrupt line, '
-                  '+3V3, +5V and GND for a future daughterboard',
+                  'the damage a shorted daughterboard line can do and damps the cable',
+    'exp_header': 'SPI expansion header (JST PH, top entry): 1 +3V3, 2 +5V, 3 SCK, 4 MOSI, '
+                  '5 MISO, 6 interrupt, 7 chip select A, 8 chip select B, 9 and 10 GND, '
+                  'for a future daughterboard',
     'pull_rs485_irq': 'Pull-up resistor for the SC16IS750 IRQ output (open drain; the '
                       'datasheet asks for 1 k at 3.3 V)',
     'pull_exp_hdr_int': 'Pull-up resistor for the expansion header interrupt line',
+    'aux_series': 'Series resistor between GPIO{gpio} and the AUX header: limits the '
+                  'damage a shorted cable can do',
+    'aux_clamp': 'ESD clamp on the AUX header line of GPIO{gpio}, on the cable side of its '
+                 'series resistor',
+    'aux_pull': 'Pull-up resistor for the AUX header line of GPIO{gpio}, not fitted: fit '
+                'for I2C or 1-Wire',
+    'aux_header': 'AUX header (JST PH, top entry): 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, '
+                  '5 GND; UART, I2C, 1-Wire, touch or GPIO, chosen in firmware',
     'pull_exp_miso': 'Pull-down resistor on the expansion header MISO: defined level with '
                      'no daughterboard fitted',
     'expansion_decoupling': 'Decoupling capacitor for the RS-485 port or the expansion '

@@ -26,6 +26,7 @@ BLACK = (0.10, 0.10, 0.11)
 GRAY = (0.22, 0.22, 0.24)
 TAN = (0.82, 0.72, 0.50)
 SILVER = (0.80, 0.80, 0.82)
+IVORY = (0.92, 0.89, 0.78)
 
 # Housing colours for the connector models (STEP files from the KiCad library).
 HOUSING_COLOURS = {
@@ -144,6 +145,24 @@ ENVELOPES = {
     'Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD': (
         'Adafruit_4392_envelope',
         [(12.0, 6.0, 5.5, 0.0, -1.6, BLACK)],
+    ),
+    # JST PH top-entry SMT headers (ePH.pdf): B wide, 5.0 deep, 6.6 high; the body
+    # spans footprint y -4.25 .. 0.75
+    'JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical': (
+        'JST_PH_B4B_vertical_envelope',
+        [(11.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
+    ),
+    'JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical': (
+        'JST_PH_B5B_vertical_envelope',
+        [(13.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
+    ),
+    'JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical': (
+        'JST_PH_B6B_vertical_envelope',
+        [(15.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
+    ),
+    'JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical': (
+        'JST_PH_B10B_vertical_envelope',
+        [(23.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
     ),
     # Coilcraft MSD7342: 7.5 x 7.5 mm, 4.6 mm max (Document 621-1)
     'L_Coilcraft_MSD7342': (
