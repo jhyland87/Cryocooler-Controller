@@ -4,7 +4,8 @@ Usage: gridroute.py board.kicad_pcb drc.json [out.kicad_pcb [NET,...]]
 Routes each unconnected pair from a kicad-cli DRC report on F.Cu / In2.Cu /
 B.Cu (In1 is the GND plane), with 0.45/0.2 through vias, then saves.
 Env knobs: FIRST=U20,U21 (pairs on those parts first), CLEAR=0.15 (clearance, mm), FINE=1 (0.1 mm
-clearance), IN1=1 / IN1_COST, VIA_COST, HWEIGHT, MAX_EXPAND.
+clearance), VIA_TRACK_CLEAR=0.15 (new via to tracks and vias, mm), IN1=1 / IN1_COST, VIA_COST,
+HWEIGHT, MAX_EXPAND.
 """
 import heapq
 import os
@@ -62,7 +63,9 @@ VIA_IN_PAD_COST = 120.0
 SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
-VIA_CLEAR = 0.1  # kicad_dru via_in_pad_clearance: 0.2 mm hole vias
+VIA_CLEAR = 0.1  # new via to a surface-mount pad (kicad_dru via_in_pad_clearance)
+# new via to tracks, vias and through-hole pads; rev 6 keeps the full 0.15 mm there
+VIA_TRACK_CLEAR = float(os.environ.get('VIA_TRACK_CLEAR', VIA_CLEAR))
 NPTH_CLEAR = 0.25  # kicad_dru jlc_npth_to_copper is 0.2 mm; the grid adds a cell
 NOTCH = top_notch()  # antenna notch in the top edge
 SKIP_NETS = set(os.environ.get('SKIP', 'GND').split(','))  # nets the pours connect
@@ -167,7 +170,7 @@ class Grid:
         board, half = self.board, self.width / 2
         via_r = VIA_D / 2
         track_infl = CLEAR + half
-        via_infl = VIA_CLEAR + via_r
+        via_infl = VIA_TRACK_CLEAR + via_r
         for track in board.GetTracks():
             a, b = track.GetStart(), track.GetEnd()
             ax, ay, bx, by = mm(a.x), mm(a.y), mm(b.x), mm(b.y)

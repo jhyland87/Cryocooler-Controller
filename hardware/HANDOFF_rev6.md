@@ -60,6 +60,32 @@ FREEROUTING_HIDE=1 PYTHONHASHSEED=0 $KPY rev6_board.py route $OUT/rev6.kicad_pcb
   over `cryocooler.kicad_pcb`. Pads the tie step could not reach: U11 pad 9, U41
   pad 6, U51 pads 3 and 5.
 
+## Routing state when paused (2026-11-18, later the same day)
+
+Best board: `kicad/backup_rev6_routing_wip/rev6_2_open.kicad_pcb` (with its
+`.kicad_pro` / `.kicad_dru`). **2 unconnected, 0 DRC errors**, every track 0.15 mm
+or wider, no 0.1 mm exceptions. `cryocooler.kicad_pcb` is still the placed board.
+
+- Open: `IMU_CS` (via in U36 pad 4 at 97.29, 64.61 to U32 pad 8 at 120.31, 21.25)
+  and one leg of `CS_ADDR_A` (B track end at 98.6, 24.85 to U32 pad 23). Both end
+  at the chip-select decoder U32, the one crowded spot.
+- How it got here: round 1 of Freerouting (round 2 with neck-down off was worse and
+  was stopped), thin segments widened to 0.15 mm, tie-via drills set to 0.2 mm,
+  clearance faults ripped, `gridroute.py` with `FINE=1 CLEAR=0.15
+  VIA_TRACK_CLEAR=0.15`, `plane_ties.py`, then hand edits: an In2 link for
+  `IO_EXP_INT_N`, a via-in-pad for `IMU_CS` with the In2 `Net-(J14-Pin_3)` track
+  jogged round it, a ground via in U32 pad 19, and **U51 and C13 moved 3.6 mm right**
+  (U51 sat on the front over U32's pads). The user allowed small part moves.
+- `gridroute.py` now takes `VIA_TRACK_CLEAR` (new via to tracks) apart from the
+  0.1 mm it keeps to pads.
+- Next: `python3 backup_rev6_routing_wip/unstick2.py <stem> $PWD/tools IMU_CS
+  119.5,21.3 2.2` and `... CS_ADDR_A 124.6,24.3 2.0` on a scratch copy (about 9 min
+  each; it keeps a trial only if the open count falls). If they fail, re-place with
+  wider part gaps round U32 rather than more trials. Then `finish`, DRC with
+  schematic parity, copy over `cryocooler.kicad_pcb`.
+- Running the KiCad tools steals window focus on the Mac; run them when the user
+  is away from it.
+
 ## Not done
 
 - Part labels, section outlines, pin names, REV6 mark, board ID.
