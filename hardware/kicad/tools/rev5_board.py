@@ -12,7 +12,8 @@ Usage (KiCad's python):
     rev5_board.py reroute in.kicad_pcb out.kicad_pcb drc.json
     rev5_board.py labels board.kicad_pcb   (0.8 mm silk part labels)
     rev5_board.py sections board.kicad_pcb   (section lines and names, after labels)
-    rev5_board.py pins board.kicad_pcb   (connector pin names, after sections)
+    rev5_board.py pins board.kicad_pcb   (connector pin names, before labels)
+    rev5_board.py revmark board.kicad_pcb   (REV5 on the back, until the board ID is stamped)
     rev5_board.py finish board.kicad_pcb
 """
 import math
@@ -842,6 +843,48 @@ def add_pin_names(path):
     print(f'pin names: {placed} placed, no room for:', ', '.join(missed) or 'none')
 
 
+REV_MARK = 'REV5'
+REV_MARK_GROUP = 'board id'
+REV_MARK_SPOT = (19.0, 2.4)  # where the board ID block goes on this outline
+
+
+def add_rev_mark(path):
+    """Prints REV_MARK in 1 mm back silk at the free spot nearest REV_MARK_SPOT.
+    Stands in for the board ID block. Replaces an earlier run."""
+    board = pcbnew.LoadBoard(path)
+    keep = []
+    for group in list(board.Groups()):
+        if group.GetName() == REV_MARK_GROUP:
+            for item in list(group.GetItems()):
+                keep.append(item)
+                board.Remove(item)
+            keep.append(group)
+            board.Remove(group)
+    silk, _copper, _fab, silk_map = silk_obstacles(board)['B']
+    spots = sorted(((x * 0.5, y * 0.5) for x in range(2, 239) for y in range(2, 199)),
+                   key=lambda spot: math.dist(spot, REV_MARK_SPOT))
+    for x, y in spots:
+        label = pcbnew.PCB_TEXT(board)
+        label.SetText(REV_MARK)
+        label.SetLayer(silk)
+        label.SetTextSize(pcbnew.VECTOR2I(MM(0.9), MM(1.0)))
+        label.SetTextThickness(MM(0.15))
+        label.SetMirrored(True)
+        label.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
+        box = base.box_rect(label.GetBoundingBox())
+        if base.outline_problem(box) or silk_map.blocked(box.inflated(0.15), REV_MARK_GROUP):
+            continue
+        group = pcbnew.PCB_GROUP(board)
+        group.SetName(REV_MARK_GROUP)
+        board.Add(group)
+        board.Add(label)
+        group.AddItem(label)
+        pcbnew.SaveBoard(path, board)
+        print(f'{REV_MARK} at', (x, y))
+        return
+    print(f'{REV_MARK}: no free spot on the back')
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ''
     if mode == 'place' and len(sys.argv) == 4:
@@ -859,6 +902,8 @@ def main():
         add_section_outlines(sys.argv[2])
     elif mode == 'pins' and len(sys.argv) == 3:
         add_pin_names(sys.argv[2])
+    elif mode == 'revmark' and len(sys.argv) == 3:
+        add_rev_mark(sys.argv[2])
     else:
         sys.exit(__doc__)
 
