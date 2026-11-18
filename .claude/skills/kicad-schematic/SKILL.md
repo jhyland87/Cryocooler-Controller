@@ -6,10 +6,9 @@ description: Regenerate the KiCad schematic, symbol library, footprints or BOM f
 # Schematic: regenerate and check
 
 The `.kicad_sch` files, `lib/cryocooler.kicad_sym` and `lib/cryocooler.pretty` are
-generated. Edit the Python and re-run; never hand-edit the outputs. Drawing rules
-(upright power symbols, `R_US`, hand-laid sheets, the no-overlap text rule, the
-helpers in `gen_schematic.py`) are in `hardware/kicad/README.md` ("Drawing
-conventions", "Regenerating"). Layout rules are in `.claude/rules/hardware-pcb.md`. Current
+generated. Edit the Python and re-run; never hand-edit the outputs. How a sheet should be drawn
+is in the `kicad-schematic-design` skill; the helpers in `gen_schematic.py` are in
+`hardware/kicad/README.md` ("Drawing conventions", "Regenerating"). Layout rules are in `.claude/rules/hardware-pcb.md`. Current
 board state: `hardware/HANDOFF_rev3.md`.
 
 These scripts don't need `pcbnew`, so the system `python3` works. Run from

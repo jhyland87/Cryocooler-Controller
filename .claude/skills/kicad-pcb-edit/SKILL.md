@@ -5,8 +5,8 @@ description: Change the routed KiCad PCB (hardware/kicad/cryocooler.kicad_pcb), 
 
 # PCB: edit the routed board and check it
 
-Layout rules (test points, silkscreen, trace angles, STEP-only models, board ID)
-are in `.claude/rules/hardware-pcb.md`. Follow them, and confirm with the user where they
+Layout rules (repeated circuits laid out alike, test points, silkscreen, trace
+angles, STEP-only models, board ID) are in `.claude/rules/hardware-pcb.md`. Follow them, and confirm with the user where they
 say to. Current board state and its hand edits: `hardware/HANDOFF_rev3.md`.
 
 ```bash

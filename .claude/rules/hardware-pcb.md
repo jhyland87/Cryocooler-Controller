@@ -27,6 +27,10 @@ verification and selection rules are in `hardware-schematic.md`.
 - **Sections mirror the schematic.** Group each sheet's components into its own
   region and outline it on silkscreen. Adjacent sections may share a border line.
   Parts stay inside their section.
+- **Repeated circuits get the same layout.** Identical channels or blocks (I/O
+  channels, LED drivers, matched rails) use the same relative placement, orientation
+  and routing, stepped or mirrored as a group. Lay one out, then repeat it; a block
+  that has to differ (board edge, a keep-out) differs as little as possible.
 - **Dense placement.** Leave empty space only where a datasheet requires it
   (keep-outs, thermal, isolation clearance) or no other arrangement works. When a
   label won't fit beside its part, spread parts within their section, or grow the
