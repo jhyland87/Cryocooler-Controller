@@ -74,6 +74,11 @@ by the octal flash/PSRAM and are left unconnected.
 
 ## Drawing conventions
 
+The drawing rules that apply to every sheet and every board revision are in the
+`kicad-schematic-design` skill (`.claude/skills/kicad-schematic-design/SKILL.md`). Two points
+close together are joined by a wire; a label pair is for a long or crowding run. This section
+describes how this generator carries those rules out.
+
 Power symbols are always upright (supplies point up, grounds hang down) and resistors use the US zig-zag symbol
 (`Device:R_US`). In tight spots the small symbols are used instead (`Device:R_Small_US`, `Device:C_Small`, with
 `small=True` on `hres` / `vres` / `hcap` / `vcap` in `tools/gen_schematic.py`), and neighbouring grounds share one bar. Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
