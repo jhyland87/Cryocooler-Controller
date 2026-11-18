@@ -968,6 +968,63 @@ SYMBOLS = [
         bottom=['2'],
         keywords='oscillator',
     ),
+    # Bodge sheet: LT3045 + LT3094 replace the LT3097 (U21) on a daughterboard
+    symbol(
+        'LT3045EMSE',
+        'U',
+        'Analog Devices 500 mA ultra-low noise, ultra-high PSRR positive LDO, '
+        '100 uA SET current, 12-lead MSOP. Pad 13 (exposed) is GND',
+        'https://www.analog.com/media/en/technical-documentation/'
+        'data-sheets/lt3045.pdf',
+        'Package_SO:MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm',
+        left=[
+            (['1', '2', '3'], 'IN', 'power_in'),
+            ('4', 'EN/UV', 'input'),
+        ],
+        right=[
+            (['11', '12'], 'OUT', 'power_out'),
+            ('10', 'OUTS', 'input'),
+            ('7', 'PGFB', 'input'),
+            ('5', 'PG', 'open_collector'),
+            ('8', 'SET', 'passive'),
+        ],
+        bottom=[
+            ('6', 'ILIM', 'passive'),
+            (['9', '13'], 'GND', 'power_in'),
+        ],
+        keywords='ldo low noise power good',
+        # same row spacing as one LT3097 channel, so build_bodge reuses its drawing
+        y_override={'1': 15.24, '4': 12.7, '11': 15.24, '10': 12.7, '7': 7.62,
+                    '5': 2.54, '8': -7.62},
+    ),
+    symbol(
+        'LT3094EMSE',
+        'U',
+        'Analog Devices -500 mA ultra-low noise, ultra-high PSRR negative LDO, '
+        '100 uA SET current, 12-lead MSOP. Pad 13 (exposed) is IN, not GND',
+        'https://www.analog.com/media/en/technical-documentation/'
+        'data-sheets/lt3094.pdf',
+        'Package_SO:MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm',
+        left=[
+            (['1', '2', '13'], 'IN', 'power_in'),
+            ('3', 'EN/UV', 'input'),
+        ],
+        right=[
+            (['11', '12'], 'OUT', 'power_out'),
+            ('10', 'OUTS', 'input'),
+            ('5', 'PGFB', 'input'),
+            ('4', 'PG', 'open_collector'),
+            ('8', 'SET', 'passive'),
+            ('7', 'VIOC', 'output'),
+        ],
+        bottom=[
+            ('6', 'ILIM', 'passive'),
+            ('9', 'GND', 'power_in'),
+        ],
+        keywords='ldo negative low noise power good',
+        y_override={'1': 15.24, '3': 12.7, '11': 15.24, '10': 12.7, '5': 7.62,
+                    '4': 2.54, '8': -7.62, '7': -12.7},
+    ),
 ]
 
 

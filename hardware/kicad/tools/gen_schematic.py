@@ -1513,6 +1513,9 @@ def build_rails_15v(sh):
         172,
         'cryocooler:DFN-22-2EP_6x3mm_P0.5mm_LT3097',
     )
+    # rev 4 rework: the LT3097 is out of stock; U21 stays empty and the Bodge
+    # sheet's LT3045 / LT3094 daughterboard is wired to its pads
+    reg.dnp = True
     kicadgen.retire_refs('U', 1)  # U22 was the ADP7182
     for rail, input_pin, enable_pin in (
         ('+16V5', '1', '3'),
@@ -3709,6 +3712,91 @@ def build_supply_switches(sh):
         supply_block(sh, spec, 36 + 90 * (index // 6), 40 + 28 * (index % 6))
 
 
+# Bodge parts take numbers far above every board reference, so nothing shifts.
+BODGE_REFS = {'U': 90, 'R': 900, 'C': 900}
+
+
+def build_bodge(sh):
+    """Hand-laid: LT3045 (+15 V) and LT3094 (-15 V) on a daughterboard that
+    replaces the LT3097 (U21), which is out of stock. Power symbols and global
+    labels tie it to the nets on Rails +-15V and Power Good. Every part here is
+    off the board and out of the BOM: it documents hand wiring only.
+    """
+    sh.handwired = True
+    sh.note(
+        'BODGE: LT3097 (U21) replacement. U21 stays unpopulated; this daughterboard '
+        'is wired to its nets. Parts on this sheet are excluded from the PCB and BOM.',
+        20,
+        15,
+    )
+    sh.note(
+        'Bodge wires to the U21 footprint (7): +16V5 pads 1-3, -16V5 pads 6-8 / EP 24, '
+        '+15V pads 20-22, -15V pads 14-16, GND pads 5/11/13/19/23, '
+        'PGP_15V pad 4, PGN_15V pad 9.',
+        20,
+        21,
+    )
+    sh.note(
+        'Values carry over from U21: VOUT = 100 uA x RSET (147k = 14.7 V); PGFB '
+        '432k/10k trips near 13.3 V (both parts use a 300 mV PGFB threshold). '
+        'LT3094 exposed pad 13 is IN (-16V5), not GND; VIOC floats when unused.',
+        20,
+        27,
+    )
+    start = len(sh.parts)
+    with ranged_refs(BODGE_REFS, ('U', 'R', 'C')):
+        specs = (
+            # lib, value, centre row, input rail, enable pin, output rail,
+            # power-good net, output, sense, PGFB, PG, SET, GND pins, ILIM
+            ('cryocooler:LT3045EMSE', 'LT3045EMSE', 80, '+16V5', '4',
+             '+15V', 'PGP_15V', '11', '10', '7', '5', '8', ('9',), '6'),
+            ('cryocooler:LT3094EMSE', 'LT3094EMSE', 160, '-16V5', '3',
+             '-15V', 'PGN_15V', '11', '10', '5', '4', '8', ('9',), '6'),
+        )
+        for spec in specs:
+            (lib, value, row, in_rail, enable_pin, rail, good_net, out,
+             sense, feedback, good, setpoint, grounds, ilim) = spec
+            reg = place_ic(
+                sh, lib, value, 90, row,
+                'Package_SO:MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm',
+            )
+            # input: rail on the left, local 22 uF (the daughterboard is fed
+            # through wires), EN/UV tied to IN
+            vin, enable = pin_cell(reg, '1'), pin_cell(reg, enable_pin)
+            wire(sh, vin, (vin[0] - 14, vin[1]))
+            rail_symbol(sh, in_rail, (vin[0] - 14, vin[1]))
+            wire(sh, enable, (enable[0] - 2, enable[1]), (enable[0] - 2, vin[1]))
+            vcap(sh, RAIL_CAP, vin[0] - 8, vin[1], fp=C1210)
+            drop_ground(sh, (vin[0] - 8, vin[1] + 6), 0)
+            # ILIM to GND: no programmable current limit, as on U21
+            gnd_bus(sh, [pin_cell(reg, n) for n in grounds + (ilim,)])
+            if value == 'LT3094EMSE':
+                sh.nc(reg, '7')  # VIOC: float when unused
+            o, s_ = pin_cell(reg, out), pin_cell(reg, sense)
+            wire(sh, o, (o[0] + 46, o[1]))
+            rail_symbol(sh, rail, (o[0] + 46, o[1]))
+            wire(sh, s_, (s_[0] + 4, s_[1]), (s_[0] + 4, o[1]))
+            for offset in (40, 34):
+                vcap(sh, RAIL_CAP, o[0] + offset, o[1], fp=C1210)
+                drop_ground(sh, (o[0] + offset, o[1] + 6), 0)
+            pgfb = pin_cell(reg, feedback)
+            divider = o[0] + 14
+            vres(sh, '432k', divider, o[1])
+            vres(sh, '10k', divider, o[1] + 6)
+            drop_ground(sh, (divider, o[1] + 12), 0)
+            wire(sh, pgfb, (divider, pgfb[1]))
+            net_label(sh, good_net, spur(sh, reg, good, 2), 0, is_global=True)
+            pin = pin_cell(reg, setpoint)
+            wire(sh, pin, (pin[0] + 14, pin[1]))
+            vres(sh, '147k', pin[0] + 8, pin[1])
+            vcap(sh, '1uF/50V', pin[0] + 14, pin[1], fp=C1206)
+            wire(sh, (pin[0] + 8, pin[1] + 6), (pin[0] + 14, pin[1] + 6))
+            drop_ground(sh, (pin[0] + 8, pin[1] + 6), 2)
+    for part in sh.parts[start:]:
+        if not part.ref.startswith('#'):
+            part.off_board = True
+
+
 SHEETS = [
     ('Power Input', 'power_input', build_power_input, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
@@ -3734,6 +3822,7 @@ SHEETS = [
     ('Supply Switches', 'supply_switches', build_supply_switches, 'A3'),
     ('Display', 'display', build_display, 'A3'),
     ('General Purpose IO', 'aux_io', build_aux_io, 'A3'),
+    ('Bodge', 'bodge', build_bodge, 'A3'),
 ]
 
 

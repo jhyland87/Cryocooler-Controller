@@ -31,6 +31,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `supply_switches` | 5 Keystone 5110 0603 zero-ohm jumpers JP1-JP5, one per section, in series with that section's supply (see "Supply jumpers" below); FB3 ahead of JP5 |
 | `display` | FH12-14S FPC (J15) to the Phoenix 2.4" ST7789V touch display in the UCS 125-87-F-GD-D2,4 lid (pinout from datasheet 109921), TSC2046 touch controller on the shared SPI bus, BSS138 backlight switch (+5 V through 39 Ω), 10 kΩ pull-downs on the GPIO45 / GPIO46 straps |
 | `aux_io` ("General Purpose IO") | Rev 4: GPIO 5, 7, 11, 12, 13 each on a 2-pin XKB X2510WRS-02 header J16-J20 (signal, GND) with an ESD clamp, 100 Ω in series and a 100 kΩ / 100 kΩ divider to GND; one OPA4990 section per pin (on `+5V_OR`, so it also runs on USB power) takes the divider tap and drives a green LED with Vpin / 6.6 kΩ |
+| `bodge` | Rev 4 rework, off the board and out of the BOM (`off_board` parts, U91 / U92, R901-R906, C901-C908): LT3045EMSE (+15 V) and LT3094EMSE (-15 V) on a hand-wired daughterboard replacing the out-of-stock LT3097 (U21 left unpopulated), same 147 kΩ SET and 432 k / 10 k PGFB values. Power symbols and the `PGP_15V` / `PGN_15V` global labels tie it to `rails_15v` and `power_good`; seven wires to the U21 footprint |
 
 ## ±15 V rails and power good
 

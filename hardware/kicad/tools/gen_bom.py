@@ -478,6 +478,15 @@ def load_netlist():
         root = parse(path.read_text())
     parts = []
     for comp in find_all(find_all(root, 'components')[0], 'comp'):
+        # DNP parts (U21) and parts kept off the board or out of the BOM (the
+        # Bodge sheet) are not ordered or placed
+        flags = {
+            sval(find_all(prop, 'name')[0][1])
+            for prop in find_all(comp, 'property')
+            if find_all(prop, 'name')
+        }
+        if flags & {'dnp', 'exclude_from_bom', 'exclude_from_board'}:
+            continue
         footprint = find_all(comp, 'footprint')
         parts.append(
             (

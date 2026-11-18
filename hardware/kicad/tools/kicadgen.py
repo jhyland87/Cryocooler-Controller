@@ -771,16 +771,18 @@ class Sheet:
                 '\t\t(in_bom yes)'
                 if not getattr(part, 'is_power', False)
                 and not part.ref.startswith('#')
+                and not getattr(part, 'off_board', False)
                 and 'TestPoint_Pad' not in (part.footprint or '')
                 else '\t\t(in_bom no)'
             ),
             (
                 '\t\t(on_board yes)'
                 if not part.ref.startswith('#')
+                and not getattr(part, 'off_board', False)
                 else '\t\t(on_board no)'
             ),
             '\t\t(in_pos_files yes)',
-            '\t\t(dnp no)',
+            '\t\t(dnp yes)' if getattr(part, 'dnp', False) else '\t\t(dnp no)',
             f'\t\t(uuid {q(part.uid)})',
         ]
         is_power = part.ref.startswith('#')
