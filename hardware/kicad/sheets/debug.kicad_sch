@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "709b3393-5587-5d83-87da-396b95f79779")
+	(uuid "679ffdea-a62f-5fd0-bd51-de80175b202b")
 	(paper "A3")
 	(title_block
 		(title "Debug")
@@ -1146,293 +1146,16 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "FAN, PUMP, INTERRUPTS AND CONTROL"
-		(exclude_from_sim no)
-		(at 25.4 93.98 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "48de9dd3-2d68-529a-ad60-d75d39e1e1a9")
-	)
-	(text "RAIL LEDS"
-		(exclude_from_sim no)
-		(at 25.4 162.56 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "75b71208-7627-5ed6-ba9a-5a3adbb68b1f")
-	)
-	(text "Debug aids: test points (pad per net, loops for ground) and rail LEDs. Each test point sits on a global label or power symbol; the PCB generator places it beside a pad on the same net."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "b379ae3b-f23b-5a1c-b7a5-8b6846ad07c7")
-	)
-	(text "GROUND (scope loops)"
-		(exclude_from_sim no)
-		(at 25.4 63.5 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "ba632a9d-b03e-51f9-a321-cdeb4b2d021d")
-	)
-	(text "POWER RAILS"
-		(exclude_from_sim no)
-		(at 25.4 35.56 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "bb72e9df-3590-5a64-870f-49ceec2c1446")
-	)
-	(text "ANALOG AND SENSORS"
-		(exclude_from_sim no)
-		(at 25.4 124.46 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "d0ccb98a-8d24-51bc-aa83-f416c6c61b76")
-	)
-	(no_connect
-		(at 76.2 177.8)
-		(uuid "12196c5b-d1e9-5ac8-a67d-00b0d63b5e0e")
-	)
-	(no_connect
-		(at 91.44 177.8)
-		(uuid "6c34b9fa-da43-5df4-8d6f-4bbf93611aee")
-	)
-	(wire
-		(pts
-			(xy 41.91 172.72) (xy 44.45 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ab00739-3051-5efd-bafe-b2f82bc357f2")
-	)
-	(wire
-		(pts
-			(xy 170.18 45.72) (xy 170.18 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2cb96ada-a389-55a2-9976-28b680b1415a")
-	)
-	(wire
-		(pts
-			(xy 73.66 175.26) (xy 76.2 175.26)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "41022ee7-d09a-591f-9a56-f65b5b44af4c")
-	)
-	(wire
-		(pts
-			(xy 226.06 45.72) (xy 226.06 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "56d4e3e5-ce1f-5a05-b19d-95cfca097422")
-	)
-	(wire
-		(pts
-			(xy 30.48 73.66) (xy 30.48 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "58a6847a-131a-56ab-9229-dd7c0a89db44")
-	)
-	(wire
-		(pts
-			(xy 254 45.72) (xy 254 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "64b3ce22-09c2-5d88-9cfc-503c7d89668a")
-	)
-	(wire
-		(pts
-			(xy 91.44 175.26) (xy 96.52 175.26)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c777ce72-4d5f-59d2-9dad-f6686053a1ee")
-	)
-	(wire
-		(pts
-			(xy 30.48 172.72) (xy 34.29 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9c5421f-0ba6-5d40-9c09-ce7fa6ec62d0")
-	)
-	(wire
-		(pts
-			(xy 198.12 45.72) (xy 198.12 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e33e1d3c-bda2-57b7-87a5-1b57b711df81")
-	)
-	(wire
-		(pts
-			(xy 45.72 134.62) (xy 45.72 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eef7d7c4-e453-51c5-ab36-c91259c768cd")
-	)
-	(wire
-		(pts
-			(xy 81.28 134.62) (xy 81.28 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f5462132-1e99-51e2-a025-709f0e1af48d")
-	)
-	(label "ISO_5V_LED_A"
-		(at 73.66 175.26 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "eba48c31-4ba5-5ebe-aa1a-f9437e233590")
-		(property "Description" "Anode of the isolated 5 V indicator LED D10"
-			(at 73.66 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "ISO_5V_LED_A"
-		(at 44.45 172.72 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f6c9b8fa-1106-5a6e-8098-fbdcd0bc5216")
-		(property "Description" "Anode of the isolated 5 V indicator LED D10"
-			(at 44.45 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "SIG_SINE"
-		(shape bidirectional)
-		(at 81.28 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "47250d2e-a9ca-5301-981e-d10a71b02efc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.28 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
-			(at 81.28 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "DDS_SINE"
-		(shape bidirectional)
+	(hierarchical_label "DDS_SINE"
+		(shape input)
 		(at 45.72 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "847031e2-8d73-5035-ac47-84632775b926")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "517439ef-438f-5ba2-8cfb-28b6a7f55f8b")
 		(property "Description" "Sine output of the AD9837 DDS, before the gain stage"
 			(at 45.72 134.62 0)
 			(hide yes)
@@ -1446,19 +1169,19 @@
 			)
 		)
 	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 254 49.53 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "01107ba3-6db1-5423-a1c2-cc570dddeca4")
-		(property "Reference" "TP12"
-			(at 256.962 50.512 0)
+	(hierarchical_label "SIG_SINE"
+		(shape input)
+		(at 81.28 134.62 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "34b6fd3f-e0bc-50e7-b806-c3d36092876b")
+		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
+			(at 81.28 134.62 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1468,8 +1191,259 @@
 				(justify right)
 			)
 		)
-		(property "Value" "-16V5"
-			(at 256.962 52.612 0)
+	)
+	(text "Debug aids: test points (pad per net, loops for ground) and rail LEDs. Each test point sits on a global label or power symbol; the PCB generator places it beside a pad on the same net."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "1c70ecdd-fbb9-561e-bab4-6f04dd2c8982")
+	)
+	(text "POWER RAILS"
+		(exclude_from_sim no)
+		(at 25.4 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "209b1625-f6a3-5d32-85b9-1f58a3c62789")
+	)
+	(text "RAIL LEDS"
+		(exclude_from_sim no)
+		(at 25.4 162.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "21a3214c-e941-5feb-80d6-693d1677b1d3")
+	)
+	(text "FAN, PUMP, INTERRUPTS AND CONTROL"
+		(exclude_from_sim no)
+		(at 25.4 93.98 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9447b967-e77e-5737-bab0-e8dd90ee312f")
+	)
+	(text "GROUND (scope loops)"
+		(exclude_from_sim no)
+		(at 25.4 63.5 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "b5473057-1624-571f-8d46-b292f8d53942")
+	)
+	(text "ANALOG AND SENSORS"
+		(exclude_from_sim no)
+		(at 25.4 124.46 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "dc75a591-d320-515e-ac06-9af7fdb0c126")
+	)
+	(no_connect
+		(at 91.44 177.8)
+		(uuid "36410b51-8c4e-5580-89aa-84e8ccd21466")
+	)
+	(no_connect
+		(at 76.2 177.8)
+		(uuid "b511b754-46a0-594f-8d5a-1d84d7a8d0b6")
+	)
+	(wire
+		(pts
+			(xy 73.66 175.26) (xy 76.2 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b98be5b-dea8-5806-a14c-eb358a18d7a4")
+	)
+	(wire
+		(pts
+			(xy 254 45.72) (xy 254 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2191b5be-04b5-5595-a2c7-e5d6e5c3fe1a")
+	)
+	(wire
+		(pts
+			(xy 30.48 73.66) (xy 30.48 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5899eda4-a6da-5654-bdcd-39b727feea14")
+	)
+	(wire
+		(pts
+			(xy 198.12 45.72) (xy 198.12 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5dd2102b-2079-51fb-98ab-a2da42819fc9")
+	)
+	(wire
+		(pts
+			(xy 30.48 172.72) (xy 34.29 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "730392b9-3774-5c8f-992a-ff5e7748c576")
+	)
+	(wire
+		(pts
+			(xy 91.44 175.26) (xy 96.52 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77113861-7032-542e-9bae-b0e73b6faebc")
+	)
+	(wire
+		(pts
+			(xy 81.28 134.62) (xy 81.28 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "808e6fe2-8dbf-553f-82d3-58c2b466f8e1")
+	)
+	(wire
+		(pts
+			(xy 170.18 45.72) (xy 170.18 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84852d08-0c87-5c2e-a83f-7797985fb73a")
+	)
+	(wire
+		(pts
+			(xy 41.91 172.72) (xy 44.45 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7366a48-7823-569a-ad51-39931c21be3d")
+	)
+	(wire
+		(pts
+			(xy 226.06 45.72) (xy 226.06 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "acd69a75-f445-587a-bfbe-1e2e5a590132")
+	)
+	(wire
+		(pts
+			(xy 45.72 134.62) (xy 45.72 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bdc16307-24fa-5db4-a9fb-babd64e68699")
+	)
+	(label "ISO_5V_LED_A"
+		(at 44.45 172.72 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d3779fe6-03ba-55d9-8d1e-4de08d88abbe")
+		(property "Description" "Anode of the isolated 5 V indicator LED D10"
+			(at 44.45 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "ISO_5V_LED_A"
+		(at 73.66 175.26 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f2172d1e-7b23-50d8-a7bb-500f9c31baf3")
+		(property "Description" "Anode of the isolated 5 V indicator LED D10"
+			(at 73.66 175.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 198.12 49.53 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "01107ba3-6db1-5423-a1c2-cc570dddeca4")
+		(property "Reference" "TP10"
+			(at 201.082 50.512 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "-15V"
+			(at 201.082 52.612 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1480,7 +1454,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 254 49.53 0)
+			(at 198.12 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1491,7 +1465,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 254 49.53 0)
+			(at 198.12 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1501,8 +1475,8 @@
 				)
 			)
 		)
-		(property "Description" "Test point: -16.5 V pre-regulated rail"
-			(at 254 49.53 0)
+		(property "Description" "Test point: -15 V rail"
+			(at 198.12 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1513,12 +1487,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "86310f25-8bb6-56c0-a1ff-15dbfec46df1")
+			(uuid "dc9afdbd-3fa8-54c0-8604-3a6289398e23")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "TP12")
+					(reference "TP10")
 					(unit 1)
 				)
 			)
@@ -1534,7 +1508,7 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "302227b6-1b87-58b1-99f7-df7746d28dbe")
+		(uuid "3751d7b3-4b53-50fe-80bc-53ff3b5a07fe")
 		(property "Reference" "#PWR261"
 			(at 198.12 45.72 0)
 			(hide yes)
@@ -1590,7 +1564,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c0907f84-576f-5bda-b7ca-8afa054391e5")
+			(uuid "ecc556d3-f82e-5457-b580-19f38ee6f3a8")
 		)
 		(instances
 			(project "cryocooler"
@@ -1611,7 +1585,7 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3751d7b3-4b53-50fe-80bc-53ff3b5a07fe")
+		(uuid "3bfe14da-fbaa-5879-be64-455003ab73db")
 		(property "Reference" "#PWR263"
 			(at 254 45.72 0)
 			(hide yes)
@@ -1667,7 +1641,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "de3e8c9a-5e7c-5b0b-99a9-0d76f243b563")
+			(uuid "7e4d363b-14f4-5b9c-8a8f-585923274a77")
 		)
 		(instances
 			(project "cryocooler"
@@ -1679,86 +1653,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 45.72 138.43 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3bfe14da-fbaa-5879-be64-455003ab73db")
-		(property "Reference" "TP37"
-			(at 48.682 139.412 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "DDS"
-			(at 48.682 141.512 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 45.72 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 45.72 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Test point: DDS output sine (AD9837 VOUT)"
-			(at 45.72 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "126ea38a-5997-59e4-990b-35b5c49726bb")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "TP37")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+15V")
-		(at 170.18 45.72 0)
+		(at 226.06 45.72 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1766,9 +1662,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4497648b-3dcc-58be-9b50-cdfe6cd4e21c")
-		(property "Reference" "#PWR260"
-			(at 170.18 45.72 0)
+		(uuid "6636a555-c8c1-5bb8-8b80-cb468d176047")
+		(property "Reference" "#PWR262"
+			(at 226.06 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1778,8 +1674,8 @@
 				)
 			)
 		)
-		(property "Value" "+15V"
-			(at 170.18 42.164 0)
+		(property "Value" "+16V5"
+			(at 226.06 42.164 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1789,7 +1685,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 45.72 0)
+			(at 226.06 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1800,7 +1696,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 45.72 0)
+			(at 226.06 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1811,7 +1707,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 170.18 45.72 0)
+			(at 226.06 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1822,12 +1718,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "820aad09-3dd0-56d2-812f-dd9e62384b0e")
+			(uuid "c8b7b816-ea66-5675-9a33-2a4d356296b5")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "#PWR260")
+					(reference "#PWR262")
 					(unit 1)
 				)
 			)
@@ -1843,7 +1739,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6636a555-c8c1-5bb8-8b80-cb468d176047")
+		(uuid "7b68fef5-b471-5225-bf8c-f30726efe5bd")
 		(property "Reference" "TP14"
 			(at 33.442 70.578 0)
 			(show_name no)
@@ -1911,7 +1807,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "455d5f2f-9a85-53ba-8def-0c6f6f1cd5ed")
+			(uuid "1a08efbc-dab4-5eaa-82b0-3540912bb9ef")
 		)
 		(instances
 			(project "cryocooler"
@@ -1923,40 +1819,40 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 198.12 49.53 180)
+		(lib_id "power:GND")
+		(at 30.48 77.47 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "679ffdea-a62f-5fd0-bd51-de80175b202b")
-		(property "Reference" "TP10"
-			(at 201.082 50.512 0)
+		(uuid "9d795a5b-9ef7-5412-b48b-315f84bfd442")
+		(property "Reference" "#PWR264"
+			(at 30.48 77.47 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
-		(property "Value" "-15V"
-			(at 201.082 52.612 0)
+		(property "Value" "GND"
+			(at 30.48 77.47 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 198.12 49.53 0)
+		(property "Footprint" ""
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1967,7 +1863,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 198.12 49.53 0)
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1977,8 +1873,8 @@
 				)
 			)
 		)
-		(property "Description" "Test point: -15 V rail"
-			(at 198.12 49.53 0)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1989,12 +1885,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a24b5160-7231-5dd0-8491-62169c4e8ad2")
+			(uuid "8681cfdb-5220-5553-9e52-da1c1505d256")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "TP10")
+					(reference "#PWR264")
 					(unit 1)
 				)
 			)
@@ -2010,7 +1906,7 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7b68fef5-b471-5225-bf8c-f30726efe5bd")
+		(uuid "aa3ab220-1254-547e-8b69-e2afecfe47d6")
 		(property "Reference" "#PWR265"
 			(at 30.48 172.72 0)
 			(hide yes)
@@ -2066,7 +1962,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ab6363a5-1645-5cad-9d5b-ece4301bcea9")
+			(uuid "486b41c8-f71e-5943-adcd-a2dadf3a2d55")
 		)
 		(instances
 			(project "cryocooler"
@@ -2087,7 +1983,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "962a6742-2203-5e60-b647-3f049ba12c2e")
+		(uuid "ada7b2a4-cff8-5154-9364-649a66727473")
 		(property "Reference" "TP9"
 			(at 173.142 50.512 0)
 			(show_name no)
@@ -2144,7 +2040,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "567dcfb1-a50b-51c5-9113-1274626981e6")
+			(uuid "39113238-787b-5c5e-858e-5c5a8733a830")
 		)
 		(instances
 			(project "cryocooler"
@@ -2165,7 +2061,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9d795a5b-9ef7-5412-b48b-315f84bfd442")
+		(uuid "b1f149a4-4bca-507d-b978-0bdf85f8c641")
 		(property "Reference" "R38"
 			(at 38.1 166.604 270)
 			(show_name no)
@@ -2231,404 +2127,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "aa23c647-318f-508f-a9d4-957f690d783e")
+			(uuid "d38ef6a5-af88-57d0-aa79-49f165c5f4b3")
 		)
 		(pin "2"
-			(uuid "5bad9dac-a2d1-52a0-b733-54aaf304120c")
+			(uuid "94e33e82-d30f-539f-93e2-5f6f7ec66df4")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
 					(reference "R38")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 226.06 49.53 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ada7b2a4-cff8-5154-9364-649a66727473")
-		(property "Reference" "TP11"
-			(at 229.022 50.512 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "+16V5"
-			(at 229.022 52.612 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 226.06 49.53 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 226.06 49.53 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Test point: +16.5 V pre-regulated rail"
-			(at 226.06 49.53 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f1147246-49a8-5938-ad3d-4a3b139cc582")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "TP11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 226.06 45.72 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b4e974a6-5355-5cca-aa8f-462f63269bb1")
-		(property "Reference" "#PWR262"
-			(at 226.06 45.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+16V5"
-			(at 226.06 42.164 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 226.06 45.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 226.06 45.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 226.06 45.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "aa90792b-557e-5caa-8cdf-fe19fa547e1b")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "#PWR262")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GNDREF")
-		(at 96.52 175.26 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "bbe4d78d-700c-5676-a07c-6ede7fc14aa7")
-		(property "Reference" "#PWR266"
-			(at 96.52 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "ISO_GND"
-			(at 98.92 176.36 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 96.52 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 96.52 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GNDREF\\\" , reference supply ground"
-			(at 96.52 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "17b55aa8-60e1-5bde-996a-def0e723a2de")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "#PWR266")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 81.28 138.43 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "bc4c52e3-b29b-5278-b84e-030cf86dab4f")
-		(property "Reference" "TP38"
-			(at 84.242 139.412 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "SINE"
-			(at 84.242 141.512 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 81.28 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 81.28 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Test point: sine drive signal at the amplifier output jack"
-			(at 81.28 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "20a0febd-e0ed-5a08-a6bd-e8992f0d3cf3")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "TP38")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 30.48 77.47 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d2d15ece-83b9-5959-8fab-fa11f2d86d8a")
-		(property "Reference" "#PWR264"
-			(at 30.48 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 30.48 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 30.48 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 30.48 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 30.48 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8ebb6425-683f-56a7-80a2-eef6ebc97ad6")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
-					(reference "#PWR264")
 					(unit 1)
 				)
 			)
@@ -2644,7 +2151,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e7e5cecf-77d0-59c2-85a1-da2ebed6e134")
+		(uuid "b4b11b93-753c-5641-89b3-d368d632d143")
 		(property "Reference" "D10"
 			(at 76.2 167.62 0)
 			(show_name no)
@@ -2712,21 +2219,488 @@
 			)
 		)
 		(pin "1"
-			(uuid "4c0e799e-203d-53d7-b0d2-c3bc0571d2a1")
+			(uuid "c43cb682-c67a-5bc8-942a-2abe57fb9405")
 		)
 		(pin "4"
-			(uuid "ff947661-151e-5fef-8e1d-32fa377ee7d4")
+			(uuid "da58fb23-35e9-574f-ac92-352b07c4dcc9")
 		)
 		(pin "2"
-			(uuid "1fd84f3e-19c1-55f6-a673-24410919a230")
+			(uuid "2b7e530f-5ffd-5336-af30-2b73401826bc")
 		)
 		(pin "3"
-			(uuid "0ac910aa-1c89-5a9d-a9f9-1aec54a60c68")
+			(uuid "91342b27-0178-5e4e-8179-e1e225c9f26b")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
 					(reference "D10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+15V")
+		(at 170.18 45.72 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b4e974a6-5355-5cca-aa8f-462f63269bb1")
+		(property "Reference" "#PWR260"
+			(at 170.18 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+15V"
+			(at 170.18 42.164 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 170.18 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
+			(at 170.18 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0e379a0c-4b31-510c-948d-ea2d68867eb1")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "#PWR260")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 81.28 138.43 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "bbe4d78d-700c-5676-a07c-6ede7fc14aa7")
+		(property "Reference" "TP38"
+			(at 84.242 139.412 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "SINE"
+			(at 84.242 141.512 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 81.28 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 81.28 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Test point: sine drive signal at the amplifier output jack"
+			(at 81.28 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "797bd311-f4ea-5166-bdb6-6849963fa38c")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "TP38")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 254 49.53 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "bc4c52e3-b29b-5278-b84e-030cf86dab4f")
+		(property "Reference" "TP12"
+			(at 256.962 50.512 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "-16V5"
+			(at 256.962 52.612 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 254 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 254 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Test point: -16.5 V pre-regulated rail"
+			(at 254 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a5a8a29b-8504-5485-bf9a-790dd6ec715a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "TP12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 226.06 49.53 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d2d15ece-83b9-5959-8fab-fa11f2d86d8a")
+		(property "Reference" "TP11"
+			(at 229.022 50.512 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "+16V5"
+			(at 229.022 52.612 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 226.06 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 226.06 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Test point: +16.5 V pre-regulated rail"
+			(at 226.06 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7601d1ba-fd61-5aee-8ab7-874483f46349")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "TP11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 96.52 175.26 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d47cb441-eb11-5f1f-8353-140892461523")
+		(property "Reference" "#PWR266"
+			(at 96.52 175.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "ISO_GND"
+			(at 98.92 176.36 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 96.52 175.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 175.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GNDREF\\\" , reference supply ground"
+			(at 96.52 175.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6050110b-ea99-535a-b4ba-d26fd1527ee4")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "#PWR266")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 45.72 138.43 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e7e5cecf-77d0-59c2-85a1-da2ebed6e134")
+		(property "Reference" "TP37"
+			(at 48.682 139.412 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "DDS"
+			(at 48.682 141.512 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 45.72 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 45.72 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Test point: DDS output sine (AD9837 VOUT)"
+			(at 45.72 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9a4b2d6b-1cc2-5161-aad4-15f4ff2afe2a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/bae7ed1d-7fb1-5e24-871c-ffd4d5f87902"
+					(reference "TP37")
 					(unit 1)
 				)
 			)

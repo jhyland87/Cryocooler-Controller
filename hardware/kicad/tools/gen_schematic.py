@@ -5,6 +5,7 @@ GPIO assignments follow include/config/pin_config.h.
 """
 
 import json
+import math
 import sys
 from contextlib import contextmanager
 from pathlib import Path
@@ -515,9 +516,26 @@ def address_d_buffer(sh):
         )
 
 
+# Cells the root's MCU group moves from where mcu() draws it (even, so the pin
+# stubs stay on the block diagram's wire grid).
+MCU_SHIFT = (20, 0)
+# Length of the labelled wire stub on each MCU signal pin.
+MCU_STUB = 18
+# Areas of the root the block diagram's wires keep out of, as mcu() draws them:
+# the module with its stubs, its ground symbol, the reset and boot circuits and
+# the decoupling block.
+MCU_KEEP_OUT = (
+    (120, 66, 180, 122),
+    (146, 122, 154, 130),
+    (104, 58, 138, 86),
+    (72, 46, 104, 74),
+    (146, 30, 196, 62),
+)
+
+
 def build_mcu(sh):
-    """Hand-laid root sheet: ESP32 in the middle, boot/reset circuits left,
-    USB-C right, SPI chip select decoder below.
+    """Hand-laid root sheet: the ESP32 with its reset and boot circuits. The
+    sheet boxes and the wires between them are added by block_diagram().
     """
     sh.handwired = True
     sh.note(
@@ -529,14 +547,34 @@ def build_mcu(sh):
     sh.note('GPIO map follows include/config/pin_config.h', 30, 21)
     colour_legend(sh, 30, 28)
     marks = sheet_marks(sh)
-    mcu_and_usb(sh)
-    # the MCU and USB sit right of the decoder and its buffer, with room between
-    shift_since(sh, marks, MCU_SHIFT, 0)
+    ends = mcu(sh)
+    shift_since(sh, marks, *MCU_SHIFT)
+    dx, dy = MCU_SHIFT
+    sh.diagram_terminals = {
+        net: [((cell[0] + dx, cell[1] + dy), out)] for net, (cell, out) in ends.items()
+    }
+    # the tap columns on the pin stubs are left at the bottom only
+    sh.diagram_tap_ends = 'bottom'
+    sh.diagram_keep_out = [
+        (x0 + dx, y0 + dy, x1 + dx, y1 + dy) for x0, y0, x1, y1 in MCU_KEEP_OUT
+    ] + [(20, 8, 112, 54)]
+
+
+def build_usb(sh):
+    """USB-C port: ESD clamp, CC pull-downs and the VBUS capacitor."""
+    sh.handwired = True
+    sh.note('USB-C PORT (USB 2.0 TO THE ESP32, VBUS TO THE 5 V SELECTOR)', 30, 30)
+    marks = sheet_marks(sh)
+    usb_port(sh)
+    shift_since(sh, marks, -130, 0)
+
+
+def build_chip_select(sh):
+    """74HC154 chip-select decoder with its strap resistors and the 1.8 V
+    address buffer.
+    """
+    sh.handwired = True
     cs_decoder(sh)
-
-
-# Cells the MCU / USB group moves right of where mcu_and_usb() draws it.
-MCU_SHIFT = 50
 
 
 def sheet_marks(sh):
@@ -573,8 +611,11 @@ def shift_since(sh, marks, columns, rows):
     ]
 
 
-def mcu_and_usb(sh):
-    """The ESP32-S3 module with its reset and boot circuits, and the USB-C port."""
+def mcu(sh):
+    """The ESP32-S3 module with its reset and boot circuits. Every signal pin
+    gets a labelled stub; returns net -> (stub end cell, outward step) for the
+    block diagram to wire on from.
+    """
     esp = place_ic(
         sh,
         'RF_Module:ESP32-S3-WROOM-2',
@@ -607,27 +648,37 @@ def mcu_and_usb(sh):
         '23': 'PUMP_TACH',
         '31': 'STATUS_RGB',
         '32': 'IMU_INT2',
+        '13': 'USB_D_N',
+        '14': 'USB_D_P',
         '36': 'CS_ADDR_B',
         '37': 'PG_15V_N',
-        '26': 'CS_ADDR_C',
         '24': 'CS_ADDR_D_1V8',
     }
+    ends = {}
     for pin, net in left.items():
-        net_label(sh, net, spur(sh, esp, pin, 3), 180, is_global=True)
+        end = spur(sh, esp, pin, MCU_STUB)
+        net_label(sh, net, end, 0)
+        ends[net] = (end, (-1, 0))
     for pin, net in right.items():
-        net_label(sh, net, spur(sh, esp, pin, 3), 0, is_global=True)
-    spi_bus(
-        sh,
-        [
-            (spur(sh, esp, pin, 3), net)
-            for pin, net in (('33', 'SPI_MISO'), ('34', 'SPI_MOSI'), ('35', 'SPI_SCK'))
-        ],
-        188,
-        1,
-        [(188, 120), (192, 120)],
-        # member text starts past the global flags on the rows around it
-        label_at=11,
-    )
+        column, row = pin_cell(esp, pin)
+        ends[net] = (spur(sh, esp, pin, MCU_STUB), (1, 0))
+        net_label(sh, net, (column + 1, row), 0)
+    # CS_ADDR_C (pin 26) steps down a row, clear of the last SPI bus entry
+    column, row = pin_cell(esp, '26')
+    wire(sh, (column, row), (column + 3, row), (column + 3, row + 2),
+         (column + MCU_STUB, row + 2))
+    net_label(sh, 'CS_ADDR_C', (column + 4, row + 2), 0)
+    ends['CS_ADDR_C'] = ((column + MCU_STUB, row + 2), (1, 0))
+    # SPI: three labelled taps onto a bus that leaves below the stubs
+    spi_column = column + MCU_STUB - 2
+    for pin, net in (('33', 'SPI_MISO'), ('34', 'SPI_MOSI'), ('35', 'SPI_SCK')):
+        row = pin_cell(esp, pin)[1]
+        wire(sh, (column, row), (spi_column - 2, row))
+        net_label(sh, net, (column + 1, row), 0)
+        sh.bus_entries.append(((spi_column - 2) * 1.27, row * 1.27, 2.54, 2.54))
+    spi_top = pin_cell(esp, '33')[1] + 2
+    bus(sh, (spi_column, spi_top), (spi_column, spi_top + 14))
+    ends[SPI_BUS] = ((spi_column, spi_top + 14), (0, 1))
     # 28-30 are NC on the module; GPIO47 (1.8 V) is address bit D, buffered;
     # GPIO46 (pin 16, strap) and GPIO48 (pin 25, 1.8 V) are spare; GPIO11 and
     # GPIO13 go to the AUX header (Expansion sheet)
@@ -640,7 +691,7 @@ def mcu_and_usb(sh):
     place_blocks(
         sh,
         [('ESP32-S3 DECOUPLING CAPACITORS', '+3V3', ('22uF/10V', '100nF'))],
-        190,
+        150,
         38,
     )
     gnd = spur(sh, esp, '1', 2)
@@ -666,27 +717,34 @@ def mcu_and_usb(sh):
     )
     wire(sh, (108, 70), pin_cell(sw_reset, '1'))
     ground(sh, pin_cell(sw_reset, '2'))
-    # BOOT (GPIO0)
+    # BOOT (GPIO0): its wire runs under the reset circuit and up to the boot
+    # parts beside it, so the pin stubs below stay clear
     boot = pin_cell(esp, '27')
-    wire(sh, boot, (108, boot[1]))
-    wire(sh, (112, boot[1]), (112, boot[1] - 3))
-    net_label(sh, 'ESP_BOOT', (112, boot[1] - 3), 180, is_global=True)
-    vres(sh, '10k', 126, boot[1] - 6)
-    rail_symbol(sh, '+3V3', (126, boot[1] - 6))
-    vcap(sh, '100nF', 116, boot[1])
-    drop_ground(sh, (116, boot[1] + 6), 0)
+    base = boot[1] - 26
+    wire(sh, boot, (104, boot[1]), (104, base), (78, base))
+    wire(sh, (82, base), (82, base - 3))
+    net_label(sh, 'ESP_BOOT', (82, base - 3), 180, is_global=True)
+    vres(sh, '10k', 96, base - 6)
+    rail_symbol(sh, '+3V3', (96, base - 6))
+    vcap(sh, '100nF', 86, base)
+    drop_ground(sh, (86, base + 6), 0)
     sw_boot = sh.add(
         'Switch:SW_Push',
         next_ref('SW'),
         'BOOT',
-        108 * 1.27,
-        (boot[1] + 4) * 1.27,
+        78 * 1.27,
+        (base + 4) * 1.27,
         rot=270,
         auto=False,
         footprint='cryocooler:SW_Panasonic_EVP-AA',
     )
-    wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
+    wire(sh, (78, base), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
+    return ends
+
+
+def usb_port(sh):
+    """USB-C receptacle and its ESD clamp; D- and D+ leave on hierarchical labels."""
     # USB-C: VBUS can power the logic rail on its own (rails_logic sheet)
     esd = sh.add(
         'cryocooler:SRL05P7',
@@ -697,9 +755,8 @@ def mcu_and_usb(sh):
         auto=False,
         footprint='cryocooler:MCC_DFN1510-6_1.5x1.0mm_P0.5mm',
     )
-    # the clamp sits level with the module's USB pins, so D- and D+ run straight
-    wire(sh, pin_cell(esp, '13'), pin_cell(esd, '4'))
-    wire(sh, pin_cell(esp, '14'), pin_cell(esd, '6'))
+    for pin, net in (('4', 'USB_D_N'), ('6', 'USB_D_P')):
+        net_label(sh, net, spur(sh, esd, pin, 8), 180, is_global=True)
     usb = sh.add(
         'Connector:USB_C_Receptacle_USB2.0_16P',
         next_ref('J'),
@@ -751,8 +808,6 @@ def mcu_and_usb(sh):
     for pin in ('A8', 'B8'):
         sh.nc(usb, pin)
     ground(sh, spur(sh, usb, 'A1', 2))
-    for pin in ('A12', 'B1', 'B12'):
-        pass
     wire(
         sh,
         pin_cell(usb, 'SH'),
@@ -4892,6 +4947,10 @@ def build_ambient(sh):
 
 
 SHEETS = [
+    # the USB and chip-select sheets come first: their parts keep the numbers
+    # they had when they were drawn on the root
+    ('USB', 'usb', build_usb, 'A3'),
+    ('Chip Select', 'chip_select', build_chip_select, 'A3'),
     ('Power Input', 'power_input', build_power_input, 'A3'),
     ('Signal Generator', 'signal_gen', build_signal_gen, 'A3'),
     ('Water Cooling', 'cooling', build_cooling, 'A3'),
@@ -4963,7 +5022,7 @@ NET_CLASSES = [
         (200, 0, 0),
         (255, 40, 40),
         '5 V rails and USB VBUS (red)',
-        ['+5V', '+5V_OR', '+5V_PS15', '+5V_IO', 'USB_VBUS'],
+        ['+5V', '+5V_OR', '+5V_PS15', '+5V_IO', '*/USB_VBUS'],
         'Power',
     ),
     ('Power12V', (175, 140, 0), (255, 220, 0), '12 V input (yellow)', [], None),
@@ -4991,14 +5050,21 @@ NET_CLASSES = [
         ['ISO_5V'],
         'Power',
     ),
-    ('Usb', None, None, None, [], None),
+    (
+        'Usb',
+        None,
+        None,
+        None,
+        ['/USB_D_?', 'Net-(J1-D+-PadA6)', 'Net-(J1-D--PadA7)'],
+        'Default',
+    ),
     (
         'SPI',
         None,
         None,
         None,
-        ['SPI_*', 'ACS_*', '*_CS', 'AD9833_FSYNC', 'AD5453_SYNC', 'CS_ADDR_?',
-         'CS_EN_N'],
+        ['SPI_*', '*/SPI_*', 'ACS_*', '*_CS', '*/AD9833_FSYNC', '*/AD5453_SYNC', 'CS_ADDR_?',
+         '/CS_ADDR_?', '/CS_EN_N'],
         'Default',
     ),
     (
@@ -5006,7 +5072,7 @@ NET_CLASSES = [
         None,
         None,
         None,
-        ['SIG_SINE', 'DDS_SINE', 'NTC_ADC', '*/RTD_?'],
+        ['*/SIG_SINE', '*/DDS_SINE', '/NTC_ADC', '*/RTD_?'],
         'Default',
     ),
     (
@@ -5014,10 +5080,10 @@ NET_CLASSES = [
         None,
         None,
         None,
-        ['*_PWM', '*_TACH', 'AMP_REM_EN', 'COMP_RELAY_EN', 'PWR_KILL', 'AUX_IO*',
+        ['*_PWM', '*_TACH', '/AMP_REM_EN', '/COMP_RELAY_EN', '/PWR_KILL', '/AUX_IO*',
          '*/IO*_HDR', '*/IO*_SENSE',
-         'PWR_INT', 'IMU_INT?', 'INA239_ALERT', 'CAN_TX', 'CAN_RX', 'PG_15V*',
-         'PG?_15V', 'ESP_EN', 'ESP_BOOT', 'STATUS_RGB'],
+         '/PWR_INT', '/IMU_INT?', '*/INA239_ALERT', '/CAN_TX', '/CAN_RX', '*/PG_15V',
+         '/PG_15V_N', '*/PG?_15V', 'ESP_EN', 'ESP_BOOT', '/STATUS_RGB'],
         'Default',
     ),
     ('Ground', None, (110, 110, 110), None, ['GND', 'ISO_GND'],
@@ -5070,8 +5136,458 @@ def pin_fields(sheets):
             if pinned:
                 part.pinned_fields = dict(zip(('Reference', 'Value'), pinned))
 
-def sheet_symbol(root_uuid, child, index, x, y):
-    width, height = 50.8, 12.7
+# ── hierarchy ────────────────────────────────────────────────────────────
+# Group sheets: (file name, title, paper, member sheets). A group sheet holds
+# only its members' boxes and the wires between them. Sheets in no group hang
+# off the root.
+GROUPS = (
+    (
+        'power',
+        'Power',
+        'A3',
+        ('power_input', 'power_button', 'rails_logic', 'rails_15v', 'power_good',
+         'supply_switches'),
+    ),
+    (
+        'drive',
+        'Compressor Drive',
+        'A3',
+        ('signal_gen', 'amp_control', 'amp_current', 'compressor_relay'),
+    ),
+    ('sensors', 'Sensors', 'A3', ('cold_head', 'ambient', 'imu', 'system_current')),
+    (
+        'io',
+        'Universal IO',
+        'A3',
+        ('io_core', 'io_drivers', 'io_switches', 'io_expanders', 'io_precision',
+         'io_pressure') + tuple(f'io_ch{n}' for n in range(1, IO_CHANNELS + 1)),
+    ),
+)
+# Top-left cell of each sheet box on its parent's block diagram.
+BOX_CELLS = {
+    'root': {
+        'power': (20, 62),
+        'display': (20, 90),
+        'cooling': (20, 106),
+        'drive': (20, 128),
+        'expansion': (20, 156),
+        'debug': (20, 184),
+        'chip_select': (262, 24),
+        'usb': (262, 76),
+        'indicators': (262, 92),
+        'sensors': (262, 108),
+        'gpio_expander': (262, 140),
+        'io': (262, 170),
+    },
+    'power': {
+        'power_input': (60, 40),
+        'supply_switches': (60, 70),
+        'power_button': (60, 110),
+        'rails_logic': (140, 40),
+        'rails_15v': (140, 90),
+        'power_good': (220, 90),
+    },
+    'drive': {
+        'signal_gen': (80, 50),
+        'amp_control': (190, 50),
+        'amp_current': (80, 120),
+        'compressor_relay': (190, 120),
+    },
+    'sensors': {
+        'cold_head': (140, 40),
+        'ambient': (140, 80),
+        'imu': (140, 120),
+        'system_current': (140, 160),
+    },
+    'io': {
+        'io_core': (80, 16),
+        'io_precision': (80, 66),
+        'io_pressure': (80, 94),
+        'io_expanders': (80, 110),
+        'io_switches': (220, 16),
+        'io_drivers': (220, 58),
+        'io_ch1': (220, 94),
+        'io_ch2': (220, 124),
+        'io_ch3': (220, 154),
+        'io_ch4': (220, 176),
+    },
+}
+BOX_WIDTH = 32
+# How many times the router may restart with a boxed-in net moved to the front.
+ROUTE_ATTEMPTS = 40
+# Column of the hierarchical labels at the left edge of a group sheet; the
+# right-hand ones sit the same distance from the right edge.
+PORT_COLUMN = 30
+# Nets on many sheets stay global labels; everything else that leaves a sheet
+# goes through sheet pins (the SPI bus through bus pins).
+KEEP_GLOBAL = {'ESP_EN'}
+# A diagram with more signals than this bundles them: every box taps one bus
+# instead of running a wire per net.
+BUNDLE_OVER = 12
+# Bus alias (name -> member nets) of each bundled diagram, for the project file.
+LINK_ALIASES = {}
+# The sheet that drives a net (its pin is an output, every other an input).
+# Nets from the MCU take their direction from kicadgen.LABEL_DIRECTION.
+NET_SOURCE = {
+    **{net: 'chip_select' for _, net in CS_DECODER_OUTPUTS},
+    'PGP_15V': 'rails_15v',
+    'PGN_15V': 'rails_15v',
+    'PG_15V': 'power_good',
+    'PG_15V_N': 'power_good',
+    'SIG_SINE': 'signal_gen',
+    'DDS_SINE': 'signal_gen',
+    'AMBIENT_CT': 'ambient',
+    'AMBIENT_INT': 'ambient',
+    'INA239_ALERT': 'system_current',
+    'IO_ADC_DRDY_N': 'io_core',
+    'IO_EXP_INT_N': 'io_expanders',
+    'EXP_INT_N': 'expansion',
+    'RS485_IRQ_N': 'expansion',
+    'USB_VBUS': 'usb',
+    'CS_ADDR_D_1V8': 'root',
+}
+
+
+def net_shape(net, members):
+    """Sheet-pin or hierarchical-label shape of a net, for the sheet that
+    holds the given leaf sheets.
+    """
+    source = NET_SOURCE.get(net)
+    if source:
+        return 'output' if source in members else 'input'
+    direction = kicadgen.LABEL_DIRECTION.get(net)
+    if direction and not net.startswith('{'):
+        return 'input' if direction == 'out' else 'output'
+    return 'bidirectional'
+
+
+class Hierarchy:
+    """The sheet tree: which leaf sheets sit under each sheet, and which nets
+    are carried by sheet pins.
+    """
+
+    def __init__(self, root, leaves):
+        self.sheets = {'root': root, **leaves}
+        self.children = {'root': []}
+        grouped = {}
+        for name, title, paper, members in GROUPS:
+            group = Sheet(title, name + '.kicad_sch', paper)
+            group.uid = kicadgen.stable_uuid('sheet/' + name)
+            group.handwired = True
+            self.sheets[name] = group
+            self.children[name] = list(members)
+            grouped.update({member: name for member in members})
+        for name in leaves:
+            parent = grouped.get(name, name)
+            if parent not in self.children['root']:
+                self.children['root'].append(parent)
+        self.users = {}  # net -> leaf sheets (and 'root') that use it
+        for name, sheet in leaves.items():
+            for kind, net, _, _ in sheet.labels:
+                if kind == 'global_label':
+                    self.users.setdefault(net, set()).add(name)
+        for net in root.diagram_terminals:
+            self.users.setdefault(net, set()).add('root')
+        self.pinned = {
+            net
+            for net, names in self.users.items()
+            if len(names) > 1 and net not in KEEP_GLOBAL
+        }
+        self.set_paths('root', '')
+        for name, sheet in leaves.items():
+            sheet.hier_nets = {
+                net: net_shape(net, {name})
+                for net in self.pinned
+                if name in self.users[net]
+            }
+
+    def set_paths(self, name, parent_path):
+        sheet = self.sheets[name]
+        sheet.path = f'{parent_path}/{sheet.uid}'
+        for child in self.children.get(name, []):
+            self.set_paths(child, sheet.path)
+
+    def leaves_under(self, name):
+        if name not in self.children:
+            return {name}
+        found = {'root'} if name == 'root' else set()
+        for child in self.children[name]:
+            found |= self.leaves_under(child)
+        return found
+
+    def order(self, name='root'):
+        """Sheet names in page order: each group followed by its members."""
+        names = [name]
+        for child in self.children.get(name, []):
+            names += self.order(child)
+        return names
+
+
+def add_port(sheet, net, cell, side):
+    """Hierarchical label on a group sheet, pointing out of the page."""
+    sheet.labels.append(
+        ('global_label', net, (cell[0] * 1.27, cell[1] * 1.27), 180 if side == 'left' else 0)
+    )
+
+
+def diagram_ports(sheet, nets, pins, width):
+    """Places a group sheet's hierarchical labels: inputs down the left edge,
+    outputs down the right, each level with the pins it feeds where there is
+    room. Returns net -> [(cell, outward step)].
+    """
+    wanted = {'left': [], 'right': []}
+    for net, shape in nets.items():
+        rows = [cell[1] for _, pin_list in pins.values()
+                for name, cell, _ in pin_list if name == net]
+        side = 'right' if shape == 'output' else 'left'
+        wanted[side].append((sum(rows) / len(rows), net))
+    ports = {}
+    for side, entries in wanted.items():
+        row = 16
+        for target, net in sorted(entries):
+            row = max(row + 4, int(target) // 2 * 2)
+            column = PORT_COLUMN if side == 'left' else width - PORT_COLUMN
+            add_port(sheet, net, (column, row), side)
+            ports[net] = [((column, row), (1, 0) if side == 'left' else (-1, 0))]
+    return ports
+
+
+def bundled_ports(sheet, nets):
+    """Hierarchical labels of a bundled group sheet: all down the left edge in
+    name order, buses last. Returns net -> [(cell, outward step)].
+    """
+    import blockdiagram
+
+    ordered = sorted(nets, key=lambda net: (net.startswith('{'), blockdiagram.natural(net)))
+    ports = {}
+    for index, net in enumerate(ordered):
+        cell = (PORT_COLUMN, 20 + 4 * index)
+        add_port(sheet, net, cell, 'left')
+        ports[net] = [(cell, (1, 0))]
+    return ports
+
+
+def block_diagram(tree, name, pages, preview=None):
+    """Draws a sheet's child boxes with their pins and joins them, the sheet's
+    own terminals (MCU pin stubs on the root) and its hierarchical labels.
+
+    A sheet with few signals gets one wire per net. A busy one is bundled:
+    each box's pins tap a bus column beside it and one bus trunk joins the
+    columns. A bus net such as {SPI} is always routed as a bus between bus pins.
+    """
+    import blockdiagram
+    import part_descriptions
+    import textlayout
+
+    sheet = tree.sheets[name]
+    # in cells, rounded down to the even wire grid
+    width, height = (int(size / 2.54) * 2 for size in Sheet.PAPER[sheet.paper])
+    inside = tree.leaves_under(name)
+    boxes = {child: (*BOX_CELLS[name][child], BOX_WIDTH) for child in tree.children[name]}
+    nets, port_shapes = {}, {}
+    fixed = {net: list(ends) for net, ends in getattr(sheet, 'diagram_terminals', {}).items()}
+    for net in sorted(tree.pinned):
+        members = [
+            child for child in tree.children[name]
+            if tree.leaves_under(child) & tree.users[net]
+        ]
+        leaves_out = bool(tree.users[net] - inside)
+        if not members or len(members) + leaves_out + (net in fixed) < 2:
+            continue
+        nets[net] = members
+        if leaves_out:
+            port_shapes[net] = net_shape(net, inside)
+    signals = [net for net in nets if not net.startswith('{')]
+    bundled = len(signals) > BUNDLE_OVER
+    sheet.hier_nets = dict(port_shapes)
+    if bundled:
+        pins = blockdiagram.one_side(boxes, nets, width)
+        fixed.update(bundled_ports(sheet, port_shapes))
+    else:
+        # a first pass with the labels at mid-height settles the pin sides
+        guess = {
+            net: [((0 if shape != 'output' else width, height // 2), None)]
+            for net, shape in port_shapes.items()
+        }
+        pins = blockdiagram.arrange(boxes, {**fixed, **guess}, nets, width)
+        fixed.update(diagram_ports(sheet, port_shapes, pins, width))
+        pins = blockdiagram.arrange(boxes, fixed, nets, width)
+
+    # router terminals: net -> list of terminals, each a list of alternative ends
+    terminals = {net: [] for net in nets if not (bundled and net in signals)}
+    taps = []  # (wire ends in one column, step toward the bus, usable ends)
+    tap_blocks = []
+    for child, (_, pin_list) in pins.items():
+        step = {'left': -1, 'right': 1}
+        tapped = {'left': [], 'right': []}
+        for net, cell, side in pin_list:
+            if net in terminals:
+                terminals[net].append([(cell, (step[side], 0))])
+            else:
+                tapped[side].append((net, cell))
+        for side, entries in tapped.items():
+            if not entries:
+                continue
+            # KiCad joins a wire to a bus by the wire's label, and a sheet pin
+            # is not one: each pin gets a stub long enough to carry its name
+            reach = max(textlayout.text_width(net) for net, _ in entries) / 1.27
+            length = 2 * math.ceil((reach + 2) / 2)
+            ends = []
+            for net, cell in entries:
+                end = (cell[0] + length * step[side], cell[1])
+                wire(sheet, cell, end)
+                net_label(sheet, net, (min(cell[0], end[0]) + 1, cell[1]), 0)
+                ends.append(end)
+            taps.append((ends, step[side], 'both'))
+            columns = sorted((entries[0][1][0], ends[0][0]))
+            tap_blocks.append((columns[0], entries[0][1][1], columns[1], entries[-1][1][1]))
+    stubs = {}
+    for net, ends in fixed.items():
+        if net not in nets:
+            continue
+        for cell, out in ends:
+            if net in terminals:
+                terminals[net].append([(cell, out)])
+            elif net in port_shapes:
+                end = (cell[0] + 2 * out[0], cell[1])
+                wire(sheet, cell, end)
+                stubs.setdefault((end[0], out[0], 'both'), []).append(end)
+            else:
+                which = getattr(sheet, 'diagram_tap_ends', 'both')
+                stubs.setdefault((cell[0], out[0], which), []).append(cell)
+    taps += [(ends, step, which) for (_, step, which), ends in stubs.items()]
+    if bundled:
+        trunk = '{' + f'{name.upper()}_LINKS' + '}'
+        LINK_ALIASES[trunk[1:-1]] = sorted(signals)
+        part_descriptions.NET_DESCRIPTIONS[trunk] = (
+            f'Bus of the {len(signals)} signals between the sheets on this page; '
+            f'each wire that enters it is named by its sheet pin or label'
+        )
+        terminals[trunk] = []
+        for ends, step, which in taps:
+            entries, (top, bottom), alternatives = blockdiagram.tap_column(ends, step)
+            sheet.bus_entries += [
+                (x * 1.27, y * 1.27, dx * 1.27, dy * 1.27) for x, y, dx, dy in entries
+            ]
+            bus(sheet, top, bottom)
+            if which == 'bottom':
+                alternatives = alternatives[1:]
+            terminals[trunk].append(alternatives)
+            tap_blocks.append((min(top[0], ends[0][0]), top[1], max(top[0], ends[0][0]), bottom[1]))
+        # join the tap columns nearest first, starting from the top left
+        terminals[trunk].sort(key=lambda ends: (ends[0][0][0], ends[0][0][1]))
+
+    def span(net):
+        cells = [cell for ends in terminals[net] for cell, _ in ends]
+        columns, rows = [c[0] for c in cells], [c[1] for c in cells]
+        return max(columns) - min(columns) + max(rows) - min(rows)
+
+    def new_router():
+        router = blockdiagram.Router(width, height)
+        for area in getattr(sheet, 'diagram_keep_out', []):
+            router.block(*area)
+        # the title block
+        router.block(width - 96, height - 34, width, height)
+        if port_shapes:
+            # the margins hold the hierarchical labels
+            router.block(0, 0, PORT_COLUMN, height)
+            router.block(width - PORT_COLUMN, 0, width, height)
+        for child, (column, row, box_width) in boxes.items():
+            router.block(column, row - 2, column + box_width, row + pins[child][0] + 2)
+        for area in tap_blocks:
+            router.block(*area)
+        for net, ends in terminals.items():
+            for alternatives in ends:
+                for cell, out in alternatives:
+                    router.terminal(net, cell, out)
+        return router
+
+    # buses first, then short nets; a net that gets boxed in goes to the front
+    # and the routing starts again
+    order = sorted(terminals, key=lambda net: (not net.startswith('{'), span(net), net))
+    for _ in range(ROUTE_ATTEMPTS):
+        router, routed, failed = new_router(), {}, None
+        for net in order:
+            try:
+                routed[net] = router.route(net, terminals[net])
+            except RuntimeError as error:
+                failed = (net, str(error))
+                break
+        if not failed:
+            break
+        order.remove(failed[0])
+        order.insert(0, failed[0])
+    wires, buses = [], []
+    for net, (lines, joins) in routed.items():
+        if net.startswith('{'):
+            buses += lines
+            for line in lines:
+                bus(sheet, *line)
+            sheet.junctions += [(x * 1.27, y * 1.27) for x, y in joins]
+        else:
+            wires += lines
+            for line in lines:
+                wire(sheet, *line)
+    for net, (lines, _) in routed.items():
+        if failed or not net.startswith('{') or net in port_shapes:
+            continue
+        # a bus with no hierarchical label on this sheet is named on a level
+        # run, between grid points so no crossing line touches the label, and
+        # where nothing crosses under its text
+        reach = math.ceil(textlayout.text_width(net) / 1.27) + 2
+        spots = [
+            (column, a[1])
+            for line in lines
+            for a, b in zip(line, line[1:])
+            if a[1] == b[1]
+            for column in range(min(a[0], b[0]) + 1, max(a[0], b[0]) - reach, 2)
+            if all(
+                not router.others((x, a[1]), net)
+                for x in range(column - 1, column + reach + 1, 2)
+            )
+        ]
+        if not spots:
+            raise RuntimeError(f'{name}: no clear level run to label bus {net}')
+        net_label(sheet, net, spots[0], 0)
+    for child, (column, row, box_width) in boxes.items():
+        box_height, pin_list = pins[child]
+        members = tree.leaves_under(child)
+        sheet.sheet_symbols.append(
+            sheet_symbol(
+                sheet,
+                tree.sheets[child],
+                pages[child],
+                (column, row, box_width, box_height),
+                [
+                    (net, net_shape(net, members), cell, 180 if side == 'left' else 0)
+                    for net, cell, side in pin_list
+                ],
+                name == 'root',
+            )
+        )
+    if preview:
+        blockdiagram.preview(
+            preview / f'{name}.png', width, height,
+            {child: (*boxes[child], pins[child][0]) for child in boxes},
+            pins, wires, buses, router.blocked,
+        )
+    if failed:
+        raise RuntimeError(f'{name}: {failed[1]}')
+
+
+def sheet_symbol(parent, child, page, box, pins, from_root):
+    """Sheet box on its parent, in cells; pins are (net, shape, cell, angle)
+    with angle 180 on the left edge and 0 on the right.
+    """
+    x, y, width, height = (value * 1.27 for value in box)
+    sheet_file = ('sheets/' if from_root else '') + child.filename
+    pin_text = ''.join(
+        f'\t\t(pin {q(net)} {shape} (at {fmt(cell[0] * 1.27)} '
+        f'{fmt(cell[1] * 1.27)} {angle}) (uuid {q(kicadgen.new_uuid())}) '
+        f'(effects (font (size 1.27 1.27)) (justify '
+        f'{"right" if angle == 0 else "left"})))\n'
+        for net, shape, cell, angle in pins
+    )
     return (
         f'\t(sheet (at {fmt(x)} {fmt(y)}) (size {fmt(width)} {fmt(height)}) '
         f'(exclude_from_sim no) '
@@ -5082,12 +5598,13 @@ def sheet_symbol(root_uuid, child, index, x, y):
         f'{fmt(y - 0.7)} 0) (show_name no) '
         f'(do_not_autoplace no) (effects (font (size 1.27 1.27)) (justify '
         f'left bottom)))\n'
-        f'\t\t(property "Sheetfile" {q("sheets/" + child.filename)} (at '
+        f'\t\t(property "Sheetfile" {q(sheet_file)} (at '
         f'{fmt(x)} {fmt(y + height + 0.6)} 0) '
         f'(show_name no) (do_not_autoplace no) (effects (font (size 1.27 '
         f'1.27)) (justify left top)))\n'
-        f'\t\t(instances (project {q(PROJECT)} (path {q("/" + root_uuid)} '
-        f'(page {q(str(index + 2))}))))\n\t)'
+        f'{pin_text}'
+        f'\t\t(instances (project {q(PROJECT)} (path {q(parent.path)} '
+        f'(page {q(str(page))}))))\n\t)'
     )
 
 
@@ -5194,51 +5711,55 @@ def check_sheets(sheets):
 
 
 def main():
+    """Builds every sheet and writes the project. `--preview DIR` draws each
+    block diagram to DIR as a PNG and writes nothing else.
+    """
+    preview = None
+    if '--preview' in sys.argv:
+        preview = Path(sys.argv[sys.argv.index('--preview') + 1])
     kicadgen.reset_uuids()
     root_uuid = ROOT_UUID
     root = Sheet('Cryocooler Controller', 'cryocooler.kicad_sch', 'A3')
     root.uid = root_uuid
-    root.path = '/' + root_uuid
     build_mcu(root)
-    children = []
-    for index, (title, name, builder, paper) in enumerate(SHEETS):
+    leaves = {}
+    for title, name, builder, paper in SHEETS:
         child = Sheet(title, name + '.kicad_sch', paper)
         child.uid = kicadgen.stable_uuid('sheet/' + name)
-        child.path = f'/{root_uuid}/{child.uid}'
         builder(child)
-        children.append(child)
-        column, row = index % 6, index // 6
-        root.sheet_symbols.append(
-            sheet_symbol(
-                root_uuid, child, index, 20 + column * 62, 190 + row * 20
-            )
-        )
+        leaves[name] = child
+    tree = Hierarchy(root, leaves)
+    names = tree.order()
+    pages = {name: index + 1 for index, name in enumerate(names)}
+    for name in tree.children:
+        block_diagram(tree, name, pages, preview)
+    if preview:
+        return
+    sheets = [tree.sheets[name] for name in names]
     # final references; the builders keep allocating their own numbers
-    for sheet in [root] + children:
+    for sheet in sheets:
         for part in sheet.parts:
             part.ref = REF_MAP.get(part.ref, part.ref)
 
-    link_parts([root] + children)
-    undescribed = describe_parts([root] + children)
-    pin_fields([root] + children)
-    overlaps, junctions, duplicates = check_sheets([root] + children)
+    link_parts(sheets)
+    undescribed = describe_parts(sheets)
+    pin_fields(sheets)
+    overlaps, junctions, duplicates = check_sheets(sheets)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
     (ROOT_DIR / 'cryocooler.kicad_sch').write_text(root.render(root_uuid))
-    for child in children:
-        (ROOT_DIR / 'sheets' / child.filename).write_text(
-            child.render(root_uuid)
-        )
+    for sheet in sheets[1:]:
+        (ROOT_DIR / 'sheets' / sheet.filename).write_text(sheet.render(root_uuid))
     # the project file lists every sheet's uuid; keep it in step with the
     # generated files
     project_file = ROOT_DIR / 'cryocooler.kicad_pro'
     project = json.loads(project_file.read_text())
     project['sheets'] = [[root_uuid, 'cryocooler']] + [
-        [child.uid, child.title] for child in children
+        [sheet.uid, sheet.title] for sheet in sheets[1:]
     ]
-    project['schematic']['bus_aliases'] = SPI_ALIAS
+    project['schematic']['bus_aliases'] = {**SPI_ALIAS, **LINK_ALIASES}
     set_net_classes(project)
     project_file.write_text(json.dumps(project, indent=2) + '\n')
-    print('wrote', 1 + len(children), 'sheets')
+    print('wrote', len(sheets), 'sheets')
     if duplicates:
         sys.exit(1)
     print(f'4-way junction check: {junctions} found')

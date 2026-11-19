@@ -665,6 +665,7 @@ class Sheet:
         self.junctions = []
         self.text_items = []
         self.label_descriptions = {}  # label name -> hidden Description text
+        self.hier_nets = {}  # net -> shape: drawn as hierarchical labels (sheet pins)
         self.shapes = []  # ('rectangle' | 'polyline', points in mm, line width)
         self.sheet_symbols = []
         self.used_libs = []
@@ -989,6 +990,13 @@ class Sheet:
                     f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(effects (font (size 1.27 1.27)) (justify {justify} '
                     f'bottom)) (uuid {q(new_uuid())}){described})'
+                )
+            elif net in self.hier_nets:
+                out.append(
+                    f'\t(hierarchical_label {q(net)} (shape {self.hier_nets[net]}) '
+                    f'(at {fmt(x)} {fmt(y)} {rotation}) '
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})) '
+                    f'(uuid {q(new_uuid())}){described})'
                 )
             else:
                 shape = label_shape(

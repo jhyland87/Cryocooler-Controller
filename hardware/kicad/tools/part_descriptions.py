@@ -395,6 +395,8 @@ NET_DESCRIPTIONS = {
               'and the display reset line (J15)',
     'ESP_BOOT': 'ESP32 GPIO0 boot strap: held low at reset for USB download mode',
     'USB_VBUS': 'USB-C 5 V from the host: feeds +5V_OR when the 12 V supply is absent',
+    'USB_D_P': 'USB 2.0 D+ between the ESP32 (GPIO20) and the USB-C port, through the ESD clamp',
+    'USB_D_N': 'USB 2.0 D- between the ESP32 (GPIO19) and the USB-C port, through the ESD clamp',
     'STATUS_RGB': 'Data line to the WS2812B status LED (GPIO38, before the level '
                   'shifter)',
     # power button

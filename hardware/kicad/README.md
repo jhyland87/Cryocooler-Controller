@@ -11,7 +11,10 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 
 | Sheet | Contents |
 |---|---|
-| `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, USB-C (GCT USB4205-GF-A, flag type) + ESD |
+| `cryocooler.kicad_sch` (root) | ESP32-S3-WROOM-2-N32R16V, EN/BOOT, and the block diagram: one box per top-level sheet, wired by sheet pins (see "Drawing conventions") |
+| `power`, `drive`, `sensors`, `io` | Group sheets, boxes and wires only. `power`: `power_input`, `power_button`, `rails_logic`, `rails_15v`, `power_good`, `supply_switches`. `drive`: `signal_gen`, `amp_control`, `amp_current`, `compressor_relay`. `sensors`: `cold_head`, `ambient`, `imu`, `system_current`. `io`: the ten `io_*` sheets. |
+| `usb` | USB-C (GCT USB4205-GF-A, flag type), SRL05P7 ESD clamp, CC pull-downs, VBUS capacitor (on the root until 2026-11-18) |
+| `chip_select` | 74HC154 chip-select decoder, its strap resistors and the 74LV1T34 address bit D buffer (on the root until 2026-11-18) |
 | `power_input` | 12 V DC jack (5.5 x 2.1 mm), 5 A fuse, SMBJ16A TVS, bulk caps Rev 5 (2026-11-16): sized for 10 A. J2 is a Molex Mini-Fit Jr 2 x 2 pinned as the ATX 12 V (CPU) connector (1, 2 ground; 3, 4 +12 V) and F1 is 10 A. |
 | `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (the J7 panel header went in rev 4). Rev 5: `PWR_BTN` is a global label, so the display's digital output on the `display` sheet (J21) presses the same line as SW3 Rev 5: optional auto power-on (JP, 2.2 µF and a diode on `PWR_BTN`), jumper not fitted, not bench tested. |
 | `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
@@ -86,9 +89,39 @@ shared rails with decoupling caps hanging off them, switching loops are kept com
 lines rather than net labels (labels are used only for global signals such as the GPIO nets, and for a few
 local nets that would otherwise need long detours, for example the ISO7741 isolated-side SPI lines).
 
+**Hierarchy and sheet pins (2026-11-18).** The root holds the ESP32 with its reset and boot circuits and one
+box per top-level sheet. Four of those are group sheets (`GROUPS` in `tools/gen_schematic.py`) that hold only
+their members' boxes: `power` (Power), `drive` (Compressor Drive), `sensors` (Sensors) and `io` (Universal IO).
+A net used on two or more sheets is carried by sheet pins: a hierarchical label inside each sheet, a pin of the
+same name on the sheet's box, a wire on the parent sheet, and a hierarchical label at the edge of a group sheet
+where the net leaves the group. The builders are unchanged: they still call `net_label(..., is_global=True)`,
+and `Hierarchy` turns every such net into sheet pins unless it is in `KEEP_GLOBAL` (only `ESP_EN`). Supplies
+and grounds stay power symbols. `block_diagram()` places the boxes from `BOX_CELLS`, picks each pin's side and
+row, and `tools/blockdiagram.py` routes the lines (they may cross, never share a segment).
+
+**Buses on the block diagrams.** A sheet with few signals (`power`, `drive`, `sensors`) gets one wire per net.
+A sheet with more than `BUNDLE_OVER` signals (the root and `io`) is bundled: every pin has a short labelled
+stub with a 45° entry onto a bus column beside its box, and one bus trunk joins the columns. The trunk is an
+unnamed group bus with its own alias (`{ROOT_LINKS}`, `{IO_LINKS}`, written to `cryocooler.kicad_pro`), so the
+member nets keep their names. The stub labels are required: KiCad joins a wire to a bus by the wire's label,
+and a sheet pin alone does not count (without them every net on the trunk is left open). The SPI bus goes
+through bus sheet pins named `{SPI}` and is drawn as a second bus on every level; where two buses cross
+without a dot they are not joined.
+`NET_SOURCE` says which sheet drives a net, for the pin arrows. `python3 tools/gen_schematic.py --preview DIR`
+draws the block diagrams as PNGs without writing the schematic, for trying a new `BOX_CELLS` layout.
+
+**Net names follow the hierarchy.** A net carried only by sheet pins is named after a sheet path
+(`/Power/PG_15V`, `/Universal IO/IO1_ADC`); a signal on the root's bus takes its stub label there and is named
+`/FAN_PWM`, `/IMU_CS`, `/SPI_SCK`. So turning a global label into a sheet pin, or moving a sheet under a group, renames nets.
+After such a change run `tools/rename_board_nets.py` (it matches nets by their pins and renames them on the
+routed board, moving nothing), then `gen_pcb.py link` and DRC with schematic parity; check the name patterns in
+`NET_CLASSES` still put every net in its class. `datasheet_rules.py` and `verify_netlist.py` compare the last
+part of the name, so their rules keep the short names.
+
 **SPI bus.** `SPI_SCK`, `SPI_MOSI` and `SPI_MISO` are drawn as a KiCad bus on the root sheet and on every
 sheet with an SPI part (`spi_bus()` in `tools/gen_schematic.py`). Each pin's wire carries a local member label
-and a 45° entry onto a short bus that ends in one global `{SPI}` label. `SPI` is a bus alias in
+and a 45° entry onto a short bus that ends in one `{SPI}` label, hierarchical since 2026-11-18: the bus reaches
+the ESP32 through `{SPI}` bus pins on the sheet boxes. `SPI` is a bus alias in
 `cryocooler.kicad_pro`, and the group has no name before the braces, so the nets keep their own names
 (`SPI_SCK`, not `SPI.SCK`). Chip selects stay individual global labels.
 
@@ -144,7 +177,7 @@ off-board connector is added, removed or moved.
 `tools/verify_netlist.py` checks the GPIO map against `pin_config.h`, missing footprints and
 single-pin nets on a `kicad-cli sch export netlist` output; `tools/compare_netlists.py` compares the
 connectivity of two netlists (useful after changing layout, which must not change connections; two-pin
-passives may be flipped), `tools/check_symbols.py` reports overlapping symbols and turned power symbols on
+passives may be flipped; `--names` also fails on any renamed net, needed when a global label becomes a sheet pin), `tools/check_symbols.py` reports overlapping symbols and turned power symbols on
 the generated sheets, and `tools/datasheet_rules.py` checks datasheet-critical connections.
 
 ## Review status

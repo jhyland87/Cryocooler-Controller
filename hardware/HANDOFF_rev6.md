@@ -13,6 +13,26 @@ tested, not ordered. Details and reasons: `kicad/DESIGN_REVIEW.md`, "Rev 6".
   6 `silk_edge_clearance` (J2, J11), 4 `silk_over_copper` (U32),
   2 `lib_footprint_mismatch` (U1, U18).
 
+## Schematic hierarchy (2026-11-18, branch `rev6-sheet-pins`, not yet reviewed)
+
+The schematic is now hierarchical: the root holds the ESP32 and twelve sheet boxes,
+four of them group sheets (`power`, `drive`, `sensors`, `io`), and the USB port and the
+chip-select decoder moved off the root to `usb` and `chip_select`. Nets between sheets
+go through sheet pins; only `ESP_EN`, supplies and grounds are global. On the root and
+`io` the pins tap one bus trunk (`{ROOT_LINKS}`, `{IO_LINKS}`); the SPI bus runs through
+`{SPI}` bus pins. See `kicad/README.md`, "Drawing conventions".
+
+- No connection changed: all 379 nets have the same pins (497 parts). 149 nets were
+  renamed (`/FAN_PWM`, `/SPI_SCK`, `/Power/PG_15V`, sheet paths under the groups) and
+  renamed to match on the board with `tools/rename_board_nets.py`; every track, via,
+  pad, zone and footprint position is unchanged, and `gen_pcb.py link` re-linked the
+  497 footprints to the new sheet paths. No net changed net class.
+- Checks after the change: ERC 0, `datasheet_rules` 609 of 609, `verify_netlist` clean,
+  `check_symbols` 0, DRC 0 errors / 0 unconnected / 0 parity with the same 12 warnings.
+- Not done: fab files and renders were not re-exported (the Gerbers may carry net names),
+  and `cryocooler-schematic.pdf` is not refreshed. `sheets/aux_io.kicad_sch` is no
+  longer generated and awaits a decision to delete.
+
 ## What changed from rev 5
 
 - **Board:** 212 x 84 mm (max PCB in this housing is 212 x 170). The connector wall

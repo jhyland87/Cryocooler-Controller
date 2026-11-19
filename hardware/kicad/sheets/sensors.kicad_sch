@@ -1,0 +1,875 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "1951a00b-48ac-5b31-8bcd-4bf194afc5f2")
+	(paper "A3")
+	(title_block
+		(title "Sensors")
+		(rev "A")
+		(company "Cryocooler Controller")
+	)
+	(lib_symbols)
+	(bus
+		(pts
+			(xy 172.72 106.68) (xy 177.8 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ff6f3dc-6e9d-59b2-a8fd-6caebec1c69e")
+	)
+	(bus
+		(pts
+			(xy 172.72 55.88) (xy 177.8 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65eab179-a2f1-5030-93e3-370c2962bbfc")
+	)
+	(bus
+		(pts
+			(xy 170.18 154.94) (xy 177.8 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18c4eb8f-9c98-5799-8cec-de47c9c8518b")
+	)
+	(bus
+		(pts
+			(xy 170.18 104.14) (xy 172.72 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ee7ea83-bd3c-5aae-9d2c-550a2d5e5d1c")
+	)
+	(bus
+		(pts
+			(xy 172.72 205.74) (xy 177.8 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6242657f-959f-58e8-806f-fbac2f6ed453")
+	)
+	(bus
+		(pts
+			(xy 38.1 132.08) (xy 170.18 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0d04e4bb-3c32-5115-b47f-9b35a41bf07c")
+	)
+	(bus
+		(pts
+			(xy 172.72 55.88) (xy 172.72 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5529fc7-1e3c-5cb7-96dd-2cab0f1be021")
+	)
+	(bus
+		(pts
+			(xy 172.72 154.94) (xy 172.72 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65936ba6-81f2-5f99-aa7a-4cca94526936")
+	)
+	(bus
+		(pts
+			(xy 170.18 104.14) (xy 170.18 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "215f3676-0b7a-5c97-ac74-985d526bbd3e")
+	)
+	(hierarchical_label "ADS1220_CS"
+		(shape input)
+		(at 38.1 53.34 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "54bcc9c3-d2f4-5c51-9161-aed510b3b96f")
+		(property "Description" "Chip select (active low) for the ADS1220 cold head ADC, decoder Y6"
+			(at 38.1 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AMBIENT_CS"
+		(shape input)
+		(at 38.1 104.14 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f6fc28a0-13fd-5cfb-be69-338ca551cd35")
+		(property "Description" "Chip select (active low) for the ADT7320 ambient sensor, decoder Y8"
+			(at 38.1 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "{SPI}"
+		(shape bidirectional)
+		(at 38.1 132.08 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bc5ca8bf-d4f0-5128-accf-2a06ba5994db")
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 38.1 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IMU_CS"
+		(shape input)
+		(at 38.1 154.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3e68dccf-95fa-55d3-a244-ca1aeaf2a441")
+		(property "Description" "Chip select (active low) for the LSM6DSOX IMU on the cable, decoder Y7"
+			(at 38.1 154.94 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "INA239_CS"
+		(shape input)
+		(at 38.1 205.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "08889b31-95c2-5c49-ae09-e7f7cde2ec93")
+		(property "Description" "Chip select (active low) for the INA239 power monitor, decoder Y2"
+			(at 38.1 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AMBIENT_CT"
+		(shape output)
+		(at 381 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "09244d9d-3d5a-5aaf-803d-98fcd505acf4")
+		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
+			(at 381 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "AMBIENT_INT"
+		(shape output)
+		(at 381 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "11967fce-7095-53b7-9f48-ca1e6022e99c")
+		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
+			(at 381 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IMU_INT1"
+		(shape output)
+		(at 381 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3dab2299-3641-51c4-82fb-4978684d372c")
+		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
+			(at 381 154.94 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IMU_INT2"
+		(shape output)
+		(at 381 160.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fb05867d-6d0b-516f-9a91-ef2217133882")
+		(property "Description" "LSM6DSOX interrupt 2 from the IMU cable to GPIO39"
+			(at 381 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "INA239_ALERT"
+		(shape output)
+		(at 381 205.74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "71e0885e-fe2c-5b3b-8e9c-0d9fec8fd75d")
+		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
+			(at 381 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(junction
+		(at 172.72 104.14)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1ba47f19-cae2-5430-9ab6-d7442e7ce69b")
+	)
+	(junction
+		(at 172.72 154.94)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cddaf65d-6f9a-5714-b126-233f6397d422")
+	)
+	(junction
+		(at 170.18 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "da1d7f8c-df2f-51e1-bf02-bc96dd65b399")
+	)
+	(wire
+		(pts
+			(xy 175.26 104.14) (xy 177.8 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "010bf651-118a-5493-bf33-1b32c7c19caa")
+	)
+	(wire
+		(pts
+			(xy 220.98 109.22) (xy 381 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12716570-9263-5579-a9a3-865f254a156b")
+	)
+	(wire
+		(pts
+			(xy 218.44 154.94) (xy 381 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "187a33e5-e334-5893-b22e-b877f1a0e815")
+	)
+	(wire
+		(pts
+			(xy 220.98 106.68) (xy 220.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18e8004d-57af-526a-9e76-c1654f722b03")
+	)
+	(wire
+		(pts
+			(xy 167.64 101.6) (xy 175.26 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "303e6d49-83ad-5405-ad7a-5b4bdda7cad8")
+	)
+	(wire
+		(pts
+			(xy 218.44 106.68) (xy 220.98 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3603a9c3-f8c0-5bc0-915c-c66021648a09")
+	)
+	(wire
+		(pts
+			(xy 38.1 53.34) (xy 177.8 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b2956bb-79ea-56bd-993d-d4cac09098be")
+	)
+	(wire
+		(pts
+			(xy 220.98 157.48) (xy 220.98 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54b36298-e8a8-5139-aead-4db95a1fd695")
+	)
+	(wire
+		(pts
+			(xy 170.18 205.74) (xy 170.18 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54f53790-e4c4-5bd8-8ed4-bb992c53bc4b")
+	)
+	(wire
+		(pts
+			(xy 175.26 101.6) (xy 175.26 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "582e1229-6f47-51d9-8f40-593650b9f019")
+	)
+	(wire
+		(pts
+			(xy 38.1 154.94) (xy 167.64 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62cd78b0-9957-5ab8-8a5a-e197269e75cb")
+	)
+	(wire
+		(pts
+			(xy 220.98 160.02) (xy 381 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68bb4ee2-e566-5c25-89cf-e6310270c6b6")
+	)
+	(wire
+		(pts
+			(xy 218.44 157.48) (xy 220.98 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "869f9f33-d9c3-53e5-ac3b-1f41fed7c0ad")
+	)
+	(wire
+		(pts
+			(xy 170.18 208.28) (xy 177.8 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a82d1b8b-a8f0-5ae4-a122-e3f72d647a65")
+	)
+	(wire
+		(pts
+			(xy 38.1 104.14) (xy 167.64 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aecc4359-1280-524c-b654-ee445023c47f")
+	)
+	(wire
+		(pts
+			(xy 218.44 104.14) (xy 381 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af2de083-e360-5379-bb78-1f340e227ec4")
+	)
+	(wire
+		(pts
+			(xy 167.64 101.6) (xy 167.64 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d809a608-bf4b-5bad-b51a-7545ac4dc2fd")
+	)
+	(wire
+		(pts
+			(xy 167.64 154.94) (xy 167.64 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec9ec79f-417b-5702-a08b-8bcdda48debf")
+	)
+	(wire
+		(pts
+			(xy 167.64 157.48) (xy 177.8 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eed69688-74cb-54f7-bc90-705ff97cf167")
+	)
+	(wire
+		(pts
+			(xy 38.1 205.74) (xy 170.18 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2274062-896e-5f96-bac1-95130227d3b6")
+	)
+	(wire
+		(pts
+			(xy 218.44 205.74) (xy 381 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd032d33-7c54-55f2-aa26-4a9eae998394")
+	)
+	(sheet
+		(at 177.8 50.8)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "3de89fe9-3b86-5825-900a-b21f817f60bb")
+		(property "Sheetname" "Cold Head Temp"
+			(at 177.8 50.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "cold_head.kicad_sch"
+			(at 177.8 61.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "ADS1220_CS" input
+			(at 177.8 53.34 180)
+			(uuid "548fbb56-9ae0-5713-936e-54d270a01147")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 177.8 55.88 180)
+			(uuid "abd7f48c-d1d7-5b18-a17e-8d26a65bfa60")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/e5ace208-6df0-5ff1-b144-8cf107f18ae7"
+					(page "18")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 152.4)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "7d11f024-8900-51b3-95f7-00062a4ac386")
+		(property "Sheetname" "IMU"
+			(at 177.8 151.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "imu.kicad_sch"
+			(at 177.8 163.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 177.8 154.94 180)
+			(uuid "f7443d61-ab6e-5031-8382-2b381d958f13")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IMU_CS" input
+			(at 177.8 157.48 180)
+			(uuid "033c25fb-82da-5ce6-a38c-d82693d87529")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IMU_INT1" output
+			(at 218.44 154.94 0)
+			(uuid "f8bc6327-dfb1-510a-9eed-07759fece90a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IMU_INT2" output
+			(at 218.44 157.48 0)
+			(uuid "8254e5c8-09a0-5785-b5d0-c7ed3d070670")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/e5ace208-6df0-5ff1-b144-8cf107f18ae7"
+					(page "20")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 203.2)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "9703c636-c4a3-539b-91d5-5b30ebe0d7e3")
+		(property "Sheetname" "System Current"
+			(at 177.8 202.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "system_current.kicad_sch"
+			(at 177.8 213.96 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 177.8 205.74 180)
+			(uuid "e1a1552a-a56c-5665-803f-fccc05b9327f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "INA239_CS" input
+			(at 177.8 208.28 180)
+			(uuid "be56077e-e0be-5a53-b832-6eb4e0405bf3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "INA239_ALERT" output
+			(at 218.44 205.74 0)
+			(uuid "aca952dc-b4d2-569e-ae4f-ca597f5a7dc7")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/e5ace208-6df0-5ff1-b144-8cf107f18ae7"
+					(page "21")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 101.6)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "c237b8ba-e38e-5701-8fce-ddc9374652fa")
+		(property "Sheetname" "Ambient Temp"
+			(at 177.8 100.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "ambient.kicad_sch"
+			(at 177.8 112.36 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "AMBIENT_CS" input
+			(at 177.8 104.14 180)
+			(uuid "8684ad88-3d71-5e9e-a937-4d991758870f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 177.8 106.68 180)
+			(uuid "8ae7b1fc-fc5f-5103-9420-06fe9e3159ae")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "AMBIENT_CT" output
+			(at 218.44 104.14 0)
+			(uuid "4ea30efe-42f7-5fc8-83f1-e4c5e5a5b37b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "AMBIENT_INT" output
+			(at 218.44 106.68 0)
+			(uuid "055753ae-5781-5222-a8a1-275243f6f58b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/e5ace208-6df0-5ff1-b144-8cf107f18ae7"
+					(page "19")
+				)
+			)
+		)
+	)
+)

@@ -47,6 +47,22 @@ These were each corrected more than once. No exceptions for tight spots.
 - Take the short route. No long detours, and straighten any wire that has no reason to jog.
 - A label sits on the end of its own wire: never floating, never on top of another
   wire, and next to the pin or part it names.
+- **Between sheets: sheet pins, in a hierarchy.** A signal used on two or more sheets
+  gets a hierarchical label in each sheet, a pin on each sheet box and a wire on the
+  parent sheet. Related sheets sit under a group sheet (power, drive, sensors, I/O),
+  so the root shows a dozen boxes, not thirty. Global labels are only for nets needed
+  almost everywhere: supplies and grounds (power symbols), the shared SPI bus, reset.
+  In the generator: `GROUPS`, `BOX_CELLS`, `KEEP_GLOBAL` and `block_diagram()`.
+- **A busy block diagram is bundled into a bus.** When a parent sheet would carry more
+  than about a dozen wires, each box's pins tap one bus trunk through labelled stubs and
+  45-degree entries (`BUNDLE_OVER`). The stub label is not optional: KiCad joins a wire
+  to a bus by its label, not by a sheet pin. Shared buses such as SPI go through bus
+  sheet pins (`{SPI}`).
+- **A sheet pin renames its net.** KiCad names a net that has only hierarchical labels
+  after its sheet path (`/Chip Select/IMU_CS`). On a routed board, rename the nets to
+  match (`tools/rename_board_nets.py`, then `gen_pcb.py link`), check the net-class
+  patterns still match, and prove with `tools/compare_netlists.py` and DRC parity that
+  only names changed.
 - Global labels show direction (input, output, bidirectional) per net and sheet
   (`LABEL_DIRECTION` in `tools/kicadgen.py`). A new global net needs an entry.
 - Signals shared by many parts on a sheet (a shared SPI bus, for example) are drawn as
@@ -59,7 +75,8 @@ These were each corrected more than once. No exceptions for tight spots.
 
 - **One function per sheet** (power input, a rail pair, one sensor front end, one
   actuator driver). When a sheet gains a second function or gets crowded, split it.
-  The root sheet shows how the sheets connect.
+  The root sheet shows how the sheets connect. A sheet that only groups others holds
+  boxes and wires, no parts.
 - Signal flows left to right: inputs and connectors feeding the sheet on the left,
   outputs on the right. Feedback may run right to left.
 - Higher voltage toward the top. Pull-ups sit above the line they pull, pull-downs below.

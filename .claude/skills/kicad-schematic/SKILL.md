@@ -59,11 +59,17 @@ Expected (from `HANDOFF_rev3.md` "Checks", 2026-11-06): ERC 0, `datasheet_rules`
 at codes 0, 4096, 8192, 12288 and 16383. If the counts change, make sure the change
 was intended and update the handoff.
 
+- `python3 tools/gen_schematic.py --preview $OUT/prev` draws the root and group-sheet
+  block diagrams as PNGs without writing the schematic (for a new `BOX_CELLS` layout).
 - Run ERC on the root. Sub-sheets can't be checked on their own. ERC JSON positions
   are in 1/100 mm.
 - **Layout-only change** (moved symbols or wires): export a baseline netlist before
   editing, then `python3 tools/compare_netlists.py $OUT/base.net $OUT/new.net`.
   Connectivity must match. Two-pin passives may be flipped.
+  Add `--names` to also list renamed nets. A label turned into a sheet pin, or a
+  sheet moved under a group, renames nets: carry the new names to the routed board
+  with `$KPY tools/rename_board_nets.py $OUT/base.net $OUT/new.net` (pins must match
+  exactly; nothing moves), then `gen_pcb.py link` and DRC with parity.
 - **Look at it:** `$KC sch export pdf -o $OUT/sch.pdf cryocooler.kicad_sch`, then
   `gs -sDEVICE=png16m -r150 -o $OUT/page%02d.png $OUT/sch.pdf` (there's no pdftoppm).
   Check the page you changed.

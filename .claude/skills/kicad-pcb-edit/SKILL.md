@@ -50,6 +50,10 @@ warnings (`README.md`, "IMU board").
 | `finish` | Redoes the pours, GND stitching, island and escape vias, and refills |
 | `reroute <freerouting.jar>` | One more Freerouting round; existing copper stays (needs Java 25) |
 
+Schematic nets renamed with no change in connections (a sheet pin, a sheet moved
+under a group)? `$KPY tools/rename_board_nets.py base.net new.net` renames them on the
+board without touching copper; run `link` after it.
+
 Every mode, `link` included, finishes by running `tools/export_fab.py`, which
 rewrites the Gerbers, zip and renders. Put `SKIP_FAB_EXPORT=1` in front while
 iterating, then export once at the end (`kicad-fab-export` skill).

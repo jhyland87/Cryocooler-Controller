@@ -1,0 +1,845 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "9ba4fc4d-f2f7-5010-b20f-cddcb8f22941")
+	(paper "A3")
+	(title_block
+		(title "Power")
+		(rev "A")
+		(company "Cryocooler Controller")
+	)
+	(lib_symbols)
+	(hierarchical_label "USB_VBUS"
+		(shape input)
+		(at 38.1 53.34 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "60e28d5e-90ad-500e-ab90-e1b653386a20")
+		(property "Description" "USB-C 5 V from the host: feeds +5V_OR when the 12 V supply is absent"
+			(at 38.1 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PWR_BTN"
+		(shape bidirectional)
+		(at 38.1 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "39e54b02-be80-55dd-8b28-1160eba2bec0")
+		(property "Description" "Power button line to the LTC2954 PB pin, active low: SW3 or the display output on J15"
+			(at 38.1 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PWR_KILL"
+		(shape input)
+		(at 38.1 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e0190fdd-9ea1-5eda-8bb4-f9c866bdafce")
+		(property "Description" "GPIO10 to LTC2954 KILL#: driven low to cut the board power"
+			(at 38.1 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PGN_15V"
+		(shape output)
+		(at 381 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cc3f7ea5-1755-574f-8923-912fb459cff6")
+		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
+			(at 381 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PG_15V"
+		(shape output)
+		(at 381 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4394e0e8-802b-5f40-9b55-93aa752cd731")
+		(property "Description" "Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: gates the amplifier REM switch"
+			(at 381 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PGP_15V"
+		(shape output)
+		(at 381 127 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bcd6523d-d32c-5304-86cf-c493688f05b3")
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
+			(at 381 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PG_15V_N"
+		(shape output)
+		(at 381 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dfc4d67a-850f-532d-ae54-5656840a80e9")
+		(property "Description" "+-15 V power-good flag to GPIO43, active low: low when both rails are good"
+			(at 381 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PWR_INT"
+		(shape output)
+		(at 381 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d4e62045-9ca6-57ae-994a-130f8613c24d")
+		(property "Description" "LTC2954 INT# to GPIO1: pulses low when the button asks for a shutdown"
+			(at 381 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(junction
+		(at 274.32 119.38)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "adfafeca-55f6-53fd-b4ea-266011223e42")
+	)
+	(junction
+		(at 274.32 116.84)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b16fe094-4da4-5cfa-b1ae-c2bf649bcfac")
+	)
+	(wire
+		(pts
+			(xy 73.66 144.78) (xy 73.66 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02d6d516-fa0b-5699-b79a-1d081a02bd3d")
+	)
+	(wire
+		(pts
+			(xy 325.12 127) (xy 381 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "132dab51-7ac1-5ea5-9f82-4713a2a076e6")
+	)
+	(wire
+		(pts
+			(xy 327.66 109.22) (xy 327.66 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15c73e83-626b-58e5-a4da-4f1d7ef5a7ee")
+	)
+	(wire
+		(pts
+			(xy 175.26 53.34) (xy 177.8 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f237cdb-f217-5fb0-b088-e00b41c91d12")
+	)
+	(wire
+		(pts
+			(xy 274.32 109.22) (xy 274.32 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1fc06c45-ca91-5915-a9c7-6cbfe0288c8d")
+	)
+	(wire
+		(pts
+			(xy 116.84 142.24) (xy 381 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "38b562f5-9e72-5b82-a2f6-bb7ca2209f85")
+	)
+	(wire
+		(pts
+			(xy 73.66 45.72) (xy 73.66 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3923b282-ba28-5091-9e6f-d705463ac862")
+	)
+	(wire
+		(pts
+			(xy 218.44 116.84) (xy 279.4 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a2d182f-e2fb-5045-9ae2-9d92e6f46baf")
+	)
+	(wire
+		(pts
+			(xy 325.12 127) (xy 325.12 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "426f7c21-bcdc-5454-a2a3-e322403ae6a0")
+	)
+	(wire
+		(pts
+			(xy 274.32 129.54) (xy 325.12 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42a4d2c9-9388-5656-a5b2-6bfd86ec6af4")
+	)
+	(wire
+		(pts
+			(xy 325.12 116.84) (xy 325.12 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "43bf26f1-ef13-5d22-a2c3-74a941c063a0")
+	)
+	(wire
+		(pts
+			(xy 327.66 116.84) (xy 381 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47a04d7e-788c-5efa-a330-2ae9eaca3b17")
+	)
+	(wire
+		(pts
+			(xy 38.1 53.34) (xy 73.66 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "536ef70f-4ab5-5067-b610-d3b7524c5625")
+	)
+	(wire
+		(pts
+			(xy 325.12 121.92) (xy 381 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "578ed77a-a065-5059-ba5f-723c51ce5402")
+	)
+	(wire
+		(pts
+			(xy 38.1 142.24) (xy 76.2 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7074ab8c-55ca-5b40-b551-33bf99d1d409")
+	)
+	(wire
+		(pts
+			(xy 175.26 45.72) (xy 175.26 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71eaac72-b82b-5b51-b2c4-5a0ff03060ff")
+	)
+	(wire
+		(pts
+			(xy 274.32 109.22) (xy 327.66 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83e1143e-080f-5593-b21c-4c7afe43b6b6")
+	)
+	(wire
+		(pts
+			(xy 218.44 119.38) (xy 279.4 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f69f443-a4c8-5537-9a32-9cd3f1a17032")
+	)
+	(wire
+		(pts
+			(xy 322.58 132.08) (xy 381 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92e204f8-549a-5205-88c1-c24d3fb48c15")
+	)
+	(wire
+		(pts
+			(xy 320.04 119.38) (xy 322.58 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2b328bf-95a4-526a-adea-1267943eb052")
+	)
+	(wire
+		(pts
+			(xy 73.66 144.78) (xy 76.2 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cbb7e4b7-c4af-58e7-a23c-cfc8a7335c13")
+	)
+	(wire
+		(pts
+			(xy 320.04 116.84) (xy 325.12 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0d6c36b-0da1-58db-8023-1e54ab946c97")
+	)
+	(wire
+		(pts
+			(xy 73.66 45.72) (xy 175.26 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d41c8c1e-401a-5d3b-b814-1e1db100593a")
+	)
+	(wire
+		(pts
+			(xy 38.1 147.32) (xy 73.66 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d577e419-e0ce-5f12-b89b-87c5fd54d46a")
+	)
+	(wire
+		(pts
+			(xy 322.58 119.38) (xy 322.58 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f4eefb82-00cb-5061-b7e1-f74db7bc232f")
+	)
+	(wire
+		(pts
+			(xy 274.32 119.38) (xy 274.32 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fab634e8-222c-5667-9c1e-ef0eb2cfe9ed")
+	)
+	(sheet
+		(at 76.2 88.9)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "05b02b0f-81d0-5930-85a4-60b8b56f4edd")
+		(property "Sheetname" "Supply Switches"
+			(at 76.2 88.2 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "supply_switches.kicad_sch"
+			(at 76.2 99.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "10")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 50.8)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "3de0855a-529b-5612-9ee5-5d39f8d72cc4")
+		(property "Sheetname" "Rails 5V 3V3"
+			(at 177.8 50.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "rails_logic.kicad_sch"
+			(at 177.8 61.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "USB_VBUS" input
+			(at 177.8 53.34 180)
+			(uuid "0e139520-0d5c-52cd-bd96-1f30efa88f76")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 76.2 50.8)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "5d7aba76-1cb9-5da9-879a-5996948947cc")
+		(property "Sheetname" "Power Input"
+			(at 76.2 50.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_input.kicad_sch"
+			(at 76.2 61.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 114.3)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "721fca9b-85fc-59f1-b64a-1b2662f7dcab")
+		(property "Sheetname" "Rails +-15V"
+			(at 177.8 113.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "rails_15v.kicad_sch"
+			(at 177.8 125.06 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "PGN_15V" output
+			(at 218.44 116.84 0)
+			(uuid "42613902-8af9-5e29-8748-0597c5585381")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PGP_15V" output
+			(at 218.44 119.38 0)
+			(uuid "2367b4e7-3c16-58d1-b74b-9f576c645925")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 279.4 114.3)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "76f0855a-f763-53c4-bae1-f4998ef2ad89")
+		(property "Sheetname" "Power Good"
+			(at 279.4 113.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_good.kicad_sch"
+			(at 279.4 125.06 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "PGN_15V" input
+			(at 279.4 116.84 180)
+			(uuid "c4493c37-8005-53a2-9393-a71eeb3582a4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PGP_15V" input
+			(at 279.4 119.38 180)
+			(uuid "723e7898-55ec-52c3-a890-bf79ccad5704")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PG_15V" output
+			(at 320.04 116.84 0)
+			(uuid "3948ef8d-88cf-5264-b9db-058a3b8d33a2")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PG_15V_N" output
+			(at 320.04 119.38 0)
+			(uuid "b118ecb4-e42b-5196-b380-2539422dd9b8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 76.2 139.7)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "8ded814a-06f7-55b6-9f07-c9c105f9ce1a")
+		(property "Sheetname" "Power Button"
+			(at 76.2 139 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_button.kicad_sch"
+			(at 76.2 150.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "PWR_BTN" bidirectional
+			(at 76.2 142.24 180)
+			(uuid "1d41eebd-fef6-558b-880a-68ca0c7e42d0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PWR_KILL" input
+			(at 76.2 144.78 180)
+			(uuid "8f13a4fe-0733-5c30-acbc-133da205eb7c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PWR_INT" output
+			(at 116.84 142.24 0)
+			(uuid "2d22fec3-c9c7-53c1-9294-60decd1a8b54")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f7733238-f110-560d-b466-731facbccea5"
+					(page "6")
+				)
+			)
+		)
+	)
+)

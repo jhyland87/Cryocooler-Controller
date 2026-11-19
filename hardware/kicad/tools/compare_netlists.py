@@ -1,7 +1,8 @@
 """Compare connectivity of two exported netlists by part values/pins (ignores
-refs and net names).
+refs and net names). With --names, also require every net to keep its name and
+its exact pins, which is what the routed board's schematic parity needs.
 
-Usage: python3 compare_netlists.py baseline.net new.net
+Usage: python3 compare_netlists.py [--names] baseline.net new.net
 """
 
 import collections
@@ -55,5 +56,28 @@ def main(baseline, new):
     return 0 if not only_base and not only_new else 1
 
 
+def renamed(baseline, new):
+    """Prints nets whose name or pins differ; returns how many."""
+    base, cur = (
+        {
+            name: sorted((ref, pin) for ref, pin, _ in nodes)
+            for name, nodes in load(path)[1].items()
+        }
+        for path in (baseline, new)
+    )
+    changed = sorted(n for n in base.keys() | cur.keys() if base.get(n) != cur.get(n))
+    print(f'net names: {len(changed)} of {len(base)} nets renamed or changed')
+    for name in changed[:20]:
+        where = 'both' if name in base and name in cur else (
+            'baseline only' if name in base else 'new only'
+        )
+        print(f'  {name} ({where})')
+    return len(changed)
+
+
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1], sys.argv[2]))
+    arguments = [a for a in sys.argv[1:] if a != '--names']
+    status = main(*arguments)
+    if '--names' in sys.argv and renamed(*arguments):
+        status = 1
+    sys.exit(status)

@@ -561,7 +561,7 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Ground",
-        "pcb_color": "rgb(110, 110, 110)",
+        "pcb_color": "rgba(110, 110, 110, 1.000)",
         "priority": -1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.15,
@@ -580,9 +580,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power",
-        "pcb_color": "rgb(255, 140, 0)",
+        "pcb_color": "rgba(255, 140, 0, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(215, 110, 0)",
+        "schematic_color": "rgba(215, 110, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -599,9 +599,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power12V",
-        "pcb_color": "rgb(255, 220, 0)",
+        "pcb_color": "rgba(255, 220, 0, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(175, 140, 0)",
+        "schematic_color": "rgba(175, 140, 0, 1.000)",
         "track_width": 0.5,
         "tuning_profile": "",
         "via_diameter": 0.7,
@@ -618,9 +618,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power5V",
-        "pcb_color": "rgb(255, 40, 40)",
+        "pcb_color": "rgba(255, 40, 40, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(200, 0, 0)",
+        "schematic_color": "rgba(200, 0, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -637,9 +637,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogNeg",
-        "pcb_color": "rgb(60, 120, 255)",
+        "pcb_color": "rgba(60, 120, 255, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(0, 60, 200)",
+        "schematic_color": "rgba(0, 60, 200, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -656,9 +656,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogPos",
-        "pcb_color": "rgb(190, 40, 40)",
+        "pcb_color": "rgba(190, 40, 40, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(130, 0, 0)",
+        "schematic_color": "rgba(130, 0, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -675,9 +675,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerIso",
-        "pcb_color": "rgb(190, 90, 255)",
+        "pcb_color": "rgba(190, 90, 255, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(130, 0, 170)",
+        "schematic_color": "rgba(130, 0, 170, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -762,22 +762,6 @@
         "pattern": "Net-(F1-Pad1)"
       },
       {
-        "netclass": "Usb",
-        "pattern": "Net-(U1-USB_D+)"
-      },
-      {
-        "netclass": "Usb",
-        "pattern": "Net-(U1-USB_D-)"
-      },
-      {
-        "netclass": "Usb",
-        "pattern": "Net-(J1-D+-PadA6)"
-      },
-      {
-        "netclass": "Usb",
-        "pattern": "Net-(J1-D--PadA7)"
-      },
-      {
         "netclass": "Power5V",
         "pattern": "+5V"
       },
@@ -795,7 +779,7 @@
       },
       {
         "netclass": "Power5V",
-        "pattern": "USB_VBUS"
+        "pattern": "*/USB_VBUS"
       },
       {
         "netclass": "PowerAnalogPos",
@@ -818,8 +802,24 @@
         "pattern": "ISO_5V"
       },
       {
+        "netclass": "Usb",
+        "pattern": "/USB_D_?"
+      },
+      {
+        "netclass": "Usb",
+        "pattern": "Net-(J1-D+-PadA6)"
+      },
+      {
+        "netclass": "Usb",
+        "pattern": "Net-(J1-D--PadA7)"
+      },
+      {
         "netclass": "SPI",
         "pattern": "SPI_*"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "*/SPI_*"
       },
       {
         "netclass": "SPI",
@@ -831,11 +831,11 @@
       },
       {
         "netclass": "SPI",
-        "pattern": "AD9833_FSYNC"
+        "pattern": "*/AD9833_FSYNC"
       },
       {
         "netclass": "SPI",
-        "pattern": "AD5453_SYNC"
+        "pattern": "*/AD5453_SYNC"
       },
       {
         "netclass": "SPI",
@@ -843,19 +843,23 @@
       },
       {
         "netclass": "SPI",
-        "pattern": "CS_EN_N"
+        "pattern": "/CS_ADDR_?"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "/CS_EN_N"
       },
       {
         "netclass": "Analog",
-        "pattern": "SIG_SINE"
+        "pattern": "*/SIG_SINE"
       },
       {
         "netclass": "Analog",
-        "pattern": "DDS_SINE"
+        "pattern": "*/DDS_SINE"
       },
       {
         "netclass": "Analog",
-        "pattern": "NTC_ADC"
+        "pattern": "/NTC_ADC"
       },
       {
         "netclass": "Analog",
@@ -871,19 +875,19 @@
       },
       {
         "netclass": "Control",
-        "pattern": "AMP_REM_EN"
+        "pattern": "/AMP_REM_EN"
       },
       {
         "netclass": "Control",
-        "pattern": "COMP_RELAY_EN"
+        "pattern": "/COMP_RELAY_EN"
       },
       {
         "netclass": "Control",
-        "pattern": "PWR_KILL"
+        "pattern": "/PWR_KILL"
       },
       {
         "netclass": "Control",
-        "pattern": "AUX_IO*"
+        "pattern": "/AUX_IO*"
       },
       {
         "netclass": "Control",
@@ -895,31 +899,35 @@
       },
       {
         "netclass": "Control",
-        "pattern": "PWR_INT"
+        "pattern": "/PWR_INT"
       },
       {
         "netclass": "Control",
-        "pattern": "IMU_INT?"
+        "pattern": "/IMU_INT?"
       },
       {
         "netclass": "Control",
-        "pattern": "INA239_ALERT"
+        "pattern": "*/INA239_ALERT"
       },
       {
         "netclass": "Control",
-        "pattern": "CAN_TX"
+        "pattern": "/CAN_TX"
       },
       {
         "netclass": "Control",
-        "pattern": "CAN_RX"
+        "pattern": "/CAN_RX"
       },
       {
         "netclass": "Control",
-        "pattern": "PG_15V*"
+        "pattern": "*/PG_15V"
       },
       {
         "netclass": "Control",
-        "pattern": "PG?_15V"
+        "pattern": "/PG_15V_N"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "*/PG?_15V"
       },
       {
         "netclass": "Control",
@@ -931,7 +939,7 @@
       },
       {
         "netclass": "Control",
-        "pattern": "STATUS_RGB"
+        "pattern": "/STATUS_RGB"
       },
       {
         "netclass": "Ground",
@@ -1048,6 +1056,130 @@
         "SPI_SCK",
         "SPI_MOSI",
         "SPI_MISO"
+      ],
+      "ROOT_LINKS": [
+        "ACS_CS",
+        "AD5453_SYNC",
+        "AD9833_FSYNC",
+        "ADS1220_CS",
+        "AMBIENT_CS",
+        "AMBIENT_CT",
+        "AMBIENT_INT",
+        "AMP_REM_EN",
+        "AUX_IO11",
+        "AUX_IO13",
+        "AUX_IO5",
+        "AUX_IO7",
+        "CAN_RX",
+        "CAN_TX",
+        "COMP_RELAY_EN",
+        "CS_ADDR_A",
+        "CS_ADDR_B",
+        "CS_ADDR_C",
+        "CS_ADDR_D_1V8",
+        "CS_EN_N",
+        "DDS_SINE",
+        "EXPANDER_CS",
+        "EXP_CS_A",
+        "EXP_CS_B",
+        "EXP_INT_N",
+        "FAN_PWM",
+        "FAN_TACH",
+        "FLOW_TACH",
+        "IMU_CS",
+        "IMU_INT1",
+        "IMU_INT2",
+        "INA239_ALERT",
+        "INA239_CS",
+        "IO_ADC_CS",
+        "IO_ADC_DRDY_N",
+        "IO_DAC_CS",
+        "IO_EXP_CS",
+        "IO_EXP_INT_N",
+        "NTC_ADC",
+        "PGN_15V",
+        "PGP_15V",
+        "PG_15V",
+        "PG_15V_N",
+        "PUMP_PWM",
+        "PUMP_TACH",
+        "PWR_BTN",
+        "PWR_INT",
+        "PWR_KILL",
+        "RS485_CS",
+        "RS485_IRQ_N",
+        "SIG_SINE",
+        "STATUS_RGB",
+        "USB_D_N",
+        "USB_D_P",
+        "USB_VBUS"
+      ],
+      "IO_LINKS": [
+        "AUX_IO5",
+        "AUX_IO7",
+        "EXP_INT_N",
+        "IO1_ADC",
+        "IO1_BUF_OE_N",
+        "IO1_BURDEN",
+        "IO1_DAC",
+        "IO1_DIRECT",
+        "IO1_DIV",
+        "IO1_LEVEL",
+        "IO1_OUT_EN",
+        "IO1_PIN",
+        "IO1_PULLUP",
+        "IO1_SENS_EN",
+        "IO1_SENS_FLT_N",
+        "IO2_ADC",
+        "IO2_BUF_OE_N",
+        "IO2_BURDEN",
+        "IO2_DAC",
+        "IO2_DIRECT",
+        "IO2_DIV",
+        "IO2_LEVEL",
+        "IO2_OUT_EN",
+        "IO2_PIN",
+        "IO2_PULLUP",
+        "IO2_SENS_EN",
+        "IO2_SENS_FLT_N",
+        "IO3_ADC",
+        "IO3_BURDEN",
+        "IO3_DAC",
+        "IO3_DIRECT",
+        "IO3_DIV",
+        "IO3_OUT_EN",
+        "IO3_PIN",
+        "IO3_PULLUP",
+        "IO3_SENS_EN",
+        "IO3_SENS_FLT_N",
+        "IO4_ADC",
+        "IO4_BURDEN",
+        "IO4_DAC",
+        "IO4_DIRECT",
+        "IO4_DIV",
+        "IO4_OUT_EN",
+        "IO4_PIN",
+        "IO4_PULLUP",
+        "IO4_SENS_EN",
+        "IO4_SENS_FLT_N",
+        "IO_ADC_CS",
+        "IO_ADC_DRDY_N",
+        "IO_DAC_CS",
+        "IO_EXP_CS",
+        "IO_EXP_INT_N",
+        "IO_OUT_FLT_A_N",
+        "PREC_A_N",
+        "PREC_A_P",
+        "PREC_B_N",
+        "PREC_B_P",
+        "PREC_EXC",
+        "PREC_EXC_EN",
+        "PREC_EXC_FLT_N",
+        "PREC_REFN",
+        "PREC_REFP",
+        "PRESS1_ADC",
+        "PRESS2_ADC",
+        "RS485_IRQ_N"
       ]
     },
     "connection_grid_size": 50.0,
@@ -1099,40 +1231,28 @@
       "cryocooler"
     ],
     [
+      "b8b92837-5f12-531d-b970-7152b6e3e0ee",
+      "USB"
+    ],
+    [
+      "1c61a5f2-1f09-521e-acd8-952afbce82ec",
+      "Chip Select"
+    ],
+    [
+      "f7733238-f110-560d-b466-731facbccea5",
+      "Power"
+    ],
+    [
       "5d7aba76-1cb9-5da9-879a-5996948947cc",
       "Power Input"
-    ],
-    [
-      "1d509c82-6983-5009-b8c9-69673cce6557",
-      "Signal Generator"
-    ],
-    [
-      "d435fe59-a9b1-598f-9a22-f3a71c9e80ce",
-      "Water Cooling"
     ],
     [
       "8ded814a-06f7-55b6-9f07-c9c105f9ce1a",
       "Power Button"
     ],
     [
-      "331e144b-d0e1-5683-9ecb-fb49fe934a4f",
-      "Amp Control"
-    ],
-    [
-      "3de89fe9-3b86-5825-900a-b21f817f60bb",
-      "Cold Head Temp"
-    ],
-    [
       "3de0855a-529b-5612-9ee5-5d39f8d72cc4",
       "Rails 5V 3V3"
-    ],
-    [
-      "83291c28-d27b-59d1-86ef-681fa5dd5a6b",
-      "Amp Current"
-    ],
-    [
-      "7d11f024-8900-51b3-95f7-00062a4ac386",
-      "IMU"
     ],
     [
       "721fca9b-85fc-59f1-b64a-1b2662f7dcab",
@@ -1143,16 +1263,56 @@
       "Power Good"
     ],
     [
+      "05b02b0f-81d0-5930-85a4-60b8b56f4edd",
+      "Supply Switches"
+    ],
+    [
+      "f1c43927-fef4-54b7-b3ed-25acee749186",
+      "Compressor Drive"
+    ],
+    [
+      "1d509c82-6983-5009-b8c9-69673cce6557",
+      "Signal Generator"
+    ],
+    [
+      "331e144b-d0e1-5683-9ecb-fb49fe934a4f",
+      "Amp Control"
+    ],
+    [
+      "83291c28-d27b-59d1-86ef-681fa5dd5a6b",
+      "Amp Current"
+    ],
+    [
+      "9fc73fbd-1c8a-5195-a45d-15bb8d7269a7",
+      "Compressor Relay"
+    ],
+    [
+      "d435fe59-a9b1-598f-9a22-f3a71c9e80ce",
+      "Water Cooling"
+    ],
+    [
+      "e5ace208-6df0-5ff1-b144-8cf107f18ae7",
+      "Sensors"
+    ],
+    [
+      "3de89fe9-3b86-5825-900a-b21f817f60bb",
+      "Cold Head Temp"
+    ],
+    [
+      "c237b8ba-e38e-5701-8fce-ddc9374652fa",
+      "Ambient Temp"
+    ],
+    [
+      "7d11f024-8900-51b3-95f7-00062a4ac386",
+      "IMU"
+    ],
+    [
       "9703c636-c4a3-539b-91d5-5b30ebe0d7e3",
       "System Current"
     ],
     [
       "69960528-6120-5b43-95bc-2fb0d3581b22",
       "Indicators"
-    ],
-    [
-      "9fc73fbd-1c8a-5195-a45d-15bb8d7269a7",
-      "Compressor Relay"
     ],
     [
       "90809e00-9b2b-5b93-91de-7474e3800248",
@@ -1163,16 +1323,12 @@
       "Debug"
     ],
     [
-      "05b02b0f-81d0-5930-85a4-60b8b56f4edd",
-      "Supply Switches"
-    ],
-    [
       "4ac13f79-f2cc-51b8-8c31-ef563eebddd0",
       "Display"
     ],
     [
-      "c237b8ba-e38e-5701-8fce-ddc9374652fa",
-      "Ambient Temp"
+      "37163d22-8b44-5a6a-8b70-07bfde5068c0",
+      "Universal IO"
     ],
     [
       "67590499-4c02-53dd-8c5e-7d88e2574bfb",
@@ -1199,10 +1355,6 @@
       "IO Pressure Ports"
     ],
     [
-      "7692ca94-5ccb-5be3-8150-2a9580c279b9",
-      "Expansion"
-    ],
-    [
       "deeca7ce-2e6e-5cad-ba1f-75962668eea1",
       "IO Channel 1"
     ],
@@ -1217,6 +1369,10 @@
     [
       "9a4af401-1ac8-5095-b0fb-8aaad49c74d4",
       "IO Channel 4"
+    ],
+    [
+      "7692ca94-5ccb-5be3-8150-2a9580c279b9",
+      "Expansion"
     ]
   ],
   "text_variables": {},

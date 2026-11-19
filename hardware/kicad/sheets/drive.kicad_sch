@@ -1,0 +1,866 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "2cc2e9fd-413a-5ea0-a8b7-91641f46d8b0")
+	(paper "A3")
+	(title_block
+		(title "Compressor Drive")
+		(rev "A")
+		(company "Cryocooler Controller")
+	)
+	(lib_symbols)
+	(bus
+		(pts
+			(xy 99.06 154.94) (xy 101.6 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebca2c04-29f9-5b44-bb5c-67a4e6e22f07")
+	)
+	(bus
+		(pts
+			(xy 99.06 71.12) (xy 101.6 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8987c2bc-cc2e-5825-90e5-075d3b127d28")
+	)
+	(bus
+		(pts
+			(xy 38.1 114.3) (xy 99.06 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef4a4df1-c07b-5e4a-a69a-9041026722fc")
+	)
+	(bus
+		(pts
+			(xy 99.06 71.12) (xy 99.06 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "97c08c45-df08-50c9-bae0-8f6a38b139c7")
+	)
+	(hierarchical_label "AD5453_SYNC"
+		(shape input)
+		(at 38.1 66.04 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "552c295e-cc92-5165-bc3e-0840251890df")
+		(property "Description" "Chip select (SYNC, active low) for the AD5453 amplitude DAC, decoder Y1"
+			(at 38.1 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AD9833_FSYNC"
+		(shape input)
+		(at 38.1 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d4b27f49-121e-5588-b8d5-a5e90bad396c")
+		(property "Description" "Chip select (FSYNC, active low) for the AD9837 DDS, decoder Y0"
+			(at 38.1 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AMP_REM_EN"
+		(shape input)
+		(at 38.1 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "639f79ef-53e8-5b45-bc59-506b694ce352")
+		(property "Description" "GPIO6: high turns the amplifier REM (remote on) line on"
+			(at 38.1 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PG_15V"
+		(shape input)
+		(at 38.1 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "20ee5b6e-9d99-5fcc-a960-4d0c369368d7")
+		(property "Description" "Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: gates the amplifier REM switch"
+			(at 38.1 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "{SPI}"
+		(shape bidirectional)
+		(at 38.1 114.3 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3a7d28ac-b483-5df4-a5fc-3a6dde4177e7")
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 38.1 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "ACS_CS"
+		(shape input)
+		(at 38.1 154.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "904185d0-08a4-5663-be1f-80a515f6c4a4")
+		(property "Description" "Chip select (active low) for the ACS37800 current monitor, decoder Y5; also opens the two bus gates U41 / U42"
+			(at 38.1 154.94 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "COMP_RELAY_EN"
+		(shape input)
+		(at 38.1 160.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b2c8397e-f2fe-55fb-ab47-2fa586c978a2")
+		(property "Description" "GPIO16: high switches the compressor relay on"
+			(at 38.1 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "SIG_SINE"
+		(shape output)
+		(at 381 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "497eaa45-d2b3-54e9-abc3-d935c3696979")
+		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
+			(at 381 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "DDS_SINE"
+		(shape output)
+		(at 381 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1b75edac-eac5-591c-aa47-ce282a1abedf")
+		(property "Description" "Sine output of the AD9837 DDS, before the gain stage"
+			(at 381 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(junction
+		(at 99.06 114.3)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "87761632-753c-5e8e-8043-46b35f70d593")
+	)
+	(junction
+		(at 236.22 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b19805b1-4c15-5df8-9828-4021740b2b50")
+	)
+	(wire
+		(pts
+			(xy 284.48 58.42) (xy 284.48 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06fc160c-f77a-574d-a4bd-f61df390d0f2")
+	)
+	(wire
+		(pts
+			(xy 236.22 58.42) (xy 236.22 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12e084dd-279e-587e-bd9f-187b01de0d86")
+	)
+	(wire
+		(pts
+			(xy 238.76 154.94) (xy 241.3 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c18506b-21e4-529e-acd6-28826f26779a")
+	)
+	(wire
+		(pts
+			(xy 238.76 71.12) (xy 241.3 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2547409a-34ea-5533-8490-1f4aeae61a7e")
+	)
+	(wire
+		(pts
+			(xy 284.48 66.04) (xy 381 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2babc75a-f5e4-5255-9e52-9d3121731ec4")
+	)
+	(wire
+		(pts
+			(xy 99.06 167.64) (xy 238.76 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "32014881-2161-5dee-af86-03616936a7ae")
+	)
+	(wire
+		(pts
+			(xy 96.52 154.94) (xy 96.52 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3985760c-bd6c-5762-8b7b-ce46397f151a")
+	)
+	(wire
+		(pts
+			(xy 238.76 154.94) (xy 238.76 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "407ecaf6-9646-5707-b58b-41ea9bb1c379")
+	)
+	(wire
+		(pts
+			(xy 236.22 68.58) (xy 236.22 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f708d47-3a91-5b1f-8a4c-261753ad84a0")
+	)
+	(wire
+		(pts
+			(xy 96.52 68.58) (xy 101.6 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5313dbc7-a205-55bd-bb3b-d0da5e38f739")
+	)
+	(wire
+		(pts
+			(xy 284.48 71.12) (xy 381 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "596aa5f3-f0c0-5889-be07-4a797818fa98")
+	)
+	(wire
+		(pts
+			(xy 144.78 68.58) (xy 144.78 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5d86eae2-4848-5fd2-9192-7d8b4cec6420")
+	)
+	(wire
+		(pts
+			(xy 38.1 76.2) (xy 96.52 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e8cdaa7-71ce-5a43-bca3-d2c5fe204f46")
+	)
+	(wire
+		(pts
+			(xy 142.24 66.04) (xy 241.3 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64fb76b0-fc41-53cb-a762-f503cdc098f6")
+	)
+	(wire
+		(pts
+			(xy 38.1 66.04) (xy 101.6 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "694f04a1-fb55-5ffe-95a6-7aa561e44184")
+	)
+	(wire
+		(pts
+			(xy 38.1 160.02) (xy 99.06 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8bcd2ca5-fe84-5f0d-872c-3ae4861ed193")
+	)
+	(wire
+		(pts
+			(xy 142.24 68.58) (xy 144.78 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93793340-1cbb-576c-975d-888f35d51ba2")
+	)
+	(wire
+		(pts
+			(xy 38.1 71.12) (xy 96.52 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9412338d-5eeb-5b23-8c7a-51cd7cf26668")
+	)
+	(wire
+		(pts
+			(xy 236.22 58.42) (xy 284.48 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94236285-e36c-5457-bd4a-c5a76aa363f0")
+	)
+	(wire
+		(pts
+			(xy 238.76 71.12) (xy 238.76 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae4540a4-17e3-56c7-b7f2-2c68ceb269fd")
+	)
+	(wire
+		(pts
+			(xy 96.52 157.48) (xy 101.6 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "afee5475-6c20-5cce-9a6b-2e02fc005433")
+	)
+	(wire
+		(pts
+			(xy 99.06 160.02) (xy 99.06 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c153aada-3dac-5211-90d8-66d1e71250fc")
+	)
+	(wire
+		(pts
+			(xy 96.52 76.2) (xy 96.52 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c372a9b7-b429-5b5f-b3b6-6bfb79ec55ba")
+	)
+	(wire
+		(pts
+			(xy 38.1 154.94) (xy 96.52 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "debf8f03-beb7-5f86-b045-1a0787f15404")
+	)
+	(wire
+		(pts
+			(xy 284.48 71.12) (xy 284.48 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebc88e5c-873b-5fa8-a908-ff2ffb4ba6c0")
+	)
+	(wire
+		(pts
+			(xy 96.52 78.74) (xy 236.22 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed3162cf-2689-5673-91cb-6f62850fd7a9")
+	)
+	(wire
+		(pts
+			(xy 236.22 68.58) (xy 241.3 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6033b96-f5ac-5fc5-8592-bd14c51a7f07")
+	)
+	(wire
+		(pts
+			(xy 96.52 68.58) (xy 96.52 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6f7d6cd-bab5-5ac4-aecf-bc44bb621172")
+	)
+	(wire
+		(pts
+			(xy 38.1 81.28) (xy 238.76 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb1fbebb-5040-55c9-83ed-9042c8f5ad56")
+	)
+	(wire
+		(pts
+			(xy 144.78 83.82) (xy 284.48 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe5067a6-14c6-53b2-9335-225cf3f7f7b0")
+	)
+	(sheet
+		(at 101.6 63.5)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "1d509c82-6983-5009-b8c9-69673cce6557")
+		(property "Sheetname" "Signal Generator"
+			(at 101.6 62.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "signal_gen.kicad_sch"
+			(at 101.6 74.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "AD5453_SYNC" input
+			(at 101.6 66.04 180)
+			(uuid "6e53c777-c573-5c5e-a63e-fb720c4657a4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "AD9833_FSYNC" input
+			(at 101.6 68.58 180)
+			(uuid "15f2ae9e-f7af-56b8-a814-057c121672e9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 101.6 71.12 180)
+			(uuid "dd8f5b78-aa0b-5715-a44f-a707086b13d9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SIG_SINE" output
+			(at 142.24 66.04 0)
+			(uuid "b000b651-d5f3-51f9-b182-8f5d106d35bc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "DDS_SINE" output
+			(at 142.24 68.58 0)
+			(uuid "d0bcd926-b2bf-563f-a3f0-fd274936b8bc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f1c43927-fef4-54b7-b3ed-25acee749186"
+					(page "12")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 241.3 63.5)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "331e144b-d0e1-5683-9ecb-fb49fe934a4f")
+		(property "Sheetname" "Amp Control"
+			(at 241.3 62.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "amp_control.kicad_sch"
+			(at 241.3 74.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "SIG_SINE" input
+			(at 241.3 66.04 180)
+			(uuid "e06bdfa1-f0c4-56bb-a1b6-cdd8388e9ed0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "AMP_REM_EN" input
+			(at 241.3 68.58 180)
+			(uuid "3168ca02-ca3d-54bf-b1d4-f61364f81841")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PG_15V" input
+			(at 241.3 71.12 180)
+			(uuid "9d7e641b-8639-592d-bd63-9966d381c870")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f1c43927-fef4-54b7-b3ed-25acee749186"
+					(page "13")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 101.6 152.4)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "83291c28-d27b-59d1-86ef-681fa5dd5a6b")
+		(property "Sheetname" "Amp Current"
+			(at 101.6 151.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "amp_current.kicad_sch"
+			(at 101.6 163.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "{SPI}" bidirectional
+			(at 101.6 154.94 180)
+			(uuid "3f6a3527-0f44-559a-aad9-f8655c21a36d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "ACS_CS" input
+			(at 101.6 157.48 180)
+			(uuid "5b6d4b7e-afb7-5f63-acf1-eee2a4fdfbe3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f1c43927-fef4-54b7-b3ed-25acee749186"
+					(page "14")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 241.3 152.4)
+		(size 40.64 10.16)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "9fc73fbd-1c8a-5195-a45d-15bb8d7269a7")
+		(property "Sheetname" "Compressor Relay"
+			(at 241.3 151.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "compressor_relay.kicad_sch"
+			(at 241.3 163.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "COMP_RELAY_EN" input
+			(at 241.3 154.94 180)
+			(uuid "fe6891f3-d1ec-50bf-93af-1b5e4864eb58")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/f1c43927-fef4-54b7-b3ed-25acee749186"
+					(page "15")
+				)
+			)
+		)
+	)
+)
