@@ -164,6 +164,56 @@ ENVELOPES = {
         'JST_PH_B10B_vertical_envelope',
         [(23.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
     ),
+    # Placeholders where neither a vendor STEP nor KiCad's stock model is on this machine:
+    # nominal body from the footprint name, height approximate (not from the datasheet)
+    'Texas_RHB0032M_VQFN-32-1EP_5x5mm_P0.5mm_EP2.1x2.1mm': (
+        'VQFN-32_5x5_envelope',
+        [(5.0, 5.0, 1.0, 0.0, 0.0, BLACK)],
+    ),
+    'UQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm': (
+        'UQFN-16_4x4_envelope',
+        [(4.0, 4.0, 0.75, 0.0, 0.0, BLACK)],
+    ),
+    'Texas_RTE0016D_WQFN-16-1EP_3x3mm_P0.5mm_EP0.8x0.8mm': (
+        'WQFN-16_3x3_envelope',
+        [(3.0, 3.0, 0.8, 0.0, 0.0, BLACK)],
+    ),
+    'HVQFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm': (
+        'HVQFN-24_4x4_envelope',
+        [(4.0, 4.0, 0.85, 0.0, 0.0, BLACK)],
+    ),
+    'UQFN-16_1.8x2.6mm_P0.4mm': (
+        'UQFN-16_1.8x2.6_envelope',
+        [(1.8, 2.6, 0.55, 0.0, 0.0, BLACK)],
+    ),
+    'Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm': (
+        'WQFN-16_4x4_envelope',
+        [(4.0, 4.0, 0.8, 0.0, 0.0, BLACK)],
+    ),
+    'Texas_DRC0010J': (
+        'VSON-10_3x3_envelope',
+        [(3.0, 3.0, 1.0, 0.0, 0.0, BLACK)],
+    ),
+    'Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm': (
+        'DHVQFN-24_3.5x5.5_envelope',
+        [(3.5, 5.5, 0.9, 0.0, 0.0, BLACK)],
+    ),
+    'Texas_FemtoFET_F4_1.0x0.6mm': (
+        'FemtoFET_F4_envelope',
+        [(1.0, 0.6, 0.35, 0.0, 0.0, BLACK)],
+    ),
+    'Texas_DSF0006A_X2SON-6_1x1mm_P0.35mm': (
+        'X2SON-6_1x1_envelope',
+        [(1.0, 1.0, 0.4, 0.0, 0.0, BLACK)],
+    ),
+    'Fuse_1812_4532Metric': (
+        'Fuse_1812_envelope',
+        [(4.5, 3.2, 1.2, 0.0, 0.0, BLACK)],
+    ),
+    'R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm': (
+        'WSK2512_envelope',
+        [(6.35, 3.18, 0.65, 0.0, 0.0, SILVER)],
+    ),
     # Coilcraft MSD7342: 7.5 x 7.5 mm, 4.6 mm max (Document 621-1)
     'L_Coilcraft_MSD7342': (
         'MSD7342_envelope',
@@ -248,6 +298,35 @@ ENVELOPES = {
 # RJSSE5380.step (Amphenol M-RJSSE-5380, via SnapMagic) is Y-up with the
 # pegs at x 1.52 / 14.22, z -4.13 and the contact feet at y -0.76.
 LOCAL_STEP_MODELS = {
+    # Molex 39-30-0040 (Molex STEP, user's file): posed by eye on the rev 6 board so
+    # the tails land on the pads and the shroud fills the footprint outline
+    'Molex_Mini-Fit_Jr_5569-04A2_2x02_P4.20mm_Horizontal': (
+        '39-30-0040.step', (2.1, 6.3, 0.0), (0.0, 0.0, 180.0),
+    ),
+    # Vendor STEP files the user added for rev 6 (2026-11-18). Most are Y-up, so they
+    # turn -90 about x; poses checked on the renders
+    '74HC154BQ': ('74HC154BQ,118.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'ADT7320UCPZ': ('ADT7320UCPZ.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'DAC60508ZRTER': ('DAC60508ZRTER.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'ADS124S08IRHBR': ('ADS124S08IRHBR.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'TMUX7412FRRPR': ('TMUX7412FRRPR.stp', (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
+    'TMUX1111RSVR': ('TMUX1111RSVR.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'TPS26625DRCR': ('TPS26625DRCR.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'SC16IS750IBS': ('SC16IS750IBS.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'SN74LVC1G3157DSFR': ('SN74LVC1G3157DSFR.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    # 0.6 x 1.0 in the file, 1.0 x 0.6 in the footprint: a quarter turn as well
+    'CSD17381F4': ('CSD17381F4.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 90.0)),
+    # 3.0 x 1.65 mm DFN12, z up
+    'NUF6401MNT1G': ('NUF6401MNT1G.stp', (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
+    'MF-MSMF050/24X': ('MF-MSMF050_24X-2.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    'R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm': ('WSK2512 shunt.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
+    # JST PH top-entry headers (JST STEP files, user's files and poses)
+    'JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical': (
+        'B6B-PH-SM4-TB--3DModel-STEP-56544.STEP', (0.0, 1.7, -0.1), (-90.0, 0.0, 0.0),
+    ),
+    'JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical': (
+        'B10B-PH-SM4-TB--3DModel-STEP-56544.STEP', (0.0, 1.5, -0.1), (-90.0, 0.0, 0.0),
+    ),
     # USB4205-GF-A.stp (GCT via CADENAS PARTsolutions, CC BY-ND 4.0, user's file):
     # Y-up, origin on the board plane at the mouth, body towards -z. Placed like
     # this its feet and pegs land on the footprint's pads and holes.
@@ -376,12 +455,11 @@ LOCAL_STEP_MODELS = {
         (5.0, -11.75, 4.975),
         (-90.0, 0.0, 0.0),
     ),
-    # c-0643228-01-d-3d.stp (TE) is y up, seating plane at y 0, mating face at z 0,
-    # centred on pin 2; seated by its mounting holes (z -12.827, 12.83 on the drawing)
+    # TE 643228-1 (user's STEP file); pose as on the rev 6 board
     'TE_643228-1_1x03_P6.35mm_Horizontal': (
         '643228-1.step',
         (6.35, 15.367, 0.0),
-        (-90.0, 0.0, 180.0),
+        (0.0, 0.0, 180.0),
     ),
     # 1821698.step (Phoenix, via TraceParts) has z up, board plane at z 0, mating
     # face at y 0, pins at x 1.52 / 4.06 and y 6.35

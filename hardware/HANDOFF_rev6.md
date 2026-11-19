@@ -68,7 +68,8 @@ U32 pad 8 and the In1 hop. `rev6_board.py finish`, `gen_pcb.py link`,
   J36-J39, J40).
 - Ten parts sit outside their section: C33 C34 D13 D15 Q22 R13 R52 R83 R84 R88.
 - Board ID block (the back carries `REV6`); `pcb-layer-stack.gif` is rev 5's.
-- No vendor STEP for the JST PH headers (envelopes) or J2.
+- No vendor STEP for U2, the APGB0607 LEDs (D2, D3, D6, D7, D10-D12), J34 or J40
+  (envelopes).
 - Glue-dome screw size against the 3.2 mm top holes.
 - JLCPCB stock for the 5-pin and 10-pin PH headers; a price for this outline.
 - ISOW7841AQDWERQ1: Mouser had 41 on 2026-11-18, Digi-Key none.
