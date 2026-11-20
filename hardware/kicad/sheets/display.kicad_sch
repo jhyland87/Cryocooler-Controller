@@ -1359,7 +1359,7 @@
 		)
 		(symbol "cryocooler:ESD2CAN24DBZ"
 			(pin_names
-				(offset 1.016)
+				(offset 0.508)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1367,7 +1367,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "D"
-				(at 7.62 7.62 0)
+				(at 3.81 1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1378,7 +1378,7 @@
 				)
 			)
 			(property "Value" "ESD2CAN24DBZ"
-				(at -7.62 7.62 0)
+				(at 3.81 -1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1410,7 +1410,7 @@
 					)
 				)
 			)
-			(property "Description" "TI two-line bidirectional CAN bus ESD clamp, +-24 V working, 37 V clamp at 5.7 A, 3 pF, SOT-23 (DBZ)"
+			(property "Description" "TI two-line bidirectional CAN bus ESD clamp, +-24 V working, 37 V clamp at 5.7 A, 3 pF, SOT-23 (DBZ); one unit per bus line, ground on unit C"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1421,7 +1421,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "can esd tvs"
+			(property "ki_keywords" "esd tvs"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1432,10 +1432,10 @@
 					)
 				)
 			)
-			(symbol "ESD2CAN24DBZ_0_1"
+			(symbol "ESD2CAN24DBZ_1_1"
 				(rectangle
-					(start -7.62 5.08)
-					(end 7.62 -5.08)
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -1444,10 +1444,8 @@
 						(type background)
 					)
 				)
-			)
-			(symbol "ESD2CAN24DBZ_1_1"
 				(pin passive line
-					(at -10.16 2.54 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO1"
 						(effects
@@ -1464,8 +1462,21 @@
 						)
 					)
 				)
+			)
+			(symbol "ESD2CAN24DBZ_2_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
-					(at -10.16 0 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO2"
 						(effects
@@ -1482,8 +1493,21 @@
 						)
 					)
 				)
+			)
+			(symbol "ESD2CAN24DBZ_3_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
-					(at 0 -7.62 90)
+					(at 0 -5.08 90)
 					(length 2.54)
 					(name "GND"
 						(effects
@@ -1683,7 +1707,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 12.7 2.54 180)
+					(at 12.7 5.08 180)
 					(length 2.54)
 					(name "CANL"
 						(effects
@@ -1701,7 +1725,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 12.7 5.08 180)
+					(at 12.7 2.54 180)
 					(length 2.54)
 					(name "CANH"
 						(effects
@@ -2289,7 +2313,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "a3747f7f-23d3-5b5f-b101-0938c600d491")
+		(uuid "1ca63818-9530-566b-80e9-4487258a92c1")
 	)
 	(rectangle
 		(start 307.34 64.77)
@@ -2301,7 +2325,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "1ca63818-9530-566b-80e9-4487258a92c1")
+		(uuid "57480e4d-8bdf-541e-bc67-feba7894d161")
 	)
 	(rectangle
 		(start 320.04 63.5)
@@ -2313,7 +2337,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "57480e4d-8bdf-541e-bc67-feba7894d161")
+		(uuid "2a393307-b50a-5c0c-af66-5fb650dcb2f7")
 	)
 	(rectangle
 		(start 304.8 86.36)
@@ -2325,7 +2349,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "2a393307-b50a-5c0c-af66-5fb650dcb2f7")
+		(uuid "623b223d-be32-5a04-bf73-cb27de1a040c")
 	)
 	(rectangle
 		(start 307.34 96.52)
@@ -2337,7 +2361,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "623b223d-be32-5a04-bf73-cb27de1a040c")
+		(uuid "4f6570b7-92b0-591c-8408-e383ad70b132")
 	)
 	(rectangle
 		(start 307.34 102.87)
@@ -2349,7 +2373,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "4f6570b7-92b0-591c-8408-e383ad70b132")
+		(uuid "1d91608e-355c-5ad8-a0fc-b0b697952175")
 	)
 	(rectangle
 		(start 353.06 86.36)
@@ -2361,7 +2385,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "1d91608e-355c-5ad8-a0fc-b0b697952175")
+		(uuid "3fdfff18-0da4-5582-a168-1e4fac16210b")
 	)
 	(rectangle
 		(start 375.92 82.55)
@@ -2373,348 +2397,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "3fdfff18-0da4-5582-a168-1e4fac16210b")
-	)
-	(text "It is fed from VIN, ahead of the power switch, so it runs while this board is off. 120 R ends the bus at this board."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "0a2af65d-34d7-582f-9642-684663d1ca75")
-	)
-	(text "GND"
-		(exclude_from_sim no)
-		(at 331.597 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "0c52fa65-63ba-583e-b85f-76e91e931950")
-	)
-	(text "Its two digital outputs press the power button and RESET through J15 pins 5 and 6: sheet pins PWR_BTN (to the Power Button sheet) and ESP_EN (to the ESP32)."
-		(exclude_from_sim no)
-		(at 20 33 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "0e09746a-c869-5e4b-838a-9484fe363dd2")
-	)
-	(text "TCAN3414 DECOUPLING CAPACITOR"
-		(exclude_from_sim no)
-		(at 50.8 187.96 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "0ff4b886-e31f-50b0-ac2e-e7d0ab555220")
-	)
-	(text "DI0"
-		(exclude_from_sim no)
-		(at 364.617 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "218d33c0-3700-5ab1-8b9e-fff3478f056c")
-	)
-	(text "POWER BUTTON AND RESET FROM THE DISPLAY"
-		(exclude_from_sim no)
-		(at 25.4 119.38 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2300e42f-80d6-5914-9d3d-4522f90635e1")
-	)
-	(text "DI1"
-		(exclude_from_sim no)
-		(at 367.157 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "274656a2-6649-5fbb-886f-0e6ba8a04d00")
-	)
-	(text "TCAN3414 (SLLSFS8A): 3.3 V supply, STB and SHDN low = normal mode, TXD dominant time-out 1.2 ms min, bus pins high impedance when unpowered, +-58 V bus fault protection."
-		(exclude_from_sim no)
-		(at 20 27 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2cde0b98-de8d-5d97-87e4-3bce0d5bf380")
-	)
-	(text "CAN"
-		(exclude_from_sim no)
-		(at 344.805 101.6 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "35cfef35-e368-5c04-bdf5-753e8856984a")
-	)
-	(text "DO0 / DO1 on the Waveshare display are NPN open collectors to its ground (PC817 + transistor, 100 nF to GND): DO0 presses PWR_BTN like SW3, DO1 pulls ESP_EN low like the RESET button."
-		(exclude_from_sim no)
-		(at 25.4 124.46 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "37223041-f1d2-537c-bafb-067ebd4f11e2")
-	)
-	(text "A"
-		(exclude_from_sim no)
-		(at 351.917 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "3c1f0559-1e77-570e-a26e-c85e177e1bb8")
-	)
-	(text "VOUT"
-		(exclude_from_sim no)
-		(at 334.137 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "3e26d064-8853-5bc4-bb0f-78d24aea81f3")
-	)
-	(text "ON-BOARD CONNECTOR"
-		(exclude_from_sim no)
-		(at 236.22 60.96 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "45a878b9-197e-51ae-8f2e-f1e24e5fcea5")
-	)
-	(text "SD card"
-		(exclude_from_sim no)
-		(at 308.356 71.12 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "5028b257-0fc5-5ed4-a9c7-46dee5fe52cf")
-	)
-	(text "H"
-		(exclude_from_sim no)
-		(at 346.837 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "5162f4e4-e1b7-59e3-b70b-87ffdac57b11")
-	)
-	(text "BOOT"
-		(exclude_from_sim no)
-		(at 312.42 98.425 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "5bcc66a7-7715-5abf-ab19-1610bc56a02a")
-	)
-	(text "GND"
-		(exclude_from_sim no)
-		(at 336.677 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "60b0060d-40d5-5c8e-bf55-5c127ced092c")
-	)
-	(text "DO0"
-		(exclude_from_sim no)
-		(at 354.457 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "62641f1d-0288-5e70-a843-c57171460c36")
-	)
-	(text "VIN"
-		(exclude_from_sim no)
-		(at 329.057 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "635ecc2f-fc47-50fd-813f-91a7ebccf9b1")
-	)
-	(text "CAN TRANSCEIVER"
-		(exclude_from_sim no)
-		(at 25.4 60.96 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "68175f29-2b56-5dc7-a8ab-9853af610e22")
-	)
-	(text "RESET"
-		(exclude_from_sim no)
-		(at 312.42 104.775 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "743b6b10-e5e1-5ffc-9aa2-890ff82a5cc3")
-	)
-	(text "DO1"
-		(exclude_from_sim no)
-		(at 356.997 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "7a44d44d-dd9a-534d-8138-0b96154d48c0")
-	)
-	(text "SCL"
-		(exclude_from_sim no)
-		(at 341.757 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "9218902a-c6ec-5c9a-b51f-81dd72e37908")
-	)
-	(text "CAN BUS CLAMP (BESIDE J15 ON THE BOARD)"
-		(exclude_from_sim no)
-		(at 165.1 172.72 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "9970917a-cacc-5d20-a6b2-ba2119f4343f")
-	)
-	(text "RTC"
-		(exclude_from_sim no)
-		(at 377.444 86.36 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "99de85dd-d2f8-5f35-8af0-9f1992f519be")
-	)
-	(text "USB-C"
-		(exclude_from_sim no)
-		(at 312.42 89.535 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "b8a006bc-e411-59bc-a702-c1d5796cbc6c")
-	)
-	(text "OFF-BOARD: WAVESHARE ESP32-S3-Touch-LCD-4.3B, BACK VIEW"
-		(exclude_from_sim no)
-		(at 304.8 50.8 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "be6f9096-d73b-5f7e-89ba-8cea54844290")
-	)
-	(text "COM"
-		(exclude_from_sim no)
-		(at 359.537 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "ca9d0bef-f4e6-58a9-a80d-f6ca967950bb")
-	)
-	(text "L"
-		(exclude_from_sim no)
-		(at 344.297 105.41 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "d18e5c1a-a26c-52ee-b755-93f3631c601e")
-	)
-	(text "RS485"
-		(exclude_from_sim no)
-		(at 349.885 101.6 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left top)
-		)
-		(uuid "d3ac8e12-0dd8-5c61-be09-01e74034d5d6")
-	)
-	(text "GND"
-		(exclude_from_sim no)
-		(at 362.077 108.585 0)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify left top)
-		)
-		(uuid "ddd641ed-842f-5ec0-9051-876babceb442")
+		(uuid "e136253e-c307-5cc0-bc57-3b918d88c1d8")
 	)
 	(text "Waveshare ESP32-S3-Touch-LCD-4.3B (own ESP32-S3, 800 x 480, 7-36 V in, about 2.3 W): telemetry and commands over CAN (its TJA1051T/3 on GPIO15 / GPIO16, 120 R by switch)."
 		(exclude_from_sim no)
@@ -2725,7 +2408,106 @@
 			)
 			(justify left top)
 		)
-		(uuid "e136253e-c307-5cc0-bc57-3b918d88c1d8")
+		(uuid "0a2af65d-34d7-582f-9642-684663d1ca75")
+	)
+	(text "VIN"
+		(exclude_from_sim no)
+		(at 329.057 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "0c52fa65-63ba-583e-b85f-76e91e931950")
+	)
+	(text "TCAN3414 (SLLSFS8A): 3.3 V supply, STB and SHDN low = normal mode, TXD dominant time-out 1.2 ms min, bus pins high impedance when unpowered, +-58 V bus fault protection."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "0e09746a-c869-5e4b-838a-9484fe363dd2")
+	)
+	(text "CAN CLAMP GROUND (D101 SITS BESIDE J15 ON THE BOARD)"
+		(exclude_from_sim no)
+		(at 165.1 172.72 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "0ff4b886-e31f-50b0-ac2e-e7d0ab555220")
+	)
+	(text "GND"
+		(exclude_from_sim no)
+		(at 362.077 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "218d33c0-3700-5ab1-8b9e-fff3478f056c")
+	)
+	(text "TCAN3414 DECOUPLING CAPACITOR"
+		(exclude_from_sim no)
+		(at 50.8 187.96 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "2300e42f-80d6-5914-9d3d-4522f90635e1")
+	)
+	(text "DI0"
+		(exclude_from_sim no)
+		(at 364.617 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "274656a2-6649-5fbb-886f-0e6ba8a04d00")
+	)
+	(text "It is fed from VIN, ahead of the power switch, so it runs while this board is off. 120 R ends the bus at this board."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "2cde0b98-de8d-5d97-87e4-3bce0d5bf380")
+	)
+	(text "DI1"
+		(exclude_from_sim no)
+		(at 367.157 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "35cfef35-e368-5c04-bdf5-753e8856984a")
+	)
+	(text "POWER BUTTON AND RESET FROM THE DISPLAY"
+		(exclude_from_sim no)
+		(at 25.4 119.38 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "37223041-f1d2-537c-bafb-067ebd4f11e2")
 	)
 	(text "B"
 		(exclude_from_sim no)
@@ -2736,40 +2518,29 @@
 			)
 			(justify left top)
 		)
-		(uuid "e4426274-5a81-56fe-9d25-1f4b5db13207")
+		(uuid "3c1f0559-1e77-570e-a26e-c85e177e1bb8")
 	)
-	(text "SDA"
+	(text "GND"
 		(exclude_from_sim no)
-		(at 339.217 105.41 0)
+		(at 331.597 108.585 0)
 		(effects
 			(font
 				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
-		(uuid "ea67dc54-9ab6-59d9-8dd2-2d17dd15c21f")
+		(uuid "3e26d064-8853-5bc4-bb0f-78d24aea81f3")
 	)
-	(text "LCD FPC"
+	(text "RS485"
 		(exclude_from_sim no)
-		(at 358.14 84.455 0)
+		(at 349.885 101.6 0)
 		(effects
 			(font
 				(size 1.2 1.2)
 			)
 			(justify left top)
 		)
-		(uuid "efabe671-af4e-5c78-929f-3c58ed18f677")
-	)
-	(text "ESP32-S3"
-		(exclude_from_sim no)
-		(at 323.215 72.39 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "f32fd26e-7691-5b7b-bfce-cefbed8ed2c2")
+		(uuid "45a878b9-197e-51ae-8f2e-f1e24e5fcea5")
 	)
 	(text "own ESP32-S3 and firmware; 4.3 in, 800 x 480 touchscreen on the other side"
 		(exclude_from_sim no)
@@ -2780,89 +2551,354 @@
 			)
 			(justify left top)
 		)
+		(uuid "5028b257-0fc5-5ed4-a9c7-46dee5fe52cf")
+	)
+	(text "L"
+		(exclude_from_sim no)
+		(at 344.297 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "5162f4e4-e1b7-59e3-b70b-87ffdac57b11")
+	)
+	(text "USB-C"
+		(exclude_from_sim no)
+		(at 312.42 89.535 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "5bcc66a7-7715-5abf-ab19-1610bc56a02a")
+	)
+	(text "VOUT"
+		(exclude_from_sim no)
+		(at 334.137 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "60b0060d-40d5-5c8e-bf55-5c127ced092c")
+	)
+	(text "A"
+		(exclude_from_sim no)
+		(at 351.917 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "62641f1d-0288-5e70-a843-c57171460c36")
+	)
+	(text "RTC"
+		(exclude_from_sim no)
+		(at 377.444 86.36 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "635ecc2f-fc47-50fd-813f-91a7ebccf9b1")
+	)
+	(text "ON-BOARD CONNECTOR"
+		(exclude_from_sim no)
+		(at 236.22 60.96 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "68175f29-2b56-5dc7-a8ab-9853af610e22")
+	)
+	(text "DO0 / DO1 on the Waveshare display are NPN open collectors to its ground (PC817 + transistor, 100 nF to GND): DO0 presses PWR_BTN like SW3, DO1 pulls ESP_EN low like the RESET button."
+		(exclude_from_sim no)
+		(at 25.4 124.46 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "6c214994-13ea-5184-acae-5271da57c5a3")
+	)
+	(text "BOOT"
+		(exclude_from_sim no)
+		(at 312.42 98.425 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "743b6b10-e5e1-5ffc-9aa2-890ff82a5cc3")
+	)
+	(text "DO0"
+		(exclude_from_sim no)
+		(at 354.457 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "7a44d44d-dd9a-534d-8138-0b96154d48c0")
+	)
+	(text "SDA"
+		(exclude_from_sim no)
+		(at 339.217 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "9218902a-c6ec-5c9a-b51f-81dd72e37908")
+	)
+	(text "CAN TRANSCEIVER"
+		(exclude_from_sim no)
+		(at 76.2 60.96 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9970917a-cacc-5d20-a6b2-ba2119f4343f")
+	)
+	(text "LCD FPC"
+		(exclude_from_sim no)
+		(at 358.14 84.455 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "99de85dd-d2f8-5f35-8af0-9f1992f519be")
+	)
+	(text "ESP32-S3"
+		(exclude_from_sim no)
+		(at 323.215 72.39 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "b8a006bc-e411-59bc-a702-c1d5796cbc6c")
+	)
+	(text "Its two digital outputs press the power button and RESET through J15 pins 5 and 6: sheet pins PWR_BTN (to the Power Button sheet) and ESP_EN (to the ESP32)."
+		(exclude_from_sim no)
+		(at 20 33 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "be6f9096-d73b-5f7e-89ba-8cea54844290")
+	)
+	(text "DO1"
+		(exclude_from_sim no)
+		(at 356.997 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "ca9d0bef-f4e6-58a9-a80d-f6ca967950bb")
+	)
+	(text "SCL"
+		(exclude_from_sim no)
+		(at 341.757 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "d18e5c1a-a26c-52ee-b755-93f3631c601e")
+	)
+	(text "CAN"
+		(exclude_from_sim no)
+		(at 344.805 101.6 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "d3ac8e12-0dd8-5c61-be09-01e74034d5d6")
+	)
+	(text "COM"
+		(exclude_from_sim no)
+		(at 359.537 105.41 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "ddd641ed-842f-5ec0-9051-876babceb442")
+	)
+	(text "H"
+		(exclude_from_sim no)
+		(at 346.837 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "e4426274-5a81-56fe-9d25-1f4b5db13207")
+	)
+	(text "GND"
+		(exclude_from_sim no)
+		(at 336.677 108.585 0)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left top)
+		)
+		(uuid "ea67dc54-9ab6-59d9-8dd2-2d17dd15c21f")
+	)
+	(text "RESET"
+		(exclude_from_sim no)
+		(at 312.42 104.775 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "efabe671-af4e-5c78-929f-3c58ed18f677")
+	)
+	(text "SD card"
+		(exclude_from_sim no)
+		(at 308.356 71.12 0)
+		(effects
+			(font
+				(size 1.2 1.2)
+			)
+			(justify left top)
+		)
+		(uuid "f32fd26e-7691-5b7b-bfce-cefbed8ed2c2")
+	)
+	(text "OFF-BOARD: WAVESHARE ESP32-S3-Touch-LCD-4.3B, BACK VIEW"
+		(exclude_from_sim no)
+		(at 304.8 50.8 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
 		(uuid "f334d9e3-41f5-5841-850a-358e60361548")
 	)
 	(junction
-		(at 116.84 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1be26255-6538-5dcd-a2c9-1a5d32cb36ca")
-	)
-	(junction
-		(at 144.78 96.52)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1c635078-2aa6-5349-b44b-8b3e1662d1e1")
-	)
-	(junction
-		(at 68.58 132.08)
+		(at 187.96 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "52336be1-3991-5f2e-9a51-7fd3f2c3d6a0")
 	)
 	(junction
-		(at 68.58 157.48)
+		(at 210.82 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6c7eba3c-d07d-5faf-861f-8c913a958fd1")
 	)
 	(junction
-		(at 144.78 88.9)
+		(at 134.62 93.98)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "76a65492-0b9b-53b7-92c1-7c9a264efadc")
+	)
+	(junction
+		(at 68.58 157.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9f028021-b806-5593-9c5d-c289f19ec500")
+	)
+	(junction
+		(at 187.96 93.98)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "aa43679d-07ec-50c9-b626-2f99cd0408c2")
+	)
+	(junction
+		(at 68.58 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bd4e2a48-23c4-5edb-9618-c22a1f642eb1")
+	)
+	(junction
+		(at 210.82 93.98)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c2fc9b4b-db11-504e-9174-a5787533adb1")
+	)
+	(junction
+		(at 144.78 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c5c962f8-8cb9-5083-aeb4-b12bed910735")
 	)
 	(junction
-		(at 93.98 96.52)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e2265d8b-f6e9-584c-9afd-ea590eb475fa")
-	)
-	(junction
-		(at 83.82 88.9)
+		(at 167.64 111.76)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e34624ed-7f22-5c83-9d7c-10b6e06500bc")
 	)
 	(no_connect
-		(at 353.06 120.65)
+		(at 335.28 120.65)
 		(uuid "1a8d3179-743c-5f3e-8829-03f61eae579c")
 	)
 	(no_connect
+		(at 353.06 120.65)
+		(uuid "245da387-5ac8-5ef9-87ca-a82d64459c14")
+	)
+	(no_connect
 		(at 360.68 120.65)
-		(uuid "4cb60aa7-4f4d-50da-b01f-c7b3117a3266")
-	)
-	(no_connect
-		(at 335.28 120.65)
-		(uuid "76a65492-0b9b-53b7-92c1-7c9a264efadc")
-	)
-	(no_connect
-		(at 368.3 120.65)
-		(uuid "984683cc-8379-55b3-b227-b0cef964b8c7")
+		(uuid "2dab5f45-a31c-5275-b3e5-b05117002849")
 	)
 	(no_connect
 		(at 350.52 120.65)
-		(uuid "9f028021-b806-5593-9c5d-c289f19ec500")
+		(uuid "2dccd77f-7804-583c-82ae-e2f7464c78db")
 	)
 	(no_connect
 		(at 337.82 120.65)
-		(uuid "aa43679d-07ec-50c9-b626-2f99cd0408c2")
+		(uuid "4cb60aa7-4f4d-50da-b01f-c7b3117a3266")
+	)
+	(no_connect
+		(at 368.3 120.65)
+		(uuid "761724d6-9522-575d-84d1-f0b3c48a53fd")
 	)
 	(no_connect
 		(at 342.9 120.65)
-		(uuid "bd4e2a48-23c4-5edb-9618-c22a1f642eb1")
+		(uuid "984683cc-8379-55b3-b227-b0cef964b8c7")
 	)
 	(no_connect
 		(at 340.36 120.65)
-		(uuid "c2fc9b4b-db11-504e-9174-a5787533adb1")
+		(uuid "eeecbef3-4ad4-5f88-b72c-ffb87cd01288")
 	)
 	(no_connect
 		(at 365.76 120.65)
-		(uuid "eeecbef3-4ad4-5f88-b72c-ffb87cd01288")
+		(uuid "f5da7999-11b0-5c0e-b622-e04948ae23a5")
 	)
 	(wire
 		(pts
-			(xy 127 88.9) (xy 144.78 88.9)
+			(xy 134.62 93.98) (xy 152.4 93.98)
 		)
 		(stroke
 			(width 0)
@@ -2872,7 +2908,7 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 88.9) (xy 101.6 88.9)
+			(xy 124.46 93.98) (xy 134.62 93.98)
 		)
 		(stroke
 			(width 0)
@@ -2882,7 +2918,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 96.52) (xy 144.78 96.52)
+			(xy 182.88 101.6) (xy 187.96 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2892,7 +2928,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 101.6) (xy 256.54 101.6)
+			(xy 177.8 96.52) (xy 182.88 96.52)
 		)
 		(stroke
 			(width 0)
@@ -2902,7 +2938,27 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 157.48) (xy 46.99 157.48)
+			(xy 68.58 157.48) (xy 68.58 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1be26255-6538-5dcd-a2c9-1a5d32cb36ca")
+	)
+	(wire
+		(pts
+			(xy 76.2 173.99) (xy 76.2 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c635078-2aa6-5349-b44b-8b3e1662d1e1")
+	)
+	(wire
+		(pts
+			(xy 50.8 205.74) (xy 58.42 205.74)
 		)
 		(stroke
 			(width 0)
@@ -2912,7 +2968,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 101.6) (xy 251.46 104.14)
+			(xy 144.78 99.06) (xy 144.78 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2922,7 +2978,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 96.52) (xy 101.6 96.52)
+			(xy 144.78 101.6) (xy 152.4 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2932,7 +2988,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 81.28) (xy 226.06 83.82)
+			(xy 144.78 101.6) (xy 144.78 104.14)
 		)
 		(stroke
 			(width 0)
@@ -2942,7 +2998,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 106.68) (xy 116.84 109.22)
+			(xy 165.1 83.82) (xy 165.1 88.9)
 		)
 		(stroke
 			(width 0)
@@ -2952,7 +3008,7 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 185.42) (xy 193.04 185.42)
+			(xy 238.76 96.52) (xy 256.54 96.52)
 		)
 		(stroke
 			(width 0)
@@ -2962,7 +3018,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 132.08) (xy 46.99 132.08)
+			(xy 242.57 119.38) (xy 248.92 119.38)
 		)
 		(stroke
 			(width 0)
@@ -2972,7 +3028,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 93.98) (xy 93.98 96.52)
+			(xy 162.56 109.22) (xy 162.56 111.76)
 		)
 		(stroke
 			(width 0)
@@ -2982,7 +3038,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 96.52) (xy 256.54 96.52)
+			(xy 210.82 101.6) (xy 236.22 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2992,7 +3048,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 157.48) (xy 68.58 163.83)
+			(xy 248.92 99.06) (xy 248.92 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3002,7 +3058,7 @@
 	)
 	(wire
 		(pts
-			(xy 342.9 123.19) (xy 342.9 125.73)
+			(xy 332.74 120.65) (xy 332.74 124.46)
 		)
 		(stroke
 			(width 0)
@@ -3012,7 +3068,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 91.44) (xy 137.16 91.44)
+			(xy 238.76 93.98) (xy 256.54 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3022,7 +3078,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 91.44) (xy 256.54 91.44)
+			(xy 124.46 96.52) (xy 152.4 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3032,7 +3088,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 148.59) (xy 76.2 151.13)
+			(xy 203.2 193.04) (xy 203.2 195.58)
 		)
 		(stroke
 			(width 0)
@@ -3052,7 +3108,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 198.12) (xy 58.42 198.12)
+			(xy 251.46 88.9) (xy 256.54 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3062,7 +3118,7 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 187.96) (xy 193.04 187.96)
+			(xy 251.46 91.44) (xy 256.54 91.44)
 		)
 		(stroke
 			(width 0)
@@ -3072,7 +3128,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 78.74) (xy 114.3 83.82)
+			(xy 355.6 120.65) (xy 355.6 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3082,7 +3138,7 @@
 	)
 	(wire
 		(pts
-			(xy 355.6 120.65) (xy 355.6 123.19)
+			(xy 345.44 120.65) (xy 345.44 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3092,7 +3148,7 @@
 	)
 	(wire
 		(pts
-			(xy 353.06 123.19) (xy 353.06 125.73)
+			(xy 342.9 123.19) (xy 342.9 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3102,7 +3158,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 205.74) (xy 58.42 205.74)
+			(xy 224.79 119.38) (xy 234.95 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3122,7 +3178,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 96.52) (xy 93.98 99.06)
+			(xy 167.64 109.22) (xy 167.64 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3132,7 +3188,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.76 106.68) (xy 116.84 106.68)
+			(xy 162.56 111.76) (xy 167.64 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3142,7 +3198,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 104.14) (xy 116.84 106.68)
+			(xy 358.14 120.65) (xy 358.14 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3152,7 +3208,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 195.58) (xy 203.2 198.12)
+			(xy 182.88 96.52) (xy 182.88 101.6)
 		)
 		(stroke
 			(width 0)
@@ -3162,7 +3218,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 91.44) (xy 101.6 91.44)
+			(xy 210.82 93.98) (xy 238.76 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3172,7 +3228,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 88.9) (xy 256.54 88.9)
+			(xy 187.96 93.98) (xy 210.82 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3182,7 +3238,7 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 132.08) (xy 91.44 132.08)
+			(xy 50.8 198.12) (xy 58.42 198.12)
 		)
 		(stroke
 			(width 0)
@@ -3192,7 +3248,7 @@
 	)
 	(wire
 		(pts
-			(xy 332.74 120.65) (xy 332.74 124.46)
+			(xy 30.48 157.48) (xy 46.99 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3202,7 +3258,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.76 104.14) (xy 111.76 106.68)
+			(xy 353.06 123.19) (xy 353.06 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3222,7 +3278,7 @@
 	)
 	(wire
 		(pts
-			(xy 358.14 120.65) (xy 358.14 125.73)
+			(xy 347.98 120.65) (xy 347.98 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3232,7 +3288,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 99.06) (xy 256.54 99.06)
+			(xy 236.22 96.52) (xy 238.76 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3242,7 +3298,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 88.9) (xy 152.4 88.9)
+			(xy 177.8 93.98) (xy 187.96 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3252,7 +3308,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 93.98) (xy 101.6 93.98)
+			(xy 144.78 99.06) (xy 152.4 99.06)
 		)
 		(stroke
 			(width 0)
@@ -3262,7 +3318,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 91.44) (xy 226.06 99.06)
+			(xy 254 101.6) (xy 254 104.14)
 		)
 		(stroke
 			(width 0)
@@ -3272,7 +3328,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 93.98) (xy 256.54 93.98)
+			(xy 248.92 99.06) (xy 256.54 99.06)
 		)
 		(stroke
 			(width 0)
@@ -3282,7 +3338,7 @@
 	)
 	(wire
 		(pts
-			(xy 330.2 120.65) (xy 330.2 123.19)
+			(xy 54.61 132.08) (xy 91.44 132.08)
 		)
 		(stroke
 			(width 0)
@@ -3292,7 +3348,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 132.08) (xy 68.58 138.43)
+			(xy 236.22 96.52) (xy 236.22 101.6)
 		)
 		(stroke
 			(width 0)
@@ -3302,7 +3358,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 96.52) (xy 152.4 96.52)
+			(xy 187.96 101.6) (xy 210.82 101.6)
 		)
 		(stroke
 			(width 0)
@@ -3312,7 +3368,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 88.9) (xy 83.82 88.9)
+			(xy 254 101.6) (xy 256.54 101.6)
 		)
 		(stroke
 			(width 0)
@@ -3322,7 +3378,7 @@
 	)
 	(wire
 		(pts
-			(xy 347.98 120.65) (xy 347.98 125.73)
+			(xy 363.22 120.65) (xy 363.22 124.46)
 		)
 		(stroke
 			(width 0)
@@ -3332,7 +3388,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 173.99) (xy 76.2 176.53)
+			(xy 68.58 132.08) (xy 68.58 138.43)
 		)
 		(stroke
 			(width 0)
@@ -3342,7 +3398,17 @@
 	)
 	(wire
 		(pts
-			(xy 345.44 120.65) (xy 345.44 123.19)
+			(xy 76.2 148.59) (xy 76.2 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e2265d8b-f6e9-584c-9afd-ea590eb475fa")
+	)
+	(wire
+		(pts
+			(xy 330.2 120.65) (xy 330.2 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3352,7 +3418,7 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 157.48) (xy 91.44 157.48)
+			(xy 30.48 132.08) (xy 46.99 132.08)
 		)
 		(stroke
 			(width 0)
@@ -3362,7 +3428,7 @@
 	)
 	(wire
 		(pts
-			(xy 363.22 120.65) (xy 363.22 124.46)
+			(xy 54.61 157.48) (xy 91.44 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3372,79 +3438,13 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 91.44) (xy 137.16 96.52)
+			(xy 167.64 111.76) (xy 167.64 114.3)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "fd5d8c3f-6de2-5f84-8ef2-0b134f551233")
-	)
-	(label "CAN_L"
-		(at 152.4 96.52 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "127e4474-625c-523c-bb57-0cd49f2b5e92")
-		(property "Description" "CAN bus low line to the display header J15"
-			(at 152.4 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "CAN_H"
-		(at 251.46 96.52 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1b3e4735-bd19-5a73-bdd2-119a2862e159")
-		(property "Description" "CAN bus high line to the display header J15"
-			(at 251.46 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "CAN_H"
-		(at 347.98 125.73 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "245da387-5ac8-5ef9-87ca-a82d64459c14")
-		(property "Description" "CAN bus high line to the display header J15"
-			(at 347.98 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 	)
 	(label "DISP_PWR_BTN"
 		(at 353.06 125.73 270)
@@ -3454,207 +3454,9 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "2dab5f45-a31c-5275-b3e5-b05117002849")
+		(uuid "127e4474-625c-523c-bb57-0cd49f2b5e92")
 		(property "Description" "Power button line from the display header J15 (DO0), before its 100 R series resistor"
 			(at 353.06 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "CAN_L"
-		(at 342.9 125.73 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2dccd77f-7804-583c-82ae-e2f7464c78db")
-		(property "Description" "CAN bus low line to the display header J15"
-			(at 342.9 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "DISP_RESET"
-		(at 251.46 88.9 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "5b557578-dab6-540b-90ca-afe1c3f831ab")
-		(property "Description" "Reset line from the display header J15 (DO1), before its 100 R series resistor"
-			(at 251.46 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "CAN_H"
-		(at 152.4 88.9 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "753db747-48aa-5fe1-91b3-9ae1ff54f5a1")
-		(property "Description" "CAN bus high line to the display header J15"
-			(at 152.4 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "DISP_PWR_BTN"
-		(at 91.44 157.48 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7e8b8ca8-eb13-5239-96ad-936bd88d45e6")
-		(property "Description" "Power button line from the display header J15 (DO0), before its 100 R series resistor"
-			(at 91.44 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "CAN_H"
-		(at 187.96 185.42 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7f622451-6bf9-5ed3-a51d-a484e7677cb5")
-		(property "Description" "CAN bus high line to the display header J15"
-			(at 187.96 185.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "DISP_PWR_BTN"
-		(at 251.46 91.44 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bdb03fa2-ed8f-563e-b0a9-a90b25a2f447")
-		(property "Description" "Power button line from the display header J15 (DO0), before its 100 R series resistor"
-			(at 251.46 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "DISP_RESET"
-		(at 91.44 132.08 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cf3dd108-9f28-5e77-98db-b41f45286227")
-		(property "Description" "Reset line from the display header J15 (DO1), before its 100 R series resistor"
-			(at 91.44 132.08 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "CAN_L"
-		(at 251.46 93.98 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f01cd751-78f5-5bcb-a385-0a9ca69540e3")
-		(property "Description" "CAN bus low line to the display header J15"
-			(at 251.46 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "CAN_L"
-		(at 187.96 187.96 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f3db9060-0c10-524f-8704-5f897fae5988")
-		(property "Description" "CAN bus low line to the display header J15"
-			(at 187.96 187.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3674,7 +3476,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "f5da7999-11b0-5c0e-b622-e04948ae23a5")
+		(uuid "1b3e4735-bd19-5a73-bdd2-119a2862e159")
 		(property "Description" "Reset line from the display header J15 (DO1), before its 100 R series resistor"
 			(at 358.14 125.73 0)
 			(hide yes)
@@ -3688,18 +3490,17 @@
 			)
 		)
 	)
-	(hierarchical_label "CAN_RX"
-		(shape output)
-		(at 73.66 91.44 180)
+	(label "CAN_L"
+		(at 342.9 125.73 270)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify right bottom)
 		)
 		(uuid "2269dfb9-29b1-55d8-bbcf-39d447a36398")
-		(property "Description" "CAN receive data from the transceiver U52 to the ESP32 (GPIO12)"
-			(at 73.66 91.44 0)
+		(property "Description" "CAN bus low line to the display header J15"
+			(at 342.9 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3711,18 +3512,195 @@
 			)
 		)
 	)
-	(hierarchical_label "CAN_TX"
-		(shape input)
-		(at 73.66 88.9 180)
+	(label "DISP_PWR_BTN"
+		(at 251.46 91.44 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5b557578-dab6-540b-90ca-afe1c3f831ab")
+		(property "Description" "Power button line from the display header J15 (DO0), before its 100 R series resistor"
+			(at 251.46 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "CAN_H"
+		(at 347.98 125.73 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "753db747-48aa-5fe1-91b3-9ae1ff54f5a1")
+		(property "Description" "CAN bus high line to the display header J15"
+			(at 347.98 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "CAN_H"
+		(at 238.76 96.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7d9ef38e-55a9-5b12-9d9c-78a95dc0ae45")
+		(property "Description" "CAN bus high line to the display header J15"
+			(at 238.76 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "DISP_RESET"
+		(at 251.46 88.9 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7f622451-6bf9-5ed3-a51d-a484e7677cb5")
+		(property "Description" "Reset line from the display header J15 (DO1), before its 100 R series resistor"
+			(at 251.46 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "DISP_RESET"
+		(at 91.44 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9b264d39-b0bb-5ffd-8482-fc6d091155bc")
+		(property "Description" "Reset line from the display header J15 (DO1), before its 100 R series resistor"
+			(at 91.44 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "DISP_PWR_BTN"
+		(at 91.44 157.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a3747f7f-23d3-5b5f-b101-0938c600d491")
+		(property "Description" "Power button line from the display header J15 (DO0), before its 100 R series resistor"
+			(at 91.44 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "CAN_L"
+		(at 238.76 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f3db9060-0c10-524f-8704-5f897fae5988")
+		(property "Description" "CAN bus low line to the display header J15"
+			(at 238.76 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PWR_BTN"
+		(shape bidirectional)
+		(at 30.48 157.48 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "761724d6-9522-575d-84d1-f0b3c48a53fd")
-		(property "Description" "CAN transmit data from the ESP32 (GPIO17) to the transceiver U52"
-			(at 73.66 88.9 0)
+		(uuid "7e8b8ca8-eb13-5239-96ad-936bd88d45e6")
+		(property "Description" "Power button line to the LTC2954 PB pin, active low: SW3 or the display output on J15"
+			(at 30.48 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "CAN_RX"
+		(shape output)
+		(at 124.46 96.52 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bdb03fa2-ed8f-563e-b0a9-a90b25a2f447")
+		(property "Description" "CAN receive data from the transceiver U52 to the ESP32 (GPIO12)"
+			(at 124.46 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3743,7 +3721,7 @@
 			)
 			(justify right)
 		)
-		(uuid "7d9ef38e-55a9-5b12-9d9c-78a95dc0ae45")
+		(uuid "cf3dd108-9f28-5e77-98db-b41f45286227")
 		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
 			(at 30.48 132.08 0)
 			(hide yes)
@@ -3757,18 +3735,18 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_BTN"
-		(shape bidirectional)
-		(at 30.48 157.48 180)
+	(hierarchical_label "CAN_TX"
+		(shape input)
+		(at 124.46 93.98 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "9b264d39-b0bb-5ffd-8482-fc6d091155bc")
-		(property "Description" "Power button line to the LTC2954 PB pin, active low: SW3 or the display output on J15"
-			(at 30.48 157.48 0)
+		(uuid "f01cd751-78f5-5bcb-a385-0a9ca69540e3")
+		(property "Description" "CAN transmit data from the ESP32 (GPIO17) to the transceiver U52"
+			(at 124.46 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3847,7 +3825,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7d259141-7256-5c7f-b00d-566354b990f4")
+			(uuid "57d717a4-deef-5ec4-8040-8efc64ed370d")
 		)
 		(instances
 			(project "cryocooler"
@@ -3925,7 +3903,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "10ed1fdd-1eca-5498-8296-3c04add6792a")
+			(uuid "d2388559-8d97-5c88-b765-a36bac4be812")
 		)
 		(instances
 			(project "cryocooler"
@@ -3937,113 +3915,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x06")
-		(at 261.62 96.52 0)
-		(mirror x)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "19c72d04-7ec1-5a9d-9b49-714961d49a41")
-		(property "Reference" "J15"
-			(at 236.22 110.49 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "DISPLAY (GND / 12V / CAN H / L / BTN / RST)"
-			(at 236.22 112.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_JST:JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical"
-			(at 261.62 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/ePH.pdf"
-			(at 261.62 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Display header (JST PH, top entry): 1 GND, 2 fused unswitched 12 V, 3 CAN_H, 4 CAN_L, 5 power button, 6 reset, to the Waveshare touch display"
-			(at 261.62 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.lcsc.com/product-detail/C471518.html"
-			(at 261.62 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "bbfd7d0c-a12e-5f7b-877a-53af5dae8dd9")
-		)
-		(pin "2"
-			(uuid "80ba88ba-b8ce-5beb-ac30-dee60283b4cc")
-		)
-		(pin "3"
-			(uuid "88e6b91b-a676-5401-a4a7-49b7a96e802f")
-		)
-		(pin "4"
-			(uuid "05835014-fe78-5f53-b5e1-9ae3d3ab91e9")
-		)
-		(pin "5"
-			(uuid "2ef37fce-c1b6-5ef6-8701-f68e86b2bc0b")
-		)
-		(pin "6"
-			(uuid "106dc87a-f996-5ccd-9eeb-7bcbf1b2be9c")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
-					(reference "J15")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 83.82 81.28 0)
+		(lib_id "power:GND")
+		(at 254 104.14 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4051,9 +3924,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "350a116f-e114-5b3d-8102-98741ae9c270")
-		(property "Reference" "#PWR291"
-			(at 83.82 81.28 0)
+		(uuid "19c72d04-7ec1-5a9d-9b49-714961d49a41")
+		(property "Reference" "#PWR292"
+			(at 254 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4063,8 +3936,9 @@
 				)
 			)
 		)
-		(property "Value" "+3V3"
-			(at 83.82 77.724 0)
+		(property "Value" "GND"
+			(at 254 104.14 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4074,7 +3948,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 83.82 81.28 0)
+			(at 254 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4085,7 +3959,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 83.82 81.28 0)
+			(at 254 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4095,8 +3969,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 83.82 81.28 0)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 254 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4107,7 +3981,84 @@
 			)
 		)
 		(pin "1"
-			(uuid "005ed870-f423-5cb2-8046-ae5b5df9e8f1")
+			(uuid "106dc87a-f996-5ccd-9eeb-7bcbf1b2be9c")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
+					(reference "#PWR292")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 134.62 86.36 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "350a116f-e114-5b3d-8102-98741ae9c270")
+		(property "Reference" "#PWR291"
+			(at 134.62 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 134.62 82.804 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 134.62 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 134.62 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 134.62 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "30b2f5ba-15d3-5dc1-91d4-55766e8e9f55")
 		)
 		(instances
 			(project "cryocooler"
@@ -4196,10 +4147,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b78d0bd8-04cc-51d6-9748-dab702dc15ca")
+			(uuid "10ed1fdd-1eca-5498-8296-3c04add6792a")
 		)
 		(pin "2"
-			(uuid "0463bb52-47c3-51ef-a23e-0a30a876c60b")
+			(uuid "7d8473e3-2c13-50c3-a4df-4f76285aa56a")
 		)
 		(instances
 			(project "cryocooler"
@@ -4212,7 +4163,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 116.84 109.22 0)
+		(at 167.64 114.3 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4222,7 +4173,7 @@
 		(dnp no)
 		(uuid "3f6a811d-73f3-5c41-93e2-0ac6563438a6")
 		(property "Reference" "#PWR289"
-			(at 116.84 109.22 0)
+			(at 167.64 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4233,7 +4184,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 116.84 109.22 0)
+			(at 167.64 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4244,7 +4195,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 116.84 109.22 0)
+			(at 167.64 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4255,7 +4206,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 116.84 109.22 0)
+			(at 167.64 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4266,7 +4217,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 116.84 109.22 0)
+			(at 167.64 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4277,7 +4228,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "aad6cbf8-f4c1-56fb-9776-3a5fb34311ed")
+			(uuid "722af361-71db-59e6-9143-e42ccff713b2")
 		)
 		(instances
 			(project "cryocooler"
@@ -4366,10 +4317,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c595601a-a03c-5e08-8855-f63569791b58")
+			(uuid "a7cd790c-5bad-5166-a0c3-9ddcb4ee0260")
 		)
 		(pin "2"
-			(uuid "fb6a098d-fc5a-5c41-896b-de3d81272586")
+			(uuid "214fdadd-2c17-55c9-ae7d-9ec4c128d48b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4446,7 +4397,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "47c13477-9a05-57b1-8952-05dda23c3698")
+			(uuid "0463bb52-47c3-51ef-a23e-0a30a876c60b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4523,7 +4474,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d1da48d1-b5df-549a-9710-cf47d7cdcb81")
+			(uuid "7d259141-7256-5c7f-b00d-566354b990f4")
 		)
 		(instances
 			(project "cryocooler"
@@ -4536,7 +4487,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 203.2 198.12 0)
+		(at 203.2 195.58 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4546,7 +4497,7 @@
 		(dnp no)
 		(uuid "537b0e09-c2b8-5b3f-8583-4483b37ef0c0")
 		(property "Reference" "#PWR294"
-			(at 203.2 198.12 0)
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4557,7 +4508,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 203.2 198.12 0)
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4568,7 +4519,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 203.2 198.12 0)
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4579,7 +4530,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 203.2 198.12 0)
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4590,7 +4541,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 203.2 198.12 0)
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4601,13 +4552,108 @@
 			)
 		)
 		(pin "1"
-			(uuid "fe94bf9d-6f29-519d-8702-50be29a57dcc")
+			(uuid "b78d0bd8-04cc-51d6-9748-dab702dc15ca")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
 					(reference "#PWR294")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "cryocooler:ESD2CAN24DBZ")
+		(at 203.2 187.96 0)
+		(unit 3)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5d11f257-ad91-5340-ba72-79b600768a9f")
+		(property "Reference" "D101"
+			(at 207.94 188.18 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "ESD2CAN24DBZR"
+			(at 207.94 190.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 203.2 187.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/esd2can24-q1.pdf"
+			(at 203.2 187.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp on CAN_H and CAN_L at the display connector J15"
+			(at 203.2 187.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=ESD2CAN24DBZRQ1"
+			(at 203.2 187.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a6195ce9-2555-5897-a654-8ecb829ad0d5")
+		)
+		(pin "2"
+			(uuid "3506a131-f0c9-58ec-ae5f-4b71dbc25697")
+		)
+		(pin "3"
+			(uuid "69308f73-48d3-53df-a89d-375be9d414db")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
+					(reference "D101")
+					(unit 3)
 				)
 			)
 		)
@@ -4690,10 +4736,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "94037186-1bb8-5df8-b400-d9fe2d605ce1")
+			(uuid "b9f8e562-73f5-5c95-b560-3d013ef2ccb4")
 		)
 		(pin "2"
-			(uuid "3e8ec220-34dc-5422-955d-fd2fe468039c")
+			(uuid "7c6bcdcd-ff81-59c8-99e1-b60782daa149")
 		)
 		(instances
 			(project "cryocooler"
@@ -4706,7 +4752,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:TCAN3414DRBR")
-		(at 114.3 93.98 0)
+		(at 165.1 99.06 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4716,7 +4762,7 @@
 		(dnp no)
 		(uuid "7b651b76-a788-5ee5-bfe5-75fd0afb49b2")
 		(property "Reference" "U52"
-			(at 99.06 78.72 0)
+			(at 149.86 83.8 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4727,7 +4773,7 @@
 			)
 		)
 		(property "Value" "TCAN3414DRBR"
-			(at 99.06 80.82 0)
+			(at 149.86 85.9 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4738,7 +4784,7 @@
 			)
 		)
 		(property "Footprint" "Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm"
-			(at 114.3 93.98 0)
+			(at 165.1 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4749,7 +4795,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tcan3414.pdf"
-			(at 114.3 93.98 0)
+			(at 165.1 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4760,7 +4806,7 @@
 			)
 		)
 		(property "Description" "CAN transceiver: carries telemetry to, and commands from, the Waveshare touch display"
-			(at 114.3 93.98 0)
+			(at 165.1 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4771,7 +4817,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=TCAN3414DRBR"
-			(at 114.3 93.98 0)
+			(at 165.1 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4782,37 +4828,132 @@
 			)
 		)
 		(pin "1"
-			(uuid "36d07972-78e1-5b83-9b80-b8e2f621a6ac")
-		)
-		(pin "4"
 			(uuid "ce519264-3924-5382-baf3-aac0a94dd37a")
 		)
-		(pin "8"
+		(pin "4"
 			(uuid "19950de5-fcfd-5a5a-9567-69e4c63620ab")
 		)
-		(pin "5"
+		(pin "8"
 			(uuid "46cb7893-83d2-57c3-b780-44d5fb671b74")
 		)
-		(pin "7"
+		(pin "5"
 			(uuid "403eba6b-6b06-51bc-8e3f-28045ca0a6a7")
 		)
 		(pin "6"
 			(uuid "78d0dc31-ac1d-5614-a9ec-53e6636fdb55")
 		)
-		(pin "3"
+		(pin "7"
 			(uuid "a7c0d9ba-7854-5af2-b8a0-af4047a01593")
 		)
-		(pin "2"
+		(pin "3"
 			(uuid "ed05c7c1-ea08-5a48-840b-0de316afd5a6")
 		)
-		(pin "9"
+		(pin "2"
 			(uuid "bd4e4c0d-e11d-50df-a6f2-c610c6072711")
+		)
+		(pin "9"
+			(uuid "5c70ad59-1a90-5aea-b889-07ea169fd965")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
 					(reference "U52")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "cryocooler:ESD2CAN24DBZ")
+		(at 210.82 88.9 180)
+		(unit 2)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "89f83d86-6505-5f74-89a6-6bf509b9ff13")
+		(property "Reference" "D101"
+			(at 215.56 89.12 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "ESD2CAN24DBZR"
+			(at 215.56 91.22 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 210.82 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/esd2can24-q1.pdf"
+			(at 210.82 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp on CAN_H and CAN_L at the display connector J15"
+			(at 210.82 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=ESD2CAN24DBZRQ1"
+			(at 210.82 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "47c13477-9a05-57b1-8952-05dda23c3698")
+		)
+		(pin "2"
+			(uuid "95ecfbae-62ff-5f13-8371-6baf90b29a98")
+		)
+		(pin "3"
+			(uuid "10cead45-13b7-5990-b3b9-7dfa36a96f2e")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
+					(reference "D101")
+					(unit 2)
 				)
 			)
 		)
@@ -4895,52 +5036,52 @@
 			)
 		)
 		(pin "1"
-			(uuid "6c214994-13ea-5184-acae-5271da57c5a3")
-		)
-		(pin "2"
 			(uuid "c476843a-1b5b-5b89-8286-043b1d5ff980")
 		)
-		(pin "3"
+		(pin "2"
 			(uuid "8150ffc6-0cac-5c07-8b5e-01108c7f6658")
 		)
-		(pin "4"
+		(pin "3"
 			(uuid "e0853182-12a6-581d-8952-92df1f898080")
 		)
-		(pin "5"
+		(pin "4"
 			(uuid "cd874ff2-1aa8-5f78-ace9-bcc6048b544b")
 		)
-		(pin "6"
+		(pin "5"
 			(uuid "3a37bc1c-e331-5606-b0f6-1178d3e35de6")
 		)
-		(pin "7"
+		(pin "6"
 			(uuid "7fe15af2-a7ba-56c5-8f87-6bae735e9344")
 		)
-		(pin "8"
+		(pin "7"
 			(uuid "38277b3d-7ca0-51bd-9e54-126efdba7d50")
 		)
-		(pin "9"
+		(pin "8"
 			(uuid "05e64689-52e0-557e-90bb-6a9e61485d42")
 		)
-		(pin "10"
+		(pin "9"
 			(uuid "eada4dc4-8b4b-5709-be55-b6f33a0c2831")
 		)
-		(pin "11"
+		(pin "10"
 			(uuid "8b348ea2-f662-5979-87bb-0f5968a821b1")
 		)
-		(pin "12"
+		(pin "11"
 			(uuid "cd69cb7b-4504-5afa-ae01-537d3b0c729c")
 		)
-		(pin "13"
+		(pin "12"
 			(uuid "4b8aaf8a-473b-5baf-8269-19a279be9007")
 		)
-		(pin "14"
+		(pin "13"
 			(uuid "1e14fce5-49cf-5b84-9f77-10eb87e72669")
 		)
-		(pin "15"
+		(pin "14"
 			(uuid "de4ae5b5-6fa0-5d0f-9e38-3e28f8d28db9")
 		)
-		(pin "16"
+		(pin "15"
 			(uuid "f48b6c6c-2c7e-5bbb-bae6-0fb8a8614f69")
+		)
+		(pin "16"
+			(uuid "d1da48d1-b5df-549a-9710-cf47d7cdcb81")
 		)
 		(instances
 			(project "cryocooler"
@@ -4953,7 +5094,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:ESD2CAN24DBZ")
-		(at 203.2 187.96 0)
+		(at 210.82 106.68 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4963,7 +5104,7 @@
 		(dnp no)
 		(uuid "919be30a-0953-5528-bd0c-e0f4b651cde5")
 		(property "Reference" "D101"
-			(at 213.02 188.18 0)
+			(at 215.56 104.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4974,7 +5115,7 @@
 			)
 		)
 		(property "Value" "ESD2CAN24DBZR"
-			(at 213.02 190.28 0)
+			(at 215.56 106.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4985,7 +5126,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 203.2 187.96 0)
+			(at 210.82 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4996,7 +5137,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/esd2can24-q1.pdf"
-			(at 203.2 187.96 0)
+			(at 210.82 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5007,7 +5148,7 @@
 			)
 		)
 		(property "Description" "ESD clamp on CAN_H and CAN_L at the display connector J15"
-			(at 203.2 187.96 0)
+			(at 210.82 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5018,7 +5159,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=ESD2CAN24DBZRQ1"
-			(at 203.2 187.96 0)
+			(at 210.82 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5029,13 +5170,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "b1918bc5-4c46-5818-bc80-ba5be31719f5")
-		)
-		(pin "2"
 			(uuid "3cd47b3e-0d6e-5b6d-921c-a3b660d898e5")
 		)
-		(pin "3"
+		(pin "2"
 			(uuid "5e024ec7-f104-5000-8779-24f18a784fa8")
+		)
+		(pin "3"
+			(uuid "fe94bf9d-6f29-519d-8702-50be29a57dcc")
 		)
 		(instances
 			(project "cryocooler"
@@ -5113,7 +5254,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "57d717a4-deef-5ec4-8040-8efc64ed370d")
+			(uuid "36d07972-78e1-5b83-9b80-b8e2f621a6ac")
 		)
 		(instances
 			(project "cryocooler"
@@ -5126,7 +5267,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 93.98 99.06 0)
+		(at 144.78 104.14 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5136,7 +5277,7 @@
 		(dnp no)
 		(uuid "afa8cd10-2e38-5e7d-a0db-f18be5e14f13")
 		(property "Reference" "#PWR290"
-			(at 93.98 99.06 0)
+			(at 144.78 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5147,7 +5288,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 93.98 99.06 0)
+			(at 144.78 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5158,7 +5299,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 93.98 99.06 0)
+			(at 144.78 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5169,7 +5310,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 93.98 99.06 0)
+			(at 144.78 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5180,7 +5321,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 93.98 99.06 0)
+			(at 144.78 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5191,7 +5332,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "722af361-71db-59e6-9143-e42ccff713b2")
+			(uuid "1048d7f7-6dec-526f-962a-cdd2ab52e217")
 		)
 		(instances
 			(project "cryocooler"
@@ -5204,7 +5345,7 @@
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
-		(at 226.06 87.63 0)
+		(at 238.76 119.38 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5214,7 +5355,7 @@
 		(dnp no)
 		(uuid "d68c702b-48ed-5355-892b-c5052b12e372")
 		(property "Reference" "F2"
-			(at 205.76 86.58 0)
+			(at 230.11 114.68 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5225,7 +5366,7 @@
 			)
 		)
 		(property "Value" "MF-MSMF050/24X"
-			(at 205.76 88.68 0)
+			(at 230.11 116.78 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5236,7 +5377,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1812_4532Metric"
-			(at 226.06 87.63 0)
+			(at 238.76 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5247,7 +5388,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/mfmsmf.pdf"
-			(at 226.06 87.63 0)
+			(at 238.76 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5258,7 +5399,7 @@
 			)
 		)
 		(property "Description" "Resettable fuse in the 12 V feed to the display (J15 pin 2): 0.5 A hold, so a shorted cable does not blow the main fuse F1"
-			(at 226.06 87.63 0)
+			(at 238.76 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5269,7 +5410,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=MF-MSMF050/24X-2"
-			(at 226.06 87.63 0)
+			(at 238.76 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5280,10 +5421,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1d7abb85-cf6e-5e1c-8c6b-f64d4b273f92")
+			(uuid "eeb8c5bc-586f-5c21-a23e-ec2dd4084b08")
 		)
 		(pin "2"
-			(uuid "eeb8c5bc-586f-5c21-a23e-ec2dd4084b08")
+			(uuid "8fca0f1c-8b3a-531d-8b75-20d12b87a82e")
 		)
 		(instances
 			(project "cryocooler"
@@ -5295,8 +5436,9 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 144.78 92.71 0)
+		(lib_id "Connector_Generic:Conn_01x06")
+		(at 261.62 96.52 0)
+		(mirror x)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5305,8 +5447,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "d7e25d38-a871-501b-acde-015866ef4202")
-		(property "Reference" "R516"
-			(at 147.996 91.66 0)
+		(property "Reference" "J15"
+			(at 236.22 110.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5316,8 +5458,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "120"
-			(at 147.996 93.76 0)
+		(property "Value" "DISPLAY (GND / 12V / CAN H / L / BTN / RST)"
+			(at 236.22 112.59 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5327,8 +5469,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 144.78 92.71 0)
+		(property "Footprint" "Connector_JST:JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical"
+			(at 261.62 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5338,8 +5480,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC1206FR-07120RL"
-			(at 144.78 92.71 0)
+		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/ePH.pdf"
+			(at 261.62 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5349,8 +5491,8 @@
 				)
 			)
 		)
-		(property "Description" "CAN bus termination resistor (120 R) at this end of the cable"
-			(at 144.78 92.71 0)
+		(property "Description" "Display header (JST PH, top entry): 1 GND, 2 fused unswitched 12 V, 3 CAN_H, 4 CAN_L, 5 power button, 6 reset, to the Waveshare touch display"
+			(at 261.62 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5360,8 +5502,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC1206FR-07120RL"
-			(at 144.78 92.71 0)
+		(property "Product" "https://www.lcsc.com/product-detail/C471518.html"
+			(at 261.62 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5372,15 +5514,27 @@
 			)
 		)
 		(pin "1"
-			(uuid "30b2f5ba-15d3-5dc1-91d4-55766e8e9f55")
+			(uuid "18b20d47-1c21-5e14-b0c1-d364e48a8f8c")
 		)
 		(pin "2"
-			(uuid "18b20d47-1c21-5e14-b0c1-d364e48a8f8c")
+			(uuid "bbfd7d0c-a12e-5f7b-877a-53af5dae8dd9")
+		)
+		(pin "3"
+			(uuid "80ba88ba-b8ce-5beb-ac30-dee60283b4cc")
+		)
+		(pin "4"
+			(uuid "88e6b91b-a676-5401-a4a7-49b7a96e802f")
+		)
+		(pin "5"
+			(uuid "05835014-fe78-5f53-b5e1-9ae3d3ab91e9")
+		)
+		(pin "6"
+			(uuid "2ef37fce-c1b6-5ef6-8701-f68e86b2bc0b")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
-					(reference "R516")
+					(reference "J15")
 					(unit 1)
 				)
 			)
@@ -5453,7 +5607,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "95ecfbae-62ff-5f13-8371-6baf90b29a98")
+			(uuid "0f27c6e0-3063-577d-acbc-55e684e74660")
 		)
 		(instances
 			(project "cryocooler"
@@ -5466,7 +5620,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 226.06 81.28 0)
+		(at 224.79 119.38 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5476,7 +5630,7 @@
 		(dnp no)
 		(uuid "d87fd90a-6057-5037-bd62-7070832fe95f")
 		(property "Reference" "#PWR293"
-			(at 226.06 81.28 0)
+			(at 224.79 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5487,7 +5641,7 @@
 			)
 		)
 		(property "Value" "VIN"
-			(at 226.06 77.724 0)
+			(at 224.79 115.824 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5497,7 +5651,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 226.06 81.28 0)
+			(at 224.79 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5508,7 +5662,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 226.06 81.28 0)
+			(at 224.79 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5519,7 +5673,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 226.06 81.28 0)
+			(at 224.79 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5530,7 +5684,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8fca0f1c-8b3a-531d-8b75-20d12b87a82e")
+			(uuid "b1918bc5-4c46-5818-bc80-ba5be31719f5")
 		)
 		(instances
 			(project "cryocooler"
@@ -5619,10 +5773,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "3506a131-f0c9-58ec-ae5f-4b71dbc25697")
+			(uuid "94037186-1bb8-5df8-b400-d9fe2d605ce1")
 		)
 		(pin "2"
-			(uuid "69308f73-48d3-53df-a89d-375be9d414db")
+			(uuid "3e8ec220-34dc-5422-955d-fd2fe468039c")
 		)
 		(instances
 			(project "cryocooler"
@@ -5635,7 +5789,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 83.82 85.09 0)
+		(at 134.62 90.17 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5645,7 +5799,7 @@
 		(dnp no)
 		(uuid "e3a98d8d-f52f-5dee-bd6e-f87d8c3ce9b2")
 		(property "Reference" "R515"
-			(at 87.036 84.04 0)
+			(at 137.836 89.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5656,7 +5810,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 87.036 86.14 0)
+			(at 137.836 91.22 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5667,7 +5821,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 83.82 85.09 0)
+			(at 134.62 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5678,7 +5832,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 83.82 85.09 0)
+			(at 134.62 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5689,7 +5843,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistor for CAN_TX: bus stays recessive while GPIO17 floats at reset"
-			(at 83.82 85.09 0)
+			(at 134.62 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5700,7 +5854,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 83.82 85.09 0)
+			(at 134.62 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5711,10 +5865,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1048d7f7-6dec-526f-962a-cdd2ab52e217")
+			(uuid "dc15fe3c-9076-5773-ba6a-731bbb63e7ee")
 		)
 		(pin "2"
-			(uuid "dc15fe3c-9076-5773-ba6a-731bbb63e7ee")
+			(uuid "005ed870-f423-5cb2-8046-ae5b5df9e8f1")
 		)
 		(instances
 			(project "cryocooler"
@@ -5792,7 +5946,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0f27c6e0-3063-577d-acbc-55e684e74660")
+			(uuid "590d6bed-e969-52a7-a6d5-73baa7ddc676")
 		)
 		(instances
 			(project "cryocooler"
@@ -5804,18 +5958,40 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 251.46 104.14 0)
+		(lib_id "Device:R_US")
+		(at 187.96 97.79 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "e7bbdac0-2664-5d1b-9212-4919024b0c5b")
-		(property "Reference" "#PWR292"
-			(at 251.46 104.14 0)
+		(property "Reference" "R516"
+			(at 191.176 96.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "120"
+			(at 191.176 98.84 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+			(at 187.96 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5825,8 +6001,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 251.46 104.14 0)
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC1206FR-07120RL"
+			(at 187.96 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5836,8 +6012,8 @@
 				)
 			)
 		)
-		(property "Footprint" ""
-			(at 251.46 104.14 0)
+		(property "Description" "CAN bus termination resistor (120 R) at this end of the cable"
+			(at 187.96 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5847,19 +6023,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 251.46 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 251.46 104.14 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC1206FR-07120RL"
+			(at 187.96 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5872,10 +6037,13 @@
 		(pin "1"
 			(uuid "4d72a73a-bb21-5482-bbd0-f22f6fc08691")
 		)
+		(pin "2"
+			(uuid "1d7abb85-cf6e-5e1c-8c6b-f64d4b273f92")
+		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/4ac13f79-f2cc-51b8-8c31-ef563eebddd0"
-					(reference "#PWR292")
+					(reference "R516")
 					(unit 1)
 				)
 			)
@@ -5959,10 +6127,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "10cead45-13b7-5990-b3b9-7dfa36a96f2e")
+			(uuid "c595601a-a03c-5e08-8855-f63569791b58")
 		)
 		(pin "2"
-			(uuid "a6195ce9-2555-5897-a654-8ecb829ad0d5")
+			(uuid "fb6a098d-fc5a-5c41-896b-de3d81272586")
 		)
 		(instances
 			(project "cryocooler"
@@ -5975,7 +6143,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 114.3 78.74 0)
+		(at 165.1 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5985,7 +6153,7 @@
 		(dnp no)
 		(uuid "fe74cff2-2f41-576b-8e55-475560a28211")
 		(property "Reference" "#PWR288"
-			(at 114.3 78.74 0)
+			(at 165.1 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5996,7 +6164,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 114.3 75.184 0)
+			(at 165.1 80.264 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6006,7 +6174,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 114.3 78.74 0)
+			(at 165.1 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6017,7 +6185,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 114.3 78.74 0)
+			(at 165.1 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6028,7 +6196,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 114.3 78.74 0)
+			(at 165.1 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6039,7 +6207,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "5c70ad59-1a90-5aea-b889-07ea169fd965")
+			(uuid "aad6cbf8-f4c1-56fb-9776-3a5fb34311ed")
 		)
 		(instances
 			(project "cryocooler"

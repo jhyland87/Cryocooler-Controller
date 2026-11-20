@@ -1066,6 +1066,37 @@ def kingbright_apgb0607():
     )
 
 
+def kingbright_aphhs1005():
+    """Kingbright APHHS1005 chip LED, 1.0 x 0.5 x 0.5 mm (APHHS1005SURCK V.18A and
+    APHHS1005LZGCK-V V.6B, recommended soldering pattern): two 0.7 x 0.5 mm pads
+    with a 0.2 mm gap. Pin 1 is the cathode (left); bar on the silk beside it.
+    """
+    pads = [
+        smd_pad('1', -0.45, 0, 0.7, 0.5),
+        smd_pad('2', 0.45, 0, 0.7, 0.5),
+    ]
+    outline = (
+        box(-0.5, -0.25, 0.5, 0.25, 'F.Fab', 0.05)
+        + box(-1.05, -0.5, 1.05, 0.5, 'F.CrtYd', 0.05)
+        + line(-1.0, -0.45, -1.0, 0.45, 'F.SilkS', 0.1)
+    )
+    return (
+        '(footprint "LED_Kingbright_APHHS1005"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Kingbright APHHS1005 1.0 x 0.5 mm chip LED, pin 1 cathode; land pattern from '
+        'https://www.kingbrightusa.com/images/catalog/SPEC/APHHS1005SURCK.pdf")\n'
+        '\t(tags "LED 0402")\n'
+        + text('Reference', 'REF**', 0, -1.0, 'F.SilkS')
+        + text('Value', 'APHHS1005', 0, 1.0, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 def phoenix_mc05_2_smd():
     """Phoenix MC 0,5/ 2-G-2,54 SMD R24 (1821698), drawing 00783144 rev 02. Origin
     on pin 1's pad; +y points out of the mating side. Pads 1.2 x 2.06 at 2.54, their
@@ -1546,6 +1577,7 @@ FOOTPRINTS = {
     'SW_Panasonic_EVQ-P2F': panasonic_evq_p2f,
     'SW_Panasonic_EVP-AA': panasonic_evp_aa,
     'LED_Kingbright_APGB0607': kingbright_apgb0607,
+    'LED_Kingbright_APHHS1005': kingbright_aphhs1005,
     'AOS_DFN3x3A_8L_EP1': aos_dfn3x3a,
     'OnSemi_DFN-12-1EP_506AD': onsemi_dfn12_506ad,
     'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': littelfuse_dfn5,

@@ -80,6 +80,11 @@ ENVELOPES = {
         'EVP-AA_envelope',
         [(3.5, 2.9, 1.4, 0.0, 0.0, SILVER), (2.2, 1.5, 1.7, 0.0, 0.0, GRAY)],
     ),
+    # Kingbright APHHS1005: 1.0 x 0.5 x 0.5 mm chip LED, water clear
+    'LED_Kingbright_APHHS1005': (
+        'APHHS1005_envelope',
+        [(1.0, 0.5, 0.5, 0.0, 0.0, (0.92, 0.92, 0.88))],
+    ),
     'LED_Kingbright_APGB0607': (
         'APGB0607_envelope',
         [(0.65, 0.65, 0.25, 0.0, 0.0, (0.92, 0.92, 0.88))],

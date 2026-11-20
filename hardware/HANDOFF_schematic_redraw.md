@@ -16,6 +16,10 @@ changing the root, the Universal IO parent or the board-rename tools.
   as I don't need to re-route the board"). Copper and `cryocooler.kicad_dru` are
   frozen. Proof: the board equals `git show rev6-schematic:hardware/kicad/cryocooler.kicad_pcb`
   once every `(net "...")`, `(path "...")` and `(sheetname "...")` string is blanked.
+- One approved exception (2026-11-20): D6 and D10 swapped to single LEDs (footprint,
+  pins and pour fill only). Against the old `rev6-schematic` baseline strict shows
+  those 11 differences and the board proof differs at D6 / D10; take the baseline
+  netlist and board from the commit that holds the swap from then on.
 - After **every** regeneration: `tools/rename_board_nets.py $B/base.net $OUT/new.net`,
   then `tools/relink_board_sheets.py $OUT/new.net`.
 
@@ -29,8 +33,8 @@ changing the root, the Universal IO parent or the board-rename tools.
 - ESD clamps (SP3422-04UTG) are multi-unit: units A-D each on the line they protect,
   unit E holds the ground pin (user, 2026-11-20: "ditch the label"). U20's PVIN pins
   stay on the symbol's left edge (user: "fine as it is").
-- Two-die LEDs with one die unused (D6, D10): replace with a single LED only if the
-  board needs no re-route (user, 2026-11-20).
+- Two-die LEDs with one die unused were replaced with single LEDs; the board may take
+  such small footprint swaps as long as nothing is re-routed (user, 2026-11-20).
 
 ## Gate (from `hardware/kicad`)
 
@@ -126,18 +130,20 @@ close_label_pair 7 -> 3, baseline lowered; units B-E take named ids through
 `kicadgen.named_part_uuids` so no other sheet's ids move); `sheets/aux_io.kicad_sch`
 and the empty `mcu_and_usb` loop deleted.
 
-Still with the user:
+Answered 2026-11-20 and done (second round):
 
-1. D6 (system_current, red die only) and D10 (debug, green die only) are
-   APGB0607 bi-colour LEDs (0.65 mm, 4 pads at +/-0.2 mm). No single-colour part in
-   that package was found, so a swap changes the footprint pads and the copper at
-   two spots. Asked whether a small hand edit there is acceptable.
-2. io_switches' title names two functions and rails_logic holds three (the
-   one-function-per-sheet rule): split into sheets (renames nets on the board, no
-   re-route) or keep. Explained to the user, no answer yet.
-3. display: wire CAN_H / CAN_L from U52 to J15 instead of the label pair. Needs the
-   TCAN3414 symbol's CANL above CANH and the 12 V feed and F2 moved; drawing and net
-   names only. Explained to the user, no answer yet.
+- Display CAN wired: U52 to J15 by wire (CANL drawn above CANH on the TCAN3414
+  symbol, pin numbers unchanged), transceiver moved right so the pair runs 79 mm,
+  D101 split into units on the lines (unit C ground), F2 below the pair. One CAN_H /
+  CAN_L label each remains for the display's terminal drawing (DS1).
+- io_switches and rails_logic stay as they are (user: "keep the sheets").
+- D6 and D10 are single LEDs (APHHS1005SURCK red, APHHS1005LZGCK-V green, pin 1
+  cathode), the user's go-ahead for "a small hand edit and no rerouting". On the
+  board only the two footprints changed: every track and via is identical to the
+  committed board (8654 items compared), D6 sits 0.125 mm right of its old pads for
+  clearance to the INA239_ALERT via, pours refilled, renders regenerated, BOM
+  refreshed. DRC with parity 0 / 0 / 0. Gerbers and the zip not regenerated (final
+  export waits for review). See `kicad/DESIGN_REVIEW.md`, "D6 and D10".
 
 Layout work still open (each needs its own layout change):
 

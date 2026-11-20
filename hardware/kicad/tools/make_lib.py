@@ -549,7 +549,8 @@ SYMBOLS = [
             ('8', 'STB', 'input'),
             ('5', 'SHDN', 'input'),
         ],
-        right=[('7', 'CANH', 'bidirectional'), ('6', 'CANL', 'bidirectional')],
+        # CANL above CANH, the order of the display connector's pins
+        right=[('6', 'CANL', 'bidirectional'), ('7', 'CANH', 'bidirectional')],
         top=[('3', 'VCC', 'power_in')],
         bottom=[('2', 'GND', 'power_in'), ('9', 'EP', 'passive')],
         keywords='can transceiver',
@@ -1621,16 +1622,15 @@ SYMBOLS = [
         bottom=[('5', 'GND', 'power_in'), ('9', 'EP', 'passive')],
         keywords='rs485 transceiver',
     ),
-    symbol(
+    split_clamp(
         'ESD2CAN24DBZ',
         'D',
         'TI two-line bidirectional CAN bus ESD clamp, +-24 V working, 37 V clamp at 5.7 A, '
-        '3 pF, SOT-23 (DBZ)',
+        '3 pF, SOT-23 (DBZ); one unit per bus line, ground on unit C',
         'https://www.ti.com/lit/ds/symlink/esd2can24-q1.pdf',
         'Package_TO_SOT_SMD:SOT-23',
-        left=[('1', 'IO1', 'passive'), ('2', 'IO2', 'passive')],
-        bottom=[('3', 'GND', 'passive')],
-        keywords='can esd tvs',
+        (('1', 'IO1'), ('2', 'IO2')),
+        '3',
     ),
     # ESP32-S3-WROOM-2 with its pins grouped by what they drive on the root
     # sheet: reset and boot, the decoder's address and enable lines, IMU

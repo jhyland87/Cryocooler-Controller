@@ -418,8 +418,14 @@ PARTS = {
         'design', 'SW1 reset, SW2 boot; 3.5 x 2.9 x 1.7 mm, 5.0 N, grey actuator, 100,000 cycles'),
     ('APGB0607G22R23C', 'LED_Kingbright_APGB0607'): (
         'Kingbright', 'APGB0607G22R23C', 'LED GREEN/RED BICOLOR 0.65X0.65MM SMD',
-        'design', 'all indicators but D13; independent dies, about 1 mA each. '
-        'D6 and D10 use one die'),
+        'design', 'two-state indicators; independent dies, about 1 mA each'),
+    ('APHHS1005SURCK', 'LED_Kingbright_APHHS1005'): (
+        'Kingbright', 'APHHS1005SURCK', 'LED RED (630 NM) CLEAR 0402 SMD',
+        'design', 'D6 INA239 ALERT, about 0.9 mA (1.5k on 3.3 V); Vf 1.95 V typ at 20 mA'),
+    ('APHHS1005LZGCK-V', 'LED_Kingbright_APHHS1005'): (
+        'Kingbright', 'APHHS1005LZGCK-V', 'LED GREEN (525 NM) CLEAR 0402 SMD',
+        'design', 'D10 isolated 5 V rail, about 0.7 mA (3.3k on 5 V); Vf 2.65 V typ '
+        'at 2 mA; InGaN, 450 V HBM'),
     ('TACTILE', 'SW_Panasonic_EVQ-P2F'): (
         'Panasonic', 'EVQ-P2F02K', 'SWITCH TACTILE SPST-NO 20MA 15V SMD',
         'design', 'SW1 reset, SW2 boot; 5.0 N, black actuator, 2.5 mm high, 200,000 cycles'),
@@ -751,6 +757,8 @@ def bom_value(ref, value, footprint):
         return 'RED/GREEN'
     if footprint == 'LED_Kingbright_APGB0607':
         return 'APGB0607G22R23C'
+    if footprint == 'LED_Kingbright_APHHS1005':
+        return 'APHHS1005SURCK' if 'red' in value.lower() else 'APHHS1005LZGCK-V'
     return value
 
 

@@ -419,11 +419,12 @@ RULES = [
     ('res', 'PG +15V G=good R=bad', '4', '1.5k', '+3V3'),
     ('res', 'PG -15V G=good R=bad', '1', '2.2k', '+5V'),
     ('res', 'PG -15V G=good R=bad', '4', '1.5k', '+3V3'),
-    # single-die indicators
-    ('net', 'ALERT (red)', '3', 'INA239_ALERT'),
-    ('res', 'ALERT (red)', '4', '1.5k', '+3V3'),
-    ('res', 'ISO 5V (green)', '1', '3.3k', 'ISO_5V'),
-    ('net', 'ISO 5V (green)', '2', 'ISO_GND'),
+    # single LEDs, Kingbright APHHS1005SURCK (V.18A) / APHHS1005LZGCK-V (V.6B):
+    # 1 cathode, 2 anode
+    ('net', 'ALERT (red)', '1', 'INA239_ALERT'),
+    ('res', 'ALERT (red)', '2', '1.5k', '+3V3'),
+    ('res', 'ISO 5V (green)', '2', '3.3k', 'ISO_5V'),
+    ('net', 'ISO 5V (green)', '1', 'ISO_GND'),
     # 74AHCT1G125GM (Nexperia rev 15.1, SOT886): 1 OE, 2 A, 3 GND, 4 Y, 5 n.c., 6 VCC
     ('net', '74AHCT1G125GM', '6', '+5V'),
     ('net', '74AHCT1G125GM', '1', 'GND'),

@@ -345,6 +345,14 @@ The PCB is rev 3 as well. Status, PCB notes and bench list are in `../HANDOFF_re
 * VDD 2.3-5.5 V, -40 to 125 °C. Footprint `Package_CSP:LFCSP-WD-10-1EP_3x3mm_P0.5mm_EP1.64x2.38mm` (drawn from CP-10-9) with KiCad's STEP model.
 * **Sourcing:** DigiKey 2700194; JLCPCB stock not checked.
 
+## D6 and D10 single-colour LEDs (2026-11-20)
+
+**D6, D10:** APGB0607G22R23C (one die each unused, against the part-selection rule) → Kingbright APHHS1005, 1.0 x 0.5 x 0.5 mm. D6 (INA239 ALERT) is APHHS1005SURCK (datasheet V.18A: hyper red AlGaInP, VF 1.95 V typ / 2.5 V max at 20 mA, 30 mA max DC, VR 5 V); D10 (isolated 5 V rail) is APHHS1005LZGCK-V (V.6B: green InGaN, VF 2.65 V typ / 3.0 V max at 2 mA, 25 mA max, VR 5 V, 450 V HBM).
+
+* Pin 1 is the cathode on both (the datasheet symbol). Circuits unchanged: D6 about 0.9 mA (+3V3, 1.5k, cathode on the open-drain ALERT), D10 about 0.7 mA (ISO_5V, 3.3k, cathode on ISO_GND).
+* Footprint `LED_Kingbright_APHHS1005` from the recommended soldering pattern: two 0.7 x 0.5 mm pads, 0.2 mm gap; cathode bar on the silk. 3D model: a 1.0 x 0.5 x 0.5 mm envelope.
+* Board: each LED stands vertically over the two pads the used die had, so the existing track ends land in the new pads; no track or via moved. D6 sits 0.125 mm right of its old pads to keep 0.15 mm from the INA239_ALERT via and track. Pours refilled; DRC with parity 0 / 0 / 0.
+
 ## SP3422-04UTG ESD clamps (2026-11-08)
 
 **U33, U35:** TPD4E05U06DQAR (USON-10, 2.5 x 1.0 mm) → Littelfuse SP3422-04UTG (rev GD, DFN-5, 1.0 x 0.6 mm), your pick. U33 clamps FAN_TACH, PUMP_TACH, FLOW_TACH and NTC_ADC on the GPIO side of the 4.7 kΩ tach resistors; U35 clamps the four J10 PT1000 lines.

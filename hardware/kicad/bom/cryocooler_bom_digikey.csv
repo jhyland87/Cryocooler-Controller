@@ -22,8 +22,10 @@ Quantity,Manufacturer Part Number,Manufacturer,Description,Customer Reference,Va
 4,CL05C020CB5NNNC,Samsung Electro-Mechanics,CAP CER 2PF 50V C0G 0402,C411-C414,2pF/C0G,C_0402_1005Metric,suggested,AD5453 output stage stability (datasheet C1)
 1,C3216X5R1E106K085AC,TDK,CAP CER 10UF 25V X5R 1206,C417,10uF/25V,C_1206_3216Metric,ordered,12 V rail; substitute for CL31A106KAHNNNE
 1,SMBJ16A,Littelfuse,TVS DIODE 16VWM 26VC DO214AA,D1,SMBJ16A,D_SMB,design,unidirectional
-7,APGB0607G22R23C,Kingbright,LED GREEN/RED BICOLOR 0.65X0.65MM SMD,D2 D3 D6 D7 D10-D12,APGB0607G22R23C,LED_Kingbright_APGB0607,design,"all indicators but D13; independent dies, about 1 mA each. D6 and D10 use one die"
+5,APGB0607G22R23C,Kingbright,LED GREEN/RED BICOLOR 0.65X0.65MM SMD,D2 D3 D7 D11 D12,APGB0607G22R23C,LED_Kingbright_APGB0607,design,"two-state indicators; independent dies, about 1 mA each"
 2,DFLS240-7,Diodes Incorporated,DIODE SCHOTTKY 40V 2A POWERDI123,D4 D5,DFLS240,D_PowerDI-123,design,
+1,APHHS1005SURCK,Kingbright,LED RED (630 NM) CLEAR 0402 SMD,D6,APHHS1005SURCK,LED_Kingbright_APHHS1005,design,"D6 INA239 ALERT, about 0.9 mA (1.5k on 3.3 V); Vf 1.95 V typ at 20 mA"
+1,APHHS1005LZGCK-V,Kingbright,LED GREEN (525 NM) CLEAR 0402 SMD,D10,APHHS1005LZGCK-V,LED_Kingbright_APHHS1005,design,"D10 isolated 5 V rail, about 0.7 mA (3.3k on 5 V); Vf 2.65 V typ at 2 mA; InGaN, 450 V HBM"
 1,4684,Adafruit,LED RGB NEOPIXEL NANO WS2812B-2020 2 X 2 MM (10 pack),D13,WS2812B-2020,LED_WS2812B-2020_PLCC4_2.0x2.0mm,design,Adafruit listed the 10 pack out of stock on 2026-11-06; the 100 pack is Adafruit 6428. Check JLCPCB/LCSC for a WS2812B-2020 if you assemble there
 4,1N4148W-7-F,Diodes Incorporated,DIODE GEN PURP 75V 150MA SOD123,D14 D100 D109 D112,1N4148W,D_SOD-123,design,
 1,BAT54AW-7-F,Diodes Incorporated,DIODE ARR SCHOTTKY 30V 200MA SOT323,D15,BAT54AW,SOT-323_SC-70,design,"common anode on PG_15V (pin 3), cathodes on pins 1 and 2"

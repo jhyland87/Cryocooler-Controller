@@ -342,6 +342,207 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:LED"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R_Shunt_US"
 			(pin_names
 				(offset 0)
@@ -766,170 +967,6 @@
 						)
 					)
 					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "cryocooler:APGB0607G22R23C"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 5.08 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "APGB0607G22R23C"
-				(at -5.08 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "cryocooler:LED_Kingbright_APGB0607"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Kingbright green/red bi-colour LED, independent dies, 0.65 x 0.65 x 0.25 mm. Green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA max, VR 5 V"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "led bicolor red green"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "APGB0607G22R23C_0_1"
-				(rectangle
-					(start -5.08 5.08)
-					(end 5.08 -5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "APGB0607G22R23C_1_1"
-				(pin passive line
-					(at -7.62 2.54 0)
-					(length 2.54)
-					(name "GA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 2.54 180)
-					(length 2.54)
-					(name "GK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "RK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "RA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1729,7 +1766,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e2c6946a-b312-5668-aab2-927225bcf9d0")
+		(uuid "6afe2835-d546-542b-ad9c-bbbcbc7fa765")
 	)
 	(bus
 		(pts
@@ -1739,7 +1776,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3e2952c3-037f-570c-a51d-78459bd5e7a4")
+		(uuid "741d830e-7c27-55da-acda-7f8fea719f53")
 	)
 	(bus_entry
 		(at 187.96 73.66)
@@ -1748,7 +1785,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3127bdde-2a6a-50d9-898c-a40dafba2c20")
+		(uuid "e2c6946a-b312-5668-aab2-927225bcf9d0")
 	)
 	(bus_entry
 		(at 187.96 76.2)
@@ -1757,7 +1794,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8116bc5a-31d3-5588-918c-6b8bf4f752d9")
+		(uuid "3e2952c3-037f-570c-a51d-78459bd5e7a4")
 	)
 	(bus_entry
 		(at 187.96 78.74)
@@ -1766,7 +1803,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d8435310-e249-5bcc-9242-2cb507f6c5e3")
+		(uuid "3127bdde-2a6a-50d9-898c-a40dafba2c20")
 	)
 	(text "INA239 monitors the switched 12 V rail: 10 mOhm 4-terminal shunt (1 W at 10 A), SPI mode 1 on the main bus (CS from the decoder), +/-163.84 mV range (16.4 A). ALERT drives its LED and MCP23S08 GP6."
 		(exclude_from_sim no)
@@ -1777,18 +1814,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "5fbf6927-2d0e-5549-a1ef-8acb52444620")
-	)
-	(text "12 V SHUNT"
-		(exclude_from_sim no)
-		(at 40.64 31.75 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "7010265e-c808-5133-a0d4-3bad140e3121")
+		(uuid "5178a2a8-2675-547e-a7b1-9bdc5cf55077")
 	)
 	(text "INA239 CURRENT MONITOR"
 		(exclude_from_sim no)
@@ -1799,18 +1825,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "8450f096-6eed-52b0-b3f2-a4a5b3d32b82")
-	)
-	(text "INA239 DECOUPLING CAPACITORS"
-		(exclude_from_sim no)
-		(at 152.4 116.84 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "a7916682-a995-5b17-ae05-c5c7bafbf2f6")
+		(uuid "5fbf6927-2d0e-5549-a1ef-8acb52444620")
 	)
 	(text "ALERT LED"
 		(exclude_from_sim no)
@@ -1821,7 +1836,29 @@
 			)
 			(justify left top)
 		)
-		(uuid "d191fbdd-6560-5dc3-94ca-96a5f5d8d8be")
+		(uuid "7010265e-c808-5133-a0d4-3bad140e3121")
+	)
+	(text "INA239 DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 152.4 116.84 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "8450f096-6eed-52b0-b3f2-a4a5b3d32b82")
+	)
+	(text "12 V SHUNT"
+		(exclude_from_sim no)
+		(at 40.64 31.75 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9b5701b8-9810-5cf2-8dab-9de7f63946e7")
 	)
 	(junction
 		(at 97.79 81.28)
@@ -1848,7 +1885,7 @@
 		(uuid "612629a7-fd1d-50a6-93df-92c9c6ba62b8")
 	)
 	(junction
-		(at 213.36 81.28)
+		(at 207.01 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9078db52-32df-5c88-8551-1e1905de5818")
@@ -1870,14 +1907,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e2bbd114-707e-583d-ab87-be97c40e0db0")
-	)
-	(no_connect
-		(at 190.5 96.52)
-		(uuid "6afe2835-d546-542b-ad9c-bbbcbc7fa765")
-	)
-	(no_connect
-		(at 205.74 96.52)
-		(uuid "741d830e-7c27-55da-acda-7f8fea719f53")
 	)
 	(wire
 		(pts
@@ -1941,7 +1970,7 @@
 	)
 	(wire
 		(pts
-			(xy 198.12 81.28) (xy 213.36 81.28)
+			(xy 198.12 81.28) (xy 207.01 81.28)
 		)
 		(stroke
 			(width 0)
@@ -1981,7 +2010,7 @@
 	)
 	(wire
 		(pts
-			(xy 167.64 99.06) (xy 190.5 99.06)
+			(xy 167.64 99.06) (xy 194.31 99.06)
 		)
 		(stroke
 			(width 0)
@@ -2051,7 +2080,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 81.28) (xy 213.36 99.06)
+			(xy 207.01 81.28) (xy 207.01 99.06)
 		)
 		(stroke
 			(width 0)
@@ -2151,7 +2180,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 81.28) (xy 223.52 81.28)
+			(xy 207.01 81.28) (xy 217.17 81.28)
 		)
 		(stroke
 			(width 0)
@@ -2231,7 +2260,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 99.06) (xy 213.36 99.06)
+			(xy 201.93 99.06) (xy 207.01 99.06)
 		)
 		(stroke
 			(width 0)
@@ -2249,28 +2278,6 @@
 		)
 		(uuid "fd38ee9b-863a-5e97-8850-993103deee07")
 	)
-	(label "SPI_MISO"
-		(at 157.48 78.74 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "42c10323-7116-52d7-bfc0-96ff7caac25c")
-		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
-			(at 157.48 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
 	(label "ALERT_LED_A"
 		(at 170.18 99.06 0)
 		(effects
@@ -2279,7 +2286,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "5178a2a8-2675-547e-a7b1-9bdc5cf55077")
+		(uuid "42c10323-7116-52d7-bfc0-96ff7caac25c")
 		(property "Description" "Anode of the INA239 ALERT LED D6, fed from +3V3 through R81"
 			(at 170.18 99.06 0)
 			(hide yes)
@@ -2293,8 +2300,8 @@
 			)
 		)
 	)
-	(label "SPI_SCK"
-		(at 157.48 73.66 0)
+	(label "SPI_MISO"
+		(at 157.48 78.74 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2302,8 +2309,8 @@
 			(justify left bottom)
 		)
 		(uuid "c64581c8-4446-51da-8353-42eec857c95f")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 157.48 73.66 0)
+		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
+			(at 157.48 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2323,9 +2330,31 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "df5c441d-def5-5091-86d6-08450deda9a0")
+		(uuid "d80aab8b-341c-5a78-bba6-3541e12079b8")
 		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
 			(at 157.48 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "SPI_SCK"
+		(at 157.48 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d8435310-e249-5bcc-9242-2cb507f6c5e3")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 157.48 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2347,7 +2376,7 @@
 			)
 			(justify left)
 		)
-		(uuid "b3eb06a0-fc33-5db7-a062-7dea492240ba")
+		(uuid "df5c441d-def5-5091-86d6-08450deda9a0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 195.58 66.04 0)
 			(hide yes)
@@ -2373,18 +2402,18 @@
 			)
 		)
 	)
-	(hierarchical_label "INA239_ALERT"
-		(shape output)
-		(at 223.52 81.28 0)
+	(hierarchical_label "INA239_CS"
+		(shape input)
+		(at 170.18 71.12 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "9b5701b8-9810-5cf2-8dab-9de7f63946e7")
-		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
-			(at 223.52 81.28 0)
+		(uuid "8116bc5a-31d3-5588-918c-6b8bf4f752d9")
+		(property "Description" "Chip select (active low) for the INA239 power monitor, decoder Y2"
+			(at 170.18 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2396,18 +2425,18 @@
 			)
 		)
 	)
-	(hierarchical_label "INA239_CS"
-		(shape input)
-		(at 170.18 71.12 0)
+	(hierarchical_label "INA239_ALERT"
+		(shape output)
+		(at 217.17 81.28 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "d80aab8b-341c-5a78-bba6-3541e12079b8")
-		(property "Description" "Chip select (active low) for the INA239 power monitor, decoder Y2"
-			(at 170.18 71.12 0)
+		(uuid "b3eb06a0-fc33-5db7-a062-7dea492240ba")
+		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
+			(at 217.17 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2486,7 +2515,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f4441d97-cc08-5e13-8cad-d72c5146b65c")
+			(uuid "904acd48-7ad9-5abf-8bb1-89e6ae5bdf71")
 		)
 		(instances
 			(project "cryocooler"
@@ -2575,10 +2604,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "19672a4b-8c01-5e90-8b59-49c0f1c1d5c4")
+			(uuid "507ddef8-fa0d-57d4-8d85-977861e9cb24")
 		)
 		(pin "2"
-			(uuid "2ae44003-fc54-5c9c-8666-c41dbe296724")
+			(uuid "ce3c89e6-a723-52d2-a800-7c539d0f6799")
 		)
 		(instances
 			(project "cryocooler"
@@ -2656,7 +2685,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1341229b-a24b-5757-b414-1f55c476e1cc")
+			(uuid "12687175-3f46-5d14-913b-1fa08ece7c96")
 		)
 		(instances
 			(project "cryocooler"
@@ -2745,10 +2774,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "cb8a37d3-977f-5d98-ac04-1bae102e945f")
+			(uuid "1e145d55-ec94-53af-b619-2e430ef54262")
 		)
 		(pin "2"
-			(uuid "de2ca18c-dce1-5394-8832-5f19c661803c")
+			(uuid "f4441d97-cc08-5e13-8cad-d72c5146b65c")
 		)
 		(instances
 			(project "cryocooler"
@@ -2825,7 +2854,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1e145d55-ec94-53af-b619-2e430ef54262")
+			(uuid "2a8bb96f-add1-574c-81d5-4d559b9ba352")
 		)
 		(instances
 			(project "cryocooler"
@@ -2914,10 +2943,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "8698ec31-6073-50fe-90fe-9d386272b21f")
+			(uuid "de2ca18c-dce1-5394-8832-5f19c661803c")
 		)
 		(pin "2"
-			(uuid "617a5c31-2186-5746-b3bd-3fc20a4e2809")
+			(uuid "acc8b692-4623-5866-a134-7162faa519b2")
 		)
 		(instances
 			(project "cryocooler"
@@ -2995,7 +3024,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "acc8b692-4623-5866-a134-7162faa519b2")
+			(uuid "cb8a37d3-977f-5d98-ac04-1bae102e945f")
 		)
 		(instances
 			(project "cryocooler"
@@ -3082,10 +3111,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b6527386-4a35-5501-95c4-413379eff4cb")
+			(uuid "a19ceead-e769-5501-90bb-ffb21546198a")
 		)
 		(pin "2"
-			(uuid "1a0e2987-44c3-52fa-b92d-84445c49ea1d")
+			(uuid "1ef9d23b-bd37-5578-9366-04fb53d0eb04")
 		)
 		(instances
 			(project "cryocooler"
@@ -3174,10 +3203,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1aa6765c-eeb4-52f9-a5f4-367ca3010bd6")
+			(uuid "48f2847c-4f91-538f-b487-041ed69500dd")
 		)
 		(pin "2"
-			(uuid "391cf2c6-1fce-5fa0-bc2a-24c3625b9504")
+			(uuid "64ca6986-a08f-584b-9c96-79eeb7f33be4")
 		)
 		(instances
 			(project "cryocooler"
@@ -3266,16 +3295,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "fc6bf6f6-0d4a-59ad-839d-ad9c29a0fa42")
+			(uuid "c22b6d1e-0f23-5027-bb1d-18c907e837e7")
 		)
 		(pin "2"
-			(uuid "2df663ee-a790-513f-9f3c-9e9d254aaa69")
+			(uuid "cf76389f-73fe-5b7c-8442-c899b1034e06")
 		)
 		(pin "3"
-			(uuid "a5897095-6744-5ff5-a534-6a0ddaaeec60")
+			(uuid "fc6bf6f6-0d4a-59ad-839d-ad9c29a0fa42")
 		)
 		(pin "4"
-			(uuid "2a8bb96f-add1-574c-81d5-4d559b9ba352")
+			(uuid "2df663ee-a790-513f-9f3c-9e9d254aaa69")
 		)
 		(instances
 			(project "cryocooler"
@@ -3353,7 +3382,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "64ca6986-a08f-584b-9c96-79eeb7f33be4")
+			(uuid "d903bc33-db2c-5d12-8cb4-1a8a9fd5f42c")
 		)
 		(instances
 			(project "cryocooler"
@@ -3442,10 +3471,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "7b3dd255-7782-51b5-95e2-a9520fd6a56c")
+			(uuid "b6527386-4a35-5501-95c4-413379eff4cb")
 		)
 		(pin "2"
-			(uuid "9d334e06-e7d1-5a85-a41b-0625b29fa586")
+			(uuid "1a0e2987-44c3-52fa-b92d-84445c49ea1d")
 		)
 		(instances
 			(project "cryocooler"
@@ -3534,10 +3563,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "507ddef8-fa0d-57d4-8d85-977861e9cb24")
+			(uuid "7b3dd255-7782-51b5-95e2-a9520fd6a56c")
 		)
 		(pin "2"
-			(uuid "ce3c89e6-a723-52d2-a800-7c539d0f6799")
+			(uuid "9d334e06-e7d1-5a85-a41b-0625b29fa586")
 		)
 		(instances
 			(project "cryocooler"
@@ -3615,7 +3644,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "bbc03f07-c035-5847-9172-4cecaa7a3597")
+			(uuid "bdcceb07-598d-5c82-85a0-4f84ec66a98a")
 		)
 		(instances
 			(project "cryocooler"
@@ -3692,7 +3721,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "904acd48-7ad9-5abf-8bb1-89e6ae5bdf71")
+			(uuid "a5897095-6744-5ff5-a534-6a0ddaaeec60")
 		)
 		(instances
 			(project "cryocooler"
@@ -3769,7 +3798,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "626e0d15-ef91-5e63-bdef-cc7ce21aa1f3")
+			(uuid "19672a4b-8c01-5e90-8b59-49c0f1c1d5c4")
 		)
 		(instances
 			(project "cryocooler"
@@ -3846,7 +3875,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1ef9d23b-bd37-5578-9366-04fb53d0eb04")
+			(uuid "617a5c31-2186-5746-b3bd-3fc20a4e2809")
 		)
 		(instances
 			(project "cryocooler"
@@ -3923,7 +3952,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d0d74ce2-704d-5141-b254-d00d5d933a82")
+			(uuid "2ae44003-fc54-5c9c-8666-c41dbe296724")
 		)
 		(instances
 			(project "cryocooler"
@@ -4012,10 +4041,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "3b0036df-5b45-5839-a4ff-b8b1f65e52cb")
+			(uuid "bbc03f07-c035-5847-9172-4cecaa7a3597")
 		)
 		(pin "2"
-			(uuid "4321f0c9-c138-548f-9b25-b1f94b8d9bc3")
+			(uuid "1341229b-a24b-5757-b414-1f55c476e1cc")
 		)
 		(instances
 			(project "cryocooler"
@@ -4093,7 +4122,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a19ceead-e769-5501-90bb-ffb21546198a")
+			(uuid "8698ec31-6073-50fe-90fe-9d386272b21f")
 		)
 		(instances
 			(project "cryocooler"
@@ -4180,10 +4209,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "14dbf6e5-7c70-5391-9d0d-6fd44b82dce6")
+			(uuid "626e0d15-ef91-5e63-bdef-cc7ce21aa1f3")
 		)
 		(pin "2"
-			(uuid "daef21f9-7d6e-58b5-92be-2cc1e66f6bc0")
+			(uuid "d0d74ce2-704d-5141-b254-d00d5d933a82")
 		)
 		(instances
 			(project "cryocooler"
@@ -4260,7 +4289,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "48f2847c-4f91-538f-b487-041ed69500dd")
+			(uuid "55668546-60ed-5cdc-b797-972625fa1e3f")
 		)
 		(instances
 			(project "cryocooler"
@@ -4349,34 +4378,34 @@
 			)
 		)
 		(pin "8"
-			(uuid "11216049-88cf-5e89-80a1-b477f8586e82")
+			(uuid "d191fbdd-6560-5dc3-94ca-96a5f5d8d8be")
 		)
 		(pin "9"
-			(uuid "56b15bce-847e-5c56-b486-2b56a5cdb314")
+			(uuid "a7916682-a995-5b17-ae05-c5c7bafbf2f6")
 		)
 		(pin "10"
-			(uuid "2f50e4e3-9a04-5e93-85fb-1ce936516621")
+			(uuid "11216049-88cf-5e89-80a1-b477f8586e82")
 		)
 		(pin "1"
-			(uuid "393a57ac-de1c-572f-a283-b32b95cc1c1a")
+			(uuid "56b15bce-847e-5c56-b486-2b56a5cdb314")
 		)
 		(pin "5"
-			(uuid "297223a9-88cb-5481-99d2-877bd063b29d")
+			(uuid "2f50e4e3-9a04-5e93-85fb-1ce936516621")
 		)
 		(pin "2"
-			(uuid "fdb423cf-3466-5ecc-819c-18ebfb94cb11")
+			(uuid "393a57ac-de1c-572f-a283-b32b95cc1c1a")
 		)
 		(pin "4"
-			(uuid "c5532a5a-4654-515a-9506-c11dded13915")
+			(uuid "297223a9-88cb-5481-99d2-877bd063b29d")
 		)
 		(pin "3"
-			(uuid "ca0c1283-b503-54e8-a6e5-0acee6357e5e")
+			(uuid "fdb423cf-3466-5ecc-819c-18ebfb94cb11")
 		)
 		(pin "6"
-			(uuid "c22b6d1e-0f23-5027-bb1d-18c907e837e7")
+			(uuid "c5532a5a-4654-515a-9506-c11dded13915")
 		)
 		(pin "7"
-			(uuid "cf76389f-73fe-5b7c-8442-c899b1034e06")
+			(uuid "ca0c1283-b503-54e8-a6e5-0acee6357e5e")
 		)
 		(instances
 			(project "cryocooler"
@@ -4388,8 +4417,8 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:APGB0607G22R23C")
-		(at 198.12 99.06 0)
+		(lib_id "Device:LED")
+		(at 198.12 99.06 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4399,28 +4428,28 @@
 		(dnp no)
 		(uuid "fe6c876a-4af9-5730-9da6-0e6e4cac86eb")
 		(property "Reference" "D6"
-			(at 190.5 88.88 0)
+			(at 204.892 100.042 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 		(property "Value" "ALERT (red)"
-			(at 190.5 90.98 0)
+			(at 204.892 102.142 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Footprint" "cryocooler:LED_Kingbright_APGB0607"
+		(property "Footprint" "cryocooler:LED_Kingbright_APHHS1005"
 			(at 198.12 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -4431,7 +4460,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf"
+		(property "Datasheet" "https://www.kingbrightusa.com/images/catalog/SPEC/APHHS1005SURCK.pdf"
 			(at 198.12 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -4453,7 +4482,7 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/detail/kingbright/APGB0607G22R23C/22561020"
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=APHHS1005SURCK"
 			(at 198.12 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -4465,16 +4494,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "bdcceb07-598d-5c82-85a0-4f84ec66a98a")
-		)
-		(pin "4"
-			(uuid "12687175-3f46-5d14-913b-1fa08ece7c96")
+			(uuid "14dbf6e5-7c70-5391-9d0d-6fd44b82dce6")
 		)
 		(pin "2"
-			(uuid "55668546-60ed-5cdc-b797-972625fa1e3f")
-		)
-		(pin "3"
-			(uuid "d903bc33-db2c-5d12-8cb4-1a8a9fd5f42c")
+			(uuid "daef21f9-7d6e-58b5-92be-2cc1e66f6bc0")
 		)
 		(instances
 			(project "cryocooler"

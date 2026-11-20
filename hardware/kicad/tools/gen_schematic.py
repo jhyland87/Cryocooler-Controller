@@ -48,6 +48,7 @@ SOT323 = 'Package_TO_SOT_SMD:SOT-323_SC-70'
 SC70_6 = 'Package_TO_SOT_SMD:SOT-363_SC-70-6'
 LED1206 = 'LED_SMD:LED_1206_3216Metric'
 LED_RG = 'cryocooler:LED_Kingbright_APGB0607'
+LED_1005 = 'cryocooler:LED_Kingbright_APHHS1005'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 R_ARRAY = 'Resistor_SMD:R_Array_Convex_4x0402'  # Yageo YC124, four isolated elements
 # Right-angle connectors: every plug enters parallel to the board, through the
@@ -239,6 +240,15 @@ def diode(sh, lib_id, value, anode, cathode, fp, near=None, pose=None):
     sh.connect(part, '2', anode)
     sh.connect(part, '1', cathode)
     return part
+
+
+def chip_led(sh, value, column, row):
+    """Kingbright APHHS1005 single LED centred at (column, row), anode (pin 2)
+    on the left and cathode (pin 1) on the right; the caller wires both."""
+    return sh.add(
+        'Device:LED', next_ref('D'), value, column * 1.27, row * 1.27, rot=180,
+        auto=False, footprint=LED_1005,
+    )
 
 
 def rg_led(sh, value, column, row, nets, labels=True, antiparallel=False):
@@ -3173,22 +3183,19 @@ def build_system_current(sh):
     # on the rail, as the board has it)
     res(sh, '10k', '', '', pose=at(alert[0] + 30, alert[1] - 3, 180))
     rail_symbol(sh, '+3V3', (alert[0] + 30, alert[1] - 6))
-    # red die only: +3V3 -> 1.5k -> RA, RK on the open-drain ALERT
+    # red LED: +3V3 -> 1.5k -> anode, cathode on the open-drain ALERT
     row = pull[1] + 8
     rail_symbol(sh, '+3V3', (pull[0] - 2, row))
     wire(sh, (pull[0] - 2, row), (pull[0], row))
     hres(sh, '1.5k', pull[0] + 3, row)
-    indicator = rg_led(
-        sh, 'ALERT (red)', pull[0] + 30, row, {'1': None, '2': None, '4': '', '3': ''},
-        labels=False,
-    )
-    red_a, red_k = pin_cell(indicator, '4'), pin_cell(indicator, '3')
-    wire(sh, (pull[0] + 6, row), (red_a[0] - 2, red_a[1]))
+    indicator = chip_led(sh, 'ALERT (red)', pull[0] + 30, row)
+    red_a, red_k = pin_cell(indicator, '2'), pin_cell(indicator, '1')
+    wire(sh, (pull[0] + 6, row), red_a)
     net_label(sh, 'ALERT_LED_A', (pull[0] + 8, row), 0)
-    # ALERT: past the pull-up, down to the red cathode and out to its sheet pin
-    turn = red_k[0] + 6
+    # ALERT: past the pull-up, down to the cathode and out to its sheet pin
+    turn = red_k[0] + 4
     wire(sh, alert, (turn, alert[1]), (turn + 8, alert[1]))
-    wire(sh, (turn, alert[1]), (turn, red_k[1]), (red_k[0] + 2, red_k[1]))
+    wire(sh, (turn, alert[1]), (turn, red_k[1]), red_k)
     net_label(sh, 'INA239_ALERT', (turn + 8, alert[1]), 0, to_parent=True)
     # supply and ground
     vs = pin_cell(ina, '6')
@@ -3271,22 +3278,18 @@ def debug_unit(sh, kind, net, column, row):
 
 
 def debug_rail_led(sh, net, ohms, label, column, row, ground='GND'):
-    """Rail -> resistor -> green die -> ground, drawn left to right; the red die
-    is unused.
-    """
+    """Rail -> resistor -> green LED -> ground, drawn left to right."""
     rail_symbol(sh, net, (column, row))
     wire(sh, (column, row), (column + 3, row))
     hres(sh, ohms, column + 6, row)
     wire(sh, (column + 9, row), (column + 11, row))
-    indicator = rg_led(
-        sh, label, column + 36, row + 2, {'1': '', '3': None, '4': None}, labels=False
-    )
-    green_a = pin_cell(indicator, '1')
-    wire(sh, (column + 11, row), (green_a[0] - 2, green_a[1]))
+    indicator = chip_led(sh, label, column + 36, row)
+    green_a = pin_cell(indicator, '2')
+    wire(sh, (column + 11, row), green_a)
     net_label(sh, f'{net}_LED_A', (column + 11, row), 0)
-    green_k = spur(sh, indicator, '2', 2)
-    wire(sh, green_k, (green_k[0] + 2, green_k[1]))
-    rail_symbol(sh, ground, (green_k[0] + 2, green_k[1]))
+    green_k = pin_cell(indicator, '1')
+    wire(sh, green_k, (green_k[0] + 4, green_k[1]))
+    rail_symbol(sh, ground, (green_k[0] + 4, green_k[1]))
     return indicator
 
 
@@ -3459,14 +3462,16 @@ LAST_RESISTOR_BEFORE_FAN_DRIVERS = 171
 SP3422_FP = 'cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm'
 
 
-def esd_array(sh, taps, ground_at):
-    """SP3422-04UTG four-channel ESD clamp drawn one unit per line: `taps` holds
+def esd_array(sh, taps, ground_at, lib='SP3422-04UTG', prefix='U', fp=None):
+    """Multi-unit ESD clamp (default the SP3422-04UTG) drawn one unit per line: `taps` holds
     (column, row, above) for units A-D, each standing on its line (above it when
     `above`, else hanging below); unit E, the ground pin, sits at `ground_at`.
     Units B-E take named ids, so the shared id sequence moves as it did for the
     one-unit drawing.
     """
-    ref = next_ref('U')
+    fp = fp or SP3422_FP
+    ref = next_ref(prefix)
+    ground_pin = {'SP3422-04UTG': '2', 'ESD2CAN24DBZ': '3'}[lib]
     places = [
         ((column, row - 4 if above else row + 4), 180 if above else 0)
         for column, row, above in taps
@@ -3475,15 +3480,16 @@ def esd_array(sh, taps, ground_at):
     for unit, ((column, row), rot) in enumerate(places, start=1):
         def add():
             return sh.add(
-                'cryocooler:SP3422-04UTG', ref, 'SP3422-04UTG', column * 1.27,
-                row * 1.27, rot=rot, unit=unit, auto=False, footprint=SP3422_FP,
+                f'cryocooler:{lib}', ref, lib if lib != 'ESD2CAN24DBZ' else lib + 'R',
+                column * 1.27, row * 1.27, rot=rot, unit=unit, auto=False, footprint=fp,
             )
         if unit == 1:
-            add()
+            first = add()
             continue
         with kicadgen.named_part_uuids(f'{sh.filename}/{ref}/{unit}'):
             part = add()
-    drop_ground(sh, pin_cell(part, '2'), 2)
+    drop_ground(sh, pin_cell(part, ground_pin), 2)
+    return first
 
 
 def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
@@ -3943,6 +3949,10 @@ def waveshare_drawing(sh, column, row):
     return terminals
 
 
+CAN_PHY_COLUMN = 130  # transceiver column: its bus pins end under 85 mm from J15
+CAN_PHY_ROW = 78
+
+
 def display_link(sh):
     """Hand-laid: the off-board Waveshare ESP32-S3-Touch-LCD-4.3B runs its own
     firmware. CAN transceiver on the left with the digital-output circuits below
@@ -4007,11 +4017,11 @@ def display_link(sh):
             sh,
             'cryocooler:TCAN3414DRBR',
             'TCAN3414DRBR',
-            90,
-            74,
+            CAN_PHY_COLUMN,
+            CAN_PHY_ROW,
             'Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm',
         )
-    sh.note('CAN TRANSCEIVER', 20 * 1.27, 48 * 1.27, 1.8)
+    sh.note('CAN TRANSCEIVER', (CAN_PHY_COLUMN - 70) * 1.27, 48 * 1.27, 1.8)
     supply = pin_cell(phy, '3')
     wire(sh, supply, (supply[0], supply[1] - 4))
     rail_symbol(sh, '+3V3', (supply[0], supply[1] - 4))
@@ -4033,14 +4043,6 @@ def display_link(sh):
         receive_end = (receive[0] - 22, receive[1])
         wire(sh, receive, receive_end)
         net_label(sh, 'CAN_RX', receive_end, 180, to_parent=True)
-        # bus pair, terminated here
-        high, low = pin_cell(phy, '7'), pin_cell(phy, '6')
-        end = high[0] + 14
-        wire(sh, high, (end + 6, high[1]))
-        wire(sh, low, (low[0] + 8, low[1]), (low[0] + 8, high[1] + 6), (end + 6, high[1] + 6))
-        vres(sh, '120', end, high[1], fp=R1206)
-        net_label(sh, 'CAN_H', (end + 6, high[1]), 0)
-        net_label(sh, 'CAN_L', (end + 6, high[1] + 6), 0)
         # the display cable ends in one 6-pin JST PH housing (pin 1 at the bottom)
         with kicadgen.pinned_refs('J', 14):
             link_ref = next_ref('J')
@@ -4050,32 +4052,45 @@ def display_link(sh):
             link_cell[0] * 1.27, (link_cell[1] + 4) * 1.27, rot=180, mirror=True, auto=False,
             footprint=PH_V6,
         )
-        drop_ground(sh, spur(sh, link, '1', 4), 2)
-        feed = spur(sh, link, '2', 24)
-        net_label(sh, 'CAN_H', spur(sh, link, '3', 4), 180)
-        net_label(sh, 'CAN_L', spur(sh, link, '4', 4), 180)
+        drop_ground(sh, spur(sh, link, '1', 2), 2)
         net_label(sh, 'DISP_PWR_BTN', spur(sh, link, '5', 4), 180)
         net_label(sh, 'DISP_RESET', spur(sh, link, '6', 4), 180)
+        # bus pair wired straight to J15 (CANL above CANH on both), terminated
+        # here; CAN_H dips under the 120 R and rises again before J15
+        low, high = pin_cell(phy, '6'), pin_cell(phy, '7')
+        can_l, can_h = pin_cell(link, '4'), pin_cell(link, '3')
+        assert (low[1], high[1]) == (can_l[1], can_h[1]), (low, high, can_l, can_h)
+        end, dip, rise, clamp_column = low[0] + 8, low[1] + 6, can_h[0] - 16, can_h[0] - 36
+        wire(sh, low, (end, low[1]), (clamp_column, low[1]), (can_l[0] - 14, low[1]), can_l)
+        # turned so pin 1 stays on CAN_H, as it was
+        res(sh, '120', '', '', pose=at(end, low[1] + 3, 180), fp=R1206)
+        wire(
+            sh, high, (high[0] + 4, high[1]), (high[0] + 4, dip), (end, dip),
+            (clamp_column, dip), (rise, dip), (rise, high[1]), (can_h[0] - 14, high[1]), can_h,
+        )
+        # one label each where the cable to the display's terminals leaves
+        net_label(sh, 'CAN_L', (can_l[0] - 14, low[1]), 0)
+        net_label(sh, 'CAN_H', (can_h[0] - 14, high[1]), 0)
     with io_refs():
-        # resettable fuse in the display feed: a shorted cable no longer takes F1
+        # resettable fuse in the display feed, below the bus pair: a shorted cable
+        # no longer takes F1
+        feed = spur(sh, link, '2', 6)
+        fuse_row = feed[1] + 16
         fuse = sh.add(
-            'Device:Polyfuse', 'F2', 'MF-MSMF050/24X', feed[0] * 1.27, (feed[1] - 9) * 1.27,
-            auto=False, footprint='Fuse:Fuse_1812_4532Metric',
+            'Device:Polyfuse', 'F2', 'MF-MSMF050/24X', (feed[0] - 8) * 1.27, fuse_row * 1.27,
+            rot=90, auto=False, footprint='Fuse:Fuse_1812_4532Metric',
         )
         role(fuse, 'display_fuse')
-        wire(sh, feed, pin_cell(fuse, '2'))
-        top = pin_cell(fuse, '1')
-        wire(sh, top, (top[0], top[1] - 2))
-        rail_symbol(sh, 'VIN', (top[0], top[1] - 2))
-        sh.note('CAN BUS CLAMP (BESIDE J15 ON THE BOARD)', 130 * 1.27, 136 * 1.27, 1.8)
-        clamp = role(
-            place_ic(sh, 'cryocooler:ESD2CAN24DBZ', 'ESD2CAN24DBZR', 160, 148,
-                     'Package_TO_SOT_SMD:SOT-23', ref_prefix='D'),
-            'can_clamp',
+        wire(sh, feed, (feed[0], fuse_row), pin_cell(fuse, '2'))
+        left = pin_cell(fuse, '1')
+        wire(sh, left, (left[0] - 8, left[1]))
+        rail_symbol(sh, 'VIN', (left[0] - 8, left[1]))
+        sh.note('CAN CLAMP GROUND (D101 SITS BESIDE J15 ON THE BOARD)', 130 * 1.27, 136 * 1.27, 1.8)
+        clamp = esd_array(
+            sh, ((clamp_column, dip, False), (clamp_column, low[1], True)), (160, 148),
+            lib='ESD2CAN24DBZ', prefix='D', fp='Package_TO_SOT_SMD:SOT-23',
         )
-        net_label(sh, 'CAN_H', spur(sh, clamp, '1', 4), 180)
-        net_label(sh, 'CAN_L', spur(sh, clamp, '2', 4), 180)
-        drop_ground(sh, pin_cell(clamp, '3'), 2)
+        role(clamp, 'can_clamp')
     with kicadgen.pinned_refs('C', REV5_LAST['C'] + 2):
         place_blocks(
             sh,
@@ -5888,7 +5903,7 @@ FIELD_SIDES = {
     'compressor_relay.kicad_sch': {'right': 'D14'},
     'cold_head.kicad_sch': {'left': 'R62', 'right': 'C70'},
     'indicators.kicad_sch': {'left': 'R10'},
-    'display.kicad_sch': {'left': 'F2', 'below': 'R517 R518'},
+    'display.kicad_sch': {'above': 'F2', 'below': 'R517 R518'},
     'rails_logic.kicad_sch': {'left': 'C3', 'right': 'C5 C30 C87'},
     'supply_switches.kicad_sch': {'above@4.5': 'FB3 FB4', 'below@3.5': 'JP1 JP2 JP3 JP4 JP5 JP6'},
 }

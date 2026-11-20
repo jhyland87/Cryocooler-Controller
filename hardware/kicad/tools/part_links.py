@@ -42,6 +42,8 @@ DATASHEETS = {
     '&DocNm=1571300&DocType=Customer+Drawing&DocLang=English',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'EVP-AA': 'https://industry.panasonic.com/ap/en/products/control/switch/light-touch/number/evpaa802q',
+    'APHHS1005SURCK': 'https://www.kingbrightusa.com/images/catalog/SPEC/APHHS1005SURCK.pdf',
+    'APHHS1005LZGCK-V': 'https://www.kingbrightusa.com/images/catalog/SPEC/APHHS1005LZGCK-V.pdf',
     'APGB0607': 'https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf',
     'ESP32-S3-WROOM-2':'https://www.espressif.com/sites/default/files/'
     'documentation/esp32-s3-wroom-2_datasheet_en.pdf',
@@ -148,6 +150,7 @@ PRODUCT_PAGES = {
     'ECS-2520MV-160-BN-TR': 'https://www.digikey.com/en/products/detail/ecs-inc/ECS-2520MV-160-BN-TR/13968073',
     'EVP-AA802Q': 'https://www.digikey.com/en/products/detail/panasonic-industry/EVP-AA802Q/2810553',
     'APGB0607G22R23C': 'https://www.digikey.com/en/products/detail/kingbright/APGB0607G22R23C/22561020',
+    'APHHS1005LZGCK-V': 'https://www.digikey.com/en/products/detail/kingbright/APHHS1005LZGCK-V/7318979',
     'EVQ-P2F02K': 'https://www.mouser.com/en/ProductDetail/Panasonic-Industry/EVQ-P2F02K',
     'SWR25X-NRTC-S02-RB-BA':'https://www.digikey.com/en/products/detail/sullins-connector-solutions/SWR25X-NRTC-S02-RB-BA/2769660',
     '61900311021': 'https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/61900311021/2508469',
