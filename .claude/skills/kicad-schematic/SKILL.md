@@ -50,6 +50,7 @@ $KC sch export netlist --format kicadsexpr -o $OUT/new.net cryocooler.kicad_sch
 python3 tools/datasheet_rules.py $OUT/new.net     # exits 1 on any failed rule
 python3 tools/verify_netlist.py $OUT/new.net      # GPIO map vs pin_config.h, footprints, single-pin nets
 python3 tools/check_symbols.py cryocooler.kicad_sch
+python3 tools/check_sheet_structure.py            # label scope, label pairs, sheet size, copied sheets
 python3 sim/run_ngspice.py sim/sine_chain_ideal.cir   # only when the signal chain changed
 ```
 

@@ -35,20 +35,39 @@ These were each corrected more than once. No exceptions for tight spots.
 5. **Resistors use the US zig-zag symbol** (`Device:R_US`). Capacitors keep the
    standard symbols.
 6. **Every power symbol shows its net name.**
+7. **Signals between sheets use hierarchical labels and sheet pins, not global
+   labels.** Global labels only for nets in `ALLOWED_GLOBALS`
+   (`tools/check_sheet_structure.py`).
+8. **No label pair where a wire fits.** Two labels of one net closer than 85 mm on a
+   sheet are a wire.
+9. **Don't work around a rule.** When the drawing helpers make the right thing hard,
+   add or fix a helper. A shortcut that passes the checks is still a failure.
 
 ## Wires and labels
 
 - Inside a block, connect parts with wires. A reader should see what an IC's support
   parts are tied to without hunting for a matching label.
 - A label pair whose two ends sit close together becomes a wire. Use a label pair only
-  when the wire would run a long way or crowd the sheet, and for global signals that
-  leave the sheet.
+  when the wire would run more than 85 mm or cross a block.
+- Pick the narrowest label scope that works:
+
+  | Connection | Use |
+  |------------|-----|
+  | Two points on one sheet | Wire; a local label only to name the net or for a long run |
+  | Sheet to its parent | Hierarchical label on the sheet, sheet pin on its block, wired on the parent |
+  | Project-wide bus (listed in `ALLOWED_GLOBALS`) | One global label on a bus (`{SPI}`, `{I2C}`) |
+
+- A signal that reaches several sheets still goes through sheet pins. The root sheet
+  wires them together, which is what makes it show how the blocks connect.
+- Never put a global label on a sheet that is placed more than once. It shorts every
+  instance together into one net.
 - A wire may still carry one label to give the net a useful name.
 - Take the short route. No long detours, and straighten any wire that has no reason to jog.
 - A label sits on the end of its own wire: never floating, never on top of another
   wire, and next to the pin or part it names.
-- Global labels show direction (input, output, bidirectional) per net and sheet
-  (`LABEL_DIRECTION` in `tools/kicadgen.py`). A new global net needs an entry.
+- Hierarchical labels, sheet pins and global labels show direction (input, output,
+  bidirectional) per net and sheet (`LABEL_DIRECTION` in `tools/kicadgen.py`). A new
+  net that crosses sheets needs an entry.
 - Signals shared by many parts on a sheet (a shared SPI bus, for example) are drawn as
   a KiCad bus where the generator has a bus helper. Use an unnamed group so the member
   nets keep their names.
@@ -58,8 +77,12 @@ These were each corrected more than once. No exceptions for tight spots.
 ## Page layout
 
 - **One function per sheet** (power input, a rail pair, one sensor front end, one
-  actuator driver). When a sheet gains a second function or gets crowded, split it.
-  The root sheet shows how the sheets connect.
+  actuator driver). When a sheet gains a second function, or passes 30 parts (power
+  symbols not counted), split it. Don't shrink symbols or the spacing to fit more.
+  The root sheet shows how the sheets connect, through sheet pins.
+- **A circuit used more than once is one sheet file placed several times**, not copied
+  files. Anything that differs per instance (the channel's GPIO, its connector) comes
+  in through sheet pins.
 - Signal flows left to right: inputs and connectors feeding the sheet on the left,
   outputs on the right. Feedback may run right to left.
 - Higher voltage toward the top. Pull-ups sit above the line they pull, pull-downs below.
@@ -120,16 +143,24 @@ Never rely on colour alone to tell two nets apart.
 
 ## Check before calling it done
 
+`tools/check_sheet_structure.py` enforces the label-scope, label-pair, sheet-size and
+copied-sheet rules. The sheets drawn before these rules have a baseline count of
+violations (`tools/sheet_structure_baseline.json`). A change may not raise any count.
+When a change lowers one, run it with `--update-baseline`.
+
 1. Before a layout-only change, export a baseline netlist. Afterwards the netlist must
    be identical (`tools/compare_netlists.py`). Tidying must not change a connection.
 2. Regenerate and read every check line the generator prints (text overlap, 4-way
    junctions, unlabeled power symbols, duplicate references, and whatever else this
    branch checks). Any failure is a failed build, not a warning.
 3. Run ERC on the root sheet and any symbol checker the branch has.
-4. Render the changed page to an image and look at it. **Any rule above that the
-   generator on this branch does not check is checked here, by eye**: labels near
-   their part, close label pairs that should be wires, labels over wires, spacing.
-5. Say which checks ran and which were done by eye.
+4. Run `python3 tools/check_sheet_structure.py`. It must exit 0 with no count above
+   its baseline.
+5. Have the `schematic-reviewer` subagent review every changed sheet. Don't review
+   your own drawing: the reviewer starts without your context and checks the rules
+   above that no script checks (grouping, signal flow, one function per sheet,
+   labels by their part). Fix everything it reports and run it again until it passes.
+6. Say which checks ran, what the reviewer found and what was fixed.
 
 ## Where this project differs from common practice
 

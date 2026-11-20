@@ -68,9 +68,27 @@ Load the `kicad-schematic-design` skill before drawing or tidying a sheet. The r
 that are never bent: supplies point up and grounds point down; no text, wire or symbol
 overlaps another; a reference, value or label sits beside its own part; no 4-way
 junctions; resistors are US zig-zag (`Device:R_US`); every part and label has a
-description of its job. Join nearby points with a wire and keep label pairs for long
-runs and global signals. Project-specific detail (helpers, buses, net-class colours)
+description of its job. Project-specific detail (helpers, buses, net-class colours)
 is in `hardware/kicad/README.md`, "Drawing conventions".
+
+Each label type has one scope, and the narrowest one that works is the right one:
+
+- **Wire** inside a block, and between any two points on a sheet closer than 85 mm.
+- **Net (local) label** to name a net, or for a long run on the same sheet.
+- **Hierarchical label + sheet pin** for every signal between a sheet and its
+  parent. The root sheet wires the sheet pins together, so it shows how the blocks
+  connect.
+- **Global label** only for nets in `ALLOWED_GLOBALS` in
+  `tools/check_sheet_structure.py`: the `{SPI}` bus, and the `{I2C}` bus if one is
+  added. Each is drawn as a bus with one global label, like `spi_bus()`. Never on a sheet that
+  is placed more than once: a global label shorts every instance into one net.
+
+No shortcuts. If the generator can't draw something the right way, extend the
+generator. Never add a global label, a label pair or a `GLOBAL_NETS` entry to avoid
+routing a wire, and never raise a limit or the baseline in
+`tools/sheet_structure_baseline.json` to make a check pass. The baseline only goes
+down. A rule that seems wrong for a case is a question for the user, not a reason to
+skip it.
 
 ## Keep hardware and firmware in sync
 

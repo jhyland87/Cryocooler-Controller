@@ -83,8 +83,11 @@ Power symbols are always upright (supplies point up, grounds hang down) and resi
 (`Device:R_US`). In tight spots the small symbols are used instead (`Device:R_Small_US`, `Device:C_Small`, with
 `small=True` on `hres` / `vres` / `hcap` / `vcap` in `tools/gen_schematic.py`), and neighbouring grounds share one bar. Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
 shared rails with decoupling caps hanging off them, switching loops are kept compact, and nets are wired with
-lines rather than net labels (labels are used only for global signals such as the GPIO nets, and for a few
-local nets that would otherwise need long detours, for example the ISO7741 isolated-side SPI lines).
+lines rather than net labels. Signals between sheets go through hierarchical labels and sheet pins; global labels
+are kept for the buses in `ALLOWED_GLOBALS` (`{SPI}`, and `{I2C}` if one is added). `tools/check_sheet_structure.py` enforces this
+along with label pairs that should be wires, a 30-part sheet limit and copied sheets. The sheets drawn before the
+rule still use global labels for the GPIO nets; their violations are counted in
+`tools/sheet_structure_baseline.json`, which may only go down.
 
 **SPI bus.** `SPI_SCK`, `SPI_MOSI` and `SPI_MISO` are drawn as a KiCad bus on the root sheet and on every
 sheet with an SPI part (`spi_bus()` in `tools/gen_schematic.py`). Each pin's wire carries a local member label

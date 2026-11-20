@@ -42,6 +42,10 @@ your area. New rules go in the file for their area.
 | [`hardware-schematic.md`](.claude/rules/hardware-schematic.md) | `hardware/`, `pin_config.h` | Generated schematic, datasheet verification, part selection, drawing conventions |
 | [`hardware-pcb.md`](.claude/rules/hardware-pcb.md) | `hardware/` | PCB layout directives, STEP models, silkscreen and labels, board ID, renders |
 
+Subagents live in [`.claude/agents/`](.claude/agents/): `schematic-reviewer` checks
+changed schematic sheets against the drawing rules (used by the
+`kicad-schematic-design` skill).
+
 ## Repository layout
 
 | Path | Contents |
