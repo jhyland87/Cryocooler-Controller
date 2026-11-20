@@ -854,53 +854,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(bus
-		(pts
-			(xy 134.62 60.96) (xy 139.7 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5eed9249-eedc-5c79-a942-67c83e82c100")
-	)
-	(bus
-		(pts
-			(xy 134.62 60.96) (xy 134.62 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5e1f00fa-3f18-584b-a7a1-ada58acf1d3b")
-	)
-	(bus_entry
-		(at 132.08 71.12)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a7013624-606d-5664-b1e8-402bdb74d0c0")
-	)
-	(bus_entry
-		(at 132.08 73.66)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e4f9538d-e66b-56b2-9568-1ed7c7e7a2f2")
-	)
-	(bus_entry
-		(at 132.08 76.2)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f31da897-ed1e-57e1-a130-b56e88fdcb17")
-	)
 	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -945,12 +898,6 @@
 		)
 		(uuid "86920b8b-774d-5752-b0b5-41d5e67c68a1")
 	)
-	(junction
-		(at 95 80)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f6585613-1d89-56ea-b422-74a6cc672ada")
-	)
 	(no_connect
 		(at 116.84 83.82)
 		(uuid "329c99b4-71a6-52f3-8c3b-321f3b13c4b0")
@@ -959,25 +906,42 @@
 		(at 86.36 88.9)
 		(uuid "e3d8932b-86c6-5d53-84ef-5fb647e6b748")
 	)
+	(bus_entry
+		(at 132.08 71.12)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7013624-606d-5664-b1e8-402bdb74d0c0")
+	)
+	(bus_entry
+		(at 132.08 73.66)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4f9538d-e66b-56b2-9568-1ed7c7e7a2f2")
+	)
+	(bus_entry
+		(at 132.08 76.2)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f31da897-ed1e-57e1-a130-b56e88fdcb17")
+	)
 	(wire
 		(pts
-			(xy 116.84 73.66) (xy 119.38 73.66)
+			(xy 116.84 73.66) (xy 132.08 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "022a5f89-1066-525d-a048-e709cf981a66")
-	)
-	(wire
-		(pts
-			(xy 119.38 71.12) (xy 132.08 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "027f9d0a-b04d-5c98-a99c-97c3c4bb2afe")
 	)
 	(wire
 		(pts
@@ -1031,13 +995,33 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 76.2) (xy 119.38 76.2)
+			(xy 116.84 76.2) (xy 132.08 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "4c92a6a8-7929-5c8b-931b-3fa9469f9deb")
+	)
+	(bus
+		(pts
+			(xy 134.62 60.96) (xy 134.62 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e1f00fa-3f18-584b-a7a1-ada58acf1d3b")
+	)
+	(bus
+		(pts
+			(xy 134.62 60.96) (xy 139.7 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5eed9249-eedc-5c79-a942-67c83e82c100")
 	)
 	(wire
 		(pts
@@ -1091,16 +1075,6 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 73.66) (xy 132.08 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a80d9d48-4634-5c79-87b1-e3a0df4e393d")
-	)
-	(wire
-		(pts
 			(xy 116.84 99.06) (xy 120.65 99.06)
 		)
 		(stroke
@@ -1111,7 +1085,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 71.12) (xy 119.38 71.12)
+			(xy 116.84 71.12) (xy 132.08 71.12)
 		)
 		(stroke
 			(width 0)
@@ -1148,16 +1122,6 @@
 			(type default)
 		)
 		(uuid "c818b8d4-32fe-5883-b198-950ffa4f29e5")
-	)
-	(wire
-		(pts
-			(xy 119.38 76.2) (xy 132.08 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cfadc08f-2d39-527a-8d51-8304eaefa616")
 	)
 	(wire
 		(pts

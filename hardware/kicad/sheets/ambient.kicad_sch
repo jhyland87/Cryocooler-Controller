@@ -863,73 +863,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(bus
-		(pts
-			(xy 48.26 71.12) (xy 53.34 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d044c8f3-6442-5c8d-90e4-d6c6d184f31e")
-	)
-	(bus
-		(pts
-			(xy 137.16 68.58) (xy 142.24 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "feac99bd-e50e-50e5-aad9-26c6cbc85962")
-	)
-	(bus
-		(pts
-			(xy 53.34 71.12) (xy 53.34 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3f20cf32-bdaa-5587-9f9d-5526fc2d58cc")
-	)
-	(bus
-		(pts
-			(xy 137.16 68.58) (xy 137.16 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "253f1f1e-db5d-5365-9283-4d8218b51fa1")
-	)
-	(bus_entry
-		(at 55.88 83.82)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "00929ca1-0a08-5a2e-9a90-99f0f5ef2a92")
-	)
-	(bus_entry
-		(at 55.88 86.36)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b9d1032-b30e-50a3-bf33-d9806e0a0450")
-	)
-	(bus_entry
-		(at 134.62 83.82)
-		(size 2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "900806a3-2702-5d56-b55c-fdbb579f6d98")
-	)
 	(text "INT and CT are open drain and need 10 k pull-ups; they go to expander GP2 and GP3. Place this part far from anything that warms the board."
 		(exclude_from_sim no)
 		(at 20 21 0)
@@ -981,6 +914,33 @@
 		(color 0 0 0 0)
 		(uuid "773ea143-b86a-5213-845e-56c08d59c6a0")
 	)
+	(bus_entry
+		(at 55.88 83.82)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "00929ca1-0a08-5a2e-9a90-99f0f5ef2a92")
+	)
+	(bus_entry
+		(at 55.88 86.36)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b9d1032-b30e-50a3-bf33-d9806e0a0450")
+	)
+	(bus_entry
+		(at 134.62 83.82)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "900806a3-2702-5d56-b55c-fdbb579f6d98")
+	)
 	(wire
 		(pts
 			(xy 190.5 134.62) (xy 198.12 134.62)
@@ -1021,6 +981,16 @@
 		)
 		(uuid "1e8ec44a-c166-5fdd-9b9b-53bed8ba3377")
 	)
+	(bus
+		(pts
+			(xy 137.16 68.58) (xy 137.16 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "253f1f1e-db5d-5365-9283-4d8218b51fa1")
+	)
 	(wire
 		(pts
 			(xy 104.14 101.6) (xy 104.14 104.14)
@@ -1033,7 +1003,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 86.36) (xy 83.82 86.36)
+			(xy 55.88 86.36) (xy 86.36 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1043,7 +1013,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 83.82) (xy 119.38 83.82)
+			(xy 116.84 83.82) (xy 134.62 83.82)
 		)
 		(stroke
 			(width 0)
@@ -1051,15 +1021,15 @@
 		)
 		(uuid "379d9b84-af5f-5853-a859-de52740fee19")
 	)
-	(wire
+	(bus
 		(pts
-			(xy 83.82 83.82) (xy 86.36 83.82)
+			(xy 53.34 71.12) (xy 53.34 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3a8d5b1f-beb4-5f99-b4d2-5c46520a4e3e")
+		(uuid "3f20cf32-bdaa-5587-9f9d-5526fc2d58cc")
 	)
 	(wire
 		(pts
@@ -1083,7 +1053,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 83.82) (xy 83.82 83.82)
+			(xy 55.88 83.82) (xy 86.36 83.82)
 		)
 		(stroke
 			(width 0)
@@ -1103,16 +1073,6 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 86.36) (xy 86.36 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "963e54d0-1103-5add-86f1-0838e28f1aa7")
-	)
-	(wire
-		(pts
 			(xy 104.14 99.06) (xy 104.14 101.6)
 		)
 		(stroke
@@ -1123,16 +1083,6 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 83.82) (xy 134.62 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ac64aea5-52a2-5f77-a84e-93bec2d50f6b")
-	)
-	(wire
-		(pts
 			(xy 116.84 86.36) (xy 152.4 86.36)
 		)
 		(stroke
@@ -1140,6 +1090,16 @@
 			(type default)
 		)
 		(uuid "b4c7f0c4-732c-5c78-9f86-43ea238abc7a")
+	)
+	(bus
+		(pts
+			(xy 48.26 71.12) (xy 53.34 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d044c8f3-6442-5c8d-90e4-d6c6d184f31e")
 	)
 	(wire
 		(pts
@@ -1160,6 +1120,16 @@
 			(type default)
 		)
 		(uuid "f3a0a074-b633-5204-a3cd-03420db5638b")
+	)
+	(bus
+		(pts
+			(xy 137.16 68.58) (xy 142.24 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "feac99bd-e50e-50e5-aad9-26c6cbc85962")
 	)
 	(label "SPI_MISO"
 		(at 119.38 83.82 0)

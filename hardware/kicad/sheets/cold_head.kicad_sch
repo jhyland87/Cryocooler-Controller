@@ -969,9 +969,6 @@
 			(embedded_fonts no)
 		)
 		(symbol "cryocooler:SP3422-04UTG"
-			(pin_names
-				(offset 0.508)
-			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1455,53 +1452,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(bus
-		(pts
-			(xy 22.86 81.28) (xy 27.94 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75320dbe-aadc-5337-a7ed-0299115f6f89")
-	)
-	(bus
-		(pts
-			(xy 27.94 73.66) (xy 27.94 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3a0b79a-8af6-5684-b33b-200c76a13a46")
-	)
-	(bus_entry
-		(at 30.48 71.12)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "12032918-52a8-520b-a8d1-73b88a2d905f")
-	)
-	(bus_entry
-		(at 30.48 73.66)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6ac8407a-8a38-5486-8967-8d4c9e167b9c")
-	)
-	(bus_entry
-		(at 30.48 76.2)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7aebc25a-0351-5a39-8c2e-4919ff6de7f1")
-	)
 	(text "PT1000 4-wire ratiometric: IDAC1 (AIN3) excites through 1k (1.5 V at 250 uA if the cable shorts), AIN1/AIN0 sense, Rref (3.9k) on REFP0/REFN0. SPI mode 1 on the main bus (CS from the decoder), internal oscillator (CLK tied low)."
 		(exclude_from_sim no)
 		(at 20 15 0)
@@ -1661,6 +1611,33 @@
 		(at 91.44 71.12)
 		(uuid "bdd26b70-4c6b-5fef-bca7-de14d206f19f")
 	)
+	(bus_entry
+		(at 30.48 71.12)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12032918-52a8-520b-a8d1-73b88a2d905f")
+	)
+	(bus_entry
+		(at 30.48 73.66)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6ac8407a-8a38-5486-8967-8d4c9e167b9c")
+	)
+	(bus_entry
+		(at 30.48 76.2)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7aebc25a-0351-5a39-8c2e-4919ff6de7f1")
+	)
 	(wire
 		(pts
 			(xy 99.06 63.5) (xy 99.06 73.66)
@@ -1773,7 +1750,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 76.2) (xy 43.18 76.2)
+			(xy 30.48 76.2) (xy 45.72 76.2)
 		)
 		(stroke
 			(width 0)
@@ -1790,16 +1767,6 @@
 			(type default)
 		)
 		(uuid "58f94503-ac9b-51fd-af8a-48ead51f2afa")
-	)
-	(wire
-		(pts
-			(xy 43.18 76.2) (xy 45.72 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5a698a3c-5408-5300-ba29-68c450579a41")
 	)
 	(wire
 		(pts
@@ -1823,16 +1790,6 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 73.66) (xy 45.72 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "68eb289f-f01a-53d8-bda1-3199bc037ae1")
-	)
-	(wire
-		(pts
 			(xy 241.3 134.62) (xy 248.92 134.62)
 		)
 		(stroke
@@ -1840,6 +1797,16 @@
 			(type default)
 		)
 		(uuid "6d9a3d98-53e7-551e-a19a-1bf1dac42f54")
+	)
+	(bus
+		(pts
+			(xy 22.86 81.28) (xy 27.94 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75320dbe-aadc-5337-a7ed-0299115f6f89")
 	)
 	(wire
 		(pts
@@ -2023,7 +1990,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 73.66) (xy 43.18 73.66)
+			(xy 30.48 73.66) (xy 45.72 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2113,7 +2080,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 71.12) (xy 43.18 71.12)
+			(xy 30.48 71.12) (xy 45.72 71.12)
 		)
 		(stroke
 			(width 0)
@@ -2140,6 +2107,16 @@
 			(type default)
 		)
 		(uuid "e13bfbd1-ac53-5322-aeee-d40141052630")
+	)
+	(bus
+		(pts
+			(xy 27.94 73.66) (xy 27.94 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3a0b79a-8af6-5684-b33b-200c76a13a46")
 	)
 	(wire
 		(pts
@@ -2190,16 +2167,6 @@
 			(type default)
 		)
 		(uuid "f49e7a30-ec50-5fa4-83c9-0a7b733b276f")
-	)
-	(wire
-		(pts
-			(xy 43.18 71.12) (xy 45.72 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fac3c761-b56d-5242-a91b-2b574b6b2b20")
 	)
 	(wire
 		(pts
