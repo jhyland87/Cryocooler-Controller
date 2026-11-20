@@ -3,7 +3,7 @@
 Drawing-only redraw of the rev 6 schematic to the rules in
 `.claude/rules/hardware-schematic.md` and the `kicad-schematic-design` skill.
 Worktree `.claude/worktrees/rev6-schematic-redraw`, off `rev6-schematic` (f86f43b).
-Nothing is committed; the user reviews first. Sessions 1-4 (how the generator came to
+Committed through 6cbb1a2 and merged into `rev6-schematic`. Sessions 1-4 (how the generator came to
 work as it does, every earlier decision) are in
 `hardware/archive/HANDOFF_schematic_redraw_history.md`; read its "Session 4" before
 changing the root, the Universal IO parent or the board-rename tools.
@@ -168,6 +168,21 @@ Layout work still open (each needs its own layout change):
   while PGP_15V is an output; io_pressure pin-4 no-connect 2 mm from the pin-3 ground.
 - For later, if tokens matter: the reference / value text items above are cosmetic and
   can be dropped from scope (the user's option, not taken yet).
+
+Triage of the list above (session 6, 2026-11-20, looked at on renders, nothing changed):
+
+- Stay as drawn, trade-offs: expansion's three `{SPI}` stubs (joining the two MISO
+  outputs crosses the CS A line; joining them to SCK / MOSI crosses EXP_MISO);
+  ldo_15v PGN_15V bidirectional is deliberate (the -15 V guard also pulls the node,
+  `PASSED_BETWEEN_SHEETS` in `kicadgen.py`); io_drivers IO1-4_DRV and power_good
+  PGN / PGP node lines are runs inside one block (a fan-in and a node line), which
+  read better as wires than as label pairs.
+- Read acceptably now: cold_head (J10 on the right is the sensor end, signal flows in
+  toward the ADC); compressor_relay LED return.
+- Worth doing if wanted: root chip-select chain (decoder and buffer left of the
+  ESP32, reads right to left), a full root replan.
+- Not looked at again: cooling read order, amp_current SPI_MOSI / ACS_CS, root
+  SIG_SINE, and the smaller reviewer notes.
 
 Stale figures in other docs (the user fixes them separately):
 `.claude/skills/kicad-schematic/SKILL.md` (rev 3 counts), `.claude/skills/kicad-pcb-edit/SKILL.md`
