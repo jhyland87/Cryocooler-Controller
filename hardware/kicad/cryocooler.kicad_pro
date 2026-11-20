@@ -561,7 +561,7 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Ground",
-        "pcb_color": "rgb(110, 110, 110)",
+        "pcb_color": "rgba(110, 110, 110, 1.000)",
         "priority": -1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.15,
@@ -580,9 +580,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power",
-        "pcb_color": "rgb(255, 140, 0)",
+        "pcb_color": "rgba(255, 140, 0, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(215, 110, 0)",
+        "schematic_color": "rgba(215, 110, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -599,9 +599,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power12V",
-        "pcb_color": "rgb(255, 220, 0)",
+        "pcb_color": "rgba(255, 220, 0, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(175, 140, 0)",
+        "schematic_color": "rgba(175, 140, 0, 1.000)",
         "track_width": 0.5,
         "tuning_profile": "",
         "via_diameter": 0.7,
@@ -618,9 +618,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Power5V",
-        "pcb_color": "rgb(255, 40, 40)",
+        "pcb_color": "rgba(255, 40, 40, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(200, 0, 0)",
+        "schematic_color": "rgba(200, 0, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -637,9 +637,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogNeg",
-        "pcb_color": "rgb(60, 120, 255)",
+        "pcb_color": "rgba(60, 120, 255, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(0, 60, 200)",
+        "schematic_color": "rgba(0, 60, 200, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -656,9 +656,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerAnalogPos",
-        "pcb_color": "rgb(190, 40, 40)",
+        "pcb_color": "rgba(190, 40, 40, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(130, 0, 0)",
+        "schematic_color": "rgba(130, 0, 0, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -675,9 +675,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "PowerIso",
-        "pcb_color": "rgb(190, 90, 255)",
+        "pcb_color": "rgba(190, 90, 255, 1.000)",
         "priority": -1,
-        "schematic_color": "rgb(130, 0, 170)",
+        "schematic_color": "rgba(130, 0, 170, 1.000)",
         "track_width": 0.3,
         "tuning_profile": "",
         "via_diameter": 0.6,
@@ -798,6 +798,10 @@
         "pattern": "USB_VBUS"
       },
       {
+        "netclass": "Power5V",
+        "pattern": "/USB_VBUS"
+      },
+      {
         "netclass": "PowerAnalogPos",
         "pattern": "+15V"
       },
@@ -827,6 +831,10 @@
       },
       {
         "netclass": "SPI",
+        "pattern": "*/ACS_*"
+      },
+      {
+        "netclass": "SPI",
         "pattern": "*_CS"
       },
       {
@@ -846,6 +854,26 @@
         "pattern": "CS_EN_N"
       },
       {
+        "netclass": "SPI",
+        "pattern": "/ACS_*"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "/AD9833_FSYNC"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "/AD5453_SYNC"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "/CS_ADDR_?"
+      },
+      {
+        "netclass": "SPI",
+        "pattern": "/CS_EN_N"
+      },
+      {
         "netclass": "Analog",
         "pattern": "SIG_SINE"
       },
@@ -860,6 +888,18 @@
       {
         "netclass": "Analog",
         "pattern": "*/RTD_?"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "/SIG_SINE"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "/DDS_SINE"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "/NTC_ADC"
       },
       {
         "netclass": "Control",
@@ -932,6 +972,62 @@
       {
         "netclass": "Control",
         "pattern": "STATUS_RGB"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/AMP_REM_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/COMP_RELAY_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/PWR_KILL"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/AUX_IO*"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/PWR_INT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/IMU_INT?"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/INA239_ALERT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/CAN_TX"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/CAN_RX"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/PG_15V*"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/PG?_15V"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/ESP_EN"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/ESP_BOOT"
+      },
+      {
+        "netclass": "Control",
+        "pattern": "/STATUS_RGB"
       },
       {
         "netclass": "Ground",
@@ -1139,6 +1235,10 @@
       "Rails +-15V"
     ],
     [
+      "f71e1acf-9cc9-5435-aed0-b009922acd8f",
+      "Regulators +-15V"
+    ],
+    [
       "76f0855a-f763-53c4-bae1-f4998ef2ad89",
       "Power Good"
     ],
@@ -1175,6 +1275,10 @@
       "Ambient Temp"
     ],
     [
+      "37163d22-8b44-5a6a-8b70-07bfde5068c0",
+      "Universal IO"
+    ],
+    [
       "67590499-4c02-53dd-8c5e-7d88e2574bfb",
       "IO DAC and ADC"
     ],
@@ -1201,6 +1305,10 @@
     [
       "7692ca94-5ccb-5be3-8150-2a9580c279b9",
       "Expansion"
+    ],
+    [
+      "b6518b37-788b-5ca5-a5fd-d51a66219fbc",
+      "AUX Header"
     ],
     [
       "deeca7ce-2e6e-5cad-ba1f-75962668eea1",

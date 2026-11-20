@@ -1,0 +1,5464 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "2b0bcd7e-7824-52ad-b8e7-c6a4a9d47215")
+	(paper "A2")
+	(title_block
+		(title "Universal IO")
+		(rev "A")
+		(company "Cryocooler Controller")
+	)
+	(lib_symbols)
+	(text "Columns that stand next to each other are wired. A net between columns that are not neighbours carries the same net label at both ends."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "1dc98e51-fafd-5488-aa73-d15b881beefc")
+	)
+	(text "Universal I/O: four configurable channels (IO Channel 1 to 4) with their DAC and ADC, output drivers, range and pull-up switches and port expanders, plus the precision and pressure ports."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "3a39c7c1-ecf2-5563-ba39-33970cc3424d")
+	)
+	(text "CHANNELS"
+		(exclude_from_sim no)
+		(at 261.62 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "3c0a0e9f-38de-5963-bac1-4f8e9be5917a")
+	)
+	(text "OUTPUTS AND PORTS"
+		(exclude_from_sim no)
+		(at 370.84 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "653ced75-56cd-50b1-9e8b-9685a3465e71")
+	)
+	(text "RANGE"
+		(exclude_from_sim no)
+		(at 149.86 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "68955b22-7886-555b-bb4c-9b5380f61c0a")
+	)
+	(text "CONVERSION"
+		(exclude_from_sim no)
+		(at 490.22 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9477f930-ac2e-5c16-8021-d219627ceaba")
+	)
+	(text "CONTROL"
+		(exclude_from_sim no)
+		(at 40.64 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "cc7106ea-f376-5e27-bd7c-79c246facc87")
+	)
+	(wire
+		(pts
+			(xy 312.42 66.04) (xy 337.82 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "05425baf-2411-5aa3-9c3b-8d4127d8df0d")
+	)
+	(wire
+		(pts
+			(xy 91.44 99.06) (xy 111.76 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0616983f-db62-5ef5-9daf-0e78046da4cb")
+	)
+	(wire
+		(pts
+			(xy 91.44 73.66) (xy 111.76 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09d8736b-b48d-5a7f-ac97-a957e5f48cc1")
+	)
+	(wire
+		(pts
+			(xy 91.44 68.58) (xy 106.68 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a10be3d-da8c-5d79-ba9d-9248eb2270dd")
+	)
+	(wire
+		(pts
+			(xy 231.14 137.16) (xy 261.62 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b29e26d-232f-57cd-9f61-d181c72ca8de")
+	)
+	(wire
+		(pts
+			(xy 421.64 152.4) (xy 459.74 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0fccaa76-be4a-5a7f-8f68-0655ad610549")
+	)
+	(wire
+		(pts
+			(xy 231.14 127) (xy 231.14 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "112e9e6f-08b0-56ba-abf8-4bfb4aaf98a6")
+	)
+	(wire
+		(pts
+			(xy 226.06 68.58) (xy 261.62 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "120b1cd4-0881-58e9-85ea-0d4799819bdb")
+	)
+	(wire
+		(pts
+			(xy 246.38 177.8) (xy 261.62 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12e41753-2cd8-52f3-90b0-6ef04c1f53cc")
+	)
+	(wire
+		(pts
+			(xy 337.82 81.28) (xy 370.84 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13279892-b113-57b6-88d1-b7a177da2fc9")
+	)
+	(wire
+		(pts
+			(xy 91.44 111.76) (xy 124.46 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "148f5150-7488-589d-b04d-d39c958f6144")
+	)
+	(wire
+		(pts
+			(xy 116.84 134.62) (xy 149.86 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18b23386-68a0-5725-aded-b1105c91c0a9")
+	)
+	(wire
+		(pts
+			(xy 134.62 101.6) (xy 134.62 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a0272d8-468f-5b2e-8847-a82fabc5aa42")
+	)
+	(wire
+		(pts
+			(xy 91.44 55.88) (xy 111.76 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a823cd9-db07-5eff-972a-9ed631ff2ba1")
+	)
+	(wire
+		(pts
+			(xy 91.44 96.52) (xy 107.95 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ac2fc66-cb39-5aa0-a003-0208f19b448c")
+	)
+	(wire
+		(pts
+			(xy 246.38 109.22) (xy 261.62 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c553ade-bc8d-554d-9cde-450fa6452663")
+	)
+	(wire
+		(pts
+			(xy 312.42 106.68) (xy 323.85 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d96127c-02e5-55be-a327-c816a7923a40")
+	)
+	(wire
+		(pts
+			(xy 91.44 53.34) (xy 107.95 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "21811130-424a-5329-ac09-59764a0501a4")
+	)
+	(wire
+		(pts
+			(xy 129.54 106.68) (xy 129.54 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "21efcd5c-ad31-5bf7-b0c5-c2a14a892174")
+	)
+	(wire
+		(pts
+			(xy 91.44 78.74) (xy 107.95 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "23f37c16-ffa1-52bb-a87a-f5d5397002a2")
+	)
+	(wire
+		(pts
+			(xy 478.79 66.04) (xy 490.22 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24629c10-5828-5769-9da4-ee4c0eb73452")
+	)
+	(wire
+		(pts
+			(xy 223.52 175.26) (xy 261.62 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2819f589-5b90-5feb-810b-9ca7f5c8c693")
+	)
+	(wire
+		(pts
+			(xy 223.52 134.62) (xy 223.52 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28270ac9-4627-567f-b1b4-de6fc4da13c9")
+	)
+	(wire
+		(pts
+			(xy 91.44 119.38) (xy 116.84 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "285ae143-4010-5a7a-8b28-621700121b38")
+	)
+	(wire
+		(pts
+			(xy 200.66 116.84) (xy 223.52 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b2dafdb-8904-5256-bb7d-05a1c3571644")
+	)
+	(wire
+		(pts
+			(xy 337.82 83.82) (xy 337.82 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d4301e6-296e-5d3e-8bb2-8bd3a0630018")
+	)
+	(wire
+		(pts
+			(xy 457.2 99.06) (xy 490.22 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "325d8931-ac4f-5684-ade9-b53295b515c4")
+	)
+	(wire
+		(pts
+			(xy 421.64 132.08) (xy 454.66 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3404754b-e2f2-5321-9135-093c224a581f")
+	)
+	(wire
+		(pts
+			(xy 355.6 99.06) (xy 370.84 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35fec755-be97-518e-8208-3fe44e683a55")
+	)
+	(wire
+		(pts
+			(xy 226.06 172.72) (xy 261.62 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3649f58f-da2c-5f20-a2ca-79f7c94984a8")
+	)
+	(wire
+		(pts
+			(xy 91.44 114.3) (xy 121.92 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37819cf7-25cb-587a-82e9-5ce6aa61b2df")
+	)
+	(wire
+		(pts
+			(xy 243.84 71.12) (xy 261.62 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "384df1a5-5b4d-5d7c-8a87-5c375e311e20")
+	)
+	(wire
+		(pts
+			(xy 337.82 66.04) (xy 337.82 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39e7a830-5002-5f78-9511-9407359d6263")
+	)
+	(wire
+		(pts
+			(xy 478.79 68.58) (xy 490.22 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e299024-8526-5e6f-8e72-538f7985013f")
+	)
+	(wire
+		(pts
+			(xy 541.02 71.12) (xy 543.56 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f5a0325-2418-5f9a-b170-76dd222d555f")
+	)
+	(wire
+		(pts
+			(xy 421.64 124.46) (xy 447.04 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4194c6ab-19c8-54e2-abeb-417f5881f0e8")
+	)
+	(wire
+		(pts
+			(xy 444.5 86.36) (xy 444.5 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "44ca9434-7c39-52a0-a570-70fa1b1f1dbe")
+	)
+	(wire
+		(pts
+			(xy 245.11 76.2) (xy 261.62 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45ba77a7-534d-546b-a3a4-2921e563ec30")
+	)
+	(wire
+		(pts
+			(xy 312.42 71.12) (xy 323.85 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "49bf5917-d84e-5f8d-b75e-13a9a736be4b")
+	)
+	(wire
+		(pts
+			(xy 119.38 116.84) (xy 119.38 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ac1cc85-2785-57a2-af6f-448f447ef0d3")
+	)
+	(wire
+		(pts
+			(xy 91.44 58.42) (xy 109.22 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c5e74cd-9d82-5d7c-8cb2-c5cb3acd4581")
+	)
+	(wire
+		(pts
+			(xy 129.54 121.92) (xy 149.86 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d70773f-a529-5439-ab00-19278d7769b9")
+	)
+	(wire
+		(pts
+			(xy 91.44 83.82) (xy 106.68 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4eaa1c2d-7268-54ba-8265-93a17bfdbe2e")
+	)
+	(wire
+		(pts
+			(xy 359.41 91.44) (xy 370.84 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f63e288-366f-5ab4-b52a-4dc6845984da")
+	)
+	(wire
+		(pts
+			(xy 116.84 119.38) (xy 116.84 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "51540d51-37ae-5b7d-b3a8-0afa021edf8a")
+	)
+	(wire
+		(pts
+			(xy 454.66 96.52) (xy 454.66 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "525fbd9d-efcf-536a-afd3-b847e18009f7")
+	)
+	(wire
+		(pts
+			(xy 312.42 109.22) (xy 314.96 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52f04840-8b53-55ff-8ac4-3da81e996adf")
+	)
+	(wire
+		(pts
+			(xy 359.41 86.36) (xy 370.84 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52ffd73b-c257-5095-af84-f8463a89f683")
+	)
+	(wire
+		(pts
+			(xy 312.42 137.16) (xy 323.85 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55f60579-a2ca-5556-afa3-d20dd625fe5b")
+	)
+	(wire
+		(pts
+			(xy 124.46 111.76) (xy 124.46 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5667ec48-9f90-5d2c-8a7c-1d0357c9017f")
+	)
+	(wire
+		(pts
+			(xy 312.42 172.72) (xy 323.85 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58788ed4-a4dd-5917-8041-40a00e40c8b2")
+	)
+	(wire
+		(pts
+			(xy 355.6 101.6) (xy 370.84 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c8016e3-d064-5735-9f5c-ba0cb2b84d41")
+	)
+	(wire
+		(pts
+			(xy 127 124.46) (xy 149.86 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e324f3f-765e-5ebd-8f31-3698a9694b1f")
+	)
+	(wire
+		(pts
+			(xy 200.66 134.62) (xy 223.52 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6174c66e-9da0-5c2e-b22e-449d2a322cbb")
+	)
+	(wire
+		(pts
+			(xy 452.12 93.98) (xy 452.12 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61f0d1d9-9cb9-5e01-b6cf-ba539619e5fc")
+	)
+	(wire
+		(pts
+			(xy 350.52 124.46) (xy 370.84 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "620168e8-e84c-554b-871b-40590355290f")
+	)
+	(wire
+		(pts
+			(xy 462.28 104.14) (xy 462.28 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62a9c1fa-60a7-5441-96df-339a102ad78b")
+	)
+	(wire
+		(pts
+			(xy 350.52 106.68) (xy 370.84 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65927967-00f1-58bb-a20e-13290b965268")
+	)
+	(wire
+		(pts
+			(xy 228.6 129.54) (xy 228.6 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68145e60-ebaf-5c78-8da1-9be1ed00ce7e")
+	)
+	(wire
+		(pts
+			(xy 246.38 142.24) (xy 261.62 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "690b6f59-d6b3-5f07-8b34-b205e33399ba")
+	)
+	(wire
+		(pts
+			(xy 449.58 91.44) (xy 449.58 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6953afe5-5272-557c-9988-56339df96a85")
+	)
+	(wire
+		(pts
+			(xy 541.02 66.04) (xy 543.56 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "695ab232-117e-5281-98ae-2f69c45cbe8d")
+	)
+	(wire
+		(pts
+			(xy 121.92 129.54) (xy 149.86 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6984c37f-b60d-596c-85e9-e101651f45a5")
+	)
+	(wire
+		(pts
+			(xy 200.66 127) (xy 231.14 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6b4c9136-54ce-5635-8055-968ff0ac05bc")
+	)
+	(wire
+		(pts
+			(xy 363.22 152.4) (xy 370.84 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bcda18c-9230-533d-8d92-e8df1ce3a35a")
+	)
+	(wire
+		(pts
+			(xy 312.42 68.58) (xy 323.85 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c6cc638-7f6a-5e7a-b274-f413720f1c7d")
+	)
+	(wire
+		(pts
+			(xy 91.44 86.36) (xy 106.68 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fbc95a6-67e2-51ae-a972-0ef56538d32a")
+	)
+	(wire
+		(pts
+			(xy 91.44 76.2) (xy 106.68 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "70298198-7795-543f-91cd-080f6cf0eedb")
+	)
+	(wire
+		(pts
+			(xy 132.08 104.14) (xy 132.08 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "705e65db-4e04-5d70-b4bb-913f3ae6ecae")
+	)
+	(wire
+		(pts
+			(xy 228.6 101.6) (xy 261.62 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "72cef1dd-8f67-53b6-898e-c3f012cc864d")
+	)
+	(wire
+		(pts
+			(xy 226.06 68.58) (xy 226.06 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7407caaa-fd70-50a4-9535-f95d96b8fc49")
+	)
+	(wire
+		(pts
+			(xy 38.1 53.34) (xy 40.64 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7497bff6-d45c-5c7a-be05-f83f8949a7f7")
+	)
+	(wire
+		(pts
+			(xy 134.62 116.84) (xy 149.86 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "798c47ff-4ed4-5817-ac35-e9a1de72d3ac")
+	)
+	(wire
+		(pts
+			(xy 355.6 96.52) (xy 370.84 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7b25c6b3-5706-517e-90c0-215a23c00457")
+	)
+	(wire
+		(pts
+			(xy 449.58 91.44) (xy 490.22 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7b42c229-7dd3-5d40-8fef-c2c40343183f")
+	)
+	(wire
+		(pts
+			(xy 223.52 66.04) (xy 261.62 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d210731-7043-5c8d-be38-4f8ac1598999")
+	)
+	(wire
+		(pts
+			(xy 421.64 81.28) (xy 490.22 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "800ca7be-601a-5601-941c-818cb0f5077a")
+	)
+	(wire
+		(pts
+			(xy 91.44 63.5) (xy 107.95 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8107fd12-f7ba-58af-b7a9-4643bc49ccd3")
+	)
+	(wire
+		(pts
+			(xy 459.74 101.6) (xy 459.74 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "829d866a-e4c1-5dab-ba1f-7721d9e32dbd")
+	)
+	(wire
+		(pts
+			(xy 447.04 88.9) (xy 447.04 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "829ef45a-466b-5c16-9e68-d056837594ad")
+	)
+	(wire
+		(pts
+			(xy 38.1 58.42) (xy 40.64 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82be3c73-3df4-5612-aa89-ce068c433ca9")
+	)
+	(wire
+		(pts
+			(xy 421.64 129.54) (xy 452.12 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "856f783c-1786-5d8c-b781-82aa7a83a191")
+	)
+	(wire
+		(pts
+			(xy 444.5 86.36) (xy 490.22 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "86fd95cd-d0a8-5738-a8f2-b50f7757b127")
+	)
+	(wire
+		(pts
+			(xy 228.6 101.6) (xy 228.6 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8873f0cb-ae63-5327-81e8-d0c8421dbfe2")
+	)
+	(wire
+		(pts
+			(xy 241.3 147.32) (xy 261.62 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8874269d-969d-5179-be4d-5db65fe7860d")
+	)
+	(wire
+		(pts
+			(xy 312.42 104.14) (xy 323.85 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88d9e1a5-d681-5663-a775-a3ca08670618")
+	)
+	(wire
+		(pts
+			(xy 121.92 114.3) (xy 121.92 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "897d0463-4b88-52b0-9edd-244fb362685c")
+	)
+	(wire
+		(pts
+			(xy 241.3 182.88) (xy 261.62 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ced82c9-a2fc-5f82-b9ec-efece050c2e7")
+	)
+	(wire
+		(pts
+			(xy 478.79 78.74) (xy 490.22 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d079b22-4470-5a40-95c9-59ac7a56643d")
+	)
+	(wire
+		(pts
+			(xy 421.64 154.94) (xy 462.28 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f700e72-5c32-55f9-9805-a7b4276e6d6d")
+	)
+	(wire
+		(pts
+			(xy 132.08 119.38) (xy 149.86 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9268ee37-ee39-5c9c-a02e-743616281518")
+	)
+	(wire
+		(pts
+			(xy 421.64 121.92) (xy 444.5 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93900fc0-f8f1-5895-b245-be83b0346b13")
+	)
+	(wire
+		(pts
+			(xy 245.11 144.78) (xy 261.62 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93e7f727-3a74-5d70-8050-1e143bc798c4")
+	)
+	(wire
+		(pts
+			(xy 226.06 132.08) (xy 226.06 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94024223-9053-529c-8fca-fbcda651c61a")
+	)
+	(wire
+		(pts
+			(xy 91.44 101.6) (xy 134.62 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94faaa97-84b8-55cf-ba3d-e0101280826b")
+	)
+	(wire
+		(pts
+			(xy 241.3 114.3) (xy 261.62 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "975f2e10-ddb8-5b7f-bf47-c4968e2a71de")
+	)
+	(wire
+		(pts
+			(xy 200.66 121.92) (xy 228.6 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "99491db6-84d5-5580-86db-20f9822572a4")
+	)
+	(wire
+		(pts
+			(xy 454.66 96.52) (xy 490.22 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "99aa99dc-9d59-581f-a9ec-38391892d39e")
+	)
+	(wire
+		(pts
+			(xy 124.46 127) (xy 149.86 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b194428-53f7-5e6f-9813-1c2d7843df2c")
+	)
+	(wire
+		(pts
+			(xy 241.3 78.74) (xy 261.62 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b427ab2-c582-5a66-8686-6bfd817451fd")
+	)
+	(wire
+		(pts
+			(xy 91.44 60.96) (xy 106.68 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c22cbcc-c5bd-5b0c-8600-a2db3662d13b")
+	)
+	(wire
+		(pts
+			(xy 91.44 71.12) (xy 107.95 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9daa0896-340a-512b-b8fd-75b74eeeef0c")
+	)
+	(wire
+		(pts
+			(xy 312.42 73.66) (xy 314.96 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a3d1ada5-379f-5e0f-b1e7-ff243845a1d3")
+	)
+	(wire
+		(pts
+			(xy 119.38 132.08) (xy 149.86 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a4981503-9a1e-5094-8be3-d36f516bd824")
+	)
+	(wire
+		(pts
+			(xy 478.79 73.66) (xy 490.22 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a4d565e6-9a0d-5980-a392-9b3ce2a9b73f")
+	)
+	(wire
+		(pts
+			(xy 245.11 111.76) (xy 261.62 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a65dafd9-02fc-5d13-ab8a-5a9f3e66148c")
+	)
+	(wire
+		(pts
+			(xy 231.14 104.14) (xy 231.14 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a82d05d8-ac23-51b8-a9ee-38db18d43208")
+	)
+	(wire
+		(pts
+			(xy 91.44 91.44) (xy 106.68 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9645433-c48d-5253-88a9-217d15ef1011")
+	)
+	(wire
+		(pts
+			(xy 91.44 88.9) (xy 106.68 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa00a224-c88c-52f8-a2e1-f5abe9ed6093")
+	)
+	(wire
+		(pts
+			(xy 452.12 93.98) (xy 490.22 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa06c504-37f3-5eb4-a982-bf9a81e70edf")
+	)
+	(wire
+		(pts
+			(xy 127 109.22) (xy 127 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac48d22e-abcd-5814-a5ee-4bcdef7647be")
+	)
+	(wire
+		(pts
+			(xy 447.04 88.9) (xy 490.22 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ad3f637c-5fe3-5a34-a354-4e654ea210b3")
+	)
+	(wire
+		(pts
+			(xy 337.82 83.82) (xy 370.84 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae08b6c6-434c-5ef2-bd47-a7de678b872b")
+	)
+	(wire
+		(pts
+			(xy 91.44 104.14) (xy 132.08 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b2a937a2-ea60-53cd-95ae-58e1ba0b82c1")
+	)
+	(wire
+		(pts
+			(xy 421.64 83.82) (xy 490.22 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b36829e2-7573-5e68-902f-185d1b54bd42")
+	)
+	(wire
+		(pts
+			(xy 312.42 101.6) (xy 337.82 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3fd4085-d9c6-5e1d-89e1-afc1acfe6dc2")
+	)
+	(wire
+		(pts
+			(xy 359.41 88.9) (xy 370.84 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b507f2fe-9b15-57ee-8f13-0a5124e0bdf1")
+	)
+	(wire
+		(pts
+			(xy 363.22 127) (xy 370.84 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd5814d5-631a-50d6-83e0-cd3b7e1c1d85")
+	)
+	(wire
+		(pts
+			(xy 200.66 132.08) (xy 226.06 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be7b774c-4a74-5cfe-9e56-83bdd463fde8")
+	)
+	(wire
+		(pts
+			(xy 459.74 101.6) (xy 490.22 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1981594-d338-523d-b391-0bb53a962d50")
+	)
+	(wire
+		(pts
+			(xy 457.2 99.06) (xy 457.2 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c25f3116-019d-5c05-a631-fc8fcdd1a636")
+	)
+	(wire
+		(pts
+			(xy 478.79 71.12) (xy 490.22 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c45516d1-6c9b-5c1f-b836-b135a1284f63")
+	)
+	(wire
+		(pts
+			(xy 246.38 73.66) (xy 261.62 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c47f8cc5-e9a4-5047-a2df-89d0687098ad")
+	)
+	(wire
+		(pts
+			(xy 462.28 104.14) (xy 490.22 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c707f2ad-79b3-5542-b19b-2ddd270a6d4a")
+	)
+	(wire
+		(pts
+			(xy 200.66 129.54) (xy 228.6 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c791f5fe-fb72-50f6-baf2-3a2f465683ff")
+	)
+	(wire
+		(pts
+			(xy 91.44 116.84) (xy 119.38 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c90b0ded-f9f5-54bd-8473-4e3207633f5a")
+	)
+	(wire
+		(pts
+			(xy 421.64 127) (xy 449.58 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c977fbfe-4b91-542c-a52c-ef0a5a13079c")
+	)
+	(wire
+		(pts
+			(xy 359.41 93.98) (xy 370.84 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb1878e1-ec1b-538b-8630-504c0ab6b32a")
+	)
+	(wire
+		(pts
+			(xy 200.66 124.46) (xy 231.14 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cbdb17c6-273a-5827-a928-53a6c75eeefe")
+	)
+	(wire
+		(pts
+			(xy 363.22 127) (xy 363.22 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc4f6a7e-d1c5-5d28-9bdb-6638e7925938")
+	)
+	(wire
+		(pts
+			(xy 200.66 119.38) (xy 226.06 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cca86d44-c074-5d70-916c-4e00497baa49")
+	)
+	(wire
+		(pts
+			(xy 245.11 180.34) (xy 261.62 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d08e1994-3055-592b-955a-0a6334e45d0f")
+	)
+	(wire
+		(pts
+			(xy 91.44 93.98) (xy 111.76 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d593ce75-c92b-5cbe-9e63-806fabc4d440")
+	)
+	(wire
+		(pts
+			(xy 421.64 134.62) (xy 457.2 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5dc9690-ba6d-565f-85fc-076ffc531c0e")
+	)
+	(wire
+		(pts
+			(xy 91.44 109.22) (xy 127 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d756fe64-9715-5255-a1e2-938988942c1b")
+	)
+	(wire
+		(pts
+			(xy 478.79 76.2) (xy 490.22 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d9598b96-dab9-51f0-996d-1858380cc41d")
+	)
+	(wire
+		(pts
+			(xy 91.44 66.04) (xy 111.76 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d980df37-b063-5455-b7a3-79a4bd07d88d")
+	)
+	(wire
+		(pts
+			(xy 38.1 50.8) (xy 40.64 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc0a6984-b7a1-5547-8d16-453e3e1508a4")
+	)
+	(wire
+		(pts
+			(xy 355.6 104.14) (xy 370.84 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e47093cf-bafd-5fd2-bf2d-9768e9f35d46")
+	)
+	(wire
+		(pts
+			(xy 91.44 81.28) (xy 111.76 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e66bf0f3-2bc2-5da3-b0ae-53c4825bbee3")
+	)
+	(wire
+		(pts
+			(xy 231.14 104.14) (xy 261.62 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e6a9f63a-0014-57a6-8100-1f59582f536d")
+	)
+	(wire
+		(pts
+			(xy 91.44 50.8) (xy 106.68 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e6f40cb9-97ac-52c5-9cad-9db479e9a20a")
+	)
+	(wire
+		(pts
+			(xy 541.02 68.58) (xy 543.56 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebd71e37-9a83-5ab9-b282-95be310b0a72")
+	)
+	(wire
+		(pts
+			(xy 354.33 121.92) (xy 370.84 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef4934bc-0137-510b-ac0d-f0d316fcfd33")
+	)
+	(wire
+		(pts
+			(xy 38.1 48.26) (xy 40.64 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f15e7193-f082-5771-b5de-7a809cd92bb6")
+	)
+	(wire
+		(pts
+			(xy 243.84 106.68) (xy 261.62 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f163386e-f546-5736-b33d-8ae798529f5a")
+	)
+	(wire
+		(pts
+			(xy 38.1 55.88) (xy 40.64 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2b8ca92-1eb1-5f05-8ec3-abf8038132a9")
+	)
+	(wire
+		(pts
+			(xy 228.6 139.7) (xy 261.62 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8faa4b5-8f17-50bd-ae85-becec4ee50a6")
+	)
+	(wire
+		(pts
+			(xy 91.44 48.26) (xy 109.22 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc5c72bf-9376-5fb9-ac78-43e6b40f3c3f")
+	)
+	(wire
+		(pts
+			(xy 223.52 66.04) (xy 223.52 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fcee77bb-90b2-59cc-a338-2b666eaa477e")
+	)
+	(wire
+		(pts
+			(xy 91.44 106.68) (xy 129.54 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fff29ebb-bf7b-5e01-9e8c-0ec7930e94aa")
+	)
+	(label "IO1_SENS_EN"
+		(at 245.11 76.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0203f9c9-9b88-51c4-abde-8f591d5a3c66")
+		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
+			(at 245.11 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_DIV"
+		(at 201.93 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "024a3c15-ea0f-5d2b-91ef-1638d0cd9509")
+		(property "Description" "Bottom of the channel 4 20k divider leg, to the range switch"
+			(at 201.93 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_SENS_EN"
+		(at 107.95 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "07011aec-70d4-58a4-9718-bbcc4d5605ee")
+		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
+			(at 107.95 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PREC_EXC_EN"
+		(at 354.33 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "073b0de2-da73-556b-be62-bda5de0bda9c")
+		(property "Description" "I/O expander 3 port A bit 7, high turns the precision port excitation on; pulled low"
+			(at 354.33 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO_OUT_FLT_A_N"
+		(at 111.76 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0fa346cc-09a7-580f-8e49-c29db54f3b92")
+		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
+			(at 111.76 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_BUF_OE_N"
+		(at 243.84 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "10d5169b-c3df-5b7f-83dd-0d7c3798bf55")
+		(property "Description" "Expander output, low enables the channel 2 input buffer to the ESP32 pin; pulled high"
+			(at 243.84 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_OUT_EN"
+		(at 355.6 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "13f597a2-8a02-5a44-946c-c910bd4e7459")
+		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
+			(at 355.6 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_BUF_OE_N"
+		(at 109.22 48.26 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1a34c20c-5adf-5c21-bf92-ccb9412567b2")
+		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
+			(at 109.22 48.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_ADC"
+		(at 478.79 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1d3d909a-934b-5313-ac94-75fe93160479")
+		(property "Description" "Channel 2 pin after the 100k series resistor, to the ADC input"
+			(at 478.79 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_SENS_FLT_N"
+		(at 111.76 66.04 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "25d6a4e2-cfc2-5256-90e7-f3ca51e40150")
+		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
+			(at 111.76 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_OUT_EN"
+		(at 355.6 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "25e589fb-55c0-5ea2-996e-81f00613f8b2")
+		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
+			(at 355.6 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_BURDEN"
+		(at 106.68 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2fd1e8fe-174e-5c8d-a29f-810736f4c373")
+		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
+			(at 106.68 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO3_DIRECT"
+		(at 92.71 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "322810b7-f2c9-5917-a2e0-8857b51c6568")
+		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 92.71 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PRESS1_ADC"
+		(at 422.91 152.4 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3802ce1c-7ece-5e94-b855-0512ffa4a4ac")
+		(property "Description" "Pressure port 1 signal, filtered, to the ADC"
+			(at 422.91 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_DIV"
+		(at 201.93 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "39c8fa29-e7a2-509e-b5bb-b596b66bdb48")
+		(property "Description" "Bottom of the channel 3 20k divider leg, to the range switch"
+			(at 201.93 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_BURDEN"
+		(at 106.68 50.8 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3d5e9dc9-9bd3-5940-b0b8-dc7d69a7b074")
+		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
+			(at 106.68 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_SENS_EN"
+		(at 245.11 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3dfe78ae-41c3-5b31-8506-565ae3d3f1d4")
+		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
+			(at 245.11 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_OUT_EN"
+		(at 106.68 91.44 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3edf412d-3632-5673-b75d-1776e8a4fc57")
+		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
+			(at 106.68 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO4_SENS_FLT_N"
+		(at 111.76 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "41067efe-e6ef-5a6f-b6b6-a7bf9a0e3e5d")
+		(property "Description" "Channel 4 sensor supply fault flag, open drain, active low, to the expander"
+			(at 111.76 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_OUT_EN"
+		(at 355.6 96.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4128a58e-9bf3-52a5-8093-21ffa3b2afd6")
+		(property "Description" "Expander output, high closes the channel 1 output switch; pulled low"
+			(at 355.6 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_DIV"
+		(at 201.93 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4298c627-9ec6-520c-8406-653614297537")
+		(property "Description" "Bottom of the channel 2 20k divider leg, to the range switch"
+			(at 201.93 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_DAC"
+		(at 422.91 81.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4416c94c-9890-560d-8b28-3db4bd62f068")
+		(property "Description" "DAC output 3: 0-2.5 V level for the channel 3 output driver (pin voltage / 4.83)"
+			(at 422.91 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_LEVEL"
+		(at 313.69 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "45b156ae-7458-572c-8bf4-73bd50088a93")
+		(property "Description" "Channel 1 output level after the GPIO gate, to its driver"
+			(at 313.69 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_DAC"
+		(at 422.91 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4646d3c0-b615-5ff2-857e-35bb9f7d49c9")
+		(property "Description" "DAC output 4: 0-2.5 V level for the channel 4 output driver (pin voltage / 4.83)"
+			(at 422.91 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_A_N"
+		(at 422.91 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "499c097a-ea22-5a98-8a85-8d0e50bb08b6")
+		(property "Description" "Precision port A IN-, filtered, to the ADC"
+			(at 422.91 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_EXC_EN"
+		(at 107.95 96.52 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4c6afe74-7b2d-596a-b5bd-59a35059f1c7")
+		(property "Description" "I/O expander 3 port A bit 7, high turns the precision port excitation on; pulled low"
+			(at 107.95 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_SENS_FLT_N"
+		(at 241.3 114.3 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4cc4a69e-a124-57f5-b11e-f59fe6b594b5")
+		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
+			(at 241.3 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_ADC"
+		(at 323.85 68.58 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "520bbf2d-dce9-51e5-b5d6-861f362c1b4e")
+		(property "Description" "Channel 1 pin after the 100k series resistor, to the ADC input"
+			(at 323.85 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PREC_EXC_FLT_N"
+		(at 111.76 99.06 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "58637457-fe8a-5cf8-bcd4-86c1a138935a")
+		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
+			(at 111.76 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_BUF_OE_N"
+		(at 109.22 58.42 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5faf80e5-7ec0-56f9-9bba-524eba3df3a2")
+		(property "Description" "Expander output, low enables the channel 2 input buffer to the ESP32 pin; pulled high"
+			(at 109.22 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO4_PIN"
+		(at 359.41 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "64a96a9f-865e-5fb9-95d3-099187e2c078")
+		(property "Description" "I/O channel 4 signal pin (connector pin 2): 0-12 V in or out"
+			(at 359.41 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_BURDEN"
+		(at 106.68 60.96 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6a6f0dd9-b294-565b-999d-cb43c03a7ea6")
+		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
+			(at 106.68 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_ADC"
+		(at 478.79 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6aa66637-64d6-5f6f-af1e-f29be1b92a9b")
+		(property "Description" "Channel 1 pin after the 100k series resistor, to the ADC input"
+			(at 478.79 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_PIN"
+		(at 359.41 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6cc118a4-d0dc-56d8-a950-b433929b4585")
+		(property "Description" "I/O channel 1 signal pin (connector pin 2): 0-12 V in or out"
+			(at 359.41 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_PIN"
+		(at 201.93 127 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6d55d3bb-f980-52aa-a59d-c52bf4d9c8be")
+		(property "Description" "I/O channel 3 signal pin (connector pin 2): 0-12 V in or out"
+			(at 201.93 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_A_P"
+		(at 422.91 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6f7337a5-d8ab-5aa1-99d6-4e218e7ec8a8")
+		(property "Description" "Precision port A IN+, filtered, to the ADC"
+			(at 422.91 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO_OUT_FLT_A_N"
+		(at 350.52 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "761b272a-e066-5036-853f-c70c908560fc")
+		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
+			(at 350.52 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_B_N"
+		(at 422.91 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "771438e0-d29e-5a6c-8b0f-ad3d48ba87fc")
+		(property "Description" "Precision port B IN-, filtered, to the ADC"
+			(at 422.91 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_SENS_FLT_N"
+		(at 241.3 182.88 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "79c6a7c9-356e-5384-a3f3-e084df4bdc81")
+		(property "Description" "Channel 4 sensor supply fault flag, open drain, active low, to the expander"
+			(at 241.3 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_PIN"
+		(at 359.41 91.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7c5175ab-f6a3-5dff-b7d0-bf6f40d85c13")
+		(property "Description" "I/O channel 3 signal pin (connector pin 2): 0-12 V in or out"
+			(at 359.41 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_OUT_EN"
+		(at 106.68 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7c7c5d9e-6c7e-5e3b-902d-1129d60bd23b")
+		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
+			(at 106.68 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_PIN"
+		(at 201.93 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7f593c95-2b69-5767-b033-98fd47acfed1")
+		(property "Description" "I/O channel 2 signal pin (connector pin 2): 0-12 V in or out"
+			(at 201.93 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_DIRECT"
+		(at 92.71 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8249c489-eaec-58d3-b3f7-1153025e03ab")
+		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 92.71 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_OUT_EN"
+		(at 106.68 83.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8b2bb16f-371e-51d9-a2aa-70f18be3b076")
+		(property "Description" "Expander output, high closes the channel 1 output switch; pulled low"
+			(at 106.68 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO4_PULLUP"
+		(at 92.71 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8d411c9c-553c-544c-823d-ab522e7b09f3")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
+			(at 92.71 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_LEVEL"
+		(at 313.69 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8dca5566-e1c5-521e-a6a5-52aee96f0c44")
+		(property "Description" "Channel 2 output level after the GPIO gate, to its driver"
+			(at 313.69 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_ADC"
+		(at 478.79 78.74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9187d3b7-5e10-53d2-96d2-36edbc427c74")
+		(property "Description" "Channel 4 pin after the 100k series resistor, to the ADC input"
+			(at 478.79 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_REFP"
+		(at 422.91 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "938ca8b1-3f7c-51de-818d-cdb783058c5a")
+		(property "Description" "Excitation voltage to ADC REFP0 (ratiometric reference)"
+			(at 422.91 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_PULLUP"
+		(at 92.71 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9503804a-4505-5c0b-8320-e066f51d2e98")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
+			(at 92.71 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_DAC"
+		(at 323.85 106.68 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "956f196f-9a66-5632-9395-1c0e495e1666")
+		(property "Description" "DAC output 2: 0-2.5 V level for the channel 2 output driver (pin voltage / 4.83)"
+			(at 323.85 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO3_ADC"
+		(at 323.85 137.16 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a14e4d26-4d13-52d4-a947-e730ac53f2e5")
+		(property "Description" "Channel 3 pin after the 100k series resistor, to the ADC input"
+			(at 323.85 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_DAC"
+		(at 478.79 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a1effd61-e0c4-54e5-9425-a807b4bd2744")
+		(property "Description" "DAC output 2: 0-2.5 V level for the channel 2 output driver (pin voltage / 4.83)"
+			(at 478.79 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_B_P"
+		(at 422.91 127 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ab7ccbed-0ae5-50d6-b24d-b5efdca7f49d")
+		(property "Description" "Precision port B IN+, filtered, to the ADC"
+			(at 422.91 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_SENS_FLT_N"
+		(at 241.3 78.74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "afe18ac6-1ea6-529b-8362-3b96ba7564e1")
+		(property "Description" "Channel 1 sensor supply fault flag, open drain, active low, to the expander"
+			(at 241.3 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_PIN"
+		(at 201.93 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b02f452b-ab37-5d67-9d11-b5292518b821")
+		(property "Description" "I/O channel 1 signal pin (connector pin 2): 0-12 V in or out"
+			(at 201.93 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_REFN"
+		(at 422.91 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b30dc3c8-8330-5c89-b33f-de77b3135ec0")
+		(property "Description" "Excitation ground to ADC REFN0"
+			(at 422.91 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PREC_EXC"
+		(at 363.22 149.86 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b5030681-8b02-5529-8b72-94a828a0db12")
+		(property "Description" "Switched 5 V excitation for the precision and pressure ports (pin 1)"
+			(at 363.22 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_SENS_EN"
+		(at 107.95 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b773f714-b084-597f-a0fb-0d438bad2cca")
+		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
+			(at 107.95 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "PREC_EXC_FLT_N"
+		(at 350.52 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b7ec884a-6b5b-53a5-bcde-352f82abf848")
+		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
+			(at 350.52 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_DAC"
+		(at 323.85 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ba3a519a-cbed-52c8-a535-e33adc6b94d0")
+		(property "Description" "DAC output 1: 0-2.5 V level for the channel 1 output driver (pin voltage / 4.83)"
+			(at 323.85 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO4_BURDEN"
+		(at 246.38 177.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ba7cd932-0c24-5ff2-ac02-b0f9a320b55c")
+		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
+			(at 246.38 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_SENS_EN"
+		(at 107.95 63.5 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bf469523-a5d4-5ee3-bbb5-6c4f5912f502")
+		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
+			(at 107.95 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO3_ADC"
+		(at 478.79 76.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c275d296-f197-5c4e-be0d-1743b9dfd42e")
+		(property "Description" "Channel 3 pin after the 100k series resistor, to the ADC input"
+			(at 478.79 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_SENS_FLT_N"
+		(at 241.3 147.32 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c4e65e47-9c18-5223-978b-4bbabb4d419f")
+		(property "Description" "Channel 3 sensor supply fault flag, open drain, active low, to the expander"
+			(at 241.3 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_ADC"
+		(at 323.85 172.72 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c5d223fb-427d-59a7-8871-718b50813f36")
+		(property "Description" "Channel 4 pin after the 100k series resistor, to the ADC input"
+			(at 323.85 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_BUF_OE_N"
+		(at 243.84 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c83721b0-96d7-570f-a1c2-ef1589570367")
+		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
+			(at 243.84 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "PRESS2_ADC"
+		(at 422.91 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cd0d2c5d-d8c4-5a73-9524-2ede99adb9c0")
+		(property "Description" "Pressure port 2 signal, filtered, to the ADC"
+			(at 422.91 154.94 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_BURDEN"
+		(at 106.68 68.58 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cd68f340-aeb3-54ca-a1cd-c277c1486930")
+		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
+			(at 106.68 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_DAC"
+		(at 478.79 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cd72c0ce-cbe8-52a3-94bb-a0cc919bd83a")
+		(property "Description" "DAC output 1: 0-2.5 V level for the channel 1 output driver (pin voltage / 4.83)"
+			(at 478.79 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_DIRECT"
+		(at 92.71 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cea62e0f-5b2a-5f46-b20d-2271fe2a7917")
+		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 92.71 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_BURDEN"
+		(at 246.38 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cf633850-a13e-5ec4-85c2-489a4edfdec7")
+		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
+			(at 246.38 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_PIN"
+		(at 201.93 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d8de8564-d3f7-5ec1-b155-bf6735502ada")
+		(property "Description" "I/O channel 4 signal pin (connector pin 2): 0-12 V in or out"
+			(at 201.93 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_DIRECT"
+		(at 92.71 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dbd10075-2260-546a-88ef-745e908ada46")
+		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 92.71 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_PULLUP"
+		(at 92.71 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dc7cee64-2d21-54d0-a465-8f5954a34266")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
+			(at 92.71 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_OUT_EN"
+		(at 355.6 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dccb66d4-5421-5316-80f3-5f46c3dcb356")
+		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
+			(at 355.6 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO2_BURDEN"
+		(at 246.38 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e1ab618e-ce4c-5000-bd9e-73ef984284a0")
+		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
+			(at 246.38 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_SENS_FLT_N"
+		(at 111.76 55.88 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e35c8999-b881-50d9-8e3f-9687447db1fd")
+		(property "Description" "Channel 1 sensor supply fault flag, open drain, active low, to the expander"
+			(at 111.76 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO3_OUT_EN"
+		(at 106.68 88.9 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e4db0c2a-7c60-50b4-893c-01a7027e54bb")
+		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
+			(at 106.68 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_DIV"
+		(at 201.93 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e88e34db-32c5-596c-b379-373d7e57c369")
+		(property "Description" "Bottom of the channel 1 20k divider leg, to the range switch"
+			(at 201.93 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_PULLUP"
+		(at 92.71 114.3 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "edcbb52b-fc2a-5323-a347-d5d2d22f00bf")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
+			(at 92.71 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO1_SENS_EN"
+		(at 107.95 53.34 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f09b901d-8df5-5a38-828b-de7ff02e03a3")
+		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
+			(at 107.95 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_ADC"
+		(at 323.85 104.14 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f0df7a5e-0632-5846-a2c9-02b80809cec2")
+		(property "Description" "Channel 2 pin after the 100k series resistor, to the ADC input"
+			(at 323.85 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO2_PIN"
+		(at 359.41 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f30df747-550e-50a9-86ea-48a17a049430")
+		(property "Description" "I/O channel 2 signal pin (connector pin 2): 0-12 V in or out"
+			(at 359.41 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_SENS_FLT_N"
+		(at 111.76 73.66 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f6076bfb-c06d-5487-8386-e343b0f0444e")
+		(property "Description" "Channel 3 sensor supply fault flag, open drain, active low, to the expander"
+			(at 111.76 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "IO1_BURDEN"
+		(at 246.38 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f937f8c5-09d0-54d9-a59a-03b5bb3a6e0d")
+		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
+			(at 246.38 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO4_SENS_EN"
+		(at 245.11 180.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fb0946b7-4f1b-5805-8982-b878996ad4ae")
+		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
+			(at 245.11 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "IO3_SENS_EN"
+		(at 245.11 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fbd8d64d-34b1-5b89-a51b-32526b1e05f0")
+		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
+			(at 245.11 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "ESP_EN"
+		(shape bidirectional)
+		(at 38.1 58.42 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "162e4509-4e7d-5f85-97de-89d3966facd6")
+		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
+			(at 38.1 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_ADC_CS"
+		(shape input)
+		(at 543.56 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "2f69931a-4ee3-59ad-b468-27ac1af905c4")
+		(property "Description" "Chip select (active low) for the universal I/O ADC, decoder Y9"
+			(at 543.56 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_ADC_DRDY_N"
+		(shape output)
+		(at 543.56 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "345a2d8d-95ff-5ef6-b9af-a8f64bc4dd71")
+		(property "Description" "ADS124S08 data ready, active low, read on expander GP5"
+			(at 543.56 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_INT_N"
+		(shape output)
+		(at 38.1 48.26 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "50ec58d7-c07b-5ad2-be7a-c6a1da1494d4")
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 38.1 48.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "EXP_INT_N"
+		(shape input)
+		(at 38.1 55.88 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "515cdc4e-59ef-5b8a-be0c-761d140912bb")
+		(property "Description" "Expansion header interrupt line, active low, read on I/O expander 2 port B bit 7"
+			(at 38.1 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AUX_IO7"
+		(shape bidirectional)
+		(at 314.96 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "560e1174-5d05-5da9-8ffe-435b163e4efd")
+		(property "Description" "GPIO7: PWM gate and pulse input of universal I/O channel 2, MCU side of the two 1 k resistors"
+			(at 314.96 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_DAC_CS"
+		(shape input)
+		(at 543.56 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "872ea988-5ff9-5de5-bce3-8e26fb59f847")
+		(property "Description" "Chip select (active low) for the universal I/O DAC, decoder Y4"
+			(at 543.56 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "RS485_IRQ_N"
+		(shape input)
+		(at 38.1 53.34 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8a781513-c12c-58ba-a750-00d8f74d53c3")
+		(property "Description" "SC16IS750 interrupt, open drain, active low, read on I/O expander 2 port A bit 7"
+			(at 38.1 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_CS"
+		(shape input)
+		(at 38.1 50.8 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c1b82885-98b5-58be-86c8-27bf104c08ca")
+		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
+			(at 38.1 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AUX_IO5"
+		(shape bidirectional)
+		(at 314.96 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d99b5de1-9963-572d-a21e-f2f9bf1a7e65")
+		(property "Description" "GPIO5: PWM gate and pulse input of universal I/O channel 1, MCU side of the two 1 k resistors"
+			(at 314.96 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(sheet
+		(at 149.86 114.3)
+		(size 50.8 22.86)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "3e02e222-3460-5308-abf4-d618802948a4")
+		(property "Sheetname" "IO Range and Pull-up"
+			(at 149.86 113.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_switches.kicad_sch"
+			(at 149.86 137.76 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO1_DIRECT" input
+			(at 149.86 116.84 180)
+			(uuid "79edc8ae-fdd8-55e2-8146-49405977df8f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_PULLUP" input
+			(at 149.86 119.38 180)
+			(uuid "05bd9184-89dd-5e99-9e07-20962472b214")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_DIRECT" input
+			(at 149.86 121.92 180)
+			(uuid "78acb2e5-9d02-5dd2-bec3-bfcc60bc4361")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_PULLUP" input
+			(at 149.86 124.46 180)
+			(uuid "55433f30-efd2-5f1b-90e1-3d8b2a29359d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_DIRECT" input
+			(at 149.86 127 180)
+			(uuid "c062550d-af0a-5ab9-9d11-2499aa6f5b05")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_PULLUP" input
+			(at 149.86 129.54 180)
+			(uuid "56efdbb5-8f4d-5a0c-a6c6-b9b229fba52d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_DIRECT" input
+			(at 149.86 132.08 180)
+			(uuid "47acd1f4-7e98-5a04-accb-dbe54d3e3f82")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_PULLUP" input
+			(at 149.86 134.62 180)
+			(uuid "75f46ed3-ac22-5c31-bb2f-4e9840ae6cef")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_PIN" passive
+			(at 200.66 116.84 0)
+			(uuid "0b3e1080-3627-5cdf-adf6-1b67c8281893")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_DIV" passive
+			(at 200.66 119.38 0)
+			(uuid "c77275e3-e92b-5f3d-9167-f16f629022ea")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_PIN" passive
+			(at 200.66 121.92 0)
+			(uuid "a65695f5-8087-5f39-bfe3-3a252dcedcfd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_DIV" passive
+			(at 200.66 124.46 0)
+			(uuid "5f163d1d-bc1d-53f6-96bb-027bc46c47b0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_PIN" passive
+			(at 200.66 127 0)
+			(uuid "f66a605b-7519-5812-9f48-e9df458aa578")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_DIV" passive
+			(at 200.66 129.54 0)
+			(uuid "96cf63c1-cd27-5845-bb29-732d17bc1951")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_PIN" passive
+			(at 200.66 132.08 0)
+			(uuid "47b423ac-4a44-52e9-9e68-40fa07ad1787")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_DIV" passive
+			(at 200.66 134.62 0)
+			(uuid "f0408fc0-a442-585a-aaf2-5d44cc5e7d51")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "25")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 261.62 99.06)
+		(size 50.8 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "3fb11d3c-ed3d-534e-8d3a-c31f45fc7635")
+		(property "Sheetname" "IO Channel 2"
+			(at 261.62 98.36 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_ch2.kicad_sch"
+			(at 261.62 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO2_PIN" passive
+			(at 261.62 101.6 180)
+			(uuid "3d3cf0b0-9043-5ef6-840d-8d2ee4a7048f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_DIV" passive
+			(at 261.62 104.14 180)
+			(uuid "e6be2b2a-b471-55ec-af6b-fadf4b0db141")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_BUF_OE_N" input
+			(at 261.62 106.68 180)
+			(uuid "8dda4d24-e206-51f2-aa76-ede6d1a53b10")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_BURDEN" input
+			(at 261.62 109.22 180)
+			(uuid "082be0e8-df1b-55c4-ac00-5a8fc0e11cdd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_SENS_EN" input
+			(at 261.62 111.76 180)
+			(uuid "cdb10a50-6f48-58bc-a616-9c3f2f267376")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_SENS_FLT_N" output
+			(at 261.62 114.3 180)
+			(uuid "e824accf-1654-540f-bf25-2411e8729993")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_LEVEL" passive
+			(at 312.42 101.6 0)
+			(uuid "310cdb77-db7d-5e73-8449-371663a10977")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_ADC" output
+			(at 312.42 104.14 0)
+			(uuid "3bc7a52e-8cee-5dc9-a320-6eca659595cd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_DAC" input
+			(at 312.42 106.68 0)
+			(uuid "87baa22e-e897-55e6-b01f-3b83edd42188")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "AUX_IO7" bidirectional
+			(at 312.42 109.22 0)
+			(uuid "c2b910f3-e01d-5ba2-9363-bc69daae9aab")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "32")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 40.64 45.72)
+		(size 50.8 76.2)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "63c46ec4-8250-5e97-a431-93814bfd8717")
+		(property "Sheetname" "IO Expanders"
+			(at 40.64 45.02 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_expanders.kicad_sch"
+			(at 40.64 122.52 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO_EXP_INT_N" output
+			(at 40.64 48.26 180)
+			(uuid "eac3597a-0f98-54a4-92c9-330170044123")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO_EXP_CS" input
+			(at 40.64 50.8 180)
+			(uuid "72177b38-18cb-5e46-95bc-9cef4379c36c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RS485_IRQ_N" input
+			(at 40.64 53.34 180)
+			(uuid "1e4b94df-4330-56a4-bfc6-bd3dc26bb8b2")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "EXP_INT_N" input
+			(at 40.64 55.88 180)
+			(uuid "3e56470f-d700-55e6-b005-8c1704fd2210")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "ESP_EN" bidirectional
+			(at 40.64 58.42 180)
+			(uuid "6df2fd69-ba8e-59ff-a92a-40213f0d2625")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_BUF_OE_N" output
+			(at 91.44 48.26 0)
+			(uuid "b6466618-a092-505b-b6a4-18fe16ab6647")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_BURDEN" output
+			(at 91.44 50.8 0)
+			(uuid "ddeafdfd-e1b3-5207-9d1c-78bf27f09ab8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_SENS_EN" output
+			(at 91.44 53.34 0)
+			(uuid "1ffd820b-792c-51c6-9f92-09a6263287b0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_SENS_FLT_N" input
+			(at 91.44 55.88 0)
+			(uuid "62dec92c-d597-53cc-8fb0-0486c5bef70b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_BUF_OE_N" output
+			(at 91.44 58.42 0)
+			(uuid "0f049816-5864-5a3e-bb23-4480e35fdc84")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_BURDEN" output
+			(at 91.44 60.96 0)
+			(uuid "425c5700-1dd4-5413-b743-2f699c32f06f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_SENS_EN" output
+			(at 91.44 63.5 0)
+			(uuid "d8ccba94-54a7-5ea1-a4e0-f5f92b6a35df")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_SENS_FLT_N" input
+			(at 91.44 66.04 0)
+			(uuid "0c7457b2-fe8f-5a35-8ebe-662835f74f99")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_BURDEN" output
+			(at 91.44 68.58 0)
+			(uuid "26b0e6d6-4554-5464-b594-919525cf1436")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_SENS_EN" output
+			(at 91.44 71.12 0)
+			(uuid "f53fe077-4a31-5fe6-9f6c-f275180389ef")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_SENS_FLT_N" input
+			(at 91.44 73.66 0)
+			(uuid "b1861570-af08-5d95-b97a-a80fcbdcf990")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_BURDEN" output
+			(at 91.44 76.2 0)
+			(uuid "b29c9c05-adf0-5952-8d8d-b793bbf976e5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_SENS_EN" output
+			(at 91.44 78.74 0)
+			(uuid "3f00b3a3-f270-5fab-a7de-5c1f5e4c823c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_SENS_FLT_N" input
+			(at 91.44 81.28 0)
+			(uuid "008ee5db-445e-52a0-9eba-a6cf275cc8d5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_OUT_EN" output
+			(at 91.44 83.82 0)
+			(uuid "9777c5f0-655e-501c-a8da-8a13758d3bdc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_OUT_EN" output
+			(at 91.44 86.36 0)
+			(uuid "3437f31f-65f7-51e0-87ec-9b85b58adb44")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_OUT_EN" output
+			(at 91.44 88.9 0)
+			(uuid "2fe81fcd-a4b4-50fc-9ce6-0845542e9ae1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_OUT_EN" output
+			(at 91.44 91.44 0)
+			(uuid "04dad903-4a73-5cb7-a90f-f9eea2175159")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO_OUT_FLT_A_N" input
+			(at 91.44 93.98 0)
+			(uuid "93c0d2ec-41a3-52ad-b20a-7eb5c7e659a3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_EXC_EN" output
+			(at 91.44 96.52 0)
+			(uuid "487c2dd5-85c4-5cf8-81f9-12bd73f22dd3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_EXC_FLT_N" input
+			(at 91.44 99.06 0)
+			(uuid "befd0e83-2ac4-5b80-91a0-61aec1402682")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_DIRECT" output
+			(at 91.44 101.6 0)
+			(uuid "75427878-2cf0-5292-aae6-ecd936c781c0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_PULLUP" output
+			(at 91.44 104.14 0)
+			(uuid "77a97d24-87c0-55b6-9319-6cadd74c513b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_DIRECT" output
+			(at 91.44 106.68 0)
+			(uuid "f309d067-a417-5b60-92dc-4d9cb835c63a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO2_PULLUP" output
+			(at 91.44 109.22 0)
+			(uuid "8a902b04-c945-55e4-b604-72b197ad36ff")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_DIRECT" output
+			(at 91.44 111.76 0)
+			(uuid "625d9964-bd71-5d68-af5d-c6ea1a5b7bb0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO3_PULLUP" output
+			(at 91.44 114.3 0)
+			(uuid "2f898374-02ec-5de2-95e2-4d175af5e375")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_DIRECT" output
+			(at 91.44 116.84 0)
+			(uuid "98ee9594-c236-5837-bf0c-3c4ff79d5671")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_PULLUP" output
+			(at 91.44 119.38 0)
+			(uuid "ca0f7e6e-5bc2-5ec3-9d5c-09115d7be65f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "26")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 490.22 63.5)
+		(size 50.8 43.18)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "67590499-4c02-53dd-8c5e-7d88e2574bfb")
+		(property "Sheetname" "IO DAC and ADC"
+			(at 490.22 62.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_core.kicad_sch"
+			(at 490.22 107.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO1_ADC" input
+			(at 490.22 66.04 180)
+			(uuid "4e121678-08f7-58d8-bd01-ab6aa2469c18")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_DAC" output
+			(at 490.22 68.58 180)
+			(uuid "91c7fb61-4687-5ac8-bfd6-1805529afef9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_ADC" input
+			(at 490.22 71.12 180)
+			(uuid "9b4a8f4e-f761-5a57-b5ef-85e28b9812b0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_DAC" output
+			(at 490.22 73.66 180)
+			(uuid "b7601d7a-6c9c-570e-98d8-6ca20cef0ddb")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_ADC" input
+			(at 490.22 76.2 180)
+			(uuid "021fc710-99ae-51b2-897a-cf17a7f53472")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_ADC" input
+			(at 490.22 78.74 180)
+			(uuid "8fab28fc-1e8d-5ea4-8afc-9433a0276e1d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_DAC" output
+			(at 490.22 81.28 180)
+			(uuid "ee1cacfa-d655-53e7-8009-7ecd1729949f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_DAC" output
+			(at 490.22 83.82 180)
+			(uuid "00594d2c-c343-5890-9fc4-0ce490ac2927")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_A_P" input
+			(at 490.22 86.36 180)
+			(uuid "04bd38db-8c14-5bef-a87f-4a5eebfe19da")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_A_N" input
+			(at 490.22 88.9 180)
+			(uuid "4609f8c7-12a5-5ab8-9c94-972fcafc3212")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_B_P" input
+			(at 490.22 91.44 180)
+			(uuid "77dec396-e350-5bc5-a369-04c806201d51")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_B_N" input
+			(at 490.22 93.98 180)
+			(uuid "b9bc887b-4cd7-5e2f-b1f1-4deda95a899b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_REFP" input
+			(at 490.22 96.52 180)
+			(uuid "1702b5fc-d30a-5017-9f55-8302863b6492")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_REFN" input
+			(at 490.22 99.06 180)
+			(uuid "369dce94-2dd3-5161-9ee3-a46af9c59ffd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PRESS1_ADC" input
+			(at 490.22 101.6 180)
+			(uuid "23ddf763-5e22-50d0-802a-72df5f92711a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PRESS2_ADC" input
+			(at 490.22 104.14 180)
+			(uuid "4764a1d2-d190-5c5d-b82b-df60fc72f461")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO_DAC_CS" input
+			(at 541.02 66.04 0)
+			(uuid "19cf2975-dfc1-52f3-a856-db2880ecbc31")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO_ADC_CS" input
+			(at 541.02 68.58 0)
+			(uuid "a45bf55b-f375-5528-b064-b705915b432d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO_ADC_DRDY_N" output
+			(at 541.02 71.12 0)
+			(uuid "e9491b36-77a8-5808-aeb8-d712e80f0d75")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "23")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 370.84 78.74)
+		(size 50.8 30.48)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "890faa73-8f74-570d-94d9-86edb43427b9")
+		(property "Sheetname" "IO Output Drivers"
+			(at 370.84 78.04 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_drivers.kicad_sch"
+			(at 370.84 109.82 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO1_LEVEL" passive
+			(at 370.84 81.28 180)
+			(uuid "af6cb650-a248-5c11-8664-0f889bbf0164")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_LEVEL" passive
+			(at 370.84 83.82 180)
+			(uuid "524f3d51-fd25-5b1c-ae1b-4f04ecfadfec")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_PIN" passive
+			(at 370.84 86.36 180)
+			(uuid "ba265879-e05b-5374-98b0-30e5bc03beaf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_PIN" passive
+			(at 370.84 88.9 180)
+			(uuid "8b26d0e2-993b-5255-8e82-aac27eb4afc8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_PIN" passive
+			(at 370.84 91.44 180)
+			(uuid "e7c32acb-2f39-5de8-b6cc-32d48c0e8d0b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_PIN" passive
+			(at 370.84 93.98 180)
+			(uuid "30fc4fe2-2416-524f-9c2e-3206ff6b0fcd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_OUT_EN" input
+			(at 370.84 96.52 180)
+			(uuid "e0a506aa-815b-5c49-aec2-63414d204df7")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO2_OUT_EN" input
+			(at 370.84 99.06 180)
+			(uuid "56cdf8cc-f479-5c8b-87b4-b248b9e4ff4c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_OUT_EN" input
+			(at 370.84 101.6 180)
+			(uuid "04af6944-0d03-5b7a-90c7-9070723b6c9f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_OUT_EN" input
+			(at 370.84 104.14 180)
+			(uuid "198438ea-772a-5f0c-b1bf-e2e0fecb4817")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO_OUT_FLT_A_N" output
+			(at 370.84 106.68 180)
+			(uuid "da2e83d8-75fb-568e-84ac-4000144c79ff")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_DAC" input
+			(at 421.64 81.28 0)
+			(uuid "d7716c0b-5487-5c15-be43-130725331377")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO4_DAC" input
+			(at 421.64 83.82 0)
+			(uuid "d0fecd47-e199-5cf6-9c62-6cd59c42811c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "24")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 261.62 134.62)
+		(size 50.8 15.24)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "8f0703f0-e9be-5509-94b3-eeb2d4eb32e4")
+		(property "Sheetname" "IO Channel 3"
+			(at 261.62 133.92 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_ch3.kicad_sch"
+			(at 261.62 150.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO3_PIN" passive
+			(at 261.62 137.16 180)
+			(uuid "b5f78a96-8b61-54f4-bbb7-4b7f1a8414e7")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_DIV" passive
+			(at 261.62 139.7 180)
+			(uuid "20751497-5fbb-5a4a-933c-c12d93934af4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_BURDEN" input
+			(at 261.62 142.24 180)
+			(uuid "83ea6528-e573-5f44-af14-bae35425fe0e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_SENS_EN" input
+			(at 261.62 144.78 180)
+			(uuid "f5c5f243-aff5-568a-80dc-4b0c8b7419aa")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_SENS_FLT_N" output
+			(at 261.62 147.32 180)
+			(uuid "e3a67cf2-be84-5aab-b463-fdfdf7a05b3d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO3_ADC" output
+			(at 312.42 137.16 0)
+			(uuid "aa26a85c-6eec-51c8-8578-8dfce4ecebd6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "33")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 261.62 170.18)
+		(size 50.8 15.24)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "9a4af401-1ac8-5095-b0fb-8aaad49c74d4")
+		(property "Sheetname" "IO Channel 4"
+			(at 261.62 169.48 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_ch4.kicad_sch"
+			(at 261.62 186.02 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO4_PIN" passive
+			(at 261.62 172.72 180)
+			(uuid "05abfb61-888e-58a4-afe5-ab45d9b021bf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_DIV" passive
+			(at 261.62 175.26 180)
+			(uuid "26126bdc-5405-5485-a171-d253186856c9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_BURDEN" input
+			(at 261.62 177.8 180)
+			(uuid "d1f84ec9-b83a-5cd7-82ef-b555638cae99")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_SENS_EN" input
+			(at 261.62 180.34 180)
+			(uuid "6414e85c-1e38-50bf-860e-ec8def3dbab0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_SENS_FLT_N" output
+			(at 261.62 182.88 180)
+			(uuid "71561e06-face-5d76-a34f-914dbfe08246")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO4_ADC" output
+			(at 312.42 172.72 0)
+			(uuid "3ff6342a-bb0a-50e6-b3bf-e2234f981f7e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "34")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 370.84 149.86)
+		(size 50.8 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "9f26a4d0-db15-56c2-82f9-df94d69edd52")
+		(property "Sheetname" "IO Pressure Ports"
+			(at 370.84 149.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_pressure.kicad_sch"
+			(at 370.84 163.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "PREC_EXC" passive
+			(at 370.84 152.4 180)
+			(uuid "53a067ca-71bf-5020-be70-712dc2a1375a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PRESS1_ADC" output
+			(at 421.64 152.4 0)
+			(uuid "ce8508bd-176a-5721-a856-666c2ceeec0c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PRESS2_ADC" output
+			(at 421.64 154.94 0)
+			(uuid "81a657a0-6253-58ff-8f81-63ac7d939a8d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "28")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 370.84 119.38)
+		(size 50.8 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "dc0bab4d-f89e-5d62-afa9-390a2b1e075d")
+		(property "Sheetname" "IO Precision Ports"
+			(at 370.84 118.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_precision.kicad_sch"
+			(at 370.84 137.76 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "PREC_EXC_EN" input
+			(at 370.84 121.92 180)
+			(uuid "475015ab-c2f5-59ea-a6bf-5966c73282fb")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_EXC_FLT_N" output
+			(at 370.84 124.46 180)
+			(uuid "a9a7e246-c3e1-511e-b5b4-590608ba1050")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_EXC" passive
+			(at 370.84 127 180)
+			(uuid "6a712972-95d0-50e5-af2f-87c92f8160b3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "PREC_A_P" output
+			(at 421.64 121.92 0)
+			(uuid "e1677351-a22f-557e-8340-fa8657823e8f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_A_N" output
+			(at 421.64 124.46 0)
+			(uuid "3ea84e59-7a12-506d-92ac-36f239d8c896")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_B_P" output
+			(at 421.64 127 0)
+			(uuid "d1de05d8-0ed7-5934-b03a-efbe3210b250")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_B_N" output
+			(at 421.64 129.54 0)
+			(uuid "e2c40d31-e6b0-5cfe-b49d-8786a7329c14")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_REFP" output
+			(at 421.64 132.08 0)
+			(uuid "8eb4b761-cd78-5643-8206-322b64c2dbf4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PREC_REFN" output
+			(at 421.64 134.62 0)
+			(uuid "bf88151e-6257-5ab8-94e4-5b9d5e82e71b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "27")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 261.62 63.5)
+		(size 50.8 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "deeca7ce-2e6e-5cad-ba1f-75962668eea1")
+		(property "Sheetname" "IO Channel 1"
+			(at 261.62 62.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io_ch1.kicad_sch"
+			(at 261.62 81.88 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "IO1_PIN" passive
+			(at 261.62 66.04 180)
+			(uuid "bfc8915c-7560-5287-b390-32afa24cdfdf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_DIV" passive
+			(at 261.62 68.58 180)
+			(uuid "052ff7c5-2ce4-58e3-a630-70376ea754b0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_BUF_OE_N" input
+			(at 261.62 71.12 180)
+			(uuid "c36bd4e6-37e0-516c-8947-761d7b3aa770")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_BURDEN" input
+			(at 261.62 73.66 180)
+			(uuid "bb52dac4-a631-540a-8feb-e9b45f1d6aa2")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_SENS_EN" input
+			(at 261.62 76.2 180)
+			(uuid "8cef023d-7d36-519b-869d-59a087a620cf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_SENS_FLT_N" output
+			(at 261.62 78.74 180)
+			(uuid "7030362a-4b42-56ea-b99d-e97debacc063")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "IO1_LEVEL" passive
+			(at 312.42 66.04 0)
+			(uuid "8a49c554-6710-59f1-9b14-efc6f0c4c2ee")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_ADC" output
+			(at 312.42 68.58 0)
+			(uuid "053b2911-6126-585e-88d2-78c6bcb8b5ff")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "IO1_DAC" input
+			(at 312.42 71.12 0)
+			(uuid "cc70d05a-071c-5b37-9bc8-10443260b3ce")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "AUX_IO5" bidirectional
+			(at 312.42 73.66 0)
+			(uuid "159a3bae-510b-5a87-9c84-7faf8a32abdf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0"
+					(page "31")
+				)
+			)
+		)
+	)
+)

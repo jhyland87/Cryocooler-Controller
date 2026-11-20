@@ -871,7 +871,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6242657f-959f-58e8-806f-fbac2f6ed453")
+		(uuid "d044c8f3-6442-5c8d-90e4-d6c6d184f31e")
 	)
 	(bus
 		(pts
@@ -881,7 +881,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "0d04e4bb-3c32-5115-b47f-9b35a41bf07c")
+		(uuid "feac99bd-e50e-50e5-aad9-26c6cbc85962")
 	)
 	(bus
 		(pts
@@ -891,7 +891,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b5529fc7-1e3c-5cb7-96dd-2cab0f1be021")
+		(uuid "3f20cf32-bdaa-5587-9f9d-5526fc2d58cc")
 	)
 	(bus
 		(pts
@@ -901,7 +901,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "65936ba6-81f2-5f99-aa7a-4cca94526936")
+		(uuid "253f1f1e-db5d-5365-9283-4d8218b51fa1")
 	)
 	(bus_entry
 		(at 55.88 83.82)
@@ -910,7 +910,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "215f3676-0b7a-5c97-ac74-985d526bbd3e")
+		(uuid "00929ca1-0a08-5a2e-9a90-99f0f5ef2a92")
 	)
 	(bus_entry
 		(at 55.88 86.36)
@@ -919,7 +919,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "54bcc9c3-d2f4-5c51-9161-aed510b3b96f")
+		(uuid "5b9d1032-b30e-50a3-bf33-d9806e0a0450")
 	)
 	(bus_entry
 		(at 134.62 83.82)
@@ -928,29 +928,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f6fc28a0-13fd-5cfb-be69-338ca551cd35")
-	)
-	(text "ADT7320 DECOUPLING CAPACITOR"
-		(exclude_from_sim no)
-		(at 190.5 116.84 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2469e581-9814-5564-97a8-d4ababdd8828")
-	)
-	(text "BIAS"
-		(exclude_from_sim no)
-		(at 25.4 149.86 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2870228a-b261-5a95-a200-b89124801370")
+		(uuid "900806a3-2702-5d56-b55c-fdbb579f6d98")
 	)
 	(text "INT and CT are open drain and need 10 k pull-ups; they go to expander GP2 and GP3. Place this part far from anything that warms the board."
 		(exclude_from_sim no)
@@ -961,7 +939,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "a4974496-4229-5090-a31e-3f3d667c4212")
+		(uuid "3bb37588-6bf3-5406-ae3c-dcbcc69ce874")
+	)
+	(text "ADT7320 DECOUPLING CAPACITOR"
+		(exclude_from_sim no)
+		(at 190.5 116.84 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "c6ea6283-121a-5d89-93aa-70c571ef456f")
 	)
 	(text "ADT7320: SPI mode 3 (SCLK idles high), MSB first, on the main bus (CS from the decoder). DOUT is released within 80 ns of CS rising (datasheet Table 2, t7), so it shares SPI_MISO without a buffer. Pins 5-8 and 13-16 are not bonded: left open. Exposed pad to GND."
 		(exclude_from_sim no)
@@ -972,123 +961,25 @@
 			)
 			(justify left top)
 		)
-		(uuid "b802ff27-bfb8-5423-8eea-a8590a7471c3")
+		(uuid "f114bf1a-9797-5973-8669-feb22fedf967")
+	)
+	(junction
+		(at 182.88 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "528955e9-f087-54e2-b894-531410632bd4")
+	)
+	(junction
+		(at 152.4 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "62862192-1120-5961-aa22-fa7cd8463a5b")
 	)
 	(junction
 		(at 104.14 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "9ee7ea83-bd3c-5aae-9d2c-550a2d5e5d1c")
-	)
-	(wire
-		(pts
-			(xy 71.12 88.9) (xy 86.36 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "12716570-9263-5579-a9a3-865f254a156b")
-	)
-	(wire
-		(pts
-			(xy 104.14 101.6) (xy 104.14 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18c4eb8f-9c98-5799-8cec-de47c9c8518b")
-	)
-	(wire
-		(pts
-			(xy 83.82 86.36) (xy 86.36 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18e8004d-57af-526a-9e76-c1654f722b03")
-	)
-	(wire
-		(pts
-			(xy 43.18 157.48) (xy 45.72 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ba47f19-cae2-5430-9ab6-d7442e7ce69b")
-	)
-	(wire
-		(pts
-			(xy 116.84 88.9) (xy 124.46 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3603a9c3-f8c0-5bc0-915c-c66021648a09")
-	)
-	(wire
-		(pts
-			(xy 116.84 86.36) (xy 124.46 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54b36298-e8a8-5139-aead-4db95a1fd695")
-	)
-	(wire
-		(pts
-			(xy 55.88 86.36) (xy 83.82 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54f53790-e4c4-5bd8-8ed4-bb992c53bc4b")
-	)
-	(wire
-		(pts
-			(xy 119.38 83.82) (xy 134.62 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "582e1229-6f47-51d9-8f40-593650b9f019")
-	)
-	(wire
-		(pts
-			(xy 99.06 99.06) (xy 99.06 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5ff6f3dc-6e9d-59b2-a8fd-6caebec1c69e")
-	)
-	(wire
-		(pts
-			(xy 104.14 99.06) (xy 104.14 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "65eab179-a2f1-5030-93e3-370c2962bbfc")
-	)
-	(wire
-		(pts
-			(xy 55.88 83.82) (xy 83.82 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "68bb4ee2-e566-5c25-89cf-e6310270c6b6")
+		(uuid "773ea143-b86a-5213-845e-56c08d59c6a0")
 	)
 	(wire
 		(pts
@@ -1098,37 +989,57 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a82d1b8b-a8f0-5ae4-a122-e3f72d647a65")
+		(uuid "05f82cb1-3014-52ec-9ee9-ca8530506699")
 	)
 	(wire
 		(pts
-			(xy 43.18 167.64) (xy 45.72 167.64)
+			(xy 116.84 88.9) (xy 182.88 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cddaf65d-6f9a-5714-b126-233f6397d422")
+		(uuid "10492b88-7e19-5601-abe6-bc255dfe0498")
 	)
 	(wire
 		(pts
-			(xy 83.82 83.82) (xy 86.36 83.82)
+			(xy 152.4 86.36) (xy 160.02 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d809a608-bf4b-5bad-b51a-7545ac4dc2fd")
+		(uuid "1d9310f3-2cd2-5fb8-b672-687144de835d")
 	)
 	(wire
 		(pts
-			(xy 101.6 71.12) (xy 101.6 78.74)
+			(xy 71.12 88.9) (xy 86.36 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "da1d7f8c-df2f-51e1-bf02-bc96dd65b399")
+		(uuid "1e8ec44a-c166-5fdd-9b9b-53bed8ba3377")
+	)
+	(wire
+		(pts
+			(xy 104.14 101.6) (xy 104.14 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d0d1205-b2a9-5058-9e5e-29fb808570b9")
+	)
+	(wire
+		(pts
+			(xy 55.88 86.36) (xy 83.82 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31f26e24-4710-56e9-8ec9-29409d1fa80a")
 	)
 	(wire
 		(pts
@@ -1138,7 +1049,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ec9ec79f-417b-5702-a08b-8bcdda48debf")
+		(uuid "379d9b84-af5f-5853-a859-de52740fee19")
+	)
+	(wire
+		(pts
+			(xy 83.82 83.82) (xy 86.36 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a8d5b1f-beb4-5f99-b4d2-5c46520a4e3e")
 	)
 	(wire
 		(pts
@@ -1148,7 +1069,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f2274062-896e-5f96-bac1-95130227d3b6")
+		(uuid "472b0aef-2429-50bf-98ef-ca651c5d1924")
+	)
+	(wire
+		(pts
+			(xy 99.06 99.06) (xy 99.06 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "584711c8-dbd2-55c8-9cb4-240e785a6075")
+	)
+	(wire
+		(pts
+			(xy 55.88 83.82) (xy 83.82 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "66716c21-31b2-5f70-94db-cf69d10d9b64")
 	)
 	(wire
 		(pts
@@ -1158,29 +1099,67 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fd032d33-7c54-55f2-aa26-4a9eae998394")
+		(uuid "8869efeb-3903-5d1e-a003-30d53fb0f6b3")
 	)
-	(label "SPI_MOSI"
-		(at 83.82 86.36 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
+	(wire
+		(pts
+			(xy 83.82 86.36) (xy 86.36 86.36)
 		)
-		(uuid "08889b31-95c2-5c49-ae09-e7f7cde2ec93")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 83.82 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
+		(uuid "963e54d0-1103-5add-86f1-0838e28f1aa7")
+	)
+	(wire
+		(pts
+			(xy 104.14 99.06) (xy 104.14 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "995064f0-a218-516d-80c0-6063bf18f5b1")
+	)
+	(wire
+		(pts
+			(xy 119.38 83.82) (xy 134.62 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac64aea5-52a2-5f77-a84e-93bec2d50f6b")
+	)
+	(wire
+		(pts
+			(xy 116.84 86.36) (xy 152.4 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4c7f0c4-732c-5c78-9f86-43ea238abc7a")
+	)
+	(wire
+		(pts
+			(xy 182.88 88.9) (xy 190.5 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "db20393b-f230-564d-8728-3f6179c4d26b")
+	)
+	(wire
+		(pts
+			(xy 101.6 71.12) (xy 101.6 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f3a0a074-b633-5204-a3cd-03420db5638b")
 	)
 	(label "SPI_MISO"
 		(at 119.38 83.82 0)
@@ -1190,7 +1169,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "11967fce-7095-53b7-9f48-ca1e6022e99c")
+		(uuid "257cceb1-aa3d-5fd2-b1ad-ced77accbfc5")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 119.38 83.82 0)
 			(hide yes)
@@ -1212,9 +1191,31 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "3e68dccf-95fa-55d3-a244-ca1aeaf2a441")
+		(uuid "667dfc4d-3e8c-5fe7-bd46-db54e179c9a3")
 		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
 			(at 83.82 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_MOSI"
+		(at 83.82 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "aab16bcd-47a2-5deb-8cc1-fd991ef1d397")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 83.82 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1236,7 +1237,7 @@
 			)
 			(justify right)
 		)
-		(uuid "09244d9d-3d5a-5aaf-803d-98fcd505acf4")
+		(uuid "8673ef74-7a18-59cb-b8ab-15d86acabbe8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 48.26 71.12 0)
 			(hide yes)
@@ -1272,7 +1273,7 @@
 			)
 			(justify left)
 		)
-		(uuid "3dab2299-3641-51c4-82fb-4978684d372c")
+		(uuid "b07f2556-a201-5e27-b2d3-516007774279")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 142.24 68.58 0)
 			(hide yes)
@@ -1298,101 +1299,16 @@
 			)
 		)
 	)
-	(global_label "AMBIENT_CT"
-		(shape bidirectional)
-		(at 45.72 167.64 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "40073c62-2f44-5679-b060-85d6c03517fa")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
-			(at 45.72 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "AMBIENT_CT"
-		(shape bidirectional)
-		(at 124.46 88.9 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "71e0885e-fe2c-5b3b-8e9c-0d9fec8fd75d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
-			(at 124.46 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "AMBIENT_CS"
-		(shape bidirectional)
+	(hierarchical_label "AMBIENT_CS"
+		(shape input)
 		(at 71.12 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "bc5ca8bf-d4f0-5128-accf-2a06ba5994db")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.12 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "1338d12c-26eb-5aa7-8224-7495598c77c5")
 		(property "Description" "Chip select (active low) for the ADT7320 ambient sensor, decoder Y8"
 			(at 71.12 88.9 0)
 			(hide yes)
@@ -1406,31 +1322,18 @@
 			)
 		)
 	)
-	(global_label "AMBIENT_INT"
-		(shape bidirectional)
-		(at 45.72 157.48 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "AMBIENT_INT"
+		(shape output)
+		(at 160.02 86.36 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "f88d2882-335d-51cc-a94b-d6538ac8e4ec")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
+		(uuid "353e37a3-a7df-5a9a-b98e-c4fa69d62527")
 		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
-			(at 45.72 157.48 0)
+			(at 160.02 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1442,19 +1345,18 @@
 			)
 		)
 	)
-	(global_label "AMBIENT_INT"
-		(shape bidirectional)
-		(at 124.46 86.36 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "AMBIENT_CT"
+		(shape output)
+		(at 190.5 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "fb05867d-6d0b-516f-9a91-ef2217133882")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 86.36 0)
+		(uuid "4f88daf6-203a-56b8-a5b9-be5014d6cb30")
+		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
+			(at 190.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1463,102 +1365,12 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-			)
-		)
-		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
-			(at 124.46 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 35.56 157.48 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "050d536b-f4ca-5f60-b4ff-5bf489036aa5")
-		(property "Reference" "#PWR303"
-			(at 35.56 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 33.16 156.38 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 35.56 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 35.56 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "26f7467f-d246-5559-910a-3c3d0dcf05af")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
-					(reference "#PWR303")
-					(unit 1)
-				)
 			)
 		)
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 39.37 157.48 90)
+		(at 152.4 82.55 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1566,29 +1378,31 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "05d980a7-7265-5350-a7ca-a995638b6b01")
+		(uuid "050d536b-f4ca-5f60-b4ff-5bf489036aa5")
 		(property "Reference" "R511"
-			(at 39.37 151.364 270)
+			(at 155.616 81.5 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "10k"
-			(at 39.37 153.464 270)
+			(at 155.616 83.6 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 39.37 157.48 0)
+			(at 152.4 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1599,7 +1413,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 157.48 0)
+			(at 152.4 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1610,7 +1424,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistor for the ADT7320 INT output (open drain) to expander GP2"
-			(at 39.37 157.48 0)
+			(at 152.4 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1621,7 +1435,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 157.48 0)
+			(at 152.4 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1632,15 +1446,92 @@
 			)
 		)
 		(pin "1"
-			(uuid "1ee5d386-fb3c-5c37-af65-65e57690534d")
+			(uuid "7fbcd8dd-babb-5fad-9173-9d476ca50698")
 		)
 		(pin "2"
-			(uuid "e2d9a011-0c94-5828-9d03-7a1061db2574")
+			(uuid "f27664eb-cdc4-5928-9e0e-dfc7bfd5f4d3")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
 					(reference "R511")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 152.4 78.74 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "05d980a7-7265-5350-a7ca-a995638b6b01")
+		(property "Reference" "#PWR303"
+			(at 152.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 152.4 75.184 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 152.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9f12930c-51e8-55ba-9575-31db3c16e09f")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
+					(reference "#PWR303")
 					(unit 1)
 				)
 			)
@@ -1712,7 +1603,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f10b5569-2e22-57cd-8e12-6058a5398efc")
+			(uuid "49dbc9dc-bdfb-5cad-9490-e5b16b9b68c9")
 		)
 		(instances
 			(project "cryocooler"
@@ -1790,7 +1681,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "31f28551-a678-5ea9-a2f6-4fc7e913cb53")
+			(uuid "7cb0b09b-38ff-5d5d-9d05-bb397a2cc7e7")
 		)
 		(instances
 			(project "cryocooler"
@@ -1802,86 +1693,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 35.56 167.64 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "25e92b6a-9078-5bfa-ab67-569770795ba5")
-		(property "Reference" "#PWR304"
-			(at 35.56 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 33.16 166.54 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 35.56 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 35.56 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "fd8d78ac-280a-546c-9008-06f69b57579b")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
-					(reference "#PWR304")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_US")
-		(at 39.37 167.64 90)
+		(at 182.88 85.09 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1889,29 +1702,31 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2ca42aaf-50b4-5314-971f-142014b7db78")
+		(uuid "25e92b6a-9078-5bfa-ab67-569770795ba5")
 		(property "Reference" "R512"
-			(at 39.37 161.524 270)
+			(at 186.096 84.04 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "10k"
-			(at 39.37 163.624 270)
+			(at 186.096 86.14 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 39.37 167.64 0)
+			(at 182.88 85.09 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1922,7 +1737,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 167.64 0)
+			(at 182.88 85.09 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1933,7 +1748,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistor for the ADT7320 CT output (open drain) to expander GP3"
-			(at 39.37 167.64 0)
+			(at 182.88 85.09 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1944,7 +1759,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 167.64 0)
+			(at 182.88 85.09 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1955,15 +1770,92 @@
 			)
 		)
 		(pin "1"
-			(uuid "32ddb686-992c-5f0d-8651-e64ad7196e2a")
+			(uuid "7fe39fc4-00ae-57c2-843a-0d1cc86d0096")
 		)
 		(pin "2"
-			(uuid "97ae1a19-2763-5e2f-83f7-95eafaaed91e")
+			(uuid "2cb09bbd-c4a8-5901-ace2-ccdc261b8a02")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
 					(reference "R512")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 182.88 81.28 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "2ca42aaf-50b4-5314-971f-142014b7db78")
+		(property "Reference" "#PWR304"
+			(at 182.88 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 182.88 77.724 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 182.88 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 182.88 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 182.88 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "fd564c80-969f-54b8-adae-7344bf0529b3")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/c237b8ba-e38e-5701-8fce-ddc9374652fa"
+					(reference "#PWR304")
 					(unit 1)
 				)
 			)
@@ -2047,10 +1939,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ca5f3a8f-0cd8-5aad-9c2b-0e539bf0f255")
+			(uuid "250a376e-a6a5-5922-b5ab-6abb10ceb3d6")
 		)
 		(pin "2"
-			(uuid "6c57513e-2f04-5a1a-a1b6-50abc4e17bab")
+			(uuid "37f1e8f9-720a-5cd8-b2a8-3631ab93746b")
 		)
 		(instances
 			(project "cryocooler"
@@ -2128,7 +2020,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "5f6fbc74-e109-5413-9b52-27c3617a542d")
+			(uuid "9bd5115c-679e-504f-bb16-9f9fc9a30681")
 		)
 		(instances
 			(project "cryocooler"
@@ -2217,31 +2109,31 @@
 			)
 		)
 		(pin "1"
-			(uuid "e41e5e37-143b-59dc-9ffc-986ce6347060")
+			(uuid "31ebed97-914d-57c2-877b-dc3c237963d3")
 		)
 		(pin "3"
-			(uuid "df29c40d-8be5-56e0-8f2f-82f03db93fe5")
+			(uuid "48f93a2b-8931-54ce-896d-96da90e74a00")
 		)
 		(pin "4"
-			(uuid "f7032388-7712-59e0-80de-cda70050510f")
+			(uuid "c54996b8-acae-556f-9529-fa64029ec566")
 		)
 		(pin "2"
-			(uuid "74cce5d3-dd53-5bb5-a085-e9acd01b9a4e")
+			(uuid "abbeb57f-c4d3-5f7f-b484-ed62a7e3f941")
 		)
 		(pin "9"
-			(uuid "d0ec51f5-b226-5199-bbd1-7116446f59d0")
+			(uuid "e44e12b7-b963-5cfb-841e-a9d12c02cb56")
 		)
 		(pin "10"
-			(uuid "70438922-7d0a-521b-94d2-533ef23b85e6")
+			(uuid "f7461b23-d1a0-5fe2-9d40-1d0e0f7f8a2a")
 		)
 		(pin "12"
-			(uuid "d3f465f2-1410-5070-b1cb-241f5bd5981a")
+			(uuid "6f6b06e6-c2d7-5d1e-a2cd-e66843206e24")
 		)
 		(pin "11"
-			(uuid "fd05d290-873e-59c9-bff5-ad3c0e124126")
+			(uuid "78c3cc77-3540-5e84-b72b-fee25e2d6896")
 		)
 		(pin "17"
-			(uuid "e01dc88d-123e-538e-bfd3-21945e909e23")
+			(uuid "248e0cc1-8040-58dc-be77-baab919d2cfa")
 		)
 		(instances
 			(project "cryocooler"
@@ -2318,7 +2210,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "190f4d56-db00-5f80-a70f-0fd3799cb415")
+			(uuid "71f30ad1-f8ea-594b-bdac-61e101cd98ed")
 		)
 		(instances
 			(project "cryocooler"

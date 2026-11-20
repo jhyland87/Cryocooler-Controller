@@ -165,6 +165,160 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:R_Small_US"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R"
+				(at 0.762 0.508 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "R_Small_US"
+				(at 0.762 -1.016 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resistor, small US symbol"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "r resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R_Small_US_1_1"
+				(polyline
+					(pts
+						(xy 0 1.524) (xy 1.016 1.143) (xy 0 0.762) (xy -1.016 0.381) (xy 0 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 1.016 -0.381) (xy 0 -0.762) (xy -1.016 -1.143) (xy 0 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at 0 2.54 270)
+					(length 1.016)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -2.54 90)
+					(length 1.016)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R_US"
 			(pin_numbers
 				(hide yes)
@@ -364,7 +518,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 10.16 15.24 0)
+				(at 10.16 27.94 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -375,7 +529,7 @@
 				)
 			)
 			(property "Value" "TMUX1111RSV"
-				(at -10.16 15.24 0)
+				(at -10.16 27.94 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -431,8 +585,8 @@
 			)
 			(symbol "TMUX1111RSV_0_1"
 				(rectangle
-					(start -10.16 12.7)
-					(end 10.16 -12.7)
+					(start -10.16 25.4)
+					(end 10.16 -25.4)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -444,7 +598,7 @@
 			)
 			(symbol "TMUX1111RSV_1_1"
 				(pin passive line
-					(at -12.7 10.16 0)
+					(at -12.7 22.86 0)
 					(length 2.54)
 					(name "S1"
 						(effects
@@ -462,7 +616,7 @@
 					)
 				)
 				(pin no_connect line
-					(at 12.7 0 180)
+					(at 12.7 12.7 180)
 					(length 2.54)
 					(name "NC"
 						(effects
@@ -480,7 +634,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 -15.24 90)
+					(at 0 -27.94 90)
 					(length 2.54)
 					(name "GND"
 						(effects
@@ -498,7 +652,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 2.54 0)
+					(at -12.7 15.24 0)
 					(length 2.54)
 					(name "S4"
 						(effects
@@ -516,7 +670,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 2.54 180)
+					(at 12.7 15.24 180)
 					(length 2.54)
 					(name "D4"
 						(effects
@@ -534,7 +688,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 -7.62 0)
+					(at -12.7 -20.32 0)
 					(length 2.54)
 					(name "~{SEL4}"
 						(effects
@@ -552,7 +706,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 -5.08 0)
+					(at -12.7 -10.16 0)
 					(length 2.54)
 					(name "~{SEL3}"
 						(effects
@@ -570,7 +724,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 5.08 180)
+					(at 12.7 17.78 180)
 					(length 2.54)
 					(name "D3"
 						(effects
@@ -588,7 +742,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 5.08 0)
+					(at -12.7 17.78 0)
 					(length 2.54)
 					(name "S3"
 						(effects
@@ -606,7 +760,7 @@
 					)
 				)
 				(pin no_connect line
-					(at 12.7 -2.54 180)
+					(at 12.7 10.16 180)
 					(length 2.54)
 					(name "NC"
 						(effects
@@ -624,7 +778,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 15.24 270)
+					(at 0 27.94 270)
 					(length 2.54)
 					(name "VDD"
 						(effects
@@ -642,7 +796,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 7.62 0)
+					(at -12.7 20.32 0)
 					(length 2.54)
 					(name "S2"
 						(effects
@@ -660,7 +814,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 7.62 180)
+					(at 12.7 20.32 180)
 					(length 2.54)
 					(name "D2"
 						(effects
@@ -678,7 +832,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 -2.54 0)
+					(at -12.7 0 0)
 					(length 2.54)
 					(name "~{SEL2}"
 						(effects
@@ -696,7 +850,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 0 0)
+					(at -12.7 10.16 0)
 					(length 2.54)
 					(name "~{SEL1}"
 						(effects
@@ -714,7 +868,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 10.16 180)
+					(at 12.7 22.86 180)
 					(length 2.54)
 					(name "D1"
 						(effects
@@ -744,7 +898,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 10.16 20.32 0)
+				(at 10.16 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -755,7 +909,7 @@
 				)
 			)
 			(property "Value" "TMUX7412FRRP"
-				(at -10.16 20.32 0)
+				(at -10.16 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -811,8 +965,8 @@
 			)
 			(symbol "TMUX7412FRRP_0_1"
 				(rectangle
-					(start -10.16 17.78)
-					(end 10.16 -17.78)
+					(start -10.16 27.94)
+					(end 10.16 -27.94)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -824,7 +978,7 @@
 			)
 			(symbol "TMUX7412FRRP_1_1"
 				(pin passive line
-					(at -12.7 15.24 0)
+					(at -12.7 25.4 0)
 					(length 2.54)
 					(name "S1"
 						(effects
@@ -842,7 +996,7 @@
 					)
 				)
 				(pin power_in line
-					(at -5.08 -20.32 90)
+					(at -5.08 -30.48 90)
 					(length 2.54)
 					(name "VSS"
 						(effects
@@ -860,7 +1014,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 -20.32 90)
+					(at 0 -30.48 90)
 					(length 2.54)
 					(name "GND"
 						(effects
@@ -878,7 +1032,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 7.62 0)
+					(at -12.7 17.78 0)
 					(length 2.54)
 					(name "S4"
 						(effects
@@ -896,7 +1050,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 -7.62 180)
+					(at 12.7 2.54 180)
 					(length 2.54)
 					(name "D4"
 						(effects
@@ -914,7 +1068,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 -2.54 0)
+					(at -12.7 -17.78 0)
 					(length 2.54)
 					(name "SEL4"
 						(effects
@@ -932,7 +1086,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 0 0)
+					(at -12.7 -7.62 0)
 					(length 2.54)
 					(name "SEL3"
 						(effects
@@ -950,7 +1104,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 0 180)
+					(at 12.7 10.16 180)
 					(length 2.54)
 					(name "D3"
 						(effects
@@ -968,7 +1122,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 10.16 0)
+					(at -12.7 20.32 0)
 					(length 2.54)
 					(name "S3"
 						(effects
@@ -986,7 +1140,7 @@
 					)
 				)
 				(pin open_collector line
-					(at 12.7 -12.7 180)
+					(at 12.7 -2.54 180)
 					(length 2.54)
 					(name "~{FF}"
 						(effects
@@ -1004,7 +1158,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 20.32 270)
+					(at 0 30.48 270)
 					(length 2.54)
 					(name "VDD"
 						(effects
@@ -1022,7 +1176,7 @@
 					)
 				)
 				(pin passive line
-					(at -12.7 12.7 0)
+					(at -12.7 22.86 0)
 					(length 2.54)
 					(name "S2"
 						(effects
@@ -1040,7 +1194,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 7.62 180)
+					(at 12.7 17.78 180)
 					(length 2.54)
 					(name "D2"
 						(effects
@@ -1076,7 +1230,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 5.08 0)
+					(at -12.7 12.7 0)
 					(length 2.54)
 					(name "SEL1"
 						(effects
@@ -1094,7 +1248,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 15.24 180)
+					(at 12.7 25.4 180)
 					(length 2.54)
 					(name "D1"
 						(effects
@@ -1112,7 +1266,7 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 -20.32 90)
+					(at 5.08 -30.48 90)
 					(length 2.54)
 					(name "EP"
 						(effects
@@ -1665,49 +1819,16 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "TMUX1111 DECOUPLING CAPACITORS"
+	(text "PULL-UP SWITCH, CHANNELS 1-4"
 		(exclude_from_sim no)
-		(at 38.1 251.46 0)
+		(at 38.1 147.32 0)
 		(effects
 			(font
 				(size 1.8 1.8)
 			)
 			(justify left top)
 		)
-		(uuid "2e2b1642-f92d-5962-9882-37abf6c07b16")
-	)
-	(text "Pull-up: TMUX7412F on +12 V joins the pin to 10k / +3V3 while PULLUP is high. Its source pins block in both directions and survive +-60 V, so a pin above 3.3 V is not loaded while the switch is open. FF (fault flag) is not used."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "6a7fea5d-3aa3-51e7-8495-e4aca8b2a275")
-	)
-	(text "BIAS (EVERY SELECT PULLED TO ITS DEFAULT)"
-		(exclude_from_sim no)
-		(at 25.4 198.12 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "6d27d082-3f37-54dc-bd7f-c16e1a9c26cf")
-	)
-	(text "RANGE SWITCH, CHANNELS 1-4"
-		(exclude_from_sim no)
-		(at 38.1 50.8 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "788ea65f-6145-5c2d-94ea-0a667879c8d9")
+		(uuid "31d6c0a1-210a-54bc-bf8d-4994ade31bd8")
 	)
 	(text "Range: TMUX1111 closes while its select is low, grounding the 20k divider leg (0-15 V range). DIRECT high opens it. The switch only ever sees the ADC-side voltage, never the pin."
 		(exclude_from_sim no)
@@ -1718,7 +1839,40 @@
 			)
 			(justify left top)
 		)
-		(uuid "9653f190-a9d1-5ab1-8b29-c4e4c065e110")
+		(uuid "3471c31e-b03c-55e1-b480-33da02032209")
+	)
+	(text "Pull-up: TMUX7412F on +12 V joins the pin to 10k / +3V3 while PULLUP is high. Its source pins block in both directions and survive +-60 V, so a pin above 3.3 V is not loaded while the switch is open. FF (fault flag) is not used."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "5551cd3d-c9bc-5bf7-b18a-5b413dd3d447")
+	)
+	(text "RANGE SWITCH, CHANNELS 1-4"
+		(exclude_from_sim no)
+		(at 38.1 45.72 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "6ff244eb-686b-51be-9435-205c340440b5")
+	)
+	(text "TMUX1111 DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 38.1 251.46 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "991c976c-d81a-5a9e-b3d3-391333487b14")
 	)
 	(text "TMUX7412F DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -1729,542 +1883,125 @@
 			)
 			(justify left top)
 		)
-		(uuid "9701b6ab-dabf-5f72-b482-5d0ecc0b00d1")
-	)
-	(text "PULL-UP SWITCH, CHANNELS 1-4"
-		(exclude_from_sim no)
-		(at 38.1 121.92 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "bc03606b-da2d-51d4-a27c-ef38c6f8194e")
+		(uuid "d281a8c3-83d9-5ec1-a934-636db91dd232")
 	)
 	(junction
-		(at 106.68 78.74)
+		(at 66.04 78.74)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "34768824-cced-5f71-8d91-7f52e1a805c6")
+		(uuid "0de42641-f7c8-502d-9e8c-3d9e6db05408")
 	)
 	(junction
-		(at 127 142.24)
+		(at 66.04 99.06)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "380c72fa-61e9-5442-9840-44280cc74bbb")
+		(uuid "1c7436de-548e-5339-a535-a20662e4d9c8")
 	)
 	(junction
-		(at 88.9 180.34)
+		(at 66.04 190.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5ef37b10-dd0e-5af9-a807-7da0c9783a06")
+		(uuid "3cab98bf-8525-5cd9-bce3-c548e6e1c0f7")
 	)
 	(junction
-		(at 127 149.86)
+		(at 93.98 226.06)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "6592f9ae-435e-54ee-8ead-787a3ea7bc83")
+		(uuid "46cfaa90-00ae-5466-93b0-df88d8730573")
 	)
 	(junction
-		(at 127 157.48)
+		(at 66.04 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "98cc45ac-919b-5b76-b408-e96d2353cee8")
+		(uuid "50e7a1c5-9414-52c2-99ef-52c2ab44b9a0")
+	)
+	(junction
+		(at 127 167.64)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "61a5bfee-22c0-5654-abde-a5b52266ccec")
+	)
+	(junction
+		(at 127 175.26)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6358cb00-3f6d-58ef-941e-068e992371c5")
+	)
+	(junction
+		(at 106.68 71.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "881285e4-a1dd-5670-a50b-da862c69e3a2")
+	)
+	(junction
+		(at 88.9 226.06)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8f60a87c-f6aa-55d7-bd94-a60326c5af51")
 	)
 	(junction
 		(at 106.68 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "a87c1081-c686-58c7-9dae-0bffeba78ff8")
+		(uuid "a634f611-c3ba-530b-a54c-14a1ad39a372")
 	)
 	(junction
-		(at 106.68 76.2)
+		(at 127 182.88)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "fe555124-9c3d-5e22-b8a2-a79af8ad2e97")
+		(uuid "a741064b-fba5-5ae2-b02d-4aea0bbfe5be")
+	)
+	(junction
+		(at 66.04 180.34)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b24fd085-0f4d-5f21-8f86-6183d7ccb1cf")
+	)
+	(junction
+		(at 66.04 200.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c3e295c9-4442-5ac1-a05a-363740ff7de8")
+	)
+	(junction
+		(at 106.68 68.58)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c521a40e-f4ce-53a6-b33d-8ebd78705ae5")
+	)
+	(junction
+		(at 66.04 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d7f965d7-f99f-5e0c-88e8-f8db5b150f4a")
+	)
+	(junction
+		(at 66.04 210.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fdd4175c-f99d-501d-8dc5-f2f6df652c8f")
 	)
 	(no_connect
-		(at 101.6 170.18)
-		(uuid "b8fd8e47-c548-5f85-a80d-1e908ca5a861")
+		(at 101.6 78.74)
+		(uuid "3a210734-267f-5324-a305-0ddb0d91c799")
 	)
 	(no_connect
-		(at 101.6 83.82)
-		(uuid "c6f5b23f-57cd-59fc-8551-786784e4d3e9")
+		(at 101.6 195.58)
+		(uuid "81371bc7-9e67-56b9-8c09-0b4d63f688d3")
 	)
 	(no_connect
-		(at 101.6 81.28)
-		(uuid "cdd23bda-a757-5244-a5c9-a3f879f79cff")
+		(at 101.6 76.2)
+		(uuid "97fd0ce5-f1d9-580a-82d3-16d4602428a7")
 	)
 	(wire
 		(pts
-			(xy 114.3 149.86) (xy 127 149.86)
+			(xy 114.3 175.26) (xy 127 175.26)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0097b733-ff41-5af0-bc59-47bf67d94cb9")
-	)
-	(wire
-		(pts
-			(xy 215.9 228.6) (xy 215.9 231.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "03c48c2a-81a1-5c6d-a2c8-4f9d7cf9dddf")
-	)
-	(wire
-		(pts
-			(xy 101.6 78.74) (xy 106.68 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "05cbdb73-a1cf-57b7-a0d7-a4749b67b86e")
-	)
-	(wire
-		(pts
-			(xy 48.26 208.28) (xy 50.8 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "066be726-f8a7-54c9-89d6-088a7974138a")
-	)
-	(wire
-		(pts
-			(xy 38.1 269.24) (xy 45.72 269.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0f3340fa-cf84-506b-9c87-e0f8014954c4")
-	)
-	(wire
-		(pts
-			(xy 88.9 180.34) (xy 88.9 182.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "13fd3dbe-49c6-5358-94ed-3a7725171135")
-	)
-	(wire
-		(pts
-			(xy 106.68 71.12) (xy 106.68 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "14234108-f168-53f2-92ca-cf2abda913cd")
-	)
-	(wire
-		(pts
-			(xy 88.9 96.52) (xy 88.9 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ac53dc8-bc1a-517a-a4af-b8150e8a3812")
-	)
-	(wire
-		(pts
-			(xy 213.36 218.44) (xy 215.9 218.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1b42ff35-08fb-51da-850b-a67bb79a0985")
-	)
-	(wire
-		(pts
-			(xy 50.8 228.6) (xy 50.8 231.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1dc2dc1a-5036-5d3d-b48b-d7df29c6d6ea")
-	)
-	(wire
-		(pts
-			(xy 114.3 157.48) (xy 127 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1f2ed7ea-b2ba-5917-8cec-cf4d4f023c67")
-	)
-	(wire
-		(pts
-			(xy 215.9 208.28) (xy 215.9 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1fdef93a-5696-580a-a6cf-a38e026a6375")
-	)
-	(wire
-		(pts
-			(xy 68.58 86.36) (xy 76.2 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "22dbda55-489c-51e4-ba72-9ae165a97c8a")
-	)
-	(wire
-		(pts
-			(xy 68.58 73.66) (xy 76.2 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b7e530f-5ffd-5336-af30-2b73401826bc")
-	)
-	(wire
-		(pts
-			(xy 127 138.43) (xy 127 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ce99c87-cf64-5f6b-bb88-82c0458dd7fb")
-	)
-	(wire
-		(pts
-			(xy 68.58 142.24) (xy 76.2 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d4e056c-bb2b-58a8-b5d0-09eea7c736bd")
-	)
-	(wire
-		(pts
-			(xy 68.58 88.9) (xy 76.2 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "392ee506-ca57-5cfc-98dd-a4c201adc675")
-	)
-	(wire
-		(pts
-			(xy 68.58 152.4) (xy 76.2 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3992b414-203a-5aac-b992-181a215813fa")
-	)
-	(wire
-		(pts
-			(xy 68.58 147.32) (xy 76.2 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3ab11e53-5a59-5ca3-bdaf-121f3c5f6f79")
-	)
-	(wire
-		(pts
-			(xy 88.9 60.96) (xy 88.9 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d42ab03-adf7-5185-8da5-addf5fd5c216")
-	)
-	(wire
-		(pts
-			(xy 101.6 149.86) (xy 106.68 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "472a9c1f-f9cb-523d-ac75-928d1c4f383c")
-	)
-	(wire
-		(pts
-			(xy 68.58 149.86) (xy 76.2 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "47d186b0-08d0-53cc-bccf-bae63e7499e3")
-	)
-	(wire
-		(pts
-			(xy 38.1 208.28) (xy 40.64 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "484f603d-6cdb-5293-8086-b8e29bf25692")
-	)
-	(wire
-		(pts
-			(xy 50.8 238.76) (xy 50.8 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "490195fd-44b0-54bf-9f88-71bd588054e4")
-	)
-	(wire
-		(pts
-			(xy 213.36 228.6) (xy 215.9 228.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e6a2685-9f5d-52ce-b684-4d10ff1d4381")
-	)
-	(wire
-		(pts
-			(xy 215.9 218.44) (xy 215.9 220.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "575015f4-441d-55fa-8f7b-ae3527e4b352")
-	)
-	(wire
-		(pts
-			(xy 83.82 177.8) (xy 83.82 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b81b526-afb2-5a09-bb5d-463e89406893")
-	)
-	(wire
-		(pts
-			(xy 50.8 208.28) (xy 50.8 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5e007499-bd32-59a5-a34e-a39a86cfe6b3")
-	)
-	(wire
-		(pts
-			(xy 68.58 83.82) (xy 76.2 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6050110b-ea99-535a-b4ba-d26fd1527ee4")
-	)
-	(wire
-		(pts
-			(xy 68.58 76.2) (xy 76.2 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "643c6ea8-b6f3-5fc3-a091-3d57cfbc4775")
-	)
-	(wire
-		(pts
-			(xy 38.1 261.62) (xy 45.72 261.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6cf481f7-479f-5517-a290-aa53ee51bced")
-	)
-	(wire
-		(pts
-			(xy 93.98 177.8) (xy 93.98 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "805b7af3-5d3f-573b-85a6-3882007cb22c")
-	)
-	(wire
-		(pts
-			(xy 48.26 238.76) (xy 50.8 238.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "806f10d8-de88-50c6-aad1-46799baf1646")
-	)
-	(wire
-		(pts
-			(xy 101.6 142.24) (xy 106.68 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "80c90ae4-1153-5cb9-bc59-654031aa6916")
-	)
-	(wire
-		(pts
-			(xy 127 142.24) (xy 127 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "837a02e1-2386-500a-aab5-2df465ef073c")
-	)
-	(wire
-		(pts
-			(xy 83.82 180.34) (xy 93.98 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8ace9fde-9943-53d2-84b3-464b40d74b34")
-	)
-	(wire
-		(pts
-			(xy 68.58 157.48) (xy 76.2 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b5c3229-3be7-5942-ac5b-42acd9d052b7")
-	)
-	(wire
-		(pts
-			(xy 68.58 160.02) (xy 76.2 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8dd6bf50-a835-5d82-813c-4d864dc24733")
-	)
-	(wire
-		(pts
-			(xy 68.58 144.78) (xy 76.2 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f9b4baa-72b2-5b8c-96f1-5dfaf3b11e4e")
-	)
-	(wire
-		(pts
-			(xy 101.6 73.66) (xy 106.68 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "91342b27-0178-5e4e-8179-e1e225c9f26b")
-	)
-	(wire
-		(pts
-			(xy 213.36 208.28) (xy 215.9 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "92ffd92c-8c44-5cce-8b68-a6b5a9b3c47d")
-	)
-	(wire
-		(pts
-			(xy 203.2 218.44) (xy 205.74 218.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "945d9c18-0080-551d-93f8-911895c5a00c")
-	)
-	(wire
-		(pts
-			(xy 68.58 71.12) (xy 76.2 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "94e33e82-d30f-539f-93e2-5f6f7ec66df4")
-	)
-	(wire
-		(pts
-			(xy 38.1 228.6) (xy 40.64 228.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0e25666-7c65-50ee-a773-d7376ef8b673")
-	)
-	(wire
-		(pts
-			(xy 101.6 157.48) (xy 106.68 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a456c5d3-91bd-514a-adbd-a889e9fa76c5")
-	)
-	(wire
-		(pts
-			(xy 203.2 228.6) (xy 205.74 228.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4608461-6a59-5614-9b85-6dec67f835b7")
-	)
-	(wire
-		(pts
-			(xy 99.06 261.62) (xy 106.68 261.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4b26234-03a1-5e12-8861-8acd202d4766")
+		(uuid "02ffdba3-e970-51ca-a4a0-fcd9ae1ea6bf")
 	)
 	(wire
 		(pts
@@ -2274,57 +2011,347 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a508a64e-98e7-59ca-b43f-7cdad83dbe20")
+		(uuid "04d11a28-99fa-5f69-ac2b-8d49b0d246b9")
 	)
 	(wire
 		(pts
-			(xy 114.3 142.24) (xy 127 142.24)
+			(xy 38.1 269.24) (xy 45.72 269.24)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "aef309c8-b1f2-5f2b-9f74-bd6fea289b54")
+		(uuid "0aee4927-d303-5ad3-a39c-56d210310385")
 	)
 	(wire
 		(pts
-			(xy 68.58 154.94) (xy 76.2 154.94)
+			(xy 101.6 182.88) (xy 106.68 182.88)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b57fa61c-81c0-555f-a572-931152c0aece")
+		(uuid "0fad72b0-c121-53da-99cb-579b1c1c6d20")
 	)
 	(wire
 		(pts
-			(xy 215.9 238.76) (xy 215.9 241.3)
+			(xy 88.9 55.88) (xy 88.9 60.96)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b9ca6794-440a-539d-8a92-3f0ca8931644")
+		(uuid "1473549e-83d8-5ad9-95f0-e541f9122a55")
 	)
 	(wire
 		(pts
-			(xy 88.9 177.8) (xy 88.9 180.34)
+			(xy 45.72 190.5) (xy 66.04 190.5)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "beec9d16-62e5-5984-8d0a-5c500c24490a")
+		(uuid "15758ab3-1a6b-522a-ba69-b72def915902")
 	)
 	(wire
 		(pts
-			(xy 38.1 238.76) (xy 40.64 238.76)
+			(xy 101.6 73.66) (xy 106.68 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c18ba405-9b43-5e6c-b985-8083e34968f1")
+		(uuid "169ab5c4-fad3-59b7-b60b-18dd099958b5")
+	)
+	(wire
+		(pts
+			(xy 88.9 157.48) (xy 88.9 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "16cc9caf-55e6-5154-a212-c881d0973eec")
+	)
+	(wire
+		(pts
+			(xy 88.9 223.52) (xy 88.9 226.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18254ba8-6d05-5c38-b3ca-c458ca63487e")
+	)
+	(wire
+		(pts
+			(xy 68.58 71.12) (xy 76.2 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18b83be9-d8cb-5623-9318-ecc61c673fee")
+	)
+	(wire
+		(pts
+			(xy 66.04 190.5) (xy 76.2 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f1ff4d0-b2a6-5d8e-adf7-9a81e107c9b3")
+	)
+	(wire
+		(pts
+			(xy 45.72 99.06) (xy 66.04 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2204b439-af85-55e1-9cbd-e7fe1e37b5a2")
+	)
+	(wire
+		(pts
+			(xy 45.72 109.22) (xy 66.04 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a0a637d-f164-5603-9a5f-092d8da4b64a")
+	)
+	(wire
+		(pts
+			(xy 88.9 116.84) (xy 88.9 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b04ac1d-6a55-55e3-a8d5-d1db9aa3e919")
+	)
+	(wire
+		(pts
+			(xy 66.04 210.82) (xy 76.2 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ce13110-d639-5ce7-9cfc-f2b5ea5c7b7d")
+	)
+	(wire
+		(pts
+			(xy 45.72 180.34) (xy 66.04 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3092bdd7-61c4-5c0a-b997-192ad53c1962")
+	)
+	(wire
+		(pts
+			(xy 66.04 109.22) (xy 76.2 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3262e5c4-841e-5461-971f-5a638ed4a2e4")
+	)
+	(wire
+		(pts
+			(xy 45.72 200.66) (xy 66.04 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3598e16a-3c20-5de6-8466-3f5327c90735")
+	)
+	(wire
+		(pts
+			(xy 45.72 210.82) (xy 66.04 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "389f4d98-032a-5ed3-8b86-ec1e037e7f22")
+	)
+	(wire
+		(pts
+			(xy 114.3 190.5) (xy 127 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a3e0fa2-a5f4-5ac8-a549-5660536549d3")
+	)
+	(wire
+		(pts
+			(xy 66.04 180.34) (xy 76.2 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c2b2e6f-159b-5743-8be8-97492d0c76cb")
+	)
+	(wire
+		(pts
+			(xy 66.04 99.06) (xy 76.2 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "412e0ea9-2efc-5b46-802e-b9fab8ae2e1d")
+	)
+	(wire
+		(pts
+			(xy 68.58 73.66) (xy 76.2 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "434ba6a9-fff0-535a-9e5f-eccb64014ba4")
+	)
+	(wire
+		(pts
+			(xy 93.98 226.06) (xy 93.98 228.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4a2cc37c-276a-5de2-8dd6-ed8f3d3a27cd")
+	)
+	(wire
+		(pts
+			(xy 68.58 68.58) (xy 76.2 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e01deec-5ccf-5e7f-8b3a-ecba909e5f3c")
+	)
+	(wire
+		(pts
+			(xy 83.82 226.06) (xy 93.98 226.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5416a578-c73f-5cb8-bb64-b025f742e5d9")
+	)
+	(wire
+		(pts
+			(xy 99.06 261.62) (xy 106.68 261.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5dff70fe-3de6-5da8-b48c-297bd93b10fc")
+	)
+	(wire
+		(pts
+			(xy 38.1 261.62) (xy 45.72 261.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e58ecf9-0e4a-5007-b7ba-63d85a669a1e")
+	)
+	(wire
+		(pts
+			(xy 68.58 172.72) (xy 76.2 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6594c885-c4e7-5365-86c1-829bb8002f74")
+	)
+	(wire
+		(pts
+			(xy 106.68 66.04) (xy 106.68 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6be79d6e-041e-5df2-9166-2c4c125f72fb")
+	)
+	(wire
+		(pts
+			(xy 101.6 190.5) (xy 106.68 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "840a0122-84d6-5f88-a281-404178fe6856")
+	)
+	(wire
+		(pts
+			(xy 45.72 78.74) (xy 66.04 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "85ef0c6d-e273-515b-bce0-4ebf3ffd3b0c")
+	)
+	(wire
+		(pts
+			(xy 127 163.83) (xy 127 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9042db03-eb61-507f-84d3-673e7a05e3a7")
+	)
+	(wire
+		(pts
+			(xy 66.04 78.74) (xy 76.2 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91dfd533-3df6-5995-88dc-3aa2bbce74a4")
+	)
+	(wire
+		(pts
+			(xy 66.04 88.9) (xy 76.2 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "931fd7c6-0531-5070-9570-1302b532e918")
+	)
+	(wire
+		(pts
+			(xy 68.58 66.04) (xy 76.2 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a42f52eb-ff40-580a-8c5c-a3717258f0e4")
 	)
 	(wire
 		(pts
@@ -2334,163 +2361,160 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c43cb682-c67a-5bc8-942a-2abe57fb9405")
+		(uuid "a4c31c52-ce5b-5ddc-a6ac-8f611a195eb1")
 	)
 	(wire
 		(pts
-			(xy 48.26 218.44) (xy 50.8 218.44)
+			(xy 101.6 68.58) (xy 106.68 68.58)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c8e4461e-f6a4-55f3-9815-df8e235abc93")
+		(uuid "af722498-9425-51c4-b453-a502774f2e7d")
 	)
 	(wire
 		(pts
-			(xy 101.6 76.2) (xy 106.68 76.2)
+			(xy 68.58 167.64) (xy 76.2 167.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ca16fb9a-3a8d-538b-a20f-ab47157840e9")
+		(uuid "b7c771a6-8c33-5a1f-a743-69120f7dd075")
 	)
 	(wire
 		(pts
-			(xy 38.1 218.44) (xy 40.64 218.44)
+			(xy 101.6 175.26) (xy 106.68 175.26)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cf148be8-aa29-51c9-a499-f494971b044d")
+		(uuid "b856292d-40d3-5d63-bd68-091621597822")
 	)
 	(wire
 		(pts
-			(xy 203.2 208.28) (xy 205.74 208.28)
+			(xy 45.72 88.9) (xy 66.04 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d0249a1b-2634-5905-a6cb-dd0e31408f8e")
+		(uuid "c2f3c932-9077-581a-836d-e3e7eb5e7cf1")
 	)
 	(wire
 		(pts
-			(xy 50.8 218.44) (xy 50.8 220.98)
+			(xy 83.82 223.52) (xy 83.82 226.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d085c9a5-7dc4-561b-aaa3-5a3c0dea8a6a")
+		(uuid "cbfa2de7-d45c-5165-9914-78328dc3792f")
 	)
 	(wire
 		(pts
-			(xy 88.9 132.08) (xy 88.9 137.16)
+			(xy 93.98 223.52) (xy 93.98 226.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d3c59807-6fb7-54d8-bd29-3e40b67c7d5c")
+		(uuid "cce9fc32-321b-5a15-938f-c97fa397a4f6")
 	)
 	(wire
 		(pts
-			(xy 213.36 238.76) (xy 215.9 238.76)
+			(xy 114.3 167.64) (xy 127 167.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d72ebd0b-e403-5f3e-8070-6959b94cc7b0")
+		(uuid "cdc0a098-36f0-5c82-a1af-a98d65619385")
 	)
 	(wire
 		(pts
-			(xy 68.58 81.28) (xy 76.2 81.28)
+			(xy 68.58 175.26) (xy 76.2 175.26)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "da58fb23-35e9-574f-ac92-352b07c4dcc9")
+		(uuid "deda9707-7ce5-530c-a369-37ef7505fec5")
 	)
 	(wire
 		(pts
-			(xy 48.26 228.6) (xy 50.8 228.6)
+			(xy 114.3 182.88) (xy 127 182.88)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "de08167d-f95e-5a45-a071-79e2997fc452")
+		(uuid "dfed3ebd-eac4-55f7-a94e-7f547241935a")
 	)
 	(wire
 		(pts
-			(xy 114.3 165.1) (xy 127 165.1)
+			(xy 66.04 200.66) (xy 76.2 200.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e1b79003-2b65-57be-8b34-4abc93abe9f5")
+		(uuid "ef4e4f7a-e3af-5c5b-9d39-2eab0e28f201")
 	)
 	(wire
 		(pts
-			(xy 101.6 165.1) (xy 106.68 165.1)
+			(xy 101.6 167.64) (xy 106.68 167.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "eafbc675-c7da-5c2e-bffa-854613946ede")
+		(uuid "efc747f2-5840-5f79-9ad4-341fcb20f328")
 	)
 	(wire
 		(pts
-			(xy 203.2 238.76) (xy 205.74 238.76)
+			(xy 68.58 170.18) (xy 76.2 170.18)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "eefdf2d7-272e-55be-9084-c7f503b9c910")
+		(uuid "f49389d8-eaef-597b-bed6-2f78dcb4d604")
 	)
 	(wire
 		(pts
-			(xy 68.58 78.74) (xy 76.2 78.74)
+			(xy 101.6 66.04) (xy 106.68 66.04)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fe8b667a-6e2d-5c02-8509-a5309a08d1f1")
+		(uuid "f6927615-b4b5-52bd-8576-cf856949cf6c")
 	)
-	(global_label "IO3_DIRECT"
-		(shape bidirectional)
-		(at 68.58 86.36 180)
-		(fields_autoplaced yes)
+	(wire
+		(pts
+			(xy 127 167.64) (xy 127 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd21109c-6141-5f74-bed7-b5b42fe68aee")
+	)
+	(hierarchical_label "IO1_PULLUP"
+		(shape input)
+		(at 45.72 180.34 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "19c18ccd-7b03-5564-9086-edb8fb8ae931")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 68.58 86.36 0)
+		(uuid "1fae8f12-4a57-5b95-a6df-41e4b9ccb08b")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
+			(at 45.72 180.34 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2502,31 +2526,18 @@
 			)
 		)
 	)
-	(global_label "IO1_DIRECT"
-		(shape bidirectional)
-		(at 68.58 81.28 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO2_PULLUP"
+		(shape input)
+		(at 45.72 190.5 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "19fa9f29-2ada-586a-a21d-11e6c8f0b6aa")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 68.58 81.28 0)
+		(uuid "2d9292bd-e7a2-5372-9685-349eff2a036a")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
+			(at 45.72 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2538,31 +2549,18 @@
 			)
 		)
 	)
-	(global_label "IO4_PULLUP"
-		(shape bidirectional)
-		(at 68.58 160.02 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_PULLUP"
+		(shape input)
+		(at 45.72 200.66 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "45d57ae1-936e-553a-927d-96f8e5a24271")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
-			(at 68.58 160.02 0)
+		(uuid "66bffa82-0c90-527d-bc26-20e6e43944f3")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
+			(at 45.72 200.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2574,283 +2572,18 @@
 			)
 		)
 	)
-	(global_label "IO1_DIV"
-		(shape bidirectional)
-		(at 68.58 71.12 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_PIN"
+		(shape passive)
+		(at 68.58 172.72 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "48ac4748-de97-5d2a-a1af-fcf300b2bd32")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 71.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Bottom of the channel 1 20k divider leg, to the range switch"
-			(at 68.58 71.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO4_PULLUP"
-		(shape bidirectional)
-		(at 203.2 238.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "57f5f39f-8d52-5825-bd69-dc18670c0c48")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 203.2 238.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
-			(at 203.2 238.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO4_DIRECT"
-		(shape bidirectional)
-		(at 68.58 88.9 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "61d0238d-4e34-5944-85df-3e416fc3d150")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 68.58 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO1_PIN"
-		(shape bidirectional)
-		(at 68.58 142.24 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "6483e109-546b-5602-9e05-f92636754195")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "I/O channel 1 signal pin (connector pin 2): 0-12 V in or out"
-			(at 68.58 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO1_DIRECT"
-		(shape bidirectional)
-		(at 38.1 208.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "6be07e7d-a364-58f3-ab02-1d92c2eecbcf")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 208.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 38.1 208.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO2_DIV"
-		(shape bidirectional)
-		(at 68.58 73.66 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "77153b48-b431-57d1-8091-b3ef07ae79ca")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Bottom of the channel 2 20k divider leg, to the range switch"
-			(at 68.58 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO2_PIN"
-		(shape bidirectional)
-		(at 68.58 144.78 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7dae2446-587a-51fa-a35c-64d573c3ecd1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "I/O channel 2 signal pin (connector pin 2): 0-12 V in or out"
-			(at 68.58 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO3_PIN"
-		(shape bidirectional)
-		(at 68.58 147.32 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "8db00755-3a98-5e57-af97-e7308f039dee")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "6f2b2dc6-83ac-57d9-85ca-677b61cc0f0e")
 		(property "Description" "I/O channel 3 signal pin (connector pin 2): 0-12 V in or out"
-			(at 68.58 147.32 0)
+			(at 68.58 172.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2862,67 +2595,18 @@
 			)
 		)
 	)
-	(global_label "IO1_PULLUP"
-		(shape bidirectional)
-		(at 68.58 152.4 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO2_DIRECT"
+		(shape input)
+		(at 45.72 88.9 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "9f05b61e-268e-595e-94ef-e8ae636a9c35")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
-			(at 68.58 152.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO2_DIRECT"
-		(shape bidirectional)
-		(at 38.1 218.44 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "abe1e547-33a3-5a5f-b39d-76c2c2316796")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "7542fbc7-8ed3-5cc1-aebc-e7a5980fb826")
 		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 38.1 218.44 0)
+			(at 45.72 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2934,31 +2618,18 @@
 			)
 		)
 	)
-	(global_label "IO4_DIV"
-		(shape bidirectional)
-		(at 68.58 78.74 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO2_DIV"
+		(shape passive)
+		(at 68.58 68.58 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "b093e40e-73cb-5865-be27-ffe50f0765a9")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Bottom of the channel 4 20k divider leg, to the range switch"
-			(at 68.58 78.74 0)
+		(uuid "75926019-76ec-5ed8-a75f-c08325b20d88")
+		(property "Description" "Bottom of the channel 2 20k divider leg, to the range switch"
+			(at 68.58 68.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2970,67 +2641,18 @@
 			)
 		)
 	)
-	(global_label "IO2_DIRECT"
-		(shape bidirectional)
-		(at 68.58 83.82 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO4_PIN"
+		(shape passive)
+		(at 68.58 175.26 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "bcbbe4bf-6716-52c5-80da-0e8b009c7fb2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 68.58 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO4_PIN"
-		(shape bidirectional)
-		(at 68.58 149.86 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "be0dc045-e4b8-5014-82ef-d00460f4c5c8")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 149.86 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "828f2a65-265d-5ad1-adf6-b8f3e18f7d0a")
 		(property "Description" "I/O channel 4 signal pin (connector pin 2): 0-12 V in or out"
-			(at 68.58 149.86 0)
+			(at 68.58 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3042,31 +2664,18 @@
 			)
 		)
 	)
-	(global_label "IO3_DIV"
-		(shape bidirectional)
-		(at 68.58 76.2 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO4_DIV"
+		(shape passive)
+		(at 68.58 73.66 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "bf411739-be58-547f-aab1-801f048c5480")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Bottom of the channel 3 20k divider leg, to the range switch"
-			(at 68.58 76.2 0)
+		(uuid "8561fc0e-4941-58de-8a47-b67a650ffbc1")
+		(property "Description" "Bottom of the channel 4 20k divider leg, to the range switch"
+			(at 68.58 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3078,175 +2687,18 @@
 			)
 		)
 	)
-	(global_label "IO4_DIRECT"
-		(shape bidirectional)
-		(at 38.1 238.76 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_DIRECT"
+		(shape input)
+		(at 45.72 99.06 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "cecd99f2-8d38-5522-bc64-08286358306a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 238.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 38.1 238.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO2_PULLUP"
-		(shape bidirectional)
-		(at 203.2 218.44 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d7586263-803d-5ec5-b0a4-5d9dde7fd6f3")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 203.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
-			(at 203.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO3_PULLUP"
-		(shape bidirectional)
-		(at 203.2 228.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "dcbbb6b8-bfcf-5640-a370-20ff7b9be6cc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 203.2 228.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
-			(at 203.2 228.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO1_PULLUP"
-		(shape bidirectional)
-		(at 203.2 208.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e0e7e443-37f5-5462-b90f-4853f0fdd500")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 203.2 208.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
-			(at 203.2 208.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO3_DIRECT"
-		(shape bidirectional)
-		(at 38.1 228.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ee8dad5c-7b1f-5be3-be3e-833b85d60602")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 228.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "95fd4dbb-854e-5023-a28f-cad0296861bb")
 		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 38.1 228.6 0)
+			(at 45.72 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3258,31 +2710,18 @@
 			)
 		)
 	)
-	(global_label "IO3_PULLUP"
-		(shape bidirectional)
-		(at 68.58 157.48 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO1_DIRECT"
+		(shape input)
+		(at 45.72 78.74 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "f0395ed9-19b7-5011-aa0d-5e7885ece3fa")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
-			(at 68.58 157.48 0)
+		(uuid "9619a54a-930f-5313-a744-d6b97e8c9ef7")
+		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 45.72 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3294,19 +2733,18 @@
 			)
 		)
 	)
-	(global_label "IO2_PULLUP"
-		(shape bidirectional)
-		(at 68.58 154.94 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_DIV"
+		(shape passive)
+		(at 68.58 71.12 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "f7dedfd5-ac23-5679-a88b-787987246186")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.58 154.94 0)
+		(uuid "a24568b8-3327-50a9-b0ec-bdec07116140")
+		(property "Description" "Bottom of the channel 3 20k divider leg, to the range switch"
+			(at 68.58 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3317,8 +2755,111 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
-			(at 68.58 154.94 0)
+	)
+	(hierarchical_label "IO4_PULLUP"
+		(shape input)
+		(at 45.72 210.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "aa5671d6-83e5-5055-8500-7fc8c3b9a585")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
+			(at 45.72 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO1_DIV"
+		(shape passive)
+		(at 68.58 66.04 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d00e2e66-162e-54d5-b4cf-1c201b49bb26")
+		(property "Description" "Bottom of the channel 1 20k divider leg, to the range switch"
+			(at 68.58 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO4_DIRECT"
+		(shape input)
+		(at 45.72 109.22 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "dc42e3de-ae93-5b6a-8ece-49ed58bcd4bf")
+		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 45.72 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO2_PIN"
+		(shape passive)
+		(at 68.58 170.18 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ef24ad7d-e4ec-5933-bbbb-eb00aab4b8ef")
+		(property "Description" "I/O channel 2 signal pin (connector pin 2): 0-12 V in or out"
+			(at 68.58 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO1_PIN"
+		(shape passive)
+		(at 68.58 167.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ff9823b7-f7d2-5aca-a3ed-9ef19fd43773")
+		(property "Description" "I/O channel 1 signal pin (connector pin 2): 0-12 V in or out"
+			(at 68.58 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3331,8 +2872,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 44.45 218.44 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3342,27 +2883,29 @@
 		(dnp no)
 		(uuid "0a64f9ae-3aaa-52b2-b988-cd6558a42d4a")
 		(property "Reference" "R619"
-			(at 44.45 212.324 270)
+			(at 69.256 90.39 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 44.45 214.424 270)
+			(at 69.256 92.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 44.45 218.44 0)
+			(at 66.04 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3373,7 +2916,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 218.44 0)
+			(at 66.04 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3384,7 +2927,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO2_DIRECT: divider engaged (0-15 V range) until the expander drives it"
-			(at 44.45 218.44 0)
+			(at 66.04 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3395,7 +2938,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 218.44 0)
+			(at 66.04 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3406,14 +2949,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "87b72626-d19a-5db6-bd5e-0603914fa8b7")
+			(uuid "57f0a2a6-9eab-5e04-a0fe-73cad6145ba8")
 		)
 		(pin "2"
-			(uuid "95b386ec-9296-550f-b7f5-473243317cc8")
+			(uuid "6427d121-f2cc-53e1-ae29-dce853576de3")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R619")
 					(unit 1)
 				)
@@ -3422,7 +2965,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 215.9 220.98 0)
+		(at 66.04 195.58 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3432,7 +2975,7 @@
 		(dnp no)
 		(uuid "1e641b58-6a7a-5d5f-b9bb-5f55093e5df6")
 		(property "Reference" "#PWR349"
-			(at 215.9 220.98 0)
+			(at 66.04 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3443,7 +2986,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 215.9 220.98 0)
+			(at 66.04 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3454,7 +2997,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 215.9 220.98 0)
+			(at 66.04 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3465,7 +3008,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 215.9 220.98 0)
+			(at 66.04 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3476,7 +3019,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 215.9 220.98 0)
+			(at 66.04 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3487,11 +3030,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "70f0d22a-4b63-524e-99cb-ecb777e2a362")
+			(uuid "0eb1627d-553d-54ad-9bd2-a6089ee9b2af")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR349")
 					(unit 1)
 				)
@@ -3500,7 +3043,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 110.49 157.48 90)
+		(at 110.49 182.88 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3510,27 +3053,29 @@
 		(dnp no)
 		(uuid "1ef99e40-3a25-5c2a-ae15-ecd347389b48")
 		(property "Reference" "R615"
-			(at 119.38 151.364 270)
+			(at 107.84 178.18 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "10k"
-			(at 119.38 153.464 270)
+			(at 107.84 180.28 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 110.49 157.48 0)
+			(at 110.49 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3541,7 +3086,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 157.48 0)
+			(at 110.49 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3552,7 +3097,7 @@
 			)
 		)
 		(property "Description" "Switched pull-up resistor to +3V3 for the I/O channel 3 pin"
-			(at 110.49 157.48 0)
+			(at 110.49 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3563,7 +3108,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 157.48 0)
+			(at 110.49 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3574,14 +3119,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "fb0d436b-7cac-58fd-9b66-4c80be53a103")
+			(uuid "e2c5f064-d3f3-5908-ab7f-dae97439869c")
 		)
 		(pin "2"
-			(uuid "b29f1214-e1ab-5a49-b9b9-4bdb931ac557")
+			(uuid "ea53e4cd-ccd6-5f79-8dee-6b7018dda087")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R615")
 					(unit 1)
 				)
@@ -3666,14 +3211,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "7ce3d770-b201-5252-8479-ac3feecb62e4")
+			(uuid "217a0469-46ef-5491-bdcd-19cc866bceea")
 		)
 		(pin "2"
-			(uuid "665ac35a-cd7e-5438-bdd0-313db1afa717")
+			(uuid "dece6575-8dd2-52dc-af43-cffa2a07df24")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "C420")
 					(unit 1)
 				)
@@ -3682,7 +3227,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 215.9 241.3 0)
+		(at 66.04 215.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3692,7 +3237,7 @@
 		(dnp no)
 		(uuid "3d4bbc06-efea-55d4-b4ea-f4f726da4555")
 		(property "Reference" "#PWR353"
-			(at 215.9 241.3 0)
+			(at 66.04 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3703,7 +3248,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 215.9 241.3 0)
+			(at 66.04 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3714,7 +3259,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 215.9 241.3 0)
+			(at 66.04 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3725,7 +3270,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 215.9 241.3 0)
+			(at 66.04 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3736,7 +3281,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 215.9 241.3 0)
+			(at 66.04 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3747,11 +3292,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "7cd2492c-758f-53cd-974c-0cf690cb7c28")
+			(uuid "a0eb4a2f-4e21-535b-b249-192d61a0f097")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR353")
 					(unit 1)
 				)
@@ -3836,14 +3381,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "7ba47035-8b8f-542c-b8c2-b31060b47aa5")
+			(uuid "4b44004a-051e-5476-8a27-069314e0d514")
 		)
 		(pin "2"
-			(uuid "3dc75c2f-3c9e-55a5-a96a-c3f60deea69d")
+			(uuid "be41295a-f355-5f2e-821d-78c5c5562842")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "C419")
 					(unit 1)
 				)
@@ -3851,8 +3396,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 209.55 208.28 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 182.88 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3862,27 +3407,29 @@
 		(dnp no)
 		(uuid "43ae2946-2bb5-5f41-bd01-6ca48b9dd088")
 		(property "Reference" "R618"
-			(at 209.55 202.164 270)
+			(at 69.256 181.83 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 209.55 204.264 270)
+			(at 69.256 183.93 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 209.55 208.28 0)
+			(at 66.04 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3893,7 +3440,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 208.28 0)
+			(at 66.04 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3904,7 +3451,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO1_PULLUP: pull-up off until the expander drives it"
-			(at 209.55 208.28 0)
+			(at 66.04 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3915,7 +3462,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 208.28 0)
+			(at 66.04 182.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3926,14 +3473,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "65cf8cf1-a898-509b-94c2-18a6bc95621c")
+			(uuid "ed8438de-111f-5c3a-9bc1-8dff769dbaa1")
 		)
 		(pin "2"
-			(uuid "6c427de9-7a12-5c7e-91b1-5ba43d3eecea")
+			(uuid "003ffba7-9bf1-5a0f-8992-c5f1962e5fea")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R618")
 					(unit 1)
 				)
@@ -3941,8 +3488,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 209.55 218.44 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 193.04 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3952,27 +3499,29 @@
 		(dnp no)
 		(uuid "4892d9ea-0c8c-5f0a-9434-9926d8b65da6")
 		(property "Reference" "R620"
-			(at 209.55 212.324 270)
+			(at 69.256 191.99 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 209.55 214.424 270)
+			(at 69.256 194.09 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 209.55 218.44 0)
+			(at 66.04 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3983,7 +3532,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 218.44 0)
+			(at 66.04 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3994,7 +3543,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO2_PULLUP: pull-up off until the expander drives it"
-			(at 209.55 218.44 0)
+			(at 66.04 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4005,7 +3554,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 218.44 0)
+			(at 66.04 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4016,14 +3565,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "bbd14d56-e502-5fef-aa7e-a9043f2d7ea8")
+			(uuid "6267626a-04d7-5293-aff6-cf9fb82711d0")
 		)
 		(pin "2"
-			(uuid "c12729e7-db40-5110-b094-93613dd52d63")
+			(uuid "96274c6f-4592-53db-aa20-5e09daafdc3b")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R620")
 					(unit 1)
 				)
@@ -4096,11 +3645,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "c4384102-0857-5617-aa87-09b367593db3")
+			(uuid "40dda1ae-53bd-5b4e-b4eb-f0b6fd3584ee")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR356")
 					(unit 1)
 				)
@@ -4109,7 +3658,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 110.49 149.86 90)
+		(at 110.49 175.26 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4119,27 +3668,29 @@
 		(dnp no)
 		(uuid "579e4895-5477-567d-9453-3024c613dd7d")
 		(property "Reference" "R614"
-			(at 119.38 143.744 270)
+			(at 107.84 170.56 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "10k"
-			(at 119.38 145.844 270)
+			(at 107.84 172.66 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 110.49 149.86 0)
+			(at 110.49 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4150,7 +3701,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 149.86 0)
+			(at 110.49 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4161,7 +3712,7 @@
 			)
 		)
 		(property "Description" "Switched pull-up resistor to +3V3 for the I/O channel 2 pin"
-			(at 110.49 149.86 0)
+			(at 110.49 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4172,7 +3723,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 149.86 0)
+			(at 110.49 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4183,14 +3734,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "18ed0aab-2029-5904-8a5c-ed3b321c2ca3")
+			(uuid "ec4e8362-605f-5842-87ef-8a4bcaba752a")
 		)
 		(pin "2"
-			(uuid "5edf34de-226d-5c21-a936-feff850df228")
+			(uuid "71104a09-1db9-535d-9e2a-925ed7a856c1")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R614")
 					(unit 1)
 				)
@@ -4199,7 +3750,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 110.49 165.1 90)
+		(at 110.49 190.5 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4209,27 +3760,29 @@
 		(dnp no)
 		(uuid "807669af-c038-5575-a4e2-81f1d274f49d")
 		(property "Reference" "R616"
-			(at 119.38 158.984 270)
+			(at 107.84 185.8 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "10k"
-			(at 119.38 161.084 270)
+			(at 107.84 187.9 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 110.49 165.1 0)
+			(at 110.49 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4240,7 +3793,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 165.1 0)
+			(at 110.49 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4251,7 +3804,7 @@
 			)
 		)
 		(property "Description" "Switched pull-up resistor to +3V3 for the I/O channel 4 pin"
-			(at 110.49 165.1 0)
+			(at 110.49 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4262,7 +3815,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 165.1 0)
+			(at 110.49 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4273,14 +3826,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "7e73326d-d30b-5caf-abb6-45e422d3b5db")
+			(uuid "d0c41976-8ba2-56c9-bdfc-eb5a24649b42")
 		)
 		(pin "2"
-			(uuid "aa36a25c-ed36-5cef-be1e-eb8543391894")
+			(uuid "37ba5948-1f28-5e4a-8407-e1ad457217ea")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R616")
 					(unit 1)
 				)
@@ -4289,7 +3842,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 88.9 60.96 0)
+		(at 88.9 55.88 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4299,7 +3852,7 @@
 		(dnp no)
 		(uuid "807e5cd2-9671-5d53-bb8c-9f9549c81740")
 		(property "Reference" "#PWR341"
-			(at 88.9 60.96 0)
+			(at 88.9 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4310,7 +3863,7 @@
 			)
 		)
 		(property "Value" "+5V_IO"
-			(at 88.9 57.404 0)
+			(at 88.9 52.324 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4320,7 +3873,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 60.96 0)
+			(at 88.9 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4331,7 +3884,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 60.96 0)
+			(at 88.9 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4342,7 +3895,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+5V\\\""
-			(at 88.9 60.96 0)
+			(at 88.9 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4353,11 +3906,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "b8fb03e6-a863-55c0-bbbb-7fa2de2c86de")
+			(uuid "9a0c7399-355b-5151-8a88-5bdb617e8066")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR341")
 					(unit 1)
 				)
@@ -4366,7 +3919,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:TMUX1111RSV")
-		(at 88.9 81.28 0)
+		(at 88.9 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4376,7 +3929,7 @@
 		(dnp no)
 		(uuid "81ed1c9f-dc01-548c-aef3-4442d3e0a1bd")
 		(property "Reference" "U105"
-			(at 73.66 60.94 0)
+			(at 73.66 55.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4387,7 +3940,7 @@
 			)
 		)
 		(property "Value" "TMUX1111RSVR"
-			(at 73.66 63.04 0)
+			(at 73.66 57.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4398,7 +3951,7 @@
 			)
 		)
 		(property "Footprint" "Package_DFN_QFN:UQFN-16_1.8x2.6mm_P0.4mm"
-			(at 88.9 81.28 0)
+			(at 88.9 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4409,7 +3962,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tmux1111.pdf"
-			(at 88.9 81.28 0)
+			(at 88.9 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4420,7 +3973,7 @@
 			)
 		)
 		(property "Description" "Range switches of I/O channels 1-4: each grounds a 20k divider leg (0-15 V range) and opens for the direct 0-2.5 V range"
-			(at 88.9 81.28 0)
+			(at 88.9 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4431,7 +3984,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=TMUX1111RSVR"
-			(at 88.9 81.28 0)
+			(at 88.9 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4442,56 +3995,56 @@
 			)
 		)
 		(pin "1"
-			(uuid "ef13fec5-4d8d-5d8a-abad-c2a4a63f647a")
+			(uuid "1c113d75-af7b-50cf-ba25-e1efed713196")
 		)
 		(pin "12"
-			(uuid "23894a33-21b8-5fa8-ab7e-625e98ddd64b")
+			(uuid "9b6a9c98-d481-5ca3-882b-662f75798bff")
 		)
 		(pin "9"
-			(uuid "98a0b7ef-eb71-5d7e-940a-27f792673c7b")
+			(uuid "97c372e5-b5f3-5ff0-b400-9f9da0c5a810")
 		)
 		(pin "4"
-			(uuid "6987e35e-2490-51df-9c45-44494ef44ad5")
+			(uuid "cadc5eec-874b-5a6b-bebe-7a26da6dd362")
 		)
 		(pin "15"
-			(uuid "dfa4d05d-33d5-5bc6-97c3-596c475dde3c")
+			(uuid "1797b024-0063-5a7d-b761-784d4d780d28")
 		)
 		(pin "14"
-			(uuid "010324af-478d-5bed-8c57-ce8215d90492")
+			(uuid "7bc5c0f3-278c-5fd7-8d7f-1a9d1a5fc986")
 		)
 		(pin "7"
-			(uuid "bcd4ca15-2866-5da7-89e7-1f2436c73c8e")
+			(uuid "e788b57f-32dd-5537-9eb0-ce4cef5753bd")
 		)
 		(pin "6"
-			(uuid "e63aa7b8-80b7-5e83-939f-04ae6f7a3585")
+			(uuid "bf31c0ee-0efb-5f14-ad00-b60741bba7ea")
 		)
 		(pin "16"
-			(uuid "cfbc3975-8596-5d8a-9052-002de457aee0")
+			(uuid "0f904c64-5c43-5c98-93ab-6e82014d2568")
 		)
 		(pin "13"
-			(uuid "58a6ca59-e8ea-56a2-a242-265c02d86314")
+			(uuid "54f59a0f-ca3e-5799-aeda-af28909ac4bd")
 		)
 		(pin "8"
-			(uuid "60c75d62-f82d-5aaa-ad82-3d8750e64fe5")
+			(uuid "f35acd7f-30cf-5664-867f-f873e56e7183")
 		)
 		(pin "5"
-			(uuid "7aed20c6-e960-51f0-977a-ed2a9e15c2c9")
+			(uuid "adb96db4-a74c-5853-a6e8-357140d41227")
 		)
 		(pin "2"
-			(uuid "6d9b1f00-6bf5-5ae1-942d-ccb899e579d1")
+			(uuid "029fa1cc-83a5-59c6-835e-a3aa49fd31e7")
 		)
 		(pin "10"
-			(uuid "697cf6b0-8204-56b2-8e00-d3563420ec67")
+			(uuid "15cd38d2-751d-57f0-8e61-70a895a7ade0")
 		)
 		(pin "11"
-			(uuid "e3c16c41-3c67-516a-aa68-d83be2bb42d4")
+			(uuid "3a991bb8-14fa-5719-92b7-382a76642c9b")
 		)
 		(pin "3"
-			(uuid "dce539cb-a389-56f9-b647-9ebe067b3dfd")
+			(uuid "4667858c-2e62-5d47-a12a-08c7b534ea1a")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "U105")
 					(unit 1)
 				)
@@ -4500,7 +4053,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:TMUX7412FRRP")
-		(at 88.9 157.48 0)
+		(at 88.9 193.04 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4510,7 +4063,7 @@
 		(dnp no)
 		(uuid "8a951046-00cc-5ed9-9a15-101273440896")
 		(property "Reference" "U106"
-			(at 72.39 132.06 0)
+			(at 72.39 157.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4521,7 +4074,7 @@
 			)
 		)
 		(property "Value" "TMUX7412FRRPR"
-			(at 72.39 134.16 0)
+			(at 72.39 159.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4532,7 +4085,7 @@
 			)
 		)
 		(property "Footprint" "Package_DFN_QFN:Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm"
-			(at 88.9 157.48 0)
+			(at 88.9 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4543,7 +4096,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tmux7411f.pdf"
-			(at 88.9 157.48 0)
+			(at 88.9 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4554,7 +4107,7 @@
 			)
 		)
 		(property "Description" "Pull-up switches of I/O channels 1-4: each joins a pin to 10k / +3V3 for an NTC or a contact, and blocks a pin above 3.3 V"
-			(at 88.9 157.48 0)
+			(at 88.9 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4565,7 +4118,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=TMUX7412FRRPR"
-			(at 88.9 157.48 0)
+			(at 88.9 193.04 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4576,59 +4129,59 @@
 			)
 		)
 		(pin "1"
-			(uuid "6109f35f-5ae5-53fc-92ec-0b15bc4bf85b")
+			(uuid "1bf61de5-03df-5b02-9bd4-b262b45bda8b")
 		)
 		(pin "12"
-			(uuid "2b585c17-df51-5d7a-b5b3-3ce988d39a26")
+			(uuid "9ec3bbd7-291f-5bd2-96dc-378d7b691c45")
 		)
 		(pin "9"
-			(uuid "3f87bf5b-d49d-5989-a4c8-4315263d7e52")
+			(uuid "094aba94-27bd-5768-9d65-6ad8793ada2c")
 		)
 		(pin "4"
-			(uuid "32f9a585-5e9b-5f85-870d-a57d242e239a")
+			(uuid "0d16f4d4-ae42-51c1-8a36-87f1854fee8f")
 		)
 		(pin "15"
-			(uuid "17cebe80-590a-5b43-8438-a72a1a385028")
+			(uuid "b78e1998-fa7a-5a8b-8576-74f46025d67c")
 		)
 		(pin "14"
-			(uuid "3b9ee9f1-aa91-538f-9d19-c67e90de6b5a")
+			(uuid "86bb09ba-2355-561c-bbc9-f00764aa7a6a")
 		)
 		(pin "7"
-			(uuid "7c5791f3-151d-5b30-8ec5-ee313a3c0a92")
+			(uuid "c34ba107-55c2-5b76-b4ca-fea5855ea6f2")
 		)
 		(pin "6"
-			(uuid "377197aa-f2a7-5861-b8fc-a6e849b0fc14")
+			(uuid "2e10ca5e-3157-53f7-ba9e-4c5b5d2e7a4a")
 		)
 		(pin "16"
-			(uuid "5f2cbbda-0982-5b5f-9581-36558839045b")
+			(uuid "0b189fde-b125-50f5-8738-e5242ef68edb")
 		)
 		(pin "13"
-			(uuid "b5f7eb56-fb85-5601-ac40-d5375fe22819")
+			(uuid "31c04fc3-40c6-5ac6-bad6-2db1ceb457d1")
 		)
 		(pin "8"
-			(uuid "239fd2f2-2376-5e20-9655-b3a6c1e1870f")
+			(uuid "3632c612-fc7d-5acf-b7e3-1002e35db052")
 		)
 		(pin "5"
-			(uuid "c889a18c-f91c-56c5-9cd6-31a56d903b71")
+			(uuid "fd0f7a9b-1653-5bc2-a15e-f7ad74a6d582")
 		)
 		(pin "10"
-			(uuid "c13234bc-f984-57cb-b095-5208cc8d203d")
+			(uuid "89c9a2de-ba21-5ead-a5a4-b097eb86c2ed")
 		)
 		(pin "11"
-			(uuid "e6a05e42-1071-512c-877f-f438074cdef3")
+			(uuid "239bc7b5-ecaf-5d75-8779-d1b3a8f8abfe")
 		)
 		(pin "2"
-			(uuid "a8f3cb7d-ec1c-5f8b-b3db-5574e4873f88")
+			(uuid "ac0ba9bb-d4ec-5ae8-93a2-023c13bc0d11")
 		)
 		(pin "3"
-			(uuid "ebabdfae-cb21-5c75-bd0d-1518b1cdc4f7")
+			(uuid "5513df1e-c72d-5319-baab-5e08e260d882")
 		)
 		(pin "17"
-			(uuid "17c1a36d-abce-5a04-be88-4aeaab1912f9")
+			(uuid "e1145e65-11dd-5b12-a558-cb63d5c46c71")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "U106")
 					(unit 1)
 				)
@@ -4636,8 +4189,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 44.45 228.6 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 101.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4647,27 +4200,29 @@
 		(dnp no)
 		(uuid "8ea7b94a-98bc-5687-8d46-90b5c30494fd")
 		(property "Reference" "R621"
-			(at 44.45 222.484 270)
+			(at 69.256 100.55 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 44.45 224.584 270)
+			(at 69.256 102.65 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 44.45 228.6 0)
+			(at 66.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4678,7 +4233,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 228.6 0)
+			(at 66.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4689,7 +4244,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO3_DIRECT: divider engaged (0-15 V range) until the expander drives it"
-			(at 44.45 228.6 0)
+			(at 66.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4700,7 +4255,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 228.6 0)
+			(at 66.04 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4711,14 +4266,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "da55bc2e-6b53-5b1d-8fe9-884c3f97c751")
+			(uuid "5071553b-2425-5a7e-9b26-3b9cf3b62e6c")
 		)
 		(pin "2"
-			(uuid "21041700-f398-5836-a6b4-81a7d63398df")
+			(uuid "5fee6a20-7e1a-53d6-bc89-8a7e4728c139")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R621")
 					(unit 1)
 				)
@@ -4727,7 +4282,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 88.9 99.06 0)
+		(at 88.9 119.38 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4737,7 +4292,7 @@
 		(dnp no)
 		(uuid "9102ea17-9b0f-5d66-b29d-0c5b9266d15f")
 		(property "Reference" "#PWR342"
-			(at 88.9 99.06 0)
+			(at 88.9 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4748,7 +4303,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 88.9 99.06 0)
+			(at 88.9 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4759,7 +4314,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 99.06 0)
+			(at 88.9 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4770,7 +4325,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 99.06 0)
+			(at 88.9 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4781,7 +4336,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 88.9 99.06 0)
+			(at 88.9 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4792,11 +4347,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "ba0d7fb7-7001-55b1-b128-b84a46ca27b0")
+			(uuid "00cf1df7-2825-5d15-b9ff-e7ff1020b55e")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR342")
 					(unit 1)
 				)
@@ -4804,8 +4359,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 209.55 228.6 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 203.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4815,27 +4370,29 @@
 		(dnp no)
 		(uuid "95f949bf-c5a3-5b1c-a868-76adf7627e93")
 		(property "Reference" "R622"
-			(at 209.55 222.484 270)
+			(at 69.256 202.15 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 209.55 224.584 270)
+			(at 69.256 204.25 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 209.55 228.6 0)
+			(at 66.04 203.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4846,7 +4403,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 228.6 0)
+			(at 66.04 203.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4857,7 +4414,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO3_PULLUP: pull-up off until the expander drives it"
-			(at 209.55 228.6 0)
+			(at 66.04 203.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4868,7 +4425,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 228.6 0)
+			(at 66.04 203.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4879,14 +4436,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "c5cf4670-bedd-5466-845b-bb2ebc37e9d8")
+			(uuid "ad213fef-fcb4-5164-b262-ee6d4d9eb33f")
 		)
 		(pin "2"
-			(uuid "8e776e24-4acd-5810-821b-4a2c39e4251b")
+			(uuid "0a3fedd5-3bdc-5e16-81c4-520131ff85f1")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R622")
 					(unit 1)
 				)
@@ -4960,11 +4517,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "78703281-745f-5d3a-85a9-85ad2486dd52")
+			(uuid "eeddfa01-7d69-55ca-a474-1a2370064335")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR357")
 					(unit 1)
 				)
@@ -4973,7 +4530,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 50.8 220.98 0)
+		(at 66.04 93.98 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4983,7 +4540,7 @@
 		(dnp no)
 		(uuid "98a488d0-71ad-5f2a-8c5f-cf5b8cd3fdef")
 		(property "Reference" "#PWR348"
-			(at 50.8 220.98 0)
+			(at 66.04 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4994,7 +4551,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 50.8 220.98 0)
+			(at 66.04 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5005,7 +4562,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 220.98 0)
+			(at 66.04 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5016,7 +4573,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 220.98 0)
+			(at 66.04 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5027,7 +4584,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 50.8 220.98 0)
+			(at 66.04 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5038,11 +4595,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "68dcd33f-5408-5902-9e19-cf86f00a0100")
+			(uuid "0d4ef1bb-5bd3-5b68-8c06-3992b4debc2d")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR348")
 					(unit 1)
 				)
@@ -5051,7 +4608,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 106.68 88.9 0)
+		(at 106.68 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5061,7 +4618,7 @@
 		(dnp no)
 		(uuid "99994b6d-7358-5bc6-a97e-9992cb47bb9c")
 		(property "Reference" "#PWR340"
-			(at 106.68 88.9 0)
+			(at 106.68 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5072,7 +4629,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 106.68 88.9 0)
+			(at 106.68 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5083,7 +4640,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 106.68 88.9 0)
+			(at 106.68 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5094,7 +4651,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 106.68 88.9 0)
+			(at 106.68 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5105,7 +4662,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 106.68 88.9 0)
+			(at 106.68 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5116,11 +4673,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "222d920c-584e-56e0-93cc-ead6e3902aeb")
+			(uuid "5b05339d-27b5-524e-ab1d-5adb507da928")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR340")
 					(unit 1)
 				)
@@ -5129,7 +4686,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 127 138.43 0)
+		(at 127 163.83 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5139,7 +4696,7 @@
 		(dnp no)
 		(uuid "9a5504a2-afc9-560a-a3f2-dd4344b755cc")
 		(property "Reference" "#PWR343"
-			(at 127 138.43 0)
+			(at 127 163.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5150,7 +4707,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 127 134.874 0)
+			(at 127 160.274 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5160,7 +4717,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 127 138.43 0)
+			(at 127 163.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5171,7 +4728,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 127 138.43 0)
+			(at 127 163.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5182,7 +4739,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 127 138.43 0)
+			(at 127 163.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5193,11 +4750,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "5ac32fa1-fbd8-50e4-a6ef-933d19914b15")
+			(uuid "0712881a-b055-509c-8e0b-1a601f1e9c90")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR343")
 					(unit 1)
 				)
@@ -5206,7 +4763,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 215.9 231.14 0)
+		(at 66.04 205.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5216,7 +4773,7 @@
 		(dnp no)
 		(uuid "a344ec28-5fe0-5796-89bb-8d7140b74889")
 		(property "Reference" "#PWR351"
-			(at 215.9 231.14 0)
+			(at 66.04 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5227,7 +4784,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 215.9 231.14 0)
+			(at 66.04 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5238,7 +4795,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 215.9 231.14 0)
+			(at 66.04 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5249,7 +4806,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 215.9 231.14 0)
+			(at 66.04 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5260,7 +4817,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 215.9 231.14 0)
+			(at 66.04 205.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5271,11 +4828,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "a994ee81-6897-5481-83ce-21cc87cc66f7")
+			(uuid "a72a2f4b-b19f-5596-91a4-9957eaac08c5")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR351")
 					(unit 1)
 				)
@@ -5284,7 +4841,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 50.8 241.3 0)
+		(at 66.04 114.3 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5294,7 +4851,7 @@
 		(dnp no)
 		(uuid "a5247a10-f499-5276-a96a-aa4ec4088e9d")
 		(property "Reference" "#PWR352"
-			(at 50.8 241.3 0)
+			(at 66.04 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5305,7 +4862,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 50.8 241.3 0)
+			(at 66.04 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5316,7 +4873,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 241.3 0)
+			(at 66.04 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5327,7 +4884,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 241.3 0)
+			(at 66.04 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5338,7 +4895,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 50.8 241.3 0)
+			(at 66.04 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5349,11 +4906,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "575d79e9-8d22-5cad-b5b8-eed9246c3c3b")
+			(uuid "f4c2d58d-b9d8-5d4b-b4bc-8dc2b7c93f9b")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR352")
 					(unit 1)
 				)
@@ -5362,7 +4919,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 88.9 132.08 0)
+		(at 88.9 157.48 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5372,7 +4929,7 @@
 		(dnp no)
 		(uuid "a9078e67-cf47-5b0d-b23a-e71569d85531")
 		(property "Reference" "#PWR344"
-			(at 88.9 132.08 0)
+			(at 88.9 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5383,7 +4940,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 88.9 128.524 0)
+			(at 88.9 153.924 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5393,7 +4950,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 132.08 0)
+			(at 88.9 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5404,7 +4961,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 132.08 0)
+			(at 88.9 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5415,7 +4972,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 88.9 132.08 0)
+			(at 88.9 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5426,11 +4983,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "9e2bb6f6-092f-57ef-a131-149b1e66680a")
+			(uuid "df46fe95-3d08-5bd6-b10c-9628aefc3d25")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR344")
 					(unit 1)
 				)
@@ -5439,7 +4996,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 88.9 182.88 0)
+		(at 93.98 228.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5449,7 +5006,7 @@
 		(dnp no)
 		(uuid "ac30c43a-810a-5d22-b0bc-3adc923dcafd")
 		(property "Reference" "#PWR345"
-			(at 88.9 182.88 0)
+			(at 93.98 228.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5460,7 +5017,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 88.9 182.88 0)
+			(at 93.98 228.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5471,7 +5028,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 182.88 0)
+			(at 93.98 228.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5482,7 +5039,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 182.88 0)
+			(at 93.98 228.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5493,7 +5050,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 88.9 182.88 0)
+			(at 93.98 228.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5504,11 +5061,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "c7b40ad6-bc53-500a-b675-3466df29c260")
+			(uuid "4346477b-9157-5c8f-9f3a-c3aa34e3fe61")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR345")
 					(unit 1)
 				)
@@ -5582,11 +5139,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "ebc3f13d-1f6c-55fb-9b1a-688dec8a43a1")
+			(uuid "3f7671f0-a2c5-5ae1-a44f-3621fc7447ec")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR355")
 					(unit 1)
 				)
@@ -5594,8 +5151,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 44.45 208.28 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 81.28 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5605,27 +5162,29 @@
 		(dnp no)
 		(uuid "b08e9ffd-17b4-585f-9050-0d8aae561880")
 		(property "Reference" "R617"
-			(at 44.45 202.164 270)
+			(at 69.256 80.23 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 44.45 204.264 270)
+			(at 69.256 82.33 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 44.45 208.28 0)
+			(at 66.04 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5636,7 +5195,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 208.28 0)
+			(at 66.04 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5647,7 +5206,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO1_DIRECT: divider engaged (0-15 V range) until the expander drives it"
-			(at 44.45 208.28 0)
+			(at 66.04 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5658,7 +5217,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 208.28 0)
+			(at 66.04 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5669,14 +5228,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "6d3bb37b-eb90-5fcf-9624-fcc645f658e5")
+			(uuid "25dd8dea-9d3d-5b22-859b-e9e2962da28c")
 		)
 		(pin "2"
-			(uuid "1017da9d-f4ea-5d6e-a322-b434b32411e3")
+			(uuid "d85dd308-d28c-543f-956e-66fca81f86b8")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R617")
 					(unit 1)
 				)
@@ -5685,7 +5244,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 215.9 210.82 0)
+		(at 66.04 185.42 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5695,7 +5254,7 @@
 		(dnp no)
 		(uuid "b8d9db91-8d45-5706-8da3-843ccbaa8ba4")
 		(property "Reference" "#PWR347"
-			(at 215.9 210.82 0)
+			(at 66.04 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5706,7 +5265,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 215.9 210.82 0)
+			(at 66.04 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5717,7 +5276,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 215.9 210.82 0)
+			(at 66.04 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5728,7 +5287,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 215.9 210.82 0)
+			(at 66.04 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5739,7 +5298,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 215.9 210.82 0)
+			(at 66.04 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5750,11 +5309,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "ed5356bd-9b21-57e1-9391-2725b7f213b9")
+			(uuid "5db74363-6d49-577c-8cd3-abeadb6d4dd6")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR347")
 					(unit 1)
 				)
@@ -5827,11 +5386,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7160374-2fb4-5c22-86cf-e31482a1db80")
+			(uuid "737a960a-5f29-5f36-82d7-6675e2b2550d")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR354")
 					(unit 1)
 				)
@@ -5840,7 +5399,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 50.8 210.82 0)
+		(at 66.04 83.82 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5850,7 +5409,7 @@
 		(dnp no)
 		(uuid "c1d28460-f8d2-504f-90c8-09371c5031bb")
 		(property "Reference" "#PWR346"
-			(at 50.8 210.82 0)
+			(at 66.04 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5861,7 +5420,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 50.8 210.82 0)
+			(at 66.04 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5872,7 +5431,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 210.82 0)
+			(at 66.04 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5883,7 +5442,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 210.82 0)
+			(at 66.04 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5894,7 +5453,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 50.8 210.82 0)
+			(at 66.04 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5905,11 +5464,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "c9f02262-6259-5468-894a-99a8ab3b3bd9")
+			(uuid "bdb341ec-17e6-5239-9fe9-4df67c4f48d5")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR346")
 					(unit 1)
 				)
@@ -5917,8 +5476,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 209.55 238.76 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 213.36 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5928,27 +5487,29 @@
 		(dnp no)
 		(uuid "cc3b6833-ff1b-5420-af22-35e48167b656")
 		(property "Reference" "R624"
-			(at 209.55 232.644 270)
+			(at 69.256 212.31 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 209.55 234.744 270)
+			(at 69.256 214.41 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 209.55 238.76 0)
+			(at 66.04 213.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5959,7 +5520,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 238.76 0)
+			(at 66.04 213.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5970,7 +5531,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO4_PULLUP: pull-up off until the expander drives it"
-			(at 209.55 238.76 0)
+			(at 66.04 213.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5981,7 +5542,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 209.55 238.76 0)
+			(at 66.04 213.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5992,14 +5553,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "7cfd35a6-aa30-5568-8900-adae8911c704")
+			(uuid "c27a8856-a708-5c05-b416-097d1ed4070c")
 		)
 		(pin "2"
-			(uuid "7a01d44f-97e1-59dd-bab6-78688d88f166")
+			(uuid "5de73f0d-4288-50f4-b435-d08fa74fda85")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R624")
 					(unit 1)
 				)
@@ -6008,7 +5569,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 50.8 231.14 0)
+		(at 66.04 104.14 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6018,7 +5579,7 @@
 		(dnp no)
 		(uuid "d2c912f9-7fd2-5e40-840c-14c0ebb3789d")
 		(property "Reference" "#PWR350"
-			(at 50.8 231.14 0)
+			(at 66.04 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6029,7 +5590,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 50.8 231.14 0)
+			(at 66.04 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6040,7 +5601,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 231.14 0)
+			(at 66.04 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6051,7 +5612,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 231.14 0)
+			(at 66.04 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6062,7 +5623,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 50.8 231.14 0)
+			(at 66.04 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6073,11 +5634,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "eecfc0ac-be8c-54cb-8cb6-44d0f46b852c")
+			(uuid "faff865e-8002-585c-b67f-76e62e0f9c4b")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "#PWR350")
 					(unit 1)
 				)
@@ -6086,7 +5647,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 110.49 142.24 90)
+		(at 110.49 167.64 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6096,7 +5657,7 @@
 		(dnp no)
 		(uuid "e48b53b6-3121-539a-8da4-a7d67eba27b9")
 		(property "Reference" "R613"
-			(at 110.49 136.124 270)
+			(at 110.49 161.524 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6106,7 +5667,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 110.49 138.224 270)
+			(at 110.49 163.624 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6116,7 +5677,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 110.49 142.24 0)
+			(at 110.49 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6127,7 +5688,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 142.24 0)
+			(at 110.49 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6138,7 +5699,7 @@
 			)
 		)
 		(property "Description" "Switched pull-up resistor to +3V3 for the I/O channel 1 pin"
-			(at 110.49 142.24 0)
+			(at 110.49 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6149,7 +5710,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 110.49 142.24 0)
+			(at 110.49 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6160,14 +5721,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "821acecc-1b1c-5533-809d-e17a2e7375a1")
+			(uuid "fa0828da-23a2-56c2-92e6-18d1b27fa050")
 		)
 		(pin "2"
-			(uuid "f6d6b98d-72fd-55b9-8b26-56cca2b6ef9b")
+			(uuid "d8e9d412-abff-54f8-919f-b43449f83be8")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R613")
 					(unit 1)
 				)
@@ -6175,8 +5736,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 44.45 238.76 90)
+		(lib_id "Device:R_Small_US")
+		(at 66.04 111.76 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6186,27 +5747,29 @@
 		(dnp no)
 		(uuid "f1aa3f33-17bc-5781-af43-168d628266e8")
 		(property "Reference" "R623"
-			(at 44.45 232.644 270)
+			(at 69.256 110.71 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "100k"
-			(at 44.45 234.744 270)
+			(at 69.256 112.81 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 44.45 238.76 0)
+			(at 66.04 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6217,7 +5780,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 238.76 0)
+			(at 66.04 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6228,7 +5791,7 @@
 			)
 		)
 		(property "Description" "Pull-down resistor for IO4_DIRECT: divider engaged (0-15 V range) until the expander drives it"
-			(at 44.45 238.76 0)
+			(at 66.04 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6239,7 +5802,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100KL"
-			(at 44.45 238.76 0)
+			(at 66.04 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6250,14 +5813,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "237d715a-a3c2-5ee9-9cdf-0785df017511")
+			(uuid "269621ea-867d-5227-8fe6-57b01dde2516")
 		)
 		(pin "2"
-			(uuid "74d54344-d682-59f8-abe3-45a085897094")
+			(uuid "82664415-ed35-5c28-942e-0746e2a867c1")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/3e02e222-3460-5308-abf4-d618802948a4"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/3e02e222-3460-5308-abf4-d618802948a4"
 					(reference "R623")
 					(unit 1)
 				)

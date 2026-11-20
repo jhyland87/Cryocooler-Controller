@@ -175,6 +175,51 @@ def wires_through_bodies(path):
     return found
 
 
+# A wire, bus or bus entry keeps this far from a part body it does not
+# connect to: two grid steps pass, one step or touching the outline fails.
+BODY_GAP_MM = 1.9
+
+
+def wires_near_bodies(path):
+    """Wires, buses and bus entries that touch a part body or pass within
+    BODY_GAP_MM of it. One that ends on that part's own pin is its connection.
+    """
+    tree = parse(path.read_text())
+    boxes = library_boxes(tree)
+    segments = []
+    for kind in ('wire', 'bus'):
+        for item in children(tree, kind):
+            points = children(children(item, 'pts')[0], 'xy')
+            segments.append((kind, (float(points[0][1]), float(points[0][2])),
+                             (float(points[1][1]), float(points[1][2]))))
+    for entry in children(tree, 'bus_entry'):
+        at, size = children(entry, 'at')[0], children(entry, 'size')[0]
+        start = (float(at[1]), float(at[2]))
+        segments.append(('bus entry', start,
+                         (start[0] + float(size[1]), start[1] + float(size[2]))))
+    found = []
+    for symbol in children(tree, 'symbol'):
+        lib_id = children(symbol, 'lib_id')[0][1]
+        if lib_id.startswith('power:') or lib_id not in boxes:
+            continue
+        at = children(symbol, 'at')[0]
+        mirror = children(symbol, 'mirror')
+        flip = mirror[0][1] if mirror else ''
+        box = placed_box(boxes[lib_id], float(at[1]), float(at[2]), float(at[3]), flip)
+        reference = next(p[2] for p in children(symbol, 'property') if p[1] == 'Reference')
+        tips = pin_tips(tree, lib_id, float(at[1]), float(at[2]), float(at[3]), flip)
+        for kind, start, end in segments:
+            x0, x1 = sorted((start[0], end[0]))
+            y0, y1 = sorted((start[1], end[1]))
+            if not (x0 <= box[2] + BODY_GAP_MM and box[0] - BODY_GAP_MM <= x1
+                    and y0 <= box[3] + BODY_GAP_MM and box[1] - BODY_GAP_MM <= y1):
+                continue
+            if any(math.dist(point, tip) < 0.01 for point in (start, end) for tip in tips):
+                continue
+            found.append((path.name, reference, f'{kind} {start} to {end} near the body'))
+    return found
+
+
 def sheet_overlaps(path):
     tree = parse(path.read_text())
     boxes = library_boxes(tree)

@@ -451,30 +451,41 @@ SYMBOLS = [
         'enables, DHVQFN24 SOT815-1. Exposed pad is not a supply pin: floating or VCC',
         'https://assets.nexperia.com/documents/data-sheet/74HC_HCT154.pdf',
         'cryocooler:Nexperia_SOT815-1_DHVQFN-24-1EP_3.5x5.5mm_P0.5mm',
+        # outputs grouped by what they select: expansion, I/O, sensors,
+        # signal chain
         left=[
-            ('1', '~{Y0}', 'output'),
-            ('2', '~{Y1}', 'output'),
-            ('3', '~{Y2}', 'output'),
+            ('13', '~{Y11}', 'output'),
+            ('14', '~{Y12}', 'output'),
+            ('15', '~{Y13}', 'output'),
+            None,
             ('4', '~{Y3}', 'output'),
             ('5', '~{Y4}', 'output'),
+            ('10', '~{Y9}', 'output'),
+            ('11', '~{Y10}', 'output'),
+            None,
+            ('3', '~{Y2}', 'output'),
             ('6', '~{Y5}', 'output'),
             ('7', '~{Y6}', 'output'),
             ('8', '~{Y7}', 'output'),
             ('9', '~{Y8}', 'output'),
-            ('10', '~{Y9}', 'output'),
-            ('11', '~{Y10}', 'output'),
-            ('13', '~{Y11}', 'output'),
-            ('14', '~{Y12}', 'output'),
-            ('15', '~{Y13}', 'output'),
+            None,
+            None,
+            ('1', '~{Y0}', 'output'),
+            ('2', '~{Y1}', 'output'),
+            None,
             ('16', '~{Y14}', 'output'),
             ('17', '~{Y15}', 'output'),
         ],
+        # enable on top, so its pull-up and the strap resistors on A0 and A2
+        # hang on the pins' wires without crossing one another
         right=[
+            ('18', '~{E0}', 'input'),
+            None,
             ('23', 'A0', 'input'),
             ('22', 'A1', 'input'),
             ('21', 'A2', 'input'),
             ('20', 'A3', 'input'),
-            ('18', '~{E0}', 'input'),
+            None,
             ('19', '~{E1}', 'input'),
         ],
         top=[('24', 'VCC', 'power_in')],
@@ -507,16 +518,9 @@ SYMBOLS = [
         '2.7-5.5 V, QFN-20 4 x 4 mm with exposed pad',
         'https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf',
         'Package_DFN_QFN:QFN-20-1EP_4x4mm_P0.5mm_EP2.7x2.7mm',
+        # inputs on the left; the SPI pins together on the right, facing the
+        # bus, then INT and the strapped RESET / address pins
         left=[
-            ('5', '~{CS}', 'input'),
-            ('19', 'SCK', 'input'),
-            ('20', 'SI', 'input'),
-            ('4', '~{RESET}', 'input'),
-            ('3', 'A0', 'input'),
-            ('2', 'A1', 'input'),
-        ],
-        right=[
-            ('1', 'SO', 'tri_state'),
             ('9', 'GP0', 'bidirectional'),
             ('10', 'GP1', 'bidirectional'),
             ('11', 'GP2', 'bidirectional'),
@@ -525,7 +529,22 @@ SYMBOLS = [
             ('14', 'GP5', 'bidirectional'),
             ('15', 'GP6', 'bidirectional'),
             ('16', 'GP7', 'bidirectional'),
+        ],
+        right=[
+            ('19', 'SCK', 'input'),
+            ('20', 'SI', 'input'),
+            ('1', 'SO', 'tri_state'),
+            ('5', '~{CS}', 'input'),
+            None,
             ('7', 'INT', 'output'),
+            # room above RESET for its supply symbol
+            None,
+            None,
+            None,
+            ('4', '~{RESET}', 'input'),
+            None,
+            ('3', 'A0', 'input'),
+            ('2', 'A1', 'input'),
         ],
         top=[('18', 'VDD', 'power_in')],
         bottom=[('17', 'VSS', 'power_in'), ('21', 'EP', 'passive')],
@@ -565,6 +584,29 @@ SYMBOLS = [
         right=['4', '8', '7', '6', '5', '3', '1', '2'],
         keywords='connector 2x04 micro-lock',
     ),
+    # J14 on the controller: pins named for the signals, in the IMU filter's
+    # channel order, supply on top and ground below (pin numbers as the
+    # Molex part, drawing 5054480003-SD)
+    symbol(
+        'Conn_02x04_IMU_Cable',
+        'J',
+        'Molex Micro-Lock Plus 2x4, 1.25 mm, right angle SMT: cable to the off-board '
+        'LSM6DSOX module',
+        'https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/'
+        'en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf',
+        'cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal',
+        right=[
+            ('8', 'INT2', 'passive'),
+            ('7', 'INT1', 'passive'),
+            ('6', 'MISO', 'passive'),
+            ('5', '~{CS}', 'passive'),
+            ('3', 'MOSI', 'passive'),
+            ('1', 'SCK', 'passive'),
+        ],
+        top=[('4', '+3V3', 'passive')],
+        bottom=[('2', 'GND', 'passive')],
+        keywords='connector 2x04 micro-lock imu',
+    ),
     symbol(
         'ACS37800KMACTR-015B5-SPI',
         'U',
@@ -575,7 +617,13 @@ SYMBOLS = [
         left=[
             ('16', 'VINP', 'input'),
             ('15', 'VINN', 'input'),
-            None,  # room for VINN's ground symbol
+            # room below the sense inputs for the divider's low resistor and
+            # the ground symbols
+            None,
+            None,
+            None,
+            None,
+            None,
             (['5', '6', '7', '8'], 'IP-', 'passive'),
             (['1', '2', '3', '4'], 'IP+', 'passive'),
         ],
@@ -711,17 +759,21 @@ SYMBOLS = [
         'https://www.analog.com/media/en/technical-documentation/'
         'data-sheets/ADP5071.pdf',
         'Package_CSP:LFCSP-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm',
+        # drawn for the Rails +-15V sheet: the pins on the input rail together
+        # at the top left, so nothing has to cross that rail; COMP1 and COMP2
+        # ten cells apart for their RC networks; on the right the inverting
+        # channel reads SW2, FB2, VREF downward, the order its wires nest in
         left=[
-            ('6', 'COMP1', 'passive'),
             ('7', 'EN1', 'input'),
             ('15', 'PVIN1', 'power_in'),
             ('17', 'PVIN2', 'power_in'),
             ('16', 'PVINSYS', 'power_in'),
-            ('14', 'VREG', 'power_out'),
-            ('10', 'COMP2', 'passive'),
             ('9', 'EN2', 'input'),
-            ('8', 'SS', 'passive'),
+            ('6', 'COMP1', 'passive'),
+            ('10', 'COMP2', 'passive'),
+            ('14', 'VREG', 'power_out'),
             ('3', 'SEQ', 'input'),
+            ('8', 'SS', 'passive'),
             ('2', 'SYNC', 'input'),
             ('4', 'SLEW', 'input'),
         ],
@@ -729,9 +781,9 @@ SYMBOLS = [
             ('1', 'INBK', 'passive'),
             ('20', 'SW1', 'passive'),
             ('5', 'FB1', 'input'),
-            ('12', 'VREF', 'power_out'),
-            ('11', 'FB2', 'input'),
             ('18', 'SW2', 'passive'),
+            ('11', 'FB2', 'input'),
+            ('12', 'VREF', 'power_out'),
         ],
         bottom=[
             ('13', 'AGND', 'power_in'),
@@ -741,24 +793,24 @@ SYMBOLS = [
         keywords='boost inverting dual switching regulator',
         # SEQ sits above SYNC and SLEW, so their ground wires never pass its tip
         y_override={
-            '6': 20.32,
-            '7': 17.78,
-            '15': 12.7,
-            '17': 10.16,
-            '16': 7.62,
-            '14': 5.08,
-            '10': 0,
-            '9': -2.54,
-            '8': -7.62,
+            '7': 25.4,
+            '15': 22.86,
+            '17': 20.32,
+            '16': 17.78,
+            '9': 15.24,
+            '6': 10.16,
+            '10': -2.54,
+            '14': -7.62,
             '3': -10.16,
-            '2': -12.7,
-            '4': -15.24,
-            '1': 15.24,
-            '20': 12.7,
-            '5': 10.16,
-            '12': -5.08,
+            '8': -15.24,
+            '2': -17.78,
+            '4': -20.32,
+            '1': 20.32,
+            '20': 17.78,
+            '5': 15.24,
+            '18': -5.08,
             '11': -7.62,
-            '18': -10.16,
+            '12': -10.16,
         },
         tip_x=15.24,
     ),
@@ -907,6 +959,20 @@ SYMBOLS = [
         'cryocooler:LED_Kingbright_APGB0607',
         left=[('1', 'GA', 'passive'), ('4', 'RA', 'passive')],
         right=[('2', 'GK', 'passive'), ('3', 'RK', 'passive')],
+        keywords='led bicolor red green',
+        tip_x=7.62,
+    ),
+    # the same LED drawn for dies wired back to back (one net on GA and RK, the
+    # other on RA and GK): each pair shares a side, so no wire loops round it
+    symbol(
+        'APGB0607G22R23C_AP',
+        'D',
+        'Kingbright green/red bi-colour LED, independent dies, 0.65 x 0.65 x 0.25 mm. '
+        'Green VF 2.85 V typ / 3.3 V max, red 1.95 V / 2.3 V max at 5 mA; 10 mA max, VR 5 V',
+        'https://www.kingbrightusa.com/images/catalog/SPEC/APGB0607G22R23C.pdf',
+        'cryocooler:LED_Kingbright_APGB0607',
+        left=[('4', 'RA', 'passive'), ('2', 'GK', 'passive')],
+        right=[('1', 'GA', 'passive'), ('3', 'RK', 'passive')],
         keywords='led bicolor red green',
         tip_x=7.62,
     ),
@@ -1068,9 +1134,14 @@ SYMBOLS = [
             ('21', 'AIN9', 'passive'),
             ('20', 'AIN10', 'passive'),
             ('19', 'AIN11', 'passive'),
-            ('1', 'AINCOM', 'passive'),
             ('30', 'REFP0', 'passive'),
             ('29', 'REFN0', 'passive'),
+            # last on the side, a row apart, so its ground drops straight down
+            None,
+            ('1', 'AINCOM', 'passive'),
+            # rows kept clear for the ground pins' names along the bottom
+            None,
+            None,
         ],
         right=[
             ('18', '~{RESET}', 'input'),
@@ -1113,6 +1184,9 @@ SYMBOLS = [
             ('10', 'SO', 'tri_state'),
             ('7', '~{CS}', 'input'),
             ('14', '~{RESET}', 'input'),
+            # room above A0 for a supply symbol when the address bit is high
+            None,
+            None,
             None,
             ('11', 'A0', 'input'),
             None,
@@ -1160,9 +1234,20 @@ SYMBOLS = [
             ('12', 'S2', 'passive'),
             ('9', 'S3', 'passive'),
             ('4', 'S4', 'passive'),
+            None,
+            # eight cells apart: each select carries its own pull-down
             ('15', '~{SEL1}', 'input'),
+            None,
+            None,
+            None,
             ('14', '~{SEL2}', 'input'),
+            None,
+            None,
+            None,
             ('7', '~{SEL3}', 'input'),
+            None,
+            None,
+            None,
             ('6', '~{SEL4}', 'input'),
         ],
         right=[
@@ -1190,10 +1275,24 @@ SYMBOLS = [
             ('12', 'S2', 'passive'),
             ('9', 'S3', 'passive'),
             ('4', 'S4', 'passive'),
+            None,
+            # eight cells apart: each select carries its own pull-down
             ('15', 'SEL1', 'input'),
+            None,
+            None,
+            None,
             ('14', 'SEL2', 'input'),
+            None,
+            None,
+            None,
             ('7', 'SEL3', 'input'),
+            None,
+            None,
+            None,
             ('6', 'SEL4', 'input'),
+            # room under the last select for the bottom pins' names
+            None,
+            None,
         ],
         right=[
             ('16', 'D1', 'passive'),
@@ -1206,6 +1305,62 @@ SYMBOLS = [
             None,
             None,
             ('5', 'D4', 'passive'),
+            None,
+            ('10', '~{FF}', 'open_collector'),
+        ],
+        top=[('11', 'VDD', 'power_in')],
+        bottom=[
+            ('2', 'VSS', 'power_in'),
+            ('3', 'GND', 'power_in'),
+            ('17', 'EP', 'passive'),
+        ],
+        keywords='analog switch fault protected quad',
+    ),
+    # the same switch drawn for the output drivers: drains (from the op amps)
+    # and selects on the left, source pins (to the connectors) and the fault
+    # flag on the right
+    symbol(
+        'TMUX7412FRRP_DRV',
+        'U',
+        'TI quad SPST fault-protected analog switch, 8-44 V single supply, closed while SEL '
+        'is high, source pins survive +-60 V powered or not and open when they pass the '
+        'supply, WQFN-16 4 x 4 mm (RRP). Drain pins are not protected',
+        'https://www.ti.com/lit/ds/symlink/tmux7411f.pdf',
+        'Package_DFN_QFN:Texas_RUM0016A_WQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm',
+        left=[
+            ('16', 'D1', 'passive'),
+            None,
+            None,
+            ('13', 'D2', 'passive'),
+            None,
+            None,
+            ('8', 'D3', 'passive'),
+            None,
+            None,
+            ('5', 'D4', 'passive'),
+            None,
+            None,
+            ('15', 'SEL1', 'input'),
+            None,
+            None,
+            None,
+            ('14', 'SEL2', 'input'),
+            None,
+            None,
+            None,
+            ('7', 'SEL3', 'input'),
+            None,
+            None,
+            None,
+            ('6', 'SEL4', 'input'),
+        ],
+        right=[
+            ('1', 'S1', 'passive'),
+            ('12', 'S2', 'passive'),
+            ('9', 'S3', 'passive'),
+            ('4', 'S4', 'passive'),
+            None,
+            None,
             None,
             ('10', '~{FF}', 'open_collector'),
         ],
@@ -1281,7 +1436,13 @@ SYMBOLS = [
         'when an input is lost',
         'https://www.ti.com/lit/ds/symlink/isow7841a-q1.pdf',
         'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
+        # a blank row on each side keeps the signal names clear of the
+        # supply pins' names along the top
+        # two blank rows on each side keep the signal names clear of the
+        # supply pins' names along the top
         left=[
+            None,
+            None,
             ('3', 'INA', 'input'),
             ('4', 'INB', 'input'),
             ('5', 'INC', 'input'),
@@ -1289,6 +1450,8 @@ SYMBOLS = [
             ('7', 'NC', 'no_connect'),
         ],
         right=[
+            None,
+            None,
             ('14', 'OUTA', 'output'),
             ('13', 'OUTB', 'output'),
             ('12', 'OUTC', 'output'),
@@ -1338,11 +1501,13 @@ SYMBOLS = [
             ('5', 'PGFB', 'input'),
             ('4', 'PG', 'open_collector'),
             ('8', 'SET', 'passive'),
+            None,
         ],
         bottom=[
             ('7', 'VIOC', 'no_connect'),
             ('6', 'ILIM', 'passive'),
             ('9', 'GND', 'power_in'),
+            None,
         ],
         keywords='ldo low noise power good negative',
         y_override={
@@ -1430,14 +1595,45 @@ SYMBOLS = [
         bottom=[('3', 'GND', 'passive')],
         keywords='can esd tvs',
     ),
+    # ESP32-S3-WROOM-2 with its pins grouped by what they drive on the root
+    # sheet: reset and boot, the decoder's address and enable lines, IMU
+    # interrupts, power control and the amplifier enable on the left; USB, SPI,
+    # cooling, CAN, status and the compressor relay enable (its block sits
+    # right of the module), AUX and the spare pins on the right
+    from_stock(
+        'RF_Module',
+        'ESP32-S3-WROOM-2',
+        'ESP32-S3-WROOM-2',
+        'U',
+        left=[
+            '3', None, '27', None, None, None, None, None,
+            '24', '15', '36', '26', '12', None, None, None, None, None, None,
+            '38', '32', None,
+            '39', '18', '37', None,
+            '6',
+        ],
+        right=[
+            '13', '14', None,
+            '33', '34', '35', None,
+            '17', '22', '8', '23', '11', '4', None,
+            '10', '20', '31', '9', None,
+            # no gap before the spares: the side keeps its 28 rows, so the pins
+            # on the left stay where the circuits around them expect
+            '5', '7', '19', '21',
+            '16', '25', '28', '29', '30',
+        ],
+        top=['2'],
+        bottom=[['1', '40', '41']],
+        keywords='esp32 wifi bluetooth module',
+    ),
     from_stock(
         'Oscillator',
         'ECS-2520MV-xxx-xx',
         'ECS-2520MV',
         'U',
         right=['3'],
-        top=['1', '4'],
-        bottom=['2'],
+        top=['1', '4', None, None],
+        bottom=[None, None, '2', None],
         keywords='oscillator',
     ),
 ]

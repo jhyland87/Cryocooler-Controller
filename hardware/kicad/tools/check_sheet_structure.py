@@ -20,6 +20,7 @@ from collections import defaultdict
 from itertools import combinations
 from pathlib import Path
 
+from check_symbols import wires_near_bodies
 from layout import LONG_NET_MM
 from sexpr import find_all, parse, sval
 
@@ -46,6 +47,8 @@ CHECKS = {
     'other way round',
     'too_many_parts': f'sheet with more than {MAX_PARTS_PER_SHEET} parts',
     'copied_sheet': 'two sheet files drawn the same (place one file twice)',
+    'wire_near_body': 'wire, bus or bus entry touching or beside a part body it '
+    'does not connect to',
 }
 
 
@@ -61,10 +64,24 @@ def at(node):
     return float(point[1]), float(point[2])
 
 
-def bus_members():
+def bus_aliases():
     project = json.loads((ROOT_DIR / 'cryocooler.kicad_pro').read_text())
-    aliases = project.get('schematic', {}).get('bus_aliases', {})
-    return {net for members in aliases.values() for net in members}
+    return project.get('schematic', {}).get('bus_aliases', {})
+
+
+def bus_members(labels, aliases):
+    """Nets carried by the buses labelled on one sheet. A bus label is a group
+    in braces, with or without a name before them: an alias ({SPI}) or the
+    nets themselves ({IMU_INT1 IMU_INT2}). Their member labels mark bus
+    entries, so two of them close together are not a label pair.
+    """
+    members = set()
+    for _kind, name, _point in labels:
+        if not name.endswith('}') or '{' not in name:
+            continue
+        for item in name[name.index('{') + 1 : -1].split():
+            members.update(aliases.get(item, [item]))
+    return members
 
 
 def load_sheet(path):
@@ -79,9 +96,11 @@ def load_sheet(path):
         for item in find_all(tree, 'symbol')
         if not sval(find_all(item, 'lib_id')[0][1]).startswith('power:')
     ]
+    # a block names its file relative to the sheet it is drawn on
+    folder = path.parent.relative_to(ROOT_DIR)
     blocks = [
         (
-            prop(block, 'Sheetfile'),
+            (folder / prop(block, 'Sheetfile')).as_posix(),
             {sval(pin[1]) for pin in find_all(block, 'pin')},
         )
         for block in find_all(tree, 'sheet')
@@ -108,7 +127,7 @@ def load_sheet(path):
 
 def find_problems():
     problems = defaultdict(list)
-    members = bus_members()
+    aliases = bus_aliases()
     sheets = {'cryocooler.kicad_sch': load_sheet(ROOT_FILE)}
     pending = [ROOT_FILE.name]
     while pending:
@@ -119,6 +138,7 @@ def find_problems():
 
     for name, (labels, parts, blocks, _) in sheets.items():
         by_net = defaultdict(list)
+        members = bus_members(labels, aliases)
         for kind, net, point in labels:
             if kind == 'global_label' and net not in ALLOWED_GLOBALS:
                 problems['global_label'].append(f'{name}: {net}')
@@ -150,6 +170,10 @@ def find_problems():
                     f'{child}: hierarchical label {net} has no pin on its '
                     f'block in {name}'
                 )
+
+    for name in sheets:
+        for _file, reference, what in wires_near_bodies(ROOT_DIR / name):
+            problems['wire_near_body'].append(f'{name}: {reference}: {what}')
 
     for (first, a), (second, b) in combinations(sorted(sheets.items()), 2):
         if a[3] == b[3]:

@@ -16,6 +16,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `power_button` | LTC2954CDDB-2 (INT# to GPIO1), AONR21307 high-side P-FET with slow-start gate network and 15 V clamp, KILL# bias, red standby LED through 13 kΩ and one BSS138, TPD1E05U06 on the button line `PWR_BTN` (the J7 panel header went in rev 4). Rev 5: `PWR_BTN` is a global label, so the display's digital output on the `display` sheet (J21) presses the same line as SW3 Rev 5: optional auto power-on (JP, 2.2 µF and a diode on `PWR_BTN`), jumper not fitted, not bench tested. |
 | `rails_logic` | AP63205 buck with SRP4020TA-4R7M (12→5 V); TPS2116 selects +5V or USB VBUS into +5V_OR, priority to the 12 V side → TPS62822 buck with SRP4020TA-R47M (→3.3 V) |
 | `rails_15v` | ADP5071ACPZ dual converter at 1.2 MHz with SRP7050TA-3R3M and -6R8M (rev 1 values) → one LT3097 dual LDO (±14.7 V, 147 kΩ SET resistors); the LT3097 PGP / PGN go to the `power_good` sheet Rev 5 (2026-11-16): the LT3097 (no stock) is replaced by an LT3045 (MSOP-12, U21) and an LT3094 (DFN-12, U22) with the same SET, PGFB and output parts. |
+| `ldo_15v` ("Regulators +-15V") | The LT3045 (+15 V) and LT3094 (-15 V) post-regulators with their SET, PGFB and output parts. Split off `rails_15v` in the schematic redraw (that sheet was over 30 parts); the circuit and the references are unchanged. Its block carries the PGP_15V / PGN_15V pins. |
 | `power_good` | One node and green LED per LT3097 PG pin (with a 470 k / 470 k guard and BSS138W so a missing -15 V pulls `PGN_15V` low), a BAT54AW AND of the two nodes into `PG_15V`, and the 3.3 V flag `PG_15V_N` on GPIO43 (low = both ±15 V rails good); both flags are also read by the MCP23S08 |
 | `signal_gen` | ECS-2520MV 16 MHz oscillator, AD9837 (LFCSP-10), OPA2991 dual U5 (A: gain 16.3; B: AD5453 output stage, 22 pF C1), R39 + MMBZ9V1 clamp into AD5453 VREF, AD5453 (decoder Y1); all digital parts on `+3V3_SG` |
 | `amp_control` | GPIO6 → BSS138 → BSS84 high-side 12 V to amplifier REM, red/green LED; a second BSS138 (Q9) in series with the level shifter's source is gated by `PG_15V`, so REM cannot turn on unless both ±15 V rails are good |
@@ -33,6 +34,8 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `io_core` ... `io_ch4` (10 sheets) | Rev 5 I/O, replacing `aux_io`: four universal channels on X2510WRS-04 headers J36-J39 (sensor supply, signal, GND, pin 4 unused), each usable as an analog input or a 0-12 V output. `io_core`: DAC60508Z (decoder Y4; outputs 4-7 unused) and ADS124S08 (Y9). `io_switches`: one TMUX1111 (divider legs) and one TMUX7412F (10 kΩ pull-ups). `io_expanders`: two MCP23S17 on Y10. `io_drivers`: two TSB582 duals (gain 4.83, 0-12 V, up to 100 mA) and one TMUX7412F output switch. `io_ch1`-`io_ch4`: 100 kΩ / 20 kΩ input divider, 120 Ω switched loop burden, TPS26625 sensor supply (5 V or 12 V by jumper), two TVS1800 clamps. Channels 1 and 2 also have an SN74LVC1G3157 gate and an SN74LVC1G125 buffer on GPIO5 / 7 for PWM and pulse input. `io_precision`: ports J30 / J31 (load cell, O2 cell). `io_pressure`: ports J32 / J33 for 0.5-4.5 V pressure transmitters on the 5 V excitation (ADC AIN4 / AIN5). See `DESIGN_REVIEW.md`, "Rev 5 schematic: universal I/O" and "Rev 5: I/O cut to four channels". |
 | `io_precision` | Rev 5: two precision sensor ports J on the ADS124S08's spare inputs (AIN8-11) for bridges, RTDs, thermocouples and millivolt sensors: 2.2 kΩ / 10 nF per input, 100 nF across each pair, TVS1800 clamps, one TPS26625 switching 5 V excitation to both, and the excitation fed back to REFP0 / REFN0. The ADC analog supply is `+5V_IO`. |
 | `expansion` | Rev 5: RS-485 port (SC16IS750 on Y11, 16 MHz clock, THVD2410, X2510WRS-04 header J34 with pin 4 unused, 120 Ω by jumper) and a surface-mount 2 x 5 SPI expansion header (two chip selects Y12 / Y13, interrupt, +3V3, +5V), MISO through two CS-gated buffers. Rev 6 (2026-11-18): J34 and J35 are top-entry JST PH headers inside the board (B4B and B10B-PH-SM4-TB; J35: 1 +3V3, 2 +5V, 3 SCK, 4 MOSI, 5 MISO, 6 INT, 7 CS A, 8 CS B, 9-10 GND), and the new 5-pin AUX header J40 (B5B: 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND) brings out the two spare GPIOs through 100 Ω with TPD1E05U06 clamps and unfitted 4.7 kΩ pull-ups. |
+| `aux_header` ("AUX Header") | The 5-pin AUX header (GPIO11, GPIO13, both logic supplies) with its series resistors, clamps and unfitted pull-ups. Split off `expansion` in the schematic redraw; circuit and references unchanged. |
+| `io` ("Universal IO") | Parent sheet of the ten universal I/O sheets (`io_core`, `io_drivers`, `io_switches`, `io_expanders`, `io_precision`, `io_pressure`, `io_ch1` to `io_ch4`). No parts: it shows their blocks, wires neighbouring columns and joins far ones by net labels. |
 
 ## ±15 V rails and power good
 
@@ -89,11 +92,40 @@ along with label pairs that should be wires, a 30-part sheet limit and copied sh
 rule still use global labels for the GPIO nets; their violations are counted in
 `tools/sheet_structure_baseline.json`, which may only go down.
 
+**Sheet pins and root links.** A net that leaves a sheet through a pin is drawn with `net_label(..., to_parent=True)`
+(a hierarchical label) on the sheet and listed in `SHEET_PINS` (block edge and row) in `tools/gen_schematic.py`.
+`root_links()` draws what joins the blocks on the root (A2). Two ends within 85 mm are joined by a wire that
+carries one net label. Ends further apart are not wired across the sheet: the net has a net label on the wire at
+the ESP32 or 74HC154 pin and another at the block's pin (`LABEL_LINKED`, `end_label()`, `pin_tag()`). Buses are
+for communication buses only (`{SPI}`; `{I2C}` if one is added), so chip selects, interrupts and the decoder's
+address lines are single labelled nets (user, 2026-11-19).
+A net named by a net label on the root is called `/NAME` (`/PWR_INT`), where a global label gave `NAME`. The 38
+nets converted so far were renamed to match in `cryocooler.kicad_pcb`, names only: no pad, track, via or zone
+moved. `tools/compare_netlists.py --strict --renamed` accepts a net that kept exactly its pins under a new name, and
+`class_patterns()` adds the `/NAME` form to the net classes. A net label must not share a name with a global
+label anywhere in the project (ERC `same_local_global_label`), so a net is converted on every sheet in one step
+(`hardware/HANDOFF_schematic_redraw.md`).
+The ten universal I/O sheets sit under one parent, `sheets/io.kicad_sch` ("Universal IO"): `IO_BLOCKS` lays
+out its page and sets the children's pins, `fan()` wires neighbouring columns, and nets between columns that
+are not neighbours are net-label pairs. Nets named on that page are `/Universal IO/NAME`, and the children's
+local nets are `/Universal IO/<sheet>/NAME`. After every regeneration that changes a label, moves a part to
+another sheet or changes the order parts are drawn in, run `tools/rename_board_nets.py base.net new.net` and
+`tools/relink_board_sheets.py new.net`: both rewrite names and symbol links in the board file only and refuse
+to write anything else. `tools/compare_netlists.py --strict --renamed`
+then shows 0 differences.
+The ESP32 is drawn with a project symbol whose pins are grouped by what they drive (`from_stock` in
+`tools/make_lib.py`); `BLOCK_ORDER` sets where each sheet's block sits on the root, on the 1.27 mm grid
+(`BOX_ORIGIN`, `BOX_PITCH`, `BOX_SIZE`; `BOX_HEIGHT` for a block with more pins).
+A sheet can instead be drawn inside another sheet: `NESTED_SHEETS` maps its file stem to its parent and the cell
+of its block there (empty today; a nested sheet's locally named nets take the longer `/Parent/Child/NET` path).
+Sheets are converted one at a time; a redrawn sheet is listed in
+`OWN_UUID_SEQUENCE` in `tools/kicadgen.py` so that redrawing it leaves the other sheet files unchanged.
+
 **SPI bus.** `SPI_SCK`, `SPI_MOSI` and `SPI_MISO` are drawn as a KiCad bus on the root sheet and on every
 sheet with an SPI part (`spi_bus()` in `tools/gen_schematic.py`). Each pin's wire carries a local member label
 and a 45° entry onto a short bus that ends in one global `{SPI}` label. `SPI` is a bus alias in
 `cryocooler.kicad_pro`, and the group has no name before the braces, so the nets keep their own names
-(`SPI_SCK`, not `SPI.SCK`). Chip selects stay individual global labels.
+(`SPI_SCK`, not `SPI.SCK`). Chip selects are single labelled nets (above).
 
 **Wire colours.** Power nets are colour-coded by net class in the schematic and the PCB editor, using the
 ATX power-supply wire colours: 3.3 V orange (`Power`), 5 V and USB VBUS red (`Power5V`), 12 V input yellow
@@ -147,8 +179,11 @@ off-board connector is added, removed or moved.
 `tools/verify_netlist.py` checks the GPIO map against `pin_config.h`, missing footprints and
 single-pin nets on a `kicad-cli sch export netlist` output; `tools/compare_netlists.py` compares the
 connectivity of two netlists (useful after changing layout, which must not change connections; two-pin
-passives may be flipped), `tools/check_symbols.py` reports overlapping symbols and turned power symbols on
-the generated sheets, and `tools/datasheet_rules.py` checks datasheet-critical connections.
+passives may be flipped; `--strict` also requires every reference's value and footprint and every net's exact
+name and pins to match, which is what a drawing-only change on a routed board needs), `tools/check_symbols.py` reports overlapping symbols and turned power symbols on
+the generated sheets, `tools/count_crossings.py` counts wire crossings per sheet (a horizontal and a vertical wire
+passing through each other away from their ends; buses not counted), and `tools/datasheet_rules.py` checks
+datasheet-critical connections.
 
 ## Review status
 

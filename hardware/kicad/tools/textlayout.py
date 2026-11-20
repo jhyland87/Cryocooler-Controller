@@ -41,7 +41,7 @@ def hits(a, b, margin=MARGIN):
 
 
 def label_box(kind, net, x, y, angle):
-    length = text_width(net) + (2.2 if kind == 'global_label' else 0.3)
+    length = text_width(net) + (0.3 if kind == 'label' else 2.2)
     angle = int(angle) % 360
     if angle == 0:
         return (x, y - 1.9, x + length, y + 0.3)
@@ -337,11 +337,11 @@ def unlabeled_power(sheet):
 
 
 def label_text_box(kind, net, x, y, angle):
-    """Area a label's text (and a global label's flag) covers. A local label's
-    text sits beside its wire; a global label is centred on it.
+    """Area a label's text (and a global or hierarchical label's flag) covers.
+    A local label's text sits beside its wire; the others are centred on it.
     """
-    length = text_width(net) + (2.2 if kind == 'global_label' else 0.3)
-    near, far = (-1.3, 1.3) if kind == 'global_label' else (-1.9, -0.2)
+    length = text_width(net) + (0.3 if kind == 'label' else 2.2)
+    near, far = (-1.9, -0.2) if kind == 'label' else (-1.3, 1.3)
     angle = int(angle) % 360
     if angle == 0:
         return (x, y + near, x + length, y + far)

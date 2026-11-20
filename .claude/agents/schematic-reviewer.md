@@ -36,8 +36,9 @@ Scripts already check overlaps, 4-way junctions, descriptions and the counts in
 on what no script sees:
 
 1. **Label scope.** Every signal leaving the sheet is a hierarchical label with a
-   matching pin on its block. No global label outside `ALLOWED_GLOBALS`. No label pair
-   where a short wire would do.
+   matching pin on its block. No global label outside `ALLOWED_GLOBALS`. No bus
+   except a communication bus (SPI, I2C). Two ends closer than 85 mm are a wire;
+   further apart they carry a plain net label each, with no wire across the sheet.
 2. **One function per sheet.** Name the function in a few words. If you need "and",
    it's two sheets.
 3. **Signal flow.** Inputs and connectors on the left, outputs on the right, supplies
@@ -50,8 +51,11 @@ on what no script sees:
    of pins, crossings kept low by placement.
 7. **Text.** Every reference, value and label is closer to its own part or wire than
    to anything else.
-8. **The root sheet** shows how the blocks connect: sheet pins wired between blocks,
-   not a wall of labels.
+8. **The root sheet and any parent sheet** show how the blocks connect: wires
+   between neighbouring block pins, a net label at each pin for far ones, not a
+   wall of global labels and not trunks.
+9. **Pull resistors** stand on the line they serve, pull-ups above and pull-downs
+   below; no separate bias block.
 
 ## Report
 

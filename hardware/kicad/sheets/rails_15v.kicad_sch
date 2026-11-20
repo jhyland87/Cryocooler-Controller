@@ -708,7 +708,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 12.7 25.4 0)
+				(at 12.7 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -719,7 +719,7 @@
 				)
 			)
 			(property "Value" "ADP5071ACPZ"
-				(at -12.7 25.4 0)
+				(at -12.7 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -775,8 +775,8 @@
 			)
 			(symbol "ADP5071ACPZ_0_1"
 				(rectangle
-					(start -12.7 22.86)
-					(end 12.7 -22.86)
+					(start -12.7 27.94)
+					(end 12.7 -27.94)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -788,7 +788,7 @@
 			)
 			(symbol "ADP5071ACPZ_1_1"
 				(pin passive line
-					(at 15.24 15.24 180)
+					(at 15.24 20.32 180)
 					(length 2.54)
 					(name "INBK"
 						(effects
@@ -806,7 +806,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 -12.7 0)
+					(at -15.24 -17.78 0)
 					(length 2.54)
 					(name "SYNC"
 						(effects
@@ -842,7 +842,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 -15.24 0)
+					(at -15.24 -20.32 0)
 					(length 2.54)
 					(name "SLEW"
 						(effects
@@ -860,7 +860,7 @@
 					)
 				)
 				(pin input line
-					(at 15.24 10.16 180)
+					(at 15.24 15.24 180)
 					(length 2.54)
 					(name "FB1"
 						(effects
@@ -878,7 +878,7 @@
 					)
 				)
 				(pin passive line
-					(at -15.24 20.32 0)
+					(at -15.24 10.16 0)
 					(length 2.54)
 					(name "COMP1"
 						(effects
@@ -896,7 +896,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 17.78 0)
+					(at -15.24 25.4 0)
 					(length 2.54)
 					(name "EN1"
 						(effects
@@ -914,7 +914,7 @@
 					)
 				)
 				(pin passive line
-					(at -15.24 -7.62 0)
+					(at -15.24 -15.24 0)
 					(length 2.54)
 					(name "SS"
 						(effects
@@ -932,7 +932,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 -2.54 0)
+					(at -15.24 15.24 0)
 					(length 2.54)
 					(name "EN2"
 						(effects
@@ -950,7 +950,7 @@
 					)
 				)
 				(pin passive line
-					(at -15.24 0 0)
+					(at -15.24 -2.54 0)
 					(length 2.54)
 					(name "COMP2"
 						(effects
@@ -986,7 +986,7 @@
 					)
 				)
 				(pin power_out line
-					(at 15.24 -5.08 180)
+					(at 15.24 -10.16 180)
 					(length 2.54)
 					(name "VREF"
 						(effects
@@ -1004,7 +1004,7 @@
 					)
 				)
 				(pin power_in line
-					(at -5.08 -25.4 90)
+					(at -5.08 -30.48 90)
 					(length 2.54)
 					(name "AGND"
 						(effects
@@ -1022,7 +1022,7 @@
 					)
 				)
 				(pin power_out line
-					(at -15.24 5.08 0)
+					(at -15.24 -7.62 0)
 					(length 2.54)
 					(name "VREG"
 						(effects
@@ -1040,7 +1040,7 @@
 					)
 				)
 				(pin power_in line
-					(at -15.24 12.7 0)
+					(at -15.24 22.86 0)
 					(length 2.54)
 					(name "PVIN1"
 						(effects
@@ -1058,7 +1058,7 @@
 					)
 				)
 				(pin power_in line
-					(at -15.24 7.62 0)
+					(at -15.24 17.78 0)
 					(length 2.54)
 					(name "PVINSYS"
 						(effects
@@ -1076,7 +1076,7 @@
 					)
 				)
 				(pin power_in line
-					(at -15.24 10.16 0)
+					(at -15.24 20.32 0)
 					(length 2.54)
 					(name "PVIN2"
 						(effects
@@ -1094,7 +1094,7 @@
 					)
 				)
 				(pin passive line
-					(at 15.24 -10.16 180)
+					(at 15.24 -5.08 180)
 					(length 2.54)
 					(name "SW2"
 						(effects
@@ -1112,7 +1112,7 @@
 					)
 				)
 				(pin power_in line
-					(at 5.08 -25.4 90)
+					(at 5.08 -30.48 90)
 					(length 2.54)
 					(name "PGND"
 						(effects
@@ -1130,7 +1130,7 @@
 					)
 				)
 				(pin passive line
-					(at 15.24 12.7 180)
+					(at 15.24 17.78 180)
 					(length 2.54)
 					(name "SW1"
 						(effects
@@ -1148,7 +1148,7 @@
 					)
 				)
 				(pin passive line
-					(at 0 -25.4 90)
+					(at 0 -30.48 90)
 					(length 2.54)
 					(name "EP"
 						(effects
@@ -1158,627 +1158,6 @@
 						)
 					)
 					(number "21"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "cryocooler:LT3045DD"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 10.16 17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "LT3045DD"
-				(at -10.16 17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/lt3045.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Analog Devices 20 V, 500 mA positive ultra-low noise LDO with power good, VOUT = 100 uA x RSET (0-15 V), 10-lead DFN 3 x 3 mm (DD). EN/UV to IN and ILIM to GND when unused; PG pulls low while PGFB is under 300 mV. Exposed pad 11 is GND"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "ldo low noise power good positive"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "LT3045DD_0_1"
-				(rectangle
-					(start -10.16 15.24)
-					(end 10.16 -15.24)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "LT3045DD_1_1"
-				(pin power_in line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(hide yes)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 7.62 0)
-					(length 2.54)
-					(name "EN/UV"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin open_collector line
-					(at 12.7 -2.54 180)
-					(length 2.54)
-					(name "PG"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -17.78 90)
-					(length 2.54)
-					(name "ILIM"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at 12.7 2.54 180)
-					(length 2.54)
-					(name "PGFB"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 12.7 -12.7 180)
-					(length 2.54)
-					(name "SET"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 2.54 -17.78 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at 12.7 7.62 180)
-					(length 2.54)
-					(name "OUTS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_out line
-					(at 12.7 10.16 180)
-					(length 2.54)
-					(name "OUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -17.78 90)
-					(length 2.54)
-					(hide yes)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "cryocooler:LT3094DD"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 10.16 17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "LT3094DD"
-				(at -10.16 17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_DFN_QFN:DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/lt3094.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Analog Devices -20 V, 500 mA negative ultra-low noise LDO with power good, VOUT = -100 uA x RSET, 12-lead DFN 3 x 3 mm (DD). EN/UV to IN and ILIM to GND when unused, VIOC floats; PG pulls low while PGFB is between 0 V and -300 mV. Exposed pad 13 is IN (the negative input), not ground"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "ldo low noise power good negative"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "LT3094DD_0_1"
-				(rectangle
-					(start -10.16 15.24)
-					(end 10.16 -15.24)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "LT3094DD_1_1"
-				(pin power_in line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(hide yes)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 7.62 0)
-					(length 2.54)
-					(name "EN/UV"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin open_collector line
-					(at 12.7 -2.54 180)
-					(length 2.54)
-					(name "PG"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at 12.7 2.54 180)
-					(length 2.54)
-					(name "PGFB"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -17.78 90)
-					(length 2.54)
-					(name "ILIM"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at -5.08 -17.78 90)
-					(length 2.54)
-					(name "VIOC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 12.7 -12.7 180)
-					(length 2.54)
-					(name "SET"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 5.08 -17.78 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at 12.7 7.62 180)
-					(length 2.54)
-					(name "OUTS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_out line
-					(at 12.7 10.16 180)
-					(length 2.54)
-					(name "OUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 12.7 10.16 180)
-					(length 2.54)
-					(hide yes)
-					(name "OUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -12.7 10.16 0)
-					(length 2.54)
-					(hide yes)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2422,9 +1801,9 @@
 			)
 			(justify left top)
 		)
-		(uuid "3fa90db5-e4c7-5a74-b2f2-c8f0251316e3")
+		(uuid "31815eed-3401-537c-997f-81fffbf92d40")
 	)
-	(text "ADP5071 values from datasheet Fig. 47 / Tables 9-11. LT3045 / LT3094: VOUT = 100 uA x RSET (147k = 14.7 V, +15 V is the top of the LT3045 range); PGFB dividers 432k/10k trip power good near 13.3 V (also enables fast start-up)."
+	(text "ADP5071 values from datasheet Fig. 47 / Tables 9-11."
 		(exclude_from_sim no)
 		(at 20 21 0)
 		(effects
@@ -2433,7 +1812,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "4688077b-53b8-5fa6-b256-93e1e611013c")
+		(uuid "bec7a3f6-e7eb-5cd1-9db9-c7a87f1e6a35")
 	)
 	(text "ADP5071 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -2444,9 +1823,9 @@
 			)
 			(justify left top)
 		)
-		(uuid "64c704c2-70b7-586a-a780-c08a67700038")
+		(uuid "bfc778cb-990e-5fe4-a53d-38b8cdf05182")
 	)
-	(text "ADP5071ACPZ (5 V in): +16.4 V boost and -16.5 V inverting rails; an LT3045 and an LT3094 post-regulate them to +/-14.7 V."
+	(text "ADP5071ACPZ (5 V in): +16.4 V boost and -16.5 V inverting rails for the two post-regulators on the Regulators +-15V sheet."
 		(exclude_from_sim no)
 		(at 20 15 0)
 		(effects
@@ -2455,955 +1834,190 @@
 			)
 			(justify left top)
 		)
-		(uuid "f51abb70-bed7-533a-a44b-3d9a39aa53ef")
+		(uuid "d72bff7f-c9b3-51a5-a460-3e56bdce8b64")
+	)
+	(text "ADP5071 +-16.5 V CONVERTER"
+		(exclude_from_sim no)
+		(at 71.12 78.74 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "dcb69987-9bcc-56bc-a59c-e14509d57cb9")
 	)
 	(junction
-		(at 121.92 119.38)
+		(at 190.5 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "0246867b-cc30-50c1-a28f-c6986c97e237")
+		(uuid "0151d953-a012-51b5-8623-aabeb929a957")
 	)
 	(junction
-		(at 124.46 142.24)
+		(at 210.82 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "15c6da25-4d67-5e01-909b-c0bd69643c99")
+		(uuid "06773949-b730-5373-a02f-121e91be064e")
 	)
 	(junction
-		(at 170.18 241.3)
+		(at 236.22 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "18aa519f-f8d7-5b96-9371-2e8eae8f8f1e")
-	)
-	(junction
-		(at 137.16 187.96)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1edf4c7d-cc45-5c28-9b02-07e0c2b7266e")
-	)
-	(junction
-		(at 190.5 149.86)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "24de6ac0-6cdb-5035-b8d2-0c00707b9a44")
-	)
-	(junction
-		(at 166.37 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2717bd84-2a53-5408-acb5-de6d7dac15cb")
-	)
-	(junction
-		(at 129.54 218.44)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "28bfbd51-3e8b-5583-805e-d4e65c0423d7")
-	)
-	(junction
-		(at 121.92 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2d4920c5-40de-5237-8f78-a490b7a0fc0b")
-	)
-	(junction
-		(at 248.92 198.12)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "40b32a90-dd34-50f5-89f3-6fbcfdefe505")
-	)
-	(junction
-		(at 129.54 210.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "447b35b9-d0d4-53b7-adb9-47f131da2ad2")
-	)
-	(junction
-		(at 121.92 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4b400686-e132-5fef-8eee-7433a7cb5870")
-	)
-	(junction
-		(at 139.7 154.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "62a4c39d-02ee-53e4-bfac-684026f5e0d3")
-	)
-	(junction
-		(at 134.62 154.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7251b536-ddad-5a14-90c6-2d276a74b36d")
-	)
-	(junction
-		(at 137.16 241.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8091f9b8-8ef7-5853-bda4-e29c23743c20")
-	)
-	(junction
-		(at 124.46 241.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "82c35b08-20c0-5e14-967a-c98e1485e8a7")
-	)
-	(junction
-		(at 91.44 241.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "87d9a47b-d4fd-532b-89c2-f14d61f4bf6c")
-	)
-	(junction
-		(at 210.82 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "93832531-34b9-549f-af6d-034bedb70164")
-	)
-	(junction
-		(at 264.16 190.5)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "95cb7c01-5ef7-5e63-b526-c6b7cdc52863")
-	)
-	(junction
-		(at 111.76 134.62)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9f98fca0-4662-5d7b-b879-1bf7ac7c9070")
-	)
-	(junction
-		(at 162.56 241.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a0272a93-9d99-54b4-9cbb-56d893b901c6")
-	)
-	(junction
-		(at 109.22 218.44)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a21c4f30-9f81-55a4-a327-d69e8749a54b")
-	)
-	(junction
-		(at 124.46 187.96)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a5325667-977f-5de8-80ab-3ca026e4303e")
-	)
-	(junction
-		(at 129.54 264.16)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aac622dd-b10d-5f67-b47b-6c4f586983b7")
-	)
-	(junction
-		(at 121.92 116.84)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b035912d-79a9-597f-96d2-7efc5c058cc3")
-	)
-	(junction
-		(at 166.37 137.16)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b1bf8b06-4004-5a4f-967b-8f6d853fd05c")
-	)
-	(junction
-		(at 264.16 198.12)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b3a8f149-a242-5c1b-86ec-5eaeb2ee1e1e")
-	)
-	(junction
-		(at 165.1 157.48)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b68b9b0a-0175-5694-aedc-4977ab0180b2")
-	)
-	(junction
-		(at 129.54 271.78)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "be1b9146-33b4-5a85-b554-ff8f00f75f96")
+		(uuid "2121b7e6-2b12-573e-ba48-840ad52ce80b")
 	)
 	(junction
 		(at 248.92 190.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "d5a1b2cb-010b-5dd5-a060-b24773a86263")
+		(uuid "27c64dc9-484d-58d6-89cc-2caef476a7fa")
 	)
 	(junction
-		(at 111.76 271.78)
+		(at 165.1 154.94)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "d93644c6-8d22-5157-9b36-4b0529f7b73d")
+		(uuid "2c8b5c5c-e96e-5882-83cc-01b3f3c782b6")
 	)
 	(junction
-		(at 190.5 121.92)
+		(at 166.37 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "dd8118ff-b743-5a41-b872-fbfa9c2b4ae3")
+		(uuid "31f40d6b-04a3-5ffc-be17-07f012810c05")
 	)
 	(junction
-		(at 162.56 187.96)
+		(at 139.7 160.02)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e277c92b-8543-5c3d-83ec-180749222b5e")
+		(uuid "5b38e653-03c4-5daa-b51c-19e3e8fbb61f")
 	)
 	(junction
-		(at 190.5 137.16)
+		(at 210.82 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e7644f43-b6b1-5e03-963f-0a53418383b7")
+		(uuid "61f254fc-e5e5-51d7-99d0-ca5d24b3b08a")
 	)
 	(junction
-		(at 137.16 195.58)
+		(at 190.5 147.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e8e9693e-bf6a-53d5-88bb-5aaa0f632511")
+		(uuid "6a5bf039-0337-5a11-987e-52aedbea7bfd")
 	)
 	(junction
-		(at 91.44 187.96)
+		(at 121.92 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "ef5ca33e-361f-5229-b7fd-58bd77a827d1")
+		(uuid "753446de-812f-5669-a4a8-8b6ad7ef33a1")
 	)
 	(junction
-		(at 170.18 187.96)
+		(at 121.92 106.68)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f25ddcb7-3d3f-5ea3-9d27-2077dbfcc701")
+		(uuid "78545ed6-6d9d-5c27-a5f3-f1cbd9920c84")
 	)
 	(junction
-		(at 226.06 137.16)
+		(at 144.78 160.02)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f31d551e-77fd-531a-9add-1df1f287590c")
+		(uuid "7b2a572e-79a3-5b67-a43c-11ef1fd63592")
 	)
 	(junction
-		(at 210.82 137.16)
+		(at 166.37 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f6aa24ba-9c76-54aa-a0a5-5215d4f0aace")
+		(uuid "94dc0a76-f0a7-5358-afb1-54a8b1fe414b")
 	)
 	(junction
-		(at 137.16 248.92)
+		(at 124.46 147.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "fd75461a-3ba6-541f-8de1-8f068c9f0318")
+		(uuid "9cbbb7cd-3ac1-590a-9d2c-8776adfd196e")
 	)
 	(junction
-		(at 190.5 114.3)
+		(at 111.76 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "fe9a78f0-3992-5e62-a92c-cb43cf6e9c6b")
+		(uuid "9fdef6cc-c213-5d69-9dd5-e1e9ca93dbc8")
+	)
+	(junction
+		(at 121.92 104.14)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a271aa06-1a73-5055-910f-c2138f62546e")
+	)
+	(junction
+		(at 121.92 101.6)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a6787a15-d62a-5b19-8516-2be7b58beb76")
+	)
+	(junction
+		(at 190.5 116.84)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b8b345be-cfe7-54a7-941a-37b518e995f1")
+	)
+	(junction
+		(at 134.62 160.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bcf322c7-00fe-5a6a-85ad-b10d00d2ae59")
+	)
+	(junction
+		(at 264.16 198.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c18330da-b16b-5f5a-bfc3-f605c4fcc181")
+	)
+	(junction
+		(at 248.92 198.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "df486587-6182-5f9a-ba84-e7d09b700334")
+	)
+	(junction
+		(at 264.16 190.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fa48bebb-159e-5863-b774-178562c7bb58")
+	)
+	(junction
+		(at 190.5 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fbef05e5-eabe-58d9-aec7-6bce19bfc00f")
 	)
 	(no_connect
-		(at 101.6 269.24)
-		(uuid "523070fc-56ae-5134-a766-46543fa18101")
+		(at 124.46 142.24)
+		(uuid "9439a453-74f4-5892-8ad6-61c901f9a231")
 	)
-	(no_connect
-		(at 124.46 134.62)
-		(uuid "950c8dbe-eddf-5fe3-ba4a-80b77e1c0245")
-	)
-	(wire
-		(pts
-			(xy 106.68 271.78) (xy 111.76 271.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0123d673-72e1-5f01-814c-bc4cde400b34")
-	)
-	(wire
-		(pts
-			(xy 170.18 187.96) (xy 177.8 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0445c717-4964-5949-8eb2-fd147fefe0a2")
-	)
-	(wire
-		(pts
-			(xy 190.5 137.16) (xy 210.82 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0678833f-12bf-521a-990c-f5538de385e6")
-	)
-	(wire
-		(pts
-			(xy 190.5 114.3) (xy 210.82 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0aa5f78d-1760-54fd-be25-b3339ed49146")
-	)
-	(wire
-		(pts
-			(xy 106.68 106.68) (xy 110.49 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "14c02e84-b2a5-52ab-aa55-373539c42d81")
-	)
-	(wire
-		(pts
-			(xy 111.76 137.16) (xy 124.46 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15f2eea8-4f7b-5377-80ce-3403d7abac3d")
-	)
-	(wire
-		(pts
-			(xy 109.22 218.44) (xy 109.22 220.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "16a320ee-d67e-59d2-be22-94432f194d2f")
-	)
-	(wire
-		(pts
-			(xy 137.16 241.3) (xy 162.56 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "185f0b70-976e-50f9-8eb0-5dd3697a71ed")
-	)
-	(wire
-		(pts
-			(xy 157.48 116.84) (xy 157.48 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a7b2f30-d75c-5c22-8b31-c1d1ebda2295")
-	)
-	(wire
-		(pts
-			(xy 124.46 187.96) (xy 124.46 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "205f0f2d-1bf9-502a-a3c7-e813696fe837")
-	)
-	(wire
-		(pts
-			(xy 119.38 243.84) (xy 124.46 243.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "212f9eca-c08e-567f-b621-eec7d7dbbb83")
-	)
-	(wire
-		(pts
-			(xy 137.16 187.96) (xy 162.56 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "234caf98-bac5-5b75-abac-2e040caed2ff")
-	)
-	(wire
-		(pts
-			(xy 102.87 127) (xy 124.46 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2463a337-0bce-5634-8143-1a78a3655ee1")
-	)
-	(wire
-		(pts
-			(xy 104.14 215.9) (xy 104.14 218.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "258c043b-9b64-559d-909e-d476b9f1c1c0")
-	)
-	(wire
-		(pts
-			(xy 121.92 119.38) (xy 124.46 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29252e72-5497-5cb5-a211-e3831959a28e")
-	)
-	(wire
-		(pts
-			(xy 121.92 116.84) (xy 124.46 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d333235-cafa-55d8-a48c-dac08e7e027e")
-	)
-	(wire
-		(pts
-			(xy 119.38 195.58) (xy 137.16 195.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "332071e5-4207-5c56-be57-cd6b1d904bd9")
-	)
-	(wire
-		(pts
-			(xy 121.92 114.3) (xy 124.46 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "37e8fbb9-dad2-5679-9aa2-4a6bbe69923e")
-	)
-	(wire
-		(pts
-			(xy 160.02 149.86) (xy 190.5 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3943dc5d-8be6-5cc6-93a9-91580466e0cd")
-	)
-	(wire
-		(pts
-			(xy 119.38 264.16) (xy 129.54 264.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "40b9aea1-d018-5daf-b1bd-84b0d030a995")
-	)
-	(wire
-		(pts
-			(xy 248.92 198.12) (xy 264.16 198.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "48ab2606-8f3f-57f1-a2a0-5a4990c8ae1b")
-	)
-	(wire
-		(pts
-			(xy 210.82 114.3) (xy 218.44 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e8b3d95-f17b-5858-bf94-07f211e76d3d")
-	)
-	(wire
-		(pts
-			(xy 190.5 137.16) (xy 190.5 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "540dacdf-ac03-5a55-8d37-b1b6faab6ee7")
-	)
-	(wire
-		(pts
-			(xy 121.92 88.9) (xy 121.92 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54a995ca-e449-5cb4-a7aa-72c938a81493")
-	)
-	(wire
-		(pts
-			(xy 264.16 198.12) (xy 279.4 198.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54b123cf-d431-5959-93f3-1de3e13a5869")
-	)
-	(wire
-		(pts
-			(xy 111.76 121.92) (xy 124.46 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54b5a655-6778-5652-b5ed-310d793391d8")
-	)
-	(wire
-		(pts
-			(xy 129.54 264.16) (xy 137.16 264.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5641fff3-aa87-5e93-9062-9f55a9e0e51d")
-	)
-	(wire
-		(pts
-			(xy 76.2 241.3) (xy 93.98 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "594086ef-bb4a-5358-87da-3ed1a4ed4eb2")
-	)
-	(wire
-		(pts
-			(xy 119.38 210.82) (xy 129.54 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59a67d84-7791-5938-98d1-88dad478f0f5")
-	)
-	(wire
-		(pts
-			(xy 129.54 218.44) (xy 137.16 218.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b023c2f-3aa2-59ce-a386-4a9c2540786f")
-	)
-	(wire
-		(pts
-			(xy 106.68 134.62) (xy 111.76 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5bf165dd-b981-56e6-b157-76e7e9dce079")
-	)
-	(wire
-		(pts
-			(xy 129.54 271.78) (xy 137.16 271.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d4a5097-9bab-5a44-a01e-814eb1a43c62")
-	)
-	(wire
-		(pts
-			(xy 154.94 111.76) (xy 158.75 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5dd7aedf-5a29-5e8d-8344-04d94238c287")
-	)
-	(wire
-		(pts
-			(xy 210.82 137.16) (xy 226.06 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "607d3697-308d-569f-820a-2a375d8b9d16")
-	)
-	(wire
-		(pts
-			(xy 121.92 129.54) (xy 124.46 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60e7c1f9-75c3-59b2-b345-4c7695795ea3")
-	)
-	(wire
-		(pts
-			(xy 121.92 109.22) (xy 124.46 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6334aa7e-2546-5113-84f7-3742fb0accc0")
-	)
-	(wire
-		(pts
-			(xy 111.76 121.92) (xy 111.76 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "685c9669-3a45-590f-8584-c2fe5ff6088a")
-	)
-	(wire
-		(pts
-			(xy 129.54 218.44) (xy 129.54 220.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6a15e41d-d8bd-5063-b2cd-abaf6d319caa")
-	)
-	(wire
-		(pts
-			(xy 264.16 190.5) (xy 279.4 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6aba786c-c0e1-5095-92d4-c69c1639a46d")
-	)
-	(wire
-		(pts
-			(xy 124.46 142.24) (xy 124.46 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6d7913f3-4a4d-5641-8dca-29bbaa0c2db8")
-	)
-	(wire
-		(pts
-			(xy 154.94 116.84) (xy 157.48 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7738e177-12f2-5dfa-a88c-9271a498cec1")
-	)
-	(wire
-		(pts
-			(xy 162.56 187.96) (xy 170.18 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77a247c3-c1b1-5e5b-a308-1709b487c1a1")
-	)
-	(wire
-		(pts
-			(xy 134.62 152.4) (xy 134.62 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "81e6d6c2-55d6-5765-bc79-c94c3d07783b")
-	)
-	(wire
-		(pts
-			(xy 91.44 190.5) (xy 93.98 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "821e4b13-fe90-5a3a-82af-0385e891457d")
-	)
-	(wire
-		(pts
-			(xy 111.76 134.62) (xy 111.76 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "82e7df97-282e-549c-afcf-05787f44ed71")
-	)
-	(wire
-		(pts
-			(xy 241.3 190.5) (xy 248.92 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8806225e-5931-50f3-885e-a9af3b2ad226")
-	)
-	(wire
-		(pts
-			(xy 154.94 114.3) (xy 166.37 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "89d5def6-0d9c-5ec2-9b90-456cf32a9c43")
-	)
-	(wire
-		(pts
-			(xy 154.94 134.62) (xy 160.02 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8bcddf15-ec93-5fad-a2f3-13d36b614be1")
-	)
-	(wire
-		(pts
-			(xy 248.92 190.5) (xy 264.16 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8ca7acba-9ec7-5924-9fbc-69ca0ad1e67e")
-	)
-	(wire
-		(pts
-			(xy 157.48 132.08) (xy 157.48 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9a41867d-c50e-573d-b5a0-d164107cd353")
-	)
-	(wire
-		(pts
-			(xy 91.44 241.3) (xy 91.44 243.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ad3761b-2c4d-50db-bd31-07a8a70dbe6e")
-	)
-	(wire
-		(pts
-			(xy 154.94 137.16) (xy 166.37 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a16da944-cd25-5a07-9540-770ef6450500")
-	)
-	(wire
-		(pts
-			(xy 154.94 132.08) (xy 157.48 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a3b3ee35-6647-51d1-b3b9-6e2c431dd50c")
-	)
-	(wire
-		(pts
-			(xy 165.1 157.48) (xy 190.5 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4552f80-d4ef-5769-9170-345169a51c15")
-	)
-	(wire
-		(pts
-			(xy 144.78 152.4) (xy 144.78 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a464b338-603c-5a6a-b043-3d6a02578eff")
-	)
-	(wire
-		(pts
-			(xy 111.76 271.78) (xy 111.76 274.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a68456f3-8da3-5962-97d7-65b7d2d712ac")
-	)
-	(wire
-		(pts
-			(xy 162.56 241.3) (xy 170.18 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aa8ca5cf-ee13-52d7-aec1-10b7259a2712")
-	)
-	(wire
-		(pts
-			(xy 111.76 269.24) (xy 111.76 271.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "afcc16e4-6ad8-55a3-804a-2ac1879c1903")
-	)
-	(wire
-		(pts
-			(xy 129.54 271.78) (xy 129.54 274.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b2a9a640-4315-5d22-b509-6c57d6be52e3")
-	)
-	(wire
-		(pts
-			(xy 124.46 139.7) (xy 124.46 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be5f9809-3677-59b2-944f-afc6de92c7b2")
-	)
-	(wire
-		(pts
-			(xy 119.38 248.92) (xy 137.16 248.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c20aa696-4e57-5dae-90ef-20517eb3fc4a")
-	)
-	(wire
-		(pts
-			(xy 129.54 210.82) (xy 137.16 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c50b050b-2779-52c1-ac19-2bddd5088f34")
-	)
-	(wire
-		(pts
-			(xy 119.38 241.3) (xy 137.16 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c65aa80c-875a-5022-96f8-d5a555191925")
-	)
-	(wire
-		(pts
-			(xy 157.48 121.92) (xy 190.5 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c7486415-220a-51b6-b8ed-fe78ba96a819")
-	)
-	(wire
-		(pts
-			(xy 166.37 114.3) (xy 171.45 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9348c4d-402a-59af-80e1-d5f8fff1e420")
-	)
-	(wire
-		(pts
-			(xy 91.44 127) (xy 95.25 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cbb59bb0-578d-53af-8a3b-c4a1b1b8b37e")
-	)
-	(wire
-		(pts
-			(xy 91.44 187.96) (xy 91.44 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc419499-9f03-5d6d-9f26-f115fb63f73f")
-	)
 	(wire
 		(pts
-			(xy 104.14 218.44) (xy 109.22 218.44)
+			(xy 154.94 106.68) (xy 158.75 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cead10de-b91c-5434-827b-55ad3eb8316d")
+		(uuid "09dc2c41-f3f6-5e86-9e22-d43e1dbc2700")
 	)
 	(wire
 		(pts
-			(xy 157.48 157.48) (xy 165.1 157.48)
+			(xy 210.82 109.22) (xy 223.52 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ceaee97c-bb87-544b-b680-c61c34d81b27")
+		(uuid "09e935f9-5860-5d3e-96bc-05e4659c6304")
 	)
 	(wire
 		(pts
-			(xy 170.18 241.3) (xy 177.8 241.3)
+			(xy 102.87 129.54) (xy 124.46 129.54)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ced69078-96cc-5328-8f24-4e117a04073b")
+		(uuid "0e352992-a878-583f-920c-913a3979a5ef")
 	)
 	(wire
 		(pts
@@ -3413,347 +2027,497 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d4cc39db-1118-578e-92c2-1872c1d469ae")
+		(uuid "11aa06db-beef-59bf-b60e-a12b031709f8")
 	)
 	(wire
 		(pts
-			(xy 124.46 241.3) (xy 124.46 243.84)
+			(xy 157.48 111.76) (xy 157.48 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d79aa192-4f19-556f-8833-dd50123df677")
+		(uuid "1a18099b-8a44-5024-9dc3-7528ee40f0c5")
 	)
 	(wire
 		(pts
-			(xy 134.62 154.94) (xy 134.62 157.48)
+			(xy 248.92 132.08) (xy 256.54 132.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d832a584-e841-5d7c-a1e1-5aaaf0daa174")
+		(uuid "1b436579-e424-5ce5-a3f9-504b8ed942aa")
 	)
 	(wire
 		(pts
-			(xy 166.37 111.76) (xy 166.37 114.3)
+			(xy 160.02 147.32) (xy 190.5 147.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d8f8ee50-3ddb-5415-977a-0ae2cdc970cb")
+		(uuid "1ea74086-71bb-58d2-b78a-7cfb3d63f8e8")
 	)
 	(wire
 		(pts
-			(xy 119.38 200.66) (xy 121.92 200.66)
+			(xy 144.78 157.48) (xy 144.78 160.02)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "da4d4920-2ed0-560d-81a2-0f0cf04d492e")
+		(uuid "20abfcdf-e105-5f36-a32a-30c0d9eb7eaa")
 	)
 	(wire
 		(pts
-			(xy 124.46 154.94) (xy 144.78 154.94)
+			(xy 179.07 132.08) (xy 190.5 132.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "dd633fe2-7c56-561b-aea0-c16bd590ce4c")
+		(uuid "20e56fbf-4fe5-5e3c-be1f-50aae0f6a445")
 	)
 	(wire
 		(pts
-			(xy 119.38 190.5) (xy 124.46 190.5)
+			(xy 111.76 134.62) (xy 111.76 137.16)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e275de7a-e621-5006-8e10-b3d24e56021d")
+		(uuid "237ea11d-f7f0-59e7-8bec-9d4451db103f")
 	)
 	(wire
 		(pts
-			(xy 226.06 137.16) (xy 233.68 137.16)
+			(xy 139.7 157.48) (xy 139.7 160.02)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e5533847-3416-550f-9f3a-b4548f682edf")
+		(uuid "23bb2d07-388e-5773-a9db-899bfc007759")
 	)
 	(wire
 		(pts
-			(xy 160.02 134.62) (xy 160.02 149.86)
+			(xy 154.94 137.16) (xy 157.48 137.16)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e7ada236-ed58-5bf7-b11f-73d078892a3a")
+		(uuid "28d80cc3-c725-597e-bf32-6a3b972a6aff")
 	)
 	(wire
 		(pts
-			(xy 76.2 187.96) (xy 93.98 187.96)
+			(xy 166.37 106.68) (xy 166.37 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ead4372c-7b02-56f8-8605-567c2bd5e609")
+		(uuid "35e7a3c0-6b86-5630-a5cb-b1a835eb0aca")
 	)
 	(wire
 		(pts
-			(xy 179.07 114.3) (xy 190.5 114.3)
+			(xy 190.5 132.08) (xy 210.82 132.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "eb1c13af-d544-55c5-a9af-99df82010e7f")
+		(uuid "365f2b74-456f-5c80-b994-bb9560a2d789")
 	)
 	(wire
 		(pts
-			(xy 166.37 137.16) (xy 171.45 137.16)
+			(xy 157.48 154.94) (xy 165.1 154.94)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f28b829f-a64b-5501-87f5-21a0682adf53")
+		(uuid "3e20a46d-5688-51d0-979d-e47119f5e204")
 	)
 	(wire
 		(pts
-			(xy 91.44 243.84) (xy 93.98 243.84)
+			(xy 210.82 132.08) (xy 236.22 132.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f291be14-aa88-541f-bc62-d3b8d2419414")
+		(uuid "49144d3e-2ef0-5e79-9fbe-3b4449841789")
 	)
 	(wire
 		(pts
-			(xy 119.38 254) (xy 121.92 254)
+			(xy 91.44 129.54) (xy 95.25 129.54)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f32458a2-9d02-5281-af0e-3d32d42e79e5")
+		(uuid "4bf4ac6d-a1e0-5987-98ab-d782ecf162a8")
 	)
 	(wire
 		(pts
-			(xy 118.11 106.68) (xy 124.46 106.68)
+			(xy 118.11 116.84) (xy 124.46 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f4d20e73-953f-5f1a-b875-37b4adbd1777")
+		(uuid "566601cf-118c-5db1-be51-ae4c0417aa7d")
 	)
 	(wire
 		(pts
-			(xy 119.38 187.96) (xy 137.16 187.96)
+			(xy 190.5 109.22) (xy 210.82 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f5c6cd8c-7ea2-55f4-8ca9-6bd11ecdb612")
+		(uuid "5b4c0a0b-5ddd-50c1-b896-db68a8074b0a")
 	)
 	(wire
 		(pts
-			(xy 106.68 269.24) (xy 106.68 271.78)
+			(xy 121.92 104.14) (xy 124.46 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f5ebf74e-5c90-5752-a6da-5c0b73bac33c")
+		(uuid "76044528-9f0b-5184-bafc-5d5b17cec41c")
 	)
 	(wire
 		(pts
-			(xy 139.7 152.4) (xy 139.7 154.94)
+			(xy 124.46 144.78) (xy 124.46 147.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f7a17f5d-e85e-55c7-9e95-86548d0b6314")
+		(uuid "7bad4566-2b97-57d3-b66e-07a4d2d7b713")
 	)
 	(wire
 		(pts
-			(xy 109.22 215.9) (xy 109.22 218.44)
+			(xy 190.5 132.08) (xy 190.5 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fc70ff55-7b7f-5a29-9281-ff3308849321")
+		(uuid "7ccb3eff-3c0a-5291-b0e7-4959a659d2d2")
 	)
 	(wire
 		(pts
-			(xy 179.07 137.16) (xy 190.5 137.16)
+			(xy 154.94 134.62) (xy 160.02 134.62)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fe0e02dc-490e-5527-8d69-2465a775b145")
+		(uuid "7f8d795f-03b8-595b-a500-e180695863a6")
 	)
-	(global_label "PGN_15V"
-		(shape bidirectional)
-		(at 121.92 254 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
+	(wire
+		(pts
+			(xy 154.94 111.76) (xy 157.48 111.76)
 		)
-		(uuid "1ce154bc-d6c1-58f0-9f8f-beeff36b8b1b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 121.92 254 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
-			(at 121.92 254 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
+		(uuid "837420ee-dda8-5c7f-88f1-180db8bcd367")
 	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 121.92 200.66 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
+	(wire
+		(pts
+			(xy 106.68 134.62) (xy 111.76 134.62)
 		)
-		(uuid "4048d862-73c5-5e59-a2bd-e04ed3700f75")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 121.92 200.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
-			(at 121.92 200.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
+		(uuid "87e05dec-aed9-5d1a-995b-7adc5112e92d")
 	)
-	(symbol
-		(lib_id "power:GND")
-		(at 129.54 274.32 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "08ed6002-48e3-5354-b584-296beaa5593c")
-		(property "Reference" "#PWR203"
-			(at 129.54 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+	(wire
+		(pts
+			(xy 165.1 154.94) (xy 190.5 154.94)
 		)
-		(property "Value" "GND"
-			(at 129.54 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 129.54 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(uuid "97900252-496d-50b1-be34-ad4f6328a8d5")
+	)
+	(wire
+		(pts
+			(xy 121.92 111.76) (xy 124.46 111.76)
 		)
-		(property "Datasheet" ""
-			(at 129.54 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 129.54 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(uuid "992e497c-b52a-5019-8303-9d979d83b17c")
+	)
+	(wire
+		(pts
+			(xy 264.16 198.12) (xy 279.4 198.12)
 		)
-		(pin "1"
-			(uuid "01cababd-09f4-51b5-b27b-e775e4527dec")
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR203")
-					(unit 1)
-				)
-			)
+		(uuid "a0520515-a245-5f04-9fa2-931720611339")
+	)
+	(wire
+		(pts
+			(xy 144.78 160.02) (xy 144.78 162.56)
 		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a4028d76-541d-515d-90fe-2835b935ac24")
+	)
+	(wire
+		(pts
+			(xy 166.37 109.22) (xy 171.45 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a97f711b-b555-5aa9-ad52-145e2cef1bcc")
+	)
+	(wire
+		(pts
+			(xy 157.48 137.16) (xy 157.48 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac3b2cee-d354-52d5-a4a4-f29f5dcff305")
+	)
+	(wire
+		(pts
+			(xy 124.46 147.32) (xy 124.46 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b07555a3-3886-527f-a2e6-619ee8c73d37")
+	)
+	(wire
+		(pts
+			(xy 160.02 134.62) (xy 160.02 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b25d9039-f5ac-5005-8304-82d7d99b7cde")
+	)
+	(wire
+		(pts
+			(xy 236.22 132.08) (xy 248.92 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4436db2-27a9-55d7-89ad-f9d68fcd9bc1")
+	)
+	(wire
+		(pts
+			(xy 111.76 137.16) (xy 124.46 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba7b6139-5597-5285-aa51-5ff773195e7f")
+	)
+	(wire
+		(pts
+			(xy 157.48 116.84) (xy 190.5 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "baaa784b-4b33-5663-a798-e3691661bae3")
+	)
+	(wire
+		(pts
+			(xy 166.37 132.08) (xy 171.45 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bc29dc22-795a-5e3e-8a26-4c6f37471380")
+	)
+	(wire
+		(pts
+			(xy 154.94 132.08) (xy 166.37 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfdd8cfe-ed8e-5813-bb94-2d2c6b994f58")
+	)
+	(wire
+		(pts
+			(xy 264.16 190.5) (xy 279.4 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c53f1d56-1dd4-550e-889d-149d85643fd5")
+	)
+	(wire
+		(pts
+			(xy 106.68 116.84) (xy 110.49 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9bf74af-b1b5-5b08-b177-ef8048f4f449")
+	)
+	(wire
+		(pts
+			(xy 154.94 109.22) (xy 166.37 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1d710b8-faeb-5e9a-823a-4b7c2db5892b")
+	)
+	(wire
+		(pts
+			(xy 248.92 198.12) (xy 264.16 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d6bc40e1-cfcc-566f-9884-a7eea8a1df12")
+	)
+	(wire
+		(pts
+			(xy 179.07 109.22) (xy 190.5 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dabb096e-979e-5188-8c10-195f8411a49c")
+	)
+	(wire
+		(pts
+			(xy 124.46 160.02) (xy 144.78 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "deab7060-ca28-5161-b54b-b3b4e20d1423")
+	)
+	(wire
+		(pts
+			(xy 121.92 88.9) (xy 121.92 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1f80105-375b-546a-bf8b-cfd19b700f0d")
+	)
+	(wire
+		(pts
+			(xy 134.62 157.48) (xy 134.62 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4355ef7-dec6-55c5-ab91-c8cc79a2f9f8")
+	)
+	(wire
+		(pts
+			(xy 121.92 101.6) (xy 124.46 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebf4a4b3-87a7-55ed-9d0d-a56d545e574c")
+	)
+	(wire
+		(pts
+			(xy 111.76 134.62) (xy 124.46 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f197b64e-1829-5783-9f07-31dad0f9b5d7")
+	)
+	(wire
+		(pts
+			(xy 241.3 190.5) (xy 248.92 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6036b86-ee79-5ec7-8bfb-5f0d9d1420cd")
+	)
+	(wire
+		(pts
+			(xy 223.52 109.22) (xy 231.14 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f74d65c1-ae7d-5c36-a82e-039b4b2b4f1c")
+	)
+	(wire
+		(pts
+			(xy 121.92 106.68) (xy 124.46 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f923c4b7-f91e-529d-b320-f31bb54bbab2")
+	)
+	(wire
+		(pts
+			(xy 121.92 109.22) (xy 124.46 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa694e4b-298b-5932-bfaa-5e9fe0a62f2e")
+	)
+	(wire
+		(pts
+			(xy 248.92 190.5) (xy 264.16 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff38b3d1-4b93-54fb-bcc2-d660e297e8af")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -3822,7 +2586,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1c18506b-21e4-529e-acd6-28826f26779a")
+			(uuid "e6a81ffe-7be6-5df4-9b12-f09293784507")
 		)
 		(instances
 			(project "cryocooler"
@@ -3835,7 +2599,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 218.44 114.3 0)
+		(at 231.14 109.22 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3845,7 +2609,7 @@
 		(dnp no)
 		(uuid "0babdbcc-e6f7-5eba-b281-a718d58eff30")
 		(property "Reference" "#FLG181"
-			(at 218.44 114.3 0)
+			(at 231.14 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3856,7 +2620,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 218.44 114.3 0)
+			(at 231.14 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3867,7 +2631,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 218.44 114.3 0)
+			(at 231.14 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3878,7 +2642,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 218.44 114.3 0)
+			(at 231.14 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3889,7 +2653,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 218.44 114.3 0)
+			(at 231.14 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3900,7 +2664,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "fb1fbebb-5040-55c9-83ed-9042c8f5ad56")
+			(uuid "e4ec5a25-36ec-5613-9c25-b7c830035f5b")
 		)
 		(instances
 			(project "cryocooler"
@@ -3913,7 +2677,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 226.06 140.97 0)
+		(at 236.22 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3923,7 +2687,7 @@
 		(dnp no)
 		(uuid "0d587baa-4830-539c-8cc6-278a4879fbec")
 		(property "Reference" "C61"
-			(at 230.292 139.92 0)
+			(at 240.452 134.84 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3934,7 +2698,7 @@
 			)
 		)
 		(property "Value" "22uF/25V X7R"
-			(at 230.292 142.02 0)
+			(at 240.452 136.94 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3945,7 +2709,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 226.06 140.97 0)
+			(at 236.22 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3956,7 +2720,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 226.06 140.97 0)
+			(at 236.22 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3967,7 +2731,7 @@
 			)
 		)
 		(property "Description" "Output capacitor of the -16.5 V converter and input capacitor of the LT3094 (-15 V regulator)"
-			(at 226.06 140.97 0)
+			(at 236.22 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3978,7 +2742,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 226.06 140.97 0)
+			(at 236.22 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3989,10 +2753,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "20ee5b6e-9d99-5fcc-a960-4d0c369368d7")
+			(uuid "8b25bede-3e14-51af-81f6-7028c2f9e7f1")
 		)
 		(pin "2"
-			(uuid "3a7d28ac-b483-5df4-a5fc-3a6dde4177e7")
+			(uuid "a790c19e-dfe4-564f-ada7-3224daccd0bb")
 		)
 		(instances
 			(project "cryocooler"
@@ -4005,7 +2769,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 210.82 121.92 0)
+		(at 210.82 116.84 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4015,7 +2779,7 @@
 		(dnp no)
 		(uuid "0f382ed5-e5dd-558c-baea-9560278c590c")
 		(property "Reference" "#PWR183"
-			(at 210.82 121.92 0)
+			(at 210.82 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4026,7 +2790,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 210.82 121.92 0)
+			(at 210.82 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4037,7 +2801,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 210.82 121.92 0)
+			(at 210.82 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4048,7 +2812,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 210.82 121.92 0)
+			(at 210.82 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4059,7 +2823,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 210.82 121.92 0)
+			(at 210.82 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4070,7 +2834,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "407ecaf6-9646-5707-b58b-41ea9bb1c379")
+			(uuid "b0d68032-3dbd-5249-9cea-78d22cf4cb40")
 		)
 		(instances
 			(project "cryocooler"
@@ -4082,178 +2846,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 137.16 199.39 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "1faabb6b-8460-5f05-83b2-02bbf15d6a29")
-		(property "Reference" "R11"
-			(at 140.376 198.34 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 140.376 200.44 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 137.16 199.39 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 137.16 199.39 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Lower resistor of the LT3045 +15 V power-good threshold divider (PGFB)"
-			(at 137.16 199.39 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 137.16 199.39 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "13f78a3e-12bf-5ed9-a1ee-0b6caf8ddf2b")
-		)
-		(pin "2"
-			(uuid "36289150-8ff3-507d-bdb5-12042fdacfb7")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 129.54 220.98 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "26d7dc2c-72f4-5c7c-9612-5131a8beb7ec")
-		(property "Reference" "#PWR198"
-			(at 129.54 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 129.54 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 129.54 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 129.54 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 129.54 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8fb3378e-5ee6-5a9c-8835-ff299f443b0d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR198")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:D_Schottky")
-		(at 175.26 137.16 0)
+		(at 175.26 132.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4263,7 +2857,7 @@
 		(dnp no)
 		(uuid "35ae0bc4-187f-56a2-9b58-e45a77003b8a")
 		(property "Reference" "D5"
-			(at 181.27 136.11 0)
+			(at 170.81 126.48 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4274,7 +2868,7 @@
 			)
 		)
 		(property "Value" "DFLS240"
-			(at 181.27 138.21 0)
+			(at 170.81 128.58 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4285,7 +2879,7 @@
 			)
 		)
 		(property "Footprint" "Diode_SMD:D_PowerDI-123"
-			(at 175.26 137.16 0)
+			(at 175.26 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4296,7 +2890,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DFLS240.pdf"
-			(at 175.26 137.16 0)
+			(at 175.26 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4307,7 +2901,7 @@
 			)
 		)
 		(property "Description" "Rectifier diode of the ADP5071 inverting converter (-16.5 V)"
-			(at 175.26 137.16 0)
+			(at 175.26 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4318,7 +2912,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=DFLS240-7"
-			(at 175.26 137.16 0)
+			(at 175.26 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4329,10 +2923,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ebc88e5c-873b-5fa8-a908-ff2ffb4ba6c0")
+			(uuid "de40a37b-d0f9-545d-83d4-f58bacb94602")
 		)
 		(pin "2"
-			(uuid "5d86eae2-4848-5fd2-9192-7d8b4cec6420")
+			(uuid "482206f9-6abd-58de-ace1-ec939fbf27e9")
 		)
 		(instances
 			(project "cryocooler"
@@ -4421,10 +3015,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2627c063-9153-5b89-b8ce-1931ad5818d1")
+			(uuid "cccba0a6-1113-5378-80b8-f2e23a33a9d3")
 		)
 		(pin "2"
-			(uuid "36ed97c1-fba0-5bda-b6f7-304fe619c5dc")
+			(uuid "53b2794f-ac42-5b50-a7a8-3aa892e86754")
 		)
 		(instances
 			(project "cryocooler"
@@ -4513,10 +3107,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ff840edf-0508-5dda-ad4c-a60753c2dc7b")
+			(uuid "d3800def-8bb4-5cb4-bf52-25d6cbd44ac1")
 		)
 		(pin "2"
-			(uuid "8bb63318-cc2b-5a3e-8700-502dc2855222")
+			(uuid "fbc79f37-8503-5c49-ba32-6ecaa876a352")
 		)
 		(instances
 			(project "cryocooler"
@@ -4605,10 +3199,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2babc75a-f5e4-5255-9e52-9d3121731ec4")
+			(uuid "9a0fbb49-b5a0-536b-9def-30040380042b")
 		)
 		(pin "2"
-			(uuid "debf8f03-beb7-5f86-b045-1a0787f15404")
+			(uuid "75d0fa5f-0bb1-5099-b8e0-887ec6df55ce")
 		)
 		(instances
 			(project "cryocooler"
@@ -4621,7 +3215,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 190.5 129.54 0)
+		(at 190.5 124.46 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4631,7 +3225,7 @@
 		(dnp no)
 		(uuid "3c1d6c52-2c9f-5440-ae44-b8dba77d8e98")
 		(property "Reference" "#PWR182"
-			(at 190.5 129.54 0)
+			(at 190.5 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4642,7 +3236,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 190.5 129.54 0)
+			(at 190.5 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4653,7 +3247,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 129.54 0)
+			(at 190.5 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4664,7 +3258,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 129.54 0)
+			(at 190.5 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4675,7 +3269,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 190.5 129.54 0)
+			(at 190.5 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4686,7 +3280,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3985760c-bd6c-5762-8b7b-ce46397f151a")
+			(uuid "242e3c00-d892-5796-98ca-e87652772f81")
 		)
 		(instances
 			(project "cryocooler"
@@ -4698,270 +3292,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 162.56 248.92 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3d0aace6-ba87-56ee-8a9d-2e6253d006b2")
-		(property "Reference" "#PWR201"
-			(at 162.56 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 162.56 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 162.56 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 162.56 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 162.56 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "116fcf31-8e8a-5a11-b7a8-cba01472b7fa")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR201")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 137.16 245.11 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "407a231e-48d5-5071-a198-fba312a5efb0")
-		(property "Reference" "R75"
-			(at 140.376 244.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "432k"
-			(at 140.376 246.16 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 137.16 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07432KL"
-			(at 137.16 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Upper resistor of the LT3094 -15 V power-good threshold divider (PGFB)"
-			(at 137.16 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07432KL"
-			(at 137.16 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "57506818-76c2-58ee-af20-3ce4d3791d53")
-		)
-		(pin "2"
-			(uuid "6d3516f1-a1db-5619-ba4f-20cc424d4d27")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R75")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
-		(at 162.56 191.77 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4098b047-be58-51e3-a12a-5c3ceccc6c06")
-		(property "Reference" "C59"
-			(at 166.792 181.83 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "22uF/25V X7R"
-			(at 166.792 183.93 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 162.56 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 162.56 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Output capacitor on the +15 V rail (LT3045)"
-			(at 162.56 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 162.56 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d10d56e3-377a-54bf-8da1-53d44868ba08")
-		)
-		(pin "2"
-			(uuid "997b485b-80db-5a3d-b69d-2fa5267104a0")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C59")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 210.82 140.97 0)
+		(at 210.82 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4971,7 +3303,7 @@
 		(dnp no)
 		(uuid "4348cf65-18ca-5bbe-8bc0-5c111efa3cee")
 		(property "Reference" "C62"
-			(at 215.052 146.27 0)
+			(at 215.052 134.84 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4982,7 +3314,7 @@
 			)
 		)
 		(property "Value" "22uF/25V X7R"
-			(at 215.052 148.37 0)
+			(at 215.052 136.94 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4993,7 +3325,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 210.82 140.97 0)
+			(at 210.82 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5004,7 +3336,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 210.82 140.97 0)
+			(at 210.82 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5015,7 +3347,7 @@
 			)
 		)
 		(property "Description" "Output capacitor of the -16.5 V converter and input capacitor of the LT3094 (-15 V regulator)"
-			(at 210.82 140.97 0)
+			(at 210.82 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5026,7 +3358,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 210.82 140.97 0)
+			(at 210.82 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5037,10 +3369,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "552c295e-cc92-5165-bc3e-0840251890df")
+			(uuid "8a4021b4-1de8-54d7-aef1-5979bc96819a")
 		)
 		(pin "2"
-			(uuid "d4b27f49-121e-5588-b8d5-a5e90bad396c")
+			(uuid "7193910b-b116-5aeb-bf06-1413e4e7d069")
 		)
 		(instances
 			(project "cryocooler"
@@ -5053,7 +3385,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 99.06 127 90)
+		(at 99.06 129.54 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5063,7 +3395,7 @@
 		(dnp no)
 		(uuid "43c7c5dd-aa9c-5e13-baf2-75dbe50048b8")
 		(property "Reference" "R69"
-			(at 99.06 120.884 270)
+			(at 99.06 123.424 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5073,7 +3405,7 @@
 			)
 		)
 		(property "Value" "12k"
-			(at 99.06 122.984 270)
+			(at 99.06 125.524 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5083,7 +3415,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 99.06 127 0)
+			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5094,7 +3426,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0712KL"
-			(at 99.06 127 0)
+			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5105,7 +3437,7 @@
 			)
 		)
 		(property "Description" "Compensation resistor on ADP5071 COMP2 (inverting loop), in series with C55"
-			(at 99.06 127 0)
+			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5116,7 +3448,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0712KL"
-			(at 99.06 127 0)
+			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5127,10 +3459,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "afee5475-6c20-5cce-9a6b-2e02fc005433")
+			(uuid "bf616b81-94de-5b1d-9c79-5bc9192b9fb7")
 		)
 		(pin "2"
-			(uuid "9412338d-5eeb-5b23-8c7a-51cd7cf26668")
+			(uuid "f8a0bea5-c9af-50c6-8169-d4ede3621910")
 		)
 		(instances
 			(project "cryocooler"
@@ -5143,7 +3475,7 @@
 	)
 	(symbol
 		(lib_id "Device:L")
-		(at 162.56 111.76 90)
+		(at 162.56 106.68 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5153,27 +3485,29 @@
 		(dnp no)
 		(uuid "45db7ce3-0d91-58a7-ad4c-0694afe77806")
 		(property "Reference" "L2"
-			(at 165.1 106.0277 270)
+			(at 168.57 98.9639 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "SRP7050TA-3R3M"
-			(at 165.1 108.1277 270)
+			(at 168.57 101.0639 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "cryocooler:L_Bourns_SRP7050TA"
-			(at 162.56 111.76 0)
+			(at 162.56 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5184,7 +3518,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/SRP7050TA.pdf"
-			(at 162.56 111.76 0)
+			(at 162.56 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5195,7 +3529,7 @@
 			)
 		)
 		(property "Description" "Boost inductor of the ADP5071 positive converter (+16.5 V)"
-			(at 162.56 111.76 0)
+			(at 162.56 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5206,7 +3540,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=SRP7050TA-3R3M"
-			(at 162.56 111.76 0)
+			(at 162.56 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5217,10 +3551,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "f6033b96-f5ac-5fc5-8592-bd14c51a7f07")
+			(uuid "bfe2191f-a9ac-51ce-bca9-b9430855f0b9")
 		)
 		(pin "2"
-			(uuid "8bcd2ca5-fe84-5f0d-872c-3ae4861ed193")
+			(uuid "50eb47cf-1241-5ef0-9e0b-c5a93253141e")
 		)
 		(instances
 			(project "cryocooler"
@@ -5233,7 +3567,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 106.68 110.49 0)
+		(at 106.68 120.65 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5243,7 +3577,7 @@
 		(dnp no)
 		(uuid "4cf076d9-dbfe-5dd9-afbd-8a85b13a7f83")
 		(property "Reference" "C79"
-			(at 110.912 110.71 0)
+			(at 110.912 120.87 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5254,7 +3588,7 @@
 			)
 		)
 		(property "Value" "47nF"
-			(at 110.912 112.81 0)
+			(at 110.912 122.97 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5265,7 +3599,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 106.68 110.49 0)
+			(at 106.68 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5276,7 +3610,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL10B473KB8NNNC"
-			(at 106.68 110.49 0)
+			(at 106.68 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5287,7 +3621,7 @@
 			)
 		)
 		(property "Description" "Compensation capacitor on ADP5071 COMP1, in series with R68"
-			(at 106.68 110.49 0)
+			(at 106.68 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5298,7 +3632,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL10B473KB8NNNC"
-			(at 106.68 110.49 0)
+			(at 106.68 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5309,93 +3643,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "15fba679-bbbe-54bc-aa01-5f947d342d88")
+			(uuid "a1ffeb08-ddbe-5a73-a46d-3a5e34d85ef1")
 		)
 		(pin "2"
-			(uuid "694f04a1-fb55-5ffe-95a6-7aa561e44184")
+			(uuid "131dff32-e72a-56cc-8c93-14dac1d8087a")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
 					(reference "C79")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 137.16 256.54 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5245caa4-e36b-560f-b647-7c4fee88d1af")
-		(property "Reference" "#PWR202"
-			(at 137.16 256.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 137.16 256.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 137.16 256.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 137.16 256.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 137.16 256.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5fb125d2-b23a-5982-8869-4d8177d67bf3")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR202")
 					(unit 1)
 				)
 			)
@@ -5413,7 +3669,7 @@
 		(dnp no)
 		(uuid "59fece85-7c6b-5087-98d8-9c19f1376f33")
 		(property "Reference" "U20"
-			(at 124.46 99.04 0)
+			(at 124.46 93.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5424,7 +3680,7 @@
 			)
 		)
 		(property "Value" "ADP5071ACPZ"
-			(at 124.46 101.14 0)
+			(at 124.46 96.06 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5478,68 +3734,68 @@
 				)
 			)
 		)
-		(pin "6"
-			(uuid "2a34169b-22eb-5158-a3a2-e5eb68db366f")
-		)
 		(pin "7"
-			(uuid "cb1e6e08-d36c-577f-a81e-2a4ff469b1ef")
+			(uuid "481b24b9-9f92-5895-aeae-d04e7dcdc1bb")
 		)
 		(pin "15"
-			(uuid "6b8cea0f-c022-50fe-b9b7-ff544667a9f6")
+			(uuid "04a83816-ea06-567d-8a90-db84abfe7b4c")
 		)
 		(pin "17"
-			(uuid "fe3ed15c-7579-57dc-be79-625d67dc4778")
+			(uuid "f14ed75e-1f33-52ff-aed8-6f3fba3a60e3")
 		)
 		(pin "16"
-			(uuid "5b1d0919-de52-5cbe-94fb-b289b2d3335e")
-		)
-		(pin "14"
-			(uuid "b2aa4dc6-1416-56fc-a66d-f8111d89c172")
-		)
-		(pin "10"
-			(uuid "53fdb7f4-e8df-5533-897e-096d2a035c8b")
+			(uuid "1bf6c81c-9147-5b05-9e50-99e7f026e477")
 		)
 		(pin "9"
-			(uuid "333d90d4-d8d2-5be7-9035-8247f3def5d1")
+			(uuid "4b4876d5-47e0-558d-9768-6011197bb002")
 		)
-		(pin "8"
-			(uuid "e891eac6-e943-539f-82b1-148020bc22a9")
+		(pin "6"
+			(uuid "be0dac79-668b-5370-b5f6-5437b2aca4d1")
+		)
+		(pin "10"
+			(uuid "be877fe8-e161-5019-ba4f-2f3943cb78f6")
+		)
+		(pin "14"
+			(uuid "b52778a9-5a8f-5952-8144-b442a4c74f9f")
 		)
 		(pin "3"
-			(uuid "0d307bc3-fb44-508b-9105-72a8a26b3103")
+			(uuid "6bf59ac9-4fc4-5421-a4dd-eb9678e135c2")
+		)
+		(pin "8"
+			(uuid "f3225d0c-5736-50ab-a550-e8ce6a633a19")
 		)
 		(pin "2"
-			(uuid "027d5abd-46dd-50f6-ba6e-7589b6bb0479")
+			(uuid "f7aea669-c933-5ed5-acfe-306c9b41be1d")
 		)
 		(pin "4"
-			(uuid "28cd2046-911e-5a4b-9b26-3381b4365e55")
+			(uuid "82a606f0-9ffa-5e20-8057-307aac1cffe8")
 		)
 		(pin "1"
-			(uuid "6541c6c9-0752-5cf0-a3ef-b421d2c72a61")
+			(uuid "3af4c8a9-d30f-50a6-9dbc-130dfb809e07")
 		)
 		(pin "20"
-			(uuid "c23873aa-5039-5b4b-8a5c-70c19b01465d")
+			(uuid "723fb02b-0ba6-5538-9a5c-fad557651676")
 		)
 		(pin "5"
-			(uuid "70ad9a6d-d61a-59e2-abb8-4de5ff7d9650")
-		)
-		(pin "12"
-			(uuid "d6611beb-ccad-546b-a9ce-70355d284892")
-		)
-		(pin "11"
-			(uuid "694b6a90-c999-585c-94f7-6272ef2b15a1")
+			(uuid "e72bdfdb-a3d3-5efc-8a40-991c7d1d5bd3")
 		)
 		(pin "18"
-			(uuid "0d8f4511-12f1-54d1-96fe-4b87586f5e4c")
+			(uuid "55cc8650-fb26-508d-b367-8f0ef492408e")
+		)
+		(pin "11"
+			(uuid "9e270606-9255-5135-9858-33e55b7e3097")
+		)
+		(pin "12"
+			(uuid "49465cb0-dfe2-54e6-9ce4-606a3d6b8dab")
 		)
 		(pin "13"
-			(uuid "68fae778-9a14-5463-b6ad-c3e197b58e9b")
+			(uuid "23bede0f-44d0-526f-99f5-5cbfc8ca9129")
 		)
 		(pin "21"
-			(uuid "d44661ba-f2a4-5cf0-aef9-936f2a3aeccf")
+			(uuid "7bcec3bf-2918-5617-8da0-bf796a4aa719")
 		)
 		(pin "19"
-			(uuid "a2385a03-1bc7-54fe-97ed-acd5918eef7f")
+			(uuid "90b481ad-f62a-589c-b63a-bcd00854fdd4")
 		)
 		(instances
 			(project "cryocooler"
@@ -5552,177 +3808,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 137.16 203.2 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5b1f6872-b421-5b13-9be6-3b495ce77289")
-		(property "Reference" "#PWR197"
-			(at 137.16 203.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 137.16 203.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 137.16 203.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 137.16 203.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 137.16 203.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "63875d6e-9436-5df0-b345-63a35be71d9c")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR197")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 162.56 245.11 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5e0e750e-3128-589f-9a80-e636881d600a")
-		(property "Reference" "C60"
-			(at 166.792 235.17 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "22uF/25V X7R"
-			(at 166.792 237.27 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 162.56 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 162.56 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Output capacitor on the -15 V rail (LT3094)"
-			(at 162.56 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 162.56 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "b14a9a85-3e1d-5ad3-85cc-d3d32bdfa1cf")
-		)
-		(pin "2"
-			(uuid "0681456f-1f8a-51b4-8977-6b40322b41dc")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C60")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 91.44 134.62 0)
+		(at 91.44 137.16 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5732,7 +3818,7 @@
 		(dnp no)
 		(uuid "61ace657-63ef-532c-927c-e495124e2d4b")
 		(property "Reference" "#PWR178"
-			(at 91.44 134.62 0)
+			(at 91.44 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5743,7 +3829,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 91.44 134.62 0)
+			(at 91.44 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5754,7 +3840,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 91.44 134.62 0)
+			(at 91.44 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5765,7 +3851,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 91.44 134.62 0)
+			(at 91.44 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5776,7 +3862,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 91.44 134.62 0)
+			(at 91.44 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5787,7 +3873,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "5313dbc7-a205-55bd-bb3b-d0da5e38f739")
+			(uuid "549e1117-424c-5dce-9fff-c38b9b2b43b6")
 		)
 		(instances
 			(project "cryocooler"
@@ -5800,7 +3886,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 165.1 165.1 0)
+		(at 165.1 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5810,7 +3896,7 @@
 		(dnp no)
 		(uuid "624386ca-208f-57d4-9f71-4d3cf6cca407")
 		(property "Reference" "#PWR189"
-			(at 165.1 165.1 0)
+			(at 165.1 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5821,7 +3907,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 165.1 165.1 0)
+			(at 165.1 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5832,7 +3918,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 165.1 165.1 0)
+			(at 165.1 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5843,7 +3929,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 165.1 165.1 0)
+			(at 165.1 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5854,7 +3940,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 165.1 165.1 0)
+			(at 165.1 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5865,7 +3951,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1b75edac-eac5-591c-aa47-ce282a1abedf")
+			(uuid "3c054737-19a4-5c11-8c18-99429247f5df")
 		)
 		(instances
 			(project "cryocooler"
@@ -5878,7 +3964,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Schottky")
-		(at 175.26 114.3 180)
+		(at 175.26 109.22 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5888,7 +3974,7 @@
 		(dnp no)
 		(uuid "67a4f0b3-38d4-542c-af69-30fcd5bbfb65")
 		(property "Reference" "D4"
-			(at 181.27 109.44 0)
+			(at 170.81 103.62 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5899,7 +3985,7 @@
 			)
 		)
 		(property "Value" "DFLS240"
-			(at 181.27 111.54 0)
+			(at 170.81 105.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5910,7 +3996,7 @@
 			)
 		)
 		(property "Footprint" "Diode_SMD:D_PowerDI-123"
-			(at 175.26 114.3 0)
+			(at 175.26 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5921,7 +4007,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DFLS240.pdf"
-			(at 175.26 114.3 0)
+			(at 175.26 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5932,7 +4018,7 @@
 			)
 		)
 		(property "Description" "Rectifier diode of the ADP5071 boost converter (+16.5 V)"
-			(at 175.26 114.3 0)
+			(at 175.26 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5943,7 +4029,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=DFLS240-7"
-			(at 175.26 114.3 0)
+			(at 175.26 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5954,10 +4040,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "32014881-2161-5dee-af86-03616936a7ae")
+			(uuid "e81805b3-c35b-52e5-aded-1535a097bb49")
 		)
 		(pin "2"
-			(uuid "5e8cdaa7-71ce-5a43-bca3-d2c5fe204f46")
+			(uuid "c7213f1b-f823-5050-8ed0-02b9db4f6968")
 		)
 		(instances
 			(project "cryocooler"
@@ -5970,7 +4056,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 165.1 161.29 0)
+		(at 165.1 158.75 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5980,7 +4066,7 @@
 		(dnp no)
 		(uuid "67ff25bf-78ee-5712-b229-74db3319416a")
 		(property "Reference" "C50"
-			(at 169.332 160.24 0)
+			(at 169.332 157.7 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5991,7 +4077,7 @@
 			)
 		)
 		(property "Value" "1uF"
-			(at 169.332 162.34 0)
+			(at 169.332 159.8 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6002,7 +4088,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 165.1 161.29 0)
+			(at 165.1 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6013,7 +4099,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL10A105KB8NNNC"
-			(at 165.1 161.29 0)
+			(at 165.1 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6024,7 +4110,7 @@
 			)
 		)
 		(property "Description" "Bypass capacitor on the ADP5071 reference (VREF)"
-			(at 165.1 161.29 0)
+			(at 165.1 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6035,7 +4121,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL10A105KB8NNNC"
-			(at 165.1 161.29 0)
+			(at 165.1 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6046,10 +4132,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b2c8397e-f2fe-55fb-ab47-2fa586c978a2")
+			(uuid "0413914e-d231-5f3b-ad11-2159a25ea00a")
 		)
 		(pin "2"
-			(uuid "497eaa45-d2b3-54e9-abc3-d935c3696979")
+			(uuid "f4779e54-5cf7-571c-bebb-8b0d675800da")
 		)
 		(instances
 			(project "cryocooler"
@@ -6062,7 +4148,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 134.62 157.48 0)
+		(at 144.78 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6072,7 +4158,7 @@
 		(dnp no)
 		(uuid "76edb163-f1f6-519c-9199-c480bc3e9a87")
 		(property "Reference" "#PWR179"
-			(at 134.62 157.48 0)
+			(at 144.78 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6083,7 +4169,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 134.62 157.48 0)
+			(at 144.78 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6094,7 +4180,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 134.62 157.48 0)
+			(at 144.78 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6105,7 +4191,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 134.62 157.48 0)
+			(at 144.78 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6116,7 +4202,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 134.62 157.48 0)
+			(at 144.78 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6127,7 +4213,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "93793340-1cbb-576c-975d-888f35d51ba2")
+			(uuid "0a37ffea-9907-5246-831e-97ffe667f142")
 		)
 		(instances
 			(project "cryocooler"
@@ -6140,7 +4226,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 91.44 130.81 0)
+		(at 91.44 133.35 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6150,7 +4236,7 @@
 		(dnp no)
 		(uuid "788b8e8b-18ff-5928-8432-62e4b22a23b7")
 		(property "Reference" "C55"
-			(at 95.672 131.03 0)
+			(at 95.672 133.57 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6161,7 +4247,7 @@
 			)
 		)
 		(property "Value" "68nF"
-			(at 95.672 133.13 0)
+			(at 95.672 135.67 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6172,7 +4258,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 91.44 130.81 0)
+			(at 91.44 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6183,7 +4269,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL10B683KB8NNNC"
-			(at 91.44 130.81 0)
+			(at 91.44 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6194,7 +4280,7 @@
 			)
 		)
 		(property "Description" "Compensation capacitor on ADP5071 COMP2, in series with R69"
-			(at 91.44 130.81 0)
+			(at 91.44 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6205,7 +4291,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL10B683KB8NNNC"
-			(at 91.44 130.81 0)
+			(at 91.44 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6216,10 +4302,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "2547409a-34ea-5533-8490-1f4aeae61a7e")
+			(uuid "ce0d586f-eabc-540b-b8a4-1095ae3bbc8f")
 		)
 		(pin "2"
-			(uuid "596aa5f3-f0c0-5889-be07-4a797818fa98")
+			(uuid "24e90598-2567-5504-8839-08aa7f2b1c0f")
 		)
 		(instances
 			(project "cryocooler"
@@ -6231,86 +4317,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 111.76 274.32 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7c6a303b-88e6-56d4-ba1c-f44b3a6d4810")
-		(property "Reference" "#PWR193"
-			(at 111.76 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 111.76 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 111.76 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 111.76 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 111.76 274.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5789a4d8-8a01-5ab4-8b7f-9cba9cd8d10a")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR193")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_US")
-		(at 190.5 118.11 0)
+		(at 190.5 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6320,7 +4328,7 @@
 		(dnp no)
 		(uuid "7fc2069f-0e47-5838-9ab5-4a0dc1773daa")
 		(property "Reference" "R70"
-			(at 193.716 117.06 0)
+			(at 193.716 111.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6331,7 +4339,7 @@
 			)
 		)
 		(property "Value" "2.67M"
-			(at 193.716 119.16 0)
+			(at 193.716 114.08 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6342,7 +4350,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 190.5 118.11 0)
+			(at 190.5 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6353,7 +4361,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-072M67L"
-			(at 190.5 118.11 0)
+			(at 190.5 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6364,7 +4372,7 @@
 			)
 		)
 		(property "Description" "Upper feedback resistor setting the +16.5 V rail (ADP5071 FB1)"
-			(at 190.5 118.11 0)
+			(at 190.5 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6375,7 +4383,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-072M67L"
-			(at 190.5 118.11 0)
+			(at 190.5 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6386,10 +4394,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "94236285-e36c-5457-bd4a-c5a76aa363f0")
+			(uuid "80c1d8dc-9929-591e-804c-279c2d283a66")
 		)
 		(pin "2"
-			(uuid "fe5067a6-14c6-53b2-9335-225cf3f7f7b0")
+			(uuid "935e136d-cb29-567a-8b50-7c839097c6d4")
 		)
 		(instances
 			(project "cryocooler"
@@ -6401,85 +4409,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:-15V")
-		(at 76.2 241.3 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8004c8aa-bd84-57e8-afdc-c5905424b14e")
-		(property "Reference" "#PWR192"
-			(at 76.2 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-16V5"
-			(at 76.2 237.744 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 76.2 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 76.2 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 76.2 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3d74cf40-3c65-579e-999e-6870a50605b6")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR192")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:L")
-		(at 166.37 140.97 0)
+		(at 166.37 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6489,7 +4420,7 @@
 		(dnp no)
 		(uuid "821d140b-f504-5aa8-b772-4a4f841245be")
 		(property "Reference" "L3"
-			(at 169.2023 141.19 0)
+			(at 169.2023 136.11 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6500,7 +4431,7 @@
 			)
 		)
 		(property "Value" "SRP7050TA-6R8M"
-			(at 169.2023 143.29 0)
+			(at 169.2023 138.21 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6511,7 +4442,7 @@
 			)
 		)
 		(property "Footprint" "cryocooler:L_Bourns_SRP7050TA"
-			(at 166.37 140.97 0)
+			(at 166.37 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6522,7 +4453,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/SRP7050TA.pdf"
-			(at 166.37 140.97 0)
+			(at 166.37 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6533,7 +4464,7 @@
 			)
 		)
 		(property "Description" "Inductor of the ADP5071 inverting converter (-16.5 V)"
-			(at 166.37 140.97 0)
+			(at 166.37 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6544,7 +4475,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=SRP7050TA-6R8M"
-			(at 166.37 140.97 0)
+			(at 166.37 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6555,10 +4486,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "12e084dd-279e-587e-bd9f-187b01de0d86")
+			(uuid "69220e2e-ced6-5022-820f-5db288d2202e")
 		)
 		(pin "2"
-			(uuid "4f708d47-3a91-5b1f-8a4c-261753ad84a0")
+			(uuid "cd56c062-7768-503b-aebc-864a9a5e66c7")
 		)
 		(instances
 			(project "cryocooler"
@@ -6635,7 +4566,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "50f8a2d7-d043-5952-8978-5c58b33fef78")
+			(uuid "500c7540-1324-5d72-974c-ffade9a1a094")
 		)
 		(instances
 			(project "cryocooler"
@@ -6647,192 +4578,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 170.18 191.77 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8c23476b-b55d-5cbd-bd63-8b7764a33255")
-		(property "Reference" "C57"
-			(at 174.412 190.72 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "22uF/25V X7R"
-			(at 174.412 192.82 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 170.18 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 170.18 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Output capacitor on the +15 V rail (LT3045)"
-			(at 170.18 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 170.18 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3fce3ff5-c4dc-5b9f-82dd-8eda67dbf0f0")
-		)
-		(pin "2"
-			(uuid "5b3b7a26-39fc-5fa8-acfd-e59f15b1f8ac")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C57")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 137.16 214.63 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8d4fafbc-46ef-5856-a7f1-d1a13badab1a")
-		(property "Reference" "C81"
-			(at 141.392 213.58 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1uF/50V"
-			(at 141.392 215.68 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
-			(at 137.16 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL31B105KBHNNNE"
-			(at 137.16 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor across the LT3045 SET resistor: filters reference noise and sets the soft start"
-			(at 137.16 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL31B105KBHNNNE"
-			(at 137.16 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "bf12b39d-4e33-5956-b5ae-07c949ffd2a8")
-		)
-		(pin "2"
-			(uuid "e7b63045-6623-516c-872f-742ad16cff0d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C81")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:-15V")
-		(at 179.07 137.16 0)
+		(at 248.92 132.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6842,7 +4589,7 @@
 		(dnp no)
 		(uuid "8f62ba9f-bec9-5205-88b5-61646df69b68")
 		(property "Reference" "#PWR185"
-			(at 179.07 137.16 0)
+			(at 248.92 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6853,7 +4600,7 @@
 			)
 		)
 		(property "Value" "-16V5"
-			(at 179.07 133.604 0)
+			(at 248.92 128.524 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6863,7 +4610,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 179.07 137.16 0)
+			(at 248.92 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6874,7 +4621,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 179.07 137.16 0)
+			(at 248.92 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6885,7 +4632,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 179.07 137.16 0)
+			(at 248.92 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6896,7 +4643,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "87761632-753c-5e8e-8043-46b35f70d593")
+			(uuid "216b7773-194a-574c-b2a3-28326f964748")
 		)
 		(instances
 			(project "cryocooler"
@@ -6909,7 +4656,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 190.5 153.67 0)
+		(at 190.5 151.13 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6919,7 +4666,7 @@
 		(dnp no)
 		(uuid "947d0189-8fbd-5ff8-9609-31a6f6f5c033")
 		(property "Reference" "R73"
-			(at 193.716 152.62 0)
+			(at 193.716 150.08 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6930,7 +4677,7 @@
 			)
 		)
 		(property "Value" "118k"
-			(at 193.716 154.72 0)
+			(at 193.716 152.18 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6941,7 +4688,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 190.5 153.67 0)
+			(at 190.5 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6952,7 +4699,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07118KL"
-			(at 190.5 153.67 0)
+			(at 190.5 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6963,7 +4710,7 @@
 			)
 		)
 		(property "Description" "Feedback resistor from ADP5071 FB2 to VREF: with R72 it sets -16.5 V"
-			(at 190.5 153.67 0)
+			(at 190.5 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6974,7 +4721,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07118KL"
-			(at 190.5 153.67 0)
+			(at 190.5 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6985,92 +4732,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ef4a4df1-c07b-5e4a-a69a-9041026722fc")
+			(uuid "cd91e3d1-c987-5242-91e4-b473a04ad253")
 		)
 		(pin "2"
-			(uuid "97c08c45-df08-50c9-bae0-8f6a38b139c7")
+			(uuid "8c98fd3c-3ab4-50ca-88c3-120342fbd7dd")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
 					(reference "R73")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 76.2 187.96 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "9551cf8f-6413-5d68-868b-e1946644e36b")
-		(property "Reference" "#PWR190"
-			(at 76.2 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+16V5"
-			(at 76.2 184.404 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 76.2 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 76.2 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 76.2 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8cbf5120-abe0-5257-9752-d7da7637c15d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR190")
 					(unit 1)
 				)
 			)
@@ -7142,7 +4812,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "6de6813d-8fb6-5b6e-b3de-7f56500bff46")
+			(uuid "1b7a644d-c4d9-5aff-a877-b282fcdbc8b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -7155,7 +4825,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 233.68 137.16 0)
+		(at 256.54 132.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7165,7 +4835,7 @@
 		(dnp no)
 		(uuid "9d607c49-e281-5b95-881b-20f98739fa9e")
 		(property "Reference" "#FLG186"
-			(at 233.68 137.16 0)
+			(at 256.54 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7176,7 +4846,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 233.68 137.16 0)
+			(at 256.54 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7187,7 +4857,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 233.68 137.16 0)
+			(at 256.54 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7198,7 +4868,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 233.68 137.16 0)
+			(at 256.54 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7209,7 +4879,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 233.68 137.16 0)
+			(at 256.54 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7220,7 +4890,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b19805b1-4c15-5df8-9828-4021740b2b50")
+			(uuid "dceb88d3-4b2c-5e24-a76e-f40a9ed9707c")
 		)
 		(instances
 			(project "cryocooler"
@@ -7232,127 +4902,8 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:LT3045DD")
-		(at 106.68 198.12 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a0321c86-61fb-5251-ab93-c21dc7aabd8c")
-		(property "Reference" "U21"
-			(at 93.98 177.78 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "LT3045EDD"
-			(at 93.98 179.88 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm"
-			(at 106.68 198.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/lt3045.pdf"
-			(at 106.68 198.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "+15 V linear regulator: post-regulates +16V5 to a quiet +14.7 V, with a power-good output"
-			(at 106.68 198.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=LT3045EDD%23TRPBF"
-			(at 106.68 198.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "4fc1f669-9af5-5a81-84b6-3aec9af33078")
-		)
-		(pin "2"
-			(uuid "fa44009e-7efb-5e7a-bd0c-d87d7570f98d")
-		)
-		(pin "3"
-			(uuid "406cfa09-88cb-5b56-9cd4-8fcd7a065089")
-		)
-		(pin "10"
-			(uuid "ce5a7723-4ddf-5aae-b594-5151466a3c3a")
-		)
-		(pin "9"
-			(uuid "7ddda643-8f4f-5316-9ef0-cb6242b51309")
-		)
-		(pin "6"
-			(uuid "1b205457-ef78-5f09-b658-b8f4864e0209")
-		)
-		(pin "4"
-			(uuid "2a1d6af8-eb17-59d5-8a95-d79a8da4c800")
-		)
-		(pin "7"
-			(uuid "cb76378d-563f-55ec-b98d-265304d638b0")
-		)
-		(pin "5"
-			(uuid "4780207f-5310-5d5e-8179-c8dcf4312682")
-		)
-		(pin "8"
-			(uuid "f4906429-e80f-56f3-bc01-f075cdacb512")
-		)
-		(pin "11"
-			(uuid "b50d0432-23a5-5dbe-866c-df71b3dab492")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "U21")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
-		(at 106.68 114.3 0)
+		(at 106.68 124.46 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7362,7 +4913,7 @@
 		(dnp no)
 		(uuid "a0c92d60-9bc2-5f87-8858-930c21fd7b7d")
 		(property "Reference" "#PWR176"
-			(at 106.68 114.3 0)
+			(at 106.68 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7373,7 +4924,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 106.68 114.3 0)
+			(at 106.68 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7384,7 +4935,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 106.68 114.3 0)
+			(at 106.68 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7395,7 +4946,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 106.68 114.3 0)
+			(at 106.68 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7406,7 +4957,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 106.68 114.3 0)
+			(at 106.68 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7417,7 +4968,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "64fb76b0-fc41-53cb-a762-f503cdc098f6")
+			(uuid "9f735df6-9592-55db-8b94-77dafc402151")
 		)
 		(instances
 			(project "cryocooler"
@@ -7429,133 +4980,8 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:LT3094DD")
-		(at 106.68 251.46 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a2ab1154-2d78-5b1a-bd2a-54c7661df64c")
-		(property "Reference" "U22"
-			(at 93.98 231.12 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "LT3094HDD"
-			(at 93.98 233.22 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-12-1EP_3x3mm_P0.45mm_EP1.65x2.38mm"
-			(at 106.68 251.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/lt3094.pdf"
-			(at 106.68 251.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "-15 V linear regulator: post-regulates -16V5 to a quiet -14.7 V, with a power-good output"
-			(at 106.68 251.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=LT3094HDD%23TRPBF"
-			(at 106.68 251.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6c3b73f2-be69-5c5d-8760-884c1810347d")
-		)
-		(pin "2"
-			(uuid "9c20c041-7847-571a-a62d-4faacd1606d5")
-		)
-		(pin "13"
-			(uuid "4987f244-8a0b-5b98-8db1-aa7c6e6b06da")
-		)
-		(pin "3"
-			(uuid "35fbdb91-de00-5487-bd0b-f161f5b9dabb")
-		)
-		(pin "11"
-			(uuid "d8b63273-8d8e-5512-9a65-84718f7114b4")
-		)
-		(pin "12"
-			(uuid "3511a35a-ecd9-5716-9170-a132ebadc4cd")
-		)
-		(pin "10"
-			(uuid "26e2a33d-dae1-5868-88ef-0c6eac087bae")
-		)
-		(pin "5"
-			(uuid "1870426c-5f57-5300-bdae-f80ad04d1e10")
-		)
-		(pin "4"
-			(uuid "f931e375-8bc4-5442-8063-7a4c6336607d")
-		)
-		(pin "8"
-			(uuid "31be742d-6e7d-58ed-aa28-a3e3ff686d3d")
-		)
-		(pin "7"
-			(uuid "16801018-c761-5b31-a0fd-323c60402b50")
-		)
-		(pin "6"
-			(uuid "ef1c0acb-872c-5df1-afa4-b059b24dac9d")
-		)
-		(pin "9"
-			(uuid "9b75dab8-15d1-585b-9e52-935c6b328b08")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "U22")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+15V")
-		(at 179.07 114.3 0)
+		(at 223.52 109.22 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7565,7 +4991,7 @@
 		(dnp no)
 		(uuid "a2f61b38-b919-5159-94ca-d835086219b4")
 		(property "Reference" "#PWR180"
-			(at 179.07 114.3 0)
+			(at 223.52 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7576,18 +5002,17 @@
 			)
 		)
 		(property "Value" "+16V5"
-			(at 176.67 110.66 0)
+			(at 223.52 105.664 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 179.07 114.3 0)
+			(at 223.52 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7598,7 +5023,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 179.07 114.3 0)
+			(at 223.52 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7609,7 +5034,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 179.07 114.3 0)
+			(at 223.52 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7620,7 +5045,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ed3162cf-2689-5673-91cb-6f62850fd7a9")
+			(uuid "ac88f5b7-67ec-57df-afee-05f3da70e584")
 		)
 		(instances
 			(project "cryocooler"
@@ -7633,191 +5058,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 137.16 191.77 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a37c738d-3c6e-5a2e-b348-26d447bbb694")
-		(property "Reference" "R74"
-			(at 140.376 190.72 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "432k"
-			(at 140.376 192.82 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 137.16 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07432KL"
-			(at 137.16 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Upper resistor of the LT3045 +15 V power-good threshold divider (PGFB)"
-			(at 137.16 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07432KL"
-			(at 137.16 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "b989b17e-390c-516d-b08f-1bca69f71a34")
-		)
-		(pin "2"
-			(uuid "b070232d-b11b-5c51-a428-9d27b8750e3e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R74")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 129.54 267.97 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a74c7fa8-1377-56f7-ac90-ece2a7119422")
-		(property "Reference" "R77"
-			(at 132.756 274.54 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "147k"
-			(at 132.756 276.64 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 129.54 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07147KL"
-			(at 129.54 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "LT3094 SET resistor: sets the negative output (100 uA x 147 k = -14.7 V)"
-			(at 129.54 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07147KL"
-			(at 129.54 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "60d22db2-54d2-5f09-954a-e040291d94ca")
-		)
-		(pin "2"
-			(uuid "8c24e8bc-85e3-51f0-b137-62325315930e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R77")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 190.5 125.73 0)
+		(at 190.5 120.65 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7827,7 +5068,7 @@
 		(dnp no)
 		(uuid "a89a0c5b-5334-529a-ba78-23342cde556d")
 		(property "Reference" "R71"
-			(at 193.716 124.68 0)
+			(at 193.716 119.6 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7838,7 +5079,7 @@
 			)
 		)
 		(property "Value" "137k"
-			(at 193.716 126.78 0)
+			(at 193.716 121.7 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7849,7 +5090,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 190.5 125.73 0)
+			(at 190.5 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7860,7 +5101,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07137KL"
-			(at 190.5 125.73 0)
+			(at 190.5 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7871,7 +5112,7 @@
 			)
 		)
 		(property "Description" "Lower feedback resistor setting the +16.5 V rail (ADP5071 FB1)"
-			(at 190.5 125.73 0)
+			(at 190.5 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7882,7 +5123,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07137KL"
-			(at 190.5 125.73 0)
+			(at 190.5 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7893,10 +5134,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "f6f7d6cd-bab5-5ac4-aecf-bc44bb621172")
+			(uuid "1230eb4a-d635-5747-b418-23dd79345557")
 		)
 		(pin "2"
-			(uuid "c372a9b7-b429-5b5f-b3b6-6bfb79ec55ba")
+			(uuid "d0b61663-1df6-52f7-8c66-78629c99bc5b")
 		)
 		(instances
 			(project "cryocooler"
@@ -7909,7 +5150,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 190.5 146.05 0)
+		(at 190.5 143.51 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7919,7 +5160,7 @@
 		(dnp no)
 		(uuid "ade83fc7-5763-5006-9dd7-f4695e6b79c0")
 		(property "Reference" "R72"
-			(at 193.716 145 0)
+			(at 193.716 142.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7930,7 +5171,7 @@
 			)
 		)
 		(property "Value" "2.55M"
-			(at 193.716 147.1 0)
+			(at 193.716 144.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7941,7 +5182,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 190.5 146.05 0)
+			(at 190.5 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7952,7 +5193,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-072M55L"
-			(at 190.5 146.05 0)
+			(at 190.5 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7963,7 +5204,7 @@
 			)
 		)
 		(property "Description" "Feedback resistor from the -16.5 V rail to ADP5071 FB2"
-			(at 190.5 146.05 0)
+			(at 190.5 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7974,7 +5215,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-072M55L"
-			(at 190.5 146.05 0)
+			(at 190.5 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7985,10 +5226,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "ebca2c04-29f9-5b44-bb5c-67a4e6e22f07")
+			(uuid "49c124ec-4390-557b-9283-7a4d8d6a7d50")
 		)
 		(pin "2"
-			(uuid "8987c2bc-cc2e-5825-90e5-075d3b127d28")
+			(uuid "5ad8904b-6c8e-5a19-9e85-dba4d913cd5e")
 		)
 		(instances
 			(project "cryocooler"
@@ -8001,7 +5242,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 210.82 144.78 0)
+		(at 210.82 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8011,7 +5252,7 @@
 		(dnp no)
 		(uuid "af45f254-2114-57e7-a0b0-805894cc8c22")
 		(property "Reference" "#PWR187"
-			(at 210.82 144.78 0)
+			(at 210.82 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8022,7 +5263,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 210.82 144.78 0)
+			(at 210.82 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8033,7 +5274,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 210.82 144.78 0)
+			(at 210.82 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8044,7 +5285,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 210.82 144.78 0)
+			(at 210.82 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8055,7 +5296,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 210.82 144.78 0)
+			(at 210.82 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8066,7 +5307,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "639f79ef-53e8-5b45-bc59-506b694ce352")
+			(uuid "7f2cde62-52d8-51f5-802c-ae44174267f5")
 		)
 		(instances
 			(project "cryocooler"
@@ -8079,99 +5320,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 137.16 267.97 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b0fd5286-582a-511e-977d-522a33325517")
-		(property "Reference" "C82"
-			(at 141.392 266.92 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1uF/50V"
-			(at 141.392 269.02 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
-			(at 137.16 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL31B105KBHNNNE"
-			(at 137.16 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor across the LT3094 SET resistor: filters reference noise and sets the soft start"
-			(at 137.16 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL31B105KBHNNNE"
-			(at 137.16 267.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "cb485837-68ea-5d2f-9c20-3acdb4b36616")
-		)
-		(pin "2"
-			(uuid "51258c06-201f-516c-bda8-0eedba0240f9")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C82")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 210.82 118.11 0)
+		(at 210.82 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8181,7 +5330,7 @@
 		(dnp no)
 		(uuid "b608ef3d-5e0c-5249-8686-51c8d36c5ed0")
 		(property "Reference" "C56"
-			(at 215.052 117.06 0)
+			(at 215.052 111.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8192,7 +5341,7 @@
 			)
 		)
 		(property "Value" "22uF/25V X7R"
-			(at 215.052 119.16 0)
+			(at 215.052 114.08 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8203,7 +5352,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 210.82 118.11 0)
+			(at 210.82 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8214,7 +5363,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 210.82 118.11 0)
+			(at 210.82 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8225,7 +5374,7 @@
 			)
 		)
 		(property "Description" "Output capacitor of the +16.5 V converter and input capacitor of the LT3045 (+15 V regulator)"
-			(at 210.82 118.11 0)
+			(at 210.82 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8236,7 +5385,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 210.82 118.11 0)
+			(at 210.82 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8247,10 +5396,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c153aada-3dac-5211-90d8-66d1e71250fc")
+			(uuid "c7a3268d-5a51-5c7d-95cf-511dd4d780d7")
 		)
 		(pin "2"
-			(uuid "ae4540a4-17e3-56c7-b7f2-2c68ceb269fd")
+			(uuid "0c11a914-f5a2-5a6e-8b5c-d54cca072b2a")
 		)
 		(instances
 			(project "cryocooler"
@@ -8263,163 +5412,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 162.56 195.58 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b970b536-f5eb-5c64-8e9e-75837f4f2dcb")
-		(property "Reference" "#PWR196"
-			(at 162.56 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 162.56 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 162.56 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 162.56 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 162.56 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8ec8e9ba-ce3a-5bd0-bc50-64e84a38574d")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR196")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 170.18 248.92 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "be432795-456a-5b67-86c0-7a0d3a69ddbe")
-		(property "Reference" "#PWR200"
-			(at 170.18 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 170.18 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 170.18 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 170.18 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 170.18 248.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6c02c52a-85da-5b8f-8224-ab1fd25f572e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR200")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 166.37 144.78 0)
+		(at 166.37 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8429,7 +5422,7 @@
 		(dnp no)
 		(uuid "be902e07-caa6-5178-9055-e3426be1c942")
 		(property "Reference" "#PWR184"
-			(at 166.37 144.78 0)
+			(at 166.37 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8440,7 +5433,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 166.37 144.78 0)
+			(at 166.37 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8451,7 +5444,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 166.37 144.78 0)
+			(at 166.37 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8462,7 +5455,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 166.37 144.78 0)
+			(at 166.37 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8473,7 +5466,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 166.37 144.78 0)
+			(at 166.37 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8484,7 +5477,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "06fc160c-f77a-574d-a4bd-f61df390d0f2")
+			(uuid "f0ea2d4f-b1b8-5b5c-ab2a-2f316e870e15")
 		)
 		(instances
 			(project "cryocooler"
@@ -8497,7 +5490,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 114.3 106.68 90)
+		(at 114.3 116.84 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8507,7 +5500,7 @@
 		(dnp no)
 		(uuid "bf67b6e3-fa6f-5b8e-a881-05b5ea3c901f")
 		(property "Reference" "R68"
-			(at 114.3 100.564 270)
+			(at 114.3 110.724 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8517,7 +5510,7 @@
 			)
 		)
 		(property "Value" "5.6k"
-			(at 114.3 102.664 270)
+			(at 114.3 112.824 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8527,7 +5520,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 114.3 106.68 0)
+			(at 114.3 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8538,7 +5531,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-075K6L"
-			(at 114.3 106.68 0)
+			(at 114.3 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8549,7 +5542,7 @@
 			)
 		)
 		(property "Description" "Compensation resistor on ADP5071 COMP1 (boost loop), in series with C79"
-			(at 114.3 106.68 0)
+			(at 114.3 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8560,7 +5553,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-075K6L"
-			(at 114.3 106.68 0)
+			(at 114.3 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8571,107 +5564,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "4e84d2d5-460d-5109-aff7-01debf499b78")
+			(uuid "40b0de01-8862-59e8-90fe-f12f39f827f7")
 		)
 		(pin "2"
-			(uuid "e5f8ef0d-ea3f-5166-a083-9a8263b48bb9")
+			(uuid "6aaf692e-ffdb-5ced-a97d-09a02687041e")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
 					(reference "R68")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 129.54 214.63 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "bfb58dcd-e73d-5e94-8810-6efaef5b55a2")
-		(property "Reference" "R76"
-			(at 132.756 221.2 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "147k"
-			(at 132.756 223.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 129.54 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07147KL"
-			(at 129.54 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "LT3045 SET resistor: sets the positive output (100 uA x 147 k = 14.7 V)"
-			(at 129.54 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07147KL"
-			(at 129.54 214.63 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e1dda328-95d4-58ba-92d9-6ff8ff7eab27")
-		)
-		(pin "2"
-			(uuid "20a35ecb-f2cd-553a-84e8-60c8a6dbfbd1")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R76")
 					(unit 1)
 				)
 			)
@@ -8744,7 +5645,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "72cd6873-05e9-5c2d-ab25-0ffc76fd49b5")
+			(uuid "3ae18854-ce51-5fca-b49c-71e66b6ccfbe")
 		)
 		(instances
 			(project "cryocooler"
@@ -8756,100 +5657,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 137.16 252.73 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c68258fd-0a53-5259-b15c-4b41961bb149")
-		(property "Reference" "R12"
-			(at 140.376 251.68 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 140.376 253.78 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 137.16 252.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 137.16 252.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Lower resistor of the LT3094 -15 V power-good threshold divider (PGFB)"
-			(at 137.16 252.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 137.16 252.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3479cf39-918d-5748-89a8-999673e0dc26")
-		)
-		(pin "2"
-			(uuid "ccca11fa-8eb7-562d-a7c9-9f77bc503624")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
-		(at 226.06 144.78 0)
+		(at 236.22 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8859,7 +5668,7 @@
 		(dnp no)
 		(uuid "cf7bfee5-73c6-5bdd-bfee-6056f58b714b")
 		(property "Reference" "#PWR188"
-			(at 226.06 144.78 0)
+			(at 236.22 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8870,7 +5679,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 226.06 144.78 0)
+			(at 236.22 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8881,7 +5690,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 226.06 144.78 0)
+			(at 236.22 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8892,7 +5701,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 226.06 144.78 0)
+			(at 236.22 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8903,7 +5712,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 226.06 144.78 0)
+			(at 236.22 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8914,90 +5723,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "904185d0-08a4-5663-be1f-80a515f6c4a4")
+			(uuid "3b5046d9-5abc-5b93-bf07-54b61d1f3aa7")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
 					(reference "#PWR188")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 109.22 220.98 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "cfc6d443-2aa8-5cb9-8cdc-2d05c84c89fe")
-		(property "Reference" "#PWR191"
-			(at 109.22 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 109.22 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 109.22 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 109.22 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 109.22 220.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "93a51a73-251d-53fd-b579-12e8008568bf")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR191")
 					(unit 1)
 				)
 			)
@@ -9081,341 +5812,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "770b4076-4a2f-501c-b19b-0ec541181be0")
+			(uuid "668d4498-31a9-55f3-9c93-7bff442aba30")
 		)
 		(pin "2"
-			(uuid "072e24c3-d522-50e0-a084-17afcca1bccf")
+			(uuid "38b04a7f-5fda-5f0f-81da-13c4036ef00a")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
 					(reference "C40")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 170.18 245.11 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d846a838-fef3-5379-834d-4993e33b0378")
-		(property "Reference" "C58"
-			(at 174.412 244.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "22uF/25V X7R"
-			(at 174.412 246.16 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 170.18 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 170.18 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Output capacitor on the -15 V rail (LT3094)"
-			(at 170.18 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=GRM32ER71E226KE15L"
-			(at 170.18 245.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c9df550c-8dc1-5f19-a9d4-2ea1adfddafa")
-		)
-		(pin "2"
-			(uuid "b5cad8eb-05fa-5e45-9df4-6de413b4153e")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "C58")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 177.8 241.3 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "dbe3ff40-93c6-5a26-8420-0208a4d912b3")
-		(property "Reference" "#PWR199"
-			(at 177.8 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-15V"
-			(at 180.2 240.2 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 177.8 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 177.8 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 177.8 241.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "9c6cf49f-0b41-5d30-9a60-746060544102")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR199")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 177.8 187.96 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ff482840-d88f-5c8a-8baa-ec9b30daec1d")
-		(property "Reference" "#PWR194"
-			(at 177.8 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+15V"
-			(at 180.2 186.86 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 177.8 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 177.8 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 177.8 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0e6e9045-fb89-5757-90ec-52f1487d54a0")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR194")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 170.18 195.58 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ffdfe914-d6e1-514d-8829-37badbb8e914")
-		(property "Reference" "#PWR195"
-			(at 170.18 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 170.18 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 170.18 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 170.18 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 170.18 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d05fe8d0-e479-54d8-9239-e73251a03a79")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/721fca9b-85fc-59f1-b64a-1b2662f7dcab"
-					(reference "#PWR195")
 					(unit 1)
 				)
 			)

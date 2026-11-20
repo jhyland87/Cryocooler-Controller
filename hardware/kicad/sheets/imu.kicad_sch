@@ -10,7 +10,7 @@
 		(company "Cryocooler Controller")
 	)
 	(lib_symbols
-		(symbol "cryocooler:Conn_02x04_Rails_At_Ends"
+		(symbol "cryocooler:Conn_02x04_IMU_Cable"
 			(pin_names
 				(offset 1.016)
 			)
@@ -20,7 +20,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "J"
-				(at 7.62 15.24 0)
+				(at 7.62 12.7 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -30,8 +30,8 @@
 					(justify left)
 				)
 			)
-			(property "Value" "Conn_02x04_Rails_At_Ends"
-				(at -7.62 15.24 0)
+			(property "Value" "Conn_02x04_IMU_Cable"
+				(at -7.62 12.7 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -41,7 +41,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -52,7 +52,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -63,7 +63,7 @@
 					)
 				)
 			)
-			(property "Description" "Generic connector, double row, 02x04, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(property "Description" "Molex Micro-Lock Plus 2x4, 1.25 mm, right angle SMT: cable to the off-board LSM6DSOX module"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -74,7 +74,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "connector 2x04 micro-lock"
+			(property "ki_keywords" "connector 2x04 micro-lock imu"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -85,10 +85,10 @@
 					)
 				)
 			)
-			(symbol "Conn_02x04_Rails_At_Ends_0_1"
+			(symbol "Conn_02x04_IMU_Cable_0_1"
 				(rectangle
-					(start -7.62 12.7)
-					(end 7.62 -12.7)
+					(start -7.62 10.16)
+					(end 7.62 -10.16)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -98,11 +98,11 @@
 					)
 				)
 			)
-			(symbol "Conn_02x04_Rails_At_Ends_1_1"
+			(symbol "Conn_02x04_IMU_Cable_1_1"
 				(pin passive line
 					(at 10.16 -5.08 180)
 					(length 2.54)
-					(name "Pin_1"
+					(name "SCK"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -118,9 +118,9 @@
 					)
 				)
 				(pin passive line
-					(at 10.16 -7.62 180)
+					(at 0 -12.7 90)
 					(length 2.54)
-					(name "Pin_2"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -138,7 +138,7 @@
 				(pin passive line
 					(at 10.16 -2.54 180)
 					(length 2.54)
-					(name "Pin_3"
+					(name "MOSI"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -154,9 +154,9 @@
 					)
 				)
 				(pin passive line
-					(at 10.16 10.16 180)
+					(at 0 12.7 270)
 					(length 2.54)
-					(name "Pin_4"
+					(name "+3V3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -174,7 +174,7 @@
 				(pin passive line
 					(at 10.16 0 180)
 					(length 2.54)
-					(name "Pin_5"
+					(name "~{CS}"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -192,7 +192,7 @@
 				(pin passive line
 					(at 10.16 2.54 180)
 					(length 2.54)
-					(name "Pin_6"
+					(name "MISO"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -210,7 +210,7 @@
 				(pin passive line
 					(at 10.16 5.08 180)
 					(length 2.54)
-					(name "Pin_7"
+					(name "INT1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -228,7 +228,7 @@
 				(pin passive line
 					(at 10.16 7.62 180)
 					(length 2.54)
-					(name "Pin_8"
+					(name "INT2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -835,7 +835,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7b62d5f3-90bf-55be-8c89-afc63e8d4600")
+		(uuid "fc648163-a136-5f31-afc2-68ecb4acefb4")
 	)
 	(bus
 		(pts
@@ -845,7 +845,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "99a20901-5e7c-5e7a-9851-f8285a5ee1fb")
+		(uuid "deaa0e24-8bf7-5aa0-8b33-1316ee125499")
 	)
 	(bus_entry
 		(at 160.02 104.14)
@@ -854,7 +854,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "409e74e2-6c17-5904-a62e-3c0a53489ca1")
+		(uuid "78750a82-1260-51d2-bd7c-d5b79c1362bf")
 	)
 	(bus_entry
 		(at 160.02 109.22)
@@ -863,7 +863,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "0689f966-7315-584c-9d5d-d2037019c4d5")
+		(uuid "5f0c56a6-848e-534e-8666-7006254a311e")
 	)
 	(bus_entry
 		(at 160.02 111.76)
@@ -872,29 +872,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3f093b64-cfc3-504f-b133-52b27aabb33d")
-	)
-	(text "LSM6DSOX is the off-board Adafruit module (product 4438) on the cooler, cabled to J14 (Molex Micro-Lock Plus 2x4, 1.25 mm) over the main SPI bus (CS from the decoder, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up)."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2588f77a-c194-5b12-88e3-20e79b7d176c")
-	)
-	(text "J14 pin -> module pad: 1 SCL, 2 GND, 3 SDA, 4 Vin, 5 CS, 6 DO, 7 I1, 8 I2 (3Vo pad open). Keep the cable short and twist SCK with GND (pins 1-2 sit one above the other)."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "66ccc3a7-02a7-5fb7-a6d6-18c784ce178f")
+		(uuid "1f0959ee-d9fd-5511-930d-16201404013c")
 	)
 	(text "Module Vin = +3V3 keeps its logic at 3.3 V. NUF6401MN filter: 100 R in series to damp the cable, 17 pF and an ESD clamp on each side of all six signals."
 		(exclude_from_sim no)
@@ -905,167 +883,40 @@
 			)
 			(justify left top)
 		)
-		(uuid "9c4bdb35-19bf-5f5c-8e77-29816f363318")
+		(uuid "4e97f9b3-e546-52e1-bc7d-d26d008078e7")
 	)
-	(wire
-		(pts
-			(xy 222.25 73.66) (xy 243.84 73.66)
+	(text "J14 pin -> module pad: 1 SCL, 2 GND, 3 SDA, 4 Vin, 5 CS, 6 DO, 7 I1, 8 I2 (3Vo pad open). Keep the cable short and twist SCK with GND (pins 1-2 sit one above the other)."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "047b1916-7d7c-533f-8b6f-49c3d13008b3")
+		(uuid "b3d9a11e-20db-5048-8be9-aa5f055e6a61")
 	)
-	(wire
-		(pts
-			(xy 208.28 101.6) (xy 218.44 101.6)
+	(text "IMU CABLE (J14) AND FILTER"
+		(exclude_from_sim no)
+		(at 187.96 88.9 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "05a7dae3-5e39-56a2-b080-eaecc641b8c5")
+		(uuid "b8730602-abb9-5a81-863f-01e017ece78c")
 	)
-	(wire
-		(pts
-			(xy 185.42 109.22) (xy 187.96 109.22)
+	(text "LSM6DSOX is the off-board Adafruit module (product 4438) on the cooler, cabled to J14 (Molex Micro-Lock Plus 2x4, 1.25 mm) over the main SPI bus (CS from the decoder, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up)."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0f2673c1-37c2-5174-940e-56843351f3fc")
-	)
-	(wire
-		(pts
-			(xy 222.25 73.66) (xy 222.25 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2afd4e39-bd7b-5472-8d3f-879bb2a7acbc")
-	)
-	(wire
-		(pts
-			(xy 185.42 104.14) (xy 187.96 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3ffda44e-fa9b-516b-8a28-6e6d2cd253a4")
-	)
-	(wire
-		(pts
-			(xy 160.02 109.22) (xy 185.42 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4654e8a0-1bd4-5ec6-a003-2b05ab37ffa8")
-	)
-	(wire
-		(pts
-			(xy 233.68 81.28) (xy 243.84 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4896c0c3-bb1a-59ca-bf9c-a206d08328aa")
-	)
-	(wire
-		(pts
-			(xy 172.72 101.6) (xy 187.96 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4d34c986-03e6-5a0a-9d91-c257728d1f47")
-	)
-	(wire
-		(pts
-			(xy 208.28 106.68) (xy 226.06 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "51573b0a-9c5d-5f1d-9ca2-0f072e34384e")
-	)
-	(wire
-		(pts
-			(xy 208.28 104.14) (xy 222.25 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55e65407-cc95-528b-abe8-50c3ec853d75")
-	)
-	(wire
-		(pts
-			(xy 241.3 83.82) (xy 243.84 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57045e61-4573-57bc-b9a1-8594556873fc")
-	)
-	(wire
-		(pts
-			(xy 160.02 104.14) (xy 185.42 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6a865c4c-9407-5992-aa77-aaa79a4952de")
-	)
-	(wire
-		(pts
-			(xy 214.63 68.58) (xy 243.84 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "73b13b0f-d20e-5895-b2e2-063cdc47c67a")
-	)
-	(wire
-		(pts
-			(xy 172.72 99.06) (xy 187.96 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "756b9972-e1a7-5b57-bd70-cfec32b596d1")
-	)
-	(wire
-		(pts
-			(xy 218.44 71.12) (xy 243.84 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "804d55f7-b1b5-599c-975d-073500d0f942")
-	)
-	(wire
-		(pts
-			(xy 172.72 106.68) (xy 187.96 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8595ed01-cbd2-5d0c-aa3c-80d589dee7c5")
+		(uuid "f70ae40f-4d79-5359-b365-216d6a56c3a1")
 	)
 	(wire
 		(pts
@@ -1075,57 +926,107 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8a2218dd-7f83-5df1-8afc-bb79b8ea49bd")
+		(uuid "0526bd74-35c0-5def-ac22-62a87c45f13c")
 	)
 	(wire
 		(pts
-			(xy 233.68 81.28) (xy 233.68 111.76)
+			(xy 160.02 109.22) (xy 185.42 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "90c2a571-60ff-5f94-8f86-0386aea254b0")
+		(uuid "09929434-28b0-52a4-a331-5786f7fd9ae6")
 	)
 	(wire
 		(pts
-			(xy 226.06 76.2) (xy 226.06 106.68)
+			(xy 208.28 109.22) (xy 243.84 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "922c6c06-a589-5634-b576-f77aaef797ba")
+		(uuid "17f78a4e-2d00-53d4-b52a-2417112a8c4b")
 	)
 	(wire
 		(pts
-			(xy 218.44 71.12) (xy 218.44 101.6)
+			(xy 185.42 109.22) (xy 187.96 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9c83dad5-3216-56c8-a156-8b5cbb6e9aa7")
+		(uuid "24cb7416-0973-56f9-ae8a-936ce9508a6c")
 	)
 	(wire
 		(pts
-			(xy 241.3 66.04) (xy 243.84 66.04)
+			(xy 172.72 106.68) (xy 187.96 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "a8b8e131-a37a-51bb-9715-aaf6a2fa400c")
+		(uuid "34f7ad8f-9002-5f73-9130-bc7c76afa3e6")
 	)
 	(wire
 		(pts
-			(xy 229.87 78.74) (xy 243.84 78.74)
+			(xy 208.28 99.06) (xy 243.84 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b4cb8f48-f75c-594d-b268-3fa2924293b5")
+		(uuid "3cacb097-4b97-5820-9853-72cf9a9ee59c")
+	)
+	(wire
+		(pts
+			(xy 254 91.44) (xy 254 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7055cd10-412a-53fb-a8b8-3d1dcd4a1f58")
+	)
+	(wire
+		(pts
+			(xy 208.28 106.68) (xy 243.84 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78701f6b-63b2-5d1b-8bfa-9dab60ff86bd")
+	)
+	(wire
+		(pts
+			(xy 208.28 111.76) (xy 243.84 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f67eb3b-3462-5df9-aa84-ae2007a04385")
+	)
+	(wire
+		(pts
+			(xy 160.02 104.14) (xy 185.42 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9732880d-1ba4-51ea-9e27-ed65cfa0c0d6")
+	)
+	(wire
+		(pts
+			(xy 254 119.38) (xy 254 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9adaf5c6-8647-5753-9c48-125529d6d0f4")
 	)
 	(wire
 		(pts
@@ -1135,47 +1036,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ba138e19-d726-52e7-b4c9-6f3f21ff5ac8")
+		(uuid "a3ec444f-1264-5098-aa0a-2d297c34a167")
 	)
 	(wire
 		(pts
-			(xy 229.87 78.74) (xy 229.87 109.22)
+			(xy 172.72 101.6) (xy 187.96 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c4f893bc-0f6a-5cb2-a7d4-e094306880b8")
+		(uuid "ba5f1292-955d-5a3b-bc19-985216fadfc5")
 	)
 	(wire
 		(pts
-			(xy 214.63 68.58) (xy 214.63 99.06)
+			(xy 172.72 99.06) (xy 187.96 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cd6665d8-2ea6-58f8-8804-6ffee398b8f9")
-	)
-	(wire
-		(pts
-			(xy 226.06 76.2) (xy 243.84 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf63e6ef-0ef0-5c0a-a3be-8fb797ca8b40")
-	)
-	(wire
-		(pts
-			(xy 208.28 111.76) (xy 233.68 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3abc461-f002-5332-b93e-8ccd9348df91")
+		(uuid "c19479cf-05ba-5179-833a-ca955c59735f")
 	)
 	(wire
 		(pts
@@ -1185,27 +1066,37 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e429a25f-9309-5a73-a31a-32604c101242")
+		(uuid "c58d5b4d-080e-589e-9699-9fa6037d589e")
 	)
 	(wire
 		(pts
-			(xy 208.28 99.06) (xy 214.63 99.06)
+			(xy 208.28 104.14) (xy 243.84 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "edc5ff27-e7bc-5899-bea3-632c6c0364a8")
+		(uuid "cca8d66e-c338-5364-9420-613c8bf55646")
 	)
 	(wire
 		(pts
-			(xy 208.28 109.22) (xy 229.87 109.22)
+			(xy 208.28 101.6) (xy 243.84 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f1f6790a-4e68-5eca-8bea-889c38cd69f4")
+		(uuid "e97e6193-84dd-5b75-bfd4-2c05bc3f0a04")
+	)
+	(wire
+		(pts
+			(xy 185.42 104.14) (xy 187.96 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "edd305ab-b0d2-5702-aec7-e210d74bbac1")
 	)
 	(label "SPI_MISO"
 		(at 185.42 104.14 180)
@@ -1215,31 +1106,9 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "43c98069-5cd9-5026-a454-6a3d72816ae5")
+		(uuid "0b93e83a-6807-5e74-b6af-4dad2ebe50c7")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 185.42 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "SPI_SCK"
-		(at 185.42 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bcf88428-156a-594a-97b6-a502b061c779")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1259,7 +1128,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "f2dd12c5-0b64-5858-87f8-5494d7f7fe60")
+		(uuid "10c233aa-2891-5e16-8a7e-945e82893a27")
 		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
 			(at 185.42 109.22 0)
 			(hide yes)
@@ -1273,31 +1142,17 @@
 			)
 		)
 	)
-	(global_label "IMU_CS"
-		(shape input)
-		(at 172.72 106.68 180)
-		(fields_autoplaced yes)
+	(label "SPI_SCK"
+		(at 185.42 111.76 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify right bottom)
 		)
-		(uuid "5a659acc-254d-5651-a2c0-843afafc9506")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Chip select (active low) for the LSM6DSOX IMU on the cable, decoder Y7"
-			(at 172.72 106.68 0)
+		(uuid "beb0dcd9-0e89-5ad8-a956-184486e141a2")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1319,7 +1174,7 @@
 			)
 			(justify right)
 		)
-		(uuid "68547c35-ad92-5b87-97e9-f4a4ddad91c3")
+		(uuid "6899a956-a7fc-5205-8c9e-143a29b4b4e7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 152.4 119.38 0)
 			(hide yes)
@@ -1345,19 +1200,18 @@
 			)
 		)
 	)
-	(global_label "IMU_INT2"
+	(hierarchical_label "IMU_INT1"
 		(shape output)
-		(at 172.72 99.06 180)
-		(fields_autoplaced yes)
+		(at 172.72 101.6 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "686f99b0-d8d6-56f0-b6b4-efef81d9b677")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 99.06 0)
+		(uuid "422edc79-1a0f-57a0-b70a-961b682e4d9c")
+		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
+			(at 172.72 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1368,6 +1222,17 @@
 				(justify right)
 			)
 		)
+	)
+	(hierarchical_label "IMU_INT2"
+		(shape output)
+		(at 172.72 99.06 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "76c269bc-59fa-5309-ba68-177bd17c55eb")
 		(property "Description" "LSM6DSOX interrupt 2 from the IMU cable to GPIO39"
 			(at 172.72 99.06 0)
 			(hide yes)
@@ -1381,31 +1246,18 @@
 			)
 		)
 	)
-	(global_label "IMU_INT1"
-		(shape output)
-		(at 172.72 101.6 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IMU_CS"
+		(shape input)
+		(at 172.72 106.68 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "689b1c1c-de7a-5121-8684-51236288ad10")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
-			(at 172.72 101.6 0)
+		(uuid "f0ba0c19-1f38-562f-84da-d22f39a44cb5")
+		(property "Description" "Chip select (active low) for the LSM6DSOX IMU on the cable, decoder Y7"
+			(at 172.72 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1484,7 +1336,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3b69ddd8-016a-55fc-b239-f6ed2ef1ccab")
+			(uuid "3cff7fa0-334a-5d46-be60-a65499e5652a")
 		)
 		(instances
 			(project "cryocooler"
@@ -1496,8 +1348,8 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:Conn_02x04_Rails_At_Ends")
-		(at 254 76.2 0)
+		(lib_id "cryocooler:Conn_02x04_IMU_Cable")
+		(at 254 106.68 0)
 		(mirror y)
 		(unit 1)
 		(body_style 1)
@@ -1508,7 +1360,7 @@
 		(dnp no)
 		(uuid "3908c97c-abf8-5aba-8ed7-2b37c334ae66")
 		(property "Reference" "J14"
-			(at 243.84 58.4 0)
+			(at 237.49 88.88 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1519,7 +1371,7 @@
 			)
 		)
 		(property "Value" "505448-0891"
-			(at 243.84 60.5 0)
+			(at 237.49 90.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1530,7 +1382,7 @@
 			)
 		)
 		(property "Footprint" "cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal"
-			(at 254 76.2 0)
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1541,7 +1393,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf"
-			(at 254 76.2 0)
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1552,7 +1404,7 @@
 			)
 		)
 		(property "Description" "IMU cable header: SPI, chip select, two interrupts and 3.3 V to the LSM6DSOX on the cryocooler"
-			(at 254 76.2 0)
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1563,7 +1415,7 @@
 			)
 		)
 		(property "Product" "https://www.molex.com/en-us/products/part-detail/5054480891"
-			(at 254 76.2 0)
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1573,29 +1425,29 @@
 				)
 			)
 		)
-		(pin "4"
-			(uuid "c3594ccd-08b0-5c23-89b2-b4fb6f7b5902")
-		)
 		(pin "8"
-			(uuid "97b54e1d-bd51-5b04-9454-11fc8e7a64a8")
+			(uuid "01b2ab63-0b87-5acc-8311-743a88865984")
 		)
 		(pin "7"
-			(uuid "b4b0bfbf-2450-5f5d-8849-bcc4be8aeb9c")
+			(uuid "f97e6cae-8737-5a1c-a299-fde19425dc53")
 		)
 		(pin "6"
-			(uuid "d9f65011-e1e2-54a9-83e9-9a223035672c")
+			(uuid "d1a569f5-ae65-5b8d-8825-949f19545e8c")
 		)
 		(pin "5"
-			(uuid "16045a07-a8d5-5e41-8e20-483552aa9bc3")
+			(uuid "c0a32898-85ba-5ec6-85f7-ad663a08784b")
 		)
 		(pin "3"
-			(uuid "c5f4bf48-5e80-5d3f-98fc-f8381cf5968f")
+			(uuid "d6711fee-aa78-5aa9-87e0-596c0f05dd2d")
 		)
 		(pin "1"
-			(uuid "8926c85d-8cc9-5add-a4c2-aaf34ca39c49")
+			(uuid "9deaaa70-4d9b-51df-8874-6e287bc6ba96")
+		)
+		(pin "4"
+			(uuid "68556da3-e8dd-53e2-a2cc-017f2147978a")
 		)
 		(pin "2"
-			(uuid "1a179947-056c-5bde-b117-e22809d5fd85")
+			(uuid "9803f7e3-2216-5d39-92e9-1674c898e90a")
 		)
 		(instances
 			(project "cryocooler"
@@ -1618,7 +1470,7 @@
 		(dnp no)
 		(uuid "3d1cc0b1-a605-58ec-bb5a-968ae1aec543")
 		(property "Reference" "U36"
-			(at 187.96 91.42 0)
+			(at 182.88 91.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1629,7 +1481,7 @@
 			)
 		)
 		(property "Value" "NUF6401MNT1G"
-			(at 187.96 93.52 0)
+			(at 182.88 93.52 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1684,43 +1536,43 @@
 			)
 		)
 		(pin "1"
-			(uuid "74cacdc1-ec32-5b55-a4fd-79f6ec4f2863")
+			(uuid "f3ca9cf7-a4a2-5b7a-b521-aa2f6eb2823b")
 		)
 		(pin "2"
-			(uuid "bbb10f40-c299-5248-9676-2d92f1a33a34")
+			(uuid "45d10de0-fa95-54b3-8f2a-273d04bbccfd")
 		)
 		(pin "3"
-			(uuid "8fb515f9-5da9-56cd-9c31-b59556bd3ac1")
+			(uuid "e1dffb58-d343-5f6a-8d3b-cf224badd0ab")
 		)
 		(pin "4"
-			(uuid "1488799d-561d-5cc0-a20a-7adf3c43fedb")
+			(uuid "716d46c5-3103-52aa-bbf2-36f497b079d5")
 		)
 		(pin "5"
-			(uuid "fd09c4af-18e5-58a0-9873-500b9a9ede23")
+			(uuid "0b7800ae-8e00-5849-99fe-38322658139f")
 		)
 		(pin "6"
-			(uuid "beaca5ba-197a-554e-bd2f-2a25953591a5")
+			(uuid "93b967c8-c453-598a-8fc2-4c4dd64cc643")
 		)
 		(pin "12"
-			(uuid "2dc39fe3-07d6-5b35-9479-771a31695a85")
+			(uuid "8bcf8013-139f-5665-8a32-b90e66bd805a")
 		)
 		(pin "11"
-			(uuid "91d7169a-2541-5c9c-a0ed-56e6dcba4df0")
+			(uuid "ca692eb7-1d33-573c-864c-bf92a13ea223")
 		)
 		(pin "10"
-			(uuid "65b6a4d2-aa68-5b2b-a00f-274a75a04155")
+			(uuid "86213be8-6ad6-5c42-8093-c6394ff28120")
 		)
 		(pin "9"
-			(uuid "7de52123-d178-5a38-9876-70e7f4534f36")
+			(uuid "fec0110c-2852-5996-b0e7-5f86d65062d2")
 		)
 		(pin "8"
-			(uuid "2fa53f5d-061c-50a2-9ce7-333c3bc70104")
+			(uuid "3abca5e4-97d0-58d3-9e9e-41a17994f36c")
 		)
 		(pin "7"
-			(uuid "e443fa75-1efe-5057-bd96-58ad566d31bb")
+			(uuid "062e8305-bbb2-5393-8d96-39a09b766e48")
 		)
 		(pin "13"
-			(uuid "f5eaf43f-556d-5fea-944f-25b7e11a8691")
+			(uuid "12a1dddf-be31-529f-acc2-7cd06293ae10")
 		)
 		(instances
 			(project "cryocooler"
@@ -1733,7 +1585,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 241.3 66.04 0)
+		(at 254 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1743,7 +1595,7 @@
 		(dnp no)
 		(uuid "8db01fa8-7b96-5ca2-8de8-6c25c3cbb121")
 		(property "Reference" "#PWR170"
-			(at 241.3 66.04 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1754,18 +1606,17 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 238.9 64.94 0)
+			(at 254 87.884 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 241.3 66.04 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1776,7 +1627,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 241.3 66.04 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1787,7 +1638,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 241.3 66.04 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1798,7 +1649,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d63721de-5c48-5fd9-b70b-eeacefe100c2")
+			(uuid "a0cab20e-adde-554d-8226-cd25f9105333")
 		)
 		(instances
 			(project "cryocooler"
@@ -1811,7 +1662,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 241.3 83.82 0)
+		(at 254 121.92 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1821,7 +1672,7 @@
 		(dnp no)
 		(uuid "d1b8532c-98f7-5751-b695-6a6c1164669f")
 		(property "Reference" "#PWR171"
-			(at 241.3 83.82 0)
+			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1832,7 +1683,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 241.3 83.82 0)
+			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1843,7 +1694,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 241.3 83.82 0)
+			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1854,7 +1705,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 241.3 83.82 0)
+			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1865,7 +1716,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 241.3 83.82 0)
+			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1876,7 +1727,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "e2ce730c-0a53-541e-816d-4744f67376d8")
+			(uuid "226a414a-76c6-5faf-a86d-820736340150")
 		)
 		(instances
 			(project "cryocooler"

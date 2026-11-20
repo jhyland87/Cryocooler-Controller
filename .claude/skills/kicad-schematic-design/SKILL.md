@@ -37,10 +37,15 @@ These were each corrected more than once. No exceptions for tight spots.
 6. **Every power symbol shows its net name.**
 7. **Signals between sheets use hierarchical labels and sheet pins, not global
    labels.** Global labels only for nets in `ALLOWED_GLOBALS`
-   (`tools/check_sheet_structure.py`).
+   (`tools/check_sheet_structure.py`). On the parent, pins closer than 85 mm are
+   wired and pins further apart get a plain net label each.
 8. **No label pair where a wire fits.** Two labels of one net closer than 85 mm on a
    sheet are a wire.
-9. **Don't work around a rule.** When the drawing helpers make the right thing hard,
+9. **A bus is for a communication bus** (SPI, I2C). Chip selects, interrupts and
+   control lines are single labelled nets, never bundled into a bus or a trunk.
+10. **Pull resistors sit on the line they serve**, pull-ups above it and pull-downs
+    below. No "bias" block joined to its pins by labels.
+11. **Don't work around a rule.** When the drawing helpers make the right thing hard,
    add or fix a helper. A shortcut that passes the checks is still a failure.
 
 ## Wires and labels
@@ -53,12 +58,28 @@ These were each corrected more than once. No exceptions for tight spots.
 
   | Connection | Use |
   |------------|-----|
-  | Two points on one sheet | Wire; a local label only to name the net or for a long run |
-  | Sheet to its parent | Hierarchical label on the sheet, sheet pin on its block, wired on the parent |
-  | Project-wide bus (listed in `ALLOWED_GLOBALS`) | One global label on a bus (`{SPI}`, `{I2C}`) |
+  | Two points on one sheet, closer than 85 mm | Wire; a local label only to name the net |
+  | Two points on one sheet, further apart | A plain net label on a short wire at each end, not a wire across the sheet |
+  | Sheet to its parent | Hierarchical label on the sheet, sheet pin on its block; on the parent a wire to a close pin, a net label at each pin otherwise |
+  | Project-wide communication bus (listed in `ALLOWED_GLOBALS`) | One global label on a bus (`{SPI}`, `{I2C}`) |
 
-- A signal that reaches several sheets still goes through sheet pins. The root sheet
-  wires them together, which is what makes it show how the blocks connect.
+- A signal that reaches several sheets still goes through sheet pins. The parent
+  sheet joins them, by wires between neighbouring blocks and net labels between far
+  ones, which is what makes it show how the blocks connect.
+- Never a global label for a signal, and never a bus for anything but a
+  communication bus.
+- A net label names its net (`/NAME` on the root, `/Sheet/NAME` below). When a
+  drawing change renames nets on a routed board, rename them on the board by name
+  only (`tools/rename_board_nets.py`, `tools/relink_board_sheets.py`); no copper moves.
+- A sheet that holds several related functions can be a parent with child
+  sheets (any depth). Keep it to what a reader can follow, usually two or
+  three levels.
+- A signal that crosses more than one level goes up through each one: a
+  hierarchical label on the child, a sheet pin on its block in the parent,
+  and so on up to where it is used. Net labels never cross a sheet boundary,
+  and a deep connection is not a reason for a global label.
+- Moving a sheet under a new parent renames its local nets (the sheet path is
+  part of the name). Treat it as a connectivity change: it reaches the PCB.
 - Never put a global label on a sheet that is placed more than once. It shorts every
   instance together into one net.
 - A wire may still carry one label to give the net a useful name.
@@ -85,7 +106,8 @@ These were each corrected more than once. No exceptions for tight spots.
   in through sheet pins.
 - Signal flows left to right: inputs and connectors feeding the sheet on the left,
   outputs on the right. Feedback may run right to left.
-- Higher voltage toward the top. Pull-ups sit above the line they pull, pull-downs below.
+- Higher voltage toward the top. Pull-ups sit above the line they pull, pull-downs
+  below, each on its own line rather than in a block of its own.
 - Group each sub-circuit, leave white space between groups, and give each a heading.
 - **Repeated circuits are drawn the same way.** Channels, rails or indicator blocks that
   share a circuit get the same part positions, wire routes and spacing, built from one
@@ -95,6 +117,11 @@ These were each corrected more than once. No exceptions for tight spots.
 - Wires run horizontally or vertically only. Line up pins so wires stay straight.
 - Bring a short stub out of every pin before a bend, junction or label. Never run a
   wire through a pin, through a part body, or along a row of pins.
+- **Nothing touches a part it isn't connected to.** A wire, bus or bus entry reaches
+  a part only at the end of one of its pins. It never runs along a body outline, ends
+  on a body corner, or passes within two grid steps (2.54 mm) of a body it does not
+  connect to. A trunk beside an IC reads as going into it. Move the trunk or the
+  part. `tools/check_sheet_structure.py` counts these as `wire_near_body`.
 - Reduce crossings by where parts are placed, not by routing around them.
 - Keep switching loops compact and drawn as loops.
 - Protection parts (TVS, ESD, clamps) sit beside the connector or pin they protect.
@@ -103,9 +130,21 @@ These were each corrected more than once. No exceptions for tight spots.
 
 ## Symbols
 
-- Group pins by function, not package order: supplies on the top edge, grounds on the
-  bottom, inputs and control on the left, outputs on the right, bus pins together
-  (`from_stock` in `tools/make_lib.py` re-lays-out a stock symbol).
+- **Arrange a symbol's pins for the circuit it's drawn in, not the package.**
+  In order of preference:
+  1. **Keep pins grouped by function**: inputs and control together, outputs
+     together, a bus's pins together and in order (D0 to D7, Q0 to Q9).
+     Default sides: inputs and control on the left, outputs on the right.
+  2. **Move a whole group to another side** when that makes the sheet read
+     better, for example when the outputs feed a block to the left, or a
+     control group faces the part that drives it.
+  3. **Move a single pin out of its group** only when it removes a crossing,
+     a long detour or a label: put the pin where its net already is. Most
+     pins should still sit in their group.
+  Supply pins are always on the top edge, pointing up, and ground pins on the
+  bottom edge, pointing down. No exception for any of the three options.
+  Keep the pin numbers; only the drawing moves (`from_stock` in
+  `tools/make_lib.py`).
 - To face a part the other way, mirror it or make a custom symbol. Don't turn it 180
   degrees.
 - Dual and quad parts (op-amps, gates) are multi-unit symbols drawn in their standard
@@ -143,13 +182,15 @@ Never rely on colour alone to tell two nets apart.
 
 ## Check before calling it done
 
-`tools/check_sheet_structure.py` enforces the label-scope, label-pair, sheet-size and
-copied-sheet rules. The sheets drawn before these rules have a baseline count of
+`tools/check_sheet_structure.py` enforces the label-scope, label-pair, sheet-size,
+copied-sheet and wire-near-body rules. The sheets drawn before these rules have a baseline count of
 violations (`tools/sheet_structure_baseline.json`). A change may not raise any count.
 When a change lowers one, run it with `--update-baseline`.
 
 1. Before a layout-only change, export a baseline netlist. Afterwards the netlist must
    be identical (`tools/compare_netlists.py`). Tidying must not change a connection.
+   When the board is routed, use `--strict`: net names, references, values and
+   footprints must not change either.
 2. Regenerate and read every check line the generator prints (text overlap, 4-way
    junctions, unlabeled power symbols, duplicate references, and whatever else this
    branch checks). Any failure is a failed build, not a warning.

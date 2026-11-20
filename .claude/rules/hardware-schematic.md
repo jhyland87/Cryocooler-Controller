@@ -71,17 +71,80 @@ junctions; resistors are US zig-zag (`Device:R_US`); every part and label has a
 description of its job. Project-specific detail (helpers, buses, net-class colours)
 is in `hardware/kicad/README.md`, "Drawing conventions".
 
+Wires and trunks keep clear of parts:
+
+- **Nothing touches a part it isn't connected to.** A wire, bus or bus entry reaches
+  a part only at the end of one of its pins. It never runs along a body outline, ends
+  on a body corner, or passes within two grid steps (2.54 mm) of a body it does not
+  connect to. A trunk beside an IC reads as going into it. Move the trunk or the
+  part. `tools/check_sheet_structure.py` counts these as `wire_near_body`.
+
 Each label type has one scope, and the narrowest one that works is the right one:
 
 - **Wire** inside a block, and between any two points on a sheet closer than 85 mm.
-- **Net (local) label** to name a net, or for a long run on the same sheet.
+  On the root and on a parent sheet that includes two block pins closer than 85 mm.
+- **Net (local) label** to name a net, and for a long run on the same sheet: a plain
+  net label on a short wire at each end. This is how blocks more than 85 mm apart are
+  joined on the root and on a parent sheet. Don't draw a wire across the sheet, and
+  don't use a global label for it.
 - **Hierarchical label + sheet pin** for every signal between a sheet and its
-  parent. The root sheet wires the sheet pins together, so it shows how the blocks
-  connect.
+  parent. The parent joins the pins: by wire when they are close, by a net label at
+  each pin when they are not.
+- **Bus** only for a communication bus (SPI, I2C and the like). Chip selects,
+  interrupts, address and control lines are single labelled nets, however many of
+  them run side by side.
 - **Global label** only for nets in `ALLOWED_GLOBALS` in
   `tools/check_sheet_structure.py`: the `{SPI}` bus, and the `{I2C}` bus if one is
   added. Each is drawn as a bus with one global label, like `spi_bus()`. Never on a sheet that
-  is placed more than once: a global label shorts every instance into one net.
+  is placed more than once: a global label shorts every instance into one net. A
+  net label must not share its name with a global label anywhere in the project
+  (ERC `same_local_global_label`).
+
+Net names and the routed board:
+
+- A net label on the root names the net `/NAME`; on a sheet, `/Sheet/NAME`. Changing
+  a net's label type, or moving its sheet under a parent, renames it.
+- When a drawing change renames nets, rename them on the board in the same step with
+  `tools/rename_board_nets.py`, and after moving a sheet run
+  `tools/relink_board_sheets.py`. Both change names in the board file and nothing
+  else, and refuse to write otherwise. No pad, track, via or zone may move.
+  `tools/compare_netlists.py --strict --renamed` must then show 0 differences.
+
+Pull resistors:
+
+- A pull-up or pull-down is drawn on the line it serves, the pull-up standing above
+  the line and the pull-down hanging below it. No separate "bias" block joined by
+  labels. (Decoupling capacitors are the one group that does sit apart.)
+
+Sheets can nest:
+
+- A sheet that holds several related functions can be a parent with child
+  sheets (any depth). Keep it to what a reader can follow, usually two or
+  three levels.
+- A signal that crosses more than one level goes up through each one: a
+  hierarchical label on the child, a sheet pin on its block in the parent,
+  and so on up to where it is used. Net labels never cross a sheet boundary,
+  and a deep connection is not a reason for a global label.
+- Moving a sheet under a new parent renames its local nets (the sheet path is
+  part of the name). Treat it as a connectivity change: it reaches the PCB.
+
+Symbol pins:
+
+- **Arrange a symbol's pins for the circuit it's drawn in, not the package.**
+  In order of preference:
+  1. **Keep pins grouped by function**: inputs and control together, outputs
+     together, a bus's pins together and in order (D0 to D7, Q0 to Q9).
+     Default sides: inputs and control on the left, outputs on the right.
+  2. **Move a whole group to another side** when that makes the sheet read
+     better, for example when the outputs feed a block to the left, or a
+     control group faces the part that drives it.
+  3. **Move a single pin out of its group** only when it removes a crossing,
+     a long detour or a label: put the pin where its net already is. Most
+     pins should still sit in their group.
+  Supply pins are always on the top edge, pointing up, and ground pins on the
+  bottom edge, pointing down. No exception for any of the three options.
+  Keep the pin numbers; only the drawing moves (`from_stock` in
+  `tools/make_lib.py`).
 
 No shortcuts. If the generator can't draw something the right way, extend the
 generator. Never add a global label, a label pair or a `GLOBAL_NETS` entry to avoid

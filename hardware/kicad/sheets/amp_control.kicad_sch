@@ -1034,7 +1034,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "cryocooler:APGB0607G22R23C"
+		(symbol "cryocooler:APGB0607G22R23C_AP"
 			(pin_names
 				(offset 1.016)
 			)
@@ -1054,7 +1054,7 @@
 					(justify left)
 				)
 			)
-			(property "Value" "APGB0607G22R23C"
+			(property "Value" "APGB0607G22R23C_AP"
 				(at -5.08 7.62 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1109,7 +1109,7 @@
 					)
 				)
 			)
-			(symbol "APGB0607G22R23C_0_1"
+			(symbol "APGB0607G22R23C_AP_0_1"
 				(rectangle
 					(start -5.08 5.08)
 					(end 5.08 -5.08)
@@ -1122,9 +1122,9 @@
 					)
 				)
 			)
-			(symbol "APGB0607G22R23C_1_1"
+			(symbol "APGB0607G22R23C_AP_1_1"
 				(pin passive line
-					(at -7.62 2.54 0)
+					(at 7.62 2.54 180)
 					(length 2.54)
 					(name "GA"
 						(effects
@@ -1142,7 +1142,7 @@
 					)
 				)
 				(pin passive line
-					(at 7.62 2.54 180)
+					(at -7.62 0 0)
 					(length 2.54)
 					(name "GK"
 						(effects
@@ -1178,7 +1178,7 @@
 					)
 				)
 				(pin passive line
-					(at -7.62 0 0)
+					(at -7.62 2.54 0)
 					(length 2.54)
 					(name "RA"
 						(effects
@@ -1738,6 +1738,50 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side switch), but only while PG_15V is high (both +-15 V rails good: Q21 in series with the level shifter). LED: green = on, red = off."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "16e37589-4a8c-522c-b6dc-0686dc70e374")
+	)
+	(text "REM HIGH-SIDE SWITCH"
+		(exclude_from_sim no)
+		(at 30.48 38.1 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "4aed7306-317e-505a-a34e-f5a30c97c67a")
+	)
+	(text "AMPLIFIER SIGNAL OUTPUT"
+		(exclude_from_sim no)
+		(at 160.02 93.98 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "868029d4-be4e-5c4e-933a-73dd01c69fc8")
+	)
+	(text "REM STATE LED"
+		(exclude_from_sim no)
+		(at 119.38 38.1 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "a4d5dd6f-c434-5a1f-94b4-8f717f23f79f")
+	)
 	(text "Amplifier: AUDIOZERONE ZE500.1 (external): REM terminal + RCA/line input. Its power leads do not pass through this board."
 		(exclude_from_sim no)
 		(at 20 21 0)
@@ -1747,200 +1791,47 @@
 			)
 			(justify left top)
 		)
-		(uuid "0476ec3d-cbfd-55bd-b9ad-6188dddb58b2")
-	)
-	(text "GPIO6 high -> +12 V on the amplifier REM terminal (P-FET high-side switch), but only while PG_15V is high (both +-15 V rails good: Q9 in series with the level shifter). LED: green = on, red = off."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "fb3f00f4-1dfe-5ac2-9b0f-eec0fbfaa956")
+		(uuid "f7e74484-e150-5499-a531-b1142369ce43")
 	)
 	(junction
 		(at 114.3 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "23d9bd0d-e8c9-5cf7-8cf4-7bc20069198d")
-	)
-	(junction
-		(at 78.74 63.5)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4da6afe6-2183-55c0-afde-ef72dff80fa8")
+		(uuid "5e4f2f59-9c58-5cb1-8ad0-e5da17ee6cd0")
 	)
 	(junction
 		(at 50.8 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "bb2a8ca7-4d29-541d-8ea9-32ddd1b7056a")
+		(uuid "7416b4f7-5b16-540b-a417-6209a48fb665")
+	)
+	(junction
+		(at 78.74 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "80a48e49-d5fa-5ec2-b2a8-487648c9c840")
+	)
+	(junction
+		(at 154.94 60.96)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8ab48368-d613-5468-b40f-ed01004d604f")
+	)
+	(junction
+		(at 162.56 73.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a93ca584-5fa6-5518-a9fb-891797fc1842")
+	)
+	(junction
+		(at 185.42 60.96)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e89ae99a-bfd4-5afa-8d21-477a63437f19")
 	)
 	(no_connect
 		(at 167.64 114.3)
-		(uuid "7c712ef4-52a4-52b3-8e58-f411555185f8")
-	)
-	(wire
-		(pts
-			(xy 78.74 63.5) (xy 96.52 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "157580fb-7354-58d8-b957-e261ed3bb4f5")
-	)
-	(wire
-		(pts
-			(xy 30.48 76.2) (xy 35.56 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a625b97-9ef8-5bc8-9bbb-856d170f30e1")
-	)
-	(wire
-		(pts
-			(xy 66.04 63.5) (xy 78.74 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1aade58d-c59c-5bc8-9727-035189b918f3")
-	)
-	(wire
-		(pts
-			(xy 104.14 53.34) (xy 104.14 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b409e3b-d30c-530f-9f57-81a063ea0bc2")
-	)
-	(wire
-		(pts
-			(xy 160.02 58.42) (xy 162.56 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a524c2e-46d4-5e42-8cd6-215c4fb24a8f")
-	)
-	(wire
-		(pts
-			(xy 177.8 60.96) (xy 180.34 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55a66887-b58d-5233-917c-12ce36bc457d")
-	)
-	(wire
-		(pts
-			(xy 66.04 96.52) (xy 66.04 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57771f02-a8c9-5bc0-9669-8d3a1fd831fb")
-	)
-	(wire
-		(pts
-			(xy 53.34 91.44) (xy 58.42 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5dc74895-79dd-5a8d-be7c-39882ca80dd6")
-	)
-	(wire
-		(pts
-			(xy 43.18 76.2) (xy 50.8 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5e8b8e29-33c9-59f9-822d-c218235a0315")
-	)
-	(wire
-		(pts
-			(xy 177.8 58.42) (xy 180.34 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "74e7a5d5-56a9-5f52-90cd-6b2749eb73d0")
-	)
-	(wire
-		(pts
-			(xy 104.14 68.58) (xy 104.14 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77009d14-7f40-5171-adb8-f5e3bb97774e")
-	)
-	(wire
-		(pts
-			(xy 160.02 60.96) (xy 162.56 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7a73cc27-3aa1-5b5d-aa60-341894ab2aba")
-	)
-	(wire
-		(pts
-			(xy 50.8 76.2) (xy 58.42 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7ab17cfa-54b0-523f-ab72-a7f815cdb11f")
-	)
-	(wire
-		(pts
-			(xy 160.02 109.22) (xy 167.64 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "953eb8a3-94ce-515d-988e-92198ed7732b")
-	)
-	(wire
-		(pts
-			(xy 114.3 73.66) (xy 172.72 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ce37f69-7486-5713-866b-dcd239443515")
-	)
-	(wire
-		(pts
-			(xy 66.04 63.5) (xy 66.04 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a974d7fe-4838-5061-bfa1-2ab74f583255")
+		(uuid "6deae1d8-d831-5167-a371-9d37c22565d2")
 	)
 	(wire
 		(pts
@@ -1950,17 +1841,117 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b8bd76b3-044b-5800-adaa-15b397b34917")
+		(uuid "0863e827-8ee5-5f2a-af4b-5a65653d1e1f")
 	)
 	(wire
 		(pts
-			(xy 121.92 58.42) (xy 121.92 60.96)
+			(xy 185.42 58.42) (xy 185.42 60.96)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c10c996c-1241-5543-bf67-0def7a4f7d17")
+		(uuid "0c1a3bc4-1096-5833-a2c9-d6f927760d15")
+	)
+	(wire
+		(pts
+			(xy 66.04 96.52) (xy 66.04 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "173f14f3-13d9-532f-a26a-c6b4fb591c9c")
+	)
+	(wire
+		(pts
+			(xy 160.02 109.22) (xy 167.64 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bb1cccc-6469-5c4b-b9c8-532470630619")
+	)
+	(wire
+		(pts
+			(xy 154.94 58.42) (xy 154.94 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c93f799-6be9-585f-b15b-88fc028dbee2")
+	)
+	(wire
+		(pts
+			(xy 162.56 68.58) (xy 185.42 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45a7a7b3-8281-53e6-a1d8-3e46e4a2c25f")
+	)
+	(wire
+		(pts
+			(xy 162.56 68.58) (xy 162.56 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c0cf8a6-4e8d-5715-ab2d-1ce1c49b58f1")
+	)
+	(wire
+		(pts
+			(xy 104.14 68.58) (xy 104.14 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5216d1b4-c616-523c-968b-25840e7451c3")
+	)
+	(wire
+		(pts
+			(xy 66.04 63.5) (xy 78.74 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56bdaa55-d43f-5b89-99dc-ef265a600d57")
+	)
+	(wire
+		(pts
+			(xy 30.48 76.2) (xy 35.56 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62e3ae4d-f6f8-53c6-a993-0fbca0990313")
+	)
+	(wire
+		(pts
+			(xy 114.3 73.66) (xy 172.72 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "630d85d7-d742-5f2e-bd81-6d607a846ee0")
+	)
+	(wire
+		(pts
+			(xy 53.34 91.44) (xy 58.42 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65e80fd7-f640-5527-9de0-f5e1a7496d5f")
 	)
 	(wire
 		(pts
@@ -1970,7 +1961,37 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d387d89f-985f-5e36-b6cb-81d9a04fff28")
+		(uuid "91c7f04d-2135-5c5b-97f5-3bfc8c4b5ded")
+	)
+	(wire
+		(pts
+			(xy 66.04 63.5) (xy 66.04 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96f02a6d-472e-52f8-922f-2ae74c503467")
+	)
+	(wire
+		(pts
+			(xy 50.8 76.2) (xy 58.42 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2759afb-ce48-53ee-80bb-c94ff2c1a0b3")
+	)
+	(wire
+		(pts
+			(xy 177.8 60.96) (xy 185.42 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a5cf4b05-d8f1-5a9d-9e90-d57bd36c6700")
 	)
 	(wire
 		(pts
@@ -1980,7 +2001,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e39c5bec-b127-5f7d-ad5a-4db1ed0f1eac")
+		(uuid "b8427ccb-bad7-55c5-b77d-d73e7d80b8b0")
+	)
+	(wire
+		(pts
+			(xy 43.18 76.2) (xy 50.8 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c48c0d73-7e28-5a5b-8e42-ac1ed7aeac59")
+	)
+	(wire
+		(pts
+			(xy 78.74 63.5) (xy 96.52 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c6870d0f-b102-56e7-951b-ca4bf9e00ecb")
 	)
 	(wire
 		(pts
@@ -1990,7 +2031,89 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f1426a40-a77f-5786-863d-faafb112b58b")
+		(uuid "c7370e66-5cd8-5975-a452-1399eb956e07")
+	)
+	(wire
+		(pts
+			(xy 154.94 58.42) (xy 162.56 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e675ba56-2ed3-5aaa-82f3-7ea314582253")
+	)
+	(wire
+		(pts
+			(xy 104.14 55.88) (xy 104.14 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb0ea2c4-a15b-5507-9305-3f4c44009f82")
+	)
+	(wire
+		(pts
+			(xy 121.92 60.96) (xy 162.56 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f3b0820f-4933-512c-9b38-11cacc320681")
+	)
+	(wire
+		(pts
+			(xy 185.42 60.96) (xy 185.42 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f81220c4-224f-5ac1-bf90-f8d9b3fcec55")
+	)
+	(wire
+		(pts
+			(xy 121.92 58.42) (xy 121.92 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbef9e63-b8d6-58d5-a9f1-5c2ff9161a50")
+	)
+	(wire
+		(pts
+			(xy 177.8 58.42) (xy 185.42 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd52768d-52e9-5978-a122-769abbfd3ebe")
+	)
+	(label "AMP_REM_LED"
+		(at 127 60.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a7f567dc-2fe5-55ea-a34d-fb1dbf2e231e")
+		(property "Description" "Common node of the amplifier REM LED D2, fed from +5V through R60"
+			(at 127 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 	)
 	(label "AMP_REM"
 		(at 132.08 73.66 0)
@@ -2000,7 +2123,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "0234c5f6-3270-56f0-a4e8-b2e1cd5c8b18")
+		(uuid "b1f344a2-bb4e-519a-b99c-dc1effde37ba")
 		(property "Description" "Amplifier remote-on line at J8: 12 V when on"
 			(at 132.08 73.66 0)
 			(hide yes)
@@ -2014,175 +2137,16 @@
 			)
 		)
 	)
-	(label "AMP_REM"
-		(at 180.34 60.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0287ad0c-0bd3-5d7c-8072-69ab322f4b37")
-		(property "Description" "Amplifier remote-on line at J8: 12 V when on"
-			(at 180.34 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "AMP_REM_LED"
-		(at 160.02 60.96 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2faa4913-2df0-560b-ac2e-3218851b1bca")
-		(property "Description" "Common node of the amplifier REM LED D2, fed from +5V through R60"
-			(at 160.02 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "AMP_REM"
-		(at 160.02 58.42 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3c9dbe82-ebb7-58fe-8966-79859d14662c")
-		(property "Description" "Amplifier remote-on line at J8: 12 V when on"
-			(at 160.02 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "AMP_REM_LED"
-		(at 180.34 58.42 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d7f1c79a-0b45-5530-a4c5-fc9c5a000744")
-		(property "Description" "Common node of the amplifier REM LED D2, fed from +5V through R60"
-			(at 180.34 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "AMP_REM_LED"
-		(at 121.92 60.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "deaefbc5-9aab-5b25-a132-2ed1fcb9332b")
-		(property "Description" "Common node of the amplifier REM LED D2, fed from +5V through R60"
-			(at 121.92 60.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "SIG_SINE"
+	(hierarchical_label "PG_15V"
 		(shape input)
-		(at 160.02 109.22 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0edae165-7eb7-51c1-91e5-475bc8be4bf7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 160.02 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
-			(at 160.02 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PG_15V"
-		(shape bidirectional)
 		(at 53.34 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "106eed03-f1eb-5a91-a09e-156882ff7e2c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 53.34 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "32e591e4-8c9b-5bf9-850c-b33f4331167f")
 		(property "Description" "Both +-15 V rails good (AND of PGP_15V and PGN_15V), active high: gates the amplifier REM switch"
 			(at 53.34 91.44 0)
 			(hide yes)
@@ -2196,18 +2160,17 @@
 			)
 		)
 	)
-	(global_label "AMP_REM_EN"
+	(hierarchical_label "AMP_REM_EN"
 		(shape input)
 		(at 30.48 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "b473713b-d1b6-5433-856a-c5f1172d979b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+		(uuid "8e7487b2-3545-5d77-a743-1524d757bb6c")
+		(property "Description" "GPIO6: high turns the amplifier REM (remote on) line on"
 			(at 30.48 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -2219,8 +2182,19 @@
 				(justify right)
 			)
 		)
-		(property "Description" "GPIO6: high turns the amplifier REM (remote on) line on"
-			(at 30.48 76.2 0)
+	)
+	(hierarchical_label "SIG_SINE"
+		(shape input)
+		(at 160.02 109.22 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b15909b6-294b-5c7a-a97c-8c872f8e9a41")
+		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
+			(at 160.02 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2299,7 +2273,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ced096c5-5291-5943-b5a0-a25d600a6ce3")
+			(uuid "0aa56c9f-2c18-5461-9897-33462bef8275")
 		)
 		(instances
 			(project "cryocooler"
@@ -2311,7 +2285,7 @@
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:APGB0607G22R23C")
+		(lib_id "cryocooler:APGB0607G22R23C_AP")
 		(at 170.18 60.96 0)
 		(unit 1)
 		(body_style 1)
@@ -2387,17 +2361,17 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "0c1bccd7-26e0-55cb-be17-dca856448c81")
-		)
 		(pin "4"
-			(uuid "e09a1e16-999d-597c-b9e8-1e9225fbfa0a")
+			(uuid "06ab499b-1746-598c-95d5-57c9ca129bf4")
 		)
 		(pin "2"
-			(uuid "dbd89464-def9-535b-a7e4-5ec8436c7563")
+			(uuid "20680c36-35a5-57ab-9746-e3bf4dae84f0")
+		)
+		(pin "1"
+			(uuid "68cd5416-8200-5347-9b79-61a823a719d8")
 		)
 		(pin "3"
-			(uuid "f30327dd-25cf-5f66-92e4-aed015b8f098")
+			(uuid "72b8a235-e5e8-5a56-b32c-e104c8d7d929")
 		)
 		(instances
 			(project "cryocooler"
@@ -2475,7 +2449,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "13eedc91-892c-5e9e-a190-3dd8c2402367")
+			(uuid "c8b7b2b1-803e-5dca-bb46-1490ec1119da")
 		)
 		(instances
 			(project "cryocooler"
@@ -2553,7 +2527,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0e87ab45-a5a6-584b-99b3-8647a140cbe3")
+			(uuid "25a62e90-8f17-5310-ab77-430447c5ff86")
 		)
 		(instances
 			(project "cryocooler"
@@ -2640,10 +2614,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1f03d49c-a088-5c76-8eed-8e880244349f")
+			(uuid "c0db0479-ebe3-5f54-b278-ff752b6a43f5")
 		)
 		(pin "2"
-			(uuid "3435b0f3-2a3c-5f26-b8d5-0e22a55fdfa2")
+			(uuid "7670779e-0f2b-5b21-82b6-87eb25b481ff")
 		)
 		(instances
 			(project "cryocooler"
@@ -2732,10 +2706,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "d1c6bf43-bffe-531a-a284-1fcf13d06c92")
+			(uuid "b899cd4a-b311-525e-b666-ad6efb9bf21f")
 		)
 		(pin "2"
-			(uuid "a0835f72-439a-5fe3-a00d-5f329002f0cb")
+			(uuid "419653b2-17e5-5994-901d-067f691c96db")
 		)
 		(instances
 			(project "cryocooler"
@@ -2824,10 +2798,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "1c3fc3f6-bcd5-52d4-a8f7-3f87043a5ebb")
+			(uuid "3b606df2-9682-55c0-b399-1a54f890f32e")
 		)
 		(pin "2"
-			(uuid "5541f6b9-adfb-50c8-828c-4c7d42f026c8")
+			(uuid "cd129638-dd5f-58dd-97b6-4bc335b8aab8")
 		)
 		(instances
 			(project "cryocooler"
@@ -2916,13 +2890,13 @@
 			)
 		)
 		(pin "2"
-			(uuid "4657f7d7-0849-5d65-b0d9-d11328ae1469")
+			(uuid "f358a495-d11c-56ff-b9ee-9391ab6f10da")
 		)
 		(pin "1"
-			(uuid "b393b8bf-009b-5fd1-979e-8f64c0ecb215")
+			(uuid "f8568996-d988-5f41-9d2b-1d0b12bc5af1")
 		)
 		(pin "10"
-			(uuid "7ad6dd6d-5772-55c8-9c2c-a6f4848016c1")
+			(uuid "3be386bf-4386-5ca0-be94-fd223a8e0e40")
 		)
 		(instances
 			(project "cryocooler"
@@ -3000,7 +2974,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7f124035-aafe-5860-8c4c-1352e541d662")
+			(uuid "224133d7-9a31-5509-8f4a-1826de58fcd4")
 		)
 		(instances
 			(project "cryocooler"
@@ -3089,13 +3063,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "006a0417-1ac4-5120-a67b-559de99befd8")
+			(uuid "7ec5be75-ca68-55f5-a27e-2417f3ed850e")
 		)
 		(pin "2"
-			(uuid "63ae5f87-9bd1-508b-93c3-13d5f59a757e")
+			(uuid "e9b7cffa-e10d-5a3a-bf0e-5fd6caf26735")
 		)
 		(pin "3"
-			(uuid "4f466632-b801-5222-aa5c-6d45fdc94663")
+			(uuid "120a7367-d927-5e54-94b6-e23094329078")
 		)
 		(instances
 			(project "cryocooler"
@@ -3173,7 +3147,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7f8b0bd1-349c-50a2-a5c2-7d43c1be8979")
+			(uuid "0cde59f8-8411-5ec5-9074-e4c21b3b3654")
 		)
 		(instances
 			(project "cryocooler"
@@ -3186,7 +3160,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 104.14 53.34 0)
+		(at 104.14 55.88 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3196,7 +3170,7 @@
 		(dnp no)
 		(uuid "8ed66264-54db-55eb-af33-3c649cb3da80")
 		(property "Reference" "#PWR109"
-			(at 104.14 53.34 0)
+			(at 104.14 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3207,7 +3181,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 104.14 49.784 0)
+			(at 104.14 52.324 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3217,7 +3191,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 104.14 53.34 0)
+			(at 104.14 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3228,7 +3202,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 53.34 0)
+			(at 104.14 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3239,7 +3213,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 104.14 53.34 0)
+			(at 104.14 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3250,7 +3224,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f8c65d4d-c5d4-5ee1-ab54-d46b76c007c1")
+			(uuid "ebf6e269-49fb-5410-ae43-4ce147d7d81d")
 		)
 		(instances
 			(project "cryocooler"
@@ -3339,10 +3313,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "4e334865-fd2c-5de3-81b2-93e78c9848a6")
+			(uuid "dd2bb4d0-ec0c-5748-a791-a51a0fb5414d")
 		)
 		(pin "2"
-			(uuid "a647e6c5-0cb6-561e-a0e0-4664d9ba84d0")
+			(uuid "9963e217-326a-500c-824f-e54493d873dc")
 		)
 		(instances
 			(project "cryocooler"
@@ -3432,13 +3406,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "e4c0ca13-192f-555a-8373-d23f396ba398")
+			(uuid "90f276f4-c9d5-5fdf-94d2-e929585f8995")
 		)
 		(pin "2"
-			(uuid "8dd9eef8-78ca-52c7-ad8d-e2703f3426ca")
+			(uuid "c34bb0a3-ac58-56af-99ab-cee776ee5589")
 		)
 		(pin "3"
-			(uuid "4ccfc293-1f0d-5411-910d-678fd328b3c2")
+			(uuid "b07a1d9c-6da4-5c5c-9f46-2567073cb0eb")
 		)
 		(instances
 			(project "cryocooler"
@@ -3527,13 +3501,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "09aa11e8-faf8-5849-9a2c-7cf150b349bf")
+			(uuid "991330ce-a7ab-57f4-a5cb-1ef67e05e33b")
 		)
 		(pin "2"
-			(uuid "d63dcd57-30e6-5d88-8831-20c984be4e12")
+			(uuid "930303e1-844b-5078-bb25-a59b185d5040")
 		)
 		(pin "3"
-			(uuid "07f95507-3c79-5fa7-bcbf-64ce899024b4")
+			(uuid "19ae2d8e-690d-5d7b-ae6e-86c308f97f40")
 		)
 		(instances
 			(project "cryocooler"
@@ -3622,10 +3596,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "9c73b62a-9974-5d19-afac-c32554b1654c")
+			(uuid "7cf15099-cb09-5c0d-b17c-ba2d0060f91c")
 		)
 		(pin "2"
-			(uuid "31a57596-0ab3-5a57-a389-94de6f395486")
+			(uuid "33274da1-687b-5349-ace3-8c51819bab65")
 		)
 		(instances
 			(project "cryocooler"
@@ -3702,7 +3676,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0b9ffd60-f1a4-5d14-ac27-6b021216243a")
+			(uuid "b42712df-009e-57c3-918b-d8b0235479fa")
 		)
 		(instances
 			(project "cryocooler"
@@ -3779,7 +3753,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "afa45b3a-5908-5400-945a-9da0a5d8227c")
+			(uuid "8a0c7e40-4d1c-5c3e-bf54-7e38bbb0283f")
 		)
 		(instances
 			(project "cryocooler"
@@ -3802,7 +3776,7 @@
 		(dnp no)
 		(uuid "f5310368-eb11-517e-8770-49fb3e617cbb")
 		(property "Reference" "R28"
-			(at 54.016 66.26 0)
+			(at 43.18 79.76 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3813,7 +3787,7 @@
 			)
 		)
 		(property "Value" "100k"
-			(at 54.016 68.36 0)
+			(at 43.18 81.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3868,10 +3842,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "f4777bff-e724-5cea-a034-abbf9c71630a")
+			(uuid "1ced9e70-5c52-5a24-8863-f49b9453e3eb")
 		)
 		(pin "2"
-			(uuid "5fc6baeb-8c2c-5062-b77d-551b57713341")
+			(uuid "4e079304-30aa-50bc-b23e-8ec8d75c4fa6")
 		)
 		(instances
 			(project "cryocooler"

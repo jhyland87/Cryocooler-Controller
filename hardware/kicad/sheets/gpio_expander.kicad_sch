@@ -175,7 +175,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 12.7 17.78 0)
+				(at 12.7 22.86 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -186,7 +186,7 @@
 				)
 			)
 			(property "Value" "MCP23S08"
-				(at -12.7 17.78 0)
+				(at -12.7 22.86 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -242,8 +242,8 @@
 			)
 			(symbol "MCP23S08_0_1"
 				(rectangle
-					(start -12.7 15.24)
-					(end 12.7 -15.24)
+					(start -12.7 20.32)
+					(end 12.7 -20.32)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -273,7 +273,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 0 0)
+					(at 15.24 -12.7 180)
 					(length 2.54)
 					(name "A1"
 						(effects
@@ -291,7 +291,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 2.54 0)
+					(at 15.24 -10.16 180)
 					(length 2.54)
 					(name "A0"
 						(effects
@@ -309,7 +309,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 5.08 0)
+					(at 15.24 -5.08 180)
 					(length 2.54)
 					(name "~{RESET}"
 						(effects
@@ -327,7 +327,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 12.7 0)
+					(at 15.24 10.16 180)
 					(length 2.54)
 					(name "~{CS}"
 						(effects
@@ -345,7 +345,7 @@
 					)
 				)
 				(pin output line
-					(at 15.24 -10.16 180)
+					(at 15.24 5.08 180)
 					(length 2.54)
 					(name "INT"
 						(effects
@@ -363,7 +363,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 10.16 180)
+					(at -15.24 17.78 0)
 					(length 2.54)
 					(name "GP0"
 						(effects
@@ -381,7 +381,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 7.62 180)
+					(at -15.24 15.24 0)
 					(length 2.54)
 					(name "GP1"
 						(effects
@@ -399,7 +399,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 5.08 180)
+					(at -15.24 12.7 0)
 					(length 2.54)
 					(name "GP2"
 						(effects
@@ -417,7 +417,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 2.54 180)
+					(at -15.24 10.16 0)
 					(length 2.54)
 					(name "GP3"
 						(effects
@@ -435,7 +435,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 0 180)
+					(at -15.24 7.62 0)
 					(length 2.54)
 					(name "GP4"
 						(effects
@@ -453,7 +453,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -2.54 180)
+					(at -15.24 5.08 0)
 					(length 2.54)
 					(name "GP5"
 						(effects
@@ -471,7 +471,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -5.08 180)
+					(at -15.24 2.54 0)
 					(length 2.54)
 					(name "GP6"
 						(effects
@@ -489,7 +489,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -7.62 180)
+					(at -15.24 0 0)
 					(length 2.54)
 					(name "GP7"
 						(effects
@@ -507,7 +507,7 @@
 					)
 				)
 				(pin power_in line
-					(at -2.54 -17.78 90)
+					(at -2.54 -22.86 90)
 					(length 2.54)
 					(name "VSS"
 						(effects
@@ -525,7 +525,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 17.78 270)
+					(at 0 22.86 270)
 					(length 2.54)
 					(name "VDD"
 						(effects
@@ -543,7 +543,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 10.16 0)
+					(at 15.24 17.78 180)
 					(length 2.54)
 					(name "SCK"
 						(effects
@@ -561,7 +561,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 7.62 0)
+					(at 15.24 15.24 180)
 					(length 2.54)
 					(name "SI"
 						(effects
@@ -579,7 +579,7 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 -17.78 90)
+					(at 2.54 -22.86 90)
 					(length 2.54)
 					(name "EP"
 						(effects
@@ -856,70 +856,50 @@
 	)
 	(bus
 		(pts
-			(xy 48.26 71.12) (xy 53.34 71.12)
+			(xy 134.62 60.96) (xy 139.7 60.96)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "be50170b-d554-56c3-ab03-b1eac0f9f30b")
+		(uuid "329c99b4-71a6-52f3-8c3b-321f3b13c4b0")
 	)
 	(bus
 		(pts
-			(xy 137.16 68.58) (xy 142.24 68.58)
+			(xy 134.62 60.96) (xy 134.62 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c244454c-dea9-53fd-9eb5-36806c03c3c3")
-	)
-	(bus
-		(pts
-			(xy 53.34 71.12) (xy 53.34 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2714e078-e2ce-51b2-a487-764d9693cfc0")
-	)
-	(bus
-		(pts
-			(xy 137.16 68.58) (xy 137.16 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "44319592-d51f-5977-9160-4fced8a82f2d")
+		(uuid "5eed9249-eedc-5c79-a942-67c83e82c100")
 	)
 	(bus_entry
-		(at 55.88 78.74)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b7a817ea-84ee-5b0d-a677-91c203db2a20")
-	)
-	(bus_entry
-		(at 55.88 81.28)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "00d82104-deec-5ea9-b120-6581179a1924")
-	)
-	(bus_entry
-		(at 134.62 76.2)
+		(at 132.08 71.12)
 		(size 2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b6d600b7-84f3-5451-93e6-0b7d09bf42a4")
+		(uuid "5e1f00fa-3f18-584b-a7a1-ada58acf1d3b")
+	)
+	(bus_entry
+		(at 132.08 73.66)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7013624-606d-5664-b1e8-402bdb74d0c0")
+	)
+	(bus_entry
+		(at 132.08 76.2)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4f9538d-e66b-56b2-9568-1ed7c7e7a2f2")
 	)
 	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
 		(exclude_from_sim no)
@@ -930,20 +910,9 @@
 			)
 			(justify left top)
 		)
-		(uuid "2d8349e9-1bdc-5102-a16f-1c890356a086")
+		(uuid "3c884c95-a64d-5ab9-8629-79907c8bcb37")
 	)
-	(text "MCP23S08 DECOUPLING CAPACITOR"
-		(exclude_from_sim no)
-		(at 190.5 116.84 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "a0f4ef84-66bb-5ca8-b92c-cef60d99d6c2")
-	)
-	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP7 is spare; firmware enables a weak pull-up on it. The ADT7320 INT and CT outputs drive GP2 and GP3, the universal I/O expander interrupt GP4 and the I/O ADC data-ready GP5."
+	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP7 is spare; firmware enables a weak pull-up on it."
 		(exclude_from_sim no)
 		(at 20 21 0)
 		(effects
@@ -952,105 +921,107 @@
 			)
 			(justify left top)
 		)
-		(uuid "a8d1b539-2acb-5f49-a2a3-124d16adcec4")
+		(uuid "4ecdbdf9-776d-5b10-9293-262d613d3b2e")
+	)
+	(text "The ADT7320 INT and CT outputs drive GP2 and GP3, the universal I/O expander interrupt GP4 and the I/O ADC data-ready GP5."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "604ac480-0d38-5957-b91e-a0e0814fe163")
+	)
+	(text "MCP23S08 DECOUPLING CAPACITOR"
+		(exclude_from_sim no)
+		(at 38.1 129.54 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "61720554-f9e2-597c-ba05-fdc7472f5115")
 	)
 	(no_connect
-		(at 116.84 99.06)
-		(uuid "200c381a-6e88-532f-96ab-a96e20895e29")
+		(at 116.84 83.82)
+		(uuid "e3d8932b-86c6-5d53-84ef-5fb647e6b748")
 	)
 	(no_connect
-		(at 116.84 96.52)
-		(uuid "a0bdc854-2f0f-5268-b739-3e5b6f4ac681")
+		(at 86.36 88.9)
+		(uuid "f6585613-1d89-56ea-b422-74a6cc672ada")
 	)
 	(wire
 		(pts
-			(xy 83.82 78.74) (xy 86.36 78.74)
+			(xy 116.84 73.66) (xy 119.38 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "055bdf2a-8c92-5a47-ac82-50880fa4be00")
+		(uuid "022a5f89-1066-525d-a048-e709cf981a66")
 	)
 	(wire
 		(pts
-			(xy 116.84 86.36) (xy 124.46 86.36)
+			(xy 119.38 71.12) (xy 132.08 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "06791ec1-c29e-57b4-b2dd-92ccd55be2cf")
+		(uuid "027f9d0a-b04d-5c98-a99c-97c3c4bb2afe")
 	)
 	(wire
 		(pts
-			(xy 119.38 76.2) (xy 134.62 76.2)
+			(xy 104.14 111.76) (xy 104.14 114.3)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0dda72a7-374b-578f-9e7b-ecf10bf2ffe7")
+		(uuid "0bde7900-d566-5773-9487-5f6c6ed7aae4")
 	)
 	(wire
 		(pts
-			(xy 82.55 86.36) (xy 86.36 86.36)
+			(xy 116.84 101.6) (xy 120.65 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1a26637a-ad09-51d5-80b5-ec601bb13885")
+		(uuid "14cf172d-73af-52af-a5a5-b9dbcb9c593d")
 	)
 	(wire
 		(pts
-			(xy 116.84 78.74) (xy 124.46 78.74)
+			(xy 38.1 147.32) (xy 45.72 147.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1e7ebd37-f0f5-5c9f-868b-5f0007c84376")
+		(uuid "27064862-8c29-5af2-ae36-66cb744887d3")
 	)
 	(wire
 		(pts
-			(xy 55.88 81.28) (xy 83.82 81.28)
+			(xy 78.74 86.36) (xy 86.36 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "2474b403-bba1-5ef5-8134-148f5ac52960")
+		(uuid "27925688-51ac-5d68-b1c6-63d7ec68b50d")
 	)
 	(wire
 		(pts
-			(xy 116.84 93.98) (xy 124.46 93.98)
+			(xy 116.84 93.98) (xy 120.65 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3c75f271-4126-561d-9572-8e996b27cc59")
-	)
-	(wire
-		(pts
-			(xy 82.55 86.36) (xy 82.55 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4305cbfa-d9a2-5a3b-a6d4-8bafbf1ab2d0")
-	)
-	(wire
-		(pts
-			(xy 45.72 83.82) (xy 86.36 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "594bbe5f-9f74-5b7a-8c69-ff67745a877e")
+		(uuid "2d94f01c-34bf-5396-9841-aae6be3a5e08")
 	)
 	(wire
 		(pts
@@ -1060,171 +1031,179 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "84352aa6-0d1a-5fad-bb0c-621ba9a83d0f")
+		(uuid "4c92a6a8-7929-5c8b-931b-3fa9469f9deb")
 	)
 	(wire
 		(pts
-			(xy 82.55 88.9) (xy 86.36 88.9)
+			(xy 78.74 76.2) (xy 86.36 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "88822150-511b-5891-992e-d5479d54962b")
+		(uuid "670af03e-9cce-5894-a27f-a93d1db147cb")
 	)
 	(wire
 		(pts
-			(xy 190.5 127) (xy 198.12 127)
+			(xy 99.06 111.76) (xy 99.06 114.3)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "95376adc-9eb9-5e6f-9c37-158bafac0801")
+		(uuid "87fea58a-1e8d-52ed-aff2-10a7d18d793d")
 	)
 	(wire
 		(pts
-			(xy 71.12 76.2) (xy 86.36 76.2)
+			(xy 78.74 71.12) (xy 86.36 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "99dc6524-7cae-513c-8483-0858eb68cbba")
+		(uuid "a0ab37f4-0985-5c00-83c0-6eb29898c67a")
 	)
 	(wire
 		(pts
-			(xy 190.5 134.62) (xy 198.12 134.62)
+			(xy 78.74 73.66) (xy 86.36 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "a498e924-0ad4-5256-8919-25772d695902")
+		(uuid "a4cdf473-dc82-56ca-957a-3ba4382ccdf1")
 	)
 	(wire
 		(pts
-			(xy 116.84 81.28) (xy 124.46 81.28)
+			(xy 120.65 91.44) (xy 120.65 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "abb299f6-33b8-53da-a7d8-8d2c4b591e5e")
+		(uuid "a68f7033-cb46-5dc0-8956-b3e9fe2d74eb")
 	)
 	(wire
 		(pts
-			(xy 101.6 63.5) (xy 101.6 71.12)
+			(xy 119.38 73.66) (xy 132.08 73.66)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ac0a3443-6994-555c-ab58-5096bd8ed63d")
+		(uuid "a80d9d48-4634-5c79-87b1-e3a0df4e393d")
 	)
 	(wire
 		(pts
-			(xy 116.84 83.82) (xy 124.46 83.82)
+			(xy 116.84 99.06) (xy 120.65 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b9b1504f-f2cf-5211-9b5c-8b0a6f6bf3a2")
+		(uuid "a94a0b1d-761e-51db-8cf5-360916510bce")
 	)
 	(wire
 		(pts
-			(xy 55.88 78.74) (xy 83.82 78.74)
+			(xy 116.84 71.12) (xy 119.38 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ba08401d-b946-53d7-8788-fb43a69ed22b")
+		(uuid "ad3ba519-3bcd-5ae6-bda0-92cda6b807fa")
 	)
 	(wire
 		(pts
-			(xy 99.06 106.68) (xy 99.06 109.22)
+			(xy 78.74 78.74) (xy 86.36 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c4c078a3-cb47-5cb4-b8be-35d26e8cce36")
+		(uuid "b1ba4143-bf8b-5596-8134-533ad08b230b")
 	)
 	(wire
 		(pts
-			(xy 116.84 88.9) (xy 124.46 88.9)
+			(xy 38.1 139.7) (xy 45.72 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d129d485-1c1e-5a16-8094-16136c82cc8e")
+		(uuid "c76de45a-1f85-536d-ae49-09a2315cccbd")
 	)
 	(wire
 		(pts
-			(xy 116.84 91.44) (xy 124.46 91.44)
+			(xy 101.6 58.42) (xy 101.6 66.04)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d5f5e271-fee7-5c26-aabd-48f12e2ba133")
+		(uuid "c818b8d4-32fe-5883-b198-950ffa4f29e5")
 	)
 	(wire
 		(pts
-			(xy 104.14 106.68) (xy 104.14 109.22)
+			(xy 119.38 76.2) (xy 132.08 76.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "dd5a6587-b07b-5f9b-b207-2c13fdd58b03")
+		(uuid "cfadc08f-2d39-527a-8d51-8304eaefa616")
 	)
 	(wire
 		(pts
-			(xy 83.82 81.28) (xy 86.36 81.28)
+			(xy 116.84 78.74) (xy 124.46 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f4174eaa-4334-542b-9630-14684a313136")
+		(uuid "dafed87a-0494-5a62-b42a-ce5ce23b2158")
 	)
-	(label "SPI_MOSI"
-		(at 83.82 81.28 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
+	(wire
+		(pts
+			(xy 78.74 83.82) (xy 86.36 83.82)
 		)
-		(uuid "30b84409-39aa-52a2-b8ce-41c4f5536511")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 83.82 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
+		(uuid "df16b63e-3eac-59dc-9ca0-8f8bda65ec3d")
+	)
+	(wire
+		(pts
+			(xy 78.74 81.28) (xy 86.36 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec09b921-cc4d-5823-b488-f1b9958b0d1c")
+	)
+	(wire
+		(pts
+			(xy 120.65 99.06) (xy 120.65 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f59ce327-afa4-5648-91c7-571a66ad11d6")
 	)
 	(label "SPI_SCK"
-		(at 83.82 78.74 180)
+		(at 119.38 71.12 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "3d81a92f-e748-5236-9104-11175f10ead6")
+		(uuid "25dd3fd4-dc43-568c-9508-2ccc5c917f25")
 		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 83.82 78.74 0)
+			(at 119.38 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1232,7 +1211,29 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
+			)
+		)
+	)
+	(label "SPI_MOSI"
+		(at 119.38 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2bc97767-dd63-5b6f-81c0-ed389e05c6be")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 119.38 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
@@ -1244,7 +1245,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "44a69af7-4a6f-56a5-b81e-0e8962b2d311")
+		(uuid "a5373439-ac8d-5498-9075-449631a4a274")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 119.38 76.2 0)
 			(hide yes)
@@ -1258,9 +1259,9 @@
 			)
 		)
 	)
-	(global_label "IO_EXP_INT_N"
+	(global_label "{SPI}"
 		(shape bidirectional)
-		(at 124.46 88.9 0)
+		(at 139.7 60.96 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1268,9 +1269,9 @@
 			)
 			(justify left)
 		)
-		(uuid "21012d01-a5b4-5eb8-88f4-3186cb884953")
+		(uuid "753b23ac-3484-54d7-9b9a-449424b207a7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 88.9 0)
+			(at 139.7 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1281,8 +1282,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 124.46 88.9 0)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 139.7 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1294,211 +1295,18 @@
 			)
 		)
 	)
-	(global_label "IO_ADC_DRDY_N"
-		(shape bidirectional)
-		(at 124.46 91.44 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "2136d595-0f47-5757-bf9c-7a4b1559d296")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "ADS124S08 data ready, active low, read on expander GP5"
-			(at 124.46 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "INA239_ALERT"
-		(shape bidirectional)
-		(at 124.46 93.98 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4fa7ca51-cc9d-5570-abf5-a296f55af3c8")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
-			(at 124.46 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PGN_15V"
-		(shape bidirectional)
-		(at 124.46 81.28 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "71add73c-180f-59b9-a8f6-e5f570287e0b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
-			(at 124.46 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "EXPANDER_CS"
+	(hierarchical_label "AMBIENT_INT"
 		(shape input)
-		(at 71.12 76.2 180)
-		(fields_autoplaced yes)
+		(at 78.74 76.2 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "8f9c4bf8-26c2-5072-ac3b-78a40c7232b4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.12 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
-			(at 71.12 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "AMBIENT_CT"
-		(shape bidirectional)
-		(at 124.46 86.36 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b591438c-0cf6-5d46-8ca7-d2c34c555797")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
-			(at 124.46 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "AMBIENT_INT"
-		(shape bidirectional)
-		(at 124.46 83.82 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "bd592329-895e-54c2-9f48-a543a26161c5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
+		(uuid "0ba46072-fd11-50e6-91b8-2c9619c06d7b")
 		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
-			(at 124.46 83.82 0)
+			(at 78.74 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1506,95 +1314,22 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
 	)
-	(global_label "PGP_15V"
-		(shape bidirectional)
-		(at 124.46 78.74 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "c4c5632c-cde6-50b1-95d5-1f677c4234f9")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
-			(at 124.46 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 142.24 68.58 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f445574e-164d-51cc-81e1-d411efc68b0a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 68.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
-			(at 142.24 68.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 48.26 71.12 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO_EXP_INT_N"
+		(shape input)
+		(at 78.74 81.28 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "f5648b1a-8761-592b-b269-1aa7f2d89660")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 48.26 71.12 0)
+		(uuid "5ce30b65-a283-5085-a803-fd0292108048")
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 78.74 81.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1605,8 +1340,19 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
-			(at 48.26 71.12 0)
+	)
+	(hierarchical_label "AMBIENT_CT"
+		(shape input)
+		(at 78.74 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "86bdb1dd-e2c6-5fe2-aeb2-9f1f71b91014")
+		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
+			(at 78.74 78.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1615,12 +1361,127 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "INA239_ALERT"
+		(shape input)
+		(at 78.74 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "940fb460-fa58-52cb-b3fa-023b19474e6a")
+		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
+			(at 78.74 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PGN_15V"
+		(shape input)
+		(at 78.74 73.66 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9ed63722-b503-58ed-b668-c8186d7f104b")
+		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
+			(at 78.74 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PGP_15V"
+		(shape input)
+		(at 78.74 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b128d23e-1c7d-51bc-b955-e04a37a87c90")
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
+			(at 78.74 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_ADC_DRDY_N"
+		(shape input)
+		(at 78.74 83.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b3b63a06-6d58-52dc-9002-b7f1e83c01c3")
+		(property "Description" "ADS124S08 data ready, active low, read on expander GP5"
+			(at 78.74 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "EXPANDER_CS"
+		(shape input)
+		(at 124.46 78.74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f31da897-ed1e-57e1-a130-b56e88fdcb17")
+		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
+			(at 124.46 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 82.55 88.9 0)
+		(at 120.65 101.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1630,7 +1491,7 @@
 		(dnp no)
 		(uuid "1561a657-8b89-50b6-ace6-db797d55f5b1")
 		(property "Reference" "#PWR259"
-			(at 82.55 88.9 0)
+			(at 120.65 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1641,7 +1502,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 82.55 88.9 0)
+			(at 120.65 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1652,7 +1513,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 82.55 88.9 0)
+			(at 120.65 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1663,7 +1524,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 82.55 88.9 0)
+			(at 120.65 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1674,7 +1535,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 82.55 88.9 0)
+			(at 120.65 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1685,7 +1546,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2993195f-b431-590f-bbd7-b67cfa5f1e4d")
+			(uuid "3f84f9f5-0d59-56d3-bdf6-d0e18d1560b3")
 		)
 		(instances
 			(project "cryocooler"
@@ -1698,7 +1559,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 190.5 134.62 0)
+		(at 38.1 147.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1708,7 +1569,7 @@
 		(dnp no)
 		(uuid "2466b123-ea58-531e-8793-13292d5a54d0")
 		(property "Reference" "#PWR257"
-			(at 190.5 134.62 0)
+			(at 38.1 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1719,7 +1580,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 190.5 134.62 0)
+			(at 38.1 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1730,7 +1591,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 134.62 0)
+			(at 38.1 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1741,7 +1602,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 134.62 0)
+			(at 38.1 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1752,7 +1613,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 190.5 134.62 0)
+			(at 38.1 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1763,7 +1624,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ca90d591-61e7-5788-9a7e-af55a4aaf22a")
+			(uuid "7ef6d602-ee7e-536e-9e05-98d01bccd685")
 		)
 		(instances
 			(project "cryocooler"
@@ -1776,7 +1637,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 198.12 130.81 0)
+		(at 45.72 143.51 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1786,7 +1647,7 @@
 		(dnp no)
 		(uuid "4534cc5a-24cd-5f31-b42e-c8e28060c0c0")
 		(property "Reference" "C35"
-			(at 202.352 129.76 0)
+			(at 49.952 142.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1797,7 +1658,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 202.352 131.86 0)
+			(at 49.952 144.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1808,7 +1669,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 198.12 130.81 0)
+			(at 45.72 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1819,7 +1680,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=CL05B104KB54PNC"
-			(at 198.12 130.81 0)
+			(at 45.72 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1830,7 +1691,7 @@
 			)
 		)
 		(property "Description" "Decoupling capacitor for the GPIO expander U25 (+3V3)"
-			(at 198.12 130.81 0)
+			(at 45.72 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1841,7 +1702,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=CL05B104KB54PNC"
-			(at 198.12 130.81 0)
+			(at 45.72 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1852,10 +1713,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "26794fd9-4d26-544d-b276-f66f540f17e9")
+			(uuid "b0c81b6a-275c-5627-b5fb-6e3187747e01")
 		)
 		(pin "2"
-			(uuid "52440bf1-2baa-5365-8589-8013d09875f6")
+			(uuid "c753be0e-6b13-5e99-9222-d64920112a7d")
 		)
 		(instances
 			(project "cryocooler"
@@ -1878,7 +1739,7 @@
 		(dnp no)
 		(uuid "475ae0f1-4073-56d9-9094-243222b0b744")
 		(property "Reference" "U25"
-			(at 85.09 66.02 0)
+			(at 82 63.5 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1889,7 +1750,7 @@
 			)
 		)
 		(property "Value" "MCP23S08-E/ML"
-			(at 85.09 68.12 0)
+			(at 82 65.6 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1943,62 +1804,62 @@
 				)
 			)
 		)
-		(pin "5"
-			(uuid "32d4ed8b-cb2e-51c2-a234-76efe2386968")
-		)
-		(pin "19"
-			(uuid "c0da3b74-fe85-5965-a609-7c1baa745233")
-		)
-		(pin "20"
-			(uuid "d407c384-39b8-58b3-b4f7-97f9c5e80efd")
-		)
-		(pin "4"
-			(uuid "b25d33f0-15de-51e4-a2cd-b94011d39c57")
-		)
-		(pin "3"
-			(uuid "0146637e-8596-567f-a7d3-6a10350688c5")
-		)
-		(pin "2"
-			(uuid "70b57aca-104c-5fcd-a880-1b8335b9d1f1")
-		)
-		(pin "1"
-			(uuid "ec6acfa3-094c-5e38-ad75-c17c9d87fbd9")
-		)
 		(pin "9"
-			(uuid "663b459f-42ed-5236-8959-4d4abc9dd270")
+			(uuid "86920b8b-774d-5752-b0b5-41d5e67c68a1")
 		)
 		(pin "10"
-			(uuid "a004aed7-e10a-5bbe-baa0-3850b3010954")
+			(uuid "a4a20eb2-81b4-5e25-ac33-f9c41d96817f")
 		)
 		(pin "11"
-			(uuid "99f7cac5-2f31-56cf-af1a-55d3337f18ae")
+			(uuid "6c003179-e90e-5443-8462-55343963fa49")
 		)
 		(pin "12"
-			(uuid "ab9376d9-b9e7-5204-beb8-954a0b16b115")
+			(uuid "c0610ec8-01dd-5fb9-ae31-13911e19e30f")
 		)
 		(pin "13"
-			(uuid "fdb676c8-119c-588c-972f-3bf4dba79f75")
+			(uuid "1ca7ce9b-12c8-5e40-a592-2551f782d4c6")
 		)
 		(pin "14"
-			(uuid "be6b8381-c5b3-535d-96fc-27386c614c7f")
+			(uuid "fc7313f7-031c-565b-8136-31aa0cd53f9b")
 		)
 		(pin "15"
-			(uuid "a2e1f201-a02d-5fcf-a132-80d7d1892e17")
+			(uuid "f79d8333-db02-59ca-bd5f-193014a1e38e")
 		)
 		(pin "16"
-			(uuid "fe719e1b-f018-54ba-b5a7-cdca4e2ec617")
+			(uuid "ffbf0ff6-53a1-55e6-b8d4-1bf264eb7d95")
+		)
+		(pin "19"
+			(uuid "3f488bc8-dbfb-5d2a-9c92-c0cf53b8a7bd")
+		)
+		(pin "20"
+			(uuid "87abd916-394b-531b-8a18-6bbd0c7390a1")
+		)
+		(pin "1"
+			(uuid "88529410-6d25-5833-b831-71fbde7d2eb4")
+		)
+		(pin "5"
+			(uuid "4a829f74-1b7e-51db-840e-663b572aa379")
 		)
 		(pin "7"
-			(uuid "2eaa6a27-c239-5677-9fca-341e2be48bf3")
+			(uuid "5cff544b-fc63-5733-85d8-700649955534")
+		)
+		(pin "4"
+			(uuid "83f8d62e-cc9f-58c5-8049-82ebe4b12b28")
+		)
+		(pin "3"
+			(uuid "9d7bdc09-9d6d-53ed-ba2a-04635e76b685")
+		)
+		(pin "2"
+			(uuid "0681c156-629c-5803-a2c9-3fbd3ba519d6")
 		)
 		(pin "18"
-			(uuid "be4ee405-6343-551b-b418-d30d089492d1")
+			(uuid "96ee81a5-dfa2-5bc9-9f67-01d6b46c6c4d")
 		)
 		(pin "17"
-			(uuid "687c1db5-7ec8-5b99-9c44-679fa3f4ab80")
+			(uuid "3e844e1d-e4be-5010-8c54-c8dffa28dbba")
 		)
 		(pin "21"
-			(uuid "0fd5819b-3c10-5653-9e4b-9531bc204f16")
+			(uuid "7122106c-d182-5d13-98eb-7a172c654c2e")
 		)
 		(instances
 			(project "cryocooler"
@@ -2011,7 +1872,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 190.5 127 0)
+		(at 38.1 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2021,7 +1882,7 @@
 		(dnp no)
 		(uuid "57cb534b-81bb-5287-9833-f931bca70a62")
 		(property "Reference" "#PWR256"
-			(at 190.5 127 0)
+			(at 38.1 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2032,7 +1893,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 190.5 123.444 0)
+			(at 38.1 136.144 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2042,7 +1903,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 127 0)
+			(at 38.1 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2053,7 +1914,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 127 0)
+			(at 38.1 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2064,7 +1925,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 190.5 127 0)
+			(at 38.1 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2075,7 +1936,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "9d07d9db-4149-5cb8-a482-cbe3ebd807eb")
+			(uuid "dac13cbc-d6d9-571f-943b-d09e8e80e031")
 		)
 		(instances
 			(project "cryocooler"
@@ -2088,7 +1949,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 104.14 109.22 0)
+		(at 104.14 114.3 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2098,7 +1959,7 @@
 		(dnp no)
 		(uuid "7931348a-3f2d-5147-b115-3aac16fa2169")
 		(property "Reference" "#PWR255"
-			(at 104.14 109.22 0)
+			(at 104.14 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2109,7 +1970,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 104.14 109.22 0)
+			(at 104.14 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2120,7 +1981,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 104.14 109.22 0)
+			(at 104.14 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2131,7 +1992,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 109.22 0)
+			(at 104.14 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2142,7 +2003,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 104.14 109.22 0)
+			(at 104.14 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2153,7 +2014,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "742168db-aa0d-56f9-aee3-159c2980ac71")
+			(uuid "44903d2b-9543-5840-993c-e1818da600b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -2166,7 +2027,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 101.6 63.5 0)
+		(at 101.6 58.42 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2176,7 +2037,7 @@
 		(dnp no)
 		(uuid "8cab3075-6d25-5c64-b8ea-64638c0fd3cb")
 		(property "Reference" "#PWR253"
-			(at 101.6 63.5 0)
+			(at 101.6 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2187,7 +2048,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 101.6 59.944 0)
+			(at 101.6 54.864 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2197,7 +2058,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 101.6 63.5 0)
+			(at 101.6 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2208,7 +2069,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 101.6 63.5 0)
+			(at 101.6 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2219,7 +2080,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 101.6 63.5 0)
+			(at 101.6 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2230,7 +2091,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b647a59d-0817-599f-8c9e-53982b1c927e")
+			(uuid "f790c80e-8a28-5243-ad38-747a5f940cc2")
 		)
 		(instances
 			(project "cryocooler"
@@ -2243,7 +2104,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 99.06 109.22 0)
+		(at 99.06 114.3 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2253,7 +2114,7 @@
 		(dnp no)
 		(uuid "9ddf999c-56a6-54c7-885e-cb757140a8b9")
 		(property "Reference" "#PWR254"
-			(at 99.06 109.22 0)
+			(at 99.06 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2264,7 +2125,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 99.06 109.22 0)
+			(at 99.06 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2275,7 +2136,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 99.06 109.22 0)
+			(at 99.06 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2286,7 +2147,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 99.06 109.22 0)
+			(at 99.06 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2297,7 +2158,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 99.06 109.22 0)
+			(at 99.06 114.3 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2308,7 +2169,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "dfb2a499-2688-515b-91aa-e4c257f9a514")
+			(uuid "121ab4fe-b0c4-5e1a-a0d4-d50ab944795b")
 		)
 		(instances
 			(project "cryocooler"
@@ -2321,7 +2182,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 45.72 83.82 0)
+		(at 120.65 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2331,7 +2192,7 @@
 		(dnp no)
 		(uuid "c7582c16-73b5-5ae3-92f6-94d1e13406b0")
 		(property "Reference" "#PWR258"
-			(at 45.72 83.82 0)
+			(at 120.65 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2342,17 +2203,18 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 45.72 80.264 0)
+			(at 123.05 90.34 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 45.72 83.82 0)
+			(at 120.65 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2363,7 +2225,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 45.72 83.82 0)
+			(at 120.65 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2374,7 +2236,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 45.72 83.82 0)
+			(at 120.65 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2385,7 +2247,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "345f5ec4-5339-5399-8dbd-e24024baffd8")
+			(uuid "06641c88-c85a-5bfe-a4c4-671c7da737fb")
 		)
 		(instances
 			(project "cryocooler"

@@ -1962,17 +1962,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "SPARE 10k ELEMENT"
-		(exclude_from_sim no)
-		(at 55.88 167.64 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "085a9dc4-3256-5199-9593-65085f4fe58b")
-	)
 	(text "ESD CLAMP (GPIO SIDE)"
 		(exclude_from_sim no)
 		(at 190.5 142.24 0)
@@ -1982,18 +1971,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "33139af4-90f8-5439-ac13-6099f92f3404")
+		(uuid "08907e86-d290-5d67-b09d-517708958700")
 	)
-	(text "Tach: open collector, 2 pulses/rev, counted with PCNT. Alphacool ES: tach -> GPIO18, NTC -> GPIO4."
+	(text "SPARE 10k ELEMENT"
 		(exclude_from_sim no)
-		(at 20 21 0)
+		(at 55.88 167.64 0)
 		(effects
 			(font
-				(size 1.8 1.8)
+				(size 1.5 1.5)
 			)
 			(justify left top)
 		)
-		(uuid "4d1b5028-e6fa-5c4c-840f-645c78fee36d")
+		(uuid "322ae8cd-1b15-56ec-ab71-17a79cab54a7")
 	)
 	(text "Fan and pump: LEDC PWM at 25 kHz through one BSS138DW element each, because the PWM input can sit at 5.25 V (Intel 4-wire spec) and GPIOs are not 5 V tolerant. GPIO high = FET on = 0% drive; firmware inverts the duty."
 		(exclude_from_sim no)
@@ -2004,397 +1993,132 @@
 			)
 			(justify left top)
 		)
-		(uuid "ed75d0d5-9d7c-588d-8108-c81aada429f6")
+		(uuid "64e86406-bc60-5da3-a18f-dbc8129325c9")
 	)
-	(junction
-		(at 43.18 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "033f7783-abbe-51fa-a8d7-f47ed297acb7")
+	(text "FLOW SENSOR"
+		(exclude_from_sim no)
+		(at 25.4 134.62 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "b021faa0-3d60-5655-9613-56cb5508a8f8")
 	)
-	(junction
-		(at 162.56 86.36)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "04f7644b-54b9-5e28-a9b7-93d8a6de6901")
+	(text "Tach: open collector, 2 pulses/rev, counted with PCNT. Alphacool ES: tach -> GPIO18, NTC -> GPIO4."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "bf49fe67-3ac0-5496-801c-bb313c2e21e0")
 	)
-	(junction
-		(at 127 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3d7e4768-c70b-5537-95fc-98b628b167a3")
+	(text "COOLANT NTC"
+		(exclude_from_sim no)
+		(at 25.4 172.72 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "cc03935e-c97c-506d-bfc7-21d3fe19447a")
+	)
+	(text "FAN"
+		(exclude_from_sim no)
+		(at 25.4 58.42 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "ccd3fbf0-f001-5731-96b4-301b5507c314")
+	)
+	(text "PUMP"
+		(exclude_from_sim no)
+		(at 25.4 104.14 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "e2d01214-4cd5-510e-965b-2da8849b0aa2")
 	)
 	(junction
 		(at 116.84 190.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5fdf2826-51cd-5594-8327-88eacf75f614")
+		(uuid "0f44e47d-1f05-51df-a4bc-7dcfd0a069fd")
 	)
 	(junction
-		(at 160.02 83.82)
+		(at 139.7 127)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "7a82b118-42ec-5f8e-82f8-ca52d0a93358")
-	)
-	(junction
-		(at 160.02 116.84)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8697f7d2-ce1a-56a3-afb4-2754c3ed59d3")
-	)
-	(junction
-		(at 127 68.58)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "887d623f-91ac-5c69-a115-8aa955f27692")
-	)
-	(junction
-		(at 43.18 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a0f2dee0-6ac2-571d-9cbc-afb22549c951")
-	)
-	(junction
-		(at 109.22 154.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "acf9a863-2afa-59e4-8ed8-bfc1fec84c64")
+		(uuid "3e1b4e28-2272-514b-83d3-471915596f96")
 	)
 	(junction
 		(at 106.68 190.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f37fda76-99c5-543f-ab1c-dd87a3e78f5b")
+		(uuid "7125e922-e77e-5eed-a14f-95a5a61ad081")
 	)
 	(junction
-		(at 162.56 119.38)
+		(at 43.18 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f9272ce9-d65c-5483-b748-4bf1a4f41fa5")
+		(uuid "7880e2a5-7d2a-5433-8230-5a0f253c134d")
+	)
+	(junction
+		(at 106.68 68.58)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7ecc5f53-f136-5a35-86aa-9bbe0542581d")
+	)
+	(junction
+		(at 134.62 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "824313b3-9c6a-5f3b-ac2b-9fcb7dddafc2")
+	)
+	(junction
+		(at 43.18 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "92deb373-c27e-55f8-9c1e-206f5262bca3")
+	)
+	(junction
+		(at 109.22 154.94)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a85e09bd-6696-5f97-9341-7c49faa8084d")
+	)
+	(junction
+		(at 134.62 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b76bf1c6-93d4-5399-acd9-9fb43f50558d")
+	)
+	(junction
+		(at 139.7 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c0002f92-2824-5824-8509-9079be791bc1")
+	)
+	(junction
+		(at 106.68 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d1aeb76a-0078-5979-ad83-d53336833794")
 	)
 	(no_connect
 		(at 134.62 152.4)
-		(uuid "ad7c72cb-4274-553d-b22a-551abc670e70")
-	)
-	(wire
-		(pts
-			(xy 66.04 68.58) (xy 66.04 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "013db49d-eeb4-582c-8fea-42c2f3b437f7")
-	)
-	(wire
-		(pts
-			(xy 228.6 172.72) (xy 228.6 175.26)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0be3a604-c8b8-52d9-94c2-2ad4e2508f34")
-	)
-	(wire
-		(pts
-			(xy 149.86 92.71) (xy 154.94 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0fb2744a-cd49-59e0-832b-9c7b9d860733")
-	)
-	(wire
-		(pts
-			(xy 154.94 86.36) (xy 162.56 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a6340d6-7196-51f3-8114-ce14261e3694")
-	)
-	(wire
-		(pts
-			(xy 175.26 114.3) (xy 185.42 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "20558bf6-50f7-5e47-bcd9-39d6dd285b9b")
-	)
-	(wire
-		(pts
-			(xy 154.94 86.36) (xy 154.94 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "218268a6-1639-5f04-9996-8efc0ed07432")
-	)
-	(wire
-		(pts
-			(xy 35.56 109.22) (xy 43.18 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "23997125-f7f1-52ef-8e2b-f7ff94f89d32")
-	)
-	(wire
-		(pts
-			(xy 127 154.94) (xy 134.62 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "30001cb8-52de-52d8-8708-6f3ee6203ff1")
-	)
-	(wire
-		(pts
-			(xy 66.04 101.6) (xy 127 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "34601d05-e360-5caf-8883-27b83ae270f6")
-	)
-	(wire
-		(pts
-			(xy 214.63 157.48) (xy 218.44 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3af73f5e-8e6a-5d23-aecc-6bec38e5e1c6")
-	)
-	(wire
-		(pts
-			(xy 96.52 154.94) (xy 109.22 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b8b5184-2bdd-5914-ad91-8826e3e8e329")
-	)
-	(wire
-		(pts
-			(xy 119.38 163.83) (xy 124.46 163.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c981a6f-77df-5342-9cbf-995b8ebf426f")
-	)
-	(wire
-		(pts
-			(xy 55.88 76.2) (xy 58.42 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d9d659c-d96e-5b9a-acf8-c4a269addbc3")
-	)
-	(wire
-		(pts
-			(xy 116.84 190.5) (xy 134.62 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "416dd903-3209-595e-a7ed-a5445bb9e288")
-	)
-	(wire
-		(pts
-			(xy 127 68.58) (xy 175.26 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "44abc231-eb00-57d1-8e90-bcaa16201981")
-	)
-	(wire
-		(pts
-			(xy 214.63 162.56) (xy 218.44 162.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4ec05663-13f2-5738-9e69-f7bc2d01211f")
-	)
-	(wire
-		(pts
-			(xy 154.94 119.38) (xy 162.56 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4f190a76-ae01-5171-b5cf-60a7a5925374")
-	)
-	(wire
-		(pts
-			(xy 214.63 165.1) (xy 218.44 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55690aa4-a844-56b4-bbd2-5d169cde81da")
-	)
-	(wire
-		(pts
-			(xy 66.04 114.3) (xy 66.04 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57067bab-83cc-5863-8281-fbfbcab558c0")
-	)
-	(wire
-		(pts
-			(xy 71.12 172.72) (xy 76.2 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "583986d3-0703-585e-ab74-79c409f8a6dd")
-	)
-	(wire
-		(pts
-			(xy 149.86 125.73) (xy 154.94 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5a209fd2-127b-5dfe-89f2-8ceabed9f738")
-	)
-	(wire
-		(pts
-			(xy 88.9 83.82) (xy 144.78 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d1bfb86-11ae-53b7-a47d-fab84d5b0550")
-	)
-	(wire
-		(pts
-			(xy 214.63 160.02) (xy 218.44 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "69e8d171-e79a-5a27-9a90-44c4bbf54f02")
-	)
-	(wire
-		(pts
-			(xy 182.88 121.92) (xy 185.42 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "788e82cb-a93d-5ad8-b33e-6044e142bd41")
-	)
-	(wire
-		(pts
-			(xy 127 101.6) (xy 175.26 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d6ac970-0e17-5735-bb37-275cd11fe396")
-	)
-	(wire
-		(pts
-			(xy 43.18 76.2) (xy 48.26 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8908e457-3f82-5c19-97f2-7f05258c6427")
-	)
-	(wire
-		(pts
-			(xy 160.02 83.82) (xy 185.42 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8931aa82-5587-5d93-b146-89e724ee7e19")
-	)
-	(wire
-		(pts
-			(xy 71.12 180.34) (xy 76.2 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8bc3420b-58f3-544c-96a9-fc5375e2a062")
-	)
-	(wire
-		(pts
-			(xy 66.04 101.6) (xy 66.04 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9222b475-ed51-5e43-9397-c330642af9e5")
-	)
-	(wire
-		(pts
-			(xy 175.26 81.28) (xy 185.42 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "980088f6-9906-5519-94ab-33cc8bead29a")
-	)
-	(wire
-		(pts
-			(xy 162.56 86.36) (xy 185.42 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9a5315fd-9e55-5043-af7e-8144a517f884")
-	)
-	(wire
-		(pts
-			(xy 106.68 190.5) (xy 116.84 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9b04708c-6d79-52b9-9c21-5f8a5671e655")
+		(uuid "cd86856d-e269-5044-adff-cdc2ab0ce9a8")
 	)
 	(wire
 		(pts
@@ -2404,187 +2128,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9cce25f8-d2ae-503f-95d6-f01d5d3d3d77")
-	)
-	(wire
-		(pts
-			(xy 154.94 119.38) (xy 154.94 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9d552163-9e49-5eb9-820c-5a98de49ea82")
-	)
-	(wire
-		(pts
-			(xy 35.56 76.2) (xy 43.18 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f0ab6c5-6cd2-578b-8ae0-89c5a345c49b")
-	)
-	(wire
-		(pts
-			(xy 175.26 101.6) (xy 175.26 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f902ba5-d29a-5653-9fc8-86d9ea2915b1")
-	)
-	(wire
-		(pts
-			(xy 66.04 68.58) (xy 127 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a9796893-c437-56dd-a9a3-0c891f9b0069")
-	)
-	(wire
-		(pts
-			(xy 160.02 116.84) (xy 185.42 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b0d6b7f1-2b25-5b43-8542-5286cde5540f")
-	)
-	(wire
-		(pts
-			(xy 55.88 109.22) (xy 58.42 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4505d09-22a3-5bd7-99bd-11e619b47008")
-	)
-	(wire
-		(pts
-			(xy 182.88 88.9) (xy 185.42 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf7cd77e-8bc6-5e50-9f97-1de612659a03")
-	)
-	(wire
-		(pts
-			(xy 88.9 116.84) (xy 144.78 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0344e29-9bdc-59e2-8327-c99b103bcb62")
-	)
-	(wire
-		(pts
-			(xy 175.26 68.58) (xy 175.26 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c62ee351-5bad-5400-900f-3046c5785a53")
-	)
-	(wire
-		(pts
-			(xy 43.18 109.22) (xy 48.26 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c71ccf58-adb1-5a07-a78a-73a77543fc72")
-	)
-	(wire
-		(pts
-			(xy 132.08 193.04) (xy 134.62 193.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d1430b1c-6495-5adf-be1d-d1cb99b01208")
-	)
-	(wire
-		(pts
-			(xy 66.04 81.28) (xy 66.04 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d4443394-d20f-517c-b06b-637048f8c336")
-	)
-	(wire
-		(pts
-			(xy 162.56 119.38) (xy 185.42 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d7aa0fe5-3dac-51a7-9306-0dad5c064055")
-	)
-	(wire
-		(pts
-			(xy 124.46 157.48) (xy 124.46 163.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d97bb5c5-7d9f-596b-8034-ba9a0c91fb36")
-	)
-	(wire
-		(pts
-			(xy 152.4 83.82) (xy 160.02 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da664f2e-c7a4-5697-b4e1-911e088a3e45")
-	)
-	(wire
-		(pts
-			(xy 152.4 116.84) (xy 160.02 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "de24be52-543b-59ce-8ec9-a0b4e3b8e1dc")
-	)
-	(wire
-		(pts
-			(xy 109.22 154.94) (xy 119.38 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e0b05f82-795f-5616-9122-7b478b937535")
-	)
-	(wire
-		(pts
-			(xy 124.46 157.48) (xy 134.62 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e37a67c8-23ce-514b-9961-e2f9bbe1b082")
+		(uuid "00f049e9-e5d6-5211-8dfc-fdd7da1f0f26")
 	)
 	(wire
 		(pts
@@ -2594,7 +2138,437 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e5f77351-9929-5084-9d1f-45bdb9409baa")
+		(uuid "1047872c-bba8-5de8-a64e-92227e0826da")
+	)
+	(wire
+		(pts
+			(xy 129.54 157.48) (xy 129.54 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1052cca6-f019-5ee8-ad4d-9613735f497c")
+	)
+	(wire
+		(pts
+			(xy 139.7 86.36) (xy 147.32 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19ff6e1d-28d5-504e-bac6-b89ab35e3c41")
+	)
+	(wire
+		(pts
+			(xy 119.38 163.83) (xy 129.54 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1eee8926-0517-581b-a0c1-96eb6943adf9")
+	)
+	(wire
+		(pts
+			(xy 66.04 121.92) (xy 66.04 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "23a85411-399b-5af1-b1f0-b24acc08fe24")
+	)
+	(wire
+		(pts
+			(xy 214.63 162.56) (xy 218.44 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "23d6722e-c6f2-5832-9901-3fd50fe80e11")
+	)
+	(wire
+		(pts
+			(xy 66.04 109.22) (xy 66.04 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "243639fd-5d99-5f8d-89e9-414dfd951fd8")
+	)
+	(wire
+		(pts
+			(xy 142.24 68.58) (xy 142.24 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "247149b8-905a-562f-9375-07cdc688b2f5")
+	)
+	(wire
+		(pts
+			(xy 142.24 121.92) (xy 147.32 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2cf91c03-3bfb-5ca9-a26b-0261d235ee81")
+	)
+	(wire
+		(pts
+			(xy 142.24 81.28) (xy 147.32 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36dee9e9-8425-5039-8d72-5ae80bd23821")
+	)
+	(wire
+		(pts
+			(xy 96.52 154.94) (xy 109.22 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39cc81c1-6f74-5bd4-b06d-820eb7a6a9f3")
+	)
+	(wire
+		(pts
+			(xy 134.62 127) (xy 139.7 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e82792c-1cd8-5238-8545-5a78ee829e0f")
+	)
+	(wire
+		(pts
+			(xy 116.84 190.5) (xy 134.62 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53f16b98-e160-5c2b-8437-bfb2ad75e5fd")
+	)
+	(wire
+		(pts
+			(xy 88.9 83.82) (xy 120.65 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ac95966-aada-56e2-b1b1-d850176bcf13")
+	)
+	(wire
+		(pts
+			(xy 55.88 76.2) (xy 58.42 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c56e1c4-c3b3-56ba-9679-e87cf08da071")
+	)
+	(wire
+		(pts
+			(xy 106.68 109.22) (xy 142.24 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5d6ba163-887d-5f49-9141-026cf80bf4a1")
+	)
+	(wire
+		(pts
+			(xy 106.68 190.5) (xy 116.84 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e59698d-ea58-511c-a9ea-365361e7db20")
+	)
+	(wire
+		(pts
+			(xy 88.9 124.46) (xy 120.65 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6207ec27-3903-58a7-9ae7-c6d943cebe34")
+	)
+	(wire
+		(pts
+			(xy 214.63 160.02) (xy 218.44 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63187038-44ac-5f4b-a4c7-e3bb5ed2e4a2")
+	)
+	(wire
+		(pts
+			(xy 214.63 157.48) (xy 218.44 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64f6dee4-fc2f-5754-bc0e-4e2a15d469c9")
+	)
+	(wire
+		(pts
+			(xy 66.04 68.58) (xy 66.04 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6973a103-ba1b-5000-834e-62a0806b4ea0")
+	)
+	(wire
+		(pts
+			(xy 66.04 109.22) (xy 106.68 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6e86bcad-a71c-590b-92e8-e45775705d2e")
+	)
+	(wire
+		(pts
+			(xy 134.62 127) (xy 134.62 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "750d1b4e-acfc-595a-821e-a0908c6dfaea")
+	)
+	(wire
+		(pts
+			(xy 109.22 154.94) (xy 119.38 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "750fde79-aa60-59f4-85d6-8d8b8bf133be")
+	)
+	(wire
+		(pts
+			(xy 134.62 124.46) (xy 147.32 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a165273-4e3b-5e2a-9216-55a9ea6d7308")
+	)
+	(wire
+		(pts
+			(xy 129.54 92.71) (xy 134.62 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c5f9d7a-dfa0-54bb-8cb1-40de81d084bb")
+	)
+	(wire
+		(pts
+			(xy 35.56 116.84) (xy 43.18 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c957e33-c8ef-52f7-ad0a-a700cd73c5f8")
+	)
+	(wire
+		(pts
+			(xy 214.63 165.1) (xy 218.44 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "809a5fb3-aa30-5f01-83df-9e788acc1eb7")
+	)
+	(wire
+		(pts
+			(xy 127 154.94) (xy 134.62 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81fad32e-6e8a-55cd-a452-c231cf30059e")
+	)
+	(wire
+		(pts
+			(xy 142.24 109.22) (xy 142.24 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "87e3dbfc-926d-584b-9ed7-4b3e640b6d95")
+	)
+	(wire
+		(pts
+			(xy 128.27 83.82) (xy 134.62 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "960c5481-fffa-538e-8ef2-f641e7d36df7")
+	)
+	(wire
+		(pts
+			(xy 144.78 129.54) (xy 147.32 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b386f4f-f94f-57f1-a38c-b8ee89a4be03")
+	)
+	(wire
+		(pts
+			(xy 43.18 76.2) (xy 48.26 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b5af527-dc34-5359-a56c-975e5f36da82")
+	)
+	(wire
+		(pts
+			(xy 106.68 68.58) (xy 142.24 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a41cab1d-a773-54a0-9c37-9364ad45cb55")
+	)
+	(wire
+		(pts
+			(xy 35.56 76.2) (xy 43.18 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a49b51a9-2322-5ab7-9eb5-27b8263ee4b4")
+	)
+	(wire
+		(pts
+			(xy 129.54 157.48) (xy 134.62 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a6162bc0-33cf-59c4-9d60-fb967649064c")
+	)
+	(wire
+		(pts
+			(xy 134.62 86.36) (xy 134.62 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a83d528c-c0b5-5c3f-8412-118cebf9d72f")
+	)
+	(wire
+		(pts
+			(xy 71.12 172.72) (xy 76.2 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0ffbaa2-8fa5-5546-b949-7c24f738262b")
+	)
+	(wire
+		(pts
+			(xy 66.04 81.28) (xy 66.04 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b26f9678-85ab-51b5-bdbd-c4c4b2432180")
+	)
+	(wire
+		(pts
+			(xy 134.62 83.82) (xy 147.32 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b314ffeb-5595-5d43-91da-6434bdb95fbb")
+	)
+	(wire
+		(pts
+			(xy 228.6 172.72) (xy 228.6 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bc75f7e6-def6-562a-890b-a9f324a71687")
+	)
+	(wire
+		(pts
+			(xy 144.78 88.9) (xy 147.32 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c721ff96-8e4b-5f58-9800-76be87830a26")
+	)
+	(wire
+		(pts
+			(xy 134.62 86.36) (xy 139.7 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d7ec7201-c99e-517e-932c-bd1233c8e8b0")
+	)
+	(wire
+		(pts
+			(xy 43.18 116.84) (xy 48.26 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "db2f0eab-32ef-56b5-9629-ba3851466c13")
 	)
 	(wire
 		(pts
@@ -2604,211 +2578,87 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "eef8d2c3-e599-5fd0-8f4c-03711c942ae8")
+		(uuid "e03f4ab7-c51d-5fcf-b3d3-76bb74b367a9")
 	)
-	(global_label "NTC_ADC"
-		(shape output)
-		(at 214.63 165.1 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
+	(wire
+		(pts
+			(xy 55.88 116.84) (xy 58.42 116.84)
 		)
-		(uuid "0cf760c1-870d-5a29-bdbe-13cec4b161e7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 214.63 165.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
-			(at 214.63 165.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "e1fe8de5-67e2-5c47-96b0-417baf1955b8")
 	)
-	(global_label "NTC_ADC"
-		(shape output)
-		(at 96.52 190.5 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
+	(wire
+		(pts
+			(xy 66.04 68.58) (xy 106.68 68.58)
 		)
-		(uuid "528d4e1b-1f38-56b8-8183-472674469445")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
-			(at 96.52 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "eeb0a506-11cd-592d-8d96-1b5fd2b1a4ff")
 	)
-	(global_label "PUMP_TACH"
-		(shape output)
-		(at 214.63 160.02 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
+	(wire
+		(pts
+			(xy 129.54 133.35) (xy 134.62 133.35)
 		)
-		(uuid "731c5b88-8ad3-58f8-bba8-929c6092c38f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 214.63 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
-			(at 214.63 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "f06a0c01-734f-5af9-b952-b15cc96d52ce")
 	)
-	(global_label "PUMP_TACH"
-		(shape output)
-		(at 88.9 116.84 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
+	(wire
+		(pts
+			(xy 139.7 127) (xy 147.32 127)
 		)
-		(uuid "7926e8b1-eeab-58fb-94bc-de99b6a81f8e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 88.9 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
-			(at 88.9 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "f701f5cc-25d3-52ec-9f7b-40e665655d89")
 	)
-	(global_label "PUMP_PWM"
-		(shape input)
-		(at 35.56 109.22 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
+	(wire
+		(pts
+			(xy 71.12 180.34) (xy 76.2 180.34)
 		)
-		(uuid "79883804-5df7-542b-ac27-3cac2d9ca33a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 35.56 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Description" "GPIO14: pump PWM to the open-drain driver (high = 0 % drive)"
-			(at 35.56 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "f8f82917-70c3-5ac7-8067-49a775176e1a")
 	)
-	(global_label "FLOW_TACH"
-		(shape output)
+	(wire
+		(pts
+			(xy 128.27 124.46) (xy 134.62 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f9ba1b06-8678-5ecd-97a5-ed9bdbfc915d")
+	)
+	(wire
+		(pts
+			(xy 132.08 193.04) (xy 134.62 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd835d0b-b38a-5f12-9e0d-56bc4288271c")
+	)
+	(label "FLOW_TACH"
 		(at 214.63 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify right bottom)
 		)
-		(uuid "9e885a1c-9bad-50ea-94ae-c4a542801fa0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 214.63 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "1517f184-9152-5de4-80a3-647f2d5ff308")
 		(property "Description" "Coolant flow sensor pulses to GPIO18"
 			(at 214.63 162.56 0)
 			(hide yes)
@@ -2822,19 +2672,17 @@
 			)
 		)
 	)
-	(global_label "FAN_PWM"
-		(shape input)
-		(at 35.56 76.2 180)
-		(fields_autoplaced yes)
+	(label "PUMP_TACH"
+		(at 214.63 160.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify right bottom)
 		)
-		(uuid "9ea7230e-d962-5a02-ae81-74e3eb68772a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 35.56 76.2 0)
+		(uuid "22fad059-73cf-5e63-8a61-5de9846b0fe2")
+		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
+			(at 214.63 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2845,6 +2693,107 @@
 				(justify right)
 			)
 		)
+	)
+	(label "FAN_TACH"
+		(at 214.63 157.48 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "85cc7b39-e1f1-50b7-b15e-cb5688bea878")
+		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
+			(at 214.63 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "NTC_ADC"
+		(at 214.63 165.1 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b9cd2182-fd60-59eb-b68b-bd7d26bbc0e0")
+		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
+			(at 214.63 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PUMP_PWM"
+		(shape input)
+		(at 35.56 116.84 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0387d0d7-c022-5913-8db5-f469e00bede1")
+		(property "Description" "GPIO14: pump PWM to the open-drain driver (high = 0 % drive)"
+			(at 35.56 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "NTC_ADC"
+		(shape output)
+		(at 96.52 190.5 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "038b2eff-e932-58d8-a2c9-2765b43e6da9")
+		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
+			(at 96.52 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "FAN_PWM"
+		(shape input)
+		(at 35.56 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "04ea2992-007a-5511-bed0-ad706cc3c807")
 		(property "Description" "GPIO9: fan PWM to the open-drain driver (high = 0 % drive)"
 			(at 35.56 76.2 0)
 			(hide yes)
@@ -2858,101 +2807,16 @@
 			)
 		)
 	)
-	(global_label "FAN_TACH"
-		(shape output)
-		(at 214.63 157.48 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "cc4bf27c-edcf-5a6b-a36d-547cd77d3ff0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 214.63 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
-			(at 214.63 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "FAN_TACH"
-		(shape output)
-		(at 88.9 83.82 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d8f63152-286a-5cc0-837e-b25919771d44")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 88.9 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
-			(at 88.9 83.82 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "FLOW_TACH"
+	(hierarchical_label "FLOW_TACH"
 		(shape output)
 		(at 96.52 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "e6f33b1e-08c9-5d63-903d-a63e18f14c60")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
+		(uuid "8f6b66df-c5ba-58c7-991d-6fc3b73d7a44")
 		(property "Description" "Coolant flow sensor pulses to GPIO18"
 			(at 96.52 154.94 0)
 			(hide yes)
@@ -2966,9 +2830,55 @@
 			)
 		)
 	)
+	(hierarchical_label "FAN_TACH"
+		(shape output)
+		(at 88.9 83.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d9de9040-cd4b-5038-a0ea-6405119a7bee")
+		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
+			(at 88.9 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PUMP_TACH"
+		(shape output)
+		(at 88.9 124.46 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f6844243-5bdb-567a-89bb-8e087d5cccf2")
+		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
+			(at 88.9 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 148.59 116.84 90)
+		(at 124.46 124.46 90)
 		(unit 4)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2978,7 +2888,7 @@
 		(dnp no)
 		(uuid "066e824b-8529-5efa-8e23-9decc1677106")
 		(property "Reference" "RN1"
-			(at 148.59 110.724 270)
+			(at 124.46 118.344 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2988,7 +2898,7 @@
 			)
 		)
 		(property "Value" "4.7k"
-			(at 148.59 112.824 270)
+			(at 124.46 120.444 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2998,7 +2908,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 148.59 116.84 0)
+			(at 124.46 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3009,7 +2919,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 148.59 116.84 0)
+			(at 124.46 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3020,7 +2930,7 @@
 			)
 		)
 		(property "Description" "Fan and pump tach lines: a pull-up to +3V3_COOL and a series resistor to the GPIO for each (4.7 k)"
-			(at 148.59 116.84 0)
+			(at 124.46 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3031,7 +2941,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 148.59 116.84 0)
+			(at 124.46 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3042,28 +2952,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "4892cfec-2eed-57c6-9547-04748e357b7a")
+			(uuid "bb65fa0f-9250-5e2f-8c1b-2dd8c78ba567")
 		)
 		(pin "8"
-			(uuid "aa5791c0-9a6a-5876-ad19-7856d58c13ef")
+			(uuid "9c5c3790-df05-54e1-8baa-3cfab3eba3b7")
 		)
 		(pin "2"
-			(uuid "0d1065cc-47af-5107-8cd5-eaebf29913bf")
+			(uuid "239d43ef-05fa-5932-a792-7a733938f6d2")
 		)
 		(pin "7"
-			(uuid "846301ed-778d-53dc-b7dd-6f4d691a64f3")
+			(uuid "c5aa65f6-28b2-57fa-a142-546bd826a3f2")
 		)
 		(pin "3"
-			(uuid "fb435119-43c9-5bcc-85ca-cb67f59093db")
+			(uuid "2a9c8223-f05f-5bce-9661-7520e4e759df")
 		)
 		(pin "6"
-			(uuid "b33b29f4-a623-55ff-834b-ad27f7ffa676")
+			(uuid "4a0f5d43-cf14-5e24-baca-1b99a026c7fe")
 		)
 		(pin "4"
-			(uuid "5b91d350-c30a-5fc7-ae8b-7395feff93b8")
+			(uuid "b72e6611-e3bf-5fd0-a0a7-0c6ae9320f51")
 		)
 		(pin "5"
-			(uuid "4c22fefe-2e9f-5d34-9f90-43ceb528cb10")
+			(uuid "c91610f9-4026-5809-841d-6628bf65d956")
 		)
 		(instances
 			(project "cryocooler"
@@ -3140,7 +3050,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "189dfefc-0832-5587-8778-b43403915c8c")
+			(uuid "14044760-0f12-5426-983b-b6caddfc6055")
 		)
 		(instances
 			(project "cryocooler"
@@ -3153,7 +3063,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 43.18 105.41 0)
+		(at 43.18 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3163,7 +3073,7 @@
 		(dnp no)
 		(uuid "09d97ee2-940a-5239-bd52-7de2b5bdca18")
 		(property "Reference" "R16"
-			(at 46.396 98.01 0)
+			(at 36.08 111.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3174,7 +3084,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 46.396 100.11 0)
+			(at 36.08 114.08 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3185,7 +3095,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 43.18 105.41 0)
+			(at 43.18 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3196,7 +3106,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 43.18 105.41 0)
+			(at 43.18 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3207,7 +3117,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistor for PUMP_PWM: holds the pump driver on (0 % drive) at reset"
-			(at 43.18 105.41 0)
+			(at 43.18 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3218,7 +3128,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 43.18 105.41 0)
+			(at 43.18 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3229,10 +3139,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "182b4ebc-f583-5e99-b94b-e8cf68eb2367")
+			(uuid "9349d443-8bf6-5a80-99e3-4c0ae39fb92d")
 		)
 		(pin "2"
-			(uuid "1ea9c1cc-5236-5480-98b2-2f7ce460a895")
+			(uuid "51c1ab7e-cbd7-535f-8327-ceda029a3bd3")
 		)
 		(instances
 			(project "cryocooler"
@@ -3245,7 +3155,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 149.86 92.71 0)
+		(at 129.54 92.71 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3255,7 +3165,7 @@
 		(dnp no)
 		(uuid "0e20c134-04df-5be6-aa03-34ca54f4e7ce")
 		(property "Reference" "#PWR067"
-			(at 149.86 92.71 0)
+			(at 129.54 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3266,7 +3176,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 149.86 89.154 0)
+			(at 129.54 89.154 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3276,7 +3186,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 92.71 0)
+			(at 129.54 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3287,7 +3197,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 92.71 0)
+			(at 129.54 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3298,7 +3208,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 149.86 92.71 0)
+			(at 129.54 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3309,7 +3219,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "8187e9e3-a0fd-5a3a-83df-c1de978b2f47")
+			(uuid "f6f75b51-c895-5ddd-9058-1a245b08d7a3")
 		)
 		(instances
 			(project "cryocooler"
@@ -3322,7 +3232,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 182.88 121.92 0)
+		(at 144.78 129.54 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3332,7 +3242,7 @@
 		(dnp no)
 		(uuid "0f79c7ab-10af-56d9-8c34-b5a92b153de7")
 		(property "Reference" "#PWR076"
-			(at 182.88 121.92 0)
+			(at 144.78 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3343,7 +3253,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 182.88 121.92 0)
+			(at 144.78 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3354,7 +3264,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 182.88 121.92 0)
+			(at 144.78 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3365,7 +3275,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 182.88 121.92 0)
+			(at 144.78 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3376,7 +3286,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 182.88 121.92 0)
+			(at 144.78 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3387,7 +3297,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "a43d3209-a8d8-5f5e-b843-2ce4ce089bbc")
+			(uuid "c95c0125-fd04-5770-8d6e-34cf14a126b5")
 		)
 		(instances
 			(project "cryocooler"
@@ -3476,19 +3386,19 @@
 			)
 		)
 		(pin "1"
-			(uuid "dce7046f-90da-5f5e-9e63-606a35c6bb02")
+			(uuid "771f79d5-b732-554a-8869-b86b8c313487")
 		)
 		(pin "3"
-			(uuid "03ce52fa-020e-50bd-811e-22e17f4e496a")
+			(uuid "303f369d-7530-58d1-9002-1fbd6a6124ad")
 		)
 		(pin "4"
-			(uuid "715a0a8d-b96d-5dc8-83ab-879cd2c3ee60")
+			(uuid "0717277a-aef2-53e2-bd59-554b24541bf3")
 		)
 		(pin "5"
-			(uuid "64da8c83-3475-5e22-8ad5-0d4c933d0035")
+			(uuid "4461ceef-4c89-5834-b31e-da46127f2ab5")
 		)
 		(pin "2"
-			(uuid "345a69ff-b0f0-5197-ac65-b5a125d2244f")
+			(uuid "6606dc0a-3a9e-524c-b643-1030590283a7")
 		)
 		(instances
 			(project "cryocooler"
@@ -3566,7 +3476,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "cc147c29-d49b-57c7-b7de-25fec9a48499")
+			(uuid "ea33998e-d328-57b9-84dc-5b73b700f14a")
 		)
 		(instances
 			(project "cryocooler"
@@ -3579,7 +3489,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 162.56 123.19 0)
+		(at 139.7 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3589,7 +3499,7 @@
 		(dnp no)
 		(uuid "1e629f92-136b-51bc-ae49-e800a9bf615e")
 		(property "Reference" "C77"
-			(at 166.792 122.14 0)
+			(at 143.932 133.57 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3600,7 +3510,7 @@
 			)
 		)
 		(property "Value" "22uF/25V"
-			(at 166.792 124.24 0)
+			(at 143.932 135.67 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3611,7 +3521,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 162.56 123.19 0)
+			(at 139.7 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3622,7 +3532,7 @@
 			)
 		)
 		(property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf"
-			(at 162.56 123.19 0)
+			(at 139.7 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3633,7 +3543,7 @@
 			)
 		)
 		(property "Description" "Bulk capacitor on +12V at the fan and pump headers"
-			(at 162.56 123.19 0)
+			(at 139.7 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3644,7 +3554,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=C1210C226K3PACTU"
-			(at 162.56 123.19 0)
+			(at 139.7 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3655,10 +3565,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "27f0ab59-2b86-5342-a3c3-e8761dde95a8")
+			(uuid "f704f26f-d820-5789-a0b1-d637f1d7078c")
 		)
 		(pin "2"
-			(uuid "bbd9e61e-38d3-5a04-ad28-d3b739317f9d")
+			(uuid "610b5f22-2379-5736-8d62-b589eca5f5ad")
 		)
 		(instances
 			(project "cryocooler"
@@ -3671,7 +3581,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 160.02 109.22 0)
+		(at 134.62 116.84 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3681,7 +3591,7 @@
 		(dnp no)
 		(uuid "305eaa69-2854-5dff-b15c-18f0deb9638f")
 		(property "Reference" "#PWR073"
-			(at 160.02 109.22 0)
+			(at 134.62 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3692,7 +3602,7 @@
 			)
 		)
 		(property "Value" "+3V3_COOL"
-			(at 160.02 105.664 0)
+			(at 134.62 113.284 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3702,7 +3612,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 160.02 109.22 0)
+			(at 134.62 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3713,7 +3623,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 160.02 109.22 0)
+			(at 134.62 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3724,7 +3634,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 160.02 109.22 0)
+			(at 134.62 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3735,7 +3645,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2255ec6d-e9d4-5342-9e70-1026631bd4ac")
+			(uuid "9eb58cd6-ba13-5bb9-8865-08b58277cd18")
 		)
 		(instances
 			(project "cryocooler"
@@ -3748,7 +3658,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 162.56 127 0)
+		(at 139.7 134.62 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3758,7 +3668,7 @@
 		(dnp no)
 		(uuid "3a7e8ad0-2e34-52dd-b8a5-8f5893c69b08")
 		(property "Reference" "#PWR075"
-			(at 162.56 127 0)
+			(at 139.7 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3769,7 +3679,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 162.56 127 0)
+			(at 139.7 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3780,7 +3690,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 162.56 127 0)
+			(at 139.7 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3791,7 +3701,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 162.56 127 0)
+			(at 139.7 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3802,7 +3712,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 162.56 127 0)
+			(at 139.7 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3813,7 +3723,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "78df3fd5-6f14-5cab-ae82-d2e8c9734047")
+			(uuid "74581f98-0f2c-584e-8a0d-f3c96d712fa1")
 		)
 		(instances
 			(project "cryocooler"
@@ -3826,7 +3736,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 190.5 119.38 0)
+		(at 152.4 127 0)
 		(mirror x)
 		(unit 1)
 		(body_style 1)
@@ -3837,7 +3747,7 @@
 		(dnp no)
 		(uuid "42074ae8-d850-5c4d-82dc-90c0e72ef900")
 		(property "Reference" "J4"
-			(at 185.42 107.93 0)
+			(at 147.32 115.55 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3848,7 +3758,7 @@
 			)
 		)
 		(property "Value" "PUMP (4-pin PWM)"
-			(at 185.42 110.03 0)
+			(at 147.32 117.65 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3859,7 +3769,7 @@
 			)
 		)
 		(property "Footprint" "cryocooler:XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal"
-			(at 190.5 119.38 0)
+			(at 152.4 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3870,7 +3780,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.lcsc.com/datasheet/C908468.pdf"
-			(at 190.5 119.38 0)
+			(at 152.4 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3881,7 +3791,7 @@
 			)
 		)
 		(property "Description" "Coolant pump header (4-pin PWM): GND, +12 V, tach, PWM"
-			(at 190.5 119.38 0)
+			(at 152.4 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3892,7 +3802,7 @@
 			)
 		)
 		(property "Product" "https://www.lcsc.com/product-detail/C908468.html"
-			(at 190.5 119.38 0)
+			(at 152.4 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3903,16 +3813,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "b250f0bd-97ad-52cc-a4e6-d630af2af283")
+			(uuid "2334e3ac-ac73-5b96-a09b-7512c7f46de0")
 		)
 		(pin "2"
-			(uuid "aca14608-3260-5add-aeab-a99ad7d60ee7")
+			(uuid "9d44f49e-103b-5e13-9114-d34d918cb624")
 		)
 		(pin "3"
-			(uuid "775ce487-8516-55d4-ae6a-a3e83bdd33f3")
+			(uuid "6dfc741b-44d4-5af0-a7dc-27d5a59e832a")
 		)
 		(pin "4"
-			(uuid "3b191385-f413-5b13-8d5b-e0b2fe88de77")
+			(uuid "36ee2ac6-cc30-5593-8c18-849eedec54d6")
 		)
 		(instances
 			(project "cryocooler"
@@ -3925,7 +3835,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 127 60.96 0)
+		(at 106.68 60.96 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3935,7 +3845,7 @@
 		(dnp no)
 		(uuid "4d245280-d669-57d0-b6c4-2781d77ed432")
 		(property "Reference" "#PWR065"
-			(at 127 60.96 0)
+			(at 106.68 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3946,7 +3856,7 @@
 			)
 		)
 		(property "Value" "+3V3_COOL"
-			(at 127 57.404 0)
+			(at 106.68 57.404 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3956,7 +3866,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 127 60.96 0)
+			(at 106.68 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3967,7 +3877,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 127 60.96 0)
+			(at 106.68 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3978,7 +3888,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 127 60.96 0)
+			(at 106.68 60.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3989,7 +3899,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c40be41f-f135-595f-a44f-c206c30568e6")
+			(uuid "650b7f09-5a56-5005-9bb6-6bf5827263b5")
 		)
 		(instances
 			(project "cryocooler"
@@ -4002,7 +3912,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_FET:Q_Dual_NMOS_S1G1D2S2G2D1")
-		(at 63.5 109.22 0)
+		(at 63.5 116.84 0)
 		(unit 2)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4012,7 +3922,7 @@
 		(dnp no)
 		(uuid "50b2f711-6aa8-50c0-adcc-1806be81ac01")
 		(property "Reference" "Q61"
-			(at 70.145 108.17 0)
+			(at 70.145 115.79 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4023,7 +3933,7 @@
 			)
 		)
 		(property "Value" "BSS138DW"
-			(at 70.145 110.27 0)
+			(at 70.145 117.89 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4034,7 +3944,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-363_SC-70-6"
-			(at 63.5 109.22 0)
+			(at 63.5 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4045,7 +3955,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds30203.pdf"
-			(at 63.5 109.22 0)
+			(at 63.5 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4056,7 +3966,7 @@
 			)
 		)
 		(property "Description" "Dual N-FET: open-drain PWM drivers for the fan and the pump"
-			(at 63.5 109.22 0)
+			(at 63.5 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4067,7 +3977,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=BSS138DW-7-F"
-			(at 63.5 109.22 0)
+			(at 63.5 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4078,22 +3988,22 @@
 			)
 		)
 		(pin "1"
-			(uuid "1ece5b69-5090-57a4-9d0f-0eaab5382a75")
+			(uuid "e05e02fc-9c12-52c5-9a53-a961d58b18eb")
 		)
 		(pin "2"
-			(uuid "04a264b9-f0e8-58ac-b418-8af0491a9182")
+			(uuid "54fc0a5d-19ea-586c-b939-0e5e99b26724")
 		)
 		(pin "6"
-			(uuid "ab1c7e66-fdcd-541d-9ff3-84bf175aa7b6")
+			(uuid "6cbad403-6774-58cc-9aae-1612b213e47b")
 		)
 		(pin "3"
-			(uuid "931eb359-53a1-572a-803a-711fa230af1d")
+			(uuid "7f957985-0ec1-514b-bd70-6908f2f7d881")
 		)
 		(pin "4"
-			(uuid "9fbe113c-6d68-5d45-85a5-cac7ece6c4c7")
+			(uuid "f6fafbda-f6b2-5c67-aa8b-4e47525fc7ba")
 		)
 		(pin "5"
-			(uuid "d2afcf14-42b8-51ac-86a7-486ea3900411")
+			(uuid "e38af37c-70c6-56d9-8073-f35376b49f14")
 		)
 		(instances
 			(project "cryocooler"
@@ -4106,7 +4016,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 162.56 90.17 0)
+		(at 139.7 90.17 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4116,7 +4026,7 @@
 		(dnp no)
 		(uuid "5182d4c0-925b-5d53-be1d-566799bbe3ed")
 		(property "Reference" "C76"
-			(at 166.792 89.12 0)
+			(at 143.932 92.93 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4127,7 +4037,7 @@
 			)
 		)
 		(property "Value" "22uF/25V"
-			(at 166.792 91.22 0)
+			(at 143.932 95.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4138,7 +4048,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 162.56 90.17 0)
+			(at 139.7 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4149,7 +4059,7 @@
 			)
 		)
 		(property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf"
-			(at 162.56 90.17 0)
+			(at 139.7 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4160,7 +4070,7 @@
 			)
 		)
 		(property "Description" "Bulk capacitor on +12V at the fan and pump headers"
-			(at 162.56 90.17 0)
+			(at 139.7 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4171,7 +4081,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=C1210C226K3PACTU"
-			(at 162.56 90.17 0)
+			(at 139.7 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4182,10 +4092,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "30abbe6f-18a7-5a1b-96c5-4a9039909e26")
+			(uuid "5ef7ae27-eaf6-58f9-81a5-7bf874acd639")
 		)
 		(pin "2"
-			(uuid "6d57ad55-2c1a-5972-b7e8-70ba5afe6da9")
+			(uuid "b1cc69fd-9212-57c5-b18e-6f976b1b7a3b")
 		)
 		(instances
 			(project "cryocooler"
@@ -4263,7 +4173,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1be4d20b-b37c-53d7-b192-8947a1364adf")
+			(uuid "feca1c60-3a9c-5c10-9775-6a1e07e035b0")
 		)
 		(instances
 			(project "cryocooler"
@@ -4350,10 +4260,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c610b8cf-aaa5-5b75-8608-00b8366ba2b0")
+			(uuid "841968a3-0494-51ef-8584-decf2a18e10c")
 		)
 		(pin "2"
-			(uuid "d73b55ed-92d5-5fa9-9cde-6c47e018e5ed")
+			(uuid "30fc7a89-b5ca-50b4-93a4-d7eb74ff3eec")
 		)
 		(instances
 			(project "cryocooler"
@@ -4440,10 +4350,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "56a69774-a5ed-503f-b0b7-8dd41e827e9d")
+			(uuid "9cf304f1-a135-5a22-9950-a71bc9aede8a")
 		)
 		(pin "2"
-			(uuid "4b094dfd-d63d-5553-a874-3f053ea42c21")
+			(uuid "25ae237b-e438-5c08-9eac-6a696c6dd7ae")
 		)
 		(instances
 			(project "cryocooler"
@@ -4456,7 +4366,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 127 64.77 0)
+		(at 106.68 64.77 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4466,7 +4376,7 @@
 		(dnp no)
 		(uuid "663505e1-54de-5538-80d9-37c9e222737e")
 		(property "Reference" "RN2"
-			(at 130.216 63.72 0)
+			(at 109.896 63.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4477,7 +4387,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 130.216 65.82 0)
+			(at 109.896 65.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4488,7 +4398,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 127 64.77 0)
+			(at 106.68 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4499,7 +4409,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-0710KL"
-			(at 127 64.77 0)
+			(at 106.68 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4510,7 +4420,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistors (10 k to +3V3_COOL) for the fan PWM, pump PWM and flow tach lines; one element spare"
-			(at 127 64.77 0)
+			(at 106.68 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4521,7 +4431,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-0710KL"
-			(at 127 64.77 0)
+			(at 106.68 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4532,28 +4442,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "e369e0a3-222e-5061-84c5-4a3b9d4a8e66")
+			(uuid "16e2e0b6-5642-524a-aaa2-5d1ad98d5aa6")
 		)
 		(pin "8"
-			(uuid "389f8391-9c25-530e-a25a-64dd9a2eb8ef")
+			(uuid "f753ec36-3d72-567a-bb39-e7e2e7e32236")
 		)
 		(pin "2"
-			(uuid "43332d86-e6da-5934-a8cc-ad5180bbee4c")
+			(uuid "25dd6dd2-21fb-5f4d-a030-d40671fedb5e")
 		)
 		(pin "7"
-			(uuid "d7295db3-56e1-5c06-b61b-1b292cd5ff4a")
+			(uuid "e4e3ec06-d605-5c22-aed5-634ee883170c")
 		)
 		(pin "3"
-			(uuid "5bdaed10-65b9-5c47-9c8b-247f3c2ae5a4")
+			(uuid "5b58da5e-ee34-5696-8099-f5cf3f57de2a")
 		)
 		(pin "6"
-			(uuid "e8c73882-cef7-5de7-83aa-83bfbd295749")
+			(uuid "1f955a62-1120-54d1-a29b-a7717ee3d449")
 		)
 		(pin "4"
-			(uuid "4c087043-6908-5dd1-8b50-70a67c31001e")
+			(uuid "a8b4a175-f7f9-5a7c-9e9f-66b4c2b3cab9")
 		)
 		(pin "5"
-			(uuid "8a22058a-7032-535b-84b3-e00a2da1c828")
+			(uuid "424d6d28-95b6-5a47-93a1-064a2a702a97")
 		)
 		(instances
 			(project "cryocooler"
@@ -4631,7 +4541,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "4e4d4fdd-3c2d-50ad-955f-2f8b26ed45a1")
+			(uuid "c66d748d-cb4a-5f06-b1f8-d1fa72761518")
 		)
 		(instances
 			(project "cryocooler"
@@ -4720,28 +4630,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "f0cca5c1-c393-5878-b880-7285321eba8b")
+			(uuid "b3ea4c57-1fd3-596a-b59a-e0e5ca756a41")
 		)
 		(pin "8"
-			(uuid "b70fe79a-2bf0-5332-a9b1-1af2ddaca67e")
+			(uuid "d138ea13-e04f-5ca7-b9f4-4a4617a68dda")
 		)
 		(pin "2"
-			(uuid "ae284a3f-f021-5f29-93be-76fc5170612f")
+			(uuid "56eb53ee-579e-524a-89ff-68d0e2baaf45")
 		)
 		(pin "7"
-			(uuid "7108dc4b-4a44-59e2-a8cf-39fd21a37f13")
+			(uuid "69f10200-7153-5817-880b-95c585074d99")
 		)
 		(pin "3"
-			(uuid "8e820a34-a000-5c97-9971-b24f71ed8076")
+			(uuid "517cdc64-4bb4-5c59-a4ab-b3d73727fea2")
 		)
 		(pin "6"
-			(uuid "da926541-a091-5856-8243-df7a41beffe4")
+			(uuid "a357c495-cb19-5aea-960c-a9d8a8ebe7f6")
 		)
 		(pin "4"
-			(uuid "aca9cb6b-c900-5352-bb14-9421f6fe1ab2")
+			(uuid "aa0185cb-f174-5e4f-9a1e-0852bfb54f07")
 		)
 		(pin "5"
-			(uuid "cfdabe93-a753-51d8-afee-4f460bbb9796")
+			(uuid "8603d4ea-a7b0-5b40-af88-25cc9c3a85fc")
 		)
 		(instances
 			(project "cryocooler"
@@ -4818,7 +4728,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "70ccc8a2-ef0f-5aa9-bf9b-db78130bff40")
+			(uuid "98823611-1616-54ac-ad48-15bf195560fb")
 		)
 		(instances
 			(project "cryocooler"
@@ -4907,10 +4817,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "16778f86-ed1f-5a21-81f0-93390d7153b6")
+			(uuid "ce5d0260-5e22-5742-9995-e9fac19cc843")
 		)
 		(pin "2"
-			(uuid "6897131e-a4b2-5c9e-840c-4dc3d34e3bbc")
+			(uuid "c6d2c293-b69c-5523-ba63-879b88e131b2")
 		)
 		(instances
 			(project "cryocooler"
@@ -4923,7 +4833,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 52.07 109.22 90)
+		(at 52.07 116.84 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4933,7 +4843,7 @@
 		(dnp no)
 		(uuid "8779e7d6-48b8-59cb-992d-a318eea33408")
 		(property "Reference" "R54"
-			(at 52.07 103.104 270)
+			(at 52.07 110.724 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4943,7 +4853,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 52.07 105.204 270)
+			(at 52.07 112.824 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4953,7 +4863,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 52.07 109.22 0)
+			(at 52.07 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4964,7 +4874,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 52.07 109.22 0)
+			(at 52.07 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4975,7 +4885,7 @@
 			)
 		)
 		(property "Description" "Series gate resistor from GPIO14 (PUMP_PWM) to the pump driver"
-			(at 52.07 109.22 0)
+			(at 52.07 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4986,7 +4896,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-071KL"
-			(at 52.07 109.22 0)
+			(at 52.07 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4997,10 +4907,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b477a727-7da8-5f1a-96c1-f6524660837b")
+			(uuid "bf1db88e-b30c-5e33-9fcf-72a809154767")
 		)
 		(pin "2"
-			(uuid "e7a7e0f0-b845-5739-9c27-71f13c94c07d")
+			(uuid "18d8a5b0-d9ce-5c36-8451-a582b0355836")
 		)
 		(instances
 			(project "cryocooler"
@@ -5013,7 +4923,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 160.02 113.03 0)
+		(at 134.62 120.65 0)
 		(unit 3)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5023,7 +4933,7 @@
 		(dnp no)
 		(uuid "89972a2f-04a1-52cd-a1f3-9f3670b9bb1c")
 		(property "Reference" "RN1"
-			(at 163.236 111.98 0)
+			(at 137.836 120.87 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5034,7 +4944,7 @@
 			)
 		)
 		(property "Value" "4.7k"
-			(at 163.236 114.08 0)
+			(at 137.836 122.97 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5045,7 +4955,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 160.02 113.03 0)
+			(at 134.62 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5056,7 +4966,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 160.02 113.03 0)
+			(at 134.62 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5067,7 +4977,7 @@
 			)
 		)
 		(property "Description" "Fan and pump tach lines: a pull-up to +3V3_COOL and a series resistor to the GPIO for each (4.7 k)"
-			(at 160.02 113.03 0)
+			(at 134.62 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5078,7 +4988,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 160.02 113.03 0)
+			(at 134.62 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5089,28 +4999,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "62d67ac0-1f42-5a82-a2c7-7c4368864e5e")
+			(uuid "719a1a0f-12f3-511c-9019-a945c985bef5")
 		)
 		(pin "8"
-			(uuid "079b105f-1fd8-5305-ad2c-cde2f65bcc8d")
+			(uuid "7122b82a-4f7b-58fe-a077-42cc96726f84")
 		)
 		(pin "2"
-			(uuid "23ca7389-6ed9-5f82-ab79-966554a5a4ac")
+			(uuid "d414b6a4-cd91-5fdd-b6f8-128761bdbfb1")
 		)
 		(pin "7"
-			(uuid "1024208f-2a45-5bb5-a7fe-5598eeb8628f")
+			(uuid "8d303031-4173-59e8-ba65-e1410a37dfa7")
 		)
 		(pin "3"
-			(uuid "17074929-1c0d-50fd-a032-36949927702f")
+			(uuid "6682f151-868f-519e-ae2b-7be6f8e6ba73")
 		)
 		(pin "6"
-			(uuid "05865791-1828-565d-8dd8-0fb422fa0915")
+			(uuid "85e86945-fb46-501f-8818-9bd6ceadb1a7")
 		)
 		(pin "4"
-			(uuid "48362872-0a7c-580f-ad0a-fc9cbb790b50")
+			(uuid "56bfd1b5-1041-5b75-8e96-5bbede9cf213")
 		)
 		(pin "5"
-			(uuid "55d9699c-1b4d-5efb-aa6f-da0c3bb9b083")
+			(uuid "5756cf16-35fc-5e9c-9a1b-90e60d389695")
 		)
 		(instances
 			(project "cryocooler"
@@ -5188,7 +5098,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "664230bc-0286-56de-b50e-fb37d99cdc88")
+			(uuid "ed89561f-8328-54c2-98ce-3a3c34879f57")
 		)
 		(instances
 			(project "cryocooler"
@@ -5278,16 +5188,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "08c4081a-09da-56f1-992f-0bbd9d649d6d")
+			(uuid "ddde9749-8995-5702-8832-b51ba47f20b1")
 		)
 		(pin "2"
-			(uuid "0fa10d1f-ef2e-5002-8595-0b826e3f3f82")
+			(uuid "f4a7ae90-841e-5547-bfa2-73a7a6dd9c55")
 		)
 		(pin "3"
-			(uuid "96575709-4406-576e-8554-a4d269661ab5")
+			(uuid "831b4fd1-40dc-5f04-ad32-b8fed55be06b")
 		)
 		(pin "4"
-			(uuid "49233489-f9e9-5e2a-9223-7583e861c72d")
+			(uuid "cbbddd74-dfc8-53d0-9666-fc21e87f80e0")
 		)
 		(instances
 			(project "cryocooler"
@@ -5300,7 +5210,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 127 97.79 0)
+		(at 106.68 105.41 0)
 		(unit 2)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5310,7 +5220,7 @@
 		(dnp no)
 		(uuid "a115e5c8-8aed-59b3-8334-f8e4bd4587e2")
 		(property "Reference" "RN2"
-			(at 130.216 96.74 0)
+			(at 109.896 104.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5321,7 +5231,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 130.216 98.84 0)
+			(at 109.896 106.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5332,7 +5242,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 127 97.79 0)
+			(at 106.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5343,7 +5253,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-0710KL"
-			(at 127 97.79 0)
+			(at 106.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5354,7 +5264,7 @@
 			)
 		)
 		(property "Description" "Pull-up resistors (10 k to +3V3_COOL) for the fan PWM, pump PWM and flow tach lines; one element spare"
-			(at 127 97.79 0)
+			(at 106.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5365,7 +5275,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-0710KL"
-			(at 127 97.79 0)
+			(at 106.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5376,28 +5286,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "1a50696d-4d52-5f63-95ca-1453fb5ebd82")
+			(uuid "0dc3b58b-8a1e-516a-b901-d289cf1d9c59")
 		)
 		(pin "8"
-			(uuid "fb1f2118-1177-59b4-94da-0bdeda981952")
+			(uuid "ad7afe36-28a1-5232-af94-021278179be0")
 		)
 		(pin "2"
-			(uuid "2cd99902-ee8a-5cc5-bdf6-48d62f13b79c")
+			(uuid "479f8a4d-2742-5a18-8bad-e64c1ef5741a")
 		)
 		(pin "7"
-			(uuid "8335c525-2350-506a-bc32-24d8df55c354")
+			(uuid "bbdc5123-ddab-549a-906f-51e273ca301e")
 		)
 		(pin "3"
-			(uuid "0913d968-83a6-5006-ab43-bd82454143b0")
+			(uuid "bc2d5985-12db-59e1-aa2e-4507f8b90799")
 		)
 		(pin "6"
-			(uuid "eec07f8b-d3c5-59fe-b4eb-136eb8db51dc")
+			(uuid "17346970-d874-5a7c-9277-dd67fbb949b1")
 		)
 		(pin "4"
-			(uuid "14670056-4e4a-5f2a-b391-dc23973795da")
+			(uuid "5b9fd10d-cc2a-5a60-9974-948bbdc44aad")
 		)
 		(pin "5"
-			(uuid "facc8c0b-92b3-5f87-ac77-684ebb1194a0")
+			(uuid "49c80783-948b-512c-b75e-a3a12367a91a")
 		)
 		(instances
 			(project "cryocooler"
@@ -5410,7 +5320,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 162.56 93.98 0)
+		(at 139.7 93.98 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5420,7 +5330,7 @@
 		(dnp no)
 		(uuid "a14e87a2-8194-5421-a1a6-85c9b815b444")
 		(property "Reference" "#PWR068"
-			(at 162.56 93.98 0)
+			(at 139.7 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5431,7 +5341,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 162.56 93.98 0)
+			(at 139.7 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5442,7 +5352,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 162.56 93.98 0)
+			(at 139.7 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5453,7 +5363,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 162.56 93.98 0)
+			(at 139.7 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5464,7 +5374,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 162.56 93.98 0)
+			(at 139.7 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5475,7 +5385,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7f21ad7-8809-58c7-858e-9028359f1482")
+			(uuid "2ce86ff2-645e-5893-9ea5-c5b0dd874b61")
 		)
 		(instances
 			(project "cryocooler"
@@ -5488,7 +5398,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 190.5 86.36 0)
+		(at 152.4 86.36 0)
 		(mirror x)
 		(unit 1)
 		(body_style 1)
@@ -5499,7 +5409,7 @@
 		(dnp no)
 		(uuid "a18e4bf6-7be8-59eb-956c-b79316d9fe56")
 		(property "Reference" "J3"
-			(at 185.42 74.91 0)
+			(at 147.32 74.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5510,7 +5420,7 @@
 			)
 		)
 		(property "Value" "FAN (4-pin PWM)"
-			(at 185.42 77.01 0)
+			(at 147.32 77.01 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5521,7 +5431,7 @@
 			)
 		)
 		(property "Footprint" "cryocooler:XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal"
-			(at 190.5 86.36 0)
+			(at 152.4 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5532,7 +5442,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.lcsc.com/datasheet/C908468.pdf"
-			(at 190.5 86.36 0)
+			(at 152.4 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5543,7 +5453,7 @@
 			)
 		)
 		(property "Description" "Radiator fan header (4-pin PWM): GND, +12 V, tach, PWM"
-			(at 190.5 86.36 0)
+			(at 152.4 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5554,7 +5464,7 @@
 			)
 		)
 		(property "Product" "https://www.lcsc.com/product-detail/C908468.html"
-			(at 190.5 86.36 0)
+			(at 152.4 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5565,16 +5475,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "6b682d2f-0671-5b9f-924e-55c3f37efa7a")
+			(uuid "f7bf9729-1c30-5e5e-8db0-202f589293f1")
 		)
 		(pin "2"
-			(uuid "5aec09b3-165e-519f-9248-9da6c3c815f3")
+			(uuid "83a425a8-2a5f-5dd9-9d2a-28a4d08f4280")
 		)
 		(pin "3"
-			(uuid "3818f594-2819-571e-bbce-1fd9775393ef")
+			(uuid "80a2fa0b-bf15-58cd-bf3b-74fcf8cc6e2c")
 		)
 		(pin "4"
-			(uuid "0c9d8ad6-551f-512f-aab8-b32a554e4f8e")
+			(uuid "b0a0db06-a398-59f5-8cc0-da25039e5c38")
 		)
 		(instances
 			(project "cryocooler"
@@ -5587,7 +5497,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 149.86 125.73 0)
+		(at 129.54 133.35 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5597,7 +5507,7 @@
 		(dnp no)
 		(uuid "a237ed5e-86a5-576e-9442-65c0d1848009")
 		(property "Reference" "#PWR074"
-			(at 149.86 125.73 0)
+			(at 129.54 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5608,7 +5518,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 149.86 122.174 0)
+			(at 129.54 129.794 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5618,7 +5528,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 125.73 0)
+			(at 129.54 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5629,7 +5539,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 125.73 0)
+			(at 129.54 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5640,7 +5550,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 149.86 125.73 0)
+			(at 129.54 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5651,7 +5561,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b3082e8e-eca3-52d2-a285-1eb5ad003548")
+			(uuid "3ab8ce91-6752-5436-b4f7-8903162d521a")
 		)
 		(instances
 			(project "cryocooler"
@@ -5674,7 +5584,7 @@
 		(dnp no)
 		(uuid "a437d071-4a83-5cde-8581-54c23dcaee8d")
 		(property "Reference" "R15"
-			(at 46.396 64.99 0)
+			(at 36.08 71.34 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5685,7 +5595,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 46.396 67.09 0)
+			(at 36.08 73.44 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5740,10 +5650,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "4316930e-b8c1-5579-a9fc-77b5b3410b9f")
+			(uuid "f1ca2411-a81d-528b-9720-d747d10a8006")
 		)
 		(pin "2"
-			(uuid "20fff6dc-c5d2-55e1-adad-24556a588da9")
+			(uuid "909914b5-cb5a-5544-99d6-8ea1994db8cf")
 		)
 		(instances
 			(project "cryocooler"
@@ -5756,7 +5666,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 160.02 76.2 0)
+		(at 134.62 76.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5766,7 +5676,7 @@
 		(dnp no)
 		(uuid "a5260c34-4cc1-5fe1-9855-296bbbb7d409")
 		(property "Reference" "#PWR066"
-			(at 160.02 76.2 0)
+			(at 134.62 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5777,7 +5687,7 @@
 			)
 		)
 		(property "Value" "+3V3_COOL"
-			(at 160.02 72.644 0)
+			(at 134.62 72.644 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5787,7 +5697,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 160.02 76.2 0)
+			(at 134.62 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5798,7 +5708,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 160.02 76.2 0)
+			(at 134.62 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5809,7 +5719,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 160.02 76.2 0)
+			(at 134.62 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5820,7 +5730,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f50ca17a-0367-5691-8af9-3076dbe79f5b")
+			(uuid "659c472b-f4e6-5266-960c-38aac7aa3b00")
 		)
 		(instances
 			(project "cryocooler"
@@ -5909,28 +5819,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "13f8b31b-0e23-5080-846e-3fc2b10e6f03")
+			(uuid "a7c237bd-eb7f-5e7a-b5ff-56ff2715b523")
 		)
 		(pin "8"
-			(uuid "afa08ce8-ec14-52f8-8eee-76613da907a6")
+			(uuid "9bcaf6aa-5fcb-50dc-931b-d2e1b8b23beb")
 		)
 		(pin "2"
-			(uuid "911779f7-4512-5960-b4ac-fc76547c271e")
+			(uuid "db3504e4-3a52-5508-a185-34a95e14331d")
 		)
 		(pin "7"
-			(uuid "83e2198c-6177-5ba3-9176-1b9816f314a9")
+			(uuid "a847a56c-39c9-5182-b424-32966e5a66e9")
 		)
 		(pin "3"
-			(uuid "add4b38c-bafd-554d-8a10-e366139c98e2")
+			(uuid "1219224d-ffa0-5b71-b271-7f9dca072007")
 		)
 		(pin "6"
-			(uuid "840397e7-c85d-5993-82da-0776f6d0235a")
+			(uuid "563861ca-21d9-5676-96f0-38efd8096c53")
 		)
 		(pin "4"
-			(uuid "4cda542c-7737-5d82-b1b9-1c712cb155b6")
+			(uuid "6b5a92ff-ba43-54a2-8cc9-8e8a830fd97a")
 		)
 		(pin "5"
-			(uuid "f88fa991-d0ee-5fe7-b76c-5ff25503496b")
+			(uuid "1f025fb8-8cd9-5c22-946d-d3e796877da0")
 		)
 		(instances
 			(project "cryocooler"
@@ -6019,10 +5929,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a6a18aa2-4685-5448-9685-0e1deb391de4")
+			(uuid "d9d142d3-545a-57d1-a0e6-965b09983d63")
 		)
 		(pin "2"
-			(uuid "e340d91a-c4fc-5d7e-82a1-7633fd998287")
+			(uuid "d09d1426-380f-5d44-9caf-137c9d024668")
 		)
 		(instances
 			(project "cryocooler"
@@ -6100,7 +6010,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "1509d08a-6299-5ba7-bc87-66bbfdae8c76")
+			(uuid "31674495-ad92-589c-8c84-9adcf1b07db6")
 		)
 		(instances
 			(project "cryocooler"
@@ -6177,7 +6087,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "fbe9aaf0-aaaa-53b3-bf44-55ffcf2d8fa2")
+			(uuid "b7205942-9e6e-5d6a-b706-3adf4ed3ba37")
 		)
 		(instances
 			(project "cryocooler"
@@ -6266,22 +6176,22 @@
 			)
 		)
 		(pin "1"
-			(uuid "7871c639-e116-5cad-a951-f8155c06f7e9")
+			(uuid "58903eb8-6f57-5796-93e1-fd7838247046")
 		)
 		(pin "2"
-			(uuid "c98727b5-4b58-558e-ab3c-26d4969ee823")
+			(uuid "6462d8ac-e9a3-53b3-94a8-3b8dafff6881")
 		)
 		(pin "6"
-			(uuid "3e8ad752-052e-5a39-a1cb-95d12a169343")
+			(uuid "e9f60fa8-5c4e-5a85-95d9-8b27fa9f57cf")
 		)
 		(pin "3"
-			(uuid "a36de18f-27b9-544b-ae45-40cbe45606b7")
+			(uuid "4486480e-f810-51bf-ae71-b3a8641331f4")
 		)
 		(pin "4"
-			(uuid "a7f9ab9f-7092-5900-bf3c-2b3578c1a405")
+			(uuid "f16d456c-6a97-52c9-940c-d208af715cec")
 		)
 		(pin "5"
-			(uuid "1bffdefe-e856-557c-85f6-aabbc485d453")
+			(uuid "8b2a69e5-cade-5c77-a9c2-0d508ba31ffb")
 		)
 		(instances
 			(project "cryocooler"
@@ -6294,7 +6204,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 160.02 80.01 0)
+		(at 134.62 80.01 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6304,7 +6214,7 @@
 		(dnp no)
 		(uuid "cc431655-3621-5205-89b4-15ceabe8f0a9")
 		(property "Reference" "RN1"
-			(at 163.236 78.96 0)
+			(at 137.836 80.23 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6315,7 +6225,7 @@
 			)
 		)
 		(property "Value" "4.7k"
-			(at 163.236 81.06 0)
+			(at 137.836 82.33 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6326,7 +6236,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 160.02 80.01 0)
+			(at 134.62 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6337,7 +6247,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 160.02 80.01 0)
+			(at 134.62 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6348,7 +6258,7 @@
 			)
 		)
 		(property "Description" "Fan and pump tach lines: a pull-up to +3V3_COOL and a series resistor to the GPIO for each (4.7 k)"
-			(at 160.02 80.01 0)
+			(at 134.62 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6359,7 +6269,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 160.02 80.01 0)
+			(at 134.62 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6370,28 +6280,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "ba67907e-1c46-565e-abe4-538d42fe3378")
+			(uuid "eb505a22-b949-54b8-942d-b69a509df71d")
 		)
 		(pin "8"
-			(uuid "ec4fafc5-5502-55a6-8f61-7f8ea4932521")
+			(uuid "e99208ac-8210-5204-b796-6f40aff977a6")
 		)
 		(pin "2"
-			(uuid "823fcd33-f670-537c-ade7-fb67e4196049")
+			(uuid "3e2ad0f6-b0e8-5cc7-aaa8-7905981122e2")
 		)
 		(pin "7"
-			(uuid "d02ef59d-30d5-5f19-804f-e1d18e999b7a")
+			(uuid "195b81e3-6750-5e7e-9acf-3d5610a280b4")
 		)
 		(pin "3"
-			(uuid "5fa5198d-ca51-5b88-8f90-9a8fbd88bf7d")
+			(uuid "8cfded41-cd8c-5824-9ae6-347a737cf5c2")
 		)
 		(pin "6"
-			(uuid "4ddddc32-e2c3-52ab-bd7d-bac8bb8da3fd")
+			(uuid "16966346-bb0e-5eb0-8cf5-98c49618bb41")
 		)
 		(pin "4"
-			(uuid "67e73cc4-4684-5f80-ac87-a144f9fa0d4c")
+			(uuid "532feaf0-0699-5756-80e0-66219dd37cc7")
 		)
 		(pin "5"
-			(uuid "d17d4303-9e7b-5879-b369-9270f771a8f5")
+			(uuid "49dbcfc4-edbd-5260-8736-fb789b4e2702")
 		)
 		(instances
 			(project "cryocooler"
@@ -6404,7 +6314,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:R_Pack04_Split_US")
-		(at 148.59 83.82 90)
+		(at 124.46 83.82 90)
 		(unit 2)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6414,7 +6324,7 @@
 		(dnp no)
 		(uuid "d369a0dd-65f7-535a-9ebe-5bd87c0dc280")
 		(property "Reference" "RN1"
-			(at 148.59 77.704 270)
+			(at 124.46 77.704 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6424,7 +6334,7 @@
 			)
 		)
 		(property "Value" "4.7k"
-			(at 148.59 79.804 270)
+			(at 124.46 79.804 270)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6434,7 +6344,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_Array_Convex_4x0402"
-			(at 148.59 83.82 0)
+			(at 124.46 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6445,7 +6355,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 148.59 83.82 0)
+			(at 124.46 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6456,7 +6366,7 @@
 			)
 		)
 		(property "Description" "Fan and pump tach lines: a pull-up to +3V3_COOL and a series resistor to the GPIO for each (4.7 k)"
-			(at 148.59 83.82 0)
+			(at 124.46 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6467,7 +6377,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=YC124-JR-074K7L"
-			(at 148.59 83.82 0)
+			(at 124.46 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6478,28 +6388,28 @@
 			)
 		)
 		(pin "1"
-			(uuid "559589d4-5717-5390-b360-56522d231371")
+			(uuid "22e33f17-e284-52f4-9b48-eca8ccaff8e2")
 		)
 		(pin "8"
-			(uuid "77c8c2df-44af-5d34-baa5-ddb4f5e79869")
+			(uuid "7ebb19fd-1076-5083-b58f-7f1b142d52f2")
 		)
 		(pin "2"
-			(uuid "98cb5844-88aa-5e69-95d3-66d71cb1e195")
+			(uuid "31434f41-ad8e-5aa0-8316-facbcdc3dc82")
 		)
 		(pin "7"
-			(uuid "56076c19-dea9-5f95-8e29-7bbaf8c66a1b")
+			(uuid "cdddaeb2-fa3e-58d1-b1ec-16f469d12f75")
 		)
 		(pin "3"
-			(uuid "f8bbfef3-c8e6-5d6b-a399-544d738466ea")
+			(uuid "be1eb7ab-9863-5ea1-97b0-4ac1f73a1bc1")
 		)
 		(pin "6"
-			(uuid "438a5495-f059-5bd0-a9b9-1cb729629466")
+			(uuid "28e7b0c7-c0a3-50a9-879a-4b105eceb123")
 		)
 		(pin "4"
-			(uuid "bf03a1cf-f5db-5b15-a655-52dc3d836c89")
+			(uuid "5beb2409-fd8a-5825-80b3-dcd7fe68316e")
 		)
 		(pin "5"
-			(uuid "8f2f5222-b813-58ce-b2eb-eb202605a867")
+			(uuid "ecf28e9f-5d2c-5797-867c-9a055432c0a8")
 		)
 		(instances
 			(project "cryocooler"
@@ -6512,7 +6422,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 182.88 88.9 0)
+		(at 144.78 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6522,7 +6432,7 @@
 		(dnp no)
 		(uuid "d8cbbaee-3255-54cd-bbe9-7d84170f9123")
 		(property "Reference" "#PWR069"
-			(at 182.88 88.9 0)
+			(at 144.78 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6533,7 +6443,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 182.88 88.9 0)
+			(at 144.78 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6544,7 +6454,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 182.88 88.9 0)
+			(at 144.78 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6555,7 +6465,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 182.88 88.9 0)
+			(at 144.78 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6566,7 +6476,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 182.88 88.9 0)
+			(at 144.78 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6577,7 +6487,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "170d40f6-3eea-5a8b-a949-38818c690d4e")
+			(uuid "d229b681-481b-5188-a03c-6a4ed6b647dd")
 		)
 		(instances
 			(project "cryocooler"
@@ -6590,7 +6500,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 66.04 116.84 0)
+		(at 66.04 124.46 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6600,7 +6510,7 @@
 		(dnp no)
 		(uuid "d92a243c-f863-58d8-92c5-04a5b784ce31")
 		(property "Reference" "#PWR071"
-			(at 66.04 116.84 0)
+			(at 66.04 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6611,7 +6521,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 66.04 116.84 0)
+			(at 66.04 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6622,7 +6532,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 66.04 116.84 0)
+			(at 66.04 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6633,7 +6543,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 66.04 116.84 0)
+			(at 66.04 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6644,7 +6554,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 66.04 116.84 0)
+			(at 66.04 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6655,7 +6565,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "4a90be3e-5a2e-5f4a-9bce-63de47197897")
+			(uuid "268e8720-f2c1-50f7-9bda-574c93ded2f9")
 		)
 		(instances
 			(project "cryocooler"
@@ -6733,7 +6643,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "5ca3b8f7-0c8f-5d25-b615-a855fb1a2621")
+			(uuid "59a794d3-0674-59f6-9c07-e6dbb6d62a9f")
 		)
 		(instances
 			(project "cryocooler"
@@ -6746,7 +6656,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 43.18 101.6 0)
+		(at 43.18 109.22 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6756,7 +6666,7 @@
 		(dnp no)
 		(uuid "eff3b216-2b3e-5fc0-9f30-2cec4475429e")
 		(property "Reference" "#PWR070"
-			(at 43.18 101.6 0)
+			(at 43.18 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6767,7 +6677,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 43.18 98.044 0)
+			(at 43.18 105.664 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6777,7 +6687,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 43.18 101.6 0)
+			(at 43.18 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6788,7 +6698,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 43.18 101.6 0)
+			(at 43.18 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6799,7 +6709,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 43.18 101.6 0)
+			(at 43.18 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6810,7 +6720,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "d05d9b9c-1be8-589c-a546-725435f40891")
+			(uuid "646940d6-d9fa-530d-9e24-0fbf5b258d6e")
 		)
 		(instances
 			(project "cryocooler"
@@ -6823,7 +6733,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 127 93.98 0)
+		(at 106.68 101.6 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6833,7 +6743,7 @@
 		(dnp no)
 		(uuid "f242afb8-3268-5781-b907-0967b12d603c")
 		(property "Reference" "#PWR072"
-			(at 127 93.98 0)
+			(at 106.68 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6844,7 +6754,7 @@
 			)
 		)
 		(property "Value" "+3V3_COOL"
-			(at 127 90.424 0)
+			(at 106.68 98.044 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6854,7 +6764,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 127 93.98 0)
+			(at 106.68 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6865,7 +6775,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 127 93.98 0)
+			(at 106.68 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6876,7 +6786,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 127 93.98 0)
+			(at 106.68 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6887,7 +6797,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "aa8966c0-c8c6-5a4d-9bef-c1fb719c08f5")
+			(uuid "c87ae9bc-1712-5c21-9a5d-25e9edf62cc3")
 		)
 		(instances
 			(project "cryocooler"
@@ -6964,7 +6874,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "cfa633ce-faae-5a18-91b8-1be33f9a82e0")
+			(uuid "2ab4c48a-9c46-5512-8b7b-e88cbcf3feb3")
 		)
 		(instances
 			(project "cryocooler"
@@ -7053,10 +6963,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "227afb2c-6a11-556d-a200-3120732dfd36")
+			(uuid "a59d22ea-80c4-54e3-8866-9080e7bea45d")
 		)
 		(pin "2"
-			(uuid "422f810a-4356-5135-90ba-b7efe83427cf")
+			(uuid "daca14ac-705e-569b-b09d-30641a5c1492")
 		)
 		(instances
 			(project "cryocooler"

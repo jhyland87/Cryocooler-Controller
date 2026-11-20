@@ -65,6 +65,9 @@ was intended and update the handoff.
 - **Layout-only change** (moved symbols or wires): export a baseline netlist before
   editing, then `python3 tools/compare_netlists.py $OUT/base.net $OUT/new.net`.
   Connectivity must match. Two-pin passives may be flipped.
+- **Drawing-only change with the board frozen:** add `--strict`. It compares every
+  reference's value and footprint and every net's exact name and pins, and lists each
+  difference. It must report 0, or the routed board no longer matches.
 - **Look at it:** `$KC sch export pdf -o $OUT/sch.pdf cryocooler.kicad_sch`, then
   `gs -sDEVICE=png16m -r150 -o $OUT/page%02d.png $OUT/sch.pdf` (there's no pdftoppm).
   Check the page you changed.

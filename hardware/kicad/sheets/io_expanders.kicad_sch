@@ -364,7 +364,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 12.7 27.94 0)
+				(at 12.7 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -375,7 +375,7 @@
 				)
 			)
 			(property "Value" "MCP23S17-E/ML"
-				(at -12.7 27.94 0)
+				(at -12.7 30.48 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -431,8 +431,8 @@
 			)
 			(symbol "MCP23S17-E/ML_0_1"
 				(rectangle
-					(start -12.7 25.4)
-					(end 12.7 -25.4)
+					(start -12.7 27.94)
+					(end 12.7 -27.94)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -444,7 +444,7 @@
 			)
 			(symbol "MCP23S17-E/ML_1_1"
 				(pin bidirectional line
-					(at 15.24 -7.62 180)
+					(at 15.24 -5.08 180)
 					(length 2.54)
 					(name "GPB4"
 						(effects
@@ -462,7 +462,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -10.16 180)
+					(at 15.24 -7.62 180)
 					(length 2.54)
 					(name "GPB5"
 						(effects
@@ -480,7 +480,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -12.7 180)
+					(at 15.24 -10.16 180)
 					(length 2.54)
 					(name "GPB6"
 						(effects
@@ -498,7 +498,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -15.24 180)
+					(at 15.24 -12.7 180)
 					(length 2.54)
 					(name "GPB7"
 						(effects
@@ -516,7 +516,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 27.94 270)
+					(at 0 30.48 270)
 					(length 2.54)
 					(name "VDD"
 						(effects
@@ -534,7 +534,7 @@
 					)
 				)
 				(pin power_in line
-					(at -2.54 -27.94 90)
+					(at -2.54 -30.48 90)
 					(length 2.54)
 					(name "VSS"
 						(effects
@@ -552,7 +552,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 15.24 0)
+					(at -15.24 17.78 0)
 					(length 2.54)
 					(name "~{CS}"
 						(effects
@@ -570,7 +570,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 22.86 0)
+					(at -15.24 25.4 0)
 					(length 2.54)
 					(name "SCK"
 						(effects
@@ -588,7 +588,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 20.32 0)
+					(at -15.24 22.86 0)
 					(length 2.54)
 					(name "SI"
 						(effects
@@ -606,7 +606,7 @@
 					)
 				)
 				(pin tri_state line
-					(at -15.24 17.78 0)
+					(at -15.24 20.32 0)
 					(length 2.54)
 					(name "SO"
 						(effects
@@ -624,7 +624,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 7.62 0)
+					(at -15.24 5.08 0)
 					(length 2.54)
 					(name "A0"
 						(effects
@@ -642,7 +642,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 0 0)
+					(at -15.24 -2.54 0)
 					(length 2.54)
 					(name "A1"
 						(effects
@@ -660,7 +660,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 -7.62 0)
+					(at -15.24 -10.16 0)
 					(length 2.54)
 					(name "A2"
 						(effects
@@ -678,7 +678,7 @@
 					)
 				)
 				(pin input line
-					(at -15.24 12.7 0)
+					(at -15.24 15.24 0)
 					(length 2.54)
 					(name "~{RESET}"
 						(effects
@@ -696,7 +696,7 @@
 					)
 				)
 				(pin open_collector line
-					(at -15.24 -17.78 0)
+					(at -15.24 -20.32 0)
 					(length 2.54)
 					(name "INTB"
 						(effects
@@ -714,7 +714,7 @@
 					)
 				)
 				(pin open_collector line
-					(at -15.24 -15.24 0)
+					(at -15.24 -17.78 0)
 					(length 2.54)
 					(name "INTA"
 						(effects
@@ -732,7 +732,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 22.86 180)
+					(at 15.24 25.4 180)
 					(length 2.54)
 					(name "GPA0"
 						(effects
@@ -750,7 +750,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 20.32 180)
+					(at 15.24 22.86 180)
 					(length 2.54)
 					(name "GPA1"
 						(effects
@@ -768,7 +768,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 17.78 180)
+					(at 15.24 20.32 180)
 					(length 2.54)
 					(name "GPA2"
 						(effects
@@ -786,7 +786,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 15.24 180)
+					(at 15.24 17.78 180)
 					(length 2.54)
 					(name "GPA3"
 						(effects
@@ -804,7 +804,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 12.7 180)
+					(at 15.24 15.24 180)
 					(length 2.54)
 					(name "GPA4"
 						(effects
@@ -822,7 +822,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 10.16 180)
+					(at 15.24 12.7 180)
 					(length 2.54)
 					(name "GPA5"
 						(effects
@@ -840,7 +840,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 7.62 180)
+					(at 15.24 10.16 180)
 					(length 2.54)
 					(name "GPA6"
 						(effects
@@ -858,7 +858,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 5.08 180)
+					(at 15.24 7.62 180)
 					(length 2.54)
 					(name "GPA7"
 						(effects
@@ -876,7 +876,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 2.54 180)
+					(at 15.24 5.08 180)
 					(length 2.54)
 					(name "GPB0"
 						(effects
@@ -894,7 +894,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 0 180)
+					(at 15.24 2.54 180)
 					(length 2.54)
 					(name "GPB1"
 						(effects
@@ -912,7 +912,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -2.54 180)
+					(at 15.24 0 180)
 					(length 2.54)
 					(name "GPB2"
 						(effects
@@ -930,7 +930,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at 15.24 -5.08 180)
+					(at 15.24 -2.54 180)
 					(length 2.54)
 					(name "GPB3"
 						(effects
@@ -948,7 +948,7 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 -27.94 90)
+					(at 2.54 -30.48 90)
 					(length 2.54)
 					(name "EP"
 						(effects
@@ -1231,7 +1231,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "49f409e8-c046-5eae-ace2-096a8204fc5b")
+		(uuid "f065073d-ae96-54ff-a31f-1ddfc417dd85")
 	)
 	(bus
 		(pts
@@ -1241,27 +1241,36 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "0ae547e2-4c6e-50e2-9182-6f8391f7e4ac")
+		(uuid "06da40ba-7d51-55d6-92b6-c694f68ec247")
 	)
 	(bus
 		(pts
-			(xy 43.18 88.9) (xy 43.18 106.68)
+			(xy 43.18 88.9) (xy 43.18 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cacb3995-b19d-5e05-a1ce-6c30adc0ed5c")
+		(uuid "624abc61-ad6f-5cbd-98d6-e35a14a0cf98")
 	)
 	(bus
 		(pts
-			(xy 132.08 88.9) (xy 132.08 106.68)
+			(xy 132.08 88.9) (xy 132.08 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c3962b62-9534-5751-ad06-853ee5855953")
+		(uuid "c868bfff-0832-55b2-b157-71020f0df4d2")
+	)
+	(bus_entry
+		(at 45.72 101.6)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3f3928d-7401-5b8e-b951-f7d49d838066")
 	)
 	(bus_entry
 		(at 45.72 104.14)
@@ -1270,7 +1279,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e1ef0567-d5cd-59e6-a1d4-304ab9a1b692")
+		(uuid "bbaa9137-4a92-5575-bdab-138f89c8e0ba")
 	)
 	(bus_entry
 		(at 45.72 106.68)
@@ -1279,16 +1288,16 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3d03519f-9514-5ed5-bbef-1ef79e596387")
+		(uuid "ec7601f9-c38a-57aa-ac79-5e5cdcdd91d6")
 	)
 	(bus_entry
-		(at 45.72 109.22)
+		(at 134.62 101.6)
 		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "799d2dd7-0246-5ab1-84e8-ba19e7a4e999")
+		(uuid "e50a806c-3fff-5cb6-ba62-fb02138ea4f8")
 	)
 	(bus_entry
 		(at 134.62 104.14)
@@ -1297,7 +1306,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fee1b64b-860f-5ec6-88b3-5b713c935298")
+		(uuid "28c0bc59-645a-5c94-b8f8-2c006eeda1d7")
 	)
 	(bus_entry
 		(at 134.62 106.68)
@@ -1306,82 +1315,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "11c89ef7-c9d3-52a0-b302-bdcc985ca13e")
-	)
-	(bus_entry
-		(at 134.62 109.22)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "07f35bed-8e19-5335-8254-8d3b69d8ac99")
-	)
-	(text "MCP23S17 DECOUPLING CAPACITORS"
-		(exclude_from_sim no)
-		(at 127 185.42 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "01929bb4-d433-589f-836c-e4086416ee68")
-	)
-	(text "ADDRESS 1"
-		(exclude_from_sim no)
-		(at 152.4 78.74 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "355f2f27-adaf-5b64-9382-b200e5bf629e")
-	)
-	(text "Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs), 7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "4256fb93-5fae-547b-aee4-667e5cbd8c59")
-	)
-	(text "BIAS"
-		(exclude_from_sim no)
-		(at 25.4 177.8 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "692baccd-3121-5a4b-9403-51810e939352")
-	)
-	(text "ADDRESS 0"
-		(exclude_from_sim no)
-		(at 63.5 78.74 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "997bb37e-76a3-5ce9-94e7-149b652dd35d")
-	)
-	(text "RESET on ESP_EN: an ESP32 reset also returns every channel to off. INTA and INTB must be set open drain (IOCON.ODR) before interrupts are enabled: all four share IO_EXP_INT_N."
-		(exclude_from_sim no)
-		(at 20 27 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "c73f178b-b2ec-5968-8dd6-a12abd4692ef")
+		(uuid "67938497-836e-5ef8-a396-ede3d0242bd0")
 	)
 	(text "Two MCP23S17 share IO_EXP_CS: hardware addresses 0 and 1 on A0 (A2 low on both, so one write of IOCON.HAEN reaches every device: errata DS80311A). Port A serves the odd channel of a pair, port B the even one."
 		(exclude_from_sim no)
@@ -1392,217 +1326,140 @@
 			)
 			(justify left top)
 		)
-		(uuid "d406cdb9-bea0-5b2f-b3c2-6ce4a63c7910")
+		(uuid "148c7232-23ce-5abb-bd03-8a075c728889")
+	)
+	(text "7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "36ea0bba-7011-5ade-a157-5e4c139988e1")
+	)
+	(text "ADDRESS 0"
+		(exclude_from_sim no)
+		(at 38.1 81.28 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "40d82c9a-9b2c-50be-bb7c-20186b524b50")
+	)
+	(text "ADDRESS 1"
+		(exclude_from_sim no)
+		(at 127 81.28 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "59f6a5a2-4e5a-515b-9141-1d2f734c7c50")
+	)
+	(text "INTA and INTB must be set open drain (IOCON.ODR) before interrupts are enabled: all four share IO_EXP_INT_N, pulled up at address 0."
+		(exclude_from_sim no)
+		(at 20 39 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "8d8c5227-3f6c-5e29-acda-70d0d8c11262")
+	)
+	(text "RESET on ESP_EN: an ESP32 reset also returns every channel to off."
+		(exclude_from_sim no)
+		(at 20 33 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "9c51ad4c-ec1c-5d46-a90e-aefd3297a878")
+	)
+	(text "Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs),"
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "e99d479a-3ff5-534b-8140-cb096514ed3b")
+	)
+	(text "MCP23S17 DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 127 185.42 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "fac6bf3e-7b0e-5734-ba0b-88e67fbdbe69")
 	)
 	(junction
-		(at 78.74 157.48)
+		(at 55.88 147.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "189e99a3-7c73-55c8-af8d-e198c8745b19")
+		(uuid "11880ff6-839c-5a9c-baff-3ac8bb14f9cd")
 	)
 	(junction
-		(at 167.64 157.48)
+		(at 144.78 147.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5694fbda-f222-5424-88d4-8b1067e0c2fb")
+		(uuid "3d9d8644-2bef-51d4-ba23-a7dfeaa17102")
+	)
+	(junction
+		(at 43.18 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a88d87b5-2147-523b-8ff2-8ce26d7b2eb5")
 	)
 	(junction
 		(at 134.62 203.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "70a965d5-1d98-57a2-84a5-1fa77c1f2442")
+		(uuid "b00c5f6a-a55c-5e29-a4f5-1ea4f81c4aff")
 	)
 	(junction
-		(at 144.78 144.78)
+		(at 167.64 160.02)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "74b93a2a-e037-57d0-8b23-89ed31cf4cd9")
+		(uuid "d41215ee-9f18-58fb-9ddd-579ba3768d38")
 	)
 	(junction
 		(at 134.62 195.58)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "9523b336-c7be-5d2b-a2b9-8bb5f1dedb6d")
+		(uuid "df83c870-51ae-5b5a-a9b6-ff5abd05bdd6")
 	)
 	(junction
-		(at 55.88 144.78)
+		(at 78.74 160.02)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "dffc55e1-3438-5557-a272-81d1d0b23df7")
+		(uuid "e0777b01-0952-56b2-ac07-e29e36882e69")
 	)
 	(no_connect
-		(at 91.44 106.68)
-		(uuid "ea33243d-d866-5aa4-b027-fd66a1ebc3d0")
+		(at 91.44 104.14)
+		(uuid "d51f369e-528e-53b2-b8ee-3f1a523c42b9")
 	)
 	(wire
 		(pts
-			(xy 58.42 109.22) (xy 60.96 109.22)
+			(xy 55.88 137.16) (xy 55.88 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "022598b5-32a0-5c5e-877d-f91c8f188d71")
-	)
-	(wire
-		(pts
-			(xy 55.88 127) (xy 55.88 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "05b98695-87d7-56eb-84fc-13fd91eefbf2")
-	)
-	(wire
-		(pts
-			(xy 50.8 144.78) (xy 55.88 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09f6384c-b799-564c-8ce5-61dd59fb08ce")
-	)
-	(wire
-		(pts
-			(xy 55.88 142.24) (xy 55.88 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0bb99f3e-2415-5ba1-9626-3cd55912e36f")
-	)
-	(wire
-		(pts
-			(xy 147.32 106.68) (xy 149.86 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "101377e4-d85e-54d2-914f-2a2d1647eb3d")
-	)
-	(wire
-		(pts
-			(xy 55.88 134.62) (xy 60.96 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1cc6099b-03e3-59b0-8821-19592e6caa70")
-	)
-	(wire
-		(pts
-			(xy 91.44 137.16) (xy 96.52 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2194e53d-da81-5d9d-8c60-0832d9573ea3")
-	)
-	(wire
-		(pts
-			(xy 144.78 134.62) (xy 149.86 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "21b0b0e9-3779-5ede-8a1f-66c6df82c6ac")
-	)
-	(wire
-		(pts
-			(xy 127 195.58) (xy 134.62 195.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "21e051c4-92d6-5814-8bc6-10306d70321e")
-	)
-	(wire
-		(pts
-			(xy 180.34 119.38) (xy 185.42 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29843cbf-a28e-51b4-bd88-9f20f27e50bf")
-	)
-	(wire
-		(pts
-			(xy 55.88 134.62) (xy 55.88 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e396235-52a9-5a14-bbe7-e4540c517207")
-	)
-	(wire
-		(pts
-			(xy 180.34 127) (xy 185.42 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3476ff05-b40f-5d04-95a6-de432b057c13")
-	)
-	(wire
-		(pts
-			(xy 91.44 127) (xy 96.52 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d6b4e84-32a8-5063-a1a9-fe58124fe35b")
-	)
-	(wire
-		(pts
-			(xy 91.44 104.14) (xy 96.52 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3e259776-b531-5bab-aac7-4de8a6eaedff")
-	)
-	(wire
-		(pts
-			(xy 147.32 109.22) (xy 149.86 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3e78df59-1885-5701-9cc3-fcdd1016b011")
-	)
-	(wire
-		(pts
-			(xy 142.24 114.3) (xy 149.86 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "40476901-5592-5969-8560-8d85ceec5ab6")
-	)
-	(wire
-		(pts
-			(xy 134.62 109.22) (xy 147.32 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "442cca34-3f86-51d4-8260-f00cb476b2da")
+		(uuid "02e33d4c-5cad-5d32-a234-4e4dc19db917")
 	)
 	(wire
 		(pts
@@ -1612,277 +1469,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "45dc8c57-8230-5f90-a9cc-376473df7c16")
-	)
-	(wire
-		(pts
-			(xy 134.62 106.68) (xy 147.32 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49ab5bbd-6a47-5b1f-aadd-53484d89d0eb")
-	)
-	(wire
-		(pts
-			(xy 180.34 129.54) (xy 185.42 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e5971da-101b-561a-bc85-cc066f34b29a")
-	)
-	(wire
-		(pts
-			(xy 121.92 116.84) (xy 121.92 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e6bfa85-dd21-5dd2-bd73-ded9abba44a5")
-	)
-	(wire
-		(pts
-			(xy 167.64 154.94) (xy 167.64 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "519e8843-b572-586f-8d42-fd7cb740ee80")
-	)
-	(wire
-		(pts
-			(xy 55.88 127) (xy 60.96 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "52b74dcc-f60e-5e28-b31b-0dbd7af10d4c")
-	)
-	(wire
-		(pts
-			(xy 134.62 104.14) (xy 147.32 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "569bf0b7-3386-5cd5-b598-c736dbca95a2")
-	)
-	(wire
-		(pts
-			(xy 144.78 134.62) (xy 144.78 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5a39cd78-b869-5681-ab11-5c7da9e59863")
-	)
-	(wire
-		(pts
-			(xy 78.74 154.94) (xy 78.74 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6205d06a-c684-5232-9bec-16033994dab0")
-	)
-	(wire
-		(pts
-			(xy 91.44 129.54) (xy 96.52 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "64e03e2f-2a88-5377-a15d-06d7f24a6479")
-	)
-	(wire
-		(pts
-			(xy 53.34 111.76) (xy 60.96 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "672f2e61-e731-5952-9c5b-d342413500a2")
-	)
-	(wire
-		(pts
-			(xy 91.44 109.22) (xy 96.52 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "727034df-9118-5119-ad50-c8caaede04c1")
-	)
-	(wire
-		(pts
-			(xy 121.92 119.38) (xy 149.86 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "738d8625-9dd0-554e-b25b-78fe530cfe3d")
-	)
-	(wire
-		(pts
-			(xy 180.34 124.46) (xy 185.42 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "79145eae-250c-5f3f-8b94-4c29a65dae9b")
-	)
-	(wire
-		(pts
-			(xy 180.34 142.24) (xy 185.42 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7a1ae5f1-fb87-57bc-8678-4af561f7539b")
-	)
-	(wire
-		(pts
-			(xy 167.64 157.48) (xy 167.64 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7b5d02c7-e8d0-557e-bd00-cb1b55471b0e")
-	)
-	(wire
-		(pts
-			(xy 43.18 187.96) (xy 45.72 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7c92f86f-f5ac-5771-8be3-24896d638288")
-	)
-	(wire
-		(pts
-			(xy 91.44 114.3) (xy 96.52 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7fe994ab-4a1c-59c6-ae78-4d5a87d81089")
-	)
-	(wire
-		(pts
-			(xy 58.42 104.14) (xy 60.96 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "846afa20-82fc-5534-b71c-d0ce824e2e28")
-	)
-	(wire
-		(pts
-			(xy 144.78 144.78) (xy 149.86 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "872ffa3c-3b0d-5915-aa18-71128a0b9548")
-	)
-	(wire
-		(pts
-			(xy 147.32 104.14) (xy 149.86 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a14ca6f-5172-534b-9d8e-5975be79ccdd")
-	)
-	(wire
-		(pts
-			(xy 91.44 134.62) (xy 96.52 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a8a5bea-5055-5b63-93fb-eae996f0d0c3")
-	)
-	(wire
-		(pts
-			(xy 55.88 119.38) (xy 60.96 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b980b82-b811-58bf-be2e-1c3eae042896")
-	)
-	(wire
-		(pts
-			(xy 91.44 119.38) (xy 96.52 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8daacf34-54d0-53fe-abc1-6b6c37dd5cd6")
-	)
-	(wire
-		(pts
-			(xy 144.78 142.24) (xy 144.78 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8fe39092-0e45-5b68-94dd-905c9aa9028c")
-	)
-	(wire
-		(pts
-			(xy 180.34 111.76) (xy 185.42 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "91ebac99-9feb-5fe6-af02-cc2022c64e36")
-	)
-	(wire
-		(pts
-			(xy 180.34 132.08) (xy 185.42 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "96d5fcde-e87d-5da5-a1f8-79ccf2dcaf0b")
-	)
-	(wire
-		(pts
-			(xy 45.72 106.68) (xy 58.42 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9766e6c7-e281-508f-9741-a1903dd49511")
+		(uuid "03b2e5b0-c2c1-5ffa-98c6-13b114124049")
 	)
 	(wire
 		(pts
@@ -1892,327 +1479,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9768fb9a-b8c2-5e6f-bd0a-f27a537a12c4")
-	)
-	(wire
-		(pts
-			(xy 73.66 154.94) (xy 73.66 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "981625c3-fdef-500b-b9ca-1805d980e621")
-	)
-	(wire
-		(pts
-			(xy 55.88 144.78) (xy 60.96 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "99645d3f-f88b-533d-9553-9887dea06ecf")
-	)
-	(wire
-		(pts
-			(xy 78.74 157.48) (xy 78.74 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9a3c5675-cf05-59ba-8ef4-dbaa034bca7f")
-	)
-	(wire
-		(pts
-			(xy 45.72 104.14) (xy 58.42 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9dfff985-6379-5edb-9ec1-b6a233565d2e")
-	)
-	(wire
-		(pts
-			(xy 55.88 142.24) (xy 60.96 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ebdf842-9e40-50b7-b335-95a38c85d242")
-	)
-	(wire
-		(pts
-			(xy 58.42 106.68) (xy 60.96 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a2d9c369-d498-5474-9480-b3abb7882600")
-	)
-	(wire
-		(pts
-			(xy 180.34 104.14) (xy 185.42 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a76cad4d-84be-5646-85b2-57d9990f2274")
-	)
-	(wire
-		(pts
-			(xy 127 203.2) (xy 134.62 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ab226bc1-f395-531d-ae38-18524c4a2baa")
-	)
-	(wire
-		(pts
-			(xy 91.44 116.84) (xy 96.52 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aba2f213-bbc8-59be-86ed-3bfe68fea881")
-	)
-	(wire
-		(pts
-			(xy 91.44 139.7) (xy 96.52 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af27d208-69c4-5d78-bf82-c590d0858f05")
-	)
-	(wire
-		(pts
-			(xy 73.66 157.48) (xy 78.74 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b10a4c38-7013-5be3-940b-be83829b82c3")
-	)
-	(wire
-		(pts
-			(xy 180.34 106.68) (xy 185.42 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b343ab6e-da6c-5bcb-a6e3-f417f1d98662")
-	)
-	(wire
-		(pts
-			(xy 91.44 124.46) (xy 96.52 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b3607cc0-f041-5792-85bf-fa612e768143")
-	)
-	(wire
-		(pts
-			(xy 55.88 119.38) (xy 55.88 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b9eb9779-5458-5ccd-8645-c3accb108837")
-	)
-	(wire
-		(pts
-			(xy 180.34 114.3) (xy 185.42 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba2983f4-9298-5842-b38a-07157d97ee52")
-	)
-	(wire
-		(pts
-			(xy 165.1 93.98) (xy 165.1 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbd3fe0f-b810-5737-88a5-2fda03009840")
-	)
-	(wire
-		(pts
-			(xy 180.34 121.92) (xy 185.42 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf64b2cf-1d27-5ccf-bc78-894aacb8f9dd")
-	)
-	(wire
-		(pts
-			(xy 134.62 203.2) (xy 149.86 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c01fd2db-2dec-5288-98cb-08eb20f08540")
-	)
-	(wire
-		(pts
-			(xy 91.44 132.08) (xy 96.52 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0d6ebed-3e9d-5cf6-9bd0-58219a059597")
-	)
-	(wire
-		(pts
-			(xy 76.2 93.98) (xy 76.2 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c1882b78-d69d-5300-82b8-dff4d1576e05")
-	)
-	(wire
-		(pts
-			(xy 53.34 114.3) (xy 60.96 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c8ad0db8-d328-54f7-8495-6cf540f17a8f")
-	)
-	(wire
-		(pts
-			(xy 180.34 137.16) (xy 185.42 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d0880ecd-61de-5e6e-801e-69e312eb1ea7")
-	)
-	(wire
-		(pts
-			(xy 180.34 134.62) (xy 185.42 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d0e96046-635c-5e87-9a99-f0fa04e0704b")
-	)
-	(wire
-		(pts
-			(xy 91.44 142.24) (xy 96.52 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d2ec9080-52a4-54b1-b940-abedfcb4d6a1")
-	)
-	(wire
-		(pts
-			(xy 134.62 195.58) (xy 149.86 195.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d726b9e7-23c3-5fac-8c5c-d4e7b44e2694")
-	)
-	(wire
-		(pts
-			(xy 162.56 154.94) (xy 162.56 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d9e38d0d-13a4-59b0-aff1-ecb31191e5f2")
-	)
-	(wire
-		(pts
-			(xy 91.44 111.76) (xy 96.52 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da46a5d0-35a0-5297-98a0-ea45f2cf786c")
-	)
-	(wire
-		(pts
-			(xy 142.24 111.76) (xy 149.86 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dac99130-bc89-5768-8b74-804c8d4321d8")
-	)
-	(wire
-		(pts
-			(xy 91.44 121.92) (xy 96.52 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dfae1405-4389-5522-9091-cd5f8c028947")
-	)
-	(wire
-		(pts
-			(xy 139.7 144.78) (xy 144.78 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ec1365ce-7b9d-59f1-9b31-42d49f82cc24")
-	)
-	(wire
-		(pts
-			(xy 144.78 142.24) (xy 149.86 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ec1b92f5-5fa8-5665-a8f9-0540c4beb7ad")
-	)
-	(wire
-		(pts
-			(xy 162.56 157.48) (xy 167.64 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ec22f736-43da-5b4f-93c9-d5c7e1bacc1c")
+		(uuid "0a484550-2cb9-5899-9c16-82093015abcf")
 	)
 	(wire
 		(pts
@@ -2222,61 +1489,789 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f0b04561-acee-5074-9f14-54a39c53806f")
+		(uuid "11ea5ed8-cf3b-5787-9fd0-637b6c7e034d")
 	)
 	(wire
 		(pts
-			(xy 45.72 109.22) (xy 58.42 109.22)
+			(xy 180.34 137.16) (xy 185.42 137.16)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f4ff15fd-f73b-5a8a-aea1-4fe5f9cdc575")
+		(uuid "136caa71-0de3-557a-8a53-970509eb0b7e")
 	)
 	(wire
 		(pts
-			(xy 144.78 127) (xy 144.78 129.54)
+			(xy 180.34 114.3) (xy 185.42 114.3)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f56b84fa-2e49-5fab-8227-0e2090d70760")
+		(uuid "1479659e-68fe-55e1-8b29-b7e71e061292")
 	)
 	(wire
 		(pts
-			(xy 144.78 127) (xy 149.86 127)
+			(xy 180.34 106.68) (xy 185.42 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ff3bcd42-f9f9-5215-9bd7-1a48ba004495")
+		(uuid "1cc0a260-30e2-530b-b201-8b92a7d4f8a7")
 	)
-	(label "SPI_MOSI"
-		(at 147.32 106.68 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
+	(wire
+		(pts
+			(xy 45.72 106.68) (xy 58.42 106.68)
 		)
-		(uuid "03b09bfd-3461-581f-bd99-8214bb1b155f")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 147.32 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
+		(uuid "2009ddde-d443-5485-a8c7-a787968feecf")
 	)
-	(label "SPI_MOSI"
+	(wire
+		(pts
+			(xy 35.56 147.32) (xy 43.18 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "231697b6-b529-517f-a560-f554b1fdc109")
+	)
+	(wire
+		(pts
+			(xy 45.72 104.14) (xy 58.42 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "244ebe5e-434a-5457-bc0a-e0b8ffe7d1a4")
+	)
+	(wire
+		(pts
+			(xy 134.62 104.14) (xy 147.32 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "25777aaf-4e7e-5d5b-b1b9-ebb0e83ad762")
+	)
+	(wire
+		(pts
+			(xy 165.1 91.44) (xy 165.1 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "260958ec-3b5e-5917-a580-0ba85e12717a")
+	)
+	(wire
+		(pts
+			(xy 144.78 129.54) (xy 149.86 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27ba7de2-42c2-57cf-b780-70a807475567")
+	)
+	(wire
+		(pts
+			(xy 144.78 137.16) (xy 144.78 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c346fa3-4569-5ec9-8aac-4fa5774d9146")
+	)
+	(wire
+		(pts
+			(xy 91.44 127) (xy 96.52 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d84adff-095d-5bd5-a9e9-857edc132d21")
+	)
+	(wire
+		(pts
+			(xy 127 203.2) (xy 134.62 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3669a069-ef7b-5d21-bad6-85ef207b7920")
+	)
+	(wire
+		(pts
+			(xy 91.44 109.22) (xy 96.52 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39d94bcf-73a9-5697-807e-61e53e8996e3")
+	)
+	(wire
+		(pts
+			(xy 91.44 114.3) (xy 96.52 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b60e0b6-8b2b-5212-ad17-d7f0fa6f237d")
+	)
+	(wire
+		(pts
+			(xy 147.32 101.6) (xy 149.86 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c5b19e1-0c39-53cb-bca6-398bb6d9a948")
+	)
+	(wire
+		(pts
+			(xy 91.44 111.76) (xy 96.52 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ffe7a4f-aba0-57c3-b8b3-8a6ddb45888c")
+	)
+	(wire
+		(pts
+			(xy 180.34 104.14) (xy 185.42 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "445126c8-36de-5e18-b453-c15ade72f0f2")
+	)
+	(wire
+		(pts
+			(xy 55.88 129.54) (xy 60.96 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4659a619-169b-5aa4-853e-febd04ee07a0")
+	)
+	(wire
+		(pts
+			(xy 91.44 132.08) (xy 96.52 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d732e93-4df9-5aa9-9060-b190fb860ab1")
+	)
+	(wire
+		(pts
+			(xy 73.66 160.02) (xy 78.74 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4dd9d323-cccb-5f47-bb44-bd14ff762882")
+	)
+	(wire
+		(pts
+			(xy 55.88 121.92) (xy 60.96 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50676dc7-e4a6-5aa7-a497-e5e0a800016a")
+	)
+	(wire
+		(pts
+			(xy 73.66 157.48) (xy 73.66 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50d95f3f-a0b5-56ff-9fd5-faf0ed5da8fc")
+	)
+	(wire
+		(pts
+			(xy 55.88 147.32) (xy 60.96 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "51397a21-1183-57dc-ad42-361039b3cf74")
+	)
+	(wire
+		(pts
+			(xy 76.2 91.44) (xy 76.2 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5743093f-a011-5170-a19b-6865a5af19d1")
+	)
+	(wire
+		(pts
+			(xy 180.34 119.38) (xy 185.42 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c11aa8c-9e86-5d9b-a97e-37099526ccfd")
+	)
+	(wire
+		(pts
+			(xy 180.34 111.76) (xy 185.42 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6001429d-cc8a-59ee-91cd-2b7856ccbf99")
+	)
+	(wire
+		(pts
+			(xy 55.88 144.78) (xy 60.96 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "60b0c4a5-8e0a-57ad-82f5-260455b0f238")
+	)
+	(wire
+		(pts
+			(xy 167.64 160.02) (xy 167.64 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "672385ff-4a4b-5d0c-b94f-bf21580aff47")
+	)
+	(wire
+		(pts
+			(xy 180.34 121.92) (xy 185.42 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "693cd85b-0775-5733-b6b8-1423930a4433")
+	)
+	(wire
+		(pts
+			(xy 144.78 119.38) (xy 144.78 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bba2118-1832-56ba-a885-0bf31c2ea89c")
+	)
+	(wire
+		(pts
+			(xy 144.78 129.54) (xy 144.78 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c7b4c98-1e95-5523-8c1d-532b8735dcd5")
+	)
+	(wire
+		(pts
+			(xy 91.44 124.46) (xy 96.52 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7439fdc3-1f46-5bcb-90d0-c850aec6c31f")
+	)
+	(wire
+		(pts
+			(xy 134.62 195.58) (xy 149.86 195.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7698f56c-57b6-5dd7-840d-f7a95547594e")
+	)
+	(wire
+		(pts
+			(xy 55.88 137.16) (xy 60.96 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "76f9d6ba-5e8f-593d-aed3-a6ffede94c5f")
+	)
+	(wire
+		(pts
+			(xy 139.7 147.32) (xy 144.78 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a15509f-fa96-5d11-a978-9876b4104e52")
+	)
+	(wire
+		(pts
+			(xy 180.34 127) (xy 185.42 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ba04535-c647-5040-b409-9708a294e622")
+	)
+	(wire
+		(pts
+			(xy 144.78 144.78) (xy 149.86 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "856ed67d-93cf-5e56-8961-e5aa6596e04f")
+	)
+	(wire
+		(pts
+			(xy 91.44 101.6) (xy 96.52 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88d72fda-942a-5603-b8fb-a7efaa6f8179")
+	)
+	(wire
+		(pts
+			(xy 180.34 132.08) (xy 185.42 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cae2ba0-17b2-5026-9233-1b7a86bc978a")
+	)
+	(wire
+		(pts
+			(xy 43.18 147.32) (xy 55.88 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8db4c9ec-bcdc-5884-9a78-f283d9ed4604")
+	)
+	(wire
+		(pts
+			(xy 58.42 106.68) (xy 60.96 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e065599-cc29-5457-943d-5a623d637be5")
+	)
+	(wire
+		(pts
+			(xy 55.88 121.92) (xy 55.88 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8effe849-3174-5b9c-85d2-d1bd579ee25c")
+	)
+	(wire
+		(pts
+			(xy 144.78 137.16) (xy 149.86 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96d4067d-3059-55e4-9fd4-4a751dd68fc2")
+	)
+	(wire
+		(pts
+			(xy 144.78 147.32) (xy 149.86 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "99d468b7-9225-5a92-b5d5-191a9de6711d")
+	)
+	(wire
+		(pts
+			(xy 91.44 119.38) (xy 96.52 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f2efc2b-b89f-576f-ad09-f5743e83ad3a")
+	)
+	(wire
+		(pts
+			(xy 55.88 144.78) (xy 55.88 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a17a4261-f926-5bd9-93c4-4843c1cb9499")
+	)
+	(wire
+		(pts
+			(xy 180.34 101.6) (xy 185.42 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a56b0434-4f4a-51d6-8648-1da933d527fa")
+	)
+	(wire
+		(pts
+			(xy 144.78 144.78) (xy 144.78 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8843f36-8edc-5e9f-a05e-48303c59ec79")
+	)
+	(wire
+		(pts
+			(xy 78.74 160.02) (xy 78.74 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae751d19-0903-5b33-a71f-91ec65ab25b5")
+	)
+	(wire
+		(pts
+			(xy 147.32 106.68) (xy 149.86 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae82aec0-86e8-5961-b8a8-160cd97d8e16")
+	)
+	(wire
+		(pts
+			(xy 142.24 111.76) (xy 149.86 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b2ef5a41-572f-5dfc-a0e0-23d4f50af718")
+	)
+	(wire
+		(pts
+			(xy 162.56 157.48) (xy 162.56 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7120622-1d47-5e3e-ba5b-a08f73698410")
+	)
+	(wire
+		(pts
+			(xy 91.44 137.16) (xy 96.52 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b85f4d8b-d4fd-5901-9c32-d0b86242016e")
+	)
+	(wire
+		(pts
+			(xy 134.62 101.6) (xy 147.32 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b92502f7-fc74-5117-b71a-8e15359ee9ea")
+	)
+	(wire
+		(pts
+			(xy 91.44 134.62) (xy 96.52 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb6e64a9-2038-526e-95d9-08156e040f3f")
+	)
+	(wire
+		(pts
+			(xy 58.42 104.14) (xy 60.96 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf12f996-7d2b-5e2e-b659-2fa5a753a514")
+	)
+	(wire
+		(pts
+			(xy 53.34 109.22) (xy 60.96 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c0f9a9ec-6bd7-57ee-8a18-4d84e44dd099")
+	)
+	(wire
+		(pts
+			(xy 58.42 101.6) (xy 60.96 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb5ddd8a-533f-5920-9a68-1e6ccb08dce0")
+	)
+	(wire
+		(pts
+			(xy 91.44 106.68) (xy 96.52 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb9844b7-426f-559e-b63f-d295497a7bcd")
+	)
+	(wire
+		(pts
+			(xy 127 195.58) (xy 134.62 195.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce22a6f2-7518-5be2-b747-65a1cbca8c01")
+	)
+	(wire
+		(pts
+			(xy 45.72 101.6) (xy 58.42 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cea9c52e-62e9-5ee0-80ff-84b577f920b8")
+	)
+	(wire
+		(pts
+			(xy 55.88 129.54) (xy 55.88 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cec28a4b-e904-5098-a013-b15a040233d9")
+	)
+	(wire
+		(pts
+			(xy 91.44 116.84) (xy 96.52 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf37e5af-a932-592a-b919-4a435b7fe2ed")
+	)
+	(wire
+		(pts
+			(xy 180.34 129.54) (xy 185.42 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1b95526-c3b0-59fc-b847-0c58c5a6f21c")
+	)
+	(wire
+		(pts
+			(xy 180.34 134.62) (xy 185.42 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2b0d1f8-b972-51c5-b665-581f8446c7d4")
+	)
+	(wire
+		(pts
+			(xy 91.44 121.92) (xy 96.52 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d899a7bc-be78-54b5-ad92-25e7524671f1")
+	)
+	(wire
+		(pts
+			(xy 91.44 129.54) (xy 96.52 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da7ba47a-9a90-559b-b635-e8e9b1687a7c")
+	)
+	(wire
+		(pts
+			(xy 144.78 121.92) (xy 149.86 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd388914-3ed7-51ed-9d5f-01b7bd505a04")
+	)
+	(wire
+		(pts
+			(xy 134.62 106.68) (xy 147.32 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df7cac98-426e-5a3a-94e4-0cdc4ef076d5")
+	)
+	(wire
+		(pts
+			(xy 147.32 104.14) (xy 149.86 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e30192b5-9d3e-5f00-becb-b200678ebb53")
+	)
+	(wire
+		(pts
+			(xy 142.24 109.22) (xy 149.86 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e5e0b886-d822-5a11-8757-6a5cc82a4388")
+	)
+	(wire
+		(pts
+			(xy 53.34 111.76) (xy 60.96 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e5e6ba29-322b-50ce-8d94-be7330763157")
+	)
+	(wire
+		(pts
+			(xy 78.74 157.48) (xy 78.74 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebda95a2-cd61-5c89-9d33-81539c73d28f")
+	)
+	(wire
+		(pts
+			(xy 162.56 160.02) (xy 167.64 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed34dc9b-8604-5b92-914b-ba37d0c9c501")
+	)
+	(wire
+		(pts
+			(xy 180.34 124.46) (xy 185.42 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f59fdd61-35a3-594c-a181-d418edd68519")
+	)
+	(wire
+		(pts
+			(xy 91.44 139.7) (xy 96.52 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f726c349-1c25-54ba-ac1f-28f80a55c980")
+	)
+	(wire
+		(pts
+			(xy 134.62 203.2) (xy 149.86 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb3597ed-bb15-52a0-b1e1-569ecbf94448")
+	)
+	(wire
+		(pts
+			(xy 167.64 157.48) (xy 167.64 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe0e9fbe-ba08-5621-a6be-0c7c1910d91e")
+	)
+	(label "SPI_MISO"
 		(at 58.42 106.68 180)
 		(effects
 			(font
@@ -2284,8 +2279,8 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "1acc2ee5-0cd3-50d8-8d6f-836eeb57e14b")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+		(uuid "130f43ee-1be8-504c-a997-acdb0a2ed89f")
+		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 58.42 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -2299,6 +2294,72 @@
 		)
 	)
 	(label "SPI_SCK"
+		(at 147.32 101.6 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1cb30594-a21c-5436-83b4-3e16deb84117")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 147.32 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_MOSI"
+		(at 147.32 104.14 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1cde48f5-8546-5a57-8499-2e74a17a938f")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 147.32 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_SCK"
+		(at 58.42 101.6 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9de2737b-e8e0-58f7-ac6a-71df3cdb8bef")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_MOSI"
 		(at 58.42 104.14 180)
 		(effects
 			(font
@@ -2306,8 +2367,8 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "3adb2258-cb2f-5cf1-9323-e1ebcbca7cf1")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+		(uuid "d6b02dbb-b3c9-5b87-b954-52cbceaae5c5")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
 			(at 58.42 104.14 0)
 			(hide yes)
 			(show_name no)
@@ -2321,16 +2382,16 @@
 		)
 	)
 	(label "SPI_MISO"
-		(at 58.42 109.22 180)
+		(at 147.32 106.68 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "5e0a76cb-0039-50b4-806b-4aa7dd3110dc")
+		(uuid "ecf720ad-0849-5741-a7fb-faf4dbc90c64")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
-			(at 58.42 109.22 0)
+			(at 147.32 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2339,266 +2400,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-			)
-		)
-	)
-	(label "SPI_SCK"
-		(at 147.32 104.14 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8c7f7eb8-61ed-5f54-8c71-c52c16a3985d")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 147.32 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "SPI_MISO"
-		(at 147.32 109.22 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "dda29f50-954b-59e6-8fd5-29b9e29341e9")
-		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
-			(at 147.32 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO4_PULLUP"
-		(shape bidirectional)
-		(at 185.42 132.08 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "0653a0e9-46e4-50e1-a46a-6ac43dd7a127")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 132.08 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
-			(at 185.42 132.08 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PREC_EXC_EN"
-		(shape bidirectional)
-		(at 96.52 137.16 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "127f53ef-e54f-556a-bb94-32f4317ab17d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "I/O expander 3 port A bit 7, high turns the precision port excitation on; pulled low"
-			(at 96.52 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO4_OUT_EN"
-		(shape bidirectional)
-		(at 185.42 124.46 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "16af83a5-295d-5667-96d3-d83ac895ae1c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
-			(at 185.42 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO_EXP_CS"
-		(shape bidirectional)
-		(at 142.24 111.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1c1f2df2-c947-5f0a-960b-72f3b555541c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
-			(at 142.24 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "EXP_INT_N"
-		(shape bidirectional)
-		(at 185.42 142.24 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "213d69bc-74b7-5d1d-8bd6-4cdd4a7a7280")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expansion header interrupt line, active low, read on I/O expander 2 port B bit 7"
-			(at 185.42 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_DIRECT"
-		(shape bidirectional)
-		(at 185.42 137.16 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "27e609e8-6359-593b-aed8-fc98432bd2d2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 185.42 137.16 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 			)
 		)
 	)
@@ -2612,7 +2413,7 @@
 			)
 			(justify right)
 		)
-		(uuid "2a163785-bac2-5022-af10-a37b07e70c8e")
+		(uuid "0f668333-31c0-5f52-91c3-5536717fd583")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 38.1 88.9 0)
 			(hide yes)
@@ -2635,834 +2436,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-			)
-		)
-	)
-	(global_label "IO1_BUF_OE_N"
-		(shape bidirectional)
-		(at 96.52 121.92 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "36aaa4e1-852d-5d15-87a2-a66865b09b11")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
-			(at 96.52 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_BUF_OE_N"
-		(shape bidirectional)
-		(at 96.52 142.24 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "44b8bf50-3247-5039-a3b7-48e8bd95079e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, low enables the channel 2 input buffer to the ESP32 pin; pulled high"
-			(at 96.52 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_SENS_EN"
-		(shape bidirectional)
-		(at 96.52 134.62 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "49d37cd8-923f-5eaf-b092-3a2c39414fcd")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
-			(at 96.52 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO3_PULLUP"
-		(shape bidirectional)
-		(at 185.42 111.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4a0c5af9-943e-5938-8eb7-3f4b29ae11cc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
-			(at 185.42 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO4_BURDEN"
-		(shape bidirectional)
-		(at 185.42 129.54 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4f675f06-e65c-5082-b1cf-13d8a6e8fc4e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
-			(at 185.42 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_DIRECT"
-		(shape bidirectional)
-		(at 96.52 127 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5d0793a8-9ddd-563a-8840-3f77e7ef9f13")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 96.52 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_PULLUP"
-		(shape bidirectional)
-		(at 96.52 111.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5f2b4e76-d288-5d9d-b34c-e3ad09393f1a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
-			(at 96.52 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_SENS_EN"
-		(shape bidirectional)
-		(at 96.52 114.3 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "61eaba30-3927-5cd0-b7ff-ecad41167154")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
-			(at 96.52 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_SENS_FLT_N"
-		(shape bidirectional)
-		(at 96.52 119.38 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "6602c068-548e-567c-ae17-f895e43432ee")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Channel 1 sensor supply fault flag, open drain, active low, to the expander"
-			(at 96.52 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "PREC_EXC_FLT_N"
-		(shape bidirectional)
-		(at 185.42 116.84 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "68d06b8a-7dcf-5aa1-99ff-ee43902f02fc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
-			(at 185.42 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_PULLUP"
-		(shape bidirectional)
-		(at 96.52 132.08 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "69a0730f-2609-536b-830b-3de013f91db4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 132.08 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
-			(at 96.52 132.08 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO4_SENS_EN"
-		(shape bidirectional)
-		(at 185.42 134.62 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "752a9db6-18b8-52c9-b839-931853cd2804")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
-			(at 185.42 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_BURDEN"
-		(shape bidirectional)
-		(at 96.52 109.22 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "75ed295e-1ef3-512e-b055-77464325aa4a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
-			(at 96.52 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO_EXP_CS"
-		(shape bidirectional)
-		(at 53.34 111.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7c8e823c-7ef2-52bd-84cd-bffb548cc8b1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 53.34 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
-			(at 53.34 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO4_SENS_FLT_N"
-		(shape bidirectional)
-		(at 185.42 139.7 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "871f8186-67b2-5942-a54c-1b54973226ce")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Channel 4 sensor supply fault flag, open drain, active low, to the expander"
-			(at 185.42 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO1_OUT_EN"
-		(shape bidirectional)
-		(at 96.52 104.14 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8b3d8d19-9444-52c1-a895-09bd11c46a9b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 1 output switch; pulled low"
-			(at 96.52 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO3_BURDEN"
-		(shape bidirectional)
-		(at 185.42 109.22 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8bbff7ef-e703-5d49-94b7-384fb1bb977e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
-			(at 185.42 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO4_DIRECT"
-		(shape bidirectional)
-		(at 185.42 127 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8dfe2f06-b09f-5938-9076-db07ac496aa7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 185.42 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_BURDEN"
-		(shape bidirectional)
-		(at 96.52 129.54 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9ad55e30-723e-5943-9d03-1cc03b4b519b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
-			(at 96.52 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO3_DIRECT"
-		(shape bidirectional)
-		(at 185.42 106.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a1bb7afc-fdd9-5590-b525-1363db0267cd")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
-			(at 185.42 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO2_SENS_FLT_N"
-		(shape bidirectional)
-		(at 96.52 139.7 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a1e26125-5c7c-5c77-8eb8-01923bf20311")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
-			(at 96.52 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO3_SENS_EN"
-		(shape bidirectional)
-		(at 185.42 114.3 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a2a88e2e-4ad6-55ff-a1b9-914e2e1418da")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
-			(at 185.42 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "RS485_IRQ_N"
-		(shape bidirectional)
-		(at 185.42 121.92 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ad9a928f-f089-57d0-8516-a83ae905a3e9")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "SC16IS750 interrupt, open drain, active low, read on I/O expander 2 port A bit 7"
-			(at 185.42 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 			)
 		)
 	)
@@ -3476,7 +2449,7 @@
 			)
 			(justify right)
 		)
-		(uuid "c804efe9-d3e8-5838-b67b-60252b7817b8")
+		(uuid "7774a7ae-8ff8-5626-a894-5b4ca97ed2ae")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 127 88.9 0)
 			(hide yes)
@@ -3502,31 +2475,18 @@
 			)
 		)
 	)
-	(global_label "IO_EXP_INT_N"
-		(shape bidirectional)
-		(at 45.72 187.96 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO4_OUT_EN"
+		(shape output)
+		(at 185.42 121.92 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "c84e6df8-5c9e-5094-9323-a6ffa9f51d6b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 45.72 187.96 0)
+		(uuid "023cf2a5-fd4c-5e8f-b226-e4d8de1aef00")
+		(property "Description" "Expander output, high closes the channel 4 output switch; pulled low"
+			(at 185.42 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3538,31 +2498,18 @@
 			)
 		)
 	)
-	(global_label "IO3_OUT_EN"
-		(shape bidirectional)
-		(at 185.42 104.14 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO4_SENS_EN"
+		(shape output)
+		(at 185.42 132.08 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "d81f6d42-9276-5eef-87bf-faa7e2922f66")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
-			(at 185.42 104.14 0)
+		(uuid "05f1150c-e4cf-53e7-a0df-3fcd71604b1c")
+		(property "Description" "Expander output, high turns on the channel 4 sensor supply; pulled low"
+			(at 185.42 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3574,31 +2521,18 @@
 			)
 		)
 	)
-	(global_label "IO_OUT_FLT_A_N"
-		(shape bidirectional)
-		(at 96.52 116.84 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO1_BURDEN"
+		(shape output)
+		(at 96.52 106.68 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "ded69d78-f8a2-59a6-a69b-ec356a5dc37e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
-			(at 96.52 116.84 0)
+		(uuid "06a81a87-751d-58f7-8df0-a3415bcedf2c")
+		(property "Description" "Expander output, high switches in the channel 1 120 R loop burden; pulled low"
+			(at 96.52 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3610,31 +2544,87 @@
 			)
 		)
 	)
-	(global_label "ESP_EN"
-		(shape bidirectional)
-		(at 142.24 114.3 180)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_BURDEN"
+		(shape output)
+		(at 185.42 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "07e08ade-7af0-5a58-a809-120c47b6732c")
+		(property "Description" "Expander output, high switches in the channel 3 120 R loop burden; pulled low"
+			(at 185.42 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_PULLUP"
+		(shape output)
+		(at 96.52 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0917cc8d-b794-544b-8b38-c480aa948f86")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 1 pin; pulled low"
+			(at 96.52 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "EXP_INT_N"
+		(shape input)
+		(at 185.42 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "178d81a7-6a31-590a-b5bc-7ac3e231580e")
+		(property "Description" "Expansion header interrupt line, active low, read on I/O expander 2 port B bit 7"
+			(at 185.42 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_CS"
+		(shape input)
+		(at 142.24 109.22 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "df3ecbaf-b15e-5265-9657-b8a9fa6dd90d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
-			(at 142.24 114.3 0)
+		(uuid "25978854-deec-5ed3-8c27-47e4f122e806")
+		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
+			(at 142.24 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3646,175 +2636,685 @@
 			)
 		)
 	)
-	(global_label "IO2_OUT_EN"
-		(shape bidirectional)
-		(at 96.52 124.46 0)
-		(fields_autoplaced yes)
+	(hierarchical_label "IO3_SENS_FLT_N"
+		(shape input)
+		(at 185.42 116.84 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "efcb875a-d473-54a9-9f00-7f27b34deb28")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
-			(at 96.52 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "IO_EXP_INT_N"
-		(shape bidirectional)
-		(at 139.7 144.78 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f109fe3e-9b90-58e3-a2c4-c54d8c48e34b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 139.7 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 139.7 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "ESP_EN"
-		(shape bidirectional)
-		(at 53.34 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f49449d7-8a6d-59bc-93ce-ac2b6757412e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 53.34 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
-			(at 53.34 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO_EXP_INT_N"
-		(shape bidirectional)
-		(at 50.8 144.78 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f84cb491-dd47-5c63-9e48-09a0fbda4479")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.8 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 50.8 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "IO3_SENS_FLT_N"
-		(shape bidirectional)
-		(at 185.42 119.38 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fafc0af1-cb40-5639-954f-0aaeaacc0998")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.42 119.38 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
+		(uuid "28777c6a-e795-5cac-914b-b9e3b71e1ec9")
 		(property "Description" "Channel 3 sensor supply fault flag, open drain, active low, to the expander"
+			(at 185.42 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO2_PULLUP"
+		(shape output)
+		(at 96.52 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3324dd4a-b029-5fcb-86b1-8da3af13c162")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 2 pin; pulled low"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO4_DIRECT"
+		(shape output)
+		(at 185.42 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "347d1441-7199-56c2-b8e0-c6c336765c52")
+		(property "Description" "Expander output, high opens the channel 4 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO2_DIRECT"
+		(shape output)
+		(at 96.52 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "361676d1-fdae-5a31-84c4-ac47e70baeb9")
+		(property "Description" "Expander output, high opens the channel 2 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 96.52 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_DIRECT"
+		(shape output)
+		(at 185.42 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3a63a434-cc30-5206-b4a2-85dd3afef1f8")
+		(property "Description" "Expander output, high opens the channel 1 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "ESP_EN"
+		(shape bidirectional)
+		(at 53.34 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3f2f61e9-751d-507d-84f8-8e84dd7ab70c")
+		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
+			(at 53.34 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO4_SENS_FLT_N"
+		(shape input)
+		(at 185.42 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4029ad36-01b7-52cb-9104-f940e1425203")
+		(property "Description" "Channel 4 sensor supply fault flag, open drain, active low, to the expander"
+			(at 185.42 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PREC_EXC_FLT_N"
+		(shape input)
+		(at 185.42 114.3 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4a577323-c099-5ce1-92b3-cb801e417393")
+		(property "Description" "Excitation switch fault flag, open drain, active low, read on I/O expander 3 port B bit 7"
+			(at 185.42 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "PREC_EXC_EN"
+		(shape output)
+		(at 96.52 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4c3f458f-d584-5762-8032-9324b91049bd")
+		(property "Description" "I/O expander 3 port A bit 7, high turns the precision port excitation on; pulled low"
+			(at 96.52 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_BUF_OE_N"
+		(shape output)
+		(at 96.52 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "59846326-29f3-5724-b5ef-50238e46913b")
+		(property "Description" "Expander output, low enables the channel 1 input buffer to the ESP32 pin; pulled high"
+			(at 96.52 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO3_PULLUP"
+		(shape output)
+		(at 185.42 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5df1a568-7e68-549b-9f69-f625e60966e5")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 3 pin; pulled low"
+			(at 185.42 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO4_PULLUP"
+		(shape output)
+		(at 185.42 129.54 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "61ee967a-06b3-5972-81fd-f83c720d302f")
+		(property "Description" "Expander output, high connects 10k to +3V3 on the channel 4 pin; pulled low"
+			(at 185.42 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_INT_N"
+		(shape output)
+		(at 35.56 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "64f666eb-82da-54d9-b72e-6b6318e35e3e")
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 35.56 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO2_BUF_OE_N"
+		(shape output)
+		(at 96.52 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6f2cd9ad-c311-5cbd-a1c9-a7828978c94b")
+		(property "Description" "Expander output, low enables the channel 2 input buffer to the ESP32 pin; pulled high"
+			(at 96.52 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_CS"
+		(shape input)
+		(at 53.34 109.22 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "870de709-e6ee-5a5c-baeb-bc7fc88ee151")
+		(property "Description" "Chip select (active low) shared by the four universal I/O expanders, decoder Y10"
+			(at 53.34 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_OUT_FLT_A_N"
+		(shape input)
+		(at 96.52 114.3 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8b1046d2-1289-56b6-9217-6eb3c016d04e")
+		(property "Description" "Output switch fault flag of channels 1-4 (group A): low while a pin is forced past the rails, open drain, to the expander"
+			(at 96.52 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO2_OUT_EN"
+		(shape output)
+		(at 96.52 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8b214ec0-6396-5ec3-86a3-9493de523b0f")
+		(property "Description" "Expander output, high closes the channel 2 output switch; pulled low"
+			(at 96.52 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_SENS_EN"
+		(shape output)
+		(at 96.52 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "960e042b-4816-5fcc-84d6-688164cda860")
+		(property "Description" "Expander output, high turns on the channel 1 sensor supply; pulled low"
+			(at 96.52 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO2_SENS_EN"
+		(shape output)
+		(at 96.52 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "96ddbc68-de78-56f3-b65f-31d51eaf0ebd")
+		(property "Description" "Expander output, high turns on the channel 2 sensor supply; pulled low"
+			(at 96.52 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_INT_N"
+		(shape output)
+		(at 139.7 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "afef744b-fdc0-584b-bbe9-efb80a64e7d0")
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 139.7 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO3_SENS_EN"
+		(shape output)
+		(at 185.42 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b6d18b20-0b2b-5192-96f6-47b8be0b82e8")
+		(property "Description" "Expander output, high turns on the channel 3 sensor supply; pulled low"
+			(at 185.42 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_OUT_EN"
+		(shape output)
+		(at 96.52 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b7829ffe-2eec-542e-af02-7ffd4745cf50")
+		(property "Description" "Expander output, high closes the channel 1 output switch; pulled low"
+			(at 96.52 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO4_BURDEN"
+		(shape output)
+		(at 185.42 127 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b8e32bc0-4b24-594f-ba75-926ea84b35bf")
+		(property "Description" "Expander output, high switches in the channel 4 120 R loop burden; pulled low"
+			(at 185.42 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "RS485_IRQ_N"
+		(shape input)
+		(at 185.42 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b8e78b9e-9ec8-500a-9770-c9a7140748d2")
+		(property "Description" "SC16IS750 interrupt, open drain, active low, read on I/O expander 2 port A bit 7"
 			(at 185.42 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO2_SENS_FLT_N"
+		(shape input)
+		(at 96.52 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b9cc72c1-0ca8-5a2d-a337-50434a435cca")
+		(property "Description" "Channel 2 sensor supply fault flag, open drain, active low, to the expander"
+			(at 96.52 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO3_OUT_EN"
+		(shape output)
+		(at 185.42 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d6028f4e-0817-52b5-b046-43916aa10081")
+		(property "Description" "Expander output, high closes the channel 3 output switch; pulled low"
+			(at 185.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "ESP_EN"
+		(shape bidirectional)
+		(at 142.24 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "dcd9c0fd-fb04-549e-95bf-5e80a661b8cc")
+		(property "Description" "ESP32 enable / reset, active low: RESET button, power-on RC delay and the display reset line (J15)"
+			(at 142.24 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO2_BURDEN"
+		(shape output)
+		(at 96.52 127 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "edfc4ba2-4dce-50e9-95bc-01e8ce4875be")
+		(property "Description" "Expander output, high switches in the channel 2 120 R loop burden; pulled low"
+			(at 96.52 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO3_DIRECT"
+		(shape output)
+		(at 185.42 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fbb9525c-a852-5bb5-8ac0-dd54e248db3e")
+		(property "Description" "Expander output, high opens the channel 3 divider leg (direct 0-2.5 V range); pulled low = 0-15 V range"
+			(at 185.42 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "IO1_SENS_FLT_N"
+		(shape input)
+		(at 96.52 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fc6dbcf4-dc64-5a08-a87c-91e80469280e")
+		(property "Description" "Channel 1 sensor supply fault flag, open drain, active low, to the expander"
+			(at 96.52 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3828,7 +3328,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 55.88 121.92 0)
+		(at 55.88 124.46 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3838,7 +3338,7 @@
 		(dnp no)
 		(uuid "0ae9cba0-997c-5c8d-9165-913c07ab4319")
 		(property "Reference" "#PWR358"
-			(at 55.88 121.92 0)
+			(at 55.88 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3849,7 +3349,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 55.88 121.92 0)
+			(at 55.88 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3860,7 +3360,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 55.88 121.92 0)
+			(at 55.88 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3871,7 +3371,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 55.88 121.92 0)
+			(at 55.88 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3882,7 +3382,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 55.88 121.92 0)
+			(at 55.88 124.46 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3893,11 +3393,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "353aca9a-4771-5d41-8b6a-6b6a29b206a7")
+			(uuid "7b8287aa-b458-5ef7-9c4d-5a35bfe5530c")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "#PWR358")
 					(unit 1)
 				)
@@ -3905,8 +3405,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 144.78 137.16 0)
+		(lib_id "power:+3V3")
+		(at 144.78 119.38 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3915,8 +3415,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "0e7e5963-7331-57c6-885c-07b96a26cbaf")
-		(property "Reference" "#PWR365"
-			(at 144.78 137.16 0)
+		(property "Reference" "#PWR364"
+			(at 144.78 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3926,9 +3426,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 144.78 137.16 0)
-			(hide yes)
+		(property "Value" "+3V3"
+			(at 144.78 115.824 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3938,7 +3437,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 144.78 137.16 0)
+			(at 144.78 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3949,7 +3448,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 144.78 137.16 0)
+			(at 144.78 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3959,8 +3458,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 144.78 137.16 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 144.78 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3971,185 +3470,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a5808764-6a21-5ef9-acb4-7d5ad4b38e79")
+			(uuid "f91eea0d-7f7b-5fca-972e-d072abb57e75")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR365")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "cryocooler:MCP23S17-E/ML")
-		(at 165.1 127 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "25ba78e5-324e-5cf4-ad41-aa19940b5286")
-		(property "Reference" "U108"
-			(at 148.59 93.96 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MCP23S17-E/ML"
-			(at 148.59 96.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:QFN-28-1EP_6x6mm_P0.65mm_EP4.25x4.25mm"
-			(at 165.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf"
-			(at 165.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "I/O expander at address 1: mode bits and fault flags of I/O channel 3 (port A) and channel 4 (port B)"
-			(at 165.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=MCP23S17-E/ML"
-			(at 165.1 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "8"
-			(uuid "3f2bbb16-8e59-59ff-9861-2c14954f9ff4")
-		)
-		(pin "9"
-			(uuid "d709e5d5-da23-5c90-815c-41adc9db07f1")
-		)
-		(pin "10"
-			(uuid "3b43da48-418b-5436-bb2a-259210406122")
-		)
-		(pin "7"
-			(uuid "afffc4bc-5d78-5e5b-98ef-189264000a18")
-		)
-		(pin "14"
-			(uuid "bef57b3f-398d-5167-bf1d-015ec09ec82c")
-		)
-		(pin "11"
-			(uuid "5ac69f40-15d4-5b73-9cec-13236f421fd9")
-		)
-		(pin "12"
-			(uuid "fbea70e8-c8e5-502b-afc8-3eae4dcbb0c9")
-		)
-		(pin "13"
-			(uuid "8bdb1cdf-d87c-588d-b980-029013a60b74")
-		)
-		(pin "16"
-			(uuid "87e856a6-7e90-538e-ae4b-0c589665637e")
-		)
-		(pin "15"
-			(uuid "e8644533-2632-5e5c-a36d-47597e57b1f4")
-		)
-		(pin "17"
-			(uuid "55495e78-d83f-5bae-9302-1699b4237ea9")
-		)
-		(pin "18"
-			(uuid "a8fe19c8-3418-5081-9885-9fa0d2995b5c")
-		)
-		(pin "19"
-			(uuid "ab4587e2-c7ad-5f5b-b620-e0a2bc8692ee")
-		)
-		(pin "20"
-			(uuid "64aac6c5-4ab2-5bd6-8496-be2cca8e755f")
-		)
-		(pin "21"
-			(uuid "da109f9c-6a5f-5493-9ae9-4c629a4636de")
-		)
-		(pin "22"
-			(uuid "fafd2107-5221-58dd-917c-943a68ce70d8")
-		)
-		(pin "23"
-			(uuid "40ba8999-4bbb-5cfa-85e4-e1aadeebab41")
-		)
-		(pin "24"
-			(uuid "ab6d9e0b-be10-5b40-ab51-6dc1738639e6")
-		)
-		(pin "25"
-			(uuid "68e82531-263d-514c-8711-fc7030753af9")
-		)
-		(pin "26"
-			(uuid "c9038b50-2820-50cb-b2f4-404fd827793c")
-		)
-		(pin "27"
-			(uuid "cab1ec7f-bda8-5f41-b094-0d57c6c475ed")
-		)
-		(pin "28"
-			(uuid "2fd97826-6b0a-5139-93fa-7fcde3b126ec")
-		)
-		(pin "1"
-			(uuid "eddd2229-5697-545f-a843-29c4582f098d")
-		)
-		(pin "2"
-			(uuid "95be77e0-9b0e-571b-b41a-0272ec95bc96")
-		)
-		(pin "3"
-			(uuid "d105ceee-df61-57c0-8e7a-676970cb6365")
-		)
-		(pin "4"
-			(uuid "c20ac3d7-4bd5-5b40-99d1-62304f41b22f")
-		)
-		(pin "5"
-			(uuid "b0a99f51-81f8-5ca5-b9c3-795f41cc00ab")
-		)
-		(pin "6"
-			(uuid "baac9170-4095-5dea-a6d4-ddde2e05a09c")
-		)
-		(pin "29"
-			(uuid "3b2286d6-c5ae-519d-8290-21b97660db5b")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "U108")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR364")
 					(unit 1)
 				)
 			)
@@ -4157,7 +3483,84 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 35.56 187.96 0)
+		(at 76.2 91.44 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "25ba78e5-324e-5cf4-ad41-aa19940b5286")
+		(property "Reference" "#PWR362"
+			(at 76.2 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 76.2 87.884 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 76.2 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 76.2 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8784edb2-4627-5ab7-b12b-753ef8ec00d3")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR362")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 165.1 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4166,8 +3569,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "40693e67-a8ab-5c7d-9a39-e21be328701f")
-		(property "Reference" "#PWR368"
-			(at 35.56 187.96 0)
+		(property "Reference" "#PWR367"
+			(at 165.1 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4178,18 +3581,17 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 33.16 186.86 0)
+			(at 165.1 87.884 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 35.56 187.96 0)
+			(at 165.1 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4200,7 +3602,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 187.96 0)
+			(at 165.1 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4211,7 +3613,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 35.56 187.96 0)
+			(at 165.1 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4222,30 +3624,52 @@
 			)
 		)
 		(pin "1"
-			(uuid "99d2dc86-54bc-55c6-a518-189c49c04c8b")
+			(uuid "88355baf-7e8f-565c-bad7-4f71582e6066")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR368")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR367")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 76.2 93.98 0)
+		(lib_id "Device:R_US")
+		(at 43.18 143.51 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "645cc3cc-7fa0-5043-9570-f16afeb9337b")
-		(property "Reference" "#PWR361"
-			(at 76.2 93.98 0)
+		(property "Reference" "R625"
+			(at 46.396 142.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 46.396 144.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 43.18 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4255,18 +3679,8 @@
 				)
 			)
 		)
-		(property "Value" "+3V3"
-			(at 76.2 90.424 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 76.2 93.98 0)
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
+			(at 43.18 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4276,8 +3690,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 76.2 93.98 0)
+		(property "Description" "Pull-up resistor for IO_EXP_INT_N (open-drain interrupt outputs of the two I/O expanders)"
+			(at 43.18 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4287,8 +3701,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 76.2 93.98 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
+			(at 43.18 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4299,12 +3713,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "22c47e25-66ce-5ac5-b968-95a8ec085e5d")
+			(uuid "f1c18c7a-f434-5a5e-9927-a86ba40ff637")
+		)
+		(pin "2"
+			(uuid "35636e46-8d7a-5b7f-9649-54a970964d7a")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR361")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "R625")
 					(unit 1)
 				)
 			)
@@ -4388,14 +3805,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "70976a34-7489-57f0-a902-545b621bfd2a")
+			(uuid "8f4179f1-4d7d-5ab9-8e78-277149261fab")
 		)
 		(pin "2"
-			(uuid "40709350-921a-507a-b525-52d204cbd0e7")
+			(uuid "5284f8ca-dccf-5853-920b-806e09d471f3")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "C421")
 					(unit 1)
 				)
@@ -4404,7 +3821,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 167.64 160.02 0)
+		(at 144.78 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4413,8 +3830,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "6f0533e5-d23c-58d5-80bf-e0fb126b07c5")
-		(property "Reference" "#PWR367"
-			(at 167.64 160.02 0)
+		(property "Reference" "#PWR366"
+			(at 144.78 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4425,7 +3842,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 167.64 160.02 0)
+			(at 144.78 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4436,7 +3853,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 167.64 160.02 0)
+			(at 144.78 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4447,7 +3864,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 167.64 160.02 0)
+			(at 144.78 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4458,7 +3875,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 167.64 160.02 0)
+			(at 144.78 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4469,50 +3886,30 @@
 			)
 		)
 		(pin "1"
-			(uuid "5cd72f6a-a505-523e-af85-838cfc919870")
+			(uuid "843d28ef-9bcb-5031-98f2-8eab61408ad0")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR367")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR366")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R_US")
-		(at 39.37 187.96 90)
+		(lib_id "power:GND")
+		(at 167.64 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(in_bom no)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "83c953ef-572e-53eb-9a68-069fea852d80")
-		(property "Reference" "R625"
-			(at 39.37 181.844 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10k"
-			(at 39.37 183.944 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 39.37 187.96 0)
+		(property "Reference" "#PWR368"
+			(at 167.64 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4522,8 +3919,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 187.96 0)
+		(property "Value" "GND"
+			(at 167.64 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4533,8 +3930,8 @@
 				)
 			)
 		)
-		(property "Description" "Pull-up resistor for IO_EXP_INT_N (open-drain interrupt outputs of the two I/O expanders)"
-			(at 39.37 187.96 0)
+		(property "Footprint" ""
+			(at 167.64 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4544,8 +3941,19 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-0710KL"
-			(at 39.37 187.96 0)
+		(property "Datasheet" ""
+			(at 167.64 162.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 167.64 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4556,15 +3964,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1223a808-965a-54ba-8eaf-d56ca03fc8bd")
-		)
-		(pin "2"
-			(uuid "05da8b87-2ab6-5410-bfa1-5acc7677c2e6")
+			(uuid "6ae454cb-1569-55da-b026-558a851cdf54")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "R625")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR368")
 					(unit 1)
 				)
 			)
@@ -4636,11 +4041,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "4fa95beb-514c-5563-82ff-612aa7d51a25")
+			(uuid "37fb0e45-84e1-5bd1-badf-13f185e47053")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "#PWR369")
 					(unit 1)
 				)
@@ -4714,11 +4119,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "694c5192-5c5a-5115-92fa-3e39167df558")
+			(uuid "e87f40f4-8c0b-5055-a83b-eb28aeedee2f")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "#PWR370")
 					(unit 1)
 				)
@@ -4727,7 +4132,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 55.88 129.54 0)
+		(at 55.88 132.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4737,7 +4142,7 @@
 		(dnp no)
 		(uuid "ac458e75-8835-5af2-9ce3-3b3084fa84d9")
 		(property "Reference" "#PWR359"
-			(at 55.88 129.54 0)
+			(at 55.88 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4748,7 +4153,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 55.88 129.54 0)
+			(at 55.88 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4759,7 +4164,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 55.88 129.54 0)
+			(at 55.88 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4770,7 +4175,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 55.88 129.54 0)
+			(at 55.88 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4781,7 +4186,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 55.88 129.54 0)
+			(at 55.88 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4792,11 +4197,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "fa0531af-93f8-580f-9f7f-7a12f5195e12")
+			(uuid "ad8a75bd-bcd5-505d-affc-b9dbedaa919e")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "#PWR359")
 					(unit 1)
 				)
@@ -4804,8 +4209,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 165.1 93.98 0)
+		(lib_id "power:GND")
+		(at 144.78 132.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4814,85 +4219,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "ae1a342c-0cad-5cab-9666-17693919eff3")
-		(property "Reference" "#PWR366"
-			(at 165.1 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 165.1 90.424 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 165.1 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 165.1 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 165.1 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "728b0122-d001-5643-ad1c-cea7fe31ae59")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR366")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 144.78 129.54 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "cc0f9425-73a0-5cc2-9884-bbd2369fb592")
-		(property "Reference" "#PWR364"
-			(at 144.78 129.54 0)
+		(property "Reference" "#PWR365"
+			(at 144.78 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4903,7 +4231,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 144.78 129.54 0)
+			(at 144.78 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4914,7 +4242,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 144.78 129.54 0)
+			(at 144.78 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4925,7 +4253,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 144.78 129.54 0)
+			(at 144.78 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4936,7 +4264,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 144.78 129.54 0)
+			(at 144.78 132.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4947,12 +4275,185 @@
 			)
 		)
 		(pin "1"
-			(uuid "130cc08e-3da5-5831-9bc7-f6c22e53db7a")
+			(uuid "b51338a1-82bd-5993-ac5e-0dd49328e0e8")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR364")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR365")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "cryocooler:MCP23S17-E/ML")
+		(at 165.1 127 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "cc0f9425-73a0-5cc2-9884-bbd2369fb592")
+		(property "Reference" "U108"
+			(at 144.78 93.96 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MCP23S17-E/ML"
+			(at 144.78 96.06 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_DFN_QFN:QFN-28-1EP_6x6mm_P0.65mm_EP4.25x4.25mm"
+			(at 165.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf"
+			(at 165.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "I/O expander at address 1: mode bits and fault flags of I/O channel 3 (port A) and channel 4 (port B)"
+			(at 165.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=MCP23S17-E/ML"
+			(at 165.1 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "8"
+			(uuid "d2674f9d-fe8c-5452-aa71-134484391ecc")
+		)
+		(pin "9"
+			(uuid "203f3366-04ce-5636-9327-7a086931b103")
+		)
+		(pin "10"
+			(uuid "a2bd26b6-56a3-5bad-bf11-461b8345d17a")
+		)
+		(pin "7"
+			(uuid "655613af-7f49-507c-a206-a6f5bbef1af6")
+		)
+		(pin "14"
+			(uuid "8ffd35d3-c55a-54c5-a6aa-fde4579be69a")
+		)
+		(pin "11"
+			(uuid "787da85f-0af9-5ae2-90f6-5e1b9a82305d")
+		)
+		(pin "12"
+			(uuid "88508ab1-d79a-590a-b980-ed0dfbbd08d8")
+		)
+		(pin "13"
+			(uuid "54af8abe-be3a-5db3-a026-5ecd8881323e")
+		)
+		(pin "16"
+			(uuid "cec21ed6-ea31-5a2c-a50b-3a824894b806")
+		)
+		(pin "15"
+			(uuid "3c7067ef-dc5d-5590-8b08-063d429d6b04")
+		)
+		(pin "17"
+			(uuid "63720bc4-bec1-5389-9c3e-8a73d8f561dd")
+		)
+		(pin "18"
+			(uuid "dacb3a29-6e0e-506e-9d09-3232d28571c5")
+		)
+		(pin "19"
+			(uuid "36be1863-5025-53e2-9b24-daeda39ecede")
+		)
+		(pin "20"
+			(uuid "21ed9217-c88e-528d-8c70-3cf366d7955b")
+		)
+		(pin "21"
+			(uuid "2dd4cac0-b7f3-561d-8353-045e6383f8ef")
+		)
+		(pin "22"
+			(uuid "5b45e7f0-9abf-52dc-aa0f-0e6ea0e0fa79")
+		)
+		(pin "23"
+			(uuid "3ad50437-40af-5343-b3c9-59530a614c1a")
+		)
+		(pin "24"
+			(uuid "e5cd1c54-39d3-520c-9977-1f6f921cdb17")
+		)
+		(pin "25"
+			(uuid "a2c7e7b5-4a0c-5741-8616-64c6948b6bf7")
+		)
+		(pin "26"
+			(uuid "9057fb07-8445-5b28-a965-6538e12a698d")
+		)
+		(pin "27"
+			(uuid "3c4e378f-acc8-5a30-ada6-66c5ccadc95d")
+		)
+		(pin "28"
+			(uuid "482e8802-300a-514c-8eab-4da3eafdb847")
+		)
+		(pin "1"
+			(uuid "74dee4dd-82ae-518a-ade2-41822e4af279")
+		)
+		(pin "2"
+			(uuid "f0bd6887-67c0-5455-8b52-5d56ffa7ce58")
+		)
+		(pin "3"
+			(uuid "f3308169-ca25-5e54-b4f9-9d7e208e7e3d")
+		)
+		(pin "4"
+			(uuid "19f6c53b-d479-50d9-bfbc-327a014810ee")
+		)
+		(pin "5"
+			(uuid "35a8e2cb-83a1-5ebf-9ee4-4074f8904ee1")
+		)
+		(pin "6"
+			(uuid "9f3610ec-8f01-58c4-875e-6129f6265078")
+		)
+		(pin "29"
+			(uuid "244940f0-b5f7-5697-8e91-23ff4888564d")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "U108")
 					(unit 1)
 				)
 			)
@@ -5036,14 +4537,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "2c852904-7fde-564c-9a73-59698e746f04")
+			(uuid "2c6e2c31-4786-56aa-9d11-ccfd2afb564e")
 		)
 		(pin "2"
-			(uuid "3f8ca741-181b-5658-9e19-271fa2952344")
+			(uuid "e577f5ee-427f-582d-9f5a-9f33fe53b6fc")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "C422")
 					(unit 1)
 				)
@@ -5051,8 +4552,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 121.92 116.84 0)
+		(lib_id "power:GND")
+		(at 78.74 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5062,84 +4563,7 @@
 		(dnp no)
 		(uuid "e77be9af-95e8-5b48-874c-be0bead7e533")
 		(property "Reference" "#PWR363"
-			(at 121.92 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 121.92 113.284 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 121.92 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 121.92 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 121.92 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ad111d5b-ef79-5710-aad0-9642c3231213")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR363")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 78.74 160.02 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e8e0eb01-f10c-50b3-8f91-2709d6c136e6")
-		(property "Reference" "#PWR362"
-			(at 78.74 160.02 0)
+			(at 78.74 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5150,7 +4574,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 78.74 160.02 0)
+			(at 78.74 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5161,7 +4585,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 78.74 160.02 0)
+			(at 78.74 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5172,7 +4596,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 78.74 160.02 0)
+			(at 78.74 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5183,7 +4607,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 78.74 160.02 0)
+			(at 78.74 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5194,12 +4618,89 @@
 			)
 		)
 		(pin "1"
-			(uuid "4ed90f45-5488-5c8e-a3e1-518bcf442b28")
+			(uuid "9136d51c-c19d-56f8-8fc9-961038544bb5")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
-					(reference "#PWR362")
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR363")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 43.18 139.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e8e0eb01-f10c-50b3-8f91-2709d6c136e6")
+		(property "Reference" "#PWR361"
+			(at 43.18 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 43.18 136.144 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 43.18 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 43.18 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 43.18 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9b0f7d22-85f4-5c1c-96c0-d6211b37b39a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
+					(reference "#PWR361")
 					(unit 1)
 				)
 			)
@@ -5217,7 +4718,7 @@
 		(dnp no)
 		(uuid "eb0ddfb1-df4b-569e-84b3-ff3e6ff7d803")
 		(property "Reference" "U107"
-			(at 59.69 93.96 0)
+			(at 55.88 93.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5228,7 +4729,7 @@
 			)
 		)
 		(property "Value" "MCP23S17-E/ML"
-			(at 59.69 96.06 0)
+			(at 55.88 96.06 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5283,95 +4784,95 @@
 			)
 		)
 		(pin "8"
-			(uuid "a708b8d5-0f2f-5a34-b916-c998d404d96f")
+			(uuid "8ef9b96f-01a4-538e-83a1-a40209666a37")
 		)
 		(pin "9"
-			(uuid "e0f5fbdf-0d4d-5f83-979c-f6e32ef816c5")
+			(uuid "433b9fab-1e4b-5d3d-a867-bff702fc268d")
 		)
 		(pin "10"
-			(uuid "5565bb77-dee9-5841-8d48-442d57fee1a7")
+			(uuid "27808660-5313-51af-bf28-97da91075f21")
 		)
 		(pin "7"
-			(uuid "fcf93816-6076-58dc-b76a-add01838a30c")
+			(uuid "8b73d772-b740-5b3f-b92f-b85705cf1346")
 		)
 		(pin "14"
-			(uuid "760f9dc4-8630-56c4-ac80-eb853f28e570")
+			(uuid "9ad644ce-a91c-5412-aa5f-5401d6adc867")
 		)
 		(pin "11"
-			(uuid "5a5aa92b-f8fe-5d57-80a8-ad4a2d3e7bad")
+			(uuid "17c1c1d9-b1d1-5642-bc5c-6bb6b7d117a8")
 		)
 		(pin "12"
-			(uuid "dd608cfc-4467-55ad-9448-22ca05c7d106")
+			(uuid "6801afd5-a5bb-55d1-8ef4-6e7a3543d76d")
 		)
 		(pin "13"
-			(uuid "ae94db7e-7ed5-554e-a152-a24a0d43b5d7")
+			(uuid "2ba1a5bc-6249-5fa3-af16-e105790e6438")
 		)
 		(pin "16"
-			(uuid "b17ec78d-4f03-5419-a122-e6a0adebe6ec")
+			(uuid "032e3876-5f21-5085-9fa7-79754df9a75a")
 		)
 		(pin "15"
-			(uuid "da4de5ac-41d3-54f6-856d-877862248f35")
+			(uuid "85e2ec8e-9bdd-548f-b967-8b575fcb3303")
 		)
 		(pin "17"
-			(uuid "308a60ba-e331-566a-8f5f-e5cc2d7bef24")
+			(uuid "35cda584-c0c1-5f9c-8a6a-c4e4bf1492cd")
 		)
 		(pin "18"
-			(uuid "a311d7bc-3286-5fcf-96c9-798c639ec789")
+			(uuid "d8b7a72c-d7ec-5b31-852c-fdaba082a1b9")
 		)
 		(pin "19"
-			(uuid "aa9ea68a-f987-563c-965b-18e3f677995e")
+			(uuid "a9a78fd4-3c37-540f-919c-51507eeb4617")
 		)
 		(pin "20"
-			(uuid "784aaacb-7398-541e-9ce2-e6ff8a9105cb")
+			(uuid "cf76afc6-0937-5944-b7cc-5385bee0c52c")
 		)
 		(pin "21"
-			(uuid "9532b818-d57e-52f3-a781-42952def26e2")
+			(uuid "c282c8f4-2c10-578c-9ab0-c5e69c02b1f8")
 		)
 		(pin "22"
-			(uuid "a072a127-3cd2-5f56-b1a3-8df734e5ad4f")
+			(uuid "e6dcf14a-e3c5-5b95-8ad7-7e300f956be4")
 		)
 		(pin "23"
-			(uuid "194b830c-a176-5063-b7c4-2924d0e2dd08")
+			(uuid "82d75d05-d02b-5978-b1f7-6691d41158aa")
 		)
 		(pin "24"
-			(uuid "e02338f1-8ebd-53be-99d2-1d8718b2b53c")
+			(uuid "5a84cbe5-1f04-5255-9618-78e1f6ce90e8")
 		)
 		(pin "25"
-			(uuid "d84f9356-4ee0-50d2-80a0-a5f0bd771b03")
+			(uuid "ed9c3dca-f401-5e85-aaed-da5265a85f3d")
 		)
 		(pin "26"
-			(uuid "2cbf64a3-1b3a-54f9-a888-0276d0c39607")
+			(uuid "82e5cf10-335e-5e60-b89d-35210c82ddc2")
 		)
 		(pin "27"
-			(uuid "3d8f58cc-4cb8-5de1-9798-9e636e9ab123")
+			(uuid "52ff4f79-5fe3-51ee-97c5-567337da69a6")
 		)
 		(pin "28"
-			(uuid "5a43fc44-299d-5350-86f4-ca5bc3af687c")
+			(uuid "3aa1a85d-1084-553d-a7da-623eb4c4a91a")
 		)
 		(pin "1"
-			(uuid "65e96cac-e8f9-55aa-8b9f-0e57ed390267")
+			(uuid "b27c076a-fa3d-5a66-a39a-e186d262b2c4")
 		)
 		(pin "2"
-			(uuid "b2fa0e89-af5b-5592-8433-aeab0f535995")
+			(uuid "ee77f48e-d381-5b5b-ba16-9cc5ddc2996a")
 		)
 		(pin "3"
-			(uuid "8c77eb8a-d088-5bcd-a5d7-3e577a06fda8")
+			(uuid "6654c207-e632-5134-b1b8-245b6c5f9fbe")
 		)
 		(pin "4"
-			(uuid "0b667133-52db-50a4-a0b3-566f3e55de18")
+			(uuid "6cec0733-fbfb-539b-961b-a1d1fe9585dd")
 		)
 		(pin "5"
-			(uuid "be094028-cd1d-5be6-827c-7c8dd55ea223")
+			(uuid "9ce6bfe1-292e-5c13-aa91-d9cd7aafac60")
 		)
 		(pin "6"
-			(uuid "0cfff6e0-189a-51bc-9d4f-4a84e2476e18")
+			(uuid "3f0f28dc-7740-5ac4-b997-5551e98e632f")
 		)
 		(pin "29"
-			(uuid "ae7de681-e828-51bd-a7a8-45a274a4aa0a")
+			(uuid "650f3062-01ba-538f-bb45-3894d7a29766")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "U107")
 					(unit 1)
 				)
@@ -5380,7 +4881,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 55.88 137.16 0)
+		(at 55.88 139.7 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5390,7 +4891,7 @@
 		(dnp no)
 		(uuid "f1764e18-0027-56d5-a28a-382ecd0a58aa")
 		(property "Reference" "#PWR360"
-			(at 55.88 137.16 0)
+			(at 55.88 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5401,7 +4902,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 55.88 137.16 0)
+			(at 55.88 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5412,7 +4913,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 55.88 137.16 0)
+			(at 55.88 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5423,7 +4924,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 55.88 137.16 0)
+			(at 55.88 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5434,7 +4935,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 55.88 137.16 0)
+			(at 55.88 139.7 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5445,11 +4946,11 @@
 			)
 		)
 		(pin "1"
-			(uuid "2e9f2a2f-2e26-56f8-bb06-ada3235a9d3e")
+			(uuid "a19b6b49-455e-5d2c-83a2-a1b1d8848af3")
 		)
 		(instances
 			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/63c46ec4-8250-5e97-a431-93814bfd8717"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/37163d22-8b44-5a6a-8b70-07bfde5068c0/63c46ec4-8250-5e97-a431-93814bfd8717"
 					(reference "#PWR360")
 					(unit 1)
 				)

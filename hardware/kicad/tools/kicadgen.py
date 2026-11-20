@@ -43,8 +43,58 @@ def reset_uuids():
 
 
 def new_uuid():
+    if _uuid_scope:
+        _uuid_scope[1] += 1
+        return stable_uuid(f'item/{_uuid_scope[0]}/{_uuid_scope[1]}')
     _uuid_counter[0] += 1
     return stable_uuid(f'item/{_uuid_counter[0]}')
+
+
+# Redrawn sheets number their wires and labels in a sequence of their own, so
+# redrawing one sheet leaves every other file as it was. The value is how many
+# ids the sheet took from the shared sequence before its redraw (rev 6,
+# bb886ee); the shared sequence still skips that many. Add a sheet when it is
+# redrawn. Once every sheet is listed, drop the shared sequence from render.
+OWN_UUID_SEQUENCE = {
+    'cryocooler.kicad_sch': 374,
+    'amp_control.kicad_sch': 72,
+    'imu.kicad_sch': 69,
+    'signal_gen.kicad_sch': 255,
+    'amp_current.kicad_sch': 213,
+    'io_core.kicad_sch': 235,
+    'io_expanders.kicad_sch': 229,
+    'gpio_expander.kicad_sch': 76,
+    # ground bars redrawn (drop from the bar's end), ahead of their own redraw
+    'rails_15v.kicad_sch': 278,
+    'io_drivers.kicad_sch': 302,
+    'io_switches.kicad_sch': 187,
+    'io_precision.kicad_sch': 240,
+    'expansion.kicad_sch': 383,
+    'io_ch1.kicad_sch': 242,
+    'io_ch2.kicad_sch': 242,
+    'io_ch3.kicad_sch': 155,
+    'io_ch4.kicad_sch': 155,
+    'ambient.kicad_sch': 61,
+    'cold_head.kicad_sch': 161,
+    'system_current.kicad_sch': 110,
+    # labels turned into sheet pins (first set of root wiring)
+    'cooling.kicad_sch': 214,
+    'power_button.kicad_sch': 179,
+    'power_good.kicad_sch': 167,
+    'indicators.kicad_sch': 50,
+    'compressor_relay.kicad_sch': 62,
+    'debug.kicad_sch': 43,
+    'display.kicad_sch': 196,
+    # page reordered (mux between the two bucks), headings added
+    'rails_logic.kicad_sch': 157,
+    # new in the redraw: the parent of the universal I/O sheets
+    'io.kicad_sch': 0,
+    # split off the Expansion sheet
+    'aux_header.kicad_sch': 0,
+    # split off the Rails +-15V sheet
+    'ldo_15v.kicad_sch': 0,
+}
+_uuid_scope = []
 
 
 def stable_uuid(name):
@@ -110,6 +160,7 @@ ITEM_ORDER = [
     'wire',
     'label',
     'global_label',
+    'hierarchical_label',
     'symbol',
     'sheet',
     'sheet_instances',
@@ -387,8 +438,8 @@ class Part:
         return (min(xs), min(ys), max(xs), max(ys))
 
 
-# Global-label direction seen from the ESP32 (root) sheet: 'out' = root drives
-# the net, 'in' = root reads it.
+# Direction of a global label, hierarchical label or sheet pin, seen from the
+# ESP32 (root) sheet: 'out' = root drives the net, 'in' = root reads it.
 LABEL_DIRECTION = {
     'SPI_MOSI': 'out',
     'SPI_SCK': 'out',
@@ -416,23 +467,93 @@ LABEL_DIRECTION = {
     'ACS_MISO': 'in',
     'IMU_INT1': 'in',
     'IMU_INT2': 'in',
+    'AMBIENT_CS': 'out',
+    'IO_DAC_CS': 'out',
+    'IO_ADC_CS': 'out',
+    'IO_EXP_CS': 'out',
+    'RS485_CS': 'out',
+    'EXP_CS_A': 'out',
+    'EXP_CS_B': 'out',
+    'CS_ADDR_D_1V8': 'out',
     'FLOW_TACH': 'in',
     'FAN_TACH': 'in',
     'PUMP_TACH': 'in',
     'COMP_RELAY_EN': 'out',
     'NTC_ADC': 'in',
+    'CAN_TX': 'out',
+    'CAN_RX': 'in',
+}
+# Nets the root only passes from one sheet to another: sheet file -> shape of
+# the net's label there and of its pin on that sheet's block.
+PASSED_BETWEEN_SHEETS = {
+    'SIG_SINE': {
+        'signal_gen.kicad_sch': 'output',
+        'amp_control.kicad_sch': 'input',
+        'debug.kicad_sch': 'input',
+    },
+    'DDS_SINE': {
+        'signal_gen.kicad_sch': 'output',
+        'debug.kicad_sch': 'input',
+    },
+    'PG_15V': {'power_good.kicad_sch': 'output', 'amp_control.kicad_sch': 'input'},
+    'RS485_IRQ_N': {'expansion.kicad_sch': 'output'},
+    'EXP_INT_N': {'expansion.kicad_sch': 'output'},
+    # GPIO Expander inputs; PGN_15V is an open-drain node the guard on the
+    # Power Good sheet can pull low too, so it stays bidirectional there
+    'PGP_15V': {
+        'ldo_15v.kicad_sch': 'output',
+        'power_good.kicad_sch': 'input',
+        'gpio_expander.kicad_sch': 'input',
+    },
+    'PGN_15V': {'gpio_expander.kicad_sch': 'input'},
+    'AMBIENT_INT': {'ambient.kicad_sch': 'output', 'gpio_expander.kicad_sch': 'input'},
+    'AMBIENT_CT': {'ambient.kicad_sch': 'output', 'gpio_expander.kicad_sch': 'input'},
+    'INA239_ALERT': {
+        'system_current.kicad_sch': 'output',
+        'gpio_expander.kicad_sch': 'input',
+    },
+    'IO_EXP_INT_N': {
+        'io.kicad_sch': 'output',
+        'io_expanders.kicad_sch': 'output',
+        'gpio_expander.kicad_sch': 'input',
+    },
+    'IO_ADC_DRDY_N': {
+        'io.kicad_sch': 'output',
+        'io_core.kicad_sch': 'output',
+        'gpio_expander.kicad_sch': 'input',
+    },
 }
 
 
+# Nets between the universal I/O sheets: (name pattern, sheet the shape is
+# seen from, shape there). The other sheets on the net get the opposite shape;
+# with no sheet named, every end has the shape.
+IO_NET_SHAPES = (
+    (r'IO\d_(DIRECT|PULLUP|OUT_EN|BUF_OE_N|BURDEN|SENS_EN)|PREC_EXC_EN',
+     'io_expanders.kicad_sch', 'output'),
+    (r'IO\d_SENS_FLT_N|IO_OUT_FLT_A_N|PREC_EXC_FLT_N', 'io_expanders.kicad_sch', 'input'),
+    (r'IO\d_DAC', 'io_core.kicad_sch', 'output'),
+    (r'IO\d_ADC|PRESS\d_ADC|PREC_[AB]_[PN]|PREC_REF[PN]', 'io_core.kicad_sch', 'input'),
+    (r'IO\d_(PIN|DIV|LEVEL)|PREC_EXC', None, 'passive'),
+)
+
+
 def label_shape(net, is_root, filename):
-    """KiCad global-label shape for a net on a given sheet (bidirectional when
-    the direction is not fixed).
+    """KiCad shape of a global or hierarchical label for a net on a given
+    sheet (bidirectional when the direction is not fixed).
     """
-    if net == 'SIG_SINE':
-        return {
-            'signal_gen.kicad_sch': 'output',
-            'amp_control.kicad_sch': 'input',
-        }.get(filename, 'bidirectional')
+    if net in PASSED_BETWEEN_SHEETS:
+        shapes = PASSED_BETWEEN_SHEETS[net]
+        if filename in shapes:
+            return shapes[filename]
+        # one driver named: every other sheet reads the net
+        return 'input' if set(shapes.values()) == {'output'} else 'bidirectional'
+    for pattern, source, shape in IO_NET_SHAPES:
+        if re.fullmatch(pattern, net):
+            if source is None:
+                return shape
+            other = 'input' if shape == 'output' else 'output'
+            return shape if filename == source else other
     direction = LABEL_DIRECTION.get(net)
     if direction is None:
         return 'bidirectional'
@@ -655,7 +776,9 @@ class Sheet:
         self.title = title
         self.filename = filename
         self.paper = paper
-        self.uid = new_uuid()
+        # replaced by the generator's name-based id; a sheet the redraw added
+        # must not take one from the shared sequence (see screen_uid)
+        self.uid = '' if OWN_UUID_SEQUENCE.get(filename) == 0 else new_uuid()
         self.parts = []
         self.wires = []
         self.buses = []  # ((x1, y1), (x2, y2)) in mm
@@ -673,9 +796,11 @@ class Sheet:
         self.path = ''
         self.finalized = False
         self.handwired = False
-        self.screen_uid = (
-            new_uuid()
-        )  # a sheet file's own uuid differs from its sheet block's uuid
+        # a sheet file's own uuid differs from its sheet block's uuid. A sheet
+        # added by the redraw takes its id from its name, so the shared
+        # sequence, and with it every other sheet's ids, stays as it was.
+        added = OWN_UUID_SEQUENCE.get(filename) == 0
+        self.screen_uid = stable_uuid('screen/' + filename) if added else new_uuid()
 
     @staticmethod
     def snap(value):
@@ -902,12 +1027,26 @@ class Sheet:
                 (p.x, p.y) for p in self.parts if p.ref.startswith('#')
             ]
             wires = split_wires_at(wires, nodes)
+        # a wire that ends on the middle of another meets both of its halves
+        # there (a ground bar with a drop under an inner pin is a 4-way)
+        wires = split_wires_at(wires, [end for wire in wires for end in wire])
         counts = connection_counts(wires, pins)
         return [
             (x / 1.27, y / 1.27, c) for (x, y), c in counts.items() if c >= 4
         ]
 
     def render(self, root_uuid):
+        skipped = OWN_UUID_SEQUENCE.get(self.filename)
+        if skipped is None:
+            return self.render_items(root_uuid)
+        _uuid_scope[:] = [self.filename, 0]
+        try:
+            return self.render_items(root_uuid)
+        finally:
+            _uuid_scope.clear()
+            _uuid_counter[0] += skipped
+
+    def render_items(self, root_uuid):
         self.finalize()
         self.wires = merge_overlapping_wires(self.wires)
         if self.handwired:
@@ -989,6 +1128,14 @@ class Sheet:
                     f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(effects (font (size 1.27 1.27)) (justify {justify} '
                     f'bottom)) (uuid {q(new_uuid())}){described})'
+                )
+            elif kind == 'hierarchical_label':
+                shape = label_shape(net, False, self.filename)
+                out.append(
+                    f'\t(hierarchical_label {q(net)} (shape {shape}) '
+                    f'(at {fmt(x)} {fmt(y)} {rotation}) '
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})) '
+                    f'(uuid {q(new_uuid())}){described})'
                 )
             else:
                 shape = label_shape(
