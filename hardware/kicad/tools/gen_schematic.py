@@ -1073,8 +1073,6 @@ def mcu_and_usb(sh):
     for pin in ('A8', 'B8'):
         sh.nc(usb, pin)
     ground(sh, spur(sh, usb, 'A1', 2))
-    for pin in ('A12', 'B1', 'B12'):
-        pass
     wire(
         sh,
         pin_cell(usb, 'SH'),
@@ -3458,23 +3456,34 @@ LAST_RESISTOR_BEFORE_FAN_DRIVERS = 171
 
 
 # SP3422 I/O pins, in symbol order IO1-IO4 (pin 2 is GND)
-ESD_ARRAY_IO_PINS = ('1', '3', '4', '5')
+SP3422_FP = 'cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm'
 
 
-def esd_array(sh, column, row):
-    """SP3422-04UTG four-channel ESD clamp with its ground pin tied down; returns
-    the part so callers can wire ESD_ARRAY_IO_PINS.
+def esd_array(sh, taps, ground_at):
+    """SP3422-04UTG four-channel ESD clamp drawn one unit per line: `taps` holds
+    (column, row, above) for units A-D, each standing on its line (above it when
+    `above`, else hanging below); unit E, the ground pin, sits at `ground_at`.
+    Units B-E take named ids, so the shared id sequence moves as it did for the
+    one-unit drawing.
     """
-    clamp = place_ic(
-        sh,
-        'cryocooler:SP3422-04UTG',
-        'SP3422-04UTG',
-        column,
-        row,
-        'cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm',
-    )
-    drop_ground(sh, pin_cell(clamp, '2'), 2)
-    return clamp
+    ref = next_ref('U')
+    places = [
+        ((column, row - 4 if above else row + 4), 180 if above else 0)
+        for column, row, above in taps
+    ]
+    places.append((ground_at, 0))
+    for unit, ((column, row), rot) in enumerate(places, start=1):
+        def add():
+            return sh.add(
+                'cryocooler:SP3422-04UTG', ref, 'SP3422-04UTG', column * 1.27,
+                row * 1.27, rot=rot, unit=unit, auto=False, footprint=SP3422_FP,
+            )
+        if unit == 1:
+            add()
+            continue
+        with kicadgen.named_part_uuids(f'{sh.filename}/{ref}/{unit}'):
+            part = add()
+    drop_ground(sh, pin_cell(part, '2'), 2)
 
 
 def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
@@ -3539,6 +3548,7 @@ def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
     vcap(sh, '22uF/25V', plus[0] - 6, plus[1], fp=C1210)
     drop_ground(sh, (plus[0] - 6, plus[1] + 6), 0)
     ground(sh, spur(sh, connector, '1', 2))
+    return tach_pin[1]
 
 
 def build_cooling(sh):
@@ -3568,8 +3578,8 @@ def build_cooling(sh):
         shared = {'fet': next_ref('Q'), 'tach': next_ref('RN'), 'pull': next_ref('RN')}
     for heading, row in (('FAN', 46), ('PUMP', 82), ('FLOW SENSOR', 114), ('COOLANT NTC', 144)):
         sh.note(heading, 20 * 1.27, row * 1.27, 1.8)
-    fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0, shared)
-    fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 92, 1, shared)
+    fan_tach = fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0, shared)
+    pump_tach = fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 92, 1, shared)
     # Alphacool ES flow sensor and NTC, drawn then moved 8 rows down
     marks = sheet_marks(sh)
     # pin 1 at the bottom, like the fan and pump headers, so GND has room; the
@@ -3624,14 +3634,20 @@ def build_cooling(sh):
     ground(sh, spur(sh, j_ntc, '2', 2))
     shift_since(sh, marks, 0, 8)
     # ESD clamp on the GPIO side of the tach resistors: J3-J5 carry 12 V beside the
-    # tach pin, and a 5 V clamp on the connector side would not survive that short
-    sh.note('ESD CLAMP (GPIO SIDE)', 150 * 1.27, 112 * 1.27, 1.8)
+    # tach pin, and a 5 V clamp on the connector side would not survive that short.
+    # One unit on each line; the flow and NTC rows moved 8 down above
+    sh.note('ESD CLAMP GROUND', 150 * 1.27, 112 * 1.27, 1.8)
     with rev3_refs('U'):
-        clamp = esd_array(sh, 180, 128)
-    # the clamp is more than 85 mm from the lines it protects and a wired one
-    # would cross the pump's PWM line: a plain net label on each pin
-    for pin, net in zip(ESD_ARRAY_IO_PINS, ('FAN_TACH', 'PUMP_TACH', 'FLOW_TACH', 'NTC_ADC')):
-        net_label(sh, net, spur(sh, clamp, pin, 3), 180)
+        esd_array(
+            sh,
+            (
+                (76, fan_tach, False),
+                (76, pump_tach, False),
+                (raw[0] - 24, raw[1] + 8, False),
+                (ntc[0] - 27, ntc[1] + 8, False),
+            ),
+            (180, 124),
+        )
 
 
 def build_cold_head(sh):
@@ -3746,17 +3762,16 @@ def build_cold_head(sh):
     vcap(sh, '100nF', 108, 80)
     drop_ground(sh, (108, 86), 0)
     sh.note('PT1000 FRONT END', 40 * 1.27, 30 * 1.27, 1.8)
-    sh.note('RTD ESD CLAMP (CONNECTOR SIDE)', 136 * 1.27, 89 * 1.27, 1.8)
-    # ESD clamp on all four cable lines
+    sh.note('RTD ESD CLAMP GROUND', 136 * 1.27, 89 * 1.27, 1.8)
+    # ESD clamp on the connector side of the 1k resistors, one unit on each line
     with rev3_refs('U'):
-        clamp = esd_array(sh, 150, 104)
-    for pin, (net, tap_row) in zip(
-        ESD_ARRAY_IO_PINS,
-        (('RTD_1', 44), ('RTD_2', 50), ('RTD_3', 68), ('RTD_4', 80)),
-    ):
-        wire(sh, (140, tap_row), (140, tap_row - 3), (142, tap_row - 3))
-        net_label(sh, net, (142, tap_row - 3), 0)
-        net_label(sh, net, spur(sh, clamp, pin, 3), 180)
+        esd_array(
+            sh,
+            ((140, 44, True), (140, 50, False), (140, 68, False), (140, 80, False)),
+            (150, 100),
+        )
+    for net, row in (('RTD_1', 44), ('RTD_2', 50), ('RTD_3', 68), ('RTD_4', 80)):
+        net_label(sh, net, (146, row), 0)
 
 
 def build_imu(sh):
@@ -5686,6 +5701,8 @@ PINNED_FIELDS = {
     # the fast channels' buffer: text left of the VCC riser
     ('io_ch1.kicad_sch', 'U116', 1): ((72.39, 207.9), (72.39, 210.0)),
     ('io_ch2.kicad_sch', 'U119', 1): ((72.39, 207.9), (72.39, 210.0)),
+    # NTC clamp unit: text on its left, clear of C23
+    ('cooling.kicad_sch', 'U33', 4): ((82.43, 204.69), (82.43, 206.79)),
     # above the DIN wire and clear of the LED body
     ('indicators.kicad_sch', 'D13', 1): ((105.16, 120.65), (105.16, 122.75)),
     ('power_input.kicad_sch', 'C65', 1): ((93.218, 80.772), (93.218, 82.872)),

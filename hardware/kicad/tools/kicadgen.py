@@ -50,6 +50,22 @@ def new_uuid():
     return stable_uuid(f'item/{_uuid_counter[0]}')
 
 
+@contextmanager
+def named_part_uuids(key):
+    """Parts added inside take their ids from `key` and their order, not from
+    the shared sequence, so adding them leaves every later sheet's ids alone."""
+    saved = _uuid_counter[0]
+    start = len(_named_parts)
+    yield
+    _uuid_counter[0] = saved
+    for index, part in enumerate(_named_parts[start:]):
+        part.uid = stable_uuid(f'part/{key}/{index}')
+    del _named_parts[start:]
+
+
+_named_parts = []
+
+
 # Redrawn sheets number their wires and labels in a sequence of their own, so
 # redrawing one sheet leaves every other file as it was. The value is how many
 # ids the sheet took from the shared sequence before its redraw (rev 6,
@@ -388,6 +404,7 @@ class Part:
         self.auto = auto
         self.near = near
         self.uid = new_uuid()
+        _named_parts.append(self)
         symbol = get_symbol(lib_id)
         self.extent = symbol_extent(symbol, unit)
         self.body_extent = symbol_extent(symbol, unit, with_pins=False)

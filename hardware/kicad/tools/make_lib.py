@@ -298,6 +298,49 @@ def us_resistor_pack(name, props):
     return sexpr.dump(node, 1)
 
 
+def split_clamp(name, ref, description, datasheet, footprint, io_pins, ground_pin):
+    """Multi-unit ESD clamp: one unit per I/O pin (pin on top, so the unit hangs
+    off the line it protects) and a last unit holding the ground pin."""
+    props = [
+        ('Reference', ref, 3.81, 1.27, 'left'),
+        ('Value', name, 3.81, -1.27, 'left'),
+        ('Footprint', footprint, 0, 0, None),
+        ('Datasheet', datasheet, 0, 0, None),
+        ('Description', description, 0, 0, None),
+        ('ki_keywords', 'esd tvs', 0, 0, None),
+    ]
+    out = [
+        f'\t(symbol "{name}"',
+        '\t\t(pin_names (offset 0.508))',
+        '\t\t(exclude_from_sim no)',
+        '\t\t(in_bom yes)',
+        '\t\t(on_board yes)',
+        '\t\t(in_pos_files yes)',
+        '\t\t(duplicate_pin_numbers_are_jumpers no)',
+    ]
+    for key, value, x, y, justify in props:
+        hide = ' (hide yes)' if key not in ('Reference', 'Value') else ''
+        just = f' (justify {justify})' if justify else ''
+        out.append(
+            f'\t\t(property "{key}" "{value}" (at {f(x)} {f(y)} 0) (show_name '
+            f'no) (do_not_autoplace no){hide} '
+            f'(effects (font (size 1.27 1.27)){just}))'
+        )
+    units = [('top', number, pname) for number, pname in io_pins]
+    units.append(('bottom', ground_pin, 'GND'))
+    for index, (side, number, pname) in enumerate(units, start=1):
+        y = 2 * GRID if side == 'top' else -2 * GRID
+        out.append(f'\t\t(symbol "{name}_{index}_1"')
+        out.append(
+            f'\t\t\t(rectangle (start {f(-GRID)} {f(GRID)}) (end {f(GRID)} {f(-GRID)}) '
+            '(stroke (width 0.254) (type default)) (fill (type background)))'
+        )
+        out.append(pin_line(side, number, pname, 'passive', 0, y))
+        out.append('\t\t)')
+    out.append('\t)')
+    return '\n'.join(out)
+
+
 SYMBOLS = [
     us_resistor_pack(
         'R_Pack04_Split_US',
@@ -891,23 +934,17 @@ SYMBOLS = [
         keywords='esd tvs',
         tip_x=10.16,
     ),
-    symbol(
+    split_clamp(
         'SP3422-04UTG',
         'U',
         'Littelfuse 4-channel 5 V ESD clamp, 0.2 pF, +22/-10 kV IEC contact, 1 uA max '
-        'leakage at 5 V, DFN-5 1.0 x 0.6 mm. Each I/O clamps to GND',
+        'leakage at 5 V, DFN-5 1.0 x 0.6 mm. Each I/O clamps to GND; one unit per I/O, '
+        'ground on unit E',
         'https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet'
         '?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285',
         'cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm',
-        left=[
-            ('1', 'IO1', 'passive'),
-            ('3', 'IO2', 'passive'),
-            ('4', 'IO3', 'passive'),
-            ('5', 'IO4', 'passive'),
-        ],
-        bottom=[('2', 'GND', 'passive')],
-        keywords='esd tvs',
-        tip_x=10.16,
+        (('1', 'IO1'), ('3', 'IO2'), ('4', 'IO3'), ('5', 'IO4')),
+        '2',
     ),
     symbol(
         'NUF6401MNT1G',

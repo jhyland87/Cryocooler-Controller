@@ -1388,7 +1388,7 @@
 		)
 		(symbol "cryocooler:SP3422-04UTG"
 			(pin_names
-				(offset 1.016)
+				(offset 0.508)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1396,7 +1396,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "U"
-				(at 7.62 10.16 0)
+				(at 3.81 1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1407,7 +1407,7 @@
 				)
 			)
 			(property "Value" "SP3422-04UTG"
-				(at -7.62 10.16 0)
+				(at 3.81 -1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -1439,7 +1439,7 @@
 					)
 				)
 			)
-			(property "Description" "Littelfuse 4-channel 5 V ESD clamp, 0.2 pF, +22/-10 kV IEC contact, 1 uA max leakage at 5 V, DFN-5 1.0 x 0.6 mm. Each I/O clamps to GND"
+			(property "Description" "Littelfuse 4-channel 5 V ESD clamp, 0.2 pF, +22/-10 kV IEC contact, 1 uA max leakage at 5 V, DFN-5 1.0 x 0.6 mm. Each I/O clamps to GND; one unit per I/O, ground on unit E"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1461,10 +1461,10 @@
 					)
 				)
 			)
-			(symbol "SP3422-04UTG_0_1"
+			(symbol "SP3422-04UTG_1_1"
 				(rectangle
-					(start -7.62 7.62)
-					(end 7.62 -7.62)
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -1473,10 +1473,8 @@
 						(type background)
 					)
 				)
-			)
-			(symbol "SP3422-04UTG_1_1"
 				(pin passive line
-					(at -10.16 5.08 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO1"
 						(effects
@@ -1493,26 +1491,21 @@
 						)
 					)
 				)
-				(pin passive line
-					(at 0 -10.16 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
+			)
+			(symbol "SP3422-04UTG_2_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
 					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
+					(fill
+						(type background)
 					)
 				)
 				(pin passive line
-					(at -10.16 2.54 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO2"
 						(effects
@@ -1529,8 +1522,21 @@
 						)
 					)
 				)
+			)
+			(symbol "SP3422-04UTG_3_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
-					(at -10.16 0 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO3"
 						(effects
@@ -1547,8 +1553,21 @@
 						)
 					)
 				)
+			)
+			(symbol "SP3422-04UTG_4_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
-					(at -10.16 -2.54 0)
+					(at 0 5.08 270)
 					(length 2.54)
 					(name "IO4"
 						(effects
@@ -1558,6 +1577,37 @@
 						)
 					)
 					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "SP3422-04UTG_5_1"
+				(rectangle
+					(start -2.54 2.54)
+					(end 2.54 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at 0 -5.08 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1962,7 +2012,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "ESD CLAMP (GPIO SIDE)"
+	(text "ESD CLAMP GROUND"
 		(exclude_from_sim no)
 		(at 190.5 142.24 0)
 		(effects
@@ -2054,22 +2104,34 @@
 		(at 116.84 200.66)
 		(diameter 0)
 		(color 0 0 0 0)
+		(uuid "0387d0d7-c022-5913-8db5-f469e00bede1")
+	)
+	(junction
+		(at 100.33 200.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "04ea2992-007a-5511-bed0-ad706cc3c807")
+	)
+	(junction
+		(at 104.14 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
 		(uuid "0f44e47d-1f05-51df-a4bc-7dcfd0a069fd")
 	)
 	(junction
-		(at 139.7 127)
+		(at 96.52 124.46)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3e1b4e28-2272-514b-83d3-471915596f96")
 	)
 	(junction
-		(at 106.68 200.66)
+		(at 139.7 127)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7125e922-e77e-5eed-a14f-95a5a61ad081")
 	)
 	(junction
-		(at 43.18 116.84)
+		(at 139.7 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7880e2a5-7d2a-5433-8230-5a0f253c134d")
@@ -2081,7 +2143,7 @@
 		(uuid "7ecc5f53-f136-5a35-86aa-9bbe0542581d")
 	)
 	(junction
-		(at 134.62 124.46)
+		(at 106.68 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "824313b3-9c6a-5f3b-ac2b-9fcb7dddafc2")
@@ -2093,32 +2155,44 @@
 		(uuid "92deb373-c27e-55f8-9c1e-206f5262bca3")
 	)
 	(junction
-		(at 109.22 165.1)
+		(at 134.62 124.46)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a85e09bd-6696-5f97-9341-7c49faa8084d")
 	)
 	(junction
-		(at 134.62 83.82)
+		(at 96.52 83.82)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b76bf1c6-93d4-5399-acd9-9fb43f50558d")
 	)
 	(junction
-		(at 139.7 86.36)
+		(at 134.62 83.82)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c0002f92-2824-5824-8509-9079be791bc1")
 	)
 	(junction
-		(at 106.68 109.22)
+		(at 109.22 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cd86856d-e269-5044-adff-cdc2ab0ce9a8")
+	)
+	(junction
+		(at 43.18 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d1aeb76a-0078-5979-ad83-d53336833794")
 	)
+	(junction
+		(at 106.68 200.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d9de9040-cd4b-5038-a0ea-6405119a7bee")
+	)
 	(no_connect
 		(at 134.62 162.56)
-		(uuid "cd86856d-e269-5044-adff-cdc2ab0ce9a8")
+		(uuid "f6844243-5bdb-567a-89bb-8e087d5cccf2")
 	)
 	(wire
 		(pts
@@ -2132,7 +2206,7 @@
 	)
 	(wire
 		(pts
-			(xy 106.68 200.66) (xy 116.84 200.66)
+			(xy 132.08 170.18) (xy 134.62 170.18)
 		)
 		(stroke
 			(width 0)
@@ -2152,7 +2226,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 86.36) (xy 147.32 86.36)
+			(xy 134.62 86.36) (xy 139.7 86.36)
 		)
 		(stroke
 			(width 0)
@@ -2162,7 +2236,7 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 173.99) (xy 129.54 173.99)
+			(xy 71.12 190.5) (xy 76.2 190.5)
 		)
 		(stroke
 			(width 0)
@@ -2182,7 +2256,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 160.02) (xy 218.44 160.02)
+			(xy 116.84 200.66) (xy 134.62 200.66)
 		)
 		(stroke
 			(width 0)
@@ -2212,7 +2286,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 121.92) (xy 147.32 121.92)
+			(xy 106.68 109.22) (xy 144.78 109.22)
 		)
 		(stroke
 			(width 0)
@@ -2232,7 +2306,7 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 165.1) (xy 109.22 165.1)
+			(xy 129.54 133.35) (xy 134.62 133.35)
 		)
 		(stroke
 			(width 0)
@@ -2242,7 +2316,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 127) (xy 139.7 127)
+			(xy 128.27 124.46) (xy 134.62 124.46)
 		)
 		(stroke
 			(width 0)
@@ -2252,7 +2326,7 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 203.2) (xy 134.62 203.2)
+			(xy 100.33 200.66) (xy 106.68 200.66)
 		)
 		(stroke
 			(width 0)
@@ -2262,7 +2336,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 83.82) (xy 120.65 83.82)
+			(xy 88.9 83.82) (xy 96.52 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2282,7 +2356,7 @@
 	)
 	(wire
 		(pts
-			(xy 106.68 109.22) (xy 144.78 109.22)
+			(xy 66.04 109.22) (xy 106.68 109.22)
 		)
 		(stroke
 			(width 0)
@@ -2292,7 +2366,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 200.66) (xy 134.62 200.66)
+			(xy 96.52 200.66) (xy 100.33 200.66)
 		)
 		(stroke
 			(width 0)
@@ -2302,7 +2376,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 124.46) (xy 120.65 124.46)
+			(xy 144.78 121.92) (xy 147.32 121.92)
 		)
 		(stroke
 			(width 0)
@@ -2312,7 +2386,7 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 200.66) (xy 106.68 200.66)
+			(xy 119.38 173.99) (xy 129.54 173.99)
 		)
 		(stroke
 			(width 0)
@@ -2322,7 +2396,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 167.64) (xy 134.62 167.64)
+			(xy 71.12 182.88) (xy 76.2 182.88)
 		)
 		(stroke
 			(width 0)
@@ -2342,7 +2416,7 @@
 	)
 	(wire
 		(pts
-			(xy 66.04 109.22) (xy 106.68 109.22)
+			(xy 55.88 116.84) (xy 58.42 116.84)
 		)
 		(stroke
 			(width 0)
@@ -2362,7 +2436,7 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 165.1) (xy 119.38 165.1)
+			(xy 144.78 129.54) (xy 147.32 129.54)
 		)
 		(stroke
 			(width 0)
@@ -2372,7 +2446,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 124.46) (xy 147.32 124.46)
+			(xy 96.52 124.46) (xy 120.65 124.46)
 		)
 		(stroke
 			(width 0)
@@ -2382,7 +2456,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 92.71) (xy 134.62 92.71)
+			(xy 139.7 86.36) (xy 147.32 86.36)
 		)
 		(stroke
 			(width 0)
@@ -2392,7 +2466,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 116.84) (xy 43.18 116.84)
+			(xy 144.78 88.9) (xy 147.32 88.9)
 		)
 		(stroke
 			(width 0)
@@ -2402,7 +2476,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 162.56) (xy 218.44 162.56)
+			(xy 132.08 203.2) (xy 134.62 203.2)
 		)
 		(stroke
 			(width 0)
@@ -2412,7 +2486,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 165.1) (xy 134.62 165.1)
+			(xy 96.52 165.1) (xy 104.14 165.1)
 		)
 		(stroke
 			(width 0)
@@ -2432,7 +2506,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 83.82) (xy 134.62 83.82)
+			(xy 96.52 83.82) (xy 120.65 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2442,7 +2516,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 129.54) (xy 147.32 129.54)
+			(xy 139.7 127) (xy 147.32 127)
 		)
 		(stroke
 			(width 0)
@@ -2482,7 +2556,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 190.5) (xy 76.2 190.5)
+			(xy 127 165.1) (xy 134.62 165.1)
 		)
 		(stroke
 			(width 0)
@@ -2502,7 +2576,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 165.1) (xy 218.44 165.1)
+			(xy 104.14 165.1) (xy 109.22 165.1)
 		)
 		(stroke
 			(width 0)
@@ -2522,7 +2596,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 83.82) (xy 147.32 83.82)
+			(xy 128.27 83.82) (xy 134.62 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2532,7 +2606,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 172.72) (xy 228.6 175.26)
+			(xy 228.6 162.56) (xy 228.6 165.1)
 		)
 		(stroke
 			(width 0)
@@ -2542,7 +2616,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 88.9) (xy 147.32 88.9)
+			(xy 129.54 92.71) (xy 134.62 92.71)
 		)
 		(stroke
 			(width 0)
@@ -2552,7 +2626,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 86.36) (xy 139.7 86.36)
+			(xy 134.62 83.82) (xy 147.32 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2562,7 +2636,7 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 116.84) (xy 48.26 116.84)
+			(xy 35.56 116.84) (xy 43.18 116.84)
 		)
 		(stroke
 			(width 0)
@@ -2572,7 +2646,7 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 170.18) (xy 134.62 170.18)
+			(xy 129.54 167.64) (xy 134.62 167.64)
 		)
 		(stroke
 			(width 0)
@@ -2582,7 +2656,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 116.84) (xy 58.42 116.84)
+			(xy 43.18 116.84) (xy 48.26 116.84)
 		)
 		(stroke
 			(width 0)
@@ -2602,7 +2676,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 133.35) (xy 134.62 133.35)
+			(xy 134.62 127) (xy 139.7 127)
 		)
 		(stroke
 			(width 0)
@@ -2612,7 +2686,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 127) (xy 147.32 127)
+			(xy 134.62 124.46) (xy 147.32 124.46)
 		)
 		(stroke
 			(width 0)
@@ -2622,7 +2696,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 182.88) (xy 76.2 182.88)
+			(xy 109.22 165.1) (xy 119.38 165.1)
 		)
 		(stroke
 			(width 0)
@@ -2632,7 +2706,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 124.46) (xy 134.62 124.46)
+			(xy 88.9 124.46) (xy 96.52 124.46)
 		)
 		(stroke
 			(width 0)
@@ -2642,7 +2716,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 157.48) (xy 218.44 157.48)
+			(xy 106.68 200.66) (xy 116.84 200.66)
 		)
 		(stroke
 			(width 0)
@@ -2650,120 +2724,9 @@
 		)
 		(uuid "fd835d0b-b38a-5f12-9e0d-56bc4288271c")
 	)
-	(label "FLOW_TACH"
-		(at 214.63 162.56 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1517f184-9152-5de4-80a3-647f2d5ff308")
-		(property "Description" "Coolant flow sensor pulses to GPIO18"
-			(at 214.63 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "PUMP_TACH"
-		(at 214.63 160.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "22fad059-73cf-5e63-8a61-5de9846b0fe2")
-		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
-			(at 214.63 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "FAN_TACH"
-		(at 214.63 157.48 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "85cc7b39-e1f1-50b7-b15e-cb5688bea878")
-		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
-			(at 214.63 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "NTC_ADC"
-		(at 214.63 165.1 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b9cd2182-fd60-59eb-b68b-bd7d26bbc0e0")
-		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
-			(at 214.63 165.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "PUMP_PWM"
-		(shape input)
-		(at 35.56 116.84 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0387d0d7-c022-5913-8db5-f469e00bede1")
-		(property "Description" "GPIO14: pump PWM to the open-drain driver (high = 0 % drive)"
-			(at 35.56 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "NTC_ADC"
+	(hierarchical_label "FAN_TACH"
 		(shape output)
-		(at 96.52 200.66 180)
+		(at 88.9 83.82 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2771,31 +2734,8 @@
 			(justify right)
 		)
 		(uuid "038b2eff-e932-58d8-a2c9-2765b43e6da9")
-		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
-			(at 96.52 200.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "FAN_PWM"
-		(shape input)
-		(at 35.56 76.2 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "04ea2992-007a-5511-bed0-ad706cc3c807")
-		(property "Description" "GPIO9: fan PWM to the open-drain driver (high = 0 % drive)"
-			(at 35.56 76.2 0)
+		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
+			(at 88.9 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2816,32 +2756,9 @@
 			)
 			(justify right)
 		)
-		(uuid "8f6b66df-c5ba-58c7-991d-6fc3b73d7a44")
+		(uuid "1517f184-9152-5de4-80a3-647f2d5ff308")
 		(property "Description" "Coolant flow sensor pulses to GPIO18"
 			(at 96.52 165.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "FAN_TACH"
-		(shape output)
-		(at 88.9 83.82 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d9de9040-cd4b-5038-a0ea-6405119a7bee")
-		(property "Description" "Fan tach pulses to GPIO15 (2 per revolution)"
-			(at 88.9 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2862,9 +2779,78 @@
 			)
 			(justify right)
 		)
-		(uuid "f6844243-5bdb-567a-89bb-8e087d5cccf2")
+		(uuid "22fad059-73cf-5e63-8a61-5de9846b0fe2")
 		(property "Description" "Pump tach pulses to GPIO21 (2 per revolution)"
 			(at 88.9 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PUMP_PWM"
+		(shape input)
+		(at 35.56 116.84 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "85cc7b39-e1f1-50b7-b15e-cb5688bea878")
+		(property "Description" "GPIO14: pump PWM to the open-drain driver (high = 0 % drive)"
+			(at 35.56 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "FAN_PWM"
+		(shape input)
+		(at 35.56 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8f6b66df-c5ba-58c7-991d-6fc3b73d7a44")
+		(property "Description" "GPIO9: fan PWM to the open-drain driver (high = 0 % drive)"
+			(at 35.56 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "NTC_ADC"
+		(shape output)
+		(at 96.52 200.66 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b9cd2182-fd60-59eb-b68b-bd7d26bbc0e0")
+		(property "Description" "Coolant NTC divider voltage to GPIO4 (ADC1)"
+			(at 96.52 200.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3310,7 +3296,7 @@
 	)
 	(symbol
 		(lib_id "cryocooler:SP3422-04UTG")
-		(at 228.6 162.56 0)
+		(at 96.52 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3320,7 +3306,7 @@
 		(dnp no)
 		(uuid "0fe3f8d3-98e2-5f23-a165-84f8c4f04138")
 		(property "Reference" "U33"
-			(at 218.44 149.84 0)
+			(at 101.26 86.58 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3331,7 +3317,7 @@
 			)
 		)
 		(property "Value" "SP3422-04UTG"
-			(at 218.44 151.94 0)
+			(at 101.26 88.68 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3342,7 +3328,7 @@
 			)
 		)
 		(property "Footprint" "cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"
-			(at 228.6 162.56 0)
+			(at 96.52 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3353,7 +3339,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285"
-			(at 228.6 162.56 0)
+			(at 96.52 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3364,7 +3350,7 @@
 			)
 		)
 		(property "Description" "ESD clamp array on the fan tach, pump tach, flow and NTC lines (GPIO side)"
-			(at 228.6 162.56 0)
+			(at 96.52 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3375,7 +3361,7 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437"
-			(at 228.6 162.56 0)
+			(at 96.52 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3580,6 +3566,107 @@
 		)
 	)
 	(symbol
+		(lib_id "cryocooler:SP3422-04UTG")
+		(at 100.33 205.74 0)
+		(unit 4)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "21891b5d-1b88-520c-8311-a27359c359d0")
+		(property "Reference" "U33"
+			(at 82.43 204.69 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SP3422-04UTG"
+			(at 82.43 206.79 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"
+			(at 100.33 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285"
+			(at 100.33 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp array on the fan tach, pump tach, flow and NTC lines (GPIO side)"
+			(at 100.33 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437"
+			(at 100.33 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "143b8cbf-3e57-5cb5-9e4e-aac5c7366357")
+		)
+		(pin "3"
+			(uuid "9cacb53e-9bae-54b7-b442-311c669966bb")
+		)
+		(pin "4"
+			(uuid "26b324ef-4687-536f-b462-078715ad4e19")
+		)
+		(pin "5"
+			(uuid "424ddb41-a577-548a-b6cc-78a00076f36e")
+		)
+		(pin "2"
+			(uuid "7b5ba15b-221a-56f6-bae3-42a0e0697b31")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/d435fe59-a9b1-598f-9a22-f3a71c9e80ce"
+					(reference "U33")
+					(unit 4)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3V3")
 		(at 134.62 116.84 0)
 		(unit 1)
@@ -3730,6 +3817,107 @@
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/d435fe59-a9b1-598f-9a22-f3a71c9e80ce"
 					(reference "#PWR075")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "cryocooler:SP3422-04UTG")
+		(at 96.52 129.54 0)
+		(unit 2)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3f35cd59-dd45-5e14-ae9d-1d8ff7051d04")
+		(property "Reference" "U33"
+			(at 101.26 127.22 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SP3422-04UTG"
+			(at 101.26 129.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp array on the fan tach, pump tach, flow and NTC lines (GPIO side)"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437"
+			(at 96.52 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c66d748d-cb4a-5f06-b1f8-d1fa72761518")
+		)
+		(pin "3"
+			(uuid "e5cd258a-2f57-5964-95ef-83f5517183ce")
+		)
+		(pin "4"
+			(uuid "b6de12fc-4c38-58da-acba-9921261b7201")
+		)
+		(pin "5"
+			(uuid "742d88c6-8f52-5327-a74f-c0affc92c1b8")
+		)
+		(pin "2"
+			(uuid "aa3f170f-4074-5476-bba4-663a3e42d52f")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/d435fe59-a9b1-598f-9a22-f3a71c9e80ce"
+					(reference "U33")
+					(unit 2)
 				)
 			)
 		)
@@ -4476,7 +4664,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 228.6 175.26 0)
+		(at 228.6 165.1 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4486,7 +4674,7 @@
 		(dnp no)
 		(uuid "67c0e65c-0c63-50de-a14d-d594e2e98770")
 		(property "Reference" "#PWR084"
-			(at 228.6 175.26 0)
+			(at 228.6 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4497,7 +4685,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 228.6 175.26 0)
+			(at 228.6 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4508,7 +4696,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 228.6 175.26 0)
+			(at 228.6 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4519,7 +4707,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 228.6 175.26 0)
+			(at 228.6 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4530,7 +4718,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 228.6 175.26 0)
+			(at 228.6 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4541,7 +4729,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c66d748d-cb4a-5f06-b1f8-d1fa72761518")
+			(uuid "7bd4f4fc-f876-5ca8-a3dd-8e048dc35eb2")
 		)
 		(instances
 			(project "cryocooler"
@@ -6022,6 +6210,107 @@
 		)
 	)
 	(symbol
+		(lib_id "cryocooler:SP3422-04UTG")
+		(at 104.14 170.18 0)
+		(unit 3)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ae0fd3a8-be22-5578-a834-e1a05d9d4048")
+		(property "Reference" "U33"
+			(at 108.88 167.86 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SP3422-04UTG"
+			(at 108.88 169.96 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"
+			(at 104.14 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285"
+			(at 104.14 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp array on the fan tach, pump tach, flow and NTC lines (GPIO side)"
+			(at 104.14 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437"
+			(at 104.14 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d15e35bf-0e0f-57a0-86f8-c28482b11f8b")
+		)
+		(pin "3"
+			(uuid "551d5025-d711-5863-a463-b63ba3ac8dfd")
+		)
+		(pin "4"
+			(uuid "3cb49389-8496-53d2-91e9-8f9625a1a5d6")
+		)
+		(pin "5"
+			(uuid "f4ffd4b6-c240-59e0-ad45-521de80f83c3")
+		)
+		(pin "2"
+			(uuid "53837080-8fcf-57b4-8890-d9267881f7ff")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/d435fe59-a9b1-598f-9a22-f3a71c9e80ce"
+					(reference "U33")
+					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3V3")
 		(at 43.18 68.58 0)
 		(unit 1)
@@ -6809,6 +7098,107 @@
 		)
 	)
 	(symbol
+		(lib_id "cryocooler:SP3422-04UTG")
+		(at 228.6 157.48 0)
+		(unit 5)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f761cd42-9fc4-5f82-8aa6-6ed232aade8b")
+		(property "Reference" "U33"
+			(at 233.34 157.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SP3422-04UTG"
+			(at 233.34 159.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "cryocooler:Littelfuse_DFN-5_1.0x0.6mm_P0.35mm"
+			(at 228.6 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.littelfuse.com/assetdocs/littelfuse-tvs-diode-array-sp3422-datasheet?assetguid=21918f04-36bb-469b-8a84-152f9e3b0285"
+			(at 228.6 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "ESD clamp array on the fan tach, pump tach, flow and NTC lines (GPIO side)"
+			(at 228.6 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437"
+			(at 228.6 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3823a390-248f-5dfa-93a9-85956767d669")
+		)
+		(pin "3"
+			(uuid "31713e56-6e33-50b7-b4ae-d09596f5b3f4")
+		)
+		(pin "4"
+			(uuid "7c5c42c1-4c0e-54e6-bd1b-d81d61659c17")
+		)
+		(pin "5"
+			(uuid "399ffde0-8de6-5930-8cb3-71f83b0e78c0")
+		)
+		(pin "2"
+			(uuid "4d1f24ac-8fb1-5b64-b70c-0a3613c1c6da")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/d435fe59-a9b1-598f-9a22-f3a71c9e80ce"
+					(reference "U33")
+					(unit 5)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+12V")
 		(at 119.38 173.99 0)
 		(unit 1)
@@ -6831,13 +7221,14 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 119.38 170.434 0)
+			(at 121.78 172.89 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""

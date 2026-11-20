@@ -24,8 +24,13 @@ changing the root, the Universal IO parent or the board-rename tools.
 - Plain net labels (never global) for a connection whose ends are over 85 mm apart;
   wires when closer. Buses only for communication buses (`{SPI}`).
 - Pull resistors on the line they serve. Decoupling in its titled block.
-- The four I/O channel sheets stay copies. Cold Head's ESD clamp keeps its four label
-  pairs. io_core stays one sheet. The ten I/O sheets sit under `sheets/io.kicad_sch`.
+- The four I/O channel sheets stay copies. io_core stays one sheet. The ten I/O
+  sheets sit under `sheets/io.kicad_sch`.
+- ESD clamps (SP3422-04UTG) are multi-unit: units A-D each on the line they protect,
+  unit E holds the ground pin (user, 2026-11-20: "ditch the label"). U20's PVIN pins
+  stay on the symbol's left edge (user: "fine as it is").
+- Two-die LEDs with one die unused (D6, D10): replace with a single LED only if the
+  board needs no re-route (user, 2026-11-20).
 
 ## Gate (from `hardware/kicad`)
 
@@ -63,7 +68,7 @@ renaming a symbol's pins renames the unnamed nets on them (`Net-(J14-Pin_1)`).
 34 sheets. Strict with `--renamed` 0 differences (139 nets renamed with pins
 unchanged); DRC with parity 0 / 0 / 0 and the 12 known warnings; ERC 0;
 `datasheet_rules` 609/609; `verify_netlist` 497 parts / 379 nets; `check_symbols` 0;
-generator check lines 0; structure counts global_label 0, close_label_pair 7,
+generator check lines 0; structure counts global_label 0, close_label_pair 3,
 unmatched_sheet_pin 0, too_many_parts 0, copied_sheet 2, wire_near_body 0;
 `count_crossings` 1 (amp_current, accepted). Board equal to `rev6-schematic` with net,
 path and sheetname strings blanked. Not opened in the KiCad GUI; "Update PCB from
@@ -116,22 +121,23 @@ Schematic" not tried; renders and fab files not regenerated (no net names in the
 
 ## Open
 
-Ask the user (each reverses a decision or needs one):
+Answered 2026-11-20 and done: ESD clamps as units (U33 on Cooling, U35 on Cold Head;
+close_label_pair 7 -> 3, baseline lowered; units B-E take named ids through
+`kicadgen.named_part_uuids` so no other sheet's ids move); `sheets/aux_io.kicad_sch`
+and the empty `mcu_and_usb` loop deleted.
 
-1. ESD clamps as multi-unit symbols (one I/O unit on each line, ground on its own
-   unit), so Cold Head's and Cooling's clamps can be wired with no labels and no
-   crossings. Would replace "keep the labels".
-2. rails_15v: U20's PVIN pins are on the symbol's left edge (the rule says supply pins
-   on top); that is what removed seven crossings.
-3. debug: D10 uses one die of a two-die LED (part-selection rule), and the rail LED is
-   a second function on the test-point sheet.
-4. io_switches' title names two functions; rails_logic holds three (5 V buck, mux,
-   3.3 V buck).
-5. Delete `sheets/aux_io.kicad_sch` (unreferenced) and the empty loop in
-   `mcu_and_usb` (`for pin in ('A12', 'B1', 'B12'): pass`)?
-6. display: wire CAN_H / CAN_L from U52 to J15 with D101 on the wires. Needs the
-   TCAN3414 symbol's CANL above CANH (to match J15) and the 12 V feed and F2 moved
-   off J15's pin rows. Today they are label pairs, legal at 99 mm.
+Still with the user:
+
+1. D6 (system_current, red die only) and D10 (debug, green die only) are
+   APGB0607 bi-colour LEDs (0.65 mm, 4 pads at +/-0.2 mm). No single-colour part in
+   that package was found, so a swap changes the footprint pads and the copper at
+   two spots. Asked whether a small hand edit there is acceptable.
+2. io_switches' title names two functions and rails_logic holds three (the
+   one-function-per-sheet rule): split into sheets (renames nets on the board, no
+   re-route) or keep. Explained to the user, no answer yet.
+3. display: wire CAN_H / CAN_L from U52 to J15 instead of the label pair. Needs the
+   TCAN3414 symbol's CANL above CANH and the 12 V feed and F2 moved; drawing and net
+   names only. Explained to the user, no answer yet.
 
 Layout work still open (each needs its own layout change):
 
