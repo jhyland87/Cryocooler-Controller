@@ -862,7 +862,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "329c99b4-71a6-52f3-8c3b-321f3b13c4b0")
+		(uuid "5eed9249-eedc-5c79-a942-67c83e82c100")
 	)
 	(bus
 		(pts
@@ -872,7 +872,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5eed9249-eedc-5c79-a942-67c83e82c100")
+		(uuid "5e1f00fa-3f18-584b-a7a1-ada58acf1d3b")
 	)
 	(bus_entry
 		(at 132.08 71.12)
@@ -881,7 +881,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5e1f00fa-3f18-584b-a7a1-ada58acf1d3b")
+		(uuid "a7013624-606d-5664-b1e8-402bdb74d0c0")
 	)
 	(bus_entry
 		(at 132.08 73.66)
@@ -890,7 +890,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a7013624-606d-5664-b1e8-402bdb74d0c0")
+		(uuid "e4f9538d-e66b-56b2-9568-1ed7c7e7a2f2")
 	)
 	(bus_entry
 		(at 132.08 76.2)
@@ -899,7 +899,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e4f9538d-e66b-56b2-9568-1ed7c7e7a2f2")
+		(uuid "f31da897-ed1e-57e1-a130-b56e88fdcb17")
 	)
 	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
 		(exclude_from_sim no)
@@ -910,7 +910,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "3c884c95-a64d-5ab9-8629-79907c8bcb37")
+		(uuid "4ecdbdf9-776d-5b10-9293-262d613d3b2e")
 	)
 	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP7 is spare; firmware enables a weak pull-up on it."
 		(exclude_from_sim no)
@@ -921,7 +921,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "4ecdbdf9-776d-5b10-9293-262d613d3b2e")
+		(uuid "604ac480-0d38-5957-b91e-a0e0814fe163")
 	)
 	(text "The ADT7320 INT and CT outputs drive GP2 and GP3, the universal I/O expander interrupt GP4 and the I/O ADC data-ready GP5."
 		(exclude_from_sim no)
@@ -932,7 +932,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "604ac480-0d38-5957-b91e-a0e0814fe163")
+		(uuid "61720554-f9e2-597c-ba05-fdc7472f5115")
 	)
 	(text "MCP23S08 DECOUPLING CAPACITOR"
 		(exclude_from_sim no)
@@ -943,15 +943,21 @@
 			)
 			(justify left top)
 		)
-		(uuid "61720554-f9e2-597c-ba05-fdc7472f5115")
+		(uuid "86920b8b-774d-5752-b0b5-41d5e67c68a1")
+	)
+	(junction
+		(at 95 80)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f6585613-1d89-56ea-b422-74a6cc672ada")
 	)
 	(no_connect
 		(at 116.84 83.82)
-		(uuid "e3d8932b-86c6-5d53-84ef-5fb647e6b748")
+		(uuid "329c99b4-71a6-52f3-8c3b-321f3b13c4b0")
 	)
 	(no_connect
 		(at 86.36 88.9)
-		(uuid "f6585613-1d89-56ea-b422-74a6cc672ada")
+		(uuid "e3d8932b-86c6-5d53-84ef-5fb647e6b748")
 	)
 	(wire
 		(pts
@@ -1201,31 +1207,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "25dd3fd4-dc43-568c-9508-2ccc5c917f25")
+		(uuid "2bc97767-dd63-5b6f-81c0-ed389e05c6be")
 		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
 			(at 119.38 71.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "SPI_MOSI"
-		(at 119.38 73.66 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2bc97767-dd63-5b6f-81c0-ed389e05c6be")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 119.38 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1245,9 +1229,31 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "a5373439-ac8d-5498-9075-449631a4a274")
+		(uuid "753b23ac-3484-54d7-9b9a-449424b207a7")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 119.38 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "SPI_MOSI"
+		(at 119.38 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a5373439-ac8d-5498-9075-449631a4a274")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 119.38 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1269,7 +1275,7 @@
 			)
 			(justify left)
 		)
-		(uuid "753b23ac-3484-54d7-9b9a-449424b207a7")
+		(uuid "b128d23e-1c7d-51bc-b955-e04a37a87c90")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 139.7 60.96 0)
 			(hide yes)
@@ -1295,98 +1301,6 @@
 			)
 		)
 	)
-	(hierarchical_label "AMBIENT_INT"
-		(shape input)
-		(at 78.74 76.2 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0ba46072-fd11-50e6-91b8-2c9619c06d7b")
-		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
-			(at 78.74 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "IO_EXP_INT_N"
-		(shape input)
-		(at 78.74 81.28 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5ce30b65-a283-5085-a803-fd0292108048")
-		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
-			(at 78.74 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "AMBIENT_CT"
-		(shape input)
-		(at 78.74 78.74 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "86bdb1dd-e2c6-5fe2-aeb2-9f1f71b91014")
-		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
-			(at 78.74 78.74 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "INA239_ALERT"
-		(shape input)
-		(at 78.74 86.36 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "940fb460-fa58-52cb-b3fa-023b19474e6a")
-		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
-			(at 78.74 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(hierarchical_label "PGN_15V"
 		(shape input)
 		(at 78.74 73.66 180)
@@ -1396,55 +1310,9 @@
 			)
 			(justify right)
 		)
-		(uuid "9ed63722-b503-58ed-b668-c8186d7f104b")
+		(uuid "0ba46072-fd11-50e6-91b8-2c9619c06d7b")
 		(property "Description" "-15 V power-good node: about 3.2 V when good, low when the regulator PGN pin or the guard Q42 pulls it down"
 			(at 78.74 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "PGP_15V"
-		(shape input)
-		(at 78.74 71.12 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "b128d23e-1c7d-51bc-b955-e04a37a87c90")
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
-			(at 78.74 71.12 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "IO_ADC_DRDY_N"
-		(shape input)
-		(at 78.74 83.82 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "b3b63a06-6d58-52dc-9002-b7f1e83c01c3")
-		(property "Description" "ADS124S08 data ready, active low, read on expander GP5"
-			(at 78.74 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1465,7 +1333,7 @@
 			)
 			(justify left)
 		)
-		(uuid "f31da897-ed1e-57e1-a130-b56e88fdcb17")
+		(uuid "25dd3fd4-dc43-568c-9508-2ccc5c917f25")
 		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
 			(at 124.46 78.74 0)
 			(hide yes)
@@ -1476,6 +1344,144 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "INA239_ALERT"
+		(shape input)
+		(at 78.74 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3c884c95-a64d-5ab9-8629-79907c8bcb37")
+		(property "Description" "INA239 ALERT output, open drain, active low: lights D6 and is read on expander GP6"
+			(at 78.74 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AMBIENT_CT"
+		(shape input)
+		(at 78.74 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5ce30b65-a283-5085-a803-fd0292108048")
+		(property "Description" "ADT7320 critical temperature output, open drain, active low, read on expander GP3"
+			(at 78.74 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "AMBIENT_INT"
+		(shape input)
+		(at 78.74 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "86bdb1dd-e2c6-5fe2-aeb2-9f1f71b91014")
+		(property "Description" "ADT7320 INT output, open drain, active low, read on expander GP2"
+			(at 78.74 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_ADC_DRDY_N"
+		(shape input)
+		(at 78.74 83.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "940fb460-fa58-52cb-b3fa-023b19474e6a")
+		(property "Description" "ADS124S08 data ready, active low, read on expander GP5"
+			(at 78.74 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "PGP_15V"
+		(shape input)
+		(at 78.74 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9ed63722-b503-58ed-b668-c8186d7f104b")
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the regulator PGP pin pulls it down"
+			(at 78.74 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "IO_EXP_INT_N"
+		(shape input)
+		(at 78.74 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b3b63a06-6d58-52dc-9002-b7f1e83c01c3")
+		(property "Description" "Interrupt of the four universal I/O expanders, open drain, active low, read on expander GP4"
+			(at 78.74 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 	)
@@ -1546,7 +1552,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3f84f9f5-0d59-56d3-bdf6-d0e18d1560b3")
+			(uuid "ca52d963-ee66-5e34-aab2-2af6f6b45921")
 		)
 		(instances
 			(project "cryocooler"
@@ -1624,7 +1630,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7ef6d602-ee7e-536e-9e05-98d01bccd685")
+			(uuid "b0c81b6a-275c-5627-b5fb-6e3187747e01")
 		)
 		(instances
 			(project "cryocooler"
@@ -1713,10 +1719,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b0c81b6a-275c-5627-b5fb-6e3187747e01")
+			(uuid "c753be0e-6b13-5e99-9222-d64920112a7d")
 		)
 		(pin "2"
-			(uuid "c753be0e-6b13-5e99-9222-d64920112a7d")
+			(uuid "06641c88-c85a-5bfe-a4c4-671c7da737fb")
 		)
 		(instances
 			(project "cryocooler"
@@ -1805,61 +1811,61 @@
 			)
 		)
 		(pin "9"
-			(uuid "86920b8b-774d-5752-b0b5-41d5e67c68a1")
-		)
-		(pin "10"
 			(uuid "a4a20eb2-81b4-5e25-ac33-f9c41d96817f")
 		)
-		(pin "11"
+		(pin "10"
 			(uuid "6c003179-e90e-5443-8462-55343963fa49")
 		)
-		(pin "12"
+		(pin "11"
 			(uuid "c0610ec8-01dd-5fb9-ae31-13911e19e30f")
 		)
-		(pin "13"
+		(pin "12"
 			(uuid "1ca7ce9b-12c8-5e40-a592-2551f782d4c6")
 		)
-		(pin "14"
+		(pin "13"
 			(uuid "fc7313f7-031c-565b-8136-31aa0cd53f9b")
 		)
-		(pin "15"
+		(pin "14"
 			(uuid "f79d8333-db02-59ca-bd5f-193014a1e38e")
 		)
-		(pin "16"
+		(pin "15"
 			(uuid "ffbf0ff6-53a1-55e6-b8d4-1bf264eb7d95")
 		)
-		(pin "19"
+		(pin "16"
 			(uuid "3f488bc8-dbfb-5d2a-9c92-c0cf53b8a7bd")
 		)
-		(pin "20"
+		(pin "19"
 			(uuid "87abd916-394b-531b-8a18-6bbd0c7390a1")
 		)
-		(pin "1"
+		(pin "20"
 			(uuid "88529410-6d25-5833-b831-71fbde7d2eb4")
 		)
-		(pin "5"
+		(pin "1"
 			(uuid "4a829f74-1b7e-51db-840e-663b572aa379")
 		)
-		(pin "7"
+		(pin "5"
 			(uuid "5cff544b-fc63-5733-85d8-700649955534")
 		)
-		(pin "4"
+		(pin "7"
 			(uuid "83f8d62e-cc9f-58c5-8049-82ebe4b12b28")
 		)
-		(pin "3"
+		(pin "4"
 			(uuid "9d7bdc09-9d6d-53ed-ba2a-04635e76b685")
 		)
-		(pin "2"
+		(pin "3"
 			(uuid "0681c156-629c-5803-a2c9-3fbd3ba519d6")
 		)
-		(pin "18"
+		(pin "2"
 			(uuid "96ee81a5-dfa2-5bc9-9f67-01d6b46c6c4d")
 		)
-		(pin "17"
+		(pin "18"
 			(uuid "3e844e1d-e4be-5010-8c54-c8dffa28dbba")
 		)
-		(pin "21"
+		(pin "17"
 			(uuid "7122106c-d182-5d13-98eb-7a172c654c2e")
+		)
+		(pin "21"
+			(uuid "f790c80e-8a28-5243-ad38-747a5f940cc2")
 		)
 		(instances
 			(project "cryocooler"
@@ -1936,7 +1942,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "dac13cbc-d6d9-571f-943b-d09e8e80e031")
+			(uuid "7ef6d602-ee7e-536e-9e05-98d01bccd685")
 		)
 		(instances
 			(project "cryocooler"
@@ -2014,7 +2020,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "44903d2b-9543-5840-993c-e1818da600b8")
+			(uuid "dac13cbc-d6d9-571f-943b-d09e8e80e031")
 		)
 		(instances
 			(project "cryocooler"
@@ -2091,7 +2097,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f790c80e-8a28-5243-ad38-747a5f940cc2")
+			(uuid "121ab4fe-b0c4-5e1a-a0d4-d50ab944795b")
 		)
 		(instances
 			(project "cryocooler"
@@ -2169,7 +2175,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "121ab4fe-b0c4-5e1a-a0d4-d50ab944795b")
+			(uuid "44903d2b-9543-5840-993c-e1818da600b8")
 		)
 		(instances
 			(project "cryocooler"
@@ -2247,7 +2253,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "06641c88-c85a-5bfe-a4c4-671c7da737fb")
+			(uuid "3f84f9f5-0d59-56d3-bdf6-d0e18d1560b3")
 		)
 		(instances
 			(project "cryocooler"

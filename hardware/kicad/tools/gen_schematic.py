@@ -1863,8 +1863,8 @@ def build_rails_logic(sh):
     drop_ground(sh, (152, rail + 12), 0)
     feedback = pin_cell(u3, '2')
     wire(
-        sh, feedback, (97, feedback[1]), (97, rail + 12), (134, rail + 12),
-        (134, rail + 6), (140, rail + 6), (152, rail + 6),
+        sh, feedback, (97, feedback[1]), (97, rail + 12), (140, rail + 12),
+        (140, rail + 6), (152, rail + 6),
     )
     sh.note('5 V BUCK (AP63205)', 44 * 1.27, 60 * 1.27, 1.8)
     sh.note('3.3 V BUCK (TPS62822)', 44 * 1.27, (rail - 12) * 1.27, 1.8)
@@ -3092,7 +3092,7 @@ def build_system_current(sh):
         15,
     )
     sh.note('12 V SHUNT', 40.64, 31.75, 1.8)
-    sh.note('INA239 CURRENT MONITOR', 109.22, 50.8, 1.8)
+    sh.note('INA239 CURRENT MONITOR', 109.22, 55.88, 1.8)
     sh.note('ALERT LED', 162.56, 88.9, 1.8)
     ina = place_ic(
         sh,
@@ -3416,6 +3416,7 @@ def build_gpio_expander(sh):
     address_low, address_high = spur(sh, expander, '3', 3), spur(sh, expander, '2', 3)
     wire(sh, address_low, address_high)
     ground(sh, address_high)
+    sh.junctions.append(address_high)
     for pin, net in (
         ('9', 'PGP_15V'),
         ('10', 'PGN_15V'),
@@ -3513,8 +3514,8 @@ def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
         sh,
         drain,
         (drain[0], pwm_pin[1] - 10),
-        (112, pwm_pin[1] - 10),
-        (112, pwm_pin[1]),
+        (114, pwm_pin[1] - 10),
+        (114, pwm_pin[1]),
         pwm_pin,
     )
     # array elements stand in for three discrete resistors, whose numbers retire
@@ -3565,11 +3566,12 @@ def build_cooling(sh):
     kicadgen.retire_refs('D', 1)
     with rev4_refs('Q', 'RN'):
         shared = {'fet': next_ref('Q'), 'tach': next_ref('RN'), 'pull': next_ref('RN')}
-    for heading, row in (('FAN', 46), ('PUMP', 82), ('FLOW SENSOR', 106), ('COOLANT NTC', 136)):
+    for heading, row in (('FAN', 46), ('PUMP', 82), ('FLOW SENSOR', 114), ('COOLANT NTC', 144)):
         sh.note(heading, 20 * 1.27, row * 1.27, 1.8)
     fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0, shared)
     fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 92, 1, shared)
-    # Alphacool ES flow sensor and NTC
+    # Alphacool ES flow sensor and NTC, drawn then moved 8 rows down
+    marks = sheet_marks(sh)
     # pin 1 at the bottom, like the fan and pump headers, so GND has room; the
     # header family has no 3-pin part, so pin 4 is unused
     j_flow = sh.add(
@@ -3620,6 +3622,7 @@ def build_cooling(sh):
     vcap(sh, '100nF', ntc[0] - 22, ntc[1])
     drop_ground(sh, (ntc[0] - 22, ntc[1] + 6), 0)
     ground(sh, spur(sh, j_ntc, '2', 2))
+    shift_since(sh, marks, 0, 8)
     # ESD clamp on the GPIO side of the tach resistors: J3-J5 carry 12 V beside the
     # tach pin, and a 5 V clamp on the connector side would not survive that short
     sh.note('ESD CLAMP (GPIO SIDE)', 150 * 1.27, 112 * 1.27, 1.8)
@@ -3822,7 +3825,7 @@ def build_imu(sh):
         ),
         key=lambda signal: tips[signal[0]][1],
     )
-    sh.note('IMU CABLE (J14) AND FILTER', (column - 44) * 1.27, 70 * 1.27, 1.8)
+    sh.note('IMU CABLE (J14) AND FILTER', (column - 44) * 1.27, 67 * 1.27, 1.8)
     with rev3_refs('U'):
         part = imu_filter(sh, column - 36, 84)
         # one six-channel part replaces the two NUF4001s (U36, U37): U37 retires
@@ -4695,8 +4698,8 @@ def build_io_precision(sh):
         io_label(sh, 'prec_refn', (188, 70), 0)
         role(vcap(sh, '100nF', 180, 58), 'prec_ref_filter')
         wire(sh, (180, 64), (180, 70))
-        precision_port(sh, 'A', 112)
-        precision_port(sh, 'B', 184)
+        precision_port(sh, 'A', 107)
+        precision_port(sh, 'B', 176)
         pull_up_at(sh, '10k', (102, 74), 'pull_prec_flt')
         pull_down_at(sh, '22k', (47, 70), 'pull_prec_en')
 
@@ -5681,10 +5684,10 @@ PINNED_FIELDS = {
     # below the connector: beside it the long value runs into the display outline
     ('display.kicad_sch', 'J15', 1): ((236.22, 110.49), (236.22, 112.59)),
     # the fast channels' buffer: text left of the VCC riser
-    ('io_ch1.kicad_sch', 'U116', 1): ((75.44, 207.9), (75.44, 210.0)),
-    ('io_ch2.kicad_sch', 'U119', 1): ((75.44, 207.9), (75.44, 210.0)),
+    ('io_ch1.kicad_sch', 'U116', 1): ((72.39, 207.9), (72.39, 210.0)),
+    ('io_ch2.kicad_sch', 'U119', 1): ((72.39, 207.9), (72.39, 210.0)),
     # above the DIN wire and clear of the LED body
-    ('indicators.kicad_sch', 'D13', 1): ((106.68, 120.65), (106.68, 122.75)),
+    ('indicators.kicad_sch', 'D13', 1): ((105.16, 120.65), (105.16, 122.75)),
     ('power_input.kicad_sch', 'C65', 1): ((93.218, 80.772), (93.218, 82.872)),
     ('power_input.kicad_sch', 'C67', 1): ((118.872, 79.756), (118.872, 81.856)),
     ('signal_gen.kicad_sch', 'U3', 1): ((35.56, 91.44), (35.56, 93.54)),
@@ -5849,8 +5852,8 @@ def colour_legend(sh, x, y):
 # follows the part, so it survives a move. 'below>4' is below, 4 mm to the right;
 # 'above@3.5' sets the distance from the part's centre line in mm.
 FIELD_SIDES = {
-    'cryocooler.kicad_sch': {'above': 'R23', 'above>-1': 'R24'},
-    'power_button.kicad_sch': {'right': 'C84 C41', 'left': 'D100', 'below@3.5': 'JP10'},
+    'cryocooler.kicad_sch': {'above': 'R23', 'above>-1': 'R24', 'left': 'C63'},
+    'power_button.kicad_sch': {'right': 'C84 C41', 'left': 'D100 R56', 'below': 'R7', 'below@3.5': 'JP10'},
     'system_current.kicad_sch': {'below': 'R80', 'right': 'C68'},
     'cooling.kicad_sch': {'left': 'R15 R16'},
     'io_precision.kicad_sch': {'right': 'R627', 'left': 'R626 C428 C431 C423'},
@@ -5859,8 +5862,8 @@ FIELD_SIDES = {
     },
     'io_switches.kicad_sch': {'above': 'R614 R615 R616'},
     'io_pressure.kicad_sch': {'right': 'R637 R639'},
-    'io_ch1.kicad_sch': {'above': 'R653', 'right': 'R657 C439', 'left': 'R656 R662 D109 C440', 'above@3.5': 'JP12'},
-    'io_ch2.kicad_sch': {'above': 'R666', 'right': 'R670 C444', 'left': 'R669 R675 D112 C445', 'above@3.5': 'JP14'},
+    'io_ch1.kicad_sch': {'below': 'R653', 'right': 'R657 C439', 'left': 'R656 R662 D109 C440', 'above@3.5': 'JP12'},
+    'io_ch2.kicad_sch': {'below': 'R666', 'right': 'R670 C444', 'left': 'R669 R675 D112 C445', 'above@3.5': 'JP14'},
     'io_ch3.kicad_sch': {'right': 'R680 C449', 'left': 'R679 C450', 'above@3.5': 'JP16'},
     'io_ch4.kicad_sch': {'right': 'R688 C452', 'left': 'R687 C453', 'above@3.5': 'JP18'},
     'ldo_15v.kicad_sch': {'right': 'C59 C60 C57 C58', 'left': 'R76 R77'},
@@ -5868,9 +5871,9 @@ FIELD_SIDES = {
     'compressor_relay.kicad_sch': {'right': 'D14'},
     'cold_head.kicad_sch': {'left': 'R62', 'right': 'C70'},
     'indicators.kicad_sch': {'left': 'R10'},
-    'display.kicad_sch': {'left': 'F2'},
+    'display.kicad_sch': {'left': 'F2', 'below': 'R517 R518'},
     'rails_logic.kicad_sch': {'left': 'C3', 'right': 'C5 C30 C87'},
-    'supply_switches.kicad_sch': {'above@3.5': 'FB3 FB4', 'below@3.5': 'JP1 JP2 JP3 JP4 JP5 JP6'},
+    'supply_switches.kicad_sch': {'above@4.5': 'FB3 FB4', 'below@3.5': 'JP1 JP2 JP3 JP4 JP5 JP6'},
 }
 FIELD_LINE = 2.1  # mm between a part's reference line and its value line
 

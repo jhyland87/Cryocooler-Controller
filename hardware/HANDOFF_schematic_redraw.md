@@ -102,6 +102,17 @@ Schematic" not tried; renders and fab files not regenerated (no net names in the
   system_current (three headings), root (USB CC1 steps up 5 rows so R24's text sits
   above R24, off the D- wire).
 - `tools/count_crossings.py` added to `hardware/kicad/README.md`.
+- Opus `schematic-reviewer` pass on the 18 changed sheets, then its fixes: rails_logic
+  FB climbs straight into the divider node; cooling PWM riser 2 cells right (RN1A /
+  RN1C text clear), flow / NTC groups 8 rows lower; power_button R7 text below, R56
+  left; gpio_expander dot on the A0 / A1 ground tie; precision ports A and B up 5 / 8
+  rows (D106 off the border, PREC_EXC pair still 88 mm); io_ch1/2 U116 / U119 text
+  left, R653 / R666 below; text moves on root C63, display R517 / R518, imu and
+  system_current headings, indicators D13, supply_switches FB3 / FB4. Not re-reviewed
+  after the fixes; the gate passes and the fixed spots were checked on renders.
+  Reviewer notes not acted on: cold_head J10 flow (already open below); D6 on
+  system_current is a two-colour LED with GA / GK unconnected (part-selection rule,
+  a question for the user); rails_logic FB first drop beside U16's NC pins.
 
 ## Open
 
