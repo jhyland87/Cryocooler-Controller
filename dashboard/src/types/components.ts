@@ -178,13 +178,6 @@ export interface HistoryRangeToggleProps {
   spanMs:   number;
 }
 
-// ─── VibrationWave ───────────────────────────────────────────────────────────
-
-export interface VibrationWaveProps {
-  accelMag: DataPoint[];
-  freqHz: DataPoint[];
-}
-
 // ─── Chart wrappers ──────────────────────────────────────────────────────────
 
 export interface TemperatureChartProps {
@@ -211,6 +204,10 @@ export interface AccelSparklinesProps {
   accelZ:   DataPoint[];
   accelMag: DataPoint[];
   freqHz:   DataPoint[];
+  /** Overstroke back-off, % of full drive; null points when there is no IMU. */
+  backoffPct:   DataPoint[];
+  /** Overstroke hits since start (never decays). */
+  backoffCount: number | undefined;
   motion:   number | undefined;
 }
 

@@ -79,6 +79,7 @@ static const Channel CHANNELS[] = {
     {"amplifier.active_power_w",        [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.active_power_w; }},
     {"amplifier.power_factor",          [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.power_factor; }},
     {"amplifier.back_emf_v",            [](const cryocooler_TelemetryFrame& frame) { return frame.amplifier.back_emf_v; }},
+    {"status.backoff_pct",              [](const cryocooler_TelemetryFrame& frame) { return frame.status.backoff_pct; }},
 };
 
 static_assert(sizeof(CHANNELS) / sizeof(CHANNELS[0]) == run_history::CHANNEL_COUNT,

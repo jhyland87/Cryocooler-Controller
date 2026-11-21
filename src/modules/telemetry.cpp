@@ -219,9 +219,9 @@ static void buildStartupFrame(FrameBuilder& frame)
             .field("faults.count_30m",      "%s", "")
             .field("faults.count_60m",      "%s", "");
     }
-    // backoff_count comes from the state-machine Output struct produced by
-    // update(); no standalone getter exists, so always emit "" here.
+    // Back-off values are filled once the state machine runs (emit()).
     frame.field("status.backoff_count", "%s", "");
+    frame.field("status.backoff_pct",   "%s", "");
 
     // ── Relay ───────────────────────────────────────────────────────────────
     if (compressorReady) {
@@ -619,6 +619,7 @@ void emit(const state_machine::Output& out)
         .field("cold_head.cooldown_pct",           "%.2f", cold_head::getTemperatureToPercent())
         .field("status.time_in_state",              "%s",   tisHmsBuf)
         .field("status.backoff_count",              "%u",   static_cast<unsigned>(out.backoffCount))
+        .field("status.backoff_pct",                "%.2f", state_machine::getBackoffPct())
         .field("faults.count_10m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(600000u)))
         .field("faults.count_30m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(1800000u)))
         .field("faults.count_60m",                  "%u",   static_cast<unsigned>(state_machine::countRecentFaults(3600000u)))

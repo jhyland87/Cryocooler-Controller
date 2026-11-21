@@ -48,7 +48,7 @@ export const mainContent: SxProps<Theme> = {
 // ─── Card / Container ───────────────────────────────────────────────────────
 
 /** Standard bordered card container — used by SparkCard, MultiSparkCard,
- *  VibrationWave, CollapsiblePanel, etc. */
+ *  CollapsiblePanel, etc. */
 export const card: SxProps<Theme> = {
   bgcolor: 'background.paper',
   borderRadius: 1,
@@ -57,7 +57,7 @@ export const card: SxProps<Theme> = {
   overflow: 'hidden',
 };
 
-/** Card container with padding — SparkCard, MultiSparkCard, VibrationWave. */
+/** Card container with padding — SparkCard, MultiSparkCard. */
 export const paddedCard: SxProps<Theme> = {
   ...card as object,
   p: 1.5,
@@ -68,13 +68,6 @@ export const sparkCardRoot: SxProps<Theme> = {
   ...paddedCard as object,
   flex: '1 1 140px',
   minWidth: 120,
-};
-
-/** Vibration wave card sizing. */
-export const vibrationCardRoot: SxProps<Theme> = {
-  ...paddedCard as object,
-  flex: '1 1 240px',
-  minWidth: 200,
 };
 
 /** Quick-read tile in the App overview. */
@@ -112,7 +105,7 @@ export const gridCell: SxProps<Theme> = {
 // ─── Header rows ────────────────────────────────────────────────────────────
 
 /** Flex header row with space-between — used in SparkCard, MultiSparkCard,
- *  VibrationWave, TelemetryLineChart. */
+ *  TelemetryLineChart. */
 export const cardHeader: SxProps<Theme> = {
   display: 'flex',
   justifyContent: 'space-between',
@@ -130,7 +123,7 @@ export const flexRow = (gap: number = 1): SxProps<Theme> => ({
 // ─── Typography ─────────────────────────────────────────────────────────────
 
 /** Uppercase section label — used in SparkCard, MultiSparkCard,
- *  VibrationWave, CollapsiblePanel, ConsoleLog, TelemetryLineChart. */
+ *  CollapsiblePanel, ConsoleLog, TelemetryLineChart. */
 export const sectionLabel: SxProps<Theme> = {
   color: 'text.secondary',
   fontWeight: 600,
@@ -750,14 +743,6 @@ export const legendChipValue = (color: string): SxProps<Theme> => ({
 export const overlayContainer: SxProps<Theme> = {
   position: 'relative',
   height: 60,
-};
-
-// ─── Vibration wave (additional) ────────────────────────────────────────────
-
-export const vibrationFreqValue: SxProps<Theme> = {
-  color: '#ab47bc',
-  fontWeight: 700,
-  fontSize: '0.75rem',
 };
 
 // ─── History range toggle ───────────────────────────────────────────────────

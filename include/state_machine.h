@@ -432,6 +432,15 @@ const char* getStatusText();
  */
 uint32_t getTimeInState();
 
+/** Overstroke hits counted since start() or the last fault clear (never decays). */
+uint16_t getBackoffCount();
+
+/**
+ * Current overstroke back-off as a percent of full drive (0-100). It steps up
+ * on each hit, holds, then decays (see decayBackoff()).
+ */
+float getBackoffPct();
+
 // ── Module interface ──────────────────────────────────────────────────────────
 //
 // state_machine::update() requires sensor inputs so it cannot map to service().

@@ -20,6 +20,22 @@ const DROPOUT_MS = 6_000;
 /** ... once every this long (ms), to show gaps in the charts. */
 const DROPOUT_PERIOD_MS = 45_000;
 
+/** Simulated overstroke: two hits at the start of each period, then hold and decay. */
+const BACKOFF_PERIOD_MS = 100_000;
+const BACKOFF_STEP_PCT = 4.9;
+const BACKOFF_HOLD_MS = 30_000;
+const BACKOFF_TAU_MS = 10_000;
+
+/** Back-off (% of drive) and hit count, shaped like the firmware's step, hold and decay. */
+function mockBackoff(elapsedMs: number): { pct: number; count: number } {
+  const cycles = Math.floor(elapsedMs / BACKOFF_PERIOD_MS);
+  const inCycleMs = elapsedMs % BACKOFF_PERIOD_MS;
+  const hits = inCycleMs < 3_000 ? 1 : 2;
+  const pastHoldMs = Math.max(0, inCycleMs - 3_000 - BACKOFF_HOLD_MS);
+  const pct = hits * BACKOFF_STEP_PCT * Math.exp(-pastHoldMs / BACKOFF_TAU_MS);
+  return { pct: pct < 0.05 ? 0 : pct, count: cycles * 2 + hits };
+}
+
 /** Slow sine with a period in seconds, in the range -1..1. */
 function wave(elapsedMs: number, periodS: number): number {
   return Math.sin((elapsedMs / 1000) * ((2 * Math.PI) / periodS));
@@ -50,11 +66,13 @@ export function mockFrame(elapsedMs: number): TelemetryData {
   const systemVolts = 12.05 + 0.03 * wave(elapsedMs, 25);
   const systemAmps = 1.4 + 0.15 * wave(elapsedMs, 17);
   const duration = formatDuration(elapsedMs);
+  const backoff = mockBackoff(elapsedMs);
   const amplifierOnline = elapsedMs % DROPOUT_PERIOD_MS < DROPOUT_PERIOD_MS - DROPOUT_MS;
 
   return {
     state: { id: 3, name: 'MOCK COOLDOWN', status_text: 'Stubbed data, no board' },
-    status: { on_duration_ms: elapsedMs, on_duration: duration, time_in_state: duration, backoff_count: 0 },
+    status: { on_duration_ms: elapsedMs, on_duration: duration, time_in_state: duration,
+      backoff_count: backoff.count, backoff_pct: backoff.pct },
     cold_head: {
       temp_c: tempC,
       ambient_temp_c: AMBIENT_C + 0.3 * wave(elapsedMs, 90),

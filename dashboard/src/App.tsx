@@ -49,6 +49,7 @@ const HISTORY_KEYS = [
   'imu.z',
   'imu.accel_mag',
   'imu.freq_hz',
+  'status.backoff_pct',
   'system.cpu_usage_percent',
   'system.heap_usage_percent',
   'system.psram_usage_percent',
@@ -337,6 +338,8 @@ export function App() {
                   accelZ={recent('imu.z')}
                   accelMag={recent('imu.accel_mag')}
                   freqHz={recent('imu.freq_hz')}
+                  backoffPct={recent('status.backoff_pct')}
+                  backoffCount={data.status?.backoff_count}
                   motion={typeof data.imu?.motion === 'number' ? data.imu.motion : undefined}
                 />
               </CollapsiblePanel>

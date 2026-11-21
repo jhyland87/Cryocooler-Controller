@@ -101,7 +101,9 @@ void fillFrame(cryocooler_TelemetryFrame& frame) {
                  static_cast<unsigned long>((stateSec % 3600u) / 60u),
                  static_cast<unsigned long>(stateSec % 60u));
 
-        frame.status.backoff_count = 0;
+        frame.status.backoff_count = state_machine::getBackoffCount();
+        // The IMU tap is the back-off's hit source, so no IMU means no value.
+        frame.status.backoff_pct   = imuOk ? state_machine::getBackoffPct() : NAN;
     }
 
     // ── Cold head ────────────────────────────────────────────────────────────

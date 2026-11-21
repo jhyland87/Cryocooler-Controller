@@ -62,6 +62,7 @@ export function decodeTelemetryFrame(buffer: Uint8Array): TelemetryData {
       on_duration:    f.status.onDuration ?? undefined,
       time_in_state:  f.status.timeInState ?? undefined,
       backoff_count:  f.status.backoffCount ?? undefined,
+      backoff_pct:    f.status.backoffPct ?? undefined,
     };
   }
 

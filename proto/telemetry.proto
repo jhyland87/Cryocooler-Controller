@@ -42,6 +42,7 @@ message Status {
   string on_duration    = 2;  // HH:MM:SS
   string time_in_state  = 3;  // HH:MM:SS
   uint32 backoff_count  = 4;
+  float  backoff_pct    = 5;  // overstroke back-off, % of full drive; NaN = no IMU
 }
 
 message ColdHead {

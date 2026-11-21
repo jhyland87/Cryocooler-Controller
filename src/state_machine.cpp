@@ -1112,4 +1112,12 @@ uint32_t getTimeInState() {
     return millis() - currentStateEntryMs;
 }
 
+uint16_t getBackoffCount() {
+    return backoffCount;
+}
+
+float getBackoffPct() {
+    return 100.0f * backoffOffsetCounts / static_cast<float>(AMPLIFIER_RESOLUTION);
+}
+
 } // namespace state_machine

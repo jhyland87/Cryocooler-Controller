@@ -713,6 +713,19 @@ void test_backoff_offset_holds_through_hold_time(void) {
     TEST_ASSERT_EQUAL_UINT16(base - BACKOFF_DAC_STEP, out.dacTarget);
 }
 
+void test_backoff_getters_follow_hold_and_decay(void) {
+    // getBackoffPct() reports the decaying offset; getBackoffCount() never decays.
+    const uint32_t tStart = initAndStart();
+    baseTargetThenOneHit(tStart);
+    const float stepPct = 100.0f * BACKOFF_DAC_STEP / static_cast<float>(AMPLIFIER_RESOLUTION);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, stepPct, state_machine::getBackoffPct());
+    const uint32_t tauMs = static_cast<uint32_t>(BACKOFF_DECAY_TAU_MS);
+    tick::setNowMs(tStart + 2u + BACKOFF_HOLD_MS + tauMs);
+    state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, stepPct * expf(-1.0f), state_machine::getBackoffPct());
+    TEST_ASSERT_EQUAL_UINT16(1, state_machine::getBackoffCount());
+}
+
 void test_backoff_offset_decays_after_hold(void) {
     // One time constant after the hold the offset is about e^-1 of a step;
     // after seven it has gone. A long gap between updates must not count the
@@ -1728,6 +1741,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_backoff_hits_inside_min_interval_count_once);
     RUN_TEST(test_backoff_offset_holds_through_hold_time);
     RUN_TEST(test_backoff_offset_decays_after_hold);
+    RUN_TEST(test_backoff_getters_follow_hold_and_decay);
     RUN_TEST(test_backoff_fault_counts_hits_across_decay);
 
     // stateName: non-null (existing smoke test)

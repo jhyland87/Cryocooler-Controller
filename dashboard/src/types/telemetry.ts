@@ -23,6 +23,7 @@ export interface TelemetryData {
     on_duration?: string;     // HH:MM:SS
     time_in_state?: string;   // HH:MM:SS
     backoff_count?: number;
+    backoff_pct?: number;     // overstroke back-off, % of full drive; NaN = no IMU
   };
 
   cold_head?: {

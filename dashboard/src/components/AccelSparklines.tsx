@@ -2,11 +2,10 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { SparkCard } from './SparkCard';
 import { MultiSparkCard } from './MultiSparkCard';
-import { VibrationWave } from './VibrationWave';
 import type { AccelSparklinesProps } from '../types/components';
 import * as sx from '../theme/styles';
 
-export function AccelSparklines({ accelX, accelY, accelZ, accelMag, freqHz, motion }: AccelSparklinesProps) {
+export function AccelSparklines({ accelX, accelY, accelZ, accelMag, freqHz, backoffPct, backoffCount, motion }: AccelSparklinesProps) {
   return (
     <Box>
       {/* Motion chip */}
@@ -33,7 +32,15 @@ export function AccelSparklines({ accelX, accelY, accelZ, accelMag, freqHz, moti
         </Box>
         <Box sx={sx.gridCell}><SparkCard label="Magnitude" data={accelMag} color="#ffa726" unit="m/s²" dp={3} /></Box>
         <Box sx={sx.gridCell}><SparkCard label="Vibration" data={freqHz} color="#ab47bc" unit="Hz" dp={1} /></Box>
-        <Box sx={sx.gridCell}><VibrationWave accelMag={accelMag} freqHz={freqHz} /></Box>
+        <Box sx={sx.gridCell}>
+          <SparkCard
+            label={backoffCount ? `Back-off · ${backoffCount} hits` : 'Back-off'}
+            data={backoffPct}
+            color="#ab47bc"
+            unit="%"
+            dp={1}
+          />
+        </Box>
       </Box>
     </Box>
   );
