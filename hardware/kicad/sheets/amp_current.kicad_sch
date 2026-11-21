@@ -1064,7 +1064,7 @@
 					(name "~{CS}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -1682,7 +1682,7 @@
 					(name "~{OE}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -2447,6 +2447,53 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 25.4 55.88) (xy 30.48 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f06dd8aa-b169-532c-9634-60c5623ced83")
+	)
+	(bus
+		(pts
+			(xy 30.48 55.88) (xy 30.48 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "40e0545d-46d9-5994-9b62-65e0babd0e74")
+	)
+	(bus_entry
+		(at 33.02 66.04)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "580b3002-6deb-5a70-b152-64253384f6ee")
+	)
+	(bus_entry
+		(at 33.02 88.9)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b994c3b2-d608-5523-a2ca-96c6ab958837")
+	)
+	(bus_entry
+		(at 33.02 127)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "72fb51f2-8288-53bd-92e8-537597874ee5")
+	)
 	(text "V / I MONITOR"
 		(exclude_from_sim no)
 		(at 180.34 53.34 0)
@@ -2513,7 +2560,7 @@
 		)
 		(uuid "581a8725-8ecb-57f8-8e7a-c7a63c77256c")
 	)
-	(text "ACS_CS comes from the CS decoder, which holds it high at reset."
+	(text "~{ACS_CS} comes from the CS decoder, which holds it high at reset."
 		(exclude_from_sim no)
 		(at 20 33 0)
 		(effects
@@ -2557,7 +2604,7 @@
 		)
 		(uuid "b812c7c4-7975-532b-9b44-47881b10a6bd")
 	)
-	(text "The ACS37800 and the isolator drive MISO all the time, so MISO reaches the shared bus only while ACS_CS is low. SCK is gated the same way, so bus traffic for other devices never clocks the ACS37800."
+	(text "The ACS37800 and the isolator drive MISO all the time, so MISO reaches the shared bus only while ~{ACS_CS} is low. SCK is gated the same way, so bus traffic for other devices never clocks the ACS37800."
 		(exclude_from_sim no)
 		(at 20 27 0)
 		(effects
@@ -2704,32 +2751,15 @@
 		(at 129.54 76.2)
 		(uuid "d9fc6c09-5c35-5547-9b55-fa37c668c329")
 	)
-	(bus_entry
-		(at 33.02 66.04)
-		(size -2.54 -2.54)
+	(wire
+		(pts
+			(xy 127 66.04) (xy 129.54 66.04)
+		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "580b3002-6deb-5a70-b152-64253384f6ee")
-	)
-	(bus_entry
-		(at 33.02 127)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "72fb51f2-8288-53bd-92e8-537597874ee5")
-	)
-	(bus_entry
-		(at 33.02 88.9)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b994c3b2-d608-5523-a2ca-96c6ab958837")
+		(uuid "03e6e5de-d682-5963-9b4c-42cdf699ff65")
 	)
 	(wire
 		(pts
@@ -2740,6 +2770,16 @@
 			(type default)
 		)
 		(uuid "0a947320-c806-52f5-af34-2bfbdd13cc84")
+	)
+	(wire
+		(pts
+			(xy 50.8 88.9) (xy 53.34 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0c52473f-17f4-506c-b944-8091594018ac")
 	)
 	(wire
 		(pts
@@ -2901,16 +2941,6 @@
 		)
 		(uuid "3f98270f-45d7-546a-bc15-73670f8a2e5a")
 	)
-	(bus
-		(pts
-			(xy 30.48 55.88) (xy 30.48 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "40e0545d-46d9-5994-9b62-65e0babd0e74")
-	)
 	(wire
 		(pts
 			(xy 142.24 50.8) (xy 142.24 52.07)
@@ -3043,6 +3073,16 @@
 	)
 	(wire
 		(pts
+			(xy 50.8 127) (xy 53.34 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89e15751-f57d-56fc-99db-4dc3c58b3f35")
+	)
+	(wire
+		(pts
 			(xy 25.4 172.72) (xy 33.02 172.72)
 		)
 		(stroke
@@ -3163,7 +3203,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 127) (xy 53.34 127)
+			(xy 33.02 127) (xy 50.8 127)
 		)
 		(stroke
 			(width 0)
@@ -3193,7 +3233,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 88.9) (xy 53.34 88.9)
+			(xy 33.02 88.9) (xy 50.8 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3283,7 +3323,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 66.04) (xy 129.54 66.04)
+			(xy 33.02 66.04) (xy 127 66.04)
 		)
 		(stroke
 			(width 0)
@@ -3360,16 +3400,6 @@
 			(type default)
 		)
 		(uuid "ed505a61-f757-5901-a32a-4e85d1bb489b")
-	)
-	(bus
-		(pts
-			(xy 25.4 55.88) (xy 30.48 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f06dd8aa-b169-532c-9634-60c5623ced83")
 	)
 	(wire
 		(pts
@@ -3547,12 +3577,12 @@
 			)
 		)
 	)
-	(hierarchical_label "ACS_CS"
+	(hierarchical_label "~{ACS_CS}"
 		(shape input)
 		(at 45.72 109.22 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)

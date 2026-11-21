@@ -100,6 +100,20 @@ Each label type has one scope, and the narrowest one that works is the right one
   net label must not share its name with a global label anywhere in the project
   (ERC `same_local_global_label`).
 
+Active-low signals:
+
+- **An active-low net label or symbol pin has an overbar** (`~{NAME}`), and no `_N`,
+  `#`, `B` or `n` suffix: `~{ADS1220_CS}`, not `ADS1220_CS` or `IO_EXP_INT_N`. A
+  symbol pin follows the datasheet's name. A pin whose polarity is programmable
+  (MCP23S17 INTA/INTB) keeps its plain name, and its net takes the bar. An enable
+  that is high when on stays unbarred (`ESP_EN`, `IO1_SENS_EN`). C++ names can't
+  hold a bar, so firmware and the generator keep `_N`: list the net in
+  `ACTIVE_LOW` in `tools/active_low.py`, which adds the bar when the label is
+  drawn. `_N` meaning the negative side of a pair (`PREC_A_N`) is not active-low.
+  `tools/verify_netlist.py` fails on an unbarred active-low net. Barred text is
+  drawn at 1.0 mm so the bar clears a row 2.54 mm above; notes write the barred
+  name too (`~{KILL}`, not `KILL#`).
+
 Net names and the routed board:
 
 - A net label on the root names the net `/NAME`; on a sheet, `/Sheet/NAME`. Changing

@@ -1358,6 +1358,9 @@
 			(embedded_fonts no)
 		)
 		(symbol "cryocooler:ESD2CAN24DBZ"
+			(pin_names
+				(offset 0.508)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -2313,8 +2316,8 @@
 		(uuid "1ca63818-9530-566b-80e9-4487258a92c1")
 	)
 	(rectangle
-		(start 307.34 102.87)
-		(end 311.15 106.68)
+		(start 307.34 64.77)
+		(end 317.5 77.47)
 		(stroke
 			(width 0.25)
 			(type default)
@@ -2322,7 +2325,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "1d91608e-355c-5ad8-a0fc-b0b697952175")
+		(uuid "57480e4d-8bdf-541e-bc67-feba7894d161")
 	)
 	(rectangle
 		(start 320.04 63.5)
@@ -2337,8 +2340,8 @@
 		(uuid "2a393307-b50a-5c0c-af66-5fb650dcb2f7")
 	)
 	(rectangle
-		(start 353.06 86.36)
-		(end 372.11 90.17)
+		(start 304.8 86.36)
+		(end 311.15 92.71)
 		(stroke
 			(width 0.25)
 			(type default)
@@ -2346,7 +2349,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "3fdfff18-0da4-5582-a168-1e4fac16210b")
+		(uuid "623b223d-be32-5a04-bf73-cb27de1a040c")
 	)
 	(rectangle
 		(start 307.34 96.52)
@@ -2361,8 +2364,8 @@
 		(uuid "4f6570b7-92b0-591c-8408-e383ad70b132")
 	)
 	(rectangle
-		(start 307.34 64.77)
-		(end 317.5 77.47)
+		(start 307.34 102.87)
+		(end 311.15 106.68)
 		(stroke
 			(width 0.25)
 			(type default)
@@ -2370,11 +2373,11 @@
 		(fill
 			(type none)
 		)
-		(uuid "57480e4d-8bdf-541e-bc67-feba7894d161")
+		(uuid "1d91608e-355c-5ad8-a0fc-b0b697952175")
 	)
 	(rectangle
-		(start 304.8 86.36)
-		(end 311.15 92.71)
+		(start 353.06 86.36)
+		(end 372.11 90.17)
 		(stroke
 			(width 0.25)
 			(type default)
@@ -2382,7 +2385,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "623b223d-be32-5a04-bf73-cb27de1a040c")
+		(uuid "3fdfff18-0da4-5582-a168-1e4fac16210b")
 	)
 	(rectangle
 		(start 375.92 82.55)
@@ -2412,7 +2415,7 @@
 		(at 329.057 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2445,7 +2448,7 @@
 		(at 362.077 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2467,7 +2470,7 @@
 		(at 364.617 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2489,7 +2492,7 @@
 		(at 367.157 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2511,7 +2514,7 @@
 		(at 349.377 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2522,7 +2525,7 @@
 		(at 331.597 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2555,7 +2558,7 @@
 		(at 344.297 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2577,7 +2580,7 @@
 		(at 334.137 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2588,7 +2591,7 @@
 		(at 351.917 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2616,7 +2619,7 @@
 		)
 		(uuid "68175f29-2b56-5dc7-a8ab-9853af610e22")
 	)
-	(text "DO0 / DO1 on the Waveshare display are NPN open collectors to its ground (PC817 + transistor, 100 nF to GND): DO0 presses PWR_BTN like SW3, DO1 pulls ESP_EN low like the RESET button."
+	(text "DO0 / DO1 on the Waveshare display are NPN open collectors to its ground (PC817 + transistor, 100 nF to GND): DO0 presses ~{PWR_BTN} like SW3, DO1 pulls ESP_EN low like the RESET button."
 		(exclude_from_sim no)
 		(at 25.4 124.46 0)
 		(effects
@@ -2643,7 +2646,7 @@
 		(at 354.457 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2654,7 +2657,7 @@
 		(at 339.217 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2693,7 +2696,7 @@
 		)
 		(uuid "b8a006bc-e411-59bc-a702-c1d5796cbc6c")
 	)
-	(text "Its two digital outputs press the power button and RESET through J15 pins 5 and 6: sheet pins PWR_BTN (to the Power Button sheet) and ESP_EN (to the ESP32)."
+	(text "Its two digital outputs press the power button and RESET through J15 pins 5 and 6: sheet pins ~{PWR_BTN} (to the Power Button sheet) and ESP_EN (to the ESP32)."
 		(exclude_from_sim no)
 		(at 20 33 0)
 		(effects
@@ -2709,7 +2712,7 @@
 		(at 356.997 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2720,7 +2723,7 @@
 		(at 341.757 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2742,7 +2745,7 @@
 		(at 359.537 105.41 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2753,7 +2756,7 @@
 		(at 346.837 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -2764,7 +2767,7 @@
 		(at 336.677 108.585 0)
 		(effects
 			(font
-				(size 1 1)
+				(size 1.0 1.0)
 			)
 			(justify left top)
 		)
@@ -3005,6 +3008,16 @@
 	)
 	(wire
 		(pts
+			(xy 238.76 96.52) (xy 256.54 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3420cba5-beb4-5825-9e1b-c9e33c6d21a4")
+	)
+	(wire
+		(pts
 			(xy 242.57 119.38) (xy 248.92 119.38)
 		)
 		(stroke
@@ -3052,6 +3065,16 @@
 			(type default)
 		)
 		(uuid "587a2ddb-e1f7-5b85-8ae2-17ea544323a4")
+	)
+	(wire
+		(pts
+			(xy 238.76 93.98) (xy 256.54 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6026bb90-e7d9-5c87-9e81-3007999f3739")
 	)
 	(wire
 		(pts
@@ -3195,7 +3218,7 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 93.98) (xy 256.54 93.98)
+			(xy 210.82 93.98) (xy 238.76 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3265,7 +3288,7 @@
 	)
 	(wire
 		(pts
-			(xy 236.22 96.52) (xy 256.54 96.52)
+			(xy 236.22 96.52) (xy 238.76 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3423,11 +3446,11 @@
 		)
 		(uuid "fd5d8c3f-6de2-5f84-8ef2-0b134f551233")
 	)
-	(label "DISP_PWR_BTN"
+	(label "~{DISP_PWR_BTN}"
 		(at 353.06 125.73 270)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right bottom)
 		)
@@ -3445,11 +3468,11 @@
 			)
 		)
 	)
-	(label "DISP_RESET"
+	(label "~{DISP_RESET}"
 		(at 358.14 125.73 270)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right bottom)
 		)
@@ -3489,11 +3512,11 @@
 			)
 		)
 	)
-	(label "DISP_PWR_BTN"
+	(label "~{DISP_PWR_BTN}"
 		(at 251.46 91.44 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right bottom)
 		)
@@ -3555,11 +3578,11 @@
 			)
 		)
 	)
-	(label "DISP_RESET"
+	(label "~{DISP_RESET}"
 		(at 251.46 88.9 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right bottom)
 		)
@@ -3577,11 +3600,11 @@
 			)
 		)
 	)
-	(label "DISP_RESET"
+	(label "~{DISP_RESET}"
 		(at 91.44 132.08 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left bottom)
 		)
@@ -3599,11 +3622,11 @@
 			)
 		)
 	)
-	(label "DISP_PWR_BTN"
+	(label "~{DISP_PWR_BTN}"
 		(at 91.44 157.48 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left bottom)
 		)
@@ -3643,12 +3666,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_BTN"
+	(hierarchical_label "~{PWR_BTN}"
 		(shape bidirectional)
 		(at 30.48 157.48 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)

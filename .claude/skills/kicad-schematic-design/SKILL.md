@@ -68,6 +68,8 @@ These were each corrected more than once. No exceptions for tight spots.
   ones, which is what makes it show how the blocks connect.
 - Never a global label for a signal, and never a bus for anything but a
   communication bus.
+- An active-low label or pin gets an overbar, `~{NAME}`, never a `_N` or `#`
+  suffix (`.claude/rules/hardware-schematic.md`, "Active-low signals").
 - A net label names its net (`/NAME` on the root, `/Sheet/NAME` below). When a
   drawing change renames nets on a routed board, rename them on the board by name
   only (`tools/rename_board_nets.py`, `tools/relink_board_sheets.py`); no copper moves.

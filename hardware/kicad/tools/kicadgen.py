@@ -8,6 +8,7 @@ from collections import Counter
 from contextlib import contextmanager
 from pathlib import Path
 
+import active_low
 from sexpr import (
     find_all,
     pins,
@@ -553,6 +554,26 @@ IO_NET_SHAPES = (
     (r'IO\d_ADC|PRESS\d_ADC|PREC_[AB]_[PN]|PREC_REF[PN]', 'io_core.kicad_sch', 'input'),
     (r'IO\d_(PIN|DIV|LEVEL)|PREC_EXC', None, 'passive'),
 )
+
+
+# Draw active-low nets with an overbar (`active_low.py`). The IMU board's
+# generator turns this off until its board nets are renamed too.
+BAR_ACTIVE_LOW = True
+
+
+def label_text(net):
+    """The text a label or sheet pin shows for a net."""
+    return active_low.drawn(net) if BAR_ACTIVE_LOW else net
+
+
+def label_size(net):
+    """Text size of a label or sheet pin: barred text is drawn smaller so its
+    bar clears the row 2.54 mm above.
+    """
+    return BARRED_TEXT if label_text(net).startswith('~{') else 1.27
+
+
+BARRED_TEXT = 1.0
 
 
 def label_shape(net, is_root, filename):
@@ -1142,16 +1163,16 @@ class Sheet:
                 )
             if kind == 'label':
                 out.append(
-                    f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify} '
+                    f'\t(label {q(label_text(net))} (at {fmt(x)} {fmt(y)} {rotation}) '
+                    f'(effects (font (size {label_size(net)} {label_size(net)})) (justify {justify} '
                     f'bottom)) (uuid {q(new_uuid())}){described})'
                 )
             elif kind == 'hierarchical_label':
                 shape = label_shape(net, False, self.filename)
                 out.append(
-                    f'\t(hierarchical_label {q(net)} (shape {shape}) '
+                    f'\t(hierarchical_label {q(label_text(net))} (shape {shape}) '
                     f'(at {fmt(x)} {fmt(y)} {rotation}) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify})) '
+                    f'(effects (font (size {label_size(net)} {label_size(net)})) (justify {justify})) '
                     f'(uuid {q(new_uuid())}){described})'
                 )
             else:
@@ -1159,7 +1180,7 @@ class Sheet:
                     net, self.path == '/' + root_uuid, self.filename
                 )
                 out.append(
-                    f'\t(global_label {q(net)} (shape {shape}) '
+                    f'\t(global_label {q(label_text(net))} (shape {shape}) '
                     f'(at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(fields_autoplaced yes) (effects (font (size 1.27 '
                     f'1.27)) (justify {justify})) '

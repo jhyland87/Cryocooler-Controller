@@ -7,7 +7,7 @@ satisfies the rule; a field is hidden only when no position exists.
 `check_text` re-verifies.
 """
 
-from kicadgen import get_symbol
+from kicadgen import get_symbol, label_size, label_text
 from sexpr import find_all, pins as symbol_pins, sval
 
 CHAR_MM = 1.2  # width per character at 1.27 mm text (rendered ~1.2 mm)
@@ -40,13 +40,34 @@ def hits(a, b, margin=MARGIN):
     )
 
 
+def drawn_label(kind, net):
+    """Width of a label as drawn and how far its text (or its overbar) reaches
+    above the wire. A bar sits about 1.8 x the text size above the baseline,
+    which a local label puts just above its wire.
+    """
+    text, size = label_text(net), label_size(net)
+    barred = text.startswith('~{')
+    width = text_width(text.replace('~{', '').replace('}', ''), size)
+    if kind == 'label':
+        top = 0.3 + 1.8 * size if barred else 1.9
+    else:
+        top = 1.3 * size if barred else 1.3
+    return width, top
+
+
 def label_box(kind, net, x, y, angle):
-    length = text_width(net) + (0.3 if kind == 'label' else 2.2)
+    width, top = drawn_label(kind, net)
+    length = width + (0.3 if kind == 'label' else 2.2)
+    if kind == 'label':
+        top, bottom = max(top, 1.9), 0.3
+    else:
+        # centred on its wire; underscores reach about 0.75 x size below
+        top, bottom = max(top, 1.3), 0.75 * label_size(net)
     angle = int(angle) % 360
     if angle == 0:
-        return (x, y - 1.9, x + length, y + 0.3)
+        return (x, y - top, x + length, y + bottom)
     if angle == 180:
-        return (x - length, y - 1.9, x, y + 0.3)
+        return (x - length, y - top, x, y + bottom)
     if angle == 90:
         return (x - 1.5, y - length, x + 1.5, y)
     return (x - 1.5, y, x + 1.5, y + length)
@@ -340,8 +361,9 @@ def label_text_box(kind, net, x, y, angle):
     """Area a label's text (and a global or hierarchical label's flag) covers.
     A local label's text sits beside its wire; the others are centred on it.
     """
-    length = text_width(net) + (0.3 if kind == 'label' else 2.2)
-    near, far = (-1.9, -0.2) if kind == 'label' else (-1.3, 1.3)
+    width, top = drawn_label(kind, net)
+    length = width + (0.3 if kind == 'label' else 2.2)
+    near, far = (-top, -0.2) if kind == 'label' else (-top, 1.3)
     angle = int(angle) % 360
     if angle == 0:
         return (x, y + near, x + length, y + far)

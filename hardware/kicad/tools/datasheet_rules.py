@@ -788,7 +788,7 @@ RULES_IMU = [
 
 
 def run(path, rules=RULES):
-    comps, nets = load(path)
+    comps, nets = load(path, source_names=True)
     value_of = {
         ref: sval(find_all(c, 'value')[0][1]) for ref, c in comps.items()
     }

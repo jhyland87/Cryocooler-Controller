@@ -557,7 +557,7 @@
 					(name "~{CS}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -683,7 +683,7 @@
 					(name "~{RESET}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -1223,7 +1223,101 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "Two MCP23S17 share IO_EXP_CS: hardware addresses 0 and 1 on A0 (A2 low on both, so one write of IOCON.HAEN reaches every device: errata DS80311A). Port A serves the odd channel of a pair, port B the even one."
+	(bus
+		(pts
+			(xy 38.1 88.9) (xy 43.18 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f065073d-ae96-54ff-a31f-1ddfc417dd85")
+	)
+	(bus
+		(pts
+			(xy 127 88.9) (xy 132.08 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06da40ba-7d51-55d6-92b6-c694f68ec247")
+	)
+	(bus
+		(pts
+			(xy 43.18 88.9) (xy 43.18 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "624abc61-ad6f-5cbd-98d6-e35a14a0cf98")
+	)
+	(bus
+		(pts
+			(xy 132.08 88.9) (xy 132.08 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c868bfff-0832-55b2-b157-71020f0df4d2")
+	)
+	(bus_entry
+		(at 45.72 101.6)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3f3928d-7401-5b8e-b951-f7d49d838066")
+	)
+	(bus_entry
+		(at 45.72 104.14)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bbaa9137-4a92-5575-bdab-138f89c8e0ba")
+	)
+	(bus_entry
+		(at 45.72 106.68)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec7601f9-c38a-57aa-ac79-5e5cdcdd91d6")
+	)
+	(bus_entry
+		(at 134.62 101.6)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e50a806c-3fff-5cb6-ba62-fb02138ea4f8")
+	)
+	(bus_entry
+		(at 134.62 104.14)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28c0bc59-645a-5c94-b8f8-2c006eeda1d7")
+	)
+	(bus_entry
+		(at 134.62 106.68)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67938497-836e-5ef8-a396-ede3d0242bd0")
+	)
+	(text "Two MCP23S17 share ~{IO_EXP_CS}: hardware addresses 0 and 1 on A0 (A2 low on both, so one write of IOCON.HAEN reaches every device: errata DS80311A). Port A serves the odd channel of a pair, port B the even one."
 		(exclude_from_sim no)
 		(at 20 15 0)
 		(effects
@@ -1234,7 +1328,7 @@
 		)
 		(uuid "148c7232-23ce-5abb-bd03-8a075c728889")
 	)
-	(text "7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
+	(text "7 ~{BUF_OE} (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All pins are inputs after reset, so the pull resistors on each line set the off state."
 		(exclude_from_sim no)
 		(at 20 27 0)
 		(effects
@@ -1267,7 +1361,7 @@
 		)
 		(uuid "59f6a5a2-4e5a-515b-9141-1d2f734c7c50")
 	)
-	(text "INTA and INTB must be set open drain (IOCON.ODR) before interrupts are enabled: all four share IO_EXP_INT_N, pulled up at address 0."
+	(text "INTA and INTB must be set open drain (IOCON.ODR) before interrupts are enabled: all four share ~{IO_EXP_INT}, pulled up at address 0."
 		(exclude_from_sim no)
 		(at 20 39 0)
 		(effects
@@ -1289,7 +1383,7 @@
 		)
 		(uuid "9c51ad4c-ec1c-5d46-a90e-aefd3297a878")
 	)
-	(text "Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs),"
+	(text "Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, 4 SENS_EN (outputs), 5 ~{OUT_FLT} (channel 1; elsewhere a spare), 6 ~{SENS_FLT} (inputs),"
 		(exclude_from_sim no)
 		(at 20 21 0)
 		(effects
@@ -1357,60 +1451,6 @@
 		(at 91.44 104.14)
 		(uuid "d51f369e-528e-53b2-b8ee-3f1a523c42b9")
 	)
-	(bus_entry
-		(at 134.62 104.14)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "28c0bc59-645a-5c94-b8f8-2c006eeda1d7")
-	)
-	(bus_entry
-		(at 134.62 106.68)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67938497-836e-5ef8-a396-ede3d0242bd0")
-	)
-	(bus_entry
-		(at 45.72 104.14)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbaa9137-4a92-5575-bdab-138f89c8e0ba")
-	)
-	(bus_entry
-		(at 45.72 101.6)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3f3928d-7401-5b8e-b951-f7d49d838066")
-	)
-	(bus_entry
-		(at 134.62 101.6)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e50a806c-3fff-5cb6-ba62-fb02138ea4f8")
-	)
-	(bus_entry
-		(at 45.72 106.68)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ec7601f9-c38a-57aa-ac79-5e5cdcdd91d6")
-	)
 	(wire
 		(pts
 			(xy 55.88 137.16) (xy 55.88 139.7)
@@ -1430,16 +1470,6 @@
 			(type default)
 		)
 		(uuid "03b2e5b0-c2c1-5ffa-98c6-13b114124049")
-	)
-	(bus
-		(pts
-			(xy 127 88.9) (xy 132.08 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06da40ba-7d51-55d6-92b6-c694f68ec247")
 	)
 	(wire
 		(pts
@@ -1493,7 +1523,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 106.68) (xy 60.96 106.68)
+			(xy 45.72 106.68) (xy 58.42 106.68)
 		)
 		(stroke
 			(width 0)
@@ -1513,7 +1543,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 104.14) (xy 60.96 104.14)
+			(xy 45.72 104.14) (xy 58.42 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1523,7 +1553,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 104.14) (xy 149.86 104.14)
+			(xy 134.62 104.14) (xy 147.32 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1600,6 +1630,16 @@
 			(type default)
 		)
 		(uuid "3b60e0b6-8b2b-5212-ad17-d7f0fa6f237d")
+	)
+	(wire
+		(pts
+			(xy 147.32 101.6) (xy 149.86 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c5b19e1-0c39-53cb-bca6-398bb6d9a948")
 	)
 	(wire
 		(pts
@@ -1720,16 +1760,6 @@
 			(type default)
 		)
 		(uuid "60b0c4a5-8e0a-57ad-82f5-260455b0f238")
-	)
-	(bus
-		(pts
-			(xy 43.18 88.9) (xy 43.18 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "624abc61-ad6f-5cbd-98d6-e35a14a0cf98")
 	)
 	(wire
 		(pts
@@ -1863,6 +1893,16 @@
 	)
 	(wire
 		(pts
+			(xy 58.42 106.68) (xy 60.96 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e065599-cc29-5457-943d-5a623d637be5")
+	)
+	(wire
+		(pts
 			(xy 55.88 121.92) (xy 55.88 124.46)
 		)
 		(stroke
@@ -1943,6 +1983,16 @@
 	)
 	(wire
 		(pts
+			(xy 147.32 106.68) (xy 149.86 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae82aec0-86e8-5961-b8a8-160cd97d8e16")
+	)
+	(wire
+		(pts
 			(xy 142.24 111.76) (xy 149.86 111.76)
 		)
 		(stroke
@@ -1973,7 +2023,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 101.6) (xy 149.86 101.6)
+			(xy 134.62 101.6) (xy 147.32 101.6)
 		)
 		(stroke
 			(width 0)
@@ -1993,6 +2043,16 @@
 	)
 	(wire
 		(pts
+			(xy 58.42 104.14) (xy 60.96 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf12f996-7d2b-5e2e-b659-2fa5a753a514")
+	)
+	(wire
+		(pts
 			(xy 53.34 109.22) (xy 60.96 109.22)
 		)
 		(stroke
@@ -2001,15 +2061,15 @@
 		)
 		(uuid "c0f9a9ec-6bd7-57ee-8a18-4d84e44dd099")
 	)
-	(bus
+	(wire
 		(pts
-			(xy 132.08 88.9) (xy 132.08 104.14)
+			(xy 58.42 101.6) (xy 60.96 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c868bfff-0832-55b2-b157-71020f0df4d2")
+		(uuid "cb5ddd8a-533f-5920-9a68-1e6ccb08dce0")
 	)
 	(wire
 		(pts
@@ -2033,7 +2093,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 101.6) (xy 60.96 101.6)
+			(xy 45.72 101.6) (xy 58.42 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2113,13 +2173,23 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 106.68) (xy 149.86 106.68)
+			(xy 134.62 106.68) (xy 147.32 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "df7cac98-426e-5a3a-94e4-0cdc4ef076d5")
+	)
+	(wire
+		(pts
+			(xy 147.32 104.14) (xy 149.86 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e30192b5-9d3e-5f00-becb-b200678ebb53")
 	)
 	(wire
 		(pts
@@ -2160,16 +2230,6 @@
 			(type default)
 		)
 		(uuid "ed34dc9b-8604-5b92-914b-ba37d0c9c501")
-	)
-	(bus
-		(pts
-			(xy 38.1 88.9) (xy 43.18 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f065073d-ae96-54ff-a31f-1ddfc417dd85")
 	)
 	(wire
 		(pts
@@ -2530,12 +2590,12 @@
 			)
 		)
 	)
-	(hierarchical_label "EXP_INT_N"
+	(hierarchical_label "~{EXP_INT}"
 		(shape input)
 		(at 185.42 139.7 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2553,12 +2613,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO_EXP_CS"
+	(hierarchical_label "~{IO_EXP_CS}"
 		(shape input)
 		(at 142.24 109.22 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
@@ -2576,12 +2636,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO3_SENS_FLT_N"
+	(hierarchical_label "~{IO3_SENS_FLT}"
 		(shape input)
 		(at 185.42 116.84 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2714,12 +2774,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO4_SENS_FLT_N"
+	(hierarchical_label "~{IO4_SENS_FLT}"
 		(shape input)
 		(at 185.42 137.16 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2737,12 +2797,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PREC_EXC_FLT_N"
+	(hierarchical_label "~{PREC_EXC_FLT}"
 		(shape input)
 		(at 185.42 114.3 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2783,12 +2843,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO1_BUF_OE_N"
+	(hierarchical_label "~{IO1_BUF_OE}"
 		(shape output)
 		(at 96.52 119.38 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2852,12 +2912,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO_EXP_INT_N"
+	(hierarchical_label "~{IO_EXP_INT}"
 		(shape output)
 		(at 35.56 147.32 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
@@ -2875,12 +2935,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO2_BUF_OE_N"
+	(hierarchical_label "~{IO2_BUF_OE}"
 		(shape output)
 		(at 96.52 139.7 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -2898,12 +2958,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO_EXP_CS"
+	(hierarchical_label "~{IO_EXP_CS}"
 		(shape input)
 		(at 53.34 109.22 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
@@ -2921,12 +2981,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO_OUT_FLT_A_N"
+	(hierarchical_label "~{IO_OUT_FLT_A}"
 		(shape input)
 		(at 96.52 114.3 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -3013,12 +3073,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO_EXP_INT_N"
+	(hierarchical_label "~{IO_EXP_INT}"
 		(shape output)
 		(at 139.7 147.32 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
@@ -3105,12 +3165,12 @@
 			)
 		)
 	)
-	(hierarchical_label "RS485_IRQ_N"
+	(hierarchical_label "~{RS485_IRQ}"
 		(shape input)
 		(at 185.42 119.38 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -3128,12 +3188,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO2_SENS_FLT_N"
+	(hierarchical_label "~{IO2_SENS_FLT}"
 		(shape input)
 		(at 96.52 137.16 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -3243,12 +3303,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IO1_SENS_FLT_N"
+	(hierarchical_label "~{IO1_SENS_FLT}"
 		(shape input)
 		(at 96.52 116.84 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)

@@ -9,6 +9,7 @@ cryocooler.kicad_sch
 import sys
 from pathlib import Path
 
+import active_low
 from sexpr import find_all, parse, sval
 
 EXPECTED = {
@@ -48,7 +49,10 @@ PIN_CONFIG = (
 )
 
 
-def load(path):
+def load(path, source_names=False):
+    """Parts and nets of a netlist; with source_names, active-low nets carry
+    the generator's names instead of the barred ones.
+    """
     root = parse(Path(path).read_text())
     comps = {
         sval(find_all(c, 'ref')[0][1]): c
@@ -69,7 +73,7 @@ def load(path):
             )
             for n in find_all(net, 'node')
         ]
-        nets[name] = nodes
+        nets[active_low.source(name) if source_names else name] = nodes
     return comps, nets
 
 
@@ -91,7 +95,7 @@ def check_gpio_map(esp, nets):
 
 
 def main(path):
-    comps, nets = load(path)
+    comps, nets = load(path, source_names=True)
     problems = 0
     esp = next(
         (
@@ -122,6 +126,10 @@ def main(path):
     }
     print('single-node nets:', list(single))
     print('parts:', len(comps), 'nets:', len(nets))
+    # the IMU board's nets are not barred yet (gen_imu_schematic.py)
+    unbarred = active_low.problems(load(path)[1]) if esp else []
+    print('unbarred active-low nets:', unbarred)
+    problems += len(unbarred)
     return problems
 
 

@@ -19,10 +19,12 @@ def f(value):
 def pin_line(side, number, name, ptype, x, y, hide=False):
     angle = {'left': 0, 'right': 180, 'top': 270, 'bottom': 90}[side]
     hidden = ' (hide yes)' if hide else ''
+    # a barred name is drawn smaller so its bar clears the pin above
+    size = '1' if '~{' in name else '1.27'
     return (
         f'\t\t\t(pin {ptype} line (at {f(x)} {f(y)} {angle}) (length '
         f'{GRID}){hidden}\n'
-        f'\t\t\t\t(name "{name}" (effects (font (size 1.27 1.27))))\n'
+        f'\t\t\t\t(name "{name}" (effects (font (size {size} {size}))))\n'
         f'\t\t\t\t(number "{number}" (effects (font (size 1.27 '
         f'1.27))))\n\t\t\t)'
     )
@@ -758,7 +760,7 @@ SYMBOLS = [
         'https://www.analog.com/media/en/'
         'technical-documentation/data-sheets/2954fb.pdf',
         'Package_DFN_QFN:DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm',
-        left=[('3', 'PB', 'input'), ('2', 'ONT', 'input')],
+        left=[('3', '~{PB}', 'input'), ('2', 'ONT', 'input')],
         top=[('4', 'VIN', 'power_in')],
         right=[
             ('5', '~{KILL}', 'input'),
@@ -768,6 +770,8 @@ SYMBOLS = [
         ],
         bottom=[('1', 'GND', 'power_in'), ('9', 'EP', 'passive')],
         keywords='power button',
+        # keeps the width it had before PB got its bar (the sizing counts ~{ })
+        tip_x=12.7,
     ),
     symbol(
         'AONR21307',

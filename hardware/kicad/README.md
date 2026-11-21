@@ -92,6 +92,14 @@ along with label pairs that should be wires, a 30-part sheet limit and copied sh
 rule still use global labels for the GPIO nets; their violations are counted in
 `tools/sheet_structure_baseline.json`, which may only go down.
 
+**Active-low nets.** The generator and firmware name them in ASCII (`ADS1220_CS`, `IO_EXP_INT_N`); the drawn
+label and sheet pin carry an overbar with no `_N` (`~{ADS1220_CS}`, `~{IO_EXP_INT}`). The list is `ACTIVE_LOW`
+in `tools/active_low.py`, applied in `kicadgen.label_text()`. Barred labels, sheet pins and symbol pin names are
+drawn at 1.0 mm (`kicadgen.label_size()`, `make_lib.pin_line()`) so the bar clears the row 2.54 mm above, and
+`textlayout.py` counts the bar's height in its overlap check. `verify_netlist.py` maps the drawn names back for
+its checks and fails on an unbarred active-low net. Add a new active-low net to that list. The IMU board
+(`gen_imu_schematic.py`) is not barred yet.
+
 **Sheet pins and root links.** A net that leaves a sheet through a pin is drawn with `net_label(..., to_parent=True)`
 (a hierarchical label) on the sheet and listed in `SHEET_PINS` (block edge and row) in `tools/gen_schematic.py`.
 `root_links()` draws what joins the blocks on the root (A2). Two ends within 85 mm are joined by a wire that

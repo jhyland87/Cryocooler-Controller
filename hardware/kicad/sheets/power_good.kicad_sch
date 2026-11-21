@@ -1664,7 +1664,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "PG_15V = the two nodes ANDed by a BAT54AW with a 470k pull-up to +3V3 (weak so it cannot lift dead nodes; 3.3 V only when both are good); it gates the amplifier REM switch and reads LOW on GPIO43 (PG_15V_N) when both rails are good."
+	(text "PG_15V = the two nodes ANDed by a BAT54AW with a 470k pull-up to +3V3 (weak so it cannot lift dead nodes; 3.3 V only when both are good); it gates the amplifier REM switch and reads LOW on GPIO43 (~{PG_15V}) when both rails are good."
 		(exclude_from_sim no)
 		(at 20 21 0)
 		(effects
@@ -2634,12 +2634,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PG_15V_N"
+	(hierarchical_label "~{PG_15V}"
 		(shape output)
 		(at 299.72 142.24 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)

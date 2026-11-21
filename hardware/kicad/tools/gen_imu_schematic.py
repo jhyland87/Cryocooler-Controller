@@ -33,6 +33,9 @@ from gen_schematic import (
 )
 import gen_schematic
 
+# no overbars yet: the IMU board's nets keep their plain names
+kicadgen.BAR_ACTIVE_LOW = False
+
 ROOT_DIR = gen_schematic.ROOT_DIR
 IMU_DIR = ROOT_DIR / 'imu'
 PROJECT = 'imu'

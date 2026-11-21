@@ -177,7 +177,7 @@
 					(name "~{CS}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -827,6 +827,53 @@
 			(embedded_fonts no)
 		)
 	)
+	(bus
+		(pts
+			(xy 152.4 119.38) (xy 157.48 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc648163-a136-5f31-afc2-68ecb4acefb4")
+	)
+	(bus
+		(pts
+			(xy 157.48 106.68) (xy 157.48 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "deaa0e24-8bf7-5aa0-8b33-1316ee125499")
+	)
+	(bus_entry
+		(at 160.02 104.14)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78750a82-1260-51d2-bd7c-d5b79c1362bf")
+	)
+	(bus_entry
+		(at 160.02 109.22)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f0c56a6-848e-534e-8666-7006254a311e")
+	)
+	(bus_entry
+		(at 160.02 111.76)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f0959ee-d9fd-5511-930d-16201404013c")
+	)
 	(text "Module Vin = +3V3 keeps its logic at 3.3 V. NUF6401MN filter: 100 R in series to damp the cable, 17 pF and an ESD clamp on each side of all six signals."
 		(exclude_from_sim no)
 		(at 20 27 0)
@@ -871,36 +918,19 @@
 		)
 		(uuid "f70ae40f-4d79-5359-b365-216d6a56c3a1")
 	)
-	(bus_entry
-		(at 160.02 111.76)
-		(size -2.54 2.54)
+	(wire
+		(pts
+			(xy 185.42 111.76) (xy 187.96 111.76)
+		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1f0959ee-d9fd-5511-930d-16201404013c")
-	)
-	(bus_entry
-		(at 160.02 109.22)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f0c56a6-848e-534e-8666-7006254a311e")
-	)
-	(bus_entry
-		(at 160.02 104.14)
-		(size -2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "78750a82-1260-51d2-bd7c-d5b79c1362bf")
+		(uuid "0526bd74-35c0-5def-ac22-62a87c45f13c")
 	)
 	(wire
 		(pts
-			(xy 160.02 109.22) (xy 187.96 109.22)
+			(xy 160.02 109.22) (xy 185.42 109.22)
 		)
 		(stroke
 			(width 0)
@@ -917,6 +947,16 @@
 			(type default)
 		)
 		(uuid "17f78a4e-2d00-53d4-b52a-2417112a8c4b")
+	)
+	(wire
+		(pts
+			(xy 185.42 109.22) (xy 187.96 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24cb7416-0973-56f9-ae8a-936ce9508a6c")
 	)
 	(wire
 		(pts
@@ -970,7 +1010,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 104.14) (xy 187.96 104.14)
+			(xy 160.02 104.14) (xy 185.42 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1020,7 +1060,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 111.76) (xy 187.96 111.76)
+			(xy 160.02 111.76) (xy 185.42 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1038,16 +1078,6 @@
 		)
 		(uuid "cca8d66e-c338-5364-9420-613c8bf55646")
 	)
-	(bus
-		(pts
-			(xy 157.48 106.68) (xy 157.48 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "deaa0e24-8bf7-5aa0-8b33-1316ee125499")
-	)
 	(wire
 		(pts
 			(xy 208.28 101.6) (xy 243.84 101.6)
@@ -1058,15 +1088,15 @@
 		)
 		(uuid "e97e6193-84dd-5b75-bfd4-2c05bc3f0a04")
 	)
-	(bus
+	(wire
 		(pts
-			(xy 152.4 119.38) (xy 157.48 119.38)
+			(xy 185.42 104.14) (xy 187.96 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fc648163-a136-5f31-afc2-68ecb4acefb4")
+		(uuid "edd305ab-b0d2-5702-aec7-e210d74bbac1")
 	)
 	(label "SPI_MISO"
 		(at 185.42 104.14 180)
@@ -1216,12 +1246,12 @@
 			)
 		)
 	)
-	(hierarchical_label "IMU_CS"
+	(hierarchical_label "~{IMU_CS}"
 		(shape input)
 		(at 172.72 106.68 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)

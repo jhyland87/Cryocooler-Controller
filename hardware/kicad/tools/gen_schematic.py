@@ -1175,7 +1175,7 @@ def display_buttons(sh, column, row):
     sh.note('POWER BUTTON AND RESET FROM THE DISPLAY', 20 * 1.27, (row - 30) * 1.27, 1.8)
     sh.note(
         'DO0 / DO1 on the Waveshare display are NPN open collectors to its ground '
-        '(PC817 + transistor, 100 nF to GND): DO0 presses PWR_BTN like SW3, DO1 '
+        '(PC817 + transistor, 100 nF to GND): DO0 presses ~{PWR_BTN} like SW3, DO1 '
         'pulls ESP_EN low like the RESET button.',
         20 * 1.27,
         (row - 26) * 1.27,
@@ -1215,9 +1215,9 @@ def build_power_button(sh):
     """
     sh.handwired = True
     sh.note(
-        'LTC2954-2: tap PB = on, hold = off. EN# drives the P-FET gate; KILL# from '
-        'GPIO10 (active low, 100 ms pulse). INT# tells GPIO1 to shut down cleanly; '
-        'holding PB cuts power about 6.4 s later (1 uF on PDT).',
+        'LTC2954-2: tap ~{PB} = on, hold = off. ~{EN} drives the P-FET gate; ~{KILL} from '
+        'GPIO10 (active low, 100 ms pulse). ~{INT} tells GPIO1 to shut down cleanly; '
+        'holding ~{PB} cuts power about 6.4 s later (1 uF on PDT).',
         20,
         15,
     )
@@ -1248,10 +1248,11 @@ def build_power_button(sh):
     gnd_bus(sh, [pin_cell(u, '1'), pin_cell(u, '9')])
     # push button, ONT left open
     pb = pin_cell(u, '3')
-    wire(sh, pb, (40, pb[1]), (36, pb[1]))
-    # global: the display's DO0 presses the same line from the Display sheet
-    wire(sh, (40, pb[1]), (40, pb[1] - 3))
-    net_label(sh, 'PWR_BTN', (40, pb[1] - 3), 180, is_global=True)
+    wire(sh, pb, (44, pb[1]), (40, pb[1]), (36, pb[1]))
+    # global: the display's DO0 presses the same line from the Display sheet;
+    # hung below the line, clear of SW3's value text
+    wire(sh, (44, pb[1]), (44, pb[1] + 3))
+    net_label(sh, 'PWR_BTN', (44, pb[1] + 3), 180, is_global=True)
     sw = sh.add(
         'Switch:SW_Push',
         next_ref('SW'),
@@ -2218,7 +2219,7 @@ def build_power_good(sh):
     sh.note(
         'PG_15V = the two nodes ANDed by a BAT54AW with a 470k pull-up to +3V3 '
         '(weak so it cannot lift dead nodes; 3.3 V only when both are good); it gates the amplifier REM '
-        'switch and reads LOW on GPIO43 (PG_15V_N) when both rails are good.',
+        'switch and reads LOW on GPIO43 (~{PG_15V}) when both rails are good.',
         20,
         21,
     )
@@ -2847,12 +2848,12 @@ def build_amp_current(sh):
     )
     sh.note(
         'The ACS37800 and the isolator drive MISO all the time, so MISO reaches the shared bus '
-        'only while ACS_CS is low. SCK is gated the same way, so bus traffic for other '
+        'only while ~{ACS_CS} is low. SCK is gated the same way, so bus traffic for other '
         'devices never clocks the ACS37800.',
         20,
         27,
     )
-    sh.note('ACS_CS comes from the CS decoder, which holds it high at reset.', 20, 33)
+    sh.note('~{ACS_CS} comes from the CS decoder, which holds it high at reset.', 20, 33)
     # the isolated side is drawn first, then moved right of the SPI gates
     marks = sheet_marks(sh)
     # the isolator sits so its outputs line up with the ACS37800 pins they drive
@@ -3982,7 +3983,7 @@ def display_link(sh):
     )
     sh.note(
         'Its two digital outputs press the power button and RESET through J15 pins 5 and 6: '
-        'sheet pins PWR_BTN (to the Power Button sheet) and ESP_EN (to the ESP32).',
+        'sheet pins ~{PWR_BTN} (to the Power Button sheet) and ESP_EN (to the ESP32).',
         20,
         33,
     )
@@ -4999,18 +5000,18 @@ def build_io_expanders(sh):
     """Hand-laid: two MCP23S17 on one chip select, one port per channel."""
     sh.handwired = True
     sh.note(
-        'Two MCP23S17 share IO_EXP_CS: hardware addresses 0 and 1 on A0 (A2 low on both, so '
+        'Two MCP23S17 share ~{IO_EXP_CS}: hardware addresses 0 and 1 on A0 (A2 low on both, so '
         'one write of IOCON.HAEN reaches every device: errata DS80311A). Port A serves the '
         'odd channel of a pair, port B the even one.',
         20, 15,
     )
     sh.note(
         'Per port: bit 0 OUT_EN, 1 DIRECT (channel 1: on address 1 GPB5), 2 BURDEN, 3 PULLUP, '
-        '4 SENS_EN (outputs), 5 OUT_FLT_N (channel 1; elsewhere a spare), 6 SENS_FLT_N (inputs),',
+        '4 SENS_EN (outputs), 5 ~{OUT_FLT} (channel 1; elsewhere a spare), 6 ~{SENS_FLT} (inputs),',
         20, 21,
     )
     sh.note(
-        '7 BUF_OE_N (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All '
+        '7 ~{BUF_OE} (fast channels 1 and 2; the RS-485 and header interrupts on 3 and 4). All '
         'pins are inputs after reset, so the pull resistors on each line set the off state.',
         20, 27,
     )
@@ -5020,7 +5021,7 @@ def build_io_expanders(sh):
     )
     sh.note(
         'INTA and INTB must be set open drain (IOCON.ODR) before interrupts are enabled: all '
-        'four share IO_EXP_INT_N, pulled up at address 0.',
+        'four share ~{IO_EXP_INT}, pulled up at address 0.',
         20, 39,
     )
     with io_refs():
@@ -5960,10 +5961,10 @@ def sheet_symbol(parent, child, index):
         pin_x, pin_y = (cell * 1.27 for cell in sheet_pin_cell(stem, net))
         angle, justify = (0, 'right') if edge == 'right' else (180, 'left')
         pins += (
-            f'\t\t(pin {q(net)} {label_shape(net, False, child.filename)} '
+            f'\t\t(pin {q(kicadgen.label_text(net))} {label_shape(net, False, child.filename)} '
             f'(at {fmt(pin_x)} {fmt(pin_y)} {angle}) '
             f'(uuid {q(kicadgen.stable_uuid(f"sheetpin/{stem}/{net}"))}) '
-            f'(effects (font (size 1.27 1.27)) (justify {justify})))\n'
+            f'(effects (font (size {kicadgen.label_size(net)} {kicadgen.label_size(net)})) (justify {justify})))\n'
         )
     return (
         f'\t(sheet (at {fmt(x)} {fmt(y)}) (size {fmt(width)} {fmt(height)}) '

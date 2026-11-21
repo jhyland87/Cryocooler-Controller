@@ -2070,10 +2070,10 @@
 				(pin input line
 					(at -12.7 5.08 0)
 					(length 2.54)
-					(name "PB"
+					(name "~{PB}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -2109,7 +2109,7 @@
 					(name "~{KILL}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -2145,7 +2145,7 @@
 					(name "~{EN}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -2163,7 +2163,7 @@
 					(name "~{INT}"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1 1)
 							)
 						)
 					)
@@ -3049,7 +3049,7 @@
 		)
 		(uuid "b6214dda-bf45-5a40-ae55-35e84e3d0866")
 	)
-	(text "LTC2954-2: tap PB = on, hold = off. EN# drives the P-FET gate; KILL# from GPIO10 (active low, 100 ms pulse). INT# tells GPIO1 to shut down cleanly; holding PB cuts power about 6.4 s later (1 uF on PDT)."
+	(text "LTC2954-2: tap ~{PB} = on, hold = off. ~{EN} drives the P-FET gate; ~{KILL} from GPIO10 (active low, 100 ms pulse). ~{INT} tells GPIO1 to shut down cleanly; holding ~{PB} cuts power about 6.4 s later (1 uF on PDT)."
 		(exclude_from_sim no)
 		(at 20 15 0)
 		(effects
@@ -3138,7 +3138,7 @@
 		(uuid "a18e289e-6f36-5188-b9c9-b15407b2ca0a")
 	)
 	(junction
-		(at 50.8 71.12)
+		(at 55.88 71.12)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a1ff87d6-96eb-5e17-9b70-08f0182b4e88")
@@ -3271,7 +3271,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 71.12) (xy 50.8 71.12)
+			(xy 45.72 71.12) (xy 55.88 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3401,7 +3401,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 67.31) (xy 50.8 71.12)
+			(xy 55.88 71.12) (xy 55.88 74.93)
 		)
 		(stroke
 			(width 0)
@@ -3671,7 +3671,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 71.12) (xy 63.5 71.12)
+			(xy 55.88 71.12) (xy 63.5 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3833,12 +3833,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_KILL"
+	(hierarchical_label "~{PWR_KILL}"
 		(shape input)
 		(at 127 71.12 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -3856,18 +3856,18 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_BTN"
+	(hierarchical_label "~{PWR_BTN}"
 		(shape bidirectional)
-		(at 50.8 67.31 180)
+		(at 55.88 74.93 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
 		(uuid "229c6ddf-8c97-5895-a4e4-4bf3701702b7")
 		(property "Description" "Power button line to the LTC2954 PB pin, active low: SW3 or the display output on J15"
-			(at 50.8 67.31 0)
+			(at 55.88 74.93 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3879,12 +3879,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_INT"
+	(hierarchical_label "~{PWR_INT}"
 		(shape output)
 		(at 116.84 111.76 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify left)
 		)
@@ -3902,12 +3902,12 @@
 			)
 		)
 	)
-	(hierarchical_label "PWR_BTN"
+	(hierarchical_label "~{PWR_BTN}"
 		(shape bidirectional)
 		(at 38.1 210.82 180)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.0 1.0)
 			)
 			(justify right)
 		)
@@ -7632,7 +7632,7 @@
 		(dnp no)
 		(uuid "fd592ad6-5f22-583e-ac95-6307952224d6")
 		(property "Reference" "SW3"
-			(at 45.38 61.18 0)
+			(at 45.38 67.53 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7643,7 +7643,7 @@
 			)
 		)
 		(property "Value" "POWER"
-			(at 45.38 63.28 0)
+			(at 45.38 69.63 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
