@@ -75,6 +75,27 @@ The shared-bus chip selects come from U32 (74HC154BQ, rev 5; rev 4 has an SN74LV
 GPIO3 is a strapping pin (JTAG source); R17 (10 kΩ) on CS_ADDR_A keeps it high at reset, which selects the default USB-JTAG. R19 (10 kΩ) on CS_ADDR_C holds strap GPIO45 low, and R18 (10 kΩ) on CS_EN_N keeps the decoder off until firmware runs. The INA239 ALERT pin drives only its LED. GPIO43 (TXD0) toggles with ROM boot messages, so it carries no chip select; it reads the active-low `PG_15V_N` power-good flag through a 1 kΩ series resistor (`PG_15V_N_PIN`). ACS37800 chip-select is on GPIO17. GPIO26–37 are reserved
 by the octal flash/PSRAM and are left unconnected.
 
+## Schematic profile
+
+How this project applies the repo-wide drawing rules (`.claude/rules/schematic-drawing.md`, the
+`kicad-schematic-design` skill). The details of each helper are in "Drawing conventions" below.
+
+| | |
+|---|---|
+| Root sheet | `cryocooler.kicad_sch` (project `cryocooler.kicad_pro`) |
+| Made by | `tools/gen_schematic.py` (symbols: `tools/make_lib.py`); never hand-edit the `.kicad_sch` files. See "Regenerating" and the `kicad-schematic` skill |
+| Descriptions | `tools/part_descriptions.py`: `DESCRIPTIONS` by reference, `NET_DESCRIPTIONS` by label name. `gen_schematic.py` fails on a part or label without one |
+| Check config | `schematic_checks.json`: allowed globals `{SPI}` and `{I2C}`, 30 parts per sheet, 85 mm, baseline `tools/sheet_structure_baseline.json` |
+| Checks | the `kicad-schematic` skill's list (generator checks, ERC, `datasheet_rules.py`, `verify_netlist.py`, `check_symbols.py`, `check_sheet_structure.py`). Expected counts are in the latest `hardware/HANDOFF_rev*.md` |
+| Connectivity gate | `tools/compare_netlists.py --strict` against a baseline netlist: references, pins, net names, values and footprints unchanged (`--renamed` when nets were renamed on the board too) |
+| Routed board | Yes: `cryocooler.kicad_pcb` depends on net names, net classes match them by pattern, and `cryocooler.kicad_dru` names nets. A rename reaches the board through `tools/rename_board_nets.py` and `tools/relink_board_sheets.py` (names only, no copper moves) |
+| Net names | Named for their job; active-low nets barred through `ACTIVE_LOW` in `tools/active_low.py` |
+| Helpers | `net_label(..., to_parent=True)` and `SHEET_PINS` (sheet pins), `root_links()` (joins blocks on the root), `IO_BLOCKS` and `NESTED_SHEETS` (child sheets), `spi_bus()` (the `{SPI}` bus), `gnd_bus` (ground bars), `place_blocks` / `decoupling_block` (decoupling blocks), `LABEL_DIRECTION` in `tools/kicadgen.py` (label shapes), `from_stock` in `tools/make_lib.py` (pin layout), `PINNED_FIELDS` (text moved by hand in KiCad) |
+| Exceptions | None |
+
+The IMU board (`imu/`, below) is a second project with its own generator, `tools/gen_imu_schematic.py`. It has
+no `schematic_checks.json` yet, so `check_sheet_structure.py --project imu/imu.kicad_pro` uses the defaults.
+
 ## Drawing conventions
 
 The drawing rules that apply to every sheet and every board revision are in the
@@ -87,10 +108,9 @@ Power symbols are always upright (supplies point up, grounds hang down) and resi
 `small=True` on `hres` / `vres` / `hcap` / `vcap` in `tools/gen_schematic.py`), and neighbouring grounds share one bar. Every sheet is hand-laid in the same style: signal flow runs left to right, supplies are drawn as
 shared rails with decoupling caps hanging off them, switching loops are kept compact, and nets are wired with
 lines rather than net labels. Signals between sheets go through hierarchical labels and sheet pins; global labels
-are kept for the buses in `ALLOWED_GLOBALS` (`{SPI}`, and `{I2C}` if one is added). `tools/check_sheet_structure.py` enforces this
-along with label pairs that should be wires, a 30-part sheet limit and copied sheets. The sheets drawn before the
-rule still use global labels for the GPIO nets; their violations are counted in
-`tools/sheet_structure_baseline.json`, which may only go down.
+are kept for the buses in `allowed_globals` in `schematic_checks.json` (`{SPI}`, and `{I2C}` if one is added). `tools/check_sheet_structure.py` enforces this
+along with label pairs that should be wires, a 30-part sheet limit, copied sheets and wires beside a part body.
+What is left from before the rules is counted in `tools/sheet_structure_baseline.json`, which may only go down.
 
 **Active-low nets.** The generator and firmware name them in ASCII (`ADS1220_CS`, `IO_EXP_INT_N`); the drawn
 label and sheet pin carry an overbar with no `_N` (`~{ADS1220_CS}`, `~{IO_EXP_INT}`). The list is `ACTIVE_LOW`

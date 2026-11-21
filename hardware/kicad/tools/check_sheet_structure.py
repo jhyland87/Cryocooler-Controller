@@ -1,18 +1,33 @@
-"""Checks how the generated schematic is structured, from the .kicad_sch
-files: what crosses between sheets and how, label pairs that should be wires,
-sheet size and copied sheets.
+"""Checks how a KiCad schematic is structured, from its .kicad_sch files:
+what crosses between sheets and how, label pairs that should be wires, sheet
+size, copied sheets and wires that touch a part they don't connect to.
 
-Usage (from hardware/kicad/):
-    python3 tools/check_sheet_structure.py                    # check
-    python3 tools/check_sheet_structure.py --update-baseline  # after a fix
+Works on any schematic project in the repo. The project is a .kicad_pro; its
+root sheet is the .kicad_sch of the same name, and its settings are in
+schematic_checks.json beside it:
 
-The schematic was drawn with global labels before these rules existed, so
-each check has a count in tools/sheet_structure_baseline.json. A count above
-its baseline fails (exit 1): a change may not add a shortcut. A count below
-it passes and asks for --update-baseline, so the baseline only goes down. A
-check that is not in the baseline must be 0.
+    {
+      "allowed_globals": ["{SPI}"],    global labels allowed anywhere
+      "max_parts_per_sheet": 30,       power symbols and flags not counted
+      "long_net_mm": 85,               closer label pairs should be a wire
+      "baseline": "tools/sheet_structure_baseline.json"
+    }
+
+Every key is optional (defaults: none allowed, 30, 85, no baseline). The
+baseline path is relative to the project folder.
+
+Usage (--project defaults to hardware/kicad/cryocooler.kicad_pro):
+    T=hardware/kicad/tools
+    python3 $T/check_sheet_structure.py --project P.kicad_pro
+    python3 $T/check_sheet_structure.py --project P.kicad_pro --update-baseline
+
+A schematic drawn before these rules has a count per check in its baseline. A
+count above its baseline fails (exit 1): a change may not add a shortcut. A
+count below it passes and asks for --update-baseline, so the baseline only
+goes down. A check that is not in the baseline must be 0.
 """
 
+import argparse
 import json
 import math
 import sys
@@ -21,35 +36,49 @@ from itertools import combinations
 from pathlib import Path
 
 from check_symbols import wires_near_bodies
-from layout import LONG_NET_MM
 from sexpr import find_all, parse, sval
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-ROOT_FILE = ROOT_DIR / 'cryocooler.kicad_sch'
-BASELINE_FILE = Path(__file__).resolve().parent / (
-    'sheet_structure_baseline.json'
+DEFAULT_PROJECT = (
+    Path(__file__).resolve().parent.parent / 'cryocooler.kicad_pro'
 )
-
-# Global labels allowed anywhere. Every other signal that leaves a sheet is a
-# hierarchical label on the sheet and a sheet pin on its block in the parent.
-# Shared buses are drawn as a KiCad bus ending in one global label; their
-# member nets carry local labels.
-ALLOWED_GLOBALS = {'{SPI}', '{I2C}'}
-# A sheet holds one function. Past this many parts (power symbols and flags
-# not counted) it is split.
-MAX_PARTS_PER_SHEET = 30
+CONFIG_NAME = 'schematic_checks.json'
 LABEL_KINDS = ('label', 'global_label', 'hierarchical_label')
-CHECKS = {
-    'global_label': 'global label for a net not in ALLOWED_GLOBALS',
-    'close_label_pair': f'labels of one net closer than {LONG_NET_MM} mm '
-    '(draw a wire)',
-    'unmatched_sheet_pin': 'sheet pin without a hierarchical label, or the '
-    'other way round',
-    'too_many_parts': f'sheet with more than {MAX_PARTS_PER_SHEET} parts',
-    'copied_sheet': 'two sheet files drawn the same (place one file twice)',
-    'wire_near_body': 'wire, bus or bus entry touching or beside a part body it '
-    'does not connect to',
-}
+
+
+class Project:
+    """A schematic project and its check settings (see the module docstring).
+    Every signal that leaves a sheet is a hierarchical label on the sheet and
+    a sheet pin on its block in the parent; global labels are only for the
+    communication buses in allowed_globals.
+    """
+
+    def __init__(self, pro_path):
+        self.pro = Path(pro_path).resolve()
+        self.dir = self.pro.parent
+        self.root = self.pro.with_suffix('.kicad_sch')
+        config_file = self.dir / CONFIG_NAME
+        config = (
+            json.loads(config_file.read_text()) if config_file.exists() else {}
+        )
+        self.allowed_globals = set(config.get('allowed_globals', []))
+        self.max_parts = config.get('max_parts_per_sheet', 30)
+        self.long_net_mm = config.get('long_net_mm', 85)
+        baseline = config.get('baseline')
+        self.baseline = self.dir / baseline if baseline else None
+
+    def checks(self):
+        return {
+            'global_label': 'global label for a net not in allowed_globals',
+            'close_label_pair': 'labels of one net closer than '
+            f'{self.long_net_mm} mm (draw a wire)',
+            'unmatched_sheet_pin': 'sheet pin without a hierarchical label, '
+            'or the other way round',
+            'too_many_parts': f'sheet with more than {self.max_parts} parts',
+            'copied_sheet': 'two sheet files drawn the same (place one file '
+            'twice)',
+            'wire_near_body': 'wire, bus or bus entry touching or beside a '
+            'part body it does not connect to',
+        }
 
 
 def prop(node, key):
@@ -64,9 +93,9 @@ def at(node):
     return float(point[1]), float(point[2])
 
 
-def bus_aliases():
-    project = json.loads((ROOT_DIR / 'cryocooler.kicad_pro').read_text())
-    return project.get('schematic', {}).get('bus_aliases', {})
+def bus_aliases(project):
+    settings = json.loads(project.pro.read_text())
+    return settings.get('schematic', {}).get('bus_aliases', {})
 
 
 def bus_members(labels, aliases):
@@ -84,7 +113,7 @@ def bus_members(labels, aliases):
     return members
 
 
-def load_sheet(path):
+def load_sheet(path, root_dir):
     tree = parse(path.read_text())
     labels = [
         (kind, sval(item[1]), at(item))
@@ -97,7 +126,7 @@ def load_sheet(path):
         if not sval(find_all(item, 'lib_id')[0][1]).startswith('power:')
     ]
     # a block names its file relative to the sheet it is drawn on
-    folder = path.parent.relative_to(ROOT_DIR)
+    folder = path.parent.relative_to(root_dir)
     blocks = [
         (
             (folder / prop(block, 'Sheetfile')).as_posix(),
@@ -125,34 +154,35 @@ def load_sheet(path):
     return labels, parts, blocks, drawing
 
 
-def find_problems():
+def find_problems(project):
     problems = defaultdict(list)
-    aliases = bus_aliases()
-    sheets = {'cryocooler.kicad_sch': load_sheet(ROOT_FILE)}
-    pending = [ROOT_FILE.name]
+    aliases = bus_aliases(project)
+    root_dir = project.dir
+    sheets = {project.root.name: load_sheet(project.root, root_dir)}
+    pending = [project.root.name]
     while pending:
         for child, _ in sheets[pending.pop()][2]:
             if child not in sheets:
-                sheets[child] = load_sheet(ROOT_DIR / child)
+                sheets[child] = load_sheet(root_dir / child, root_dir)
                 pending.append(child)
 
     for name, (labels, parts, blocks, _) in sheets.items():
         by_net = defaultdict(list)
         members = bus_members(labels, aliases)
         for kind, net, point in labels:
-            if kind == 'global_label' and net not in ALLOWED_GLOBALS:
+            if kind == 'global_label' and net not in project.allowed_globals:
                 problems['global_label'].append(f'{name}: {net}')
             if net not in members:
                 by_net[net].append(point)
         for net, points in sorted(by_net.items()):
             for first, second in combinations(points, 2):
                 gap = math.dist(first, second)
-                if gap < LONG_NET_MM:
+                if gap < project.long_net_mm:
                     problems['close_label_pair'].append(
                         f'{name}: {net} at {first} and {second} '
                         f'({gap:.0f} mm apart)'
                     )
-        if len(parts) > MAX_PARTS_PER_SHEET:
+        if len(parts) > project.max_parts:
             problems['too_many_parts'].append(f'{name}: {len(parts)} parts')
         for child, pins in blocks:
             hier = {
@@ -172,27 +202,39 @@ def find_problems():
                 )
 
     for name in sheets:
-        for _file, reference, what in wires_near_bodies(ROOT_DIR / name):
+        for _file, reference, what in wires_near_bodies(root_dir / name):
             problems['wire_near_body'].append(f'{name}: {reference}: {what}')
 
+    # a page that only holds sheet blocks has no circuit to copy
     for (first, a), (second, b) in combinations(sorted(sheets.items()), 2):
-        if a[3] == b[3]:
+        if a[1] and a[3] == b[3]:
             problems['copied_sheet'].append(f'{first} and {second}')
     return problems
 
 
 def main():
-    problems = find_problems()
-    counts = {check: len(problems[check]) for check in CHECKS}
-    if '--update-baseline' in sys.argv:
-        BASELINE_FILE.write_text(json.dumps(counts, indent=2) + '\n')
-        print(f'wrote {BASELINE_FILE.name}: {counts}')
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument('--project', default=DEFAULT_PROJECT)
+    parser.add_argument('--update-baseline', action='store_true')
+    args = parser.parse_args()
+    project = Project(args.project)
+    checks = project.checks()
+    problems = find_problems(project)
+    counts = {check: len(problems[check]) for check in checks}
+    if args.update_baseline:
+        if project.baseline is None:
+            sys.exit(f'no "baseline" in {project.dir / CONFIG_NAME}')
+        project.baseline.write_text(json.dumps(counts, indent=2) + '\n')
+        print(f'wrote {project.baseline}: {counts}')
         return
     baseline = (
-        json.loads(BASELINE_FILE.read_text()) if BASELINE_FILE.exists() else {}
+        json.loads(project.baseline.read_text())
+        if project.baseline and project.baseline.exists()
+        else {}
     )
+    print(f'project {project.pro.name}')
     failed = False
-    for check, description in CHECKS.items():
+    for check, description in checks.items():
         limit = baseline.get(check, 0)
         count = counts[check]
         for problem in problems[check]:

@@ -26,12 +26,11 @@ Each page carries its title and source sheet number in the top-left corner.
 
 ## How the pages are drawn
 
-- **Electrically exact, visually simplified.** Each page keeps the patent figure's placement and signal flow. To keep
-  the netlist exact without hand-routing hundreds of wires, though, most connections are made by **net labels**:
-  every pin gets a short wire stub that ends in a label, a power symbol or a global label. Short local connections
-  are drawn as real wires.
-- **Global labels** are signals that appear on more than one figure (e.g. `NSP_CLK`, `BWT_1P`, `CS_CTRL`). The daughter
-  board connects to the mother board through those names.
+- **Electrically exact.** Each page keeps the patent figure's parts, values and connections, and its order of stages.
+- **Drawing (being redrawn).** The pages were first drawn with a label on most pins and a global label for every
+  signal that appears on more than one figure (e.g. `NSP_CLK`, `BWT_1P`, `CS_CTRL`). They are being redrawn to the
+  repo-wide drawing rules: wires inside a block, hierarchical labels and sheet pins between figures, no global
+  labels. See "Schematic profile" below; what is left is counted in `schematic_structure_baseline.json`.
 - **Refs and values are exactly as printed.**
   - Where the patent prints the same ref twice on one figure, the later one gets a `B`/`C` suffix.
   - Where a ref appears on more than one figure (the patent reuses designators, and the daughter board restarts at
@@ -47,6 +46,39 @@ Each page carries its title and source sheet number in the top-left corner.
 - No footprints and no PCB. This is a reading aid, not a design.
 
 See [TRANSCRIPTION_NOTES.md](TRANSCRIPTION_NOTES.md) for every anomaly, uncertainty and identification guess, per figure.
+
+## Schematic profile
+
+How this project applies the repo-wide drawing rules (`.claude/rules/schematic-drawing.md`, the
+`kicad-schematic-design` skill).
+
+| | |
+|---|---|
+| Root sheet | `oem-controller.kicad_sch` (project `oem-controller.kicad_pro`) → `sheets/US6098409.kicad_sch` → one sheet per patent figure |
+| Made by | `tools/gen_oem_schematic.py` from `specs/<figure>.py`, with `tools/oemsch.py`; never hand-edit the `.kicad_sch` files. See "Regenerating and checking" |
+| Descriptions | Not stored yet. To add: a `desc=` argument on `P()` and a per-spec `NET_DESCRIPTIONS` dict, written to each symbol's and label's Description field, and a generator failure on a part or label without one |
+| Check config | `schematic_checks.json`: no global labels allowed, 30 parts per sheet, 85 mm, baseline `schematic_structure_baseline.json` |
+| Checks | `tools/check.sh <out>` (ERC summary, `verify_netlist.py`, text overlap: 0 problems; ERC `label_dangling`, `pin_not_driven` and `power_pin_not_driven` counts are expected), `hardware/kicad/tools/check_symbols.py` on the root, `hardware/kicad/tools/check_sheet_structure.py --project docs/oem-controller/kicad/oem-controller.kicad_pro` |
+| Connectivity gate | `verify_netlist.py` (netlist matches the specs) and `hardware/kicad/tools/compare_netlists.py --strict --renamed` against a baseline netlist: every printed ref, value and pin on the same net as before. A net may change name only by its sheet path |
+| Routed board | None. Sheet-path prefixes on net names are free to change |
+| Net names | The patent's printed signal names, exactly as printed, as the label text (`NSP_CLK`, `RAW_SHUTO_T-`); no renaming and no overbar added. Unnamed nodes keep the `<figure>_<part>_<pin>`-style names from the specs |
+| Helpers | `WIRES` in a spec (L-shaped wire between two pins' stubs), `P()` and the `KINDS`, `POWER` and `SYMBOLS` tables in `tools/oemsch.py`. A helper for hierarchical labels, sheet pins and child sheets is still to be added |
+
+**Exceptions** (deliberate; everything else follows the rules):
+
+1. **One sheet per patent figure.** The sheet list mirrors the patent so each page can be checked against its figure.
+   A figure that holds several functions gets child sheets for them (FIG 5D's six heater drivers are one child
+   sheet placed six times). The 30-part limit applies to those child sheets, not to the figure page that holds them.
+2. **Placement follows the figure's order of stages** (left to right as printed, turned upright) so a reader can
+   hold the page next to the patent. Within that, the drawing rules win: wires, grouping, supplies up and grounds
+   down.
+3. **Refs, values, pin numbers, pin names and signal names stay exactly as printed**, including the patent's errors.
+   Corrections go in `Note` and `TRANSCRIPTION_NOTES.md`, never in the drawing.
+4. **Symbols are transcription symbols** (pins as printed, not checked against datasheets). Their pins may still be
+   arranged by function; numbers and names don't change.
+5. **Descriptions say where they come from:** "Patent: ..." (with the column or figure), "Inferred from the circuit:
+   ...", or "Role unknown". Electrical accuracy comes first: never invent or "fix" circuitry to make a description
+   fit.
 
 ## Regenerating and checking
 

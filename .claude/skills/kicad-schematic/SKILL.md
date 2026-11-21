@@ -7,7 +7,7 @@ description: Regenerate the KiCad schematic, symbol library, footprints or BOM f
 
 The `.kicad_sch` files, `lib/cryocooler.kicad_sym` and `lib/cryocooler.pretty` are
 generated. Edit the Python and re-run; never hand-edit the outputs. How a sheet should be drawn
-is in the `kicad-schematic-design` skill; the helpers in `gen_schematic.py` are in
+is in the `kicad-schematic-design` skill and `.claude/rules/schematic-drawing.md` (this project's profile: `hardware/kicad/README.md`, "Schematic profile"); the helpers in `gen_schematic.py` are in
 `hardware/kicad/README.md` ("Drawing conventions", "Regenerating"). Layout rules are in `.claude/rules/hardware-pcb.md`. Current
 board state: `hardware/HANDOFF_rev3.md`.
 
@@ -50,7 +50,7 @@ $KC sch export netlist --format kicadsexpr -o $OUT/new.net cryocooler.kicad_sch
 python3 tools/datasheet_rules.py $OUT/new.net     # exits 1 on any failed rule
 python3 tools/verify_netlist.py $OUT/new.net      # GPIO map vs pin_config.h, footprints, single-pin nets
 python3 tools/check_symbols.py cryocooler.kicad_sch
-python3 tools/check_sheet_structure.py            # label scope, label pairs, sheet size, copied sheets
+python3 tools/check_sheet_structure.py            # label scope, label pairs, sheet size, copied sheets (schematic_checks.json)
 python3 sim/run_ngspice.py sim/sine_chain_ideal.cir   # only when the signal chain changed
 ```
 
