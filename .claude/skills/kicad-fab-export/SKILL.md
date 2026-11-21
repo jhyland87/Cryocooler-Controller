@@ -21,8 +21,11 @@ callouts (`render_callouts.py`) need Pillow; under KiCad's python, which has non
 ## Full export (Gerbers, drills, zip, renders)
 
 ```bash
-python3 hardware/kicad/tools/export_fab.py      # about 30 s
+python3 hardware/kicad/tools/export_fab.py      # about 30 s; same as `make fab`
 ```
+
+The root `Makefile` wraps these: `make fab`, `make gerbers` (Gerbers, drills and
+zip, no renders), `make renders`, `make fab-imu`; `BOARD=path` picks another board.
 
 This writes `fabrication/gerbers/` (Gerbers with X2, Excellon PTH and NPTH in mm,
 drill maps, `drill_report.txt`), `fabrication/cryocooler_jlcpcb.zip` and the

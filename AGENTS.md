@@ -60,3 +60,4 @@ changed schematic sheets against the drawing rules (used by the
 | `docs/` | Subsystem guides + generated Doxygen output (`docs/doxygen/`, gitignored). |
 | `data/` | Vite build output + OTA static files, embedded into firmware. |
 | `test/` | Unity tests (`test_embedded`, `test_native`). |
+| `Makefile` | Fab export shortcuts (`make fab`, `make gerbers`, `make renders`, `make fab-imu`). |

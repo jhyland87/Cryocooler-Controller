@@ -16,6 +16,9 @@ python3 hardware/kicad/tools/export_fab.py     # needs kicad-cli; about 30 s
 SKIP_FAB_EXPORT=1 ...                          # set this to skip the export while iterating
 ```
 
+From the repo root, `make fab` does the same, and `make gerbers` writes only the Gerbers, drills
+and zip (a few seconds, no renders). `make` lists the targets.
+
 Zones must already be filled (the generators leave them filled). The Gerber headers carry a
 creation date, so the files differ in git after every export even if the board did not change.
 
