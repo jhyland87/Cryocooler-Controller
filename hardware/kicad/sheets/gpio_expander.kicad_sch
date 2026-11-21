@@ -862,7 +862,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "4271fd21-8680-529c-b7c2-4f860b557889")
+		(uuid "d27ed2bf-3b73-57d7-b1a6-83b0c08d53ef")
 	)
 	(bus
 		(pts
@@ -872,7 +872,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "137608f0-b066-5e52-9d0a-991e69b5039e")
+		(uuid "1c56e4d0-b4c4-57a2-9f85-16d076b7cb14")
 	)
 	(bus
 		(pts
@@ -882,7 +882,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "46cdb915-a42b-5abf-92e9-19c825d55dcf")
+		(uuid "93dc0d87-d2bf-5bca-8011-502109ecd6d8")
 	)
 	(bus
 		(pts
@@ -892,7 +892,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5fedc287-d383-554e-b52e-992cdbd90792")
+		(uuid "381c3f21-680a-51d2-a5d8-f598fc74cff6")
 	)
 	(bus_entry
 		(at 55.88 78.74)
@@ -901,7 +901,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d27ed2bf-3b73-57d7-b1a6-83b0c08d53ef")
+		(uuid "d98eea5f-e550-54ba-a836-0ba00dc14564")
 	)
 	(bus_entry
 		(at 55.88 81.28)
@@ -910,7 +910,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1c56e4d0-b4c4-57a2-9f85-16d076b7cb14")
+		(uuid "f8613cea-12b1-5fd7-936f-833a1c755985")
 	)
 	(bus_entry
 		(at 134.62 76.2)
@@ -919,7 +919,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "93dc0d87-d2bf-5bca-8011-502109ecd6d8")
+		(uuid "cc1d62bf-c626-5efb-b346-fad00f991c0c")
 	)
 	(text "MCP23S08 DECOUPLING CAPACITOR"
 		(exclude_from_sim no)
@@ -930,18 +930,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "4480a399-4d1b-5ebc-8873-5204fa2aacd6")
-	)
-	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "977168f2-e1b9-58ff-a06e-7d600f400bc0")
+		(uuid "6093a421-4df3-5252-9d53-7d99d2fffbae")
 	)
 	(text "All pins power up as inputs. RESET, A1 and A0 must be biased (datasheet Table 1-1). Exposed pad to VSS, in addition to pin 17. GP2, GP3 and GP5 are spare; firmware enables weak pull-ups on them. TSC2046 PENIRQ drives GP7."
 		(exclude_from_sim no)
@@ -952,93 +941,34 @@
 			)
 			(justify left top)
 		)
-		(uuid "9a877579-7e0e-5511-b336-fa9a7b975974")
+		(uuid "9209223f-1368-52b3-9efb-ad3fe7a5a26e")
 	)
-	(no_connect
-		(at 116.84 99.06)
-		(uuid "19391b24-3160-5d99-a789-9ae2a7c0dda9")
+	(text "MCP23S08: SPI mode 0 slave on the main bus (CS from the decoder). SO releases within 100 ns of CS rising (datasheet Fig. 2-6, parameter 14), so it shares SPI_MISO without a buffer. A1/A0 low: opcodes 0x40 / 0x41."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "dced5b5e-eccc-5af9-a38c-54ee75cf730a")
 	)
 	(no_connect
 		(at 116.84 86.36)
-		(uuid "36942686-1ad8-5305-92f5-4d12b79b95f4")
+		(uuid "137608f0-b066-5e52-9d0a-991e69b5039e")
 	)
 	(no_connect
 		(at 116.84 83.82)
-		(uuid "3ff3518d-68ab-59e1-abf5-e225fc9584b8")
+		(uuid "4271fd21-8680-529c-b7c2-4f860b557889")
 	)
 	(no_connect
 		(at 116.84 91.44)
-		(uuid "a583389e-a810-5ae5-871f-181ada26a196")
+		(uuid "46cdb915-a42b-5abf-92e9-19c825d55dcf")
 	)
-	(wire
-		(pts
-			(xy 99.06 106.68) (xy 99.06 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0630e7bc-da46-5122-abee-bf1c0cfafadc")
-	)
-	(wire
-		(pts
-			(xy 55.88 78.74) (xy 83.82 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0ba2f816-8284-54d8-8622-f65e8dc497c4")
-	)
-	(wire
-		(pts
-			(xy 45.72 83.82) (xy 86.36 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0dec28d5-c7d5-57be-b92a-3e43613a61de")
-	)
-	(wire
-		(pts
-			(xy 116.84 76.2) (xy 119.38 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "11e7ed55-0422-5060-8828-8c043fc48e4b")
-	)
-	(wire
-		(pts
-			(xy 101.6 63.5) (xy 101.6 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1d5b662d-ae8c-5163-946e-fa1d2a423c27")
-	)
-	(wire
-		(pts
-			(xy 116.84 81.28) (xy 124.46 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "280102e6-69fc-5908-9ba0-df5923bff42c")
-	)
-	(wire
-		(pts
-			(xy 190.5 134.62) (xy 198.12 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ca8bfd8-22c9-5354-be5d-99af4c15eb9f")
+	(no_connect
+		(at 116.84 99.06)
+		(uuid "5fedc287-d383-554e-b52e-992cdbd90792")
 	)
 	(wire
 		(pts
@@ -1048,47 +978,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "34cbe796-08c2-542a-b430-63442e38fba2")
+		(uuid "0630e7bc-da46-5122-abee-bf1c0cfafadc")
 	)
 	(wire
 		(pts
-			(xy 83.82 78.74) (xy 86.36 78.74)
+			(xy 190.5 134.62) (xy 198.12 134.62)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "36602f05-5711-50c8-a5bf-9b4143e4587d")
-	)
-	(wire
-		(pts
-			(xy 190.5 127) (xy 198.12 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "48bee4a0-bb51-5f22-b69f-eae622e4d3c3")
-	)
-	(wire
-		(pts
-			(xy 71.12 76.2) (xy 86.36 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8717d1c0-b992-53bc-944a-f8835838c641")
-	)
-	(wire
-		(pts
-			(xy 116.84 93.98) (xy 124.46 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8cc53ed4-b78e-59a1-8917-1324e214ec71")
+		(uuid "0ba2f816-8284-54d8-8622-f65e8dc497c4")
 	)
 	(wire
 		(pts
@@ -1098,77 +998,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9121cf60-e2a0-5030-b9e9-6e74e6c13744")
-	)
-	(wire
-		(pts
-			(xy 104.14 106.68) (xy 104.14 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "92f5593a-bafa-5296-90ea-527ba6ab1a9a")
-	)
-	(wire
-		(pts
-			(xy 83.82 81.28) (xy 86.36 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9b3e4b41-4fc0-5147-b672-f14b387640f9")
-	)
-	(wire
-		(pts
-			(xy 82.55 88.9) (xy 86.36 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9edfea6f-40d7-51c0-9f56-3d98cd066e62")
-	)
-	(wire
-		(pts
-			(xy 82.55 86.36) (xy 86.36 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f8cfafd-c581-544b-8d2e-4ef40eefc8ab")
-	)
-	(wire
-		(pts
-			(xy 116.84 96.52) (xy 124.46 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a81ea81d-7e24-5156-a77e-5ac195246216")
-	)
-	(wire
-		(pts
-			(xy 55.88 81.28) (xy 83.82 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c8d6448e-65f7-59cf-af83-0978228b26f5")
-	)
-	(wire
-		(pts
-			(xy 119.38 76.2) (xy 134.62 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc6c91f9-b324-5ba0-a0b2-fcba6a58d712")
+		(uuid "0dec28d5-c7d5-57be-b92a-3e43613a61de")
 	)
 	(wire
 		(pts
@@ -1178,7 +1008,199 @@
 			(width 0)
 			(type default)
 		)
+		(uuid "19391b24-3160-5d99-a789-9ae2a7c0dda9")
+	)
+	(wire
+		(pts
+			(xy 82.55 88.9) (xy 86.36 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d5b662d-ae8c-5163-946e-fa1d2a423c27")
+	)
+	(wire
+		(pts
+			(xy 83.82 78.74) (xy 86.36 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "280102e6-69fc-5908-9ba0-df5923bff42c")
+	)
+	(wire
+		(pts
+			(xy 116.84 81.28) (xy 124.46 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34cbe796-08c2-542a-b430-63442e38fba2")
+	)
+	(wire
+		(pts
+			(xy 71.12 76.2) (xy 86.36 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36602f05-5711-50c8-a5bf-9b4143e4587d")
+	)
+	(wire
+		(pts
+			(xy 99.06 106.68) (xy 99.06 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36942686-1ad8-5305-92f5-4d12b79b95f4")
+	)
+	(wire
+		(pts
+			(xy 101.6 63.5) (xy 101.6 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ff3518d-68ab-59e1-abf5-e225fc9584b8")
+	)
+	(wire
+		(pts
+			(xy 45.72 83.82) (xy 86.36 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cc53ed4-b78e-59a1-8917-1324e214ec71")
+	)
+	(wire
+		(pts
+			(xy 116.84 76.2) (xy 119.38 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9121cf60-e2a0-5030-b9e9-6e74e6c13744")
+	)
+	(wire
+		(pts
+			(xy 116.84 93.98) (xy 124.46 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92f5593a-bafa-5296-90ea-527ba6ab1a9a")
+	)
+	(wire
+		(pts
+			(xy 55.88 78.74) (xy 83.82 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b3e4b41-4fc0-5147-b672-f14b387640f9")
+	)
+	(wire
+		(pts
+			(xy 83.82 81.28) (xy 86.36 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9edfea6f-40d7-51c0-9f56-3d98cd066e62")
+	)
+	(wire
+		(pts
+			(xy 55.88 81.28) (xy 83.82 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f8cfafd-c581-544b-8d2e-4ef40eefc8ab")
+	)
+	(wire
+		(pts
+			(xy 104.14 106.68) (xy 104.14 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a583389e-a810-5ae5-871f-181ada26a196")
+	)
+	(wire
+		(pts
+			(xy 82.55 86.36) (xy 86.36 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a81ea81d-7e24-5156-a77e-5ac195246216")
+	)
+	(wire
+		(pts
+			(xy 119.38 76.2) (xy 134.62 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c8d6448e-65f7-59cf-af83-0978228b26f5")
+	)
+	(wire
+		(pts
+			(xy 190.5 127) (xy 198.12 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc6c91f9-b324-5ba0-a0b2-fcba6a58d712")
+	)
+	(wire
+		(pts
+			(xy 116.84 96.52) (xy 124.46 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
 		(uuid "df1dcdc5-9674-54e4-a611-d0a84172efe5")
+	)
+	(label "SPI_MOSI"
+		(at 83.82 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0a3a900a-b77b-568a-8dd8-6c27f8212a1d")
+		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
+			(at 83.82 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 	)
 	(label "SPI_MISO"
 		(at 119.38 76.2 0)
@@ -1188,7 +1210,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "cf7d69df-92f2-5a79-87cb-d04a11d993ce")
+		(uuid "bc5a89c4-d258-59d2-adc2-917b52e4072a")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 119.38 76.2 0)
 			(hide yes)
@@ -1210,7 +1232,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "d98eea5f-e550-54ba-a836-0ba00dc14564")
+		(uuid "c44ccd95-df90-55f0-a2e7-8d834a44db23")
 		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
 			(at 83.82 78.74 0)
 			(hide yes)
@@ -1224,31 +1246,9 @@
 			)
 		)
 	)
-	(label "SPI_MOSI"
-		(at 83.82 81.28 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f8613cea-12b1-5fd7-936f-833a1c755985")
-		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
-			(at 83.82 81.28 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(global_label "PGP_15V"
+	(global_label "{SPI}"
 		(shape bidirectional)
-		(at 124.46 78.74 0)
+		(at 142.24 68.58 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1256,9 +1256,9 @@
 			)
 			(justify left)
 		)
-		(uuid "0a3a900a-b77b-568a-8dd8-6c27f8212a1d")
+		(uuid "23bf87d8-2a65-51bc-b13e-0e3e93fe8ece")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.46 78.74 0)
+			(at 142.24 68.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1269,8 +1269,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the LT3097 PGP pin pulls it down"
-			(at 124.46 78.74 0)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 142.24 68.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1292,7 +1292,7 @@
 			)
 			(justify left)
 		)
-		(uuid "23bf87d8-2a65-51bc-b13e-0e3e93fe8ece")
+		(uuid "4480a399-4d1b-5ebc-8873-5204fa2aacd6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 124.46 93.98 0)
 			(hide yes)
@@ -1318,9 +1318,45 @@
 			)
 		)
 	)
-	(global_label "EXPANDER_CS"
-		(shape input)
-		(at 71.12 76.2 180)
+	(global_label "PGP_15V"
+		(shape bidirectional)
+		(at 124.46 78.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4df1402e-3a62-530b-99dc-28c2da982bf8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "+15 V power-good node: about 3.2 V when good, low when the LT3097 PGP pin pulls it down"
+			(at 124.46 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(global_label "{SPI}"
+		(shape bidirectional)
+		(at 48.26 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1328,9 +1364,9 @@
 			)
 			(justify right)
 		)
-		(uuid "381c3f21-680a-51d2-a5d8-f598fc74cff6")
+		(uuid "4eb7c868-5e7b-5b26-ae5c-e9a13764a8e6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.12 76.2 0)
+			(at 48.26 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1341,8 +1377,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
-			(at 71.12 76.2 0)
+		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
+			(at 48.26 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1364,7 +1400,7 @@
 			)
 			(justify left)
 		)
-		(uuid "4df1402e-3a62-530b-99dc-28c2da982bf8")
+		(uuid "883e2f84-7025-581d-9c8a-9272361041bd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 124.46 96.52 0)
 			(hide yes)
@@ -1400,7 +1436,7 @@
 			)
 			(justify left)
 		)
-		(uuid "4eb7c868-5e7b-5b26-ae5c-e9a13764a8e6")
+		(uuid "977168f2-e1b9-58ff-a06e-7d600f400bc0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 124.46 81.28 0)
 			(hide yes)
@@ -1436,7 +1472,7 @@
 			)
 			(justify left)
 		)
-		(uuid "bc5a89c4-d258-59d2-adc2-917b52e4072a")
+		(uuid "9a877579-7e0e-5511-b336-fa9a7b975974")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 124.46 88.9 0)
 			(hide yes)
@@ -1462,45 +1498,9 @@
 			)
 		)
 	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 142.24 68.58 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "c44ccd95-df90-55f0-a2e7-8d834a44db23")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.24 68.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
-			(at 142.24 68.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(global_label "{SPI}"
-		(shape bidirectional)
-		(at 48.26 71.12 180)
+	(global_label "EXPANDER_CS"
+		(shape input)
+		(at 71.12 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1508,9 +1508,9 @@
 			)
 			(justify right)
 		)
-		(uuid "cc1d62bf-c626-5efb-b346-fad00f991c0c")
+		(uuid "cf7d69df-92f2-5a79-87cb-d04a11d993ce")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 48.26 71.12 0)
+			(at 71.12 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1521,8 +1521,8 @@
 				(justify right)
 			)
 		)
-		(property "Description" "Shared SPI bus: SPI_SCK, SPI_MOSI and SPI_MISO (ESP32 GPIO42, 41, 40)"
-			(at 48.26 71.12 0)
+		(property "Description" "Chip select (active low) for the MCP23S08 GPIO expander, decoder Y3"
+			(at 71.12 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1612,10 +1612,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "304d2eda-ccf3-5aff-9d05-3b81c9239421")
+			(uuid "b82fd68a-47f8-5f2e-a194-dff391241025")
 		)
 		(pin "2"
-			(uuid "b0545eae-3e16-5a6d-aa0a-e87b17231589")
+			(uuid "77b4f003-7863-5ab2-9d8d-11c20a5f2b65")
 		)
 		(instances
 			(project "cryocooler"
@@ -1692,7 +1692,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "3813e257-2004-51eb-9589-2f0b4bbb1725")
+			(uuid "13ac6013-1302-5f4b-8475-c4eb0eba766b")
 		)
 		(instances
 			(project "cryocooler"
@@ -1770,7 +1770,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "13ac6013-1302-5f4b-8475-c4eb0eba766b")
+			(uuid "24f24d33-15d3-55e2-9c89-d3d8a2a6d3cf")
 		)
 		(instances
 			(project "cryocooler"
@@ -1847,7 +1847,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0bcef72d-7efb-5229-8c0f-8bb88d2209f1")
+			(uuid "e79a3e26-ea38-51e8-9c86-7401d55b5742")
 		)
 		(instances
 			(project "cryocooler"
@@ -1925,7 +1925,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "7da9a860-22ad-5b96-84bf-b565569bd427")
+			(uuid "304d2eda-ccf3-5aff-9d05-3b81c9239421")
 		)
 		(instances
 			(project "cryocooler"
@@ -2014,61 +2014,61 @@
 			)
 		)
 		(pin "5"
-			(uuid "883e2f84-7025-581d-9c8a-9272361041bd")
-		)
-		(pin "19"
-			(uuid "dced5b5e-eccc-5af9-a38c-54ee75cf730a")
-		)
-		(pin "20"
-			(uuid "9209223f-1368-52b3-9efb-ad3fe7a5a26e")
-		)
-		(pin "4"
-			(uuid "6093a421-4df3-5252-9d53-7d99d2fffbae")
-		)
-		(pin "3"
 			(uuid "1796e54c-7c18-5a51-b1ae-5762076b9ed6")
 		)
-		(pin "2"
+		(pin "19"
 			(uuid "f628f171-d4d8-5334-b745-ccef8142d461")
 		)
-		(pin "1"
+		(pin "20"
 			(uuid "ac5c65df-3676-5449-b3c1-1331ff8e030a")
 		)
-		(pin "9"
+		(pin "4"
 			(uuid "8e86f96f-c388-5eaa-a836-b0f3b0d3a4be")
 		)
-		(pin "10"
+		(pin "3"
 			(uuid "83010c92-2812-5695-8321-22e622c1e980")
 		)
-		(pin "11"
+		(pin "2"
 			(uuid "3efc7e50-52ae-5787-8d22-a56f6f0cb47b")
 		)
-		(pin "12"
+		(pin "1"
 			(uuid "029939f7-bf39-56e2-bd51-b552c41ec3ce")
 		)
-		(pin "13"
+		(pin "9"
 			(uuid "371decc4-7a1f-57e9-ae8f-973a52470566")
 		)
-		(pin "14"
+		(pin "10"
 			(uuid "a20e1f4f-36fc-55ab-a173-9221147e5972")
 		)
-		(pin "15"
+		(pin "11"
 			(uuid "93bb5b48-439e-5177-83aa-72922a32a320")
 		)
-		(pin "16"
+		(pin "12"
 			(uuid "4adc13b9-6a24-553c-b28c-775da623a57c")
 		)
-		(pin "7"
+		(pin "13"
 			(uuid "b1ba2a17-0b17-54f8-b154-bab33a407ad2")
 		)
-		(pin "18"
+		(pin "14"
 			(uuid "027bcad0-efa5-5d1e-8240-f8052e7b3129")
 		)
-		(pin "17"
+		(pin "15"
 			(uuid "b982a197-cd48-5863-88c3-b3c68d2cdcd0")
 		)
-		(pin "21"
+		(pin "16"
 			(uuid "7a1166ed-9c2f-5107-8893-5b2e14aefe70")
+		)
+		(pin "7"
+			(uuid "3813e257-2004-51eb-9589-2f0b4bbb1725")
+		)
+		(pin "18"
+			(uuid "7da9a860-22ad-5b96-84bf-b565569bd427")
+		)
+		(pin "17"
+			(uuid "216c76ed-9844-5f86-817c-bff39a6edc81")
+		)
+		(pin "21"
+			(uuid "ce4cb00f-9e21-51ac-a879-40b71bacd9ff")
 		)
 		(instances
 			(project "cryocooler"
@@ -2145,7 +2145,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ce4cb00f-9e21-51ac-a879-40b71bacd9ff")
+			(uuid "0bcef72d-7efb-5229-8c0f-8bb88d2209f1")
 		)
 		(instances
 			(project "cryocooler"
@@ -2223,7 +2223,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "216c76ed-9844-5f86-817c-bff39a6edc81")
+			(uuid "b0545eae-3e16-5a6d-aa0a-e87b17231589")
 		)
 		(instances
 			(project "cryocooler"
@@ -2301,7 +2301,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "24f24d33-15d3-55e2-9c89-d3d8a2a6d3cf")
+			(uuid "49669341-8748-558c-a422-bd465906b9e6")
 		)
 		(instances
 			(project "cryocooler"

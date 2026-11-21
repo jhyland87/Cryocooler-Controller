@@ -835,7 +835,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "777afdc0-4704-5968-b77a-e159e9aca91a")
+		(uuid "e0bb407b-4ae8-5af7-afc1-be44d9da98ff")
 	)
 	(bus
 		(pts
@@ -845,7 +845,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "701c950c-f7d6-53fa-8e05-a62627226a7e")
+		(uuid "a45edd37-fe36-5875-b2c8-862f295323b4")
 	)
 	(bus_entry
 		(at 160.02 104.14)
@@ -854,7 +854,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e0bb407b-4ae8-5af7-afc1-be44d9da98ff")
+		(uuid "05f2d5f3-9d82-5b6c-b18a-d38de56edd12")
 	)
 	(bus_entry
 		(at 160.02 109.22)
@@ -863,7 +863,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a45edd37-fe36-5875-b2c8-862f295323b4")
+		(uuid "e818f788-7bef-5e23-bd8f-94391c0b8f9c")
 	)
 	(bus_entry
 		(at 160.02 111.76)
@@ -872,29 +872,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "05f2d5f3-9d82-5b6c-b18a-d38de56edd12")
-	)
-	(text "J14 pin -> module pad: 1 SCL, 2 GND, 3 SDA, 4 Vin, 5 CS, 6 DO, 7 I1, 8 I2 (3Vo pad open). Keep the cable short and twist SCK with GND (pins 1-2 sit one above the other)."
-		(exclude_from_sim no)
-		(at 20 21 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "1ba31af0-4a20-5157-82d0-826ab652727c")
-	)
-	(text "Module Vin = +3V3 keeps its logic at 3.3 V. NUF6401MN filter: 100 R in series to damp the cable, 17 pF and an ESD clamp on each side of all six signals."
-		(exclude_from_sim no)
-		(at 20 27 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "46633a50-ab09-5049-88aa-ddfb64f514af")
+		(uuid "a439298c-6367-5cf8-84dc-290969f0ae5c")
 	)
 	(text "LSM6DSOX is the off-board Adafruit module (product 4438) on the cooler, cabled to J14 (Molex Micro-Lock Plus 2x4, 1.25 mm) over the main SPI bus (CS from the decoder, INT1 GPIO2 single-tap, INT2 GPIO39 wake-up)."
 		(exclude_from_sim no)
@@ -905,217 +883,29 @@
 			)
 			(justify left top)
 		)
-		(uuid "e2abcfd3-3156-538a-9665-ab8a46052427")
+		(uuid "46633a50-ab09-5049-88aa-ddfb64f514af")
 	)
-	(wire
-		(pts
-			(xy 214.63 68.58) (xy 214.63 99.06)
+	(text "J14 pin -> module pad: 1 SCL, 2 GND, 3 SDA, 4 Vin, 5 CS, 6 DO, 7 I1, 8 I2 (3Vo pad open). Keep the cable short and twist SCK with GND (pins 1-2 sit one above the other)."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "037c6636-e00f-5edf-9e52-3cb978ee8777")
+		(uuid "bc1e4fe0-6af0-5188-b643-e6e0daf07275")
 	)
-	(wire
-		(pts
-			(xy 208.28 109.22) (xy 229.87 109.22)
+	(text "Module Vin = +3V3 keeps its logic at 3.3 V. NUF6401MN filter: 100 R in series to damp the cable, 17 pF and an ESD clamp on each side of all six signals."
+		(exclude_from_sim no)
+		(at 20 27 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "071aaaab-28f4-5dd7-891f-db92c21d2c24")
-	)
-	(wire
-		(pts
-			(xy 226.06 76.2) (xy 226.06 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "17632c1f-c733-5020-8e8d-57ca9559e2b5")
-	)
-	(wire
-		(pts
-			(xy 222.25 73.66) (xy 222.25 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1b95e1c5-cf82-51f1-a36c-999775fe14b0")
-	)
-	(wire
-		(pts
-			(xy 185.42 109.22) (xy 187.96 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "26fd2430-b727-5d04-b197-d98658ebdf18")
-	)
-	(wire
-		(pts
-			(xy 185.42 104.14) (xy 187.96 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "457a5cd9-530c-5cbc-a248-55c415b1f5a8")
-	)
-	(wire
-		(pts
-			(xy 233.68 81.28) (xy 233.68 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "486d6917-f296-535f-9435-0bbef8617127")
-	)
-	(wire
-		(pts
-			(xy 214.63 68.58) (xy 243.84 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "50f7a544-ca07-5520-817a-1b707ce11564")
-	)
-	(wire
-		(pts
-			(xy 185.42 111.76) (xy 187.96 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5c22c85f-1db9-529b-9dd6-bc57b46f9700")
-	)
-	(wire
-		(pts
-			(xy 172.72 106.68) (xy 187.96 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "71c74a77-c37a-5ca8-9b23-fb1eb8147e2a")
-	)
-	(wire
-		(pts
-			(xy 229.87 78.74) (xy 243.84 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7dd39024-648d-5bb5-bf86-e114d73699fe")
-	)
-	(wire
-		(pts
-			(xy 241.3 83.82) (xy 243.84 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7fe47a0c-d118-51e2-9145-779242aa2a52")
-	)
-	(wire
-		(pts
-			(xy 160.02 109.22) (xy 185.42 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8caed0a9-aaab-5b51-a841-928ff57e94c5")
-	)
-	(wire
-		(pts
-			(xy 172.72 99.06) (xy 187.96 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9040dfe3-d5b3-5d9a-9c3c-c2eabcb46d3e")
-	)
-	(wire
-		(pts
-			(xy 229.87 78.74) (xy 229.87 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "92fa849a-0ba0-55cc-95ed-f90f1b0ad4b4")
-	)
-	(wire
-		(pts
-			(xy 222.25 73.66) (xy 243.84 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "93faf6ac-3f29-5d1c-ae09-7f9fad2a5157")
-	)
-	(wire
-		(pts
-			(xy 233.68 81.28) (xy 243.84 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "97525193-fd67-54f5-9e59-d71c7ca93d13")
-	)
-	(wire
-		(pts
-			(xy 226.06 76.2) (xy 243.84 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0ea38d8-f526-52f7-bf44-e43ce8694dfe")
-	)
-	(wire
-		(pts
-			(xy 208.28 101.6) (xy 218.44 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a57f0624-0ee1-5546-8253-9d26ee11e1c0")
-	)
-	(wire
-		(pts
-			(xy 160.02 111.76) (xy 185.42 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b38914e3-0b51-5440-a64a-584ff8f672af")
-	)
-	(wire
-		(pts
-			(xy 208.28 99.06) (xy 214.63 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c12e22cd-1609-5af7-a0f2-5c1f079e3b5a")
+		(uuid "d7300c38-8752-5ead-ab68-b835556fa1da")
 	)
 	(wire
 		(pts
@@ -1125,67 +915,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c7a45e4c-8e7e-53e0-bd7c-a9ce29989b7e")
+		(uuid "037c6636-e00f-5edf-9e52-3cb978ee8777")
 	)
 	(wire
 		(pts
-			(xy 198.12 119.38) (xy 198.12 121.92)
+			(xy 160.02 109.22) (xy 185.42 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c9da8f23-ffe0-5839-af5b-7ee1dcbd3723")
-	)
-	(wire
-		(pts
-			(xy 208.28 106.68) (xy 226.06 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d41a550b-c5bd-5c32-a4df-397ae1a92958")
-	)
-	(wire
-		(pts
-			(xy 172.72 101.6) (xy 187.96 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d772e8f0-7caa-5171-9673-aa493ebf82fd")
-	)
-	(wire
-		(pts
-			(xy 160.02 104.14) (xy 185.42 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e1f352d7-3874-50be-9943-0a603bc0da99")
-	)
-	(wire
-		(pts
-			(xy 218.44 71.12) (xy 243.84 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eb84c519-9d56-5c8d-88a9-e2f0fc623f73")
-	)
-	(wire
-		(pts
-			(xy 241.3 66.04) (xy 243.84 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ecd15b31-7dac-54ff-9ea1-a2c9c61c483e")
+		(uuid "071aaaab-28f4-5dd7-891f-db92c21d2c24")
 	)
 	(wire
 		(pts
@@ -1195,11 +935,271 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f046eb03-3522-54cb-a2f6-6a1e48835d58")
+		(uuid "17632c1f-c733-5020-8e8d-57ca9559e2b5")
+	)
+	(wire
+		(pts
+			(xy 214.63 68.58) (xy 214.63 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b95e1c5-cf82-51f1-a36c-999775fe14b0")
+	)
+	(wire
+		(pts
+			(xy 229.87 78.74) (xy 243.84 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "26fd2430-b727-5d04-b197-d98658ebdf18")
+	)
+	(wire
+		(pts
+			(xy 222.25 73.66) (xy 243.84 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "457a5cd9-530c-5cbc-a248-55c415b1f5a8")
+	)
+	(wire
+		(pts
+			(xy 226.06 76.2) (xy 226.06 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "486d6917-f296-535f-9435-0bbef8617127")
+	)
+	(wire
+		(pts
+			(xy 241.3 66.04) (xy 243.84 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50f7a544-ca07-5520-817a-1b707ce11564")
+	)
+	(wire
+		(pts
+			(xy 233.68 81.28) (xy 243.84 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c22c85f-1db9-529b-9dd6-bc57b46f9700")
+	)
+	(wire
+		(pts
+			(xy 233.68 81.28) (xy 233.68 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "701c950c-f7d6-53fa-8e05-a62627226a7e")
 	)
 	(wire
 		(pts
 			(xy 208.28 104.14) (xy 222.25 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71c74a77-c37a-5ca8-9b23-fb1eb8147e2a")
+	)
+	(wire
+		(pts
+			(xy 229.87 78.74) (xy 229.87 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "777afdc0-4704-5968-b77a-e159e9aca91a")
+	)
+	(wire
+		(pts
+			(xy 172.72 106.68) (xy 187.96 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7dd39024-648d-5bb5-bf86-e114d73699fe")
+	)
+	(wire
+		(pts
+			(xy 208.28 106.68) (xy 226.06 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8caed0a9-aaab-5b51-a841-928ff57e94c5")
+	)
+	(wire
+		(pts
+			(xy 241.3 83.82) (xy 243.84 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9040dfe3-d5b3-5d9a-9c3c-c2eabcb46d3e")
+	)
+	(wire
+		(pts
+			(xy 222.25 73.66) (xy 222.25 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92fa849a-0ba0-55cc-95ed-f90f1b0ad4b4")
+	)
+	(wire
+		(pts
+			(xy 172.72 101.6) (xy 187.96 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93faf6ac-3f29-5d1c-ae09-7f9fad2a5157")
+	)
+	(wire
+		(pts
+			(xy 185.42 109.22) (xy 187.96 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "97525193-fd67-54f5-9e59-d71c7ca93d13")
+	)
+	(wire
+		(pts
+			(xy 185.42 104.14) (xy 187.96 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0ea38d8-f526-52f7-bf44-e43ce8694dfe")
+	)
+	(wire
+		(pts
+			(xy 218.44 71.12) (xy 243.84 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a57f0624-0ee1-5546-8253-9d26ee11e1c0")
+	)
+	(wire
+		(pts
+			(xy 208.28 109.22) (xy 229.87 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b38914e3-0b51-5440-a64a-584ff8f672af")
+	)
+	(wire
+		(pts
+			(xy 214.63 68.58) (xy 243.84 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c12e22cd-1609-5af7-a0f2-5c1f079e3b5a")
+	)
+	(wire
+		(pts
+			(xy 160.02 111.76) (xy 185.42 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7a45e4c-8e7e-53e0-bd7c-a9ce29989b7e")
+	)
+	(wire
+		(pts
+			(xy 185.42 111.76) (xy 187.96 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9da8f23-ffe0-5839-af5b-7ee1dcbd3723")
+	)
+	(wire
+		(pts
+			(xy 226.06 76.2) (xy 243.84 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d41a550b-c5bd-5c32-a4df-397ae1a92958")
+	)
+	(wire
+		(pts
+			(xy 208.28 99.06) (xy 214.63 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d772e8f0-7caa-5171-9673-aa493ebf82fd")
+	)
+	(wire
+		(pts
+			(xy 208.28 101.6) (xy 218.44 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1f352d7-3874-50be-9943-0a603bc0da99")
+	)
+	(wire
+		(pts
+			(xy 172.72 99.06) (xy 187.96 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb84c519-9d56-5c8d-88a9-e2f0fc623f73")
+	)
+	(wire
+		(pts
+			(xy 198.12 119.38) (xy 198.12 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f046eb03-3522-54cb-a2f6-6a1e48835d58")
+	)
+	(wire
+		(pts
+			(xy 160.02 104.14) (xy 185.42 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1215,31 +1215,9 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "4d70cf4c-6498-5252-891b-4fe29d1c36d8")
+		(uuid "041711fd-e29a-541a-bcfe-b1206ea1816a")
 		(property "Description" "Shared SPI bus data from the ESP32 to the devices (GPIO41)"
 			(at 185.42 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "SPI_SCK"
-		(at 185.42 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "905f8b3d-375e-5326-9c7e-c14c813d6564")
-		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
-			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1259,9 +1237,31 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "da27d01c-d4db-53b7-9731-06736e568a6c")
+		(uuid "905f8b3d-375e-5326-9c7e-c14c813d6564")
 		(property "Description" "Shared SPI bus data from the selected device to the ESP32 (GPIO40)"
 			(at 185.42 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "SPI_SCK"
+		(at 185.42 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e2abcfd3-3156-538a-9665-ab8a46052427")
+		(property "Description" "Shared SPI bus clock from the ESP32 (GPIO42)"
+			(at 185.42 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1283,7 +1283,7 @@
 			)
 			(justify right)
 		)
-		(uuid "041711fd-e29a-541a-bcfe-b1206ea1816a")
+		(uuid "1ba31af0-4a20-5157-82d0-826ab652727c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 152.4 119.38 0)
 			(hide yes)
@@ -1319,7 +1319,7 @@
 			)
 			(justify right)
 		)
-		(uuid "75545a51-8846-5df2-aa62-7e906642d2c0")
+		(uuid "4d70cf4c-6498-5252-891b-4fe29d1c36d8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 172.72 106.68 0)
 			(hide yes)
@@ -1345,42 +1345,6 @@
 			)
 		)
 	)
-	(global_label "IMU_INT1"
-		(shape output)
-		(at 172.72 101.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a439298c-6367-5cf8-84dc-290969f0ae5c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
-			(at 172.72 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(global_label "IMU_INT2"
 		(shape output)
 		(at 172.72 99.06 180)
@@ -1391,7 +1355,7 @@
 			)
 			(justify right)
 		)
-		(uuid "e818f788-7bef-5e23-bd8f-94391c0b8f9c")
+		(uuid "75545a51-8846-5df2-aa62-7e906642d2c0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 172.72 99.06 0)
 			(hide yes)
@@ -1406,6 +1370,42 @@
 		)
 		(property "Description" "LSM6DSOX interrupt 2 from the IMU cable to GPIO39"
 			(at 172.72 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "IMU_INT1"
+		(shape output)
+		(at 172.72 101.6 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "da27d01c-d4db-53b7-9731-06736e568a6c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 172.72 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "LSM6DSOX interrupt 1 from the IMU cable to GPIO2"
+			(at 172.72 101.6 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1495,43 +1495,43 @@
 			)
 		)
 		(pin "1"
-			(uuid "48a25a89-f469-50aa-b135-7d1e7944bf58")
-		)
-		(pin "2"
-			(uuid "850587f3-746d-5a17-a645-bccef0374396")
-		)
-		(pin "3"
 			(uuid "e18f7e2d-6cfb-58f0-ba50-34e6dc284bab")
 		)
-		(pin "4"
+		(pin "2"
 			(uuid "bd47783e-201a-5533-addd-abfd7f8f4171")
 		)
-		(pin "5"
+		(pin "3"
 			(uuid "44005acf-650f-540d-8d97-4c0626b9b2cf")
 		)
-		(pin "6"
+		(pin "4"
 			(uuid "2d3a9c09-ea23-5999-ada7-efc0f4a823be")
 		)
-		(pin "12"
+		(pin "5"
 			(uuid "38823301-f4ec-50f1-ad09-0569d3f6ee51")
 		)
-		(pin "11"
+		(pin "6"
 			(uuid "42ec1397-9aee-5852-a99f-1d750fbb399a")
 		)
-		(pin "10"
+		(pin "12"
 			(uuid "08b96d76-6cea-5b50-9e26-c48e9eb7fee1")
 		)
-		(pin "9"
+		(pin "11"
 			(uuid "e070d65f-c92f-554f-8d2c-9fb24d271163")
 		)
-		(pin "8"
+		(pin "10"
 			(uuid "8cc0b5aa-4557-55da-a6b9-e2ace9135b83")
 		)
-		(pin "7"
+		(pin "9"
 			(uuid "905a931b-8240-53e8-9f0c-8a144ea9104e")
 		)
-		(pin "13"
+		(pin "8"
 			(uuid "d6065607-b6f8-5018-a2f0-0b06077622d6")
+		)
+		(pin "7"
+			(uuid "b5e667f6-17c0-5a6d-8f46-d5028dc98b4a")
+		)
+		(pin "13"
+			(uuid "c79e747d-37e6-50e8-8790-983e0e6d915b")
 		)
 		(instances
 			(project "cryocooler"
@@ -1609,7 +1609,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "10e212ee-5ca9-5785-979b-b0c8ed9c0c7b")
+			(uuid "850587f3-746d-5a17-a645-bccef0374396")
 		)
 		(instances
 			(project "cryocooler"
@@ -1687,7 +1687,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "b5e667f6-17c0-5a6d-8f46-d5028dc98b4a")
+			(uuid "2d66d2d8-1903-5814-b12c-28a16d4bb5ca")
 		)
 		(instances
 			(project "cryocooler"
@@ -1777,28 +1777,28 @@
 			)
 		)
 		(pin "4"
-			(uuid "bc1e4fe0-6af0-5188-b643-e6e0daf07275")
-		)
-		(pin "8"
-			(uuid "d7300c38-8752-5ead-ab68-b835556fa1da")
-		)
-		(pin "7"
 			(uuid "9cd2e09c-9d58-5778-98b7-8cf3e7e10dfd")
 		)
-		(pin "6"
+		(pin "8"
 			(uuid "69030941-a839-528c-b6d0-a5117d0ee1e0")
 		)
-		(pin "5"
+		(pin "7"
 			(uuid "c63ff396-7f42-539e-8235-2adfa7a2397d")
 		)
-		(pin "3"
+		(pin "6"
 			(uuid "33e999f3-dd53-5753-8966-6f69ab1bb4fe")
 		)
-		(pin "1"
+		(pin "5"
 			(uuid "4aa613a9-3829-5013-a0e4-aedb100eae97")
 		)
-		(pin "2"
+		(pin "3"
 			(uuid "7f4edcf9-9e80-52cf-bfde-117460e056f1")
+		)
+		(pin "1"
+			(uuid "6cec65df-bbe2-5820-b4e9-f1087d444856")
+		)
+		(pin "2"
+			(uuid "10e212ee-5ca9-5785-979b-b0c8ed9c0c7b")
 		)
 		(instances
 			(project "cryocooler"
@@ -1876,7 +1876,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "6cec65df-bbe2-5820-b4e9-f1087d444856")
+			(uuid "48a25a89-f469-50aa-b135-7d1e7944bf58")
 		)
 		(instances
 			(project "cryocooler"

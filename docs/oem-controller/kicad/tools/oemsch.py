@@ -128,13 +128,52 @@ KINDS = {
 POWER = {
     'GND': 'GND', '+5V': '+5V', '+5VA': '+5VA', '+15V': '+15V', '-15V': '-15V',
     '+12V': '+12V', '-12V': '-12V', '-5V': '-5V', '+10V': '+10V', '-10V': '-10V',
-    '+28V': '+28V', '+48V': '+48V', 'GNDA': 'GNDA', 'EARTH': 'Earth',
+    '+28V': '+28V', '+48V': '+48V', 'GNDA': 'GNDA', 'EARTH': 'Earth', 'DGND': 'GNDD',
 }
 NEGATIVE = {'GND', 'GNDA', 'EARTH', '-15V', '-12V', '-5V', '-10V'}
 
 
+# Printed value -> what the part is (manufacturer's own description). A value printed as a
+# family name rather than a part number says "assumed".
+PART_INFO = {
+    'LT1124': 'LT1124 dual low-noise precision op-amp (Linear Technology)',
+    'LT1007': 'LT1007 low-noise precision op-amp (Linear Technology)',
+    'LT1012': 'LT1012 picoamp-input precision op-amp (Linear Technology)',
+    'LT1011A': 'LT1011A voltage comparator (Linear Technology)',
+    'LMC6-482': 'Assumed part: LMC6482 dual CMOS rail-to-rail op-amp (National)',
+    'LMC6001': 'LMC6001 ultra-low input current CMOS op-amp (National)',
+    '2N4220': '2N4220 N-channel JFET',
+    '1N4149': '1N4149 small-signal switching diode',
+    'DG413': 'DG413 quad SPST CMOS analog switch',
+    '74HC153': '74HC153 dual 4-input multiplexer',
+}
+KIND_INFO = {
+    'R': 'Resistor', 'POT': 'Potentiometer', 'C': 'Capacitor', 'CP': 'Polarized capacitor',
+    'D': 'Diode', 'L': 'Inductor', 'TP': 'Test point', 'THERM': 'Thermistor', 'FUSE': 'Fuse',
+    'NPN': 'NPN transistor', 'NMOS': 'N-channel MOSFET',
+}
+
+
+def part_description(part):
+    """What the part is: the printed part's own description, the assumed part, or its kind."""
+    info = PART_INFO.get(part['value'])
+    probable = part.get('probable')
+    if info and probable and probable.split()[0] not in info:
+        return f'{info}. Assumed part: {probable}'
+    if info:
+        return info
+    if probable:
+        return f'Assumed part: {probable}'
+    kind = KIND_INFO.get(part['kind'])
+    if part['kind'].startswith('CONN_'):
+        kind = f'{part["kind"].split("_")[1]}-pin connector'
+    if kind:
+        return kind if part['value'] in ('?', '') else f'{kind}, {part["value"]}'
+    return f'Part not identified (printed value "{part["value"]}")'
+
+
 def P(ref, value, kind, at, rot=0, mirror=False, pins=None, printed=None,
-      probable=None, datasheet=None, note=None, pinmap=None):
+      probable=None, datasheet=None, note=None, pinmap=None, desc=None, text=None):
     """
     Describe one part.
 
@@ -147,11 +186,15 @@ def P(ref, value, kind, at, rot=0, mirror=False, pins=None, printed=None,
     @param printed   Reference as printed when it differs from `ref`.
     @param probable  Probable real part (identification guess; never replaces value).
     @param pinmap    OPAMP only: {'+','-','out','v+','v-'} -> printed pin numbers.
-    @returns dict consumed by build_sheet().
+    @param desc      The part's job in this circuit (its Function field), starting "Patent: ...",
+                     "Inferred from the circuit: ..." or "Role unknown".
+    @param text      (dcol, drow) cells from the origin for the left end of the reference;
+                     the value goes two rows below it. Default: the shared text layout.
+    @returns dict consumed by build_sheet() / build_node().
     """
     return dict(ref=ref, value=value, kind=kind, at=at, rot=rot, mirror=mirror,
                 pins=pins or {}, printed=printed, probable=probable,
-                datasheet=datasheet, note=note, pinmap=pinmap)
+                datasheet=datasheet, note=note, pinmap=pinmap, desc=desc, text=text)
 
 
 # ─── Custom symbol library ───
@@ -202,7 +245,7 @@ def box_symbol(name, spec):
     width = 2.54 * math.ceil(width / 2.54 / 2) * 2
     half_w = width / 2
     # side pin names must stop short of the vertical top/bottom pin names
-    if any(top + bottom):
+    if top or bottom:  # a list of gaps keeps a box the same size as its sibling
         span = 1.27 * (across - 1)
         half_w = max(half_w, 2.54 * math.ceil((max(_name_room(left), _name_room(right)) + span + 1.0) / 2.54))
     graphics = (f'\t\t\t(rectangle (start {-half_w:g} {half_h:g}) (end {half_w:g} {-half_h:g}) '
@@ -217,13 +260,70 @@ def box_symbol(name, spec):
         if entry:
             text += _pin(entry[0], entry[1], half_w + length, half_h - 2.54 * (index + 1), 180, length)
     for side, sign, angle in ((top, 1, 270), (bottom, -1, 90)):
-        length = _pin_length(side)
+        # 'vlength' lengthens top/bottom pins whose long vertical number would touch the body
+        length = spec.get('vlength', _pin_length(side))
         start = -2.54 * (len(side) - 1) / 2
         for index, entry in enumerate(side):
             if entry:
                 text += _pin(entry[0], entry[1], round((start + 2.54 * index) / 1.27) * 1.27,
                              sign * (half_h + length), angle, length)
     return _symbol(name, spec.get('prefix', 'U'), graphics, text)
+
+
+def _poly(points, fill='background'):
+    pts = ' '.join(f'(xy {x:g} {y:g})' for x, y in points)
+    return f'\t\t\t(polyline (pts {pts}) (stroke (width 0.254) (type default)) (fill (type {fill})))\n'
+
+
+def _bubble(x, y):
+    return (f'\t\t\t(circle (center {x:g} {y:g}) (radius 0.635) '
+            '(stroke (width 0.254) (type default)) (fill (type background)))\n')
+
+
+def _curve(x0, y0, x1, y1, bulge, steps=10):
+    """Points along a quadratic bulge from (x0, y0) to (x1, y1), as polyline points."""
+    out = []
+    for i in range(steps + 1):
+        t = i / steps
+        cx, cy = (x0 + x1) / 2 + bulge[0], (y0 + y1) / 2 + bulge[1]
+        out.append((round((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1, 3),
+                    round((1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1, 3)))
+    return out
+
+
+def gate_symbol(name, spec):
+    """
+    Logic gate in its standard shape. spec: {'gate': 'nand' | 'or_inv' | 'inv',
+    'inputs': [(number, name), ...], 'output': (number, name)}. Inputs sit 5.08 mm
+    apart (2.54 mm for one), the output at the middle; pin names are hidden.
+    'or_inv' is an OR outline with a bubble on each input (a NAND drawn by De Morgan).
+    """
+    kind, inputs = spec['gate'], spec['inputs']
+    ys = [0.0] if len(inputs) == 1 else [2.54 * (len(inputs) - 1 - 2 * i) for i in range(len(inputs))]
+    graphics, text = '', ''
+    if kind == 'inv':
+        graphics += _poly([(-5.08, 3.81), (3.81, 0), (-5.08, -3.81), (-5.08, 3.81)])
+        graphics += _bubble(4.445, 0)
+    elif kind == 'nand':
+        arc = [(round(5.08 * math.sin(math.pi * i / 12), 3), round(5.08 * math.cos(math.pi * i / 12), 3))
+               for i in range(13)]  # semicircle from the top to the bottom through (5.08, 0)
+        top = [(-5.08, 5.08)] + arc + [(-5.08, -5.08), (-5.08, 5.08)]
+        graphics += _poly(top) + _bubble(5.715, 0)
+    else:  # or_inv
+        back = _curve(-5.08, -5.08, -5.08, 5.08, (1.0, 0))
+        upper = _curve(-5.08, 5.08, 5.08, 0, (1.2, 1.6))[1:]
+        lower = _curve(5.08, 0, -5.08, -5.08, (1.2, -1.6))[1:]
+        graphics += _poly(back + upper + lower)
+        for y in ys:
+            graphics += _bubble(-5.715, y)
+    for (number, label), y in zip(inputs, ys):
+        text += _pin(number, label, -7.62, y, 0, 1.27 if kind == 'or_inv' else 2.54)
+    number, label = spec['output']
+    # a longer output pin keeps a printed number like "11#2" clear of the bubble and stub
+    inner = 6.35 if kind == 'nand' else 5.08
+    length = 5.08 if len(number) > 2 else 3.81  # room for a long number such as 11#2
+    text += _pin(number, label, inner + length, 0, 180, length)
+    return _symbol(name, spec.get('prefix', 'U'), graphics, text, hide_names=True)
 
 
 def opamp_symbol(name, pinmap):
@@ -263,7 +363,7 @@ def write_library(specs):
     symbols = {}
     for spec in specs:
         for name, body in getattr(spec, 'SYMBOLS', {}).items():
-            text = box_symbol(name, body)
+            text = gate_symbol(name, body) if 'gate' in body else box_symbol(name, body)
             assert symbols.get(name, text) == text, f'symbol {name} defined twice differently'
             symbols[name] = text
         for part in spec.PARTS:
@@ -366,12 +466,15 @@ def _clear_neighbours(sheet, markers):
             sheet.labels[index] = (kind, net, new_end, angle)
 
 
-def build_sheet(sheet, spec, globals_):
-    """Place the spec's parts on `sheet` and attach stubs, wires, labels and power symbols."""
-    sheet.handwired = True
+def _place_parts(sheet, parts, name):
+    """
+    Place parts on `sheet` and give every connected pin a 2-cell stub.
+
+    @returns ({ref: (placed, part)}, {(ref, pin): (stub end, (dx, dy), net)})
+    """
     placed_by_ref = {}
     stub_end = {}
-    for part in spec.PARTS:
+    for part in parts:
         col, row = part['at']
         placed = sheet.add(lib_id_for(part), part['ref'], part['value'], col * CELL, row * CELL,
                            rot=part['rot'], mirror=part['mirror'], auto=False)
@@ -382,14 +485,23 @@ def build_sheet(sheet, spec, globals_):
             props['Probable_Part'] = part['probable']
         if part['note']:
             props['Note'] = part['note']
+        description = part_description(part)
+        if description:
+            props['Description'] = description
+        if part.get('desc'):
+            props['Function'] = part['desc']
         placed.props = props
+        if part.get('text'):
+            dc, dr = part['text']
+            tx, ty = (col + dc) * CELL, (row + dr) * CELL
+            placed.pinned_fields = {'Reference': (tx, ty), 'Value': (tx, ty + 2 * CELL)}
         if part['datasheet']:
             placed.props['Datasheet'] = part['datasheet']
         part['pins'] = {str(k): v for k, v in part['pins'].items()}
-        assert part['ref'] not in placed_by_ref, f'{spec.__name__}: duplicate ref {part["ref"]}'
+        assert part['ref'] not in placed_by_ref, f'{name}: duplicate ref {part["ref"]}'
         placed_by_ref[part['ref']] = (placed, part)
         for number, net in part['pins'].items():
-            assert number in placed.pin_table, f'{spec.__name__}: {part["ref"]} has no pin {number}'
+            assert number in placed.pin_table, f'{name}: {part["ref"]} has no pin {number}'
             x, y = placed.pin_point(number)
             dx, dy = _direction(placed.pin_out_angle(number))
             if net == 'NC':
@@ -400,6 +512,13 @@ def build_sheet(sheet, spec, globals_):
             end = (x + dx * 2 * CELL, y + dy * 2 * CELL)
             sheet.wires.append(((x, y), end))
             stub_end[(part['ref'], number)] = (end, (dx, dy), net)
+    return placed_by_ref, stub_end
+
+
+def build_sheet(sheet, spec, globals_):
+    """Place the spec's parts on `sheet` and attach stubs, wires, labels and power symbols."""
+    sheet.handwired = True
+    placed_by_ref, stub_end = _place_parts(sheet, spec.PARTS, spec.__name__)
 
     groups, wires = _wired_groups(spec, placed_by_ref)
     for a, b, order in wires:
@@ -451,3 +570,303 @@ def sheet_block(parent_path_uuid, child, file_ref, page, x, y, project):
         f'(do_not_autoplace no) (effects (font (size 1.27 1.27)) (justify left top)))\n'
         f'\t\t(instances (project "{project}" (path "{parent_path_uuid}" (page "{page}"))))\n\t)'
     )
+
+
+# ─── Redrawn figures: child sheets, hierarchical labels, sheet pins ───
+#
+# A redrawn figure spec sets REDRAWN = True. Its parts are split over child sheets
+# (CHILDREN, made with child()); the figure page holds the child blocks and any
+# PAGE_PARTS. Signals between sheets go through hierarchical labels (PORTS, made with
+# port()) and sheet pins; there are no global labels. Every part needs desc= and every
+# label a NET_DESCRIPTIONS entry in the figure spec.
+#
+# Wire and port endpoints: 'REF.PIN' (a part pin's stub end) or 'CHILD:NET' (a child
+# block's sheet pin stub end). A wire's third item is 'hv' (default), 'vh', or a list
+# of (col, row) corner points it passes through.
+
+from types import SimpleNamespace  # noqa: E402
+
+SHEET_PIN_PITCH = 2 * 2.54
+SHEET_PIN_SIDE = {'input': 'left', 'output': 'right', 'bidirectional': 'right', 'passive': 'right'}
+# (sheet file, net) -> shape of its hierarchical label, filled while building
+LABEL_SHAPES = {}
+
+
+FACING = {'right': (1, 0), 'left': (-1, 0), 'up': (0, -1), 'down': (0, 1)}
+
+
+def port(net, shape, on=None, extra=0, side=None, at=None, facing='right', slot=None):
+    """
+    A hierarchical label for `net`, either at the endpoint `on` ('REF.PIN' or
+    'CHILD:NET') moved `extra` cells further out along its stub, or free at `at`
+    (col, row) pointing `facing`; a free label is the endpoint '@NET' for WIRES.
+    `shape` is input / output / bidirectional / passive, seen from this sheet. `side`
+    puts this sheet's pin on the left or right of its block in the parent (default:
+    inputs left, the rest right). `slot` (1, 2, ...) puts the pin on that row of its side,
+    leaving gaps above it, so it can line up with a pin on another block.
+    """
+    assert (on is None) != (at is None), f'port {net}: give on= or at='
+    return SimpleNamespace(net=net, shape=shape, on=on if at is None else '@' + net, extra=extra,
+                           side=side or SHEET_PIN_SIDE[shape], at=at, facing=facing, slot=slot)
+
+
+def tap(name, net, at, facing='up'):
+    """A free point on `net` at (col, row), the endpoint '@name' for WIRES and NAMES
+    (a power symbol or net label placed away from any pin)."""
+    return SimpleNamespace(name=name, net=net, at=at, facing=facing)
+
+
+def child(name, title, parts, at, wires=(), ports=(), notes=(), paper='A3', width=50.8,
+          long_nets=(), names=None, taps=(), short=None):
+    """
+    One child sheet of a redrawn figure.
+
+    @param name      Short id, used in the file name and in 'CHILD:NET' endpoints.
+    @param at        (col, row) of the block's top-left corner on the figure page.
+    @param width     Block width on the figure page, mm.
+    @param long_nets Nets allowed a net label at each end (points more than 85 mm apart).
+    @param names     {net: endpoint or [endpoints]} where the label naming a local net,
+                     or a power net's symbol (one per wired group), sits (default: the
+                     group's first pin). None leaves a local net unnamed.
+    @param taps      tap() points used as wire ends.
+    @param short     Sheet name on the block (part of every net name's path); keep it short.
+    """
+    return SimpleNamespace(NAME=name, TITLE=title, PARTS=list(parts), AT=at, WIRES=list(wires),
+                           PORTS=list(ports), NOTES=list(notes), PAPER=paper, WIDTH=width,
+                           LONG_NETS=set(long_nets), NAMES=dict(names or {}), TAPS=list(taps), SHORT=short or name.upper(),
+                           CHILDREN=[], PAGE_PARTS=None)
+
+
+def _hier_shape(net, is_root, filename):
+    shape = LABEL_SHAPES.get((filename, net))
+    return shape or _kicadgen_label_shape(net, is_root, filename)
+
+
+_kicadgen_label_shape = kicadgen.label_shape
+kicadgen.label_shape = _hier_shape
+
+
+def block_geometry(node):
+    """Block size (mm) and {net: (x, y, side)} pin offsets for a node's ports."""
+    pins, rows = {}, 1
+    width = getattr(node, 'WIDTH', 50.8)
+    for side in ('left', 'right'):
+        row = 0
+        for item in (p for p in node.PORTS if p.side == side):
+            row = max(row + 1, getattr(item, 'slot', None) or 0)
+            pins[item.net] = ((0 if side == 'left' else width), SHEET_PIN_PITCH * row, side)
+        rows = max(rows, row)
+    height = SHEET_PIN_PITCH * (rows + 1)
+    return width, height, pins
+
+
+def sheet_block_pins(parent_path, sheet, file_ref, page, x, y, project, node, sheet_name=None):
+    """Sheet symbol with pins for `node`'s ports; returns (text, {net: (stub end, direction)})."""
+    width, height, pins = block_geometry(node)
+    lines = [
+        f'\t(sheet (at {x:g} {y:g}) (size {width:g} {height:g}) (exclude_from_sim no) '
+        f'(in_bom yes) (on_board yes) (dnp no) (fields_autoplaced yes) '
+        f'(stroke (width 0.1524) (type solid)) (fill (color 0 0 0 0)) (uuid "{sheet.uid}")',
+        f'\t\t(property "Sheetname" {kicadgen.q(sheet_name or sheet.title)} (at {x:g} {y - 0.7:g} 0) '
+        f'(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27)) (justify left bottom)))',
+        f'\t\t(property "Sheetfile" "{file_ref}" (at {x:g} {y + height + 0.6:g} 0) (show_name no) '
+        f'(do_not_autoplace no) (effects (font (size 1.27 1.27)) (justify left top)))',
+    ]
+    ends = {}
+    shapes = {p.net: p.shape for p in node.PORTS}
+    for net, (dx, dy, side) in pins.items():
+        px, py = x + dx, y + dy
+        angle, justify = (180, 'left') if side == 'left' else (0, 'right')
+        uid = kicadgen.stable_uuid(f'pin/{sheet.filename}/{net}')
+        lines.append(f'\t\t(pin {kicadgen.q(kicadgen.label_text(net))} {shapes[net]} (at {px:g} {py:g} {angle}) '
+                     f'(uuid "{uid}") (effects (font (size 1.27 1.27)) (justify {justify})))')
+        step = -1 if side == 'left' else 1
+        ends[net] = ((px + step * 2 * CELL, py), (step, 0))  # stub end, 2 cells out
+    lines.append(f'\t\t(instances (project "{project}" (path "{parent_path}" (page "{page}"))))\n\t)')
+    return '\n'.join(lines), ends
+
+
+def _route(start, stop, how):
+    """Wire segments from start to stop: 'hv', 'vh' or a list of (col, row) corners."""
+    if isinstance(how, str):
+        corner = (stop[0], start[1]) if how == 'hv' else (start[0], stop[1])
+        points = [start, corner, stop]
+    else:
+        points = [start] + [(c * CELL, r * CELL) for c, r in how] + [stop]
+    for a, b in zip(points, points[1:]):
+        assert abs(a[0] - b[0]) < 1e-6 or abs(a[1] - b[1]) < 1e-6, f'diagonal wire {a} -> {b}'
+    return [(a, b) for a, b in zip(points, points[1:])
+            if abs(a[0] - b[0]) > 1e-6 or abs(a[1] - b[1]) > 1e-6]
+
+
+DOWN_SYMBOLS = {'GND', 'GNDA', 'EARTH', 'DGND'}
+
+
+def _power_symbol(sheet, net, end, direction):
+    """
+    Power symbol on a stub end. Supply arrows point up and grounds down, so a supply
+    on a downward stub (or a ground on an upward one) is moved to the end of a short
+    jog to the right, clear of the stub.
+    """
+    points_down = net in DOWN_SYMBOLS
+    if direction == ((0, -1) if points_down else (0, 1)):
+        x, y = end
+        dy = direction[1] * 3 * CELL
+        corner, tip = (x, y + dy), (x + 3 * CELL, y + dy)
+        sheet.wires.extend([(end, corner), (corner, tip)])
+        end = tip
+    kicadgen._pwr_counter[0] += 1
+    symbol = sheet.add(f'power:{POWER[net]}', f'#PWR{kicadgen._pwr_counter[0]:03d}', net,
+                       end[0], end[1], auto=False)
+    symbol.is_power = True
+
+
+def build_node(sheet, node, spec, globals_, block_ends=None, page_name=None):
+    """
+    Draw one sheet of a redrawn figure: its parts, the wires between endpoints, one
+    power symbol per wired group of a power net, its hierarchical labels, and a net
+    label only where the spec lists the net as long (LONG_NETS). Fails on anything
+    left unconnected, a part or label without a description, or a global net that
+    reaches this sheet without a hierarchical label.
+
+    @param block_ends {'CHILD:NET': (stub end, direction)} for the child blocks drawn here.
+    """
+    name = page_name or spec.__name__
+    sheet.handwired = True
+    sheet.wire_margin = 0.6
+    descriptions = spec.NET_DESCRIPTIONS
+    renamed = getattr(spec, '_renamed', {})
+    parts = node.PARTS if node.PAGE_PARTS is None else node.PAGE_PARTS
+    for part in parts:
+        assert part.get('desc'), f'{name}: {part["ref"]} has no desc='
+    placed_by_ref, stub_end = _place_parts(sheet, parts, name)
+    ends = dict(stub_end)
+    for key, (point, direction) in (block_ends or {}).items():
+        child_name, net = key.split(':', 1)
+        ends[(child_name, ':' + net)] = (point, direction, net)
+    free = [(t.name, t.net, t.at, t.facing) for t in node.TAPS]
+    free += [(p.net, p.net, p.at, p.facing) for p in node.PORTS if p.at is not None]
+    for tap_name, net, (col, row), facing in free:
+        assert ('@', tap_name) not in ends, f'{name}: tap {tap_name} defined twice'
+        ends[('@', tap_name)] = ((col * CELL, row * CELL), FACING[facing], net)
+
+    def resolve(text):
+        if text.startswith('@'):
+            return ('@', text[1:])
+        if ':' in text:
+            child_name, net = text.split(':', 1)
+            return (child_name, ':' + net)
+        ref, pin = text.rsplit('.', 1)
+        return (renamed.get(ref, ref), pin)
+
+    parent = {}
+
+    def find(key):
+        while parent.setdefault(key, key) != key:
+            key = parent[key]
+        return key
+
+    for entry in node.WIRES:
+        a, b = resolve(entry[0]), resolve(entry[1])
+        assert a in ends and b in ends, f'{name}: wire {entry} has an unknown end'
+        assert ends[a][2] == ends[b][2], f'{name}: wire {entry} joins {ends[a][2]} and {ends[b][2]}'
+        parent[find(a)] = find(b)
+        sheet.wires.extend(_route(ends[a][0], ends[b][0], entry[2] if len(entry) > 2 else 'hv'))
+
+    port_groups = {}
+    for item in node.PORTS:
+        key = resolve(item.on)
+        assert key in ends and ends[key][2] == item.net, f'{name}: port {item.net} not on {item.on}'
+        (x, y), (dx, dy), _ = ends[key]
+        point = (x + dx * item.extra * CELL, y + dy * item.extra * CELL)
+        if item.extra:
+            sheet.wires.append(((x, y), point))
+        angle = {(1, 0): 0, (-1, 0): 180, (0, -1): 90, (0, 1): 270}[(dx, dy)]
+        sheet.labels.append(('hierarchical_label', item.net, point, angle))
+        LABEL_SHAPES[(sheet.filename, item.net)] = item.shape
+        port_groups[item.net] = find(key)
+
+    groups = {}
+    for key, (_, _, net) in ends.items():
+        groups.setdefault(net, {}).setdefault(find(key), []).append(key)
+    long_nets = node.LONG_NETS
+    def chosen(net, keys):
+        picks = node.NAMES.get(net, [])
+        picks = [resolve(p) for p in ([picks] if isinstance(picks, str) else picks)]
+        found = [k for k in picks if k in keys]
+        return found[0] if found else keys[0]
+
+    for net, by_group in groups.items():
+        if net in POWER:
+            for keys in by_group.values():
+                _power_symbol(sheet, net, *ends[chosen(net, keys)][:2])
+            continue
+        assert net not in globals_ or net in port_groups, \
+            f'{name}: {net} is used on other figures but has no hierarchical label here'
+        unlabelled = [g for g in by_group if g != port_groups.get(net)]
+        if net in long_nets:
+            # a net that also leaves the sheet gets its far end as a second hierarchical
+            # label, not a local label of the same name as the sheet pin's net
+            kind = 'hierarchical_label' if net in port_groups else 'label'
+            for group in unlabelled:
+                (x, y), (dx, dy), _ = ends[chosen(net, by_group[group])]
+                angle = {(1, 0): 0, (-1, 0): 180, (0, -1): 90, (0, 1): 270}[(dx, dy)]
+                sheet.labels.append((kind, net, (x, y), angle))
+            continue
+        if net in port_groups:
+            assert not unlabelled, f'{name}: {net} has pins not wired to its hierarchical label: ' \
+                                   f'{[by_group[g] for g in unlabelled]}'
+            continue
+        assert len(by_group) == 1, f'{name}: net {net} is in {len(by_group)} unwired groups: ' \
+                                   f'{list(by_group.values())}'
+        keys = next(iter(by_group.values()))
+        assert len(keys) > 1, f'{name}: net {net} goes nowhere'
+        if net in node.NAMES and node.NAMES[net] is None:
+            continue  # left unnamed, as it was before the redraw
+        # one net label keeps the spec's net name (names may change only by sheet path)
+        (x, y), (dx, dy), _ = ends[chosen(net, keys)]
+        angle = {(1, 0): 0, (-1, 0): 180, (0, -1): 90, (0, 1): 270}[(dx, dy)]
+        sheet.labels.append(('label', net, (x, y), angle))
+    for kind, net, _, _ in sheet.labels:
+        assert net in descriptions, f'{name}: label {net} has no NET_DESCRIPTIONS entry'
+    sheet.label_descriptions = dict(descriptions)
+    for text, col, row in node.NOTES:
+        sheet.note(text, col * CELL, row * CELL, 1.5)
+    check_junctions(sheet, name)
+    return placed_by_ref
+
+
+def check_junctions(sheet, name):
+    """
+    Fail on a point where four or more wires, pins or power symbols meet, and add a
+    junction dot where three do (kicadgen leaves out power-symbol pins). Wires are
+    split into grid steps first, so overlapping routes count once; a point that is
+    no wire's end and no pin is a plain crossing and is allowed.
+    """
+    def cell(point):
+        return (round(point[0] / CELL), round(point[1] / CELL))
+
+    edges, ends = set(), set()
+    for a, b in sheet.wires:
+        (ax, ay), (bx, by) = cell(a), cell(b)
+        ends |= {(ax, ay), (bx, by)}
+        steps = max(abs(bx - ax), abs(by - ay))
+        sx, sy = (bx > ax) - (bx < ax), (by > ay) - (by < ay)
+        for i in range(steps):
+            p, q = (ax + sx * i, ay + sy * i), (ax + sx * (i + 1), ay + sy * (i + 1))
+            edges.add((min(p, q), max(p, q)))
+    degree = {}
+    for p, q in edges:
+        degree[p] = degree.get(p, 0) + 1
+        degree[q] = degree.get(q, 0) + 1
+    pins = {}
+    for part in sheet.parts:
+        for number in part.pin_table:
+            point = cell(part.pin_point(number))
+            pins[point] = pins.get(point, 0) + 1
+    bad = [p for p in set(degree) | set(pins)
+           if (p in ends or p in pins) and degree.get(p, 0) + pins.get(p, 0) > 3]
+    assert not bad, f'{name}: four or more connections meet at cells {sorted(bad)}'
+    sheet.junctions.extend((x * CELL, y * CELL) for x, y in set(degree) | set(pins)
+                           if (x, y) in ends or (x, y) in pins
+                           if degree.get((x, y), 0) + pins.get((x, y), 0) == 3)

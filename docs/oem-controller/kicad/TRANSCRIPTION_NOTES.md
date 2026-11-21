@@ -39,9 +39,10 @@ printed name.
 `kicad-cli sch erc` on the root reports only these:
 - `isolated_pin_label` (104): a label used on only one page, e.g. a signal that leaves the transcribed boards or
   a stub kept for a printed arrow.
-- `power_pin_not_driven` (10): no PWR_FLAGs on a transcription.
+- `power_pin_not_driven` (11): no PWR_FLAGs on a transcription (DGND counts since it became a power symbol).
 - `pin_not_connected` (31): pins drawn with nothing attached. They are mostly on 5G (U22 spare pins, relay NC
-  contacts, RS-232 spare channels, J10/J11 spare pins), plus J12 pin 9 (5F) and V2 pins 21/22 (5H).
+  contacts, RS-232 spare channels, J10/J11 spare pins), plus V2 pins 21/22 (5H). J12 pin 9 (5F) now has a
+  no-connect flag (user, 2026-11-21).
 
 `tools/verify_netlist.py` confirms KiCad's connectivity matches the specs exactly (2362 pins, 0 problems).
 
@@ -58,6 +59,10 @@ printed name.
 - The three connectors have no printed refs (`J5A1`/`J5A2`/`J5A3`).
 - `BWT_4P` is printed on J5A3 pins 9 and 11, so they are shorted as drawn.
 - Repeated pin numbers: U44B, U29, U17 (pin 10 printed three times).
+- U17 is printed with pin names C0 (10), C1 (14), C2 (2), C0-C3 (10, 11, 12, 13) and V (10). Against the
+  74HC153 pinout, 14/2 are selects A/B, 10-13 are 2C0-2C3, the output is probably pin 9 (2Y) and the upper
+  grounded "10" probably pin 15 (~{2G}). Drawn with the datasheet names on the printed numbers (user decision,
+  2026-11-21).
 - U56 supply pins are unnumbered. R276 has no value.
 - Spare op-amp "+" signs are drawn on the fed-back input.
 - The rack/tower option table is reproduced as page notes.
@@ -109,6 +114,7 @@ printed name.
 - L0 and L7 are both printed +5V.
 - R230's connection to +15V across the sheet edge is assumed. LT1007 V- is assumed to be pin 4.
 - `Probable_Part`: URE319 = VRE310 (paralleled with AD2710).
+- J12 and UR3 have no value printed; their value is "?" (it was the ref repeated; user OK, 2026-11-21).
 
 ### FIG 5G (PDF p15–18, 2×2 mosaic), 81 parts: microcontroller
 - U22 is split into U22A (upper box) and U22B (lower box). Part number is printed `XXXXXXX XXX`.

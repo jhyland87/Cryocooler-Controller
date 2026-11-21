@@ -1146,28 +1146,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "RAIL LEDS"
-		(exclude_from_sim no)
-		(at 25.4 162.56 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "2c7bf811-2a61-58f7-9f68-19357672b5ff")
-	)
-	(text "POWER RAILS"
-		(exclude_from_sim no)
-		(at 25.4 35.56 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "46f5dc48-36b8-561c-b734-00d0bd6556df")
-	)
 	(text "GROUND (scope loops)"
 		(exclude_from_sim no)
 		(at 25.4 63.5 0)
@@ -1177,7 +1155,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "662461d7-5ccc-5704-8d56-d98ace74c454")
+		(uuid "00f803d9-874e-5e0c-a0cb-a71e32e2e4b9")
 	)
 	(text "FAN, PUMP, INTERRUPTS AND CONTROL"
 		(exclude_from_sim no)
@@ -1188,7 +1166,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "9621cca0-cca1-56f5-895e-8cc096558b75")
+		(uuid "07afc374-b11d-5dad-9487-1f333b85c29c")
+	)
+	(text "POWER RAILS"
+		(exclude_from_sim no)
+		(at 25.4 35.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "2c7bf811-2a61-58f7-9f68-19357672b5ff")
 	)
 	(text "ANALOG AND SENSORS"
 		(exclude_from_sim no)
@@ -1199,7 +1188,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "bdea2e66-5ce7-591b-9cd9-d6c6da61ff2d")
+		(uuid "4cd52ae3-b2a7-5262-a4f3-c1fa2a22fe0a")
 	)
 	(text "Debug aids: test points (pad per net, loops for ground) and rail LEDs. Each test point sits on a global label or power symbol; the PCB generator places it beside a pad on the same net."
 		(exclude_from_sim no)
@@ -1210,105 +1199,26 @@
 			)
 			(justify left top)
 		)
-		(uuid "c1817eb0-72b9-59d0-9ab6-e9c179efeb58")
+		(uuid "bdea2e66-5ce7-591b-9cd9-d6c6da61ff2d")
+	)
+	(text "RAIL LEDS"
+		(exclude_from_sim no)
+		(at 25.4 162.56 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "ee23197b-9f84-57dc-8815-bafacbefc111")
 	)
 	(no_connect
 		(at 78.74 175.26)
-		(uuid "80557eb1-1c6d-533e-862e-24363a9a3f96")
+		(uuid "ba7cf110-3de6-53d9-bdc2-6bbbaa48b9a0")
 	)
 	(no_connect
 		(at 63.5 175.26)
-		(uuid "d4a619a8-31f4-5b2a-81e1-04cf1742a485")
-	)
-	(wire
-		(pts
-			(xy 45.72 134.62) (xy 45.72 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "097adfe7-e522-58cb-98b8-4f7cb4909832")
-	)
-	(wire
-		(pts
-			(xy 81.28 134.62) (xy 81.28 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "336dd501-b5af-5c90-8b52-2d91ee9ea416")
-	)
-	(wire
-		(pts
-			(xy 78.74 172.72) (xy 83.82 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49669341-8748-558c-a422-bd465906b9e6")
-	)
-	(wire
-		(pts
-			(xy 30.48 73.66) (xy 30.48 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "56dc9b3a-74a8-5bf0-999c-56105f11d3d6")
-	)
-	(wire
-		(pts
-			(xy 254 45.72) (xy 254 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "612ce305-51ac-57be-9f92-be7493478366")
-	)
-	(wire
-		(pts
-			(xy 41.91 172.72) (xy 44.45 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77b4f003-7863-5ab2-9d8d-11c20a5f2b65")
-	)
-	(wire
-		(pts
-			(xy 170.18 45.72) (xy 170.18 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "96298c10-477a-5c42-a1b3-2c66569a714a")
-	)
-	(wire
-		(pts
-			(xy 30.48 172.72) (xy 34.29 172.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b82fd68a-47f8-5f2e-a194-dff391241025")
-	)
-	(wire
-		(pts
-			(xy 226.06 45.72) (xy 226.06 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf3be7d1-8d28-5be0-b48b-ebb14788cd2e")
+		(uuid "c1817eb0-72b9-59d0-9ab6-e9c179efeb58")
 	)
 	(wire
 		(pts
@@ -1318,7 +1228,77 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ca5e361e-4db4-55d8-a316-b39dfbf03e3a")
+		(uuid "097adfe7-e522-58cb-98b8-4f7cb4909832")
+	)
+	(wire
+		(pts
+			(xy 226.06 45.72) (xy 226.06 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "336dd501-b5af-5c90-8b52-2d91ee9ea416")
+	)
+	(wire
+		(pts
+			(xy 81.28 134.62) (xy 81.28 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37a9ed5e-32f4-571d-a0e8-9230c217d10e")
+	)
+	(wire
+		(pts
+			(xy 170.18 45.72) (xy 170.18 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56dc9b3a-74a8-5bf0-999c-56105f11d3d6")
+	)
+	(wire
+		(pts
+			(xy 78.74 172.72) (xy 83.82 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "612ce305-51ac-57be-9f92-be7493478366")
+	)
+	(wire
+		(pts
+			(xy 45.72 134.62) (xy 45.72 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6423a44b-745f-552c-b913-fbca1622bfee")
+	)
+	(wire
+		(pts
+			(xy 254 45.72) (xy 254 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80557eb1-1c6d-533e-862e-24363a9a3f96")
+	)
+	(wire
+		(pts
+			(xy 30.48 172.72) (xy 34.29 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96298c10-477a-5c42-a1b3-2c66569a714a")
 	)
 	(wire
 		(pts
@@ -1328,7 +1308,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e79a3e26-ea38-51e8-9c86-7401d55b5742")
+		(uuid "bf3be7d1-8d28-5be0-b48b-ebb14788cd2e")
+	)
+	(wire
+		(pts
+			(xy 41.91 172.72) (xy 44.45 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ca5e361e-4db4-55d8-a316-b39dfbf03e3a")
+	)
+	(wire
+		(pts
+			(xy 30.48 73.66) (xy 30.48 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d4a619a8-31f4-5b2a-81e1-04cf1742a485")
 	)
 	(label "ISO_5V_LED_A"
 		(at 44.45 172.72 0)
@@ -1338,7 +1338,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "ba7cf110-3de6-53d9-bdc2-6bbbaa48b9a0")
+		(uuid "9621cca0-cca1-56f5-895e-8cc096558b75")
 		(property "Description" "Anode of the isolated 5 V indicator LED D10"
 			(at 44.45 172.72 0)
 			(hide yes)
@@ -1352,42 +1352,6 @@
 			)
 		)
 	)
-	(global_label "SIG_SINE"
-		(shape bidirectional)
-		(at 81.28 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "37a9ed5e-32f4-571d-a0e8-9230c217d10e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.28 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
-			(at 81.28 134.62 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(global_label "DDS_SINE"
 		(shape bidirectional)
 		(at 45.72 134.62 180)
@@ -1398,7 +1362,7 @@
 			)
 			(justify right)
 		)
-		(uuid "6423a44b-745f-552c-b913-fbca1622bfee")
+		(uuid "46f5dc48-36b8-561c-b734-00d0bd6556df")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 45.72 134.62 0)
 			(hide yes)
@@ -1413,6 +1377,42 @@
 		)
 		(property "Description" "Sine output of the AD9837 DDS, before the gain stage"
 			(at 45.72 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(global_label "SIG_SINE"
+		(shape bidirectional)
+		(at 81.28 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "662461d7-5ccc-5704-8d56-d98ace74c454")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 81.28 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Description" "Sine drive signal out to the amplifier input jack J9, amplitude set by the AD5453"
+			(at 81.28 134.62 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1491,7 +1491,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "64637500-c3dc-50f7-887f-7e7261c4d83c")
+			(uuid "a2310b51-e18b-5cd4-a93f-ddf2c4e458f0")
 		)
 		(instances
 			(project "cryocooler"
@@ -1580,7 +1580,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "519db0be-ec40-5b84-bc56-e38cd96ce1b7")
+			(uuid "ea8bac55-e76d-5d88-8cb9-e6179fea4bc3")
 		)
 		(instances
 			(project "cryocooler"
@@ -1669,16 +1669,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "448b20c7-6f21-5a2c-bcc9-5629370d7480")
+			(uuid "bd43a833-8320-5f61-8bdc-de31938e743d")
 		)
 		(pin "4"
-			(uuid "885a19ba-21da-54e2-8b57-7aad1cd9bdc5")
+			(uuid "be949480-ceb2-58f0-9efc-b5f4710f4751")
 		)
 		(pin "2"
-			(uuid "987e1649-112c-5767-85b0-5dac14ff99dd")
+			(uuid "3cf869ce-7740-55a0-b97f-6b9537c262a9")
 		)
 		(pin "3"
-			(uuid "e1396afa-5bf2-59b1-9938-290e82032880")
+			(uuid "05f71eae-ff1c-59e1-92b7-ecb7c7a1b98a")
 		)
 		(instances
 			(project "cryocooler"
@@ -1755,7 +1755,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "00f803d9-874e-5e0c-a0cb-a71e32e2e4b9")
+			(uuid "0d05014d-6cae-52b5-b3ba-fee44f874d09")
 		)
 		(instances
 			(project "cryocooler"
@@ -1832,7 +1832,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ea8bac55-e76d-5d88-8cb9-e6179fea4bc3")
+			(uuid "885a19ba-21da-54e2-8b57-7aad1cd9bdc5")
 		)
 		(instances
 			(project "cryocooler"
@@ -1910,7 +1910,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "bd43a833-8320-5f61-8bdc-de31938e743d")
+			(uuid "a1472810-fa55-574f-809d-8fba50c6850b")
 		)
 		(instances
 			(project "cryocooler"
@@ -1988,7 +1988,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "07afc374-b11d-5dad-9487-1f333b85c29c")
+			(uuid "4abfa59a-5967-5e0c-9a75-696f45af4def")
 		)
 		(instances
 			(project "cryocooler"
@@ -2065,7 +2065,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0d05014d-6cae-52b5-b3ba-fee44f874d09")
+			(uuid "519db0be-ec40-5b84-bc56-e38cd96ce1b7")
 		)
 		(instances
 			(project "cryocooler"
@@ -2143,7 +2143,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "4abfa59a-5967-5e0c-9a75-696f45af4def")
+			(uuid "64637500-c3dc-50f7-887f-7e7261c4d83c")
 		)
 		(instances
 			(project "cryocooler"
@@ -2220,7 +2220,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ff17a250-13d4-5902-9175-adedd2d7aa5c")
+			(uuid "0b461fd4-ff96-5ae1-8371-0814e8de6568")
 		)
 		(instances
 			(project "cryocooler"
@@ -2298,7 +2298,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "ee23197b-9f84-57dc-8815-bafacbefc111")
+			(uuid "f7239b9b-628f-5e7f-a381-0fa7ac37b4ff")
 		)
 		(instances
 			(project "cryocooler"
@@ -2376,7 +2376,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f7239b9b-628f-5e7f-a381-0fa7ac37b4ff")
+			(uuid "380ac7f3-4682-5b92-860c-f46e4c370a89")
 		)
 		(instances
 			(project "cryocooler"
@@ -2463,10 +2463,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a2310b51-e18b-5cd4-a93f-ddf2c4e458f0")
+			(uuid "987e1649-112c-5767-85b0-5dac14ff99dd")
 		)
 		(pin "2"
-			(uuid "dcb5a334-1268-59a4-b580-ef213088f835")
+			(uuid "e1396afa-5bf2-59b1-9938-290e82032880")
 		)
 		(instances
 			(project "cryocooler"
@@ -2543,7 +2543,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "4cd52ae3-b2a7-5262-a4f3-c1fa2a22fe0a")
+			(uuid "ff17a250-13d4-5902-9175-adedd2d7aa5c")
 		)
 		(instances
 			(project "cryocooler"
@@ -2621,7 +2621,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "380ac7f3-4682-5b92-860c-f46e4c370a89")
+			(uuid "448b20c7-6f21-5a2c-bcc9-5629370d7480")
 		)
 		(instances
 			(project "cryocooler"
@@ -2699,7 +2699,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0b461fd4-ff96-5ae1-8371-0814e8de6568")
+			(uuid "dcb5a334-1268-59a4-b580-ef213088f835")
 		)
 		(instances
 			(project "cryocooler"

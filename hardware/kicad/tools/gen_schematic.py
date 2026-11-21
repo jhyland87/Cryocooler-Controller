@@ -583,6 +583,11 @@ def build_mcu(sh):
         auto=False,
         footprint='cryocooler:SW_Panasonic_EVP-AA',
     )
+    # reference kept clear of the ESP_BOOT label above it
+    sw_boot.pinned_fields = {
+        'Reference': (sw_boot.x - 2.708, sw_boot.y - 5.54, 'right'),
+        'Value': (sw_boot.x + 8.89, sw_boot.y - 8.08, 'center'),
+    }
     wire(sh, (108, boot[1]), pin_cell(sw_boot, '1'))
     ground(sh, pin_cell(sw_boot, '2'))
     # USB-C: VBUS can power the logic rail on its own (rails_logic sheet)
@@ -803,7 +808,12 @@ def build_power_button(sh):
     kill = pin_cell(u, '5')
     wire(sh, kill, (80, kill[1]))
     vres(sh, '220k', 80, 50)
-    vres(sh, '10k', 80, 56)
+    kill_res = vres(sh, '10k', 80, 56)
+    # text held clear of the PWR_KILL label below it
+    kill_res.pinned_fields = {
+        'Reference': (kill_res.x + 3.216, kill_res.y - 2.32),
+        'Value': (kill_res.x + 3.216, kill_res.y - 0.22),
+    }
     wire(sh, (80, 62), (84, 62))
     net_label(sh, 'PWR_KILL', (84, 62), 0, is_global=True)
     wire(sh, (80, 50), (80, 44), (88, 44))
@@ -1091,16 +1101,17 @@ def drop_ground(sh, cell, length=2):
 
 def gnd_bus(sh, cells, net='GND', length=2):
     """Joins several ground pin tips on one bar below them and drops a ground
-    symbol from the middle pin.
+    symbol from the last pin (under an inner pin the bar, the pin and the drop
+    would meet four ways).
     """
     ordered = sorted(cells)
     bar = max(cell[1] for cell in ordered) + length
-    middle = ordered[len(ordered) // 2]
+    last = ordered[-1][0]
     for column, row in ordered:
         wire(sh, (column, row), (column, bar))
-    wire(sh, (ordered[0][0], bar), (ordered[-1][0], bar))
-    wire(sh, (middle[0], bar), (middle[0], bar + 2))
-    rail_symbol(sh, net, (middle[0], bar + 2))
+    wire(sh, (ordered[0][0], bar), (last, bar))
+    wire(sh, (last, bar), (last, bar + 2))
+    rail_symbol(sh, net, (last, bar + 2))
 
 
 def net_label(sh, net, cell, angle=0, is_global=False):
@@ -1640,8 +1651,13 @@ def power_good_node(
     """
     rail_symbol(sh, rail, (column, row))
     with high_refs('R'):
-        vres(sh, values[0], column, row, fp=R0402)
+        upper = vres(sh, values[0], column, row, fp=R0402)
         vres(sh, values[1], column, row + 6, fp=R0402)
+    # upper text held clear of the node's label below it
+    upper.pinned_fields = {
+        'Reference': (upper.x + 3.216, upper.y - 2.32),
+        'Value': (upper.x + 3.216, upper.y - 0.22),
+    }
     drop_ground(sh, (column, row + 12), 0)
     wire(sh, (column, row + 6), (column + 4, row + 6))
     net_label(sh, label, (column + 4, row + 6), 0, is_global=True)
@@ -1834,7 +1850,8 @@ def build_signal_gen(sh):
     for pin in ('4', '9', '11'):  # DGND, AGND, exposed pad
         spur(sh, dds, pin, 2)
     wire(sh, (58, 72), (62, 72))
-    drop_ground(sh, (60, 72), 2)
+    # drop from the bar's end: under the middle pin it would meet four ways
+    drop_ground(sh, (62, 72), 2)
     vdd = pin_cell(dds, '2')
     wire(sh, vdd, (vdd[0], 48), (75, 48))
     rail_symbol(sh, '+3V3_SG', (vdd[0], 48))
