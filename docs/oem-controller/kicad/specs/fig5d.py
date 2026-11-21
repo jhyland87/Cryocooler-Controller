@@ -1,20 +1,30 @@
-"""FIG 5D - six butter warmer (heater drive) circuits, FIG 5D-1/5D-2/5D-3."""
+"""FIG 5D - six butter warmer (heater drive) circuits, FIG 5D-1/5D-2/5D-3.
 
-from oemsch import P
+Redrawn to the drawing rules: one child sheet per circuit, all six drawn by bw_child() with
+the same layout. They are six sheet files, not one file placed six times: the copies differ
+in printed values (CR13/CR17/CR19 1N4140) and notes, which KiCad cannot vary per placement
+(user, 2026-11-21). The patent text does not describe FIG 5D; descriptions cite the figure
+and mark the rest as inferred.
+"""
+
+from oemsch import P, child, port, tap
 
 TITLE = 'FIG 5D - Butter warmer circuits #1-#6'
 SOURCE = 'US6098409 sheets 8-10 of 25 (PDF p9-11), FIG 5D-1/5D-2/5D-3'
-PAPER = 'A1'
+PAPER = 'A3'
+REDRAWN = True
 
-# MC2030 dual 1K digital pot, pins as printed. Blank rows only spread the pins out.
-# GND pin has no printed number: numbered 'G' here.
+_INF = 'Inferred from the circuit: '
+NSP = ('NSP = non-volatile set point (service manual SF p.66); the link to these parts is inferred')
+
+# MC2030 dual serial pot, pins as printed (the GND pin has no printed number: 'G').
+# Drawn by function: the serial lines (in and out) left, each pot's RI / WP / RF ends right.
 SYMBOLS = {
     'F5D_MC2030': {
-        'left': [('15', 'PROG'), None, None, ('14', 'READ'), None, None, ('2', 'SER.IN'),
-                 None, None, ('1', 'SER.CLK')],
-        'right': [('13', 'RIA'), None, None, ('10', 'WPA'), None, None, ('9', 'RFA'), None, None,
-                  ('4', 'RIB'), None, None, ('6', 'WFB'), None, None, ('7', 'RFB'), None, None,
-                  ('3', 'SER.OUT')],
+        'left': [('15', 'PROG'), None, ('14', 'READ'), None, ('1', 'SER.CLK'), None, ('2', 'SER.IN'),
+                 None, ('3', 'SER.OUT')],
+        'right': [('13', 'RIA'), None, ('10', 'WPA'), None, ('9', 'RFA'), None, None, None,
+                  ('4', 'RIB'), None, ('6', 'WFB'), None, ('7', 'RFB')],
         'top': [('16', 'VDD')],
         'bottom': [('G', 'GND')],
         'prefix': 'U',
@@ -126,8 +136,17 @@ CIRCUITS = [
                 'V51': 'SER.IN line enters from FIG 5D-2 (V39 SER.OUT); line is captioned "NSP_SERI"'}),
 ]
 
-CELL_W, CELL_H = 212, 210
-ORIGIN = (14, 32)
+# ── One butter warmer circuit per child sheet (cells; 1 cell = 1.27 mm) ──
+# Pot left; the P channel (op-amp pins 5/6/7) above, the R channel (2/3/1) below, each an
+# inverting stage: input resistor and the R_up/R_dn offset divider into the - input, two 1K
+# in series as feedback over the top, the pot wiper through an RC into the + input below,
+# the output through R_out and the diode to the off-page line.
+POT_AT = (60, 100)
+# printed off-page flags that no transcribed figure uses: a net label on the circuit's sheet
+LOCAL_FLAGS = {'NSP_SER5', 'NSP_SER8', 'BWK_5P'}
+OPAMP_X = 136
+CHANNEL_Y = {'P': 62, 'R': 122}
+DECOUPLE_Y = 182
 
 
 def _printed(ref):
@@ -136,111 +155,254 @@ def _printed(ref):
     return base if base != ref else None
 
 
-def _part(ref, value, kind, at, circuit, rot=0, pins=None, **extra):
-    note = circuit['notes'].get(ref)
-    return P(ref, value, kind, at=at, rot=rot, pins=pins, printed=_printed(ref), note=note,
-             **extra)
+def _part(c, key, kind, at, desc, rot=0, pins=None, **extra):
+    ref, value = c[key]
+    return P(ref, value, kind, at=at, rot=rot, pins=pins, printed=_printed(ref),
+             note=c['notes'].get(ref), desc=desc, **extra)
 
 
-def circuit_parts(c):
-    """Parts and wires for one butter warmer circuit, placed in its grid cell."""
-    ox = ORIGIN[0] + CELL_W * c['cell'][0]
-    oy = ORIGIN[1] + CELL_H * c['cell'][1]
-    n = c['num']
-    net = {k: f'5D{n}_{k}' for k in ('WPA', 'WFB', 'PREF', 'PPLUS', 'PFB', 'POUT', 'PD',
-                                      'RREF', 'RPLUS', 'RFB', 'ROUT', 'RD')}
-
-    def at(dx, dy):
-        return (ox + dx, oy + dy)
-
-    pot_note = c['notes'].get(c['pot'])
+def _channel(c, ch):
+    """Parts, wires, taps and label spots of one channel ('P' or 'R')."""
+    n, X, Y = c['num'], OPAMP_X, CHANNEL_Y[ch]
+    p = ch == 'P'
+    net = {k: f'5D{n}_{ch}{k}' for k in ('REF', 'PLUS', 'FB', 'OUT', 'D')}
+    wiper = f'5D{n}_' + ('WPA' if p else 'WFB')
+    k = {'in': 'r_in_p' if p else 'r_in_r', 'up': 'r_up_p' if p else 'r_up_r',
+         'dn': 'r_dn_p' if p else 'r_dn_r', 'fb1': 'r_fb1_p' if p else 'r_fb1_r',
+         'fb2': 'r_fb2_p' if p else 'r_fb2_r', 'out': 'r_out_p' if p else 'r_out_r',
+         'd': 'd_p' if p else 'd_r', 'w': 'r_wpa' if p else 'r_wfb',
+         'cp': 'c_plus' if p else 'c_rplus', 'rp': 'r_plus' if p else 'r_rplus'}
+    ref = {key: c[name][0] for key, name in k.items()}
+    amp = f"{c['opamp']}{'A' if p else 'B'}"
+    src, dst = (c['p_in'], c['p_out']) if p else (c['r_in'], c['r_out'])
+    pin = OPAMP_P if p else OPAMP_R
+    side = 'P' if p else 'R'
+    pot_end = 'A' if p else 'B'
+    supply = {'8': '+5VA', '4': '-15V'} if p else {}
     parts = [
-        P(c['pot'], 'MC2030', 'F5D_MC2030', at=at(40, 50),
-          pins={'15': 'NSP_PROG', '14': 'NSP_READ', '2': c['ser_in'], '1': 'NSP_CLK',
-                '13': '+5VA', '10': net['WPA'], '9': 'GND', '4': '+5VA', '6': net['WFB'],
-                '7': 'GND', '3': c['ser_out'], '16': '+5V', 'G': 'GND'},
-          note=('Dual 1K digital pot as printed. ' + (pot_note or '')).strip()),
-        _part(c['c_vdd'][0], c['c_vdd'][1], 'C', at(58, 22), c, pins={'1': '+5V', '2': 'GND'}),
-        _part(c['c_5va'][0], c['c_5va'][1], 'C', at(22, 85), c, pins={'1': '+5VA', '2': 'GND'}),
-        _part(c['c_pot'][0], c['c_pot'][1], 'C', at(64, 78), c, pins={'1': '+5VA', '2': 'GND'}),
-        # ── P section (op-amp pins 5/6/7) ──
-        _part(c['r_wpa'][0], c['r_wpa'][1], 'R', at(72, 38), c, rot=90,
-              pins={'1': net['WPA'], '2': net['PPLUS']}),
-        _part(c['c_plus'][0], c['c_plus'][1], 'C', at(92, 60), c,
-              pins={'1': net['PPLUS'], '2': 'GND'}),
-        _part(c['r_plus'][0], c['r_plus'][1], 'R', at(104, 60), c,
-              pins={'1': net['PPLUS'], '2': 'GND'}),
-        _part(c['r_in_p'][0], c['r_in_p'][1], 'R', at(98, 26), c, rot=90,
-              pins={'1': c['p_in'], '2': net['PREF']}),
-        _part(c['r_up_p'][0], c['r_up_p'][1], 'R', at(118, 10), c, rot=90,
-              pins={'1': '+5VA', '2': net['PREF']}),
-        _part(c['r_dn_p'][0], c['r_dn_p'][1], 'R', at(136, 10), c, rot=90,
-              pins={'1': net['PREF'], '2': 'GND'}),
-        _part(c['r_fb1_p'][0], c['r_fb1_p'][1], 'R', at(140, 26), c, rot=90,
-              pins={'1': net['PREF'], '2': net['PFB']}),
-        _part(c['r_fb2_p'][0], c['r_fb2_p'][1], 'R', at(155, 26), c, rot=90,
-              pins={'1': net['PFB'], '2': net['POUT']}),
-        _part(f"{c['opamp']}A", 'LT1124', 'OPAMP', at(130, 48), c, pinmap=OPAMP_P,
-              pins={'6': net['PREF'], '5': net['PPLUS'], '7': net['POUT'], '8': '+5VA',
-                    '4': '-15V'}) | {'printed': c['opamp']},
-        _part(c['c_neg'][0], c['c_neg'][1], 'C', at(140, 66), c, pins={'1': '-15V', '2': 'GND'}),
-        _part(c['r_out_p'][0], c['r_out_p'][1], 'R', at(158, 48), c, rot=90,
-              pins={'1': net['POUT'], '2': net['PD']}),
-        _part(c['d_p'][0], c['d_p'][1], 'D', at(176, 48), c,
-              pins={'1': net['PD'], '2': c['p_out']}),
-        # ── R section (op-amp pins 2/3/1) ──
-        _part(c['r_wfb'][0], c['r_wfb'][1], 'R', at(78, 130), c,
-              pins={'1': net['WFB'], '2': net['RPLUS']}),
-        _part(c['r_in_r'][0], c['r_in_r'][1], 'R', at(98, 160), c, rot=90,
-              pins={'1': c['r_in'], '2': net['RREF']}),
-        _part(c['r_up_r'][0], c['r_up_r'][1], 'R', at(118, 122), c, rot=90,
-              pins={'1': '+5VA', '2': net['RREF']}),
-        _part(c['r_dn_r'][0], c['r_dn_r'][1], 'R', at(136, 122), c, rot=90,
-              pins={'1': net['RREF'], '2': 'GND'}),
-        _part(c['r_fb1_r'][0], c['r_fb1_r'][1], 'R', at(140, 140), c, rot=90,
-              pins={'1': net['RREF'], '2': net['RFB']}),
-        _part(c['r_fb2_r'][0], c['r_fb2_r'][1], 'R', at(155, 140), c, rot=90,
-              pins={'1': net['RFB'], '2': net['ROUT']}),
-        _part(f"{c['opamp']}B", 'LT1124', 'OPAMP', at(130, 164), c, pinmap=OPAMP_R,
-              pins={'2': net['RREF'], '3': net['RPLUS'], '1': net['ROUT']}) | {'printed': c['opamp']},
-        _part(c['r_out_r'][0], c['r_out_r'][1], 'R', at(158, 164), c, rot=90,
-              pins={'1': net['ROUT'], '2': net['RD']}),
-        _part(c['d_r'][0], c['d_r'][1], 'D', at(176, 164), c,
-              pins={'1': net['RD'], '2': c['r_out']}),
-        _part(c['c_rplus'][0], c['c_rplus'][1], 'C', at(92, 184), c,
-              pins={'1': net['RPLUS'], '2': 'GND'}),
-        _part(c['r_rplus'][0], c['r_rplus'][1], 'R', at(104, 184), c,
-              pins={'1': net['RPLUS'], '2': 'GND'}),
+        _part(c, k['in'], 'R', (X - 21, Y - 30), _INF + f'input resistor from {src} into the {side}-channel '
+              'inverting input', rot=90, pins={'1': src, '2': net['REF']}),
+        _part(c, k['fb1'], 'R', (X - 11, Y - 30), _INF + f'{side}-channel feedback, first of two 1K in series '
+              '(output to inverting input)', rot=90, pins={'1': net['REF'], '2': net['FB']}),
+        _part(c, k['fb2'], 'R', (X + 7, Y - 30), _INF + f'{side}-channel feedback, second of two 1K in series',
+              rot=90, pins={'1': net['FB'], '2': net['OUT']}),
+        _part(c, k['up'], 'R', (X - 24, Y - 15), _INF + f'{side}-channel offset: +5VA to the inverting input',
+              pins={'1': '+5VA', '2': net['REF']}, text=(-8, -1)),
+        _part(c, k['dn'], 'R', (X - 24, Y - 5), _INF + f'{side}-channel offset: inverting input to ground '
+              '(divider with the +5VA resistor)', pins={'1': net['REF'], '2': 'GND'}, text=(-8, -1)),
+        P(amp, 'LT1124', 'OPAMP', at=(X, Y), pinmap=pin, text=(4, -9), printed=c['opamp'],
+          note=c['notes'].get(amp),
+          pins={pin['-']: net['REF'], pin['+']: net['PLUS'], pin['out']: net['OUT'], **supply},
+          desc=_INF + f'{side}-channel amplifier of butter warmer circuit #{n}: {src} (inverting, with '
+                      f'the offset divider) against the pot {pot_end} level (non-inverting); drives {dst}'),
+        _part(c, k['out'], 'R', (X + 30, Y), _INF + f'{side}-channel output series resistor', rot=90,
+              pins={'1': net['OUT'], '2': net['D']}),
+        _part(c, k['d'], 'D', (X + 48, Y), _INF + f'{side}-channel series diode from the output resistor to '
+              f'{dst} (direction as transcribed)', pins={'1': net['D'], '2': dst}, text=(0, -6)),
+        _part(c, k['w'], 'R', (X - 48, Y + 10), _INF + f'series resistor from the pot {pot_end} wiper into the '
+              f'{side}-channel non-inverting input', rot=90, pins={'1': wiper, '2': net['PLUS']}),
+        _part(c, k['cp'], 'C', (X - 36, Y + 15), _INF + f'filter capacitor on the {side}-channel '
+              'non-inverting input', pins={'1': net['PLUS'], '2': 'GND'}),
+        _part(c, k['rp'], 'R', (X - 24, Y + 15), _INF + f'{side}-channel non-inverting input to ground '
+              '(divides the wiper level with the series resistor)', pins={'1': net['PLUS'], '2': 'GND'}),
     ]
+    t = {name: f'{ch}{name}' for name in ('n1', 'n2', 'pp', 'o', 'o2')}
+    taps = [tap(t['n1'], net['REF'], (X - 16, Y - 2), facing='right'),
+            tap(t['n2'], net['REF'], (X - 16, Y - 10)),
+            tap(t['pp'], net['PLUS'], (X - 12, Y + 10), facing='left'),
+            tap(t['o'], net['OUT'], (X + 16, Y), facing='right'),
+            tap(t['o2'], net['OUT'], (X + 16, Y - 30))]
     wires = [
-        (f"{c['pot']}.10", f"{c['r_wpa'][0]}.1"),
-        (f"{c['r_up_p'][0]}.2", f"{c['r_dn_p'][0]}.1"),
-        (f"{c['r_fb1_p'][0]}.2", f"{c['r_fb2_p'][0]}.1"),
-        (f"{c['opamp']}A.7", f"{c['r_out_p'][0]}.1"),
-        (f"{c['r_out_p'][0]}.2", f"{c['d_p'][0]}.1"),
-        (f"{c['opamp']}B.1", f"{c['r_out_r'][0]}.1"),
-        (f"{c['r_up_r'][0]}.2", f"{c['r_dn_r'][0]}.1"),
-        (f"{c['r_fb1_r'][0]}.2", f"{c['r_fb2_r'][0]}.1"),
-        (f"{c['r_out_r'][0]}.2", f"{c['d_r'][0]}.1"),
-        (f"{c['c_plus'][0]}.1", f"{c['r_plus'][0]}.1"),
-        (f"{c['c_rplus'][0]}.1", f"{c['r_rplus'][0]}.1"),
+        (f"{ref['in']}.2", f"{ref['fb1']}.1"), (f"{ref['fb1']}.1", f"@{t['n2']}"),
+        (f"@{t['n2']}", f"@{t['n1']}"), (f"@{t['n1']}", f"{amp}.{pin['-']}"),
+        (f"{ref['up']}.2", f"{ref['dn']}.1"), (f"{ref['up']}.2", f"@{t['n2']}"),
+        (f"{ref['fb1']}.2", f"{ref['fb2']}.1"), (f"{ref['fb2']}.2", f"@{t['o2']}"),
+        (f"@{t['o2']}", f"@{t['o']}"), (f"{amp}.{pin['out']}", f"@{t['o']}"),
+        (f"@{t['o']}", f"{ref['out']}.1"), (f"{ref['out']}.2", f"{ref['d']}.1"),
+        (f"{amp}.{pin['+']}", f"@{t['pp']}"), (f"@{t['pp']}", f"{ref['rp']}.1"),
+        (f"{ref['rp']}.1", f"{ref['cp']}.1"), (f"{ref['cp']}.1", f"{ref['w']}.2"),
     ]
-    notes = [(f"BUTTER WARMER CIRCUIT #{n}  (FIG {c['sheet']})", ox + 20, oy + 196)]
-    return parts, wires, notes
+    names = {net['REF']: f"@{t['n1']}", net['PLUS']: f"@{t['pp']}", net['FB']: f"{ref['fb1']}.2",
+             net['OUT']: f"@{t['o']}", net['D']: f"{ref['out']}.2",
+             wiper: f"{c['pot']}.{'10' if p else '6'}"}
+    return parts, wires, taps, names, (src, dst, ref['in'], ref['d'])
 
 
-PARTS, WIRES, NOTES = [], [], []
-for _circuit in CIRCUITS:
-    _parts, _wires, _notes = circuit_parts(_circuit)
-    PARTS += _parts
-    WIRES += _wires
-    NOTES += _notes
+def bw_child(c):
+    """Child sheet for one butter warmer circuit; its block sits in the figure's 2 x 3 grid."""
+    n, col, row = c['num'], *c['cell']
+    pot = c['pot']
+    px, py = POT_AT
+    parts = [
+        P(pot, 'MC2030', 'F5D_MC2030', at=POT_AT, printed=None, note=('Dual 1K digital pot as printed. '
+          + (c['notes'].get(pot) or '')).strip(),
+          pins={'15': 'NSP_PROG', '14': 'NSP_READ', '2': c['ser_in'], '1': 'NSP_CLK',
+                '13': '+5VA', '10': f'5D{n}_WPA', '9': 'GND', '4': '+5VA', '6': f'5D{n}_WFB',
+                '7': 'GND', '3': c['ser_out'], '16': '+5V', 'G': 'GND'},
+          probable='unidentified dual serial digital potentiometer (MC2030 family; dual 1K)',
+          desc=_INF + f'dual serial digital pot of butter warmer circuit #{n}, loaded over the NSP lines; '
+                      'pot A (+5VA to GND) sets the P channel, pot B the R channel. ' + NSP),
+    ]
+    wires, taps, names, io = [], [], {}, {}
+    for ch in ('P', 'R'):
+        ch_parts, ch_wires, ch_taps, ch_names, io[ch] = _channel(c, ch)
+        parts += ch_parts
+        wires += ch_wires
+        taps += ch_taps
+        names.update(ch_names)
+    wires += [(f'{pot}.10', f"{c['r_wpa'][0]}.1", [(px + 20, py - 8), (px + 20, CHANNEL_Y['P'] + 10)]),
+              (f'{pot}.6', f"{c['r_wfb'][0]}.1", [(px + 20, py + 8), (px + 20, CHANNEL_Y['R'] + 10)])]
+    caps = [('c_vdd', '+5V', 'pot +5V (VDD) supply decoupling'),
+            ('c_5va', '+5VA', '+5VA supply decoupling'),
+            ('c_pot', '+5VA', '+5VA supply decoupling'),
+            ('c_neg', '-15V', f"{c['opamp']} -15V supply decoupling")]
+    for index, (key, rail, text) in enumerate(caps):
+        parts.append(_part(c, key, 'C', (40 + 13 * index, DECOUPLE_Y), _INF + text,
+                           pins={'1': rail, '2': 'GND'}))
+    wires += [(f"{c[a][0]}.2", f"{c[b][0]}.2") for a, b in zip(['c_vdd', 'c_5va', 'c_pot'],
+                                                               ['c_5va', 'c_pot', 'c_neg'])]
+    names['GND'] = f"{c['c_vdd'][0]}.2"
 
-NOTES += [
-    ('Serial chain (traced across sheet match lines): NSP_SERI -> V9 -> V7 -> V22 -> NSP_SER5'
-     '   and   NSP_SERI -> V24 -> V39 -> V51 -> NSP_SER8', 14, 444),
-    ('SER.IN of V7/V39/V22/V51 is a line from the previous sheet captioned "NSP_SERI"; '
-     'modelled as the wire from the previous pot SER.OUT (nets 5D_SER_*).', 14, 448),
-    ('Printed anomalies kept: circuit #1 output BWT_1P (= its input name); circuit #4 input BWH_4P '
-     '(= its output name); circuit #5 output BWK_5P.', 14, 452),
+    (p_in, p_out, rin_p, d_p), (r_in, r_out, rin_r, d_r) = io['P'], io['R']
+    nsp = [port('NSP_PROG', 'input', on=f'{pot}.15', extra=2, side='left'),
+           port('NSP_READ', 'input', on=f'{pot}.14', extra=2, side='left'),
+           port('NSP_CLK', 'input', on=f'{pot}.1', extra=2, side='left')]
+    ser_in = port(c['ser_in'], 'input', on=f'{pot}.2', extra=2, side='left')
+    long_nets = set()
+    # row 2: SER.OUT level with the next block's SER.IN (left pin 4), so the chain is straight
+    ser_out = [port(c['ser_out'], 'output', on=f'{pot}.3', extra=2, side='right',
+                    slot=4 if row == 1 else None)]
+    if c['ser_out'] in LOCAL_FLAGS:
+        ser_out = []
+        long_nets.add(c['ser_out'])
+    lines = []  # (net, shape, endpoint, side) of the off-sheet heater lines
+    for src, dst, r_in_ref, d_ref in ((p_in, p_out, rin_p, d_p), (r_in, r_out, rin_r, d_r)):
+        if src == dst:  # printed with one name at both ends (a short as drawn)
+            lines.append(port(src, 'passive', on=f'{r_in_ref}.1', extra=2, side='left'))
+            long_nets.add(src)
+        else:
+            lines.append(port(src, 'input', on=f'{r_in_ref}.1', extra=2, side='left'))
+            if dst in LOCAL_FLAGS:  # a net label clear of the diode's text
+                long_nets.add(dst)
+                taps.append(tap('flag', dst, (OPAMP_X + 57, CHANNEL_Y['P' if dst == p_out else 'R']),
+                                facing='right'))
+                wires.append((f'{d_ref}.2', '@flag'))
+                names[dst] = '@flag'
+            else:
+                lines.append(port(dst, 'output', on=f'{d_ref}.2', extra=2, side='right'))
+    left = [p for p in lines if p.side == 'left']
+    right = [p for p in lines if p.side == 'right']
+    # block pin order: the NSP lines nest between the two rows of blocks on the figure page
+    if row == 0:
+        ports = [ser_in] + left + nsp + ser_out + right
+    else:
+        ports = nsp[::-1] + [ser_in] + left + right + ser_out
+    notes = [(f"BUTTER WARMER CIRCUIT #{n}  (FIG {c['sheet']})", 15, 30),
+             (f"{pot} / {c['opamp']} DECOUPLING CAPACITORS", 32, DECOUPLE_Y - 12)]
+    shorts = [net for net in long_nets if net not in LOCAL_FLAGS]
+    flags = sorted(long_nets & LOCAL_FLAGS)
+    text = [f'{net} is printed at both the input resistor and the diode: the two are one net as drawn.'
+            for net in shorts]
+    text += [f'{net} is printed as an off-page flag; no transcribed figure uses it.' for net in flags]
+    if text:
+        notes.append(('\n'.join(text), 15, DECOUPLE_Y + 14))
+    return child(f'bw{n}', f'Butter warmer circuit #{n} ({pot}, {c["opamp"]})', short=f'BW{n}',
+                 paper='A3', at=(BLOCK_X[col], BLOCK_Y[row]), width=45.72, parts=parts, wires=wires,
+                 ports=ports, taps=taps, names=names, long_nets=long_nets, notes=notes)
+
+
+# ── Figure page: 2 rows x 3 columns as in the patent (5D-1, 5D-2, 5D-3) ──
+BLOCK_X = [80, 168, 256]
+BLOCK_Y = [40, 84]
+LINE_ROW = 76  # NSP line labels, in the gap between the rows
+
+CHILDREN = [bw_child(c) for c in CIRCUITS]
+_BY_NUM = {c['num']: c for c in CIRCUITS}
+
+PAGE_TAPS, PAGE_WIRES, PORTS = [], [], []
+PAGE_NAMES = {c['ser_out']: None for c in CIRCUITS if c['ser_out'].startswith('5D_SER')}
+PAGE_LONG_NETS = {'NSP_PROG', 'NSP_READ', 'NSP_CLK'}
+for col in range(3):
+    top, bottom = (f"bw{c['num']}" for c in sorted(CIRCUITS, key=lambda c: c['cell'][1])
+                   if c['cell'][0] == col)
+    bx = BLOCK_X[col]
+    for net, dx in (('NSP_PROG', -30), ('NSP_READ', -18), ('NSP_CLK', -6)):
+        x = bx + dx
+        if col == 0:
+            end = f'@{net}'
+            PORTS.append(port(net, 'input', at=(x, LINE_ROW), facing='left'))
+        else:
+            end = f'@{net}{col}'
+            PAGE_TAPS.append(tap(f'{net}{col}', net, (x, LINE_ROW), facing='left'))
+            PAGE_NAMES.setdefault(net, []).append(end)
+        PAGE_WIRES += [(f'{top}:{net}', end, 'hv'), (f'{bottom}:{net}', end, 'hv')]
+# serial chains: NSP_SERI -> #1 -> #2 -> #3 -> NSP_SER5 and NSP_SERI -> #4 -> #5 -> #6 -> NSP_SER8
+PORTS.append(port('NSP_SERI', 'input', at=(28, 44), facing='left'))
+PAGE_TAPS.append(tap('seri', 'NSP_SERI', (34, 44)))
+PAGE_WIRES += [('@NSP_SERI', '@seri'), ('@seri', 'bw1:NSP_SERI'), ('@seri', 'bw4:NSP_SERI', [(34, 100)])]
+for a, b in ((1, 2), (2, 3)):
+    PAGE_WIRES.append((f"bw{a}:{_BY_NUM[a]['ser_out']}", f"bw{b}:{_BY_NUM[b]['ser_in']}"))
+for a, b in ((4, 5), (5, 6)):
+    PAGE_WIRES.append((f"bw{a}:{_BY_NUM[a]['ser_out']}", f"bw{b}:{_BY_NUM[b]['ser_in']}"))
+# heater lines, in circuit order: a figure port on each block pin (a flag no other figure
+# uses is a net label on the circuit's sheet instead)
+for c in sorted(CIRCUITS, key=lambda c: c['num']):
+    for net in dict.fromkeys((c['p_in'], c['r_in'], c['p_out'], c['r_out'])):
+        if net in LOCAL_FLAGS:
+            continue
+        both = net in (c['p_in'], c['r_in']) and net in (c['p_out'], c['r_out'])
+        shape = 'passive' if both else 'input' if net in (c['p_in'], c['r_in']) else 'output'
+        PORTS.append(port(net, shape, on=f"bw{c['num']}:{net}", extra=2))
+
+NOTES = [
+    ('Serial chains: NSP_SERI -> #1 (V9) -> #2 (V7) -> #3 (V22) -> NSP_SER5   and   '
+     'NSP_SERI -> #4 (V24) -> #5 (V39) -> #6 (V51) -> NSP_SER8.\n'
+     'The SER.IN lines of #2, #3, #5 and #6 come from the previous sheet, captioned "NSP_SERI"; drawn as the '
+     'wire from the previous pot SER.OUT.\n'
+     'Printed anomalies kept: #1 output BWT_1P (= its input), #4 input BWH_4P (= its output), #5 output BWK_5P.\n'
+     'Signal roles are inferred; the patent text does not describe FIG 5D.', 15, 126),
 ]
+
+_SIDES = {'P': 'P (op-amp pins 5/6/7)', 'R': 'R (op-amp pins 2/3/1)'}
+
+
+def _descriptions():
+    d = {
+        'NSP_PROG': 'Patent: FIG 5D label NSP_PROG (also 5B, 5E). Inferred: program strobe of the NSP serial pots',
+        'NSP_READ': 'Patent: FIG 5D label NSP_READ (also 5B, 5E). Inferred: read strobe of the NSP serial pots',
+        'NSP_CLK': 'Patent: FIG 5D label NSP_CLK (also 5B, 5E, 5G). Inferred: serial clock of the NSP pots',
+        'NSP_SERI': 'Patent: FIG 5D label NSP_SERI (from FIG 5B U29 SER.OUT; also 5E). Inferred: serial data '
+                    'into the first pot of each chain (V9, V24)',
+        'NSP_SER5': 'Patent: FIG 5D off-page flag NSP_SER5 on V22 SER.OUT (end of the #1-#2-#3 chain); no '
+                    'transcribed figure uses it',
+        'NSP_SER8': 'Patent: FIG 5D off-page flag NSP_SER8 on V51 SER.OUT (end of the #4-#5-#6 chain); no '
+                    'transcribed figure uses it',
+    }
+    for c in CIRCUITS:
+        n = c['num']
+        if c['ser_out'].startswith('5D_SER'):
+            d[c['ser_out']] = (f"Patent: FIG 5D serial line from {c['pot']} SER.OUT to the next pot's SER.IN "
+                               '(continued across the sheet match line, captioned "NSP_SERI")')
+        for ch, src, dst in (('P', c['p_in'], c['p_out']), ('R', c['r_in'], c['r_out'])):
+            if src == dst:
+                d[src] = (f'Patent: FIG 5D label {src}, printed at both the input resistor and the output diode of '
+                          f'circuit #{n} channel {ch} (a short as drawn). Role unknown')
+            else:
+                d[src] = (f'Patent: FIG 5D label {src} (also FIG 5A/5H). Inferred: butter warmer #{n} sensor line '
+                          f'into channel {ch} through its input resistor; role unknown')
+                d[dst] = (f'Patent: FIG 5D label {dst}. Inferred: butter warmer #{n} channel {ch} drive output '
+                          '(through the series resistor and diode); role unknown')
+            pre = f'5D{n}_{ch}'
+            d[pre + 'REF'] = f'Inferred from the circuit: #{n} channel {ch} inverting input (input, offset, feedback)'
+            d[pre + 'PLUS'] = f'Inferred from the circuit: #{n} channel {ch} non-inverting input (filtered pot level)'
+            d[pre + 'FB'] = f'Inferred from the circuit: #{n} channel {ch} node between the two 1K feedback resistors'
+            d[pre + 'OUT'] = f'Inferred from the circuit: #{n} channel {ch} op-amp output'
+            d[pre + 'D'] = f'Inferred from the circuit: #{n} channel {ch} node between the output resistor and diode'
+        d[f'5D{n}_WPA'] = f"Inferred from the circuit: {c['pot']} pot A wiper, to the channel P + input"
+        d[f'5D{n}_WFB'] = f"Inferred from the circuit: {c['pot']} pot B wiper (printed WFB), to the channel R + input"
+    d['BWK_5P'] = ('Patent: FIG 5D off-page flag BWK_5P on the circuit #5 channel P diode (BWH_5P expected); '
+                   'no transcribed figure uses it')
+    return d
+
+
+NET_DESCRIPTIONS = _descriptions()

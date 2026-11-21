@@ -10,17 +10,6 @@
 		(company "OEM controller - patent transcription")
 	)
 	(lib_symbols)
-	(text "NSP lines -> POT (U36 pot, U54 buffer -> OF_SET, OF_OFFSET) and LATCH (U29 -> CST_DEL, RAW_SHUTO_T-).\nCST_2 / CST_1 -> SWITCH (U43, on CST_DEL) -> SUM (U42, with OF_SET and +10V) -> INTEG (U35) -> CS_CTRL.\nSignal roles are inferred; the patent text does not describe FIG 5B."
-		(exclude_from_sim no)
-		(at 19.05 158.75 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "260e7118-4b8f-55f9-af7f-c5eaa0c94f22")
-	)
 	(text "FIG 5B - CS_CTRL loop, NSP pots, OF_SET\nSource: US6098409 sheet 5 of 25 (PDF p6), FIG 5B"
 		(exclude_from_sim no)
 		(at 15 18 0)
@@ -30,333 +19,24 @@
 			)
 			(justify left top)
 		)
-		(uuid "4e2fe6d5-3b6a-524a-8831-6934d9c068bd")
+		(uuid "1f76ce75-1ffd-5dfa-a907-c19bf0d1a87f")
+	)
+	(text "NSP lines -> POT (U36 pot, U54 buffer -> OF_SET, OF_OFFSET) and LATCH (U29 -> CST_DEL, RAW_SHUTO_T-).\nCST_2 / CST_1 -> SWITCH (U43, on CST_DEL) -> SUM (U42, with OF_SET and +10V) -> INTEG (U35) -> CS_CTRL.\nSignal roles are inferred; the patent text does not describe FIG 5B."
+		(exclude_from_sim no)
+		(at 19.05 158.75 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "a3ddc83d-c19c-5051-964a-67875cb0b3b0")
 	)
 	(junction
 		(at 127 55.88)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "37579d0a-0bf1-501e-a6da-7acb9ed67103")
-	)
-	(wire
-		(pts
-			(xy 170.18 60.96) (xy 170.18 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b97a5d6-1dbf-5e7e-967b-43bd63482bcc")
-	)
-	(wire
-		(pts
-			(xy 81.28 71.12) (xy 88.9 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0e117593-3e2c-5b4d-93b5-ae730d000e9e")
-	)
-	(wire
-		(pts
-			(xy 119.38 119.38) (xy 127 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1b9a2fc2-e2d0-5e83-879a-f2b411eb0cd9")
-	)
-	(wire
-		(pts
-			(xy 162.56 88.9) (xy 170.18 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2c71b704-32ad-5f6f-92b9-b4c050967f50")
-	)
-	(wire
-		(pts
-			(xy 127 99.06) (xy 127 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e0cb43d-e54a-5b8f-9c33-a63eb2a584b2")
-	)
-	(wire
-		(pts
-			(xy 38.1 134.62) (xy 88.9 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "315fc6ea-b07b-52e0-890d-cfffa7c0f48d")
-	)
-	(wire
-		(pts
-			(xy 81.28 71.12) (xy 81.28 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
 		(uuid "33dddbe4-ae43-5988-93fa-41eb453d9706")
-	)
-	(wire
-		(pts
-			(xy 208.28 55.88) (xy 210.82 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "361c0879-9c56-5b3a-86b1-3ba7047a57ff")
-	)
-	(wire
-		(pts
-			(xy 127 99.06) (xy 129.54 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d12a2b9-245d-52e7-b1be-37ea6a7112d6")
-	)
-	(wire
-		(pts
-			(xy 170.18 60.96) (xy 177.8 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4b026c33-b671-50a1-a96f-b714b7841ce4")
-	)
-	(wire
-		(pts
-			(xy 38.1 55.88) (xy 38.1 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4b99ccc0-1cda-5657-908f-8cfca696cf54")
-	)
-	(wire
-		(pts
-			(xy 66.04 66.04) (xy 66.04 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4dfb8f25-d03e-508b-a4a2-bd4ac4d1bb56")
-	)
-	(wire
-		(pts
-			(xy 66.04 66.04) (xy 86.36 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "53a9dd10-98db-591d-9b04-76785f14b87f")
-	)
-	(wire
-		(pts
-			(xy 127 43.18) (xy 132.08 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5cc2063b-0e2c-5e03-8a2f-984ed286f091")
-	)
-	(wire
-		(pts
-			(xy 86.36 66.04) (xy 88.9 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "80f3a850-86ef-5764-871b-acf9ac441287")
-	)
-	(wire
-		(pts
-			(xy 38.1 95.25) (xy 38.1 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8ad78bd6-6666-598f-8b6f-7f196077cf29")
-	)
-	(wire
-		(pts
-			(xy 121.92 88.9) (xy 132.08 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b9578cd-007b-5ed2-a1cf-eabc662c9938")
-	)
-	(wire
-		(pts
-			(xy 127 55.88) (xy 177.8 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8dcb74ac-b79f-5abc-8c28-3f285ec5d657")
-	)
-	(wire
-		(pts
-			(xy 119.38 124.46) (xy 134.62 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "abd876d3-7ff0-5e3e-bf87-439f1bedabf4")
-	)
-	(wire
-		(pts
-			(xy 254 55.88) (xy 266.7 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b1d08159-9d10-5fe5-b9d1-c745721f1f0a")
-	)
-	(wire
-		(pts
-			(xy 121.92 93.98) (xy 132.08 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4782af2-87f8-5575-ba20-dab214cab664")
-	)
-	(wire
-		(pts
-			(xy 129.54 99.06) (xy 132.08 99.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b74f3c00-8210-569e-b0bc-0b1c02f60314")
-	)
-	(wire
-		(pts
-			(xy 58.42 60.96) (xy 88.9 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b78c47d4-9904-5fdf-b503-752800d77d16")
-	)
-	(wire
-		(pts
-			(xy 81.28 95.25) (xy 81.28 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b9dd1aab-3988-552e-945c-d911b66c730d")
-	)
-	(wire
-		(pts
-			(xy 38.1 55.88) (xy 88.9 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba12d6f5-655f-547d-9e0a-b346a8d5d8bb")
-	)
-	(wire
-		(pts
-			(xy 58.42 95.25) (xy 58.42 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba696e8e-379b-537c-bf93-cd78bda76e2b")
-	)
-	(wire
-		(pts
-			(xy 127 43.18) (xy 127 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc4dbf2e-283e-5ecd-924f-04c5005e5b74")
-	)
-	(wire
-		(pts
-			(xy 119.38 55.88) (xy 127 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d36a753a-fd24-535e-bc43-07da3f783545")
-	)
-	(wire
-		(pts
-			(xy 58.42 60.96) (xy 58.42 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d8e97660-ea5c-54da-9efd-f17ce673a474")
-	)
-	(wire
-		(pts
-			(xy 210.82 55.88) (xy 223.52 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e7d25f31-21ce-5bf6-92a2-f751157c8a8d")
-	)
-	(wire
-		(pts
-			(xy 66.04 124.46) (xy 88.9 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ee103fea-d833-5c82-91a2-3dbea3073512")
-	)
-	(wire
-		(pts
-			(xy 81.28 119.38) (xy 88.9 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eff38fe8-f6ff-5017-8d88-a00a1eb49df1")
 	)
 	(wire
 		(pts
@@ -366,17 +46,117 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f12ae49f-1c5b-5613-b2a9-3210bcc9ff6d")
+		(uuid "0e117593-3e2c-5b4d-93b5-ae730d000e9e")
 	)
 	(wire
 		(pts
-			(xy 58.42 129.54) (xy 88.9 129.54)
+			(xy 129.54 99.06) (xy 132.08 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f3ea1080-0a12-5b38-8fd8-d85463032ac8")
+		(uuid "10bba99b-b7ae-572c-ad1a-f9d3a8905f71")
+	)
+	(wire
+		(pts
+			(xy 127 43.18) (xy 132.08 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b9a2fc2-e2d0-5e83-879a-f2b411eb0cd9")
+	)
+	(wire
+		(pts
+			(xy 121.92 93.98) (xy 132.08 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "26425cc0-5e68-578d-b57b-03b7aa214b61")
+	)
+	(wire
+		(pts
+			(xy 121.92 88.9) (xy 132.08 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27916234-ad53-5648-b9f7-727b12f803e1")
+	)
+	(wire
+		(pts
+			(xy 127 55.88) (xy 177.8 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c71b704-32ad-5f6f-92b9-b4c050967f50")
+	)
+	(wire
+		(pts
+			(xy 66.04 66.04) (xy 66.04 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "315fc6ea-b07b-52e0-890d-cfffa7c0f48d")
+	)
+	(wire
+		(pts
+			(xy 86.36 66.04) (xy 88.9 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "361c0879-9c56-5b3a-86b1-3ba7047a57ff")
+	)
+	(wire
+		(pts
+			(xy 210.82 55.88) (xy 223.52 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d12a2b9-245d-52e7-b1be-37ea6a7112d6")
+	)
+	(wire
+		(pts
+			(xy 162.56 88.9) (xy 170.18 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "436d5284-e2a1-55c0-a42e-ae14bb58e9eb")
+	)
+	(wire
+		(pts
+			(xy 66.04 124.46) (xy 88.9 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b026c33-b671-50a1-a96f-b714b7841ce4")
+	)
+	(wire
+		(pts
+			(xy 81.28 95.25) (xy 81.28 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b99ccc0-1cda-5657-908f-8cfca696cf54")
 	)
 	(wire
 		(pts
@@ -386,7 +166,271 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f845246d-889b-5751-aa43-936fc10fcf87")
+		(uuid "4dfb8f25-d03e-508b-a4a2-bd4ac4d1bb56")
+	)
+	(wire
+		(pts
+			(xy 38.1 55.88) (xy 88.9 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f6b7907-7d1b-50cc-b43c-0f238e9a3385")
+	)
+	(wire
+		(pts
+			(xy 119.38 124.46) (xy 134.62 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53a9dd10-98db-591d-9b04-76785f14b87f")
+	)
+	(wire
+		(pts
+			(xy 81.28 71.12) (xy 81.28 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5cc2063b-0e2c-5e03-8a2f-984ed286f091")
+	)
+	(wire
+		(pts
+			(xy 58.42 129.54) (xy 88.9 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80f3a850-86ef-5764-871b-acf9ac441287")
+	)
+	(wire
+		(pts
+			(xy 127 43.18) (xy 127 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ad78bd6-6666-598f-8b6f-7f196077cf29")
+	)
+	(wire
+		(pts
+			(xy 119.38 55.88) (xy 127 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b9578cd-007b-5ed2-a1cf-eabc662c9938")
+	)
+	(wire
+		(pts
+			(xy 66.04 66.04) (xy 86.36 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8dcb74ac-b79f-5abc-8c28-3f285ec5d657")
+	)
+	(wire
+		(pts
+			(xy 127 99.06) (xy 129.54 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9415556e-b7d7-5a51-b324-db099758f7c4")
+	)
+	(wire
+		(pts
+			(xy 38.1 95.25) (xy 38.1 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abd876d3-7ff0-5e3e-bf87-439f1bedabf4")
+	)
+	(wire
+		(pts
+			(xy 81.28 119.38) (xy 88.9 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1d08159-9d10-5fe5-b9d1-c745721f1f0a")
+	)
+	(wire
+		(pts
+			(xy 208.28 55.88) (xy 210.82 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4782af2-87f8-5575-ba20-dab214cab664")
+	)
+	(wire
+		(pts
+			(xy 254 55.88) (xy 266.7 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b74f3c00-8210-569e-b0bc-0b1c02f60314")
+	)
+	(wire
+		(pts
+			(xy 119.38 119.38) (xy 127 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b78c47d4-9904-5fdf-b503-752800d77d16")
+	)
+	(wire
+		(pts
+			(xy 58.42 60.96) (xy 88.9 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba12d6f5-655f-547d-9e0a-b346a8d5d8bb")
+	)
+	(wire
+		(pts
+			(xy 170.18 60.96) (xy 170.18 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba696e8e-379b-537c-bf93-cd78bda76e2b")
+	)
+	(wire
+		(pts
+			(xy 170.18 60.96) (xy 177.8 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d36a753a-fd24-535e-bc43-07da3f783545")
+	)
+	(wire
+		(pts
+			(xy 127 99.06) (xy 127 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d8e97660-ea5c-54da-9efd-f17ce673a474")
+	)
+	(wire
+		(pts
+			(xy 81.28 71.12) (xy 88.9 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7d25f31-21ce-5bf6-92a2-f751157c8a8d")
+	)
+	(wire
+		(pts
+			(xy 38.1 55.88) (xy 38.1 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ee103fea-d833-5c82-91a2-3dbea3073512")
+	)
+	(wire
+		(pts
+			(xy 38.1 134.62) (xy 88.9 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eff38fe8-f6ff-5017-8d88-a00a1eb49df1")
+	)
+	(wire
+		(pts
+			(xy 58.42 95.25) (xy 58.42 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f12ae49f-1c5b-5613-b2a9-3210bcc9ff6d")
+	)
+	(wire
+		(pts
+			(xy 58.42 60.96) (xy 58.42 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f3ea1080-0a12-5b38-8fd8-d85463032ac8")
+	)
+	(label "CST_DEL"
+		(at 129.54 99.06 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3cf9e690-45b2-5f42-80ff-0c2f7c873429")
+		(property "Description" "Patent: FIG 5B label CST_DEL. Inferred from the circuit: U29 latch output O1, turns both U43 switches on"
+			(at 129.54 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "5B_U42_OUT"
+		(at 210.82 55.88 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5c2f2bc4-94d0-5091-b4fe-14b377921257")
+		(property "Description" "Inferred from the circuit: U42 sum output, into the U35 integrator through R205"
+			(at 210.82 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 	)
 	(label "5B_SW_OUT"
 		(at 170.18 73.66 180)
@@ -396,7 +440,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "2b365640-3111-5e61-a381-84d701af13c0")
+		(uuid "729d96e7-80a8-5c50-b1fe-5d00eefbc019")
 		(property "Description" "Inferred from the circuit: joined U43 switch outputs (D), into the U42 sum through R212"
 			(at 170.18 73.66 0)
 			(hide yes)
@@ -418,7 +462,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "88c97003-d203-572b-a46c-2f2d61098543")
+		(uuid "de247c01-6575-5c45-85d7-96e729a1f0b7")
 		(property "Description" "Patent: FIG 5B label NSP_SER0 (read from \"NSP_SERO\"); no other transcribed figure uses it. Inferred: serial data into U36 and U29"
 			(at 86.36 66.04 0)
 			(hide yes)
@@ -432,73 +476,6 @@
 			)
 		)
 	)
-	(label "5B_U42_OUT"
-		(at 210.82 55.88 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8cc7cd44-c9fb-5c05-af82-94a107ca617b")
-		(property "Description" "Inferred from the circuit: U42 sum output, into the U35 integrator through R205"
-			(at 210.82 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "CST_DEL"
-		(at 129.54 99.06 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "e4c5b38e-92a0-5bdd-9717-9bc0ea2f082f")
-		(property "Description" "Patent: FIG 5B label CST_DEL. Inferred from the circuit: U29 latch output O1, turns both U43 switches on"
-			(at 129.54 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "NSP_SERI"
-		(shape output)
-		(at 134.62 129.54 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1f76ce75-1ffd-5dfa-a907-c19bf0d1a87f")
-		(property "Description" "Patent: FIG 5B off-page flag NSP_SERI on U29 SER.OUT (also 5D, 5E). Inferred: the serial chain continued to the FIG 5D/5E devices"
-			(at 134.62 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
 	(hierarchical_label "NSP_READ"
 		(shape input)
 		(at 58.42 95.25 180)
@@ -508,7 +485,7 @@
 			)
 			(justify right)
 		)
-		(uuid "3cf9e690-45b2-5f42-80ff-0c2f7c873429")
+		(uuid "0b97a5d6-1dbf-5e7e-967b-43bd63482bcc")
 		(property "Description" "Patent: FIG 5B label NSP_READ (also 5D, 5E). Inferred: read strobe of the NSP serial devices (U36 READ, U29 ~READ)"
 			(at 58.42 95.25 0)
 			(hide yes)
@@ -522,18 +499,18 @@
 			)
 		)
 	)
-	(hierarchical_label "CST_1"
+	(hierarchical_label "NSP_PROG"
 		(shape input)
-		(at 121.92 93.98 180)
+		(at 38.1 95.25 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "4e7368f0-c234-5532-aa88-6dd995df347d")
-		(property "Description" "Patent: FIG 5B off-page flag CST_1 (also FIG 5A J5A2 pin 1 / J5A3 pin 2, 5H, 6C). Inferred: an off-board line switched by U43 switch 2 into the U42 sum; role unknown"
-			(at 121.92 93.98 0)
+		(uuid "2e0cb43d-e54a-5b8f-9c33-a63eb2a584b2")
+		(property "Description" "Patent: FIG 5B label NSP_PROG (also 5D, 5E). Inferred: program strobe of the NSP serial devices (U36 PROG, U29 ~PROG)"
+			(at 38.1 95.25 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -554,7 +531,7 @@
 			)
 			(justify left)
 		)
-		(uuid "5c2f2bc4-94d0-5091-b4fe-14b377921257")
+		(uuid "37579d0a-0bf1-501e-a6da-7acb9ed67103")
 		(property "Description" "Patent: FIG 5B off-page flag OF_SET, also used on FIG 5C (U46 through R210). Inferred: U54-buffered U36 pot A level, also summed into U42 through R213"
 			(at 132.08 43.18 0)
 			(hide yes)
@@ -568,64 +545,18 @@
 			)
 		)
 	)
-	(hierarchical_label "NSP_CLK"
-		(shape input)
-		(at 81.28 95.25 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "729d96e7-80a8-5c50-b1fe-5d00eefbc019")
-		(property "Description" "Patent: FIG 5B label NSP_CLK (also 5D, 5E, 5G). Inferred: serial clock of the NSP devices"
-			(at 81.28 95.25 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "CST_2"
-		(shape input)
-		(at 121.92 88.9 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "81785f41-4f3d-56db-ad7b-0791468cfbf8")
-		(property "Description" "Patent: FIG 5B off-page flag CST_2 (also FIG 5A J5A2 pin 3 / J5A3 pin 7, 6C). Inferred: an off-board line switched by U43 switch 1 into the U42 sum; role unknown"
-			(at 121.92 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "RAW_SHUTO_T-"
+	(hierarchical_label "NSP_SERI"
 		(shape output)
-		(at 134.62 124.46 0)
+		(at 134.62 129.54 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "a3ddc83d-c19c-5051-964a-67875cb0b3b0")
-		(property "Description" "Patent: FIG 5B off-page flag RAW_SHUTO_T- on U29 O3 (printed RAM_SHUTO_T- on 5E). Inferred: latched shut-off request, active low, ORed into SHUTO_T on FIG 5E"
-			(at 134.62 124.46 0)
+		(uuid "4e7368f0-c234-5532-aa88-6dd995df347d")
+		(property "Description" "Patent: FIG 5B off-page flag NSP_SERI on U29 SER.OUT (also 5D, 5E). Inferred: the serial chain continued to the FIG 5D/5E devices"
+			(at 134.62 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -646,7 +577,7 @@
 			)
 			(justify left)
 		)
-		(uuid "de247c01-6575-5c45-85d7-96e729a1f0b7")
+		(uuid "81785f41-4f3d-56db-ad7b-0791468cfbf8")
 		(property "Description" "Patent: FIG 5B off-page flag CS_CTRL (printed CS_CNTRL on 5A). Inferred: U35 integrator output, out on J5A1 pin 29 through R31 (FIG 5A) and to FIG 5H"
 			(at 266.7 55.88 0)
 			(hide yes)
@@ -660,18 +591,87 @@
 			)
 		)
 	)
-	(hierarchical_label "NSP_PROG"
+	(hierarchical_label "CST_2"
 		(shape input)
-		(at 38.1 95.25 180)
+		(at 121.92 88.9 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
+		(uuid "b9dd1aab-3988-552e-945c-d911b66c730d")
+		(property "Description" "Patent: FIG 5B off-page flag CST_2 (also FIG 5A J5A2 pin 3 / J5A3 pin 7, 6C). Inferred: an off-board line switched by U43 switch 1 into the U42 sum; role unknown"
+			(at 121.92 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "CST_1"
+		(shape input)
+		(at 121.92 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cc4dbf2e-283e-5ecd-924f-04c5005e5b74")
+		(property "Description" "Patent: FIG 5B off-page flag CST_1 (also FIG 5A J5A2 pin 1 / J5A3 pin 2, 5H, 6C). Inferred: an off-board line switched by U43 switch 2 into the U42 sum; role unknown"
+			(at 121.92 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "RAW_SHUTO_T-"
+		(shape output)
+		(at 134.62 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
 		(uuid "e848d0df-7bc3-5ca0-8b8c-05fc2ccb9672")
-		(property "Description" "Patent: FIG 5B label NSP_PROG (also 5D, 5E). Inferred: program strobe of the NSP serial devices (U36 PROG, U29 ~PROG)"
-			(at 38.1 95.25 0)
+		(property "Description" "Patent: FIG 5B off-page flag RAW_SHUTO_T- on U29 O3 (printed RAM_SHUTO_T- on 5E). Inferred: latched shut-off request, active low, ORed into SHUTO_T on FIG 5E"
+			(at 134.62 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "NSP_CLK"
+		(shape input)
+		(at 81.28 95.25 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f845246d-889b-5751-aa43-936fc10fcf87")
+		(property "Description" "Patent: FIG 5B label NSP_CLK (also 5D, 5E, 5G). Inferred: serial clock of the NSP devices"
+			(at 81.28 95.25 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

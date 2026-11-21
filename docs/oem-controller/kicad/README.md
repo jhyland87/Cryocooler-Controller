@@ -13,7 +13,8 @@ oem-controller.kicad_sch                  root: one sheet per patent PDF that co
     ├── US6098409_fig5b.kicad_sch         FIG 5B
     ├── US6098409_fig5c.kicad_sch         FIG 5C-1 + 5C-2 (redrawn: seven child sheets)
     │   └── US6098409_fig5c_<child>.kicad_sch   sum, cmt, hog, trip, clamp, counter, buffer
-    ├── US6098409_fig5d.kicad_sch         FIG 5D-1..3  (six "butter warmer" heater drivers)
+    ├── US6098409_fig5d.kicad_sch         FIG 5D-1..3 (redrawn: six "butter warmer" circuits)
+    │   └── US6098409_fig5d_bw<n>.kicad_sch     bw1-bw6, one per circuit
     ├── US6098409_fig5e.kicad_sch         FIG 5E
     ├── US6098409_fig5f.kicad_sch         FIG 5F-1 + 5F-2 (redrawn: seven child sheets)
     │   └── US6098409_fig5f_<child>.kicad_sch   ref10, ref5va, ref10v, dcdc, monitor, regs, digital
@@ -62,18 +63,21 @@ How this project applies the repo-wide drawing rules (`.claude/rules/schematic-d
 | Root sheet | `oem-controller.kicad_sch` (project `oem-controller.kicad_pro`) → `sheets/US6098409.kicad_sch` → one sheet per patent figure |
 | Made by | `tools/gen_oem_schematic.py` from `specs/<figure>.py`, with `tools/oemsch.py`; never hand-edit the `.kicad_sch` files. See "Regenerating and checking" |
 | Descriptions | A part's hidden **Description** says what it is: the printed part's own description (`PART_INFO` in `tools/oemsch.py`), "Assumed part: ..." from `probable=`, or its kind and value. Its hidden **Function** field is its job in this circuit, from `desc=` on `P()`. Labels get a Description from `NET_DESCRIPTIONS` in the figure spec. For a redrawn spec (`REDRAWN = True`) the generator fails on a part or label without one, and on an entry for a label that is gone. Figures not yet redrawn have none |
-| Check config | `schematic_checks.json`: no global labels allowed, 30 parts per sheet, 85 mm, baseline `schematic_structure_baseline.json` |
+| Check config | `schematic_checks.json`: no global labels allowed, 30 parts per sheet, 85 mm, `allowed_copies` (exception 1), baseline `schematic_structure_baseline.json` |
 | Checks | `tools/check.sh <out>` (ERC summary, `verify_netlist.py`, text overlap: 0 problems; ERC `label_dangling`, `pin_not_driven` and `power_pin_not_driven` counts are expected), `hardware/kicad/tools/check_symbols.py` on the root, `hardware/kicad/tools/check_sheet_structure.py --project docs/oem-controller/kicad/oem-controller.kicad_pro` |
 | Connectivity gate | `verify_netlist.py` (netlist matches the specs) and `hardware/kicad/tools/compare_netlists.py --strict --renamed` against a baseline netlist: every printed ref, value and pin on the same net as before. A net may change name only by its sheet path |
 | Routed board | None. Sheet-path prefixes on net names are free to change |
 | Net names | The patent's printed signal names, exactly as printed, as the label text (`NSP_CLK`, `RAW_SHUTO_T-`); no renaming and no overbar added. Unnamed nodes keep the `<figure>_<part>_<pin>`-style names from the specs. A printed off-page flag that no transcribed figure uses (`+SUREF`, `80_RESET`, `OF_OFFSET`) is a net label on its own sheet: it names the net and connects to nothing elsewhere |
-| Helpers | `P()` and the `KINDS`, `POWER` and `SYMBOLS` tables in `tools/oemsch.py`. Redrawn figures: `child()` (a child sheet and its block), `port()` (hierarchical label + sheet pin), `tap()` (a free wire end for a power symbol or label), `build_node()`; `WIRES` ends are `REF.PIN`, `CHILD:NET` or `@tap`, routed `'hv'`, `'vh'` or through listed corners; `names=` picks where a net's label or power symbol sits (`None` keeps a net unnamed). `P(text=(dcol, drow))` pins a part's reference and value where the automatic placer crowds them. A tap in the middle of a wire joins it only if routes run through it. `build_node()` fails on a point where four or more connections meet (`check_junctions()`). Gates are drawn in their standard shapes from a `SYMBOLS` entry with `gate:` (`nand`, `or_inv`, `inv`; `gate_symbol()`). Unredrawn figures still use `build_sheet()` and L-shaped `WIRES` |
+| Helpers | `P()` and the `KINDS`, `POWER` and `SYMBOLS` tables in `tools/oemsch.py`. Redrawn figures: `child()` (a child sheet and its block), `port()` (hierarchical label + sheet pin; `slot=` sets its row on the block), `tap()` (a free wire end for a power symbol or label), `build_node()`; `WIRES` ends are `REF.PIN`, `CHILD:NET` or `@tap`, routed `'hv'`, `'vh'` or through listed corners; `names=` picks where a net's label or power symbol sits (`None` keeps a net unnamed). `P(text=(dcol, drow))` pins a part's reference and value where the automatic placer crowds them. A tap in the middle of a wire joins it only if routes run through it. `build_node()` fails on a point where four or more connections meet (`check_junctions()`). Gates are drawn in their standard shapes from a `SYMBOLS` entry with `gate:` (`nand`, `or_inv`, `inv`; `gate_symbol()`). Unredrawn figures still use `build_sheet()` and L-shaped `WIRES` |
 
 **Exceptions** (deliberate; everything else follows the rules):
 
 1. **One sheet per patent figure.** The sheet list mirrors the patent so each page can be checked against its figure.
-   A figure that holds several functions gets child sheets for them (FIG 5D's six heater drivers are one child
-   sheet placed six times). The 30-part limit applies to those child sheets, not to the figure page that holds them.
+   A figure that holds several functions gets child sheets for them. The 30-part limit applies to those child
+   sheets, not to the figure page that holds them. FIG 5D's six butter warmer circuits are six sheet files drawn
+   by one function, not one file placed six times: the copies differ in printed values (CR13/CR17/CR19 1N4140)
+   and notes, and KiCad 10 gives every placement of one file the same values (user, 2026-11-21). The identical
+   pairs are listed in `allowed_copies` in `schematic_checks.json`.
 2. **Placement follows the figure's order of stages** (left to right as printed, turned upright) so a reader can
    hold the page next to the patent. Within that, the drawing rules win: wires, grouping, supplies up and grounds
    down.

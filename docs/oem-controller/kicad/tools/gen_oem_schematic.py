@@ -258,7 +258,7 @@ def main():
         children = [(s_stem, spec) for s_stem, spec in specs if s_stem == stem]
         column_y = [40 * 1.27] * 3  # next free y in each column of blocks
         pin_joins = {net: [] for net in redrawn_only(specs)}
-        for index, (_, spec) in enumerate(children):
+        for _, spec in children:
             name = spec.__name__.split('.')[-1]
             child = kicadgen.Sheet(spec.TITLE, f'{stem}_{name}.kicad_sch', getattr(spec, 'PAPER', 'A2'))
             child.uid = kicadgen.stable_uuid(f'sheet/{stem}/{name}')
@@ -266,12 +266,13 @@ def main():
             joined = ''.join(f'\nNet joined across figures: printed "{net}" = {ALIASES[net]}'
                              for net in spec._aliases)
             child.note(f'{spec.TITLE}\nSource: {spec.SOURCE}{joined}', 15, 18, 2.5)
-            column = index % 3
+            column = column_y.index(min(column_y))  # the shortest column, leftmost on a tie
             redrawn = getattr(spec, 'REDRAWN', False)
             figure = SimpleNamespace(PORTS=spec.PORTS, WIDTH=60.96) if redrawn else None
             height = oemsch.block_geometry(figure)[1] if redrawn else 10.16
-            # blocks stack down each column by their height, on the 1.27 mm grid
-            x, y = 20 * 1.27 + column * 103 * 1.27, column_y[column]
+            # blocks stack down each column by their height, on the 1.27 mm grid; the left
+            # margin leaves room for the global labels on a first-column block's left pins
+            x, y = 30 * 1.27 + column * 103 * 1.27, column_y[column]
             column_y[column] = y + 1.27 * math.ceil((height + 20.32) / 1.27)
             project_sheets.append([child.uid, spec.TITLE])
             figure_page = page

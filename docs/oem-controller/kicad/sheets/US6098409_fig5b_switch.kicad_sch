@@ -1062,17 +1062,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "U43 DECOUPLING CAPACITORS"
-		(exclude_from_sim no)
-		(at 40.64 162.56 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "4d28b122-b962-5e32-9503-6ac4d935194a")
-	)
 	(text "U43 supply pins are both printed \"V-\"; the +15V one is presumably V+.\nThe unnamed U43 pin to C94 is presumably VL."
 		(exclude_from_sim no)
 		(at 19.05 193.04 0)
@@ -1082,7 +1071,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "77fc8c95-de93-5fb4-8f04-199766c4e94f")
+		(uuid "6358cc7f-663c-5c86-9262-b40fdbdfb1e4")
 	)
 	(text "FIG 5B - CS_CTRL loop, NSP pots, OF_SET\nCST_1 / CST_2 input switch (U43)\nSource: US6098409 sheet 5 of 25 (PDF p6), FIG 5B"
 		(exclude_from_sim no)
@@ -1093,45 +1082,36 @@
 			)
 			(justify left top)
 		)
-		(uuid "fe55c532-28cb-5ac4-bdf4-f427a9191e36")
+		(uuid "bb24d19e-eb01-5a99-98ee-7cd237f6eb80")
+	)
+	(text "U43 DECOUPLING CAPACITORS"
+		(exclude_from_sim no)
+		(at 40.64 162.56 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "f5b7cd49-4e39-5145-9386-0c164e6264ac")
 	)
 	(junction
 		(at 38.1 96.52)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "6358cc7f-663c-5c86-9262-b40fdbdfb1e4")
+		(uuid "988877b2-3e35-5a14-a4d5-cbf9cbced47b")
 	)
 	(junction
 		(at 152.4 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "d89ba1ae-5b51-5a90-9887-bf712cfbb0f4")
+		(uuid "b72009a5-c17c-512b-bd7d-d6ddf164e6a4")
 	)
 	(junction
 		(at 50.8 184.15)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f5b7cd49-4e39-5145-9386-0c164e6264ac")
-	)
-	(wire
-		(pts
-			(xy 152.4 76.2) (xy 152.4 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "07096e19-225d-5f8c-a93f-cf2e495dfb4d")
-	)
-	(wire
-		(pts
-			(xy 67.31 106.68) (xy 95.25 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "095e4784-f371-5d45-a7c5-0bc5cd5c1d72")
+		(uuid "b8de3996-2472-5445-9169-8c9a26f424ec")
 	)
 	(wire
 		(pts
@@ -1141,147 +1121,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1c33194a-e334-5bb9-98ca-ad9d3b9cb722")
-	)
-	(wire
-		(pts
-			(xy 38.1 81.28) (xy 38.1 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1c806ab1-d8f4-5685-8a4d-e6865554b96c")
-	)
-	(wire
-		(pts
-			(xy 38.1 96.52) (xy 38.1 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "22bc051b-dedd-55aa-92cf-2517220eefe4")
-	)
-	(wire
-		(pts
-			(xy 50.8 184.15) (xy 67.31 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3f0a2361-68d1-50dd-8e09-0535a8c0cc86")
-	)
-	(wire
-		(pts
-			(xy 120.65 81.28) (xy 127 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5a9045cf-dceb-5154-8562-f2e8eae739ba")
-	)
-	(wire
-		(pts
-			(xy 50.8 171.45) (xy 50.8 173.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "662f67dc-21e0-5cf4-8d3a-21f8a02b2c5a")
-	)
-	(wire
-		(pts
-			(xy 120.65 106.68) (xy 152.4 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7bb8d4c3-0f46-5759-9328-5e4d4b5f3a8e")
-	)
-	(wire
-		(pts
-			(xy 127 95.25) (xy 127 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7e49eace-3e56-5834-9ae1-4b422f6b6199")
-	)
-	(wire
-		(pts
-			(xy 30.48 96.52) (xy 38.1 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "83a1cd8b-297b-5fb1-b719-933ef54c3c7f")
-	)
-	(wire
-		(pts
-			(xy 67.31 181.61) (xy 67.31 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "988877b2-3e35-5a14-a4d5-cbf9cbced47b")
-	)
-	(wire
-		(pts
-			(xy 152.4 76.2) (xy 165.1 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ab78cef-3717-529c-8b53-4922c6ae53e1")
-	)
-	(wire
-		(pts
-			(xy 107.95 91.44) (xy 107.95 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9d2fd1a4-886d-52d7-be8a-4096e13231ff")
-	)
-	(wire
-		(pts
-			(xy 38.1 81.28) (xy 95.25 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a551d308-34ee-5690-9156-294fa2db25b2")
-	)
-	(wire
-		(pts
-			(xy 127 81.28) (xy 127 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ae276f00-3398-514b-9f06-05cca35c3ae0")
-	)
-	(wire
-		(pts
-			(xy 50.8 181.61) (xy 50.8 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b72009a5-c17c-512b-bd7d-d6ddf164e6a4")
+		(uuid "095e4784-f371-5d45-a7c5-0bc5cd5c1d72")
 	)
 	(wire
 		(pts
@@ -1291,27 +1131,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b8de3996-2472-5445-9169-8c9a26f424ec")
+		(uuid "1c33194a-e334-5bb9-98ca-ad9d3b9cb722")
 	)
 	(wire
 		(pts
-			(xy 57.15 106.68) (xy 59.69 106.68)
+			(xy 120.65 81.28) (xy 127 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cbd54147-6732-5b32-9a0c-400ca83f383f")
-	)
-	(wire
-		(pts
-			(xy 57.15 76.2) (xy 59.69 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dc2ba0f3-8d0f-5ff8-892d-5d358582913a")
+		(uuid "260e7118-4b8f-55f9-af7f-c5eaa0c94f22")
 	)
 	(wire
 		(pts
@@ -1321,27 +1151,87 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "eb663318-8cc1-517e-aa95-41cd182c5e05")
+		(uuid "2b365640-3111-5e61-a381-84d701af13c0")
 	)
 	(wire
 		(pts
-			(xy 113.03 63.5) (xy 113.03 66.04)
+			(xy 50.8 171.45) (xy 50.8 173.99)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "eff3d7ec-ffa6-5e56-adfc-d87781d2a6ff")
+		(uuid "3f0a2361-68d1-50dd-8e09-0535a8c0cc86")
 	)
 	(wire
 		(pts
-			(xy 38.1 111.76) (xy 95.25 111.76)
+			(xy 38.1 81.28) (xy 95.25 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ffc63245-d967-56e5-a871-959c15abf6af")
+		(uuid "4e2fe6d5-3b6a-524a-8831-6934d9c068bd")
+	)
+	(wire
+		(pts
+			(xy 50.8 184.15) (xy 67.31 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a9045cf-dceb-5154-8562-f2e8eae739ba")
+	)
+	(wire
+		(pts
+			(xy 152.4 76.2) (xy 152.4 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "662f67dc-21e0-5cf4-8d3a-21f8a02b2c5a")
+	)
+	(wire
+		(pts
+			(xy 107.95 91.44) (xy 107.95 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7bb8d4c3-0f46-5759-9328-5e4d4b5f3a8e")
+	)
+	(wire
+		(pts
+			(xy 38.1 96.52) (xy 38.1 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7e49eace-3e56-5834-9ae1-4b422f6b6199")
+	)
+	(wire
+		(pts
+			(xy 127 95.25) (xy 127 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83a1cd8b-297b-5fb1-b719-933ef54c3c7f")
+	)
+	(wire
+		(pts
+			(xy 152.4 76.2) (xy 165.1 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88c97003-d203-572b-a46c-2f2d61098543")
 	)
 	(wire
 		(pts
@@ -1351,53 +1241,117 @@
 			(width 0)
 			(type default)
 		)
+		(uuid "8cc7cd44-c9fb-5c05-af82-94a107ca617b")
+	)
+	(wire
+		(pts
+			(xy 38.1 111.76) (xy 95.25 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ab78cef-3717-529c-8b53-4922c6ae53e1")
+	)
+	(wire
+		(pts
+			(xy 67.31 181.61) (xy 67.31 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d2fd1a4-886d-52d7-be8a-4096e13231ff")
+	)
+	(wire
+		(pts
+			(xy 30.48 96.52) (xy 38.1 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a551d308-34ee-5690-9156-294fa2db25b2")
+	)
+	(wire
+		(pts
+			(xy 38.1 81.28) (xy 38.1 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae276f00-3398-514b-9f06-05cca35c3ae0")
+	)
+	(wire
+		(pts
+			(xy 113.03 63.5) (xy 113.03 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cbd54147-6732-5b32-9a0c-400ca83f383f")
+	)
+	(wire
+		(pts
+			(xy 57.15 106.68) (xy 59.69 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc2ba0f3-8d0f-5ff8-892d-5d358582913a")
+	)
+	(wire
+		(pts
+			(xy 57.15 76.2) (xy 59.69 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4c5b38e-92a0-5bdd-9717-9bc0ea2f082f")
+	)
+	(wire
+		(pts
+			(xy 67.31 106.68) (xy 95.25 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb663318-8cc1-517e-aa95-41cd182c5e05")
+	)
+	(wire
+		(pts
+			(xy 50.8 181.61) (xy 50.8 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eff3d7ec-ffa6-5e56-adfc-d87781d2a6ff")
+	)
+	(wire
+		(pts
+			(xy 127 81.28) (xy 127 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ffc63245-d967-56e5-a871-959c15abf6af")
+	)
+	(wire
+		(pts
+			(xy 120.65 106.68) (xy 152.4 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
 		(uuid "ffe657eb-02d6-5727-8e58-b44d49dfdd60")
-	)
-	(hierarchical_label "CST_1"
-		(shape input)
-		(at 57.15 106.68 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "567cca13-503f-5fd8-a45d-a6f2928275e5")
-		(property "Description" "Patent: FIG 5B off-page flag CST_1 (also FIG 5A J5A2 pin 1 / J5A3 pin 2, 5H, 6C). Inferred: an off-board line switched by U43 switch 2 into the U42 sum; role unknown"
-			(at 57.15 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "5B_SW_OUT"
-		(shape output)
-		(at 165.1 76.2 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9a990d31-4ec3-5a39-98b4-c2d7fcef2641")
-		(property "Description" "Inferred from the circuit: joined U43 switch outputs (D), into the U42 sum through R212"
-			(at 165.1 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 	)
 	(hierarchical_label "CST_DEL"
 		(shape input)
@@ -1408,7 +1362,7 @@
 			)
 			(justify right)
 		)
-		(uuid "a85c903b-c85d-5c59-8103-2219c03f1b0f")
+		(uuid "07096e19-225d-5f8c-a93f-cf2e495dfb4d")
 		(property "Description" "Patent: FIG 5B label CST_DEL. Inferred from the circuit: U29 latch output O1, turns both U43 switches on"
 			(at 30.48 96.52 0)
 			(hide yes)
@@ -1431,7 +1385,7 @@
 			)
 			(justify right)
 		)
-		(uuid "bb24d19e-eb01-5a99-98ee-7cd237f6eb80")
+		(uuid "1c806ab1-d8f4-5685-8a4d-e6865554b96c")
 		(property "Description" "Patent: FIG 5B off-page flag CST_2 (also FIG 5A J5A2 pin 3 / J5A3 pin 7, 6C). Inferred: an off-board line switched by U43 switch 1 into the U42 sum; role unknown"
 			(at 57.15 76.2 0)
 			(hide yes)
@@ -1442,6 +1396,52 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "CST_1"
+		(shape input)
+		(at 57.15 106.68 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "22bc051b-dedd-55aa-92cf-2517220eefe4")
+		(property "Description" "Patent: FIG 5B off-page flag CST_1 (also FIG 5A J5A2 pin 1 / J5A3 pin 2, 5H, 6C). Inferred: an off-board line switched by U43 switch 2 into the U42 sum; role unknown"
+			(at 57.15 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "5B_SW_OUT"
+		(shape output)
+		(at 165.1 76.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d89ba1ae-5b51-5a90-9887-bf712cfbb0f4")
+		(property "Description" "Inferred from the circuit: joined U43 switch outputs (D), into the U42 sum through R212"
+			(at 165.1 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
@@ -1511,7 +1511,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "c8104b89-9fab-5382-8225-2f7e3379afb4")
+			(uuid "55631f86-c585-50e8-9600-3fdb7e4b0473")
 		)
 		(instances
 			(project "oem-controller"
@@ -1611,10 +1611,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "f44637fd-947e-5588-9a2d-e88e886d72ec")
+			(uuid "d363b8dc-2898-56dc-bd42-c7439cc1d727")
 		)
 		(pin "2"
-			(uuid "6d9801e6-f54c-5f78-a891-8e764bb8c7a0")
+			(uuid "5299af7a-4ff7-53e2-8b09-89a7ce2a67d7")
 		)
 		(instances
 			(project "oem-controller"
@@ -1691,7 +1691,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "794235d4-ce34-54b3-b0b1-3ad8571cb913")
+			(uuid "8f1d01cd-c624-504c-9c11-561ccc56c3a5")
 		)
 		(instances
 			(project "oem-controller"
@@ -1768,7 +1768,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "0a7f901d-2f4a-577b-bf28-4d2859f12754")
+			(uuid "21ee01e5-a8b0-57f2-8613-05be03f7825f")
 		)
 		(instances
 			(project "oem-controller"
@@ -1855,10 +1855,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "7dd8cc34-e12b-557a-8707-8e1684ce9742")
+			(uuid "567cca13-503f-5fd8-a45d-a6f2928275e5")
 		)
 		(pin "2"
-			(uuid "1e587d64-0204-5ced-bf30-1c0411f8d6cb")
+			(uuid "a85c903b-c85d-5c59-8103-2219c03f1b0f")
 		)
 		(instances
 			(project "oem-controller"
@@ -1969,25 +1969,25 @@
 			)
 		)
 		(pin "3"
-			(uuid "075572f4-f220-5c9d-bfdb-310f796efdfc")
+			(uuid "9a990d31-4ec3-5a39-98b4-c2d7fcef2641")
 		)
 		(pin "1"
-			(uuid "d363b8dc-2898-56dc-bd42-c7439cc1d727")
+			(uuid "4d28b122-b962-5e32-9503-6ac4d935194a")
 		)
 		(pin "2"
-			(uuid "5299af7a-4ff7-53e2-8b09-89a7ce2a67d7")
+			(uuid "77fc8c95-de93-5fb4-8f04-199766c4e94f")
 		)
 		(pin "?"
-			(uuid "d437c65d-88e5-57c8-9958-deeeac96bed2")
+			(uuid "fe55c532-28cb-5ac4-bdf4-f427a9191e36")
 		)
 		(pin "V-#2"
-			(uuid "cf36474a-7852-5da7-b0a6-1732bf9715e3")
+			(uuid "7dd8cc34-e12b-557a-8707-8e1684ce9742")
 		)
 		(pin "V-"
-			(uuid "124ee24b-d24a-5762-92ee-17aee853c6db")
+			(uuid "1e587d64-0204-5ced-bf30-1c0411f8d6cb")
 		)
 		(pin "5"
-			(uuid "34727cc8-a364-5543-9086-15741c7347d9")
+			(uuid "075572f4-f220-5c9d-bfdb-310f796efdfc")
 		)
 		(instances
 			(project "oem-controller"
@@ -2085,10 +2085,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "be232329-576e-53cf-b42c-b9582656dd23")
+			(uuid "d437c65d-88e5-57c8-9958-deeeac96bed2")
 		)
 		(pin "2"
-			(uuid "9bd748e4-5407-51e8-86ce-f0adf77153f4")
+			(uuid "cf36474a-7852-5da7-b0a6-1732bf9715e3")
 		)
 		(instances
 			(project "oem-controller"
@@ -2166,7 +2166,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "f53e67f4-c443-5347-b6ea-24d47785c403")
+			(uuid "2cc2bfa1-11f8-5cfb-a933-d29255d2ea63")
 		)
 		(instances
 			(project "oem-controller"
@@ -2255,10 +2255,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "a27b1ac2-00fc-5a14-95c1-698a630bd941")
+			(uuid "9bd748e4-5407-51e8-86ce-f0adf77153f4")
 		)
 		(pin "2"
-			(uuid "461c86fb-3aa3-561b-a7d6-6b5b127e263e")
+			(uuid "938fbd0e-4c92-5d69-bc1c-6842aba5b6a4")
 		)
 		(instances
 			(project "oem-controller"
@@ -2358,13 +2358,13 @@
 			)
 		)
 		(pin "14"
-			(uuid "938fbd0e-4c92-5d69-bc1c-6842aba5b6a4")
+			(uuid "124ee24b-d24a-5762-92ee-17aee853c6db")
 		)
 		(pin "16"
-			(uuid "62ffd67e-e65e-5be9-b5b5-3ce18733dbcc")
+			(uuid "34727cc8-a364-5543-9086-15741c7347d9")
 		)
 		(pin "15"
-			(uuid "8f1d01cd-c624-504c-9c11-561ccc56c3a5")
+			(uuid "f44637fd-947e-5588-9a2d-e88e886d72ec")
 		)
 		(instances
 			(project "oem-controller"
@@ -2442,7 +2442,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "6d71c5ef-0283-5eb3-a201-9b3a9b0a7c02")
+			(uuid "461c86fb-3aa3-561b-a7d6-6b5b127e263e")
 		)
 		(instances
 			(project "oem-controller"
@@ -2519,7 +2519,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "2cc2bfa1-11f8-5cfb-a933-d29255d2ea63")
+			(uuid "62ffd67e-e65e-5be9-b5b5-3ce18733dbcc")
 		)
 		(instances
 			(project "oem-controller"
@@ -2597,7 +2597,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "94821035-208d-5f12-81c9-25642fb2de36")
+			(uuid "a27b1ac2-00fc-5a14-95c1-698a630bd941")
 		)
 		(instances
 			(project "oem-controller"
@@ -2686,10 +2686,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "55631f86-c585-50e8-9600-3fdb7e4b0473")
+			(uuid "6d9801e6-f54c-5f78-a891-8e764bb8c7a0")
 		)
 		(pin "2"
-			(uuid "21ee01e5-a8b0-57f2-8613-05be03f7825f")
+			(uuid "be232329-576e-53cf-b42c-b9582656dd23")
 		)
 		(instances
 			(project "oem-controller"

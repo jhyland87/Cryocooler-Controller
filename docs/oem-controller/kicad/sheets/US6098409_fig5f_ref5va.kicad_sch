@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "27100e82-5df9-5e94-baf9-0447dc8b46a3")
+	(uuid "54ef80ec-f325-5ef5-bfc0-80b1b033e03b")
 	(paper "A4")
 	(title_block
 		(title "+5VA reference buffer (U55, QX1)")
@@ -1420,17 +1420,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "FIG 5F - References and power supply\n+5VA reference buffer (U55, QX1)\nSource: US6098409 sheets 12-13 of 25 (PDF p13-14), FIG 5F-1/5F-2"
-		(exclude_from_sim no)
-		(at 15 18 0)
-		(effects
-			(font
-				(size 2.5 2.5)
-			)
-			(justify left top)
-		)
-		(uuid "3b3dec91-b1e7-502a-8849-856cceb43113")
-	)
 	(text "\"+SUREF\" as printed (probably +5VREF)."
 		(exclude_from_sim no)
 		(at 19.05 190.5 0)
@@ -1440,7 +1429,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "d7352143-efc7-5931-b601-334c312c20a0")
+		(uuid "0a06c8d1-f10a-5c5f-ae6a-35a104654058")
+	)
+	(text "FIG 5F - References and power supply\n+5VA reference buffer (U55, QX1)\nSource: US6098409 sheets 12-13 of 25 (PDF p13-14), FIG 5F-1/5F-2"
+		(exclude_from_sim no)
+		(at 15 18 0)
+		(effects
+			(font
+				(size 2.5 2.5)
+			)
+			(justify left top)
+		)
+		(uuid "8ebec076-54a6-5402-b1e1-e763271e88c8")
 	)
 	(text "U55 DECOUPLING CAPACITORS"
 		(exclude_from_sim no)
@@ -1451,95 +1451,55 @@
 			)
 			(justify left top)
 		)
-		(uuid "f33359f0-578a-57ec-b2ea-2bf53d904468")
-	)
-	(junction
-		(at 190.5 133.35)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0400d446-a4f8-54d1-80ec-6ac9ea7d0f8b")
-	)
-	(junction
-		(at 123.19 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1a375507-7faa-563a-bf86-f791151b2e07")
-	)
-	(junction
-		(at 215.9 133.35)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2aa4b966-a69e-5b1f-ae55-646881e24fdf")
+		(uuid "b157ee94-7b78-5523-afd3-f6b87ad68663")
 	)
 	(junction
 		(at 173.99 100.33)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "75eea59e-528f-54a5-b242-941a0bf79977")
+		(uuid "1e4e609f-4dfd-547a-9402-a9a8041d3db2")
 	)
 	(junction
-		(at 207.01 133.35)
+		(at 123.19 114.3)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "777d2916-8edc-5dc2-8ec7-c9872591fd8a")
+		(uuid "73a3fa6c-d29e-5514-bd70-7ca47de74680")
 	)
 	(junction
 		(at 82.55 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "9e72736a-f700-57b1-bd1d-022f693b623d")
+		(uuid "79f32971-c80a-5972-9c81-00fcb250e233")
 	)
 	(junction
 		(at 92.71 91.44)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "a8e6502f-1546-5d6e-aea4-d14450f502c8")
+		(uuid "9a5bec1f-5d68-5631-a8f1-203d528603ee")
 	)
 	(junction
 		(at 63.5 184.15)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "b16e9473-513b-5b37-b05a-7f15a7fc941e")
+		(uuid "a9461b29-2ad5-5a4e-9392-fd43ea61cc84")
 	)
-	(wire
-		(pts
-			(xy 63.5 171.45) (xy 63.5 173.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "04a52589-c9d5-5496-9293-8ad3936df608")
+	(junction
+		(at 207.01 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ae5fdcdb-d447-53fd-b35d-382f957465e5")
 	)
-	(wire
-		(pts
-			(xy 207.01 133.35) (xy 224.79 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e0d63b5-0c83-5d44-b787-38230752a15c")
+	(junction
+		(at 215.9 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d30b20b8-5e4c-5e86-936c-4f739ec9acd2")
 	)
-	(wire
-		(pts
-			(xy 92.71 80.01) (xy 92.71 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2900edb0-74dc-58d7-950a-03e66da7dfd9")
-	)
-	(wire
-		(pts
-			(xy 115.57 114.3) (xy 143.51 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b6c7c4c-a32f-55ec-97c2-78fcc0208f41")
+	(junction
+		(at 190.5 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ef346b8f-20b3-5a3a-8a90-74dc5306b46a")
 	)
 	(wire
 		(pts
@@ -1549,297 +1509,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2d1953c5-a012-5939-9e4d-8418f0ae0c74")
-	)
-	(wire
-		(pts
-			(xy 207.01 133.35) (xy 207.01 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "31bf556e-3cb6-5671-b322-87455128ec1a")
-	)
-	(wire
-		(pts
-			(xy 67.31 116.84) (xy 100.33 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4940c6aa-8c65-5cf0-9434-dee293be5f7d")
-	)
-	(wire
-		(pts
-			(xy 123.19 91.44) (xy 123.19 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4d1f49fd-5a6c-5a7b-9823-be248791613f")
-	)
-	(wire
-		(pts
-			(xy 63.5 184.15) (xy 82.55 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4ed2ffee-61df-5758-b29b-5963904b04ca")
-	)
-	(wire
-		(pts
-			(xy 82.55 133.35) (xy 82.55 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4f0b8406-222f-58c4-9545-7c776cb5e4b4")
-	)
-	(wire
-		(pts
-			(xy 173.99 97.79) (xy 173.99 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "538a394f-33d2-5bb5-95b7-500f355ff667")
-	)
-	(wire
-		(pts
-			(xy 173.99 119.38) (xy 173.99 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57cfe805-883f-53ec-9e00-6af9b53008a9")
-	)
-	(wire
-		(pts
-			(xy 92.71 67.31) (xy 92.71 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5dca4cc4-1153-586c-a5c5-992103183a71")
-	)
-	(wire
-		(pts
-			(xy 153.67 114.3) (xy 166.37 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60f3daa7-dfa0-5631-b11a-c5597475a1fa")
-	)
-	(wire
-		(pts
-			(xy 143.51 114.3) (xy 146.05 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6d5b7b2b-0204-5c83-affa-08e589eeebe1")
-	)
-	(wire
-		(pts
-			(xy 232.41 133.35) (xy 234.95 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "749cce25-e0b3-5259-9b60-283ea77af81c")
-	)
-	(wire
-		(pts
-			(xy 190.5 143.51) (xy 190.5 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "873487ea-0a59-5d62-b849-f3b881336d50")
-	)
-	(wire
-		(pts
-			(xy 173.99 87.63) (xy 173.99 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "898518df-bcbd-5977-8805-085b9647f120")
-	)
-	(wire
-		(pts
-			(xy 105.41 102.87) (xy 105.41 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "96218ee5-e7d2-5a00-9425-715cbad856c0")
-	)
-	(wire
-		(pts
-			(xy 173.99 100.33) (xy 173.99 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9e48fba6-76fd-58d3-aab5-b3407a9a8393")
-	)
-	(wire
-		(pts
-			(xy 38.1 116.84) (xy 59.69 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0d251b4-3888-5d54-aff2-968e282c7cb2")
-	)
-	(wire
-		(pts
-			(xy 92.71 91.44) (xy 104.14 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a68bc22b-8e12-5500-9fa7-81e27705c5e6")
-	)
-	(wire
-		(pts
-			(xy 111.76 91.44) (xy 123.19 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a7a49295-74f7-5e8d-b8e9-c3c5f13a1a7d")
-	)
-	(wire
-		(pts
-			(xy 215.9 127) (xy 215.9 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a9d2b650-dbc8-59e6-b92c-8af520c5d2f8")
-	)
-	(wire
-		(pts
-			(xy 92.71 77.47) (xy 92.71 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af9e363a-e302-5f9a-93bc-29c09443713d")
-	)
-	(wire
-		(pts
-			(xy 63.5 181.61) (xy 63.5 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b237ebc8-c135-5ffa-ab0d-9082a5335dd6")
-	)
-	(wire
-		(pts
-			(xy 105.41 123.19) (xy 105.41 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b3985ffb-6dfd-5bf6-bddd-25a455d37e3d")
-	)
-	(wire
-		(pts
-			(xy 173.99 133.35) (xy 190.5 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b3a6c4c9-afec-58f3-8a5b-8c914fbd9bb9")
-	)
-	(wire
-		(pts
-			(xy 207.01 143.51) (xy 207.01 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4090d95-529a-55aa-8e39-c30123e02a3a")
-	)
-	(wire
-		(pts
-			(xy 82.55 116.84) (xy 82.55 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbfc5307-22c5-56ab-9f27-547975801899")
-	)
-	(wire
-		(pts
-			(xy 190.5 100.33) (xy 190.5 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf60d576-6421-5882-b197-fa8b1c3bdf1a")
-	)
-	(wire
-		(pts
-			(xy 92.71 111.76) (xy 100.33 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c03b0323-d1d3-5385-8933-3ea49c16f72c")
-	)
-	(wire
-		(pts
-			(xy 173.99 100.33) (xy 190.5 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c61dd409-c9fe-5dcb-8d49-384518975cf0")
-	)
-	(wire
-		(pts
-			(xy 190.5 133.35) (xy 190.5 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ca8f346c-1a80-5b7d-959c-149e5092ef68")
+		(uuid "12cd5e00-f789-5eed-a68c-4ee71cc5e12f")
 	)
 	(wire
 		(pts
@@ -1849,17 +1519,57 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cbb404cd-abbe-514c-a998-8ede2b7f3d52")
+		(uuid "130686be-7dfd-5a5b-8dbf-a0de9bc451d7")
 	)
 	(wire
 		(pts
-			(xy 190.5 113.03) (xy 190.5 115.57)
+			(xy 153.67 114.3) (xy 166.37 114.3)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e94cd0d4-962d-5c4d-956a-3fcb70e9b644")
+		(uuid "1bd3e212-e366-5884-b19c-05cbedb83a1f")
+	)
+	(wire
+		(pts
+			(xy 207.01 133.35) (xy 224.79 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "208e9d82-8709-5353-9d37-fac338e9847b")
+	)
+	(wire
+		(pts
+			(xy 38.1 116.84) (xy 59.69 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "22967b01-dbab-58d8-b320-a9fec142a36c")
+	)
+	(wire
+		(pts
+			(xy 173.99 133.35) (xy 190.5 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "290d41bf-6029-5d1f-9eda-093512e8d470")
+	)
+	(wire
+		(pts
+			(xy 215.9 127) (xy 215.9 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3497a2c8-cdb4-5fa1-9704-6e5dadf31687")
 	)
 	(wire
 		(pts
@@ -1869,7 +1579,87 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fa52cd98-6516-538b-adf6-c8c20ce6ac96")
+		(uuid "4102e522-3257-5bad-b480-9fbb3e5a9e72")
+	)
+	(wire
+		(pts
+			(xy 115.57 114.3) (xy 143.51 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4201cb29-70a4-5181-90ad-5dc7aa6406a8")
+	)
+	(wire
+		(pts
+			(xy 63.5 184.15) (xy 82.55 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4a663372-f965-5f91-83f5-c6e0fbc03862")
+	)
+	(wire
+		(pts
+			(xy 207.01 133.35) (xy 207.01 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c9fcf28-2612-506f-a48a-279415a400e2")
+	)
+	(wire
+		(pts
+			(xy 190.5 100.33) (xy 190.5 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e28329f-6cca-503c-b84a-2c50c8ad8020")
+	)
+	(wire
+		(pts
+			(xy 207.01 143.51) (xy 207.01 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "519b2721-dbd7-5a4c-b1c6-3b526e66d7f1")
+	)
+	(wire
+		(pts
+			(xy 173.99 100.33) (xy 173.99 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53271e14-d6b8-5b2b-ba1d-88eccabbb52f")
+	)
+	(wire
+		(pts
+			(xy 232.41 133.35) (xy 234.95 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58a7b3d2-2c52-5ffe-bf1c-af2950fc3332")
+	)
+	(wire
+		(pts
+			(xy 190.5 113.03) (xy 190.5 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e684200-00fa-5ea4-a30a-c332a97a605a")
 	)
 	(wire
 		(pts
@@ -1879,7 +1669,261 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fcf3359c-db69-501f-8bb3-7401e22e9630")
+		(uuid "5fe2f810-0f07-5970-935c-b3db723e0241")
+	)
+	(wire
+		(pts
+			(xy 190.5 143.51) (xy 190.5 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "60744c9e-5503-5600-9d22-0de32e154a9a")
+	)
+	(wire
+		(pts
+			(xy 190.5 133.35) (xy 190.5 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62f202ee-0720-5d29-af28-5707cd69f2b7")
+	)
+	(wire
+		(pts
+			(xy 123.19 91.44) (xy 123.19 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69dddd9d-ad5a-52f3-ad0c-c24b7009233e")
+	)
+	(wire
+		(pts
+			(xy 63.5 171.45) (xy 63.5 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6db09b41-5b32-5fed-a81f-83120cb16094")
+	)
+	(wire
+		(pts
+			(xy 82.55 116.84) (xy 82.55 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7cb36843-c7d2-5fb8-aadb-1cefd0f00fba")
+	)
+	(wire
+		(pts
+			(xy 92.71 77.47) (xy 92.71 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d1ab64c-1c4b-570f-abb8-127bce2f7f72")
+	)
+	(wire
+		(pts
+			(xy 173.99 100.33) (xy 190.5 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f1e0b10-26ca-588d-a8ee-afebf17677c2")
+	)
+	(wire
+		(pts
+			(xy 111.76 91.44) (xy 123.19 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ff814cc-7b36-5bc1-85da-336d35feb4eb")
+	)
+	(wire
+		(pts
+			(xy 63.5 181.61) (xy 63.5 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "85545ffd-aa0f-541f-a574-8824696b20f9")
+	)
+	(wire
+		(pts
+			(xy 92.71 80.01) (xy 92.71 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92867647-ebf0-572e-82ff-5b15e763e2ed")
+	)
+	(wire
+		(pts
+			(xy 105.41 102.87) (xy 105.41 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9309a7c6-989a-5ee8-ae42-84d999366b82")
+	)
+	(wire
+		(pts
+			(xy 82.55 133.35) (xy 82.55 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9df5433a-5001-554d-9aa5-3fab7cd8baee")
+	)
+	(wire
+		(pts
+			(xy 105.41 123.19) (xy 105.41 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3e09de9-bd14-5f0f-ab0f-8488fb296f3c")
+	)
+	(wire
+		(pts
+			(xy 173.99 119.38) (xy 173.99 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d51f8247-760f-5f31-a60a-b88110e292dc")
+	)
+	(wire
+		(pts
+			(xy 92.71 67.31) (xy 92.71 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecb6c522-d939-5a96-8b43-30f5f815d5ac")
+	)
+	(wire
+		(pts
+			(xy 173.99 87.63) (xy 173.99 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f0a5a832-268f-55f9-95fb-fc86756939cc")
+	)
+	(wire
+		(pts
+			(xy 173.99 97.79) (xy 173.99 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f107a1a3-efa9-56ec-a2cd-a146889bf111")
+	)
+	(wire
+		(pts
+			(xy 92.71 91.44) (xy 104.14 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2894e78-6f10-51ba-8887-9a1093d15b57")
+	)
+	(wire
+		(pts
+			(xy 67.31 116.84) (xy 100.33 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbfa63cb-b6b6-5096-b03f-e363d57fbd01")
+	)
+	(wire
+		(pts
+			(xy 92.71 111.76) (xy 100.33 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd1e6ebf-ee6c-5495-8317-b191d98733fe")
+	)
+	(wire
+		(pts
+			(xy 143.51 114.3) (xy 146.05 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fea9d5d8-565c-552d-b995-fcdbe6325631")
+	)
+	(label "5F_U55_INV"
+		(at 92.71 80.01 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a7edb788-4725-566a-b91f-1000d52ea765")
+		(property "Description" "Inferred from the circuit: +5VA feedback (R271) at the U55 inverting input"
+			(at 92.71 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(label "5F_Q_C"
+		(at 173.99 100.33 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c109b220-8faf-54aa-b783-cadc6f9b3529")
+		(property "Description" "Inferred from the circuit: QX1 collector supply from +15V through R272"
+			(at 173.99 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 	)
 	(label "5F_U55_OUT"
 		(at 143.51 114.3 180)
@@ -1889,7 +1933,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "93a095f6-2049-51a4-b35d-d6a4feb9860a")
+		(uuid "dd7efa7d-d5af-5a57-a18c-cb87b9e30ff8")
 		(property "Description" "Inferred from the circuit: U55 output driving the QX1 base through R273"
 			(at 143.51 114.3 0)
 			(hide yes)
@@ -1911,7 +1955,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "953fa482-22b1-510f-a1f8-26f596f58043")
+		(uuid "e795ee06-98a7-562f-b5c1-72f35aaf146b")
 		(property "Description" "Patent: FIG 5F-1 off-page flag \"+SUREF\" (probably +5VREF), fed from +5VA through R168; no transcribed figure uses it"
 			(at 234.95 133.35 0)
 			(hide yes)
@@ -1925,50 +1969,6 @@
 			)
 		)
 	)
-	(label "5F_Q_C"
-		(at 173.99 100.33 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "e0221435-7371-587b-b0c2-05fbd6401a6d")
-		(property "Description" "Inferred from the circuit: QX1 collector supply from +15V through R272"
-			(at 173.99 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
-	(label "5F_U55_INV"
-		(at 92.71 80.01 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f0fd6e9f-2f1a-5b3c-b9e2-00d1247a41df")
-		(property "Description" "Inferred from the circuit: +5VA feedback (R271) at the U55 inverting input"
-			(at 92.71 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(hierarchical_label "REF_1"
 		(shape input)
 		(at 38.1 116.84 180)
@@ -1978,7 +1978,7 @@
 			)
 			(justify right)
 		)
-		(uuid "b11473b3-4fb8-5336-aa1d-ea4e7ecbb385")
+		(uuid "bb79fb0a-f3c4-5cad-b416-7799b4f5ca33")
 		(property "Description" "Patent: FIG 5F-1 off-page flag REF_1. Inferred from the circuit: the U47/U50 reference output; used here by the +5VA and 10V stages and on FIGS 5A, 6A-6C"
 			(at 38.1 116.84 0)
 			(hide yes)
@@ -1993,6 +1993,1212 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 190.5 109.22 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "02712eb6-64fa-5ed6-972d-f8fa76bfc0ca")
+		(property "Reference" "C163"
+			(at 194.732 108.17 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" ".1uF"
+			(at 194.732 110.27 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Capacitor, .1uF"
+			(at 190.5 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: bypass capacitor on the QX1 collector supply"
+			(at 190.5 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "43243f1d-6805-5865-beef-3cdce9916ff8")
+		)
+		(pin "2"
+			(uuid "b8ddab18-f7a6-5a0e-b686-96ef1d1e8b71")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "C163")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:-15V")
+		(at 82.55 171.45 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "10f596e6-554c-52e9-a07d-2e0a4d44be9b")
+		(property "Reference" "#PWR314"
+			(at 82.55 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-15V"
+			(at 82.55 167.894 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 82.55 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 82.55 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
+			(at 82.55 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b16f51d0-b338-5cd0-a614-754e710b0b07")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR314")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 63.5 184.15 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "179de6dc-5f3c-5a76-bbb8-a821c230ec81")
+		(property "Reference" "#PWR309"
+			(at 63.5 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 63.5 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 63.5 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "476bb070-cb85-53bf-b063-fa9015f49921")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR309")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 82.55 177.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1866cdd5-d6ac-5359-a482-51c9d06f40d5")
+		(property "Reference" "C151"
+			(at 86.782 176.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" ".1uF"
+			(at 86.782 178.85 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 82.55 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 82.55 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Capacitor, .1uF"
+			(at 82.55 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: U55 -15V supply decoupling"
+			(at 82.55 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "49ad67f2-3000-5070-a5f6-7ca8117c24ca")
+		)
+		(pin "2"
+			(uuid "6a1e98f5-37af-5aeb-8659-8dd51c298a36")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "C151")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 207.01 139.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "254f4a14-bdf3-58db-ac82-e0d846e55b88")
+		(property "Reference" "C157"
+			(at 211.242 138.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" ".1uF"
+			(at 211.242 140.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 207.01 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 207.01 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Capacitor, .1uF"
+			(at 207.01 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: high-frequency output capacitor on +5VA"
+			(at 207.01 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "df02d988-1460-52ae-b21f-30234e958ca3")
+		)
+		(pin "2"
+			(uuid "908db7b2-2ee8-58db-801f-a2fcbac1109a")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "C157")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 149.86 114.3 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "27100e82-5df9-5e94-baf9-0447dc8b46a3")
+		(property "Reference" "R273"
+			(at 149.86 108.184 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.75K"
+			(at 149.86 110.284 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 149.86 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 149.86 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, 4.75K"
+			(at 149.86 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: base resistor from U55 output to the QX1 pass transistor"
+			(at 149.86 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0fea6755-5fcc-5735-aed6-e1262b4507f6")
+		)
+		(pin "2"
+			(uuid "509376bf-3395-5883-9821-59b65bc5ab2c")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R273")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+15V")
+		(at 173.99 87.63 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "2a74c4f7-33d5-5140-bb35-2220a2b01d88")
+		(property "Reference" "#PWR311"
+			(at 173.99 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+15V"
+			(at 173.99 84.074 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 173.99 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 173.99 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
+			(at 173.99 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0f2855b9-24bf-5f3c-bba1-fd421adda9d3")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR311")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 190.5 115.57 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "311193dd-e8b5-5eb8-b641-6e4656e634ce")
+		(property "Reference" "#PWR306"
+			(at 190.5 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 190.5 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 190.5 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "60e12701-2cac-54e7-b4ce-c52344a5e9c7")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR306")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 207.01 146.05 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "39060752-5aa9-5033-ac4c-24eaf10455a2")
+		(property "Reference" "#PWR308"
+			(at 207.01 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 207.01 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 207.01 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 207.01 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 207.01 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7f2d2b10-87bc-54d8-836d-4d47881acf47")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR308")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 173.99 93.98 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "595eda83-419b-5314-81f3-ed61a8ddc034")
+		(property "Reference" "R272"
+			(at 177.206 92.93 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1K"
+			(at 177.206 95.03 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 173.99 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 173.99 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, 1K"
+			(at 173.99 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: collector resistor feeding QX1 from +15V"
+			(at 173.99 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "ef561a4e-d8b9-5106-9bdd-db5d9efa803f")
+		)
+		(pin "2"
+			(uuid "938fbb08-e850-5ed9-ad95-c9c194b3c713")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R272")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 228.6 133.35 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5c8816fb-1b63-5ccd-936f-e0afa7f71d26")
+		(property "Reference" "R168"
+			(at 228.6 127.234 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "?"
+			(at 228.6 129.334 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 228.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 228.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 228.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Note" "No value printed"
+			(at 228.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: series resistor from +5VA to the +SUREF output; role unknown beyond that (no value printed)"
+			(at 228.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "ed9a26b6-30a7-59d9-a417-decf35400d72")
+		)
+		(pin "2"
+			(uuid "080aabb4-8315-5c29-aefb-741faed8d482")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R168")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 82.55 129.54 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5ee33804-29e5-5c68-8195-bc349de92214")
+		(property "Reference" "R251"
+			(at 85.766 128.49 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.90K"
+			(at 85.766 130.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 82.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 82.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, 4.90K"
+			(at 82.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: lower leg of the REF_1 divider (with R252) at the U55 non-inverting input"
+			(at 82.55 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4924a5f8-af18-5a64-8387-806b14a38896")
+		)
+		(pin "2"
+			(uuid "34ce8182-7ca7-5e1d-a53d-13b758189b54")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R251")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5VA")
+		(at 215.9 127 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "6a6a61c4-07bd-58ff-970f-f5e6e3b70d2f")
+		(property "Reference" "#PWR316"
+			(at 215.9 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5VA"
+			(at 215.9 123.444 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 215.9 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 215.9 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+5VA\\\""
+			(at 215.9 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7152bcf0-20ed-5694-9bf9-60938aba3dc7")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR316")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 63.5 116.84 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "6e10f21e-7930-5cba-97cc-de96f01d01d2")
+		(property "Reference" "R252"
+			(at 63.5 110.724 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.90K"
+			(at 63.5 112.824 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, 4.90K"
+			(at 63.5 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: upper leg of the REF_1 divider (with R251) setting the U55 non-inverting input"
+			(at 63.5 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "246d7670-b1cb-5546-acc9-09d5b598dc13")
+		)
+		(pin "2"
+			(uuid "d7d73cf2-b88d-5c2d-aee5-3667b90b7df2")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R252")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "oem_patent:OPAMP_2_3_6_7_4")
 		(at 107.95 114.3 0)
 		(unit 1)
@@ -2002,7 +3208,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "02712eb6-64fa-5ed6-972d-f8fa76bfc0ca")
+		(uuid "713b3e3f-5dba-580a-9860-6bea5f75bf9a")
 		(property "Reference" "U55"
 			(at 116.84 118.11 0)
 			(show_name no)
@@ -2081,908 +3287,24 @@
 			)
 		)
 		(pin "2"
-			(uuid "6dc09356-b491-5dc6-95ac-e9277cd58104")
+			(uuid "ac3b8f12-ad26-566a-a6e5-714139392fd8")
 		)
 		(pin "3"
-			(uuid "da6ade43-39a1-519b-a9f1-84934efa9020")
+			(uuid "3a3d8285-f993-5cc9-8a87-c4b071f48b9d")
 		)
 		(pin "6"
-			(uuid "89bf006a-7c08-58d3-8f64-692a44e1ee93")
+			(uuid "1704128b-8825-5325-976e-f6d0bb7844ac")
 		)
 		(pin "7"
-			(uuid "de9c5cc6-a008-54df-a5bf-beaf0abc3f4a")
+			(uuid "aa669cd2-d4b7-59cb-baeb-ec480a4a363a")
 		)
 		(pin "4"
-			(uuid "0c040ab5-d875-5788-96dd-ec7391e6b289")
+			(uuid "106ceed5-ba0c-5cb1-803b-eea435d09ad4")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
 					(reference "U55")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 207.01 146.05 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "10f596e6-554c-52e9-a07d-2e0a4d44be9b")
-		(property "Reference" "#PWR326"
-			(at 207.01 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 207.01 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 207.01 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 207.01 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 207.01 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "be3b79de-96bb-5ed2-a871-ffaac469a07d")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR326")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 63.5 177.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "179de6dc-5f3c-5a76-bbb8-a821c230ec81")
-		(property "Reference" "C130"
-			(at 67.732 176.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" ".1uF"
-			(at 67.732 178.85 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 63.5 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 63.5 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor, .1uF"
-			(at 63.5 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: U55 +15V supply decoupling"
-			(at 63.5 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "9a08d35c-fa56-5188-af9b-47bed93f014d")
-		)
-		(pin "2"
-			(uuid "1abc4987-1106-5a92-b78f-49cb8eb55ae8")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "C130")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 173.99 93.98 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "1866cdd5-d6ac-5359-a482-51c9d06f40d5")
-		(property "Reference" "R272"
-			(at 177.206 92.93 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1K"
-			(at 177.206 95.03 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 173.99 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 173.99 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, 1K"
-			(at 173.99 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: collector resistor feeding QX1 from +15V"
-			(at 173.99 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "1a63533d-36a5-5b4d-9e39-8979666d000c")
-		)
-		(pin "2"
-			(uuid "cb129dd8-e031-5ec0-8a85-e228a69c47af")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R272")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 92.71 73.66 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "254f4a14-bdf3-58db-ac82-e0d846e55b88")
-		(property "Reference" "R271"
-			(at 95.926 72.61 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "4.90K"
-			(at 95.926 74.71 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 92.71 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 92.71 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, 4.90K"
-			(at 92.71 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: feeds +5VA back to the U55 inverting input"
-			(at 92.71 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c827342a-c915-52c7-8606-1cea1ebf419a")
-		)
-		(pin "2"
-			(uuid "1a17900e-7383-59d2-9cf2-fd29a4fc16d5")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R271")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 82.55 135.89 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2a74c4f7-33d5-5140-bb35-2220a2b01d88")
-		(property "Reference" "#PWR323"
-			(at 82.55 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 82.55 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 82.55 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 82.55 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 82.55 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8caefb37-4814-5c51-a05e-7edafa8d6153")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR323")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 190.5 139.7 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "311193dd-e8b5-5eb8-b641-6e4656e634ce")
-		(property "Reference" "C159"
-			(at 193.04 138.43 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2.2uF/25V"
-			(at 193.04 140.97 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 190.5 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: bulk output capacitor on +5VA"
-			(at 190.5 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a04b0972-8f0e-5b53-870b-93fc90a0d838")
-		)
-		(pin "2"
-			(uuid "c1544130-e8b3-5abd-8c1e-3dcb6c80b329")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "C159")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 228.6 133.35 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "39060752-5aa9-5033-ac4c-24eaf10455a2")
-		(property "Reference" "R168"
-			(at 228.6 127.234 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "?"
-			(at 228.6 129.334 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 228.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 228.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 228.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Note" "No value printed"
-			(at 228.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: series resistor from +5VA to the +SUREF output; role unknown beyond that (no value printed)"
-			(at 228.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "650eb996-babe-5d17-8701-e7fb318934d7")
-		)
-		(pin "2"
-			(uuid "ed53ce4a-e5d4-537a-9ad4-baf0df509483")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R168")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 82.55 129.54 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "595eda83-419b-5314-81f3-ed61a8ddc034")
-		(property "Reference" "R251"
-			(at 85.766 128.49 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "4.90K"
-			(at 85.766 130.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 82.55 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 82.55 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, 4.90K"
-			(at 82.55 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: lower leg of the REF_1 divider (with R252) at the U55 non-inverting input"
-			(at 82.55 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f6028c72-2376-50f7-8317-e6e7a9acde30")
-		)
-		(pin "2"
-			(uuid "75f32b74-4cbe-5859-a396-52c862869bd4")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R251")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 149.86 114.3 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5c8816fb-1b63-5ccd-936f-e0afa7f71d26")
-		(property "Reference" "R273"
-			(at 149.86 108.184 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "4.75K"
-			(at 149.86 110.284 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 149.86 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 149.86 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, 4.75K"
-			(at 149.86 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: base resistor from U55 output to the QX1 pass transistor"
-			(at 149.86 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7a91ad0a-11e8-5b68-828a-20b76304abcc")
-		)
-		(pin "2"
-			(uuid "85aeaa6e-9a34-5773-837a-bdbaecf56068")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R273")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+15V")
-		(at 63.5 171.45 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5d94cd8b-c60c-5435-954c-1e82b0dacca2")
-		(property "Reference" "#PWR330"
-			(at 63.5 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+15V"
-			(at 63.5 167.894 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 63.5 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 63.5 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 63.5 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0814959c-2e11-5bbf-b694-e333f252bea6")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR330")
 					(unit 1)
 				)
 			)
@@ -2998,8 +3320,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6a6a61c4-07bd-58ff-970f-f5e6e3b70d2f")
-		(property "Reference" "#PWR328"
+		(uuid "751b8d13-f778-50e2-af94-22ed7f668629")
+		(property "Reference" "#PWR310"
 			(at 105.41 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -3054,112 +3376,20 @@
 			)
 		)
 		(pin "1"
-			(uuid "d026d997-2a9b-5b71-a968-cb7d39ef73cb")
+			(uuid "09b37f2f-cc49-58b4-bcc8-ade59053825e")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR328")
+					(reference "#PWR310")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 82.55 177.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "751b8d13-f778-50e2-af94-22ed7f668629")
-		(property "Reference" "C151"
-			(at 86.782 176.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" ".1uF"
-			(at 86.782 178.85 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 82.55 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 82.55 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor, .1uF"
-			(at 82.55 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: U55 -15V supply decoupling"
-			(at 82.55 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "de2aa2ff-10d7-55ad-b392-1a923141f55c")
-		)
-		(pin "2"
-			(uuid "9286dd2c-349b-5047-95e8-07a641d97165")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "C151")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 190.5 146.05 0)
+		(lib_id "power:-15V")
+		(at 109.22 129.54 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3168,8 +3398,8 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "8058ac53-f567-5514-9753-86e2c0eb7476")
-		(property "Reference" "#PWR325"
-			(at 190.5 146.05 0)
+		(property "Reference" "#PWR313"
+			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3179,9 +3409,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 190.5 146.05 0)
-			(hide yes)
+		(property "Value" "-15V"
+			(at 109.22 125.984 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3191,7 +3420,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 146.05 0)
+			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3202,7 +3431,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 146.05 0)
+			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3212,95 +3441,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 190.5 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "1100910f-7b86-5bc1-9db3-cf23c24d328f")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR325")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 63.5 116.84 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "81c4a74e-1bd8-554c-bb85-b931c23d5dbf")
-		(property "Reference" "R252"
-			(at 63.5 110.724 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "4.90K"
-			(at 63.5 112.824 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 63.5 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 63.5 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor, 4.90K"
-			(at 63.5 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: upper leg of the REF_1 divider (with R251) setting the U55 non-inverting input"
-			(at 63.5 116.84 0)
+		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
+			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3311,93 +3453,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d6a7d152-da26-5b60-b955-d10c60915b60")
-		)
-		(pin "2"
-			(uuid "1fc41c8b-6488-5058-9155-df2b4b4399a9")
+			(uuid "4999423d-9b3f-5eaa-ab2b-435e2dd6b7f4")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "R252")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 63.5 184.15 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a09acf0d-6c03-5587-aff0-f77e3f90f4ef")
-		(property "Reference" "#PWR327"
-			(at 63.5 184.15 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 63.5 184.15 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 63.5 184.15 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 63.5 184.15 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 63.5 184.15 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "cabd0ad7-004c-57f4-9db0-02b6cc62c676")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR327")
+					(reference "#PWR313")
 					(unit 1)
 				)
 			)
@@ -3413,7 +3474,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a58bdc27-8e9e-5b6a-89e8-a1103bbd5bb1")
+		(uuid "81c4a74e-1bd8-554c-bb85-b931c23d5dbf")
 		(property "Reference" "QX1"
 			(at 177.7394 113.25 0)
 			(show_name no)
@@ -3492,357 +3553,18 @@
 			)
 		)
 		(pin "B"
-			(uuid "b571530e-a0c3-5ecb-be16-9418dd5d5635")
+			(uuid "9f14e82c-00e3-5ad9-afcf-7d7a021a1111")
 		)
 		(pin "C"
-			(uuid "e0a382b1-2846-5480-88f8-b044eb782061")
+			(uuid "fea1925c-0b4f-5724-973b-ca610f9f82f2")
 		)
 		(pin "E"
-			(uuid "56392fb2-e20c-511a-81df-9dc95c6aec12")
+			(uuid "23989e0b-a39a-5ee0-b6ea-46573737e5c3")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
 					(reference "QX1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 82.55 171.45 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b95e97f5-8a4f-53a3-8ac4-ca0138c72506")
-		(property "Reference" "#PWR332"
-			(at 82.55 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-15V"
-			(at 82.55 167.894 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 82.55 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 82.55 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 82.55 171.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0dde55c6-e74b-52f3-bf45-5f7b1cf1faed")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR332")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 190.5 109.22 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "bca4864a-5fcd-5029-b59a-96ad5ad90b8c")
-		(property "Reference" "C163"
-			(at 194.732 108.17 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" ".1uF"
-			(at 194.732 110.27 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor, .1uF"
-			(at 190.5 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: bypass capacitor on the QX1 collector supply"
-			(at 190.5 109.22 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "90534278-e337-559f-9e4b-2906404240be")
-		)
-		(pin "2"
-			(uuid "49a59a01-48a4-5267-a06a-14c6395bdfe7")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "C163")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 190.5 115.57 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c6d71019-0e11-53b6-bd6e-d85da30036e1")
-		(property "Reference" "#PWR324"
-			(at 190.5 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 190.5 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 190.5 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7cc7e43d-48e4-56c3-8da2-c5d59b5c705c")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR324")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 207.01 139.7 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d0769386-bcaa-58fe-83e5-b719594e3f4f")
-		(property "Reference" "C157"
-			(at 211.242 138.65 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" ".1uF"
-			(at 211.242 140.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 207.01 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 207.01 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Capacitor, .1uF"
-			(at 207.01 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: high-frequency output capacitor on +5VA"
-			(at 207.01 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7039b958-d12d-5a20-ac64-f15b07bbda84")
-		)
-		(pin "2"
-			(uuid "362b5444-f42a-55ee-a149-beaf4626b03c")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "C157")
 					(unit 1)
 				)
 			)
@@ -3858,8 +3580,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d526ec45-669b-5558-b34c-574ef4f3e216")
-		(property "Reference" "#PWR333"
+		(uuid "a09acf0d-6c03-5587-aff0-f77e3f90f4ef")
+		(property "Reference" "#PWR315"
 			(at 92.71 67.31 0)
 			(hide yes)
 			(show_name no)
@@ -3914,12 +3636,104 @@
 			)
 		)
 		(pin "1"
-			(uuid "bb2aeddd-608d-5235-b770-4af6e51088b7")
+			(uuid "84d87272-cce0-5f70-bede-d474167551e6")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR333")
+					(reference "#PWR315")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 63.5 177.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a58bdc27-8e9e-5b6a-89e8-a1103bbd5bb1")
+		(property "Reference" "C130"
+			(at 67.732 176.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" ".1uF"
+			(at 67.732 178.85 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Capacitor, .1uF"
+			(at 63.5 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: U55 +15V supply decoupling"
+			(at 63.5 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "87d8f7a9-8fa4-5c24-bf78-0b381cd36df1")
+		)
+		(pin "2"
+			(uuid "777e23dd-3507-5860-b1ef-7bfd218256cb")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "C130")
 					(unit 1)
 				)
 			)
@@ -3935,7 +3749,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e1335d22-f103-524a-a47b-4223ca31ee04")
+		(uuid "bace6fc9-e08d-5355-8457-020e86faeaac")
 		(property "Reference" "C152"
 			(at 107.95 84.308 90)
 			(show_name no)
@@ -4001,10 +3815,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "c60241f7-34e3-52f4-bbf7-53022dede32e")
+			(uuid "6864e128-3b6e-58ce-a301-a8efb976a16b")
 		)
 		(pin "2"
-			(uuid "1fc4aaaa-3f7c-502d-b008-192f7862980e")
+			(uuid "00b1f625-d54b-592b-8150-50896eaa0adf")
 		)
 		(instances
 			(project "oem-controller"
@@ -4016,8 +3830,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:-15V")
-		(at 109.22 129.54 0)
+		(lib_id "power:GND")
+		(at 82.55 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4025,9 +3839,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e3e3e895-5848-50f8-8011-dce11ff4506f")
-		(property "Reference" "#PWR331"
-			(at 109.22 129.54 0)
+		(uuid "bca4864a-5fcd-5029-b59a-96ad5ad90b8c")
+		(property "Reference" "#PWR305"
+			(at 82.55 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4037,8 +3851,9 @@
 				)
 			)
 		)
-		(property "Value" "-15V"
-			(at 109.22 125.984 0)
+		(property "Value" "GND"
+			(at 82.55 135.89 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4048,7 +3863,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 109.22 129.54 0)
+			(at 82.55 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4059,7 +3874,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 109.22 129.54 0)
+			(at 82.55 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4069,85 +3884,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 109.22 129.54 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3544ece0-42e3-5fef-95b1-8d27b054e50e")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR331")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5VA")
-		(at 215.9 127 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e58facf1-50ad-59f5-a73e-756fd4b52c7f")
-		(property "Reference" "#PWR334"
-			(at 215.9 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5VA"
-			(at 215.9 123.444 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 215.9 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 215.9 127 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+5VA\\\""
-			(at 215.9 127 0)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 82.55 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4158,12 +3896,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f5f77abf-384e-5e76-b242-2ebc7f80a307")
+			(uuid "f4ab75b8-54a4-5110-9abc-fb40e5cea13b")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR334")
+					(reference "#PWR305")
 					(unit 1)
 				)
 			)
@@ -4171,7 +3909,7 @@
 	)
 	(symbol
 		(lib_id "power:+15V")
-		(at 173.99 87.63 0)
+		(at 63.5 171.45 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4179,9 +3917,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e966764d-3deb-5169-b4aa-ef3a414b64a4")
-		(property "Reference" "#PWR329"
-			(at 173.99 87.63 0)
+		(uuid "c6d71019-0e11-53b6-bd6e-d85da30036e1")
+		(property "Reference" "#PWR312"
+			(at 63.5 171.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4192,7 +3930,7 @@
 			)
 		)
 		(property "Value" "+15V"
-			(at 173.99 84.074 0)
+			(at 63.5 167.894 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4202,7 +3940,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 173.99 87.63 0)
+			(at 63.5 171.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4213,7 +3951,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 173.99 87.63 0)
+			(at 63.5 171.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4224,7 +3962,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \\\"+15V\\\""
-			(at 173.99 87.63 0)
+			(at 63.5 171.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4235,12 +3973,274 @@
 			)
 		)
 		(pin "1"
-			(uuid "aa1bb8c5-5ca6-5215-b084-dbba376be3c6")
+			(uuid "97398723-1b90-5432-afbd-a592742f3ee0")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
-					(reference "#PWR329")
+					(reference "#PWR312")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 190.5 146.05 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d0769386-bcaa-58fe-83e5-b719594e3f4f")
+		(property "Reference" "#PWR307"
+			(at 190.5 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 190.5 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 190.5 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1645bedf-3c59-5a26-ae3c-4f61851eac3f")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "#PWR307")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 190.5 139.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e1335d22-f103-524a-a47b-4223ca31ee04")
+		(property "Reference" "C159"
+			(at 193.04 138.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2.2uF/25V"
+			(at 193.04 140.97 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 190.5 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: bulk output capacitor on +5VA"
+			(at 190.5 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "45d10fe1-b29c-5c40-86b7-67e904193c96")
+		)
+		(pin "2"
+			(uuid "56035a16-c42d-5b63-8fd9-558bad9261a7")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "C159")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 92.71 73.66 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "eedbd805-07b3-5d71-a6a2-bebd806f8ffc")
+		(property "Reference" "R271"
+			(at 95.926 72.61 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.90K"
+			(at 95.926 74.71 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 92.71 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, 4.90K"
+			(at 92.71 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: feeds +5VA back to the U55 inverting input"
+			(at 92.71 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "956b842e-0c78-54c7-bd1c-703896c69da7")
+		)
+		(pin "2"
+			(uuid "36026d7b-fde8-58ca-8abc-aff54838e8dc")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/f7e3ae32-19d5-5491-94f4-8ceae832e2fc"
+					(reference "R271")
 					(unit 1)
 				)
 			)

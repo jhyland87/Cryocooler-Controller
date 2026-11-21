@@ -10,17 +10,6 @@
 		(company "OEM controller - patent transcription")
 	)
 	(lib_symbols)
-	(text "Set point: SUM -> CLAMP (limited by the ceiling node from CMT and BACK-OFF) -> NOT_TOTAL.\nOverstroke: HOG -> TRIP -> COUNTER -> BACK-OFF (BACK_OFF_COUNT, and the ceiling node).\nSignal roles are inferred (analysis/OVERSTROKE.md 2.3); the patent text does not describe FIG 5C."
-		(exclude_from_sim no)
-		(at 19.05 177.8 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "25639217-6ded-5a48-ae89-23081bff46af")
-	)
 	(text "FIG 5C - Set-point sum, overstroke back-off\nSource: US6098409 sheets 6-7 of 25 (PDF p7-8), FIG 5C-1 + FIG 5C-2"
 		(exclude_from_sim no)
 		(at 15 18 0)
@@ -30,127 +19,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "8c9a2be1-fa45-5f24-857a-7340176a459d")
+		(uuid "65199dc4-b6d0-54b4-911a-ba95d95ce934")
 	)
-	(wire
-		(pts
-			(xy 73.66 50.8) (xy 76.2 50.8)
+	(text "Set point: SUM -> CLAMP (limited by the ceiling node from CMT and BACK-OFF) -> NOT_TOTAL.\nOverstroke: HOG -> TRIP -> COUNTER -> BACK-OFF (BACK_OFF_COUNT, and the ceiling node).\nSignal roles are inferred (analysis/OVERSTROKE.md 2.3); the patent text does not describe FIG 5C."
+		(exclude_from_sim no)
+		(at 19.05 177.8 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
 		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0272c9c1-63a5-5f1b-b457-af76ced97dbd")
-	)
-	(wire
-		(pts
-			(xy 175.26 50.8) (xy 196.85 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0ae3348e-39cb-5ac8-afde-6cf66bbb79f4")
-	)
-	(wire
-		(pts
-			(xy 73.66 93.98) (xy 76.2 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "10aefb1f-c70d-50b1-b3b0-d718fb485e35")
-	)
-	(wire
-		(pts
-			(xy 76.2 93.98) (xy 107.95 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "128111f0-9a99-5408-af2f-561c4eff3fa9")
-	)
-	(wire
-		(pts
-			(xy 73.66 149.86) (xy 76.2 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ffcde17-9d98-5b8e-8e90-f53404213ff4")
-	)
-	(wire
-		(pts
-			(xy 137.16 149.86) (xy 139.7 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49816ff4-4308-5f3b-9c21-6b94934bba0c")
-	)
-	(wire
-		(pts
-			(xy 203.2 149.86) (xy 228.6 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4da80755-f216-55ca-b6fa-b79800c2c730")
-	)
-	(wire
-		(pts
-			(xy 76.2 50.8) (xy 139.7 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7ffcb567-8ea3-52f9-9054-e53251261225")
-	)
-	(wire
-		(pts
-			(xy 107.95 55.88) (xy 107.95 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a89e6206-35e5-50b6-9e07-7c6743bb8fb8")
-	)
-	(wire
-		(pts
-			(xy 264.16 154.94) (xy 266.7 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ab9f25c3-8b06-5c09-9ebd-d8e510f7e25f")
-	)
-	(wire
-		(pts
-			(xy 25.4 50.8) (xy 38.1 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5b5cab9-0f9c-57c2-a799-3697401ea000")
-	)
-	(wire
-		(pts
-			(xy 139.7 149.86) (xy 165.1 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ccae485d-10c7-5099-8dfd-5f626447abd8")
+		(uuid "e4448805-3d19-5770-a654-23dccee77260")
 	)
 	(wire
 		(pts
@@ -160,27 +40,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d69f3676-1c6b-5f67-8d4c-ee52e6cceda0")
+		(uuid "0272c9c1-63a5-5f1b-b457-af76ced97dbd")
 	)
 	(wire
 		(pts
-			(xy 264.16 149.86) (xy 285.75 149.86)
+			(xy 139.7 149.86) (xy 165.1 149.86)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e642a211-8179-5c5b-b26d-3ac31856d222")
-	)
-	(wire
-		(pts
-			(xy 107.95 55.88) (xy 139.7 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef982ec1-83df-5e99-a9ea-96ef48484683")
+		(uuid "0ae3348e-39cb-5ac8-afde-6cf66bbb79f4")
 	)
 	(wire
 		(pts
@@ -190,7 +60,137 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fd6b867e-f389-5453-a295-dff68f98b55e")
+		(uuid "10aefb1f-c70d-50b1-b3b0-d718fb485e35")
+	)
+	(wire
+		(pts
+			(xy 203.2 149.86) (xy 228.6 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "128111f0-9a99-5408-af2f-561c4eff3fa9")
+	)
+	(wire
+		(pts
+			(xy 264.16 149.86) (xy 285.75 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ffcde17-9d98-5b8e-8e90-f53404213ff4")
+	)
+	(wire
+		(pts
+			(xy 264.16 154.94) (xy 266.7 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "49816ff4-4308-5f3b-9c21-6b94934bba0c")
+	)
+	(wire
+		(pts
+			(xy 76.2 93.98) (xy 107.95 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f89f678-963d-5f3a-afce-166a9ba9aaa6")
+	)
+	(wire
+		(pts
+			(xy 25.4 50.8) (xy 38.1 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "57953680-c57b-5ec8-99d1-57546fc3fec7")
+	)
+	(wire
+		(pts
+			(xy 76.2 50.8) (xy 139.7 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c67e066-50fc-5f33-9237-cbdc78903448")
+	)
+	(wire
+		(pts
+			(xy 137.16 149.86) (xy 139.7 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ffcb567-8ea3-52f9-9054-e53251261225")
+	)
+	(wire
+		(pts
+			(xy 175.26 50.8) (xy 196.85 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "849c3176-b2e7-5d5d-b9f9-1503dde4d23e")
+	)
+	(wire
+		(pts
+			(xy 73.66 50.8) (xy 76.2 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fe4db1f-ce0a-59f1-89ac-850e09b79501")
+	)
+	(wire
+		(pts
+			(xy 73.66 149.86) (xy 76.2 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c5b5cab9-0f9c-57c2-a799-3697401ea000")
+	)
+	(wire
+		(pts
+			(xy 107.95 55.88) (xy 107.95 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ccae485d-10c7-5099-8dfd-5f626447abd8")
+	)
+	(wire
+		(pts
+			(xy 107.95 55.88) (xy 139.7 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d69f3676-1c6b-5f67-8d4c-ee52e6cceda0")
+	)
+	(wire
+		(pts
+			(xy 73.66 93.98) (xy 76.2 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb4b4965-80b3-5cc2-9f7c-d5e755ee0524")
 	)
 	(label "5C_COUNT_CAP"
 		(at 203.2 149.86 0)
@@ -200,31 +200,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "358840cb-0d39-58e9-86d7-93a1d48a2969")
+		(uuid "0e313a68-0a4d-5d3a-a0cb-5f193d918a7e")
 		(property "Description" "Inferred from the circuit: C71 count voltage, to the U27A buffer"
 			(at 203.2 149.86 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "5C_U34_OUT"
-		(at 76.2 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "65199dc4-b6d0-54b4-911a-ba95d95ce934")
-		(property "Description" "Inferred from the circuit: U34 set-point sum, into the U26B clamp through R139"
-			(at 76.2 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -244,31 +222,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "66e88068-e052-564f-8f40-90f105279fd6")
+		(uuid "a40fee44-a5bd-5d23-ac50-5250a550946a")
 		(property "Description" "Inferred from the circuit: amplified HOG_T signal from U53B (TPX1) to the U48 trip comparator"
 			(at 76.2 149.86 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(label "5C_U48_OUT"
-		(at 139.7 149.86 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "84e83ce9-a018-5135-a6bd-74af6064fdd8")
-		(property "Description" "Inferred from the circuit: U48 trip output (pulled up to +5VA), triggers both U28 one-shots"
-			(at 139.7 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -288,7 +244,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8ca2689b-1de2-5122-b47c-8405b299c55f")
+		(uuid "a89e6206-35e5-50b6-9e07-7c6743bb8fb8")
 		(property "Description" "Inferred from the circuit (analysis/OVERSTROKE.md 2.3): ceiling node at the U26B + input, driven by the CMT rectifier (R140) and the back-off stage (R163)"
 			(at 266.7 154.94 0)
 			(hide yes)
@@ -310,9 +266,76 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "e4448805-3d19-5770-a654-23dccee77260")
+		(uuid "ab9f25c3-8b06-5c09-9ebd-d8e510f7e25f")
 		(property "Description" "Inferred from the circuit (analysis/OVERSTROKE.md 2.3): ceiling node at the U26B + input, driven by the CMT rectifier (R140) and the back-off stage (R163)"
 			(at 76.2 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "5C_U34_OUT"
+		(at 76.2 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ef982ec1-83df-5e99-a9ea-96ef48484683")
+		(property "Description" "Inferred from the circuit: U34 set-point sum, into the U26B clamp through R139"
+			(at 76.2 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(label "5C_U48_OUT"
+		(at 139.7 149.86 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f5d8039c-16ef-5c20-b572-2925112cbd0a")
+		(property "Description" "Inferred from the circuit: U48 trip output (pulled up to +5VA), triggers both U28 one-shots"
+			(at 139.7 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
+	(hierarchical_label "NOT_TOTAL"
+		(shape output)
+		(at 196.85 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4da80755-f216-55ca-b6fa-b79800c2c730")
+		(property "Description" "Patent: FIG 5C-2 off-page flag NOT_TOTAL (joined to HOT TOTAL on 5E and HOT-TOTAL on 5G, an inference). Inferred: the clamped drive command from U33, to the UX1 pot reference (5E) and U22 PE4/AN4 (5G)"
+			(at 196.85 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -333,7 +356,7 @@
 			)
 			(justify left)
 		)
-		(uuid "0e313a68-0a4d-5d3a-a0cb-5f193d918a7e")
+		(uuid "e642a211-8179-5c5b-b26d-3ac31856d222")
 		(property "Description" "Patent: FIG 5C-2 off-page flag BACK_OFF_COUNT, to U22 PE3/AN3 on FIG 5G. Inferred: buffered C71 count voltage"
 			(at 285.75 149.86 0)
 			(hide yes)
@@ -356,7 +379,7 @@
 			)
 			(justify right)
 		)
-		(uuid "a40fee44-a5bd-5d23-ac50-5250a550946a")
+		(uuid "fd6b867e-f389-5453-a295-dff68f98b55e")
 		(property "Description" "Patent: FIG 5C-1 off-page flag OF_SET, from FIG 5B (U54 buffer). Inferred from the circuit: offset set point into U46"
 			(at 25.4 50.8 0)
 			(hide yes)
@@ -367,29 +390,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-			)
-		)
-	)
-	(hierarchical_label "NOT_TOTAL"
-		(shape output)
-		(at 196.85 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f5d8039c-16ef-5c20-b572-2925112cbd0a")
-		(property "Description" "Patent: FIG 5C-2 off-page flag NOT_TOTAL (joined to HOT TOTAL on 5E and HOT-TOTAL on 5G, an inference). Inferred: the clamped drive command from U33, to the UX1 pot reference (5E) and U22 PE4/AN4 (5G)"
-			(at 196.85 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 			)
 		)
 	)

@@ -595,18 +595,19 @@ LABEL_SHAPES = {}
 FACING = {'right': (1, 0), 'left': (-1, 0), 'up': (0, -1), 'down': (0, 1)}
 
 
-def port(net, shape, on=None, extra=0, side=None, at=None, facing='right'):
+def port(net, shape, on=None, extra=0, side=None, at=None, facing='right', slot=None):
     """
     A hierarchical label for `net`, either at the endpoint `on` ('REF.PIN' or
     'CHILD:NET') moved `extra` cells further out along its stub, or free at `at`
     (col, row) pointing `facing`; a free label is the endpoint '@NET' for WIRES.
     `shape` is input / output / bidirectional / passive, seen from this sheet. `side`
     puts this sheet's pin on the left or right of its block in the parent (default:
-    inputs left, the rest right).
+    inputs left, the rest right). `slot` (1, 2, ...) puts the pin on that row of its side,
+    leaving gaps above it, so it can line up with a pin on another block.
     """
     assert (on is None) != (at is None), f'port {net}: give on= or at='
     return SimpleNamespace(net=net, shape=shape, on=on if at is None else '@' + net, extra=extra,
-                           side=side or SHEET_PIN_SIDE[shape], at=at, facing=facing)
+                           side=side or SHEET_PIN_SIDE[shape], at=at, facing=facing, slot=slot)
 
 
 def tap(name, net, at, facing='up'):
@@ -647,14 +648,15 @@ kicadgen.label_shape = _hier_shape
 
 def block_geometry(node):
     """Block size (mm) and {net: (x, y, side)} pin offsets for a node's ports."""
-    left = [p for p in node.PORTS if p.side == 'left']
-    right = [p for p in node.PORTS if p.side == 'right']
-    height = SHEET_PIN_PITCH * (max(len(left), len(right), 1) + 1)
+    pins, rows = {}, 1
     width = getattr(node, 'WIDTH', 50.8)
-    pins = {}
-    for side, items in (('left', left), ('right', right)):
-        for index, item in enumerate(items):
-            pins[item.net] = ((0 if side == 'left' else width), SHEET_PIN_PITCH * (index + 1), side)
+    for side in ('left', 'right'):
+        row = 0
+        for item in (p for p in node.PORTS if p.side == side):
+            row = max(row + 1, getattr(item, 'slot', None) or 0)
+            pins[item.net] = ((0 if side == 'left' else width), SHEET_PIN_PITCH * row, side)
+        rows = max(rows, row)
+    height = SHEET_PIN_PITCH * (rows + 1)
     return width, height, pins
 
 

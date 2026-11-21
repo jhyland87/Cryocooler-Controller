@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "1ba2ccd7-2617-568f-8a01-796dc7fd1823")
+	(uuid "52c8a210-ed53-5e0f-a284-e3064920324d")
 	(paper "A3")
 	(title_block
 		(title "+12V, -12V and -5V regulators")
@@ -1059,6 +1059,17 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "FIG 5F - References and power supply\n+12V, -12V and -5V regulators\nSource: US6098409 sheets 12-13 of 25 (PDF p13-14), FIG 5F-1/5F-2"
+		(exclude_from_sim no)
+		(at 15 18 0)
+		(effects
+			(font
+				(size 2.5 2.5)
+			)
+			(justify left top)
+		)
+		(uuid "67127e24-8d8f-5894-8af4-f303a9299937")
+	)
 	(text "-5V"
 		(exclude_from_sim no)
 		(at 116.84 165.1 0)
@@ -1068,7 +1079,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "042d3c73-fe95-5250-b3e5-9d22c787cfc7")
+		(uuid "73a9ed99-c081-59ef-b763-e286bd4988fb")
 	)
 	(text "-12V"
 		(exclude_from_sim no)
@@ -1079,7 +1090,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "34270fd9-784f-5e8a-a8d1-e8f7d54061df")
+		(uuid "872055b2-9419-5920-b971-9a1a8684cdfd")
 	)
 	(text "+12V"
 		(exclude_from_sim no)
@@ -1090,190 +1101,79 @@
 			)
 			(justify left top)
 		)
-		(uuid "84eeceb4-bfbf-5d48-afd2-2f84e5d0273e")
-	)
-	(text "FIG 5F - References and power supply\n+12V, -12V and -5V regulators\nSource: US6098409 sheets 12-13 of 25 (PDF p13-14), FIG 5F-1/5F-2"
-		(exclude_from_sim no)
-		(at 15 18 0)
-		(effects
-			(font
-				(size 2.5 2.5)
-			)
-			(justify left top)
-		)
-		(uuid "c593f67f-7562-529a-9971-7f9dd8b87589")
-	)
-	(junction
-		(at 127 146.05)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "262d3a45-622b-5327-a7f7-73232f1d4533")
-	)
-	(junction
-		(at 127 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2db9f789-3921-51c1-9872-5c2d7836d748")
-	)
-	(junction
-		(at 127 203.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3867c5d3-e8cb-56d7-ac32-8df17f011b83")
-	)
-	(junction
-		(at 152.4 177.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7152bcf0-20ed-5694-9bf9-60938aba3dc7")
-	)
-	(junction
-		(at 101.6 63.5)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "76d42b29-816c-5180-aef8-40a5b82a7abb")
-	)
-	(junction
-		(at 101.6 177.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "83955452-4b8b-5032-bf5d-28967421453d")
-	)
-	(junction
-		(at 101.6 146.05)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "84d87272-cce0-5f70-bede-d474167551e6")
+		(uuid "a5c454d4-bd77-568c-bf20-bac36fa41cb6")
 	)
 	(junction
 		(at 152.4 63.5)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "88f79698-e7fb-5ce7-9b75-27d05a7bf014")
-	)
-	(junction
-		(at 101.6 120.65)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b16f51d0-b338-5cd0-a614-754e710b0b07")
-	)
-	(junction
-		(at 101.6 203.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "dc2f16fd-58c5-5f49-8042-e5c69c26b597")
-	)
-	(junction
-		(at 152.4 120.65)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e39833c1-894d-51d2-b5f3-acc08c93f81f")
+		(uuid "0f8a5940-b801-5b57-92df-3679897a0a97")
 	)
 	(junction
 		(at 101.6 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "e55a6c77-4990-5716-94e7-da0853fc621c")
+		(uuid "19266eb7-9f83-5551-ae64-f859d3635544")
 	)
-	(wire
-		(pts
-			(xy 101.6 80.01) (xy 101.6 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "080aabb4-8315-5c29-aefb-741faed8d482")
+	(junction
+		(at 152.4 120.65)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "22d21af1-0a0e-54f7-a766-ccb15c2c6c2e")
 	)
-	(wire
-		(pts
-			(xy 152.4 120.65) (xy 152.4 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09b37f2f-cc49-58b4-bcc8-ade59053825e")
+	(junction
+		(at 101.6 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3369c4d5-33aa-55c5-908b-5a4657fcae63")
 	)
-	(wire
-		(pts
-			(xy 152.4 137.16) (xy 152.4 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0f2855b9-24bf-5f3c-bba1-fd421adda9d3")
+	(junction
+		(at 101.6 203.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3cb14259-e2d6-548c-9f0f-4792459976c7")
 	)
-	(wire
-		(pts
-			(xy 127 185.42) (xy 127 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1645bedf-3c59-5a26-ae3c-4f61851eac3f")
+	(junction
+		(at 127 203.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "71c4a259-4713-5b9b-bc93-2277eb620b07")
 	)
-	(wire
-		(pts
-			(xy 137.16 120.65) (xy 165.1 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "23989e0b-a39a-5ee0-b6ea-46573737e5c3")
+	(junction
+		(at 101.6 120.65)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7640cdfb-fd26-52fa-8dba-0d773cd46687")
 	)
-	(wire
-		(pts
-			(xy 101.6 88.9) (xy 127 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "43243f1d-6805-5865-beef-3cdce9916ff8")
+	(junction
+		(at 101.6 146.05)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a1e8b181-5232-5d6c-a9e5-eb5b251bd661")
 	)
-	(wire
-		(pts
-			(xy 101.6 146.05) (xy 127 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "45d10fe1-b29c-5c40-86b7-67e904193c96")
+	(junction
+		(at 101.6 177.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b40e6752-90aa-5649-9467-6796669c5044")
 	)
-	(wire
-		(pts
-			(xy 152.4 80.01) (xy 152.4 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "476bb070-cb85-53bf-b063-fa9015f49921")
+	(junction
+		(at 152.4 177.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d6997a94-117c-5ff3-889c-cf5dbffdd495")
 	)
-	(wire
-		(pts
-			(xy 152.4 194.31) (xy 152.4 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4999423d-9b3f-5eaa-ab2b-435e2dd6b7f4")
+	(junction
+		(at 127 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "db3f5dcf-6f00-5d66-95a6-cd9761748c19")
 	)
-	(wire
-		(pts
-			(xy 101.6 177.8) (xy 101.6 186.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49ad67f2-3000-5070-a5f6-7ca8117c24ca")
+	(junction
+		(at 127 146.05)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ebea6cd1-234c-5485-bc0e-bc582c9999c8")
 	)
 	(wire
 		(pts
@@ -1283,37 +1183,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "509376bf-3395-5883-9821-59b65bc5ab2c")
+		(uuid "0a8f6914-e57a-5b7f-9577-7c105da68115")
 	)
 	(wire
 		(pts
-			(xy 127 146.05) (xy 152.4 146.05)
+			(xy 101.6 177.8) (xy 101.6 186.69)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "56035a16-c42d-5b63-8fd9-558bad9261a7")
-	)
-	(wire
-		(pts
-			(xy 127 128.27) (xy 127 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60e12701-2cac-54e7-b4ce-c52344a5e9c7")
-	)
-	(wire
-		(pts
-			(xy 101.6 194.31) (xy 101.6 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6a1e98f5-37af-5aeb-8659-8dd51c298a36")
+		(uuid "1582c5d3-cb53-5f3d-bc63-10d89fb759a6")
 	)
 	(wire
 		(pts
@@ -1323,17 +1203,27 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "777e23dd-3507-5860-b1ef-7bfd218256cb")
+		(uuid "17d0b045-f7d5-5067-aa1e-0ac84debdb8e")
 	)
 	(wire
 		(pts
-			(xy 152.4 63.5) (xy 152.4 72.39)
+			(xy 152.4 194.31) (xy 152.4 203.2)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "7f2d2b10-87bc-54d8-836d-4d47881acf47")
+		(uuid "30aeb346-94ff-593e-8f1e-819b3576e207")
+	)
+	(wire
+		(pts
+			(xy 101.6 194.31) (xy 101.6 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b0ee438-f52e-51b6-9264-e1f1f5bfffef")
 	)
 	(wire
 		(pts
@@ -1343,87 +1233,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "87d8f7a9-8fa4-5c24-bf78-0b381cd36df1")
-	)
-	(wire
-		(pts
-			(xy 127 203.2) (xy 152.4 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "908db7b2-2ee8-58db-801f-a2fcbac1109a")
-	)
-	(wire
-		(pts
-			(xy 137.16 177.8) (xy 165.1 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "938fbb08-e850-5ed9-ad95-c9c194b3c713")
-	)
-	(wire
-		(pts
-			(xy 152.4 177.8) (xy 152.4 186.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "97398723-1b90-5432-afbd-a592742f3ee0")
-	)
-	(wire
-		(pts
-			(xy 137.16 63.5) (xy 165.1 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f14e82c-00e3-5ad9-afcf-7d7a021a1111")
-	)
-	(wire
-		(pts
-			(xy 127 88.9) (xy 152.4 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b8ddab18-f7a6-5a0e-b686-96ef1d1e8b71")
-	)
-	(wire
-		(pts
-			(xy 101.6 203.2) (xy 127 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "df02d988-1460-52ae-b21f-30234e958ca3")
-	)
-	(wire
-		(pts
-			(xy 101.6 63.5) (xy 101.6 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ed9a26b6-30a7-59d9-a417-decf35400d72")
-	)
-	(wire
-		(pts
-			(xy 88.9 177.8) (xy 119.38 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef561a4e-d8b9-5106-9bdd-db5d9efa803f")
+		(uuid "4afdc531-749c-56d9-bde6-144a694eecba")
 	)
 	(wire
 		(pts
@@ -1433,7 +1243,137 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f4ab75b8-54a4-5110-9abc-fb40e5cea13b")
+		(uuid "59cecb33-843c-53a6-bc43-b0953c135cad")
+	)
+	(wire
+		(pts
+			(xy 101.6 88.9) (xy 127 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c3f891e-a246-5e47-82dd-e5626095698b")
+	)
+	(wire
+		(pts
+			(xy 152.4 120.65) (xy 152.4 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6be3205d-88fa-5600-b39f-61c7670cbf1b")
+	)
+	(wire
+		(pts
+			(xy 137.16 120.65) (xy 165.1 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79833d15-cece-556f-9803-9439370925d2")
+	)
+	(wire
+		(pts
+			(xy 101.6 80.01) (xy 101.6 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d6b9e48-0425-5d91-be5f-9c98bdca7593")
+	)
+	(wire
+		(pts
+			(xy 101.6 63.5) (xy 101.6 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8677507c-fa8b-58c3-a53f-95ec3d9b80c4")
+	)
+	(wire
+		(pts
+			(xy 152.4 137.16) (xy 152.4 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d3bd324-52f7-58a3-b7b9-c740bc2fdefd")
+	)
+	(wire
+		(pts
+			(xy 152.4 63.5) (xy 152.4 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a599c1d4-5fef-50b7-bea2-c8c30e0970aa")
+	)
+	(wire
+		(pts
+			(xy 101.6 146.05) (xy 127 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a962fab2-9987-5394-a554-4278c2b8f916")
+	)
+	(wire
+		(pts
+			(xy 127 185.42) (xy 127 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abdced0f-b52b-54c4-8211-b59cb374758f")
+	)
+	(wire
+		(pts
+			(xy 88.9 177.8) (xy 119.38 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba2f7bc8-bc1b-51dd-aaae-7c2acea46a97")
+	)
+	(wire
+		(pts
+			(xy 137.16 63.5) (xy 165.1 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ca32765a-4e3f-59ed-bdbc-9b53ac5ffe89")
+	)
+	(wire
+		(pts
+			(xy 101.6 203.2) (xy 127 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb2f074d-0e45-5ad9-8e48-1c59244ca750")
+	)
+	(wire
+		(pts
+			(xy 127 146.05) (xy 152.4 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ceebfdcd-2cea-5565-8af3-ff83eb3ad7d7")
 	)
 	(wire
 		(pts
@@ -1443,930 +1383,67 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fea1925c-0b4f-5724-973b-ca610f9f82f2")
+		(uuid "d7de5994-7d9b-5b8c-a8e6-fe280b90c22a")
 	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 88.9 177.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "057d77de-2e8a-561f-86f9-3c0584dc5aa8")
-		(property "Reference" "#PWR367"
-			(at 88.9 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+	(wire
+		(pts
+			(xy 137.16 177.8) (xy 165.1 177.8)
 		)
-		(property "Value" "-15V"
-			(at 88.9 174.244 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 88.9 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 88.9 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 88.9 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "94f8f828-17ce-5c38-80f4-54ba0ebb5559")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR367")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "d9f193f6-8bba-52f8-b051-026eab964be0")
 	)
-	(symbol
-		(lib_id "power:-5V")
-		(at 165.1 177.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "27a5eff2-ba13-5744-ab01-fc82210fb1aa")
-		(property "Reference" "#PWR369"
-			(at 165.1 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+	(wire
+		(pts
+			(xy 127 88.9) (xy 152.4 88.9)
 		)
-		(property "Value" "-5V"
-			(at 165.1 174.244 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 165.1 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 165.1 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-5V\\\""
-			(at 165.1 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8c8aa44c-f9be-5a48-ba02-1b9f637f9444")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR369")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "dce5fc93-7a09-5fc9-90a4-dbd23954bd6a")
 	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 101.6 76.2 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "28a1ebdf-9859-526e-8895-84a8663468f6")
-		(property "Reference" "C129"
-			(at 106.086 75.15 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+	(wire
+		(pts
+			(xy 127 203.2) (xy 152.4 203.2)
 		)
-		(property "Value" "2.2uF/25V"
-			(at 106.086 77.25 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 101.6 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 101.6 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 101.6 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: input capacitor of the +12V regulator UX1"
-			(at 101.6 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "460c3149-107e-5e71-be39-33604b2ab5a8")
-		)
-		(pin "2"
-			(uuid "ae51d201-ad18-509e-817a-881da3245b55")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C129")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "e4bfba7f-45d5-5a01-bef3-d14c6ecae41f")
 	)
-	(symbol
-		(lib_id "power:-12V")
-		(at 165.1 120.65 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "2991474e-836f-5bba-86da-82abf8b150cf")
-		(property "Reference" "#PWR368"
-			(at 165.1 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+	(wire
+		(pts
+			(xy 152.4 177.8) (xy 152.4 186.69)
 		)
-		(property "Value" "-12V"
-			(at 165.1 117.094 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 165.1 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 165.1 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-12V\\\""
-			(at 165.1 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "5e103650-3ee0-53f8-9881-f4a692e7ceb8")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR368")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "e6acbc51-fd4d-52bb-aadd-bdf875323133")
 	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 152.4 76.2 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3783de1c-8f5d-5832-9d39-cf4376da8a38")
-		(property "Reference" "C114"
-			(at 156.886 75.15 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+	(wire
+		(pts
+			(xy 152.4 80.01) (xy 152.4 88.9)
 		)
-		(property "Value" "2.2uF/25V"
-			(at 156.886 77.25 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 152.4 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 152.4 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 152.4 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: output capacitor of the +12V regulator UX1"
-			(at 152.4 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d5ba9c5b-8687-5b85-a46d-1d3d6953282d")
-		)
-		(pin "2"
-			(uuid "f45bbdb7-bf3a-5724-939b-894ccb3af07f")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C114")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "eccd5072-536e-585d-9ea8-1b5799a41ee5")
 	)
-	(symbol
-		(lib_id "power:GND")
-		(at 101.6 88.9 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3c9c1531-f74c-5e45-88b4-ca95b8cbaaa6")
-		(property "Reference" "#PWR362"
-			(at 101.6 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+	(wire
+		(pts
+			(xy 127 128.27) (xy 127 146.05)
 		)
-		(property "Value" "GND"
-			(at 101.6 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(property "Footprint" ""
-			(at 101.6 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 101.6 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 101.6 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6e4cb8b7-d073-579e-9e01-3e73358b2ab9")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR362")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 152.4 190.5 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5d6fd78f-9fe8-5836-8b52-93fdb29f3283")
-		(property "Reference" "C162"
-			(at 156.886 189.45 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "2.2uF/25V"
-			(at 156.886 191.55 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 152.4 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 152.4 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 152.4 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: output capacitor of the -5V regulator UX3"
-			(at 152.4 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "147e79df-04f7-51ba-b07a-49fd5351deed")
-		)
-		(pin "2"
-			(uuid "b561aa66-eb1c-5900-8df0-4aec911c19f2")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C162")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+12V")
-		(at 165.1 63.5 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5fdc0743-9694-52b8-95f9-36b0e8fec741")
-		(property "Reference" "#PWR365"
-			(at 165.1 63.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+12V"
-			(at 165.1 59.944 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 165.1 63.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 165.1 63.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
-			(at 165.1 63.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "14911b8e-9427-5017-b9f5-6d35ea986274")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR365")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:-15V")
-		(at 88.9 120.65 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "607f956e-ac1d-554b-af8f-74f3373ac94f")
-		(property "Reference" "#PWR366"
-			(at 88.9 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "-15V"
-			(at 88.9 117.094 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 88.9 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 88.9 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
-			(at 88.9 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0460fd76-8dd7-5fcc-9f05-a03566af083e")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR366")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 101.6 133.35 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "6540504c-6cc5-543f-bfe2-97f94461e96a")
-		(property "Reference" "C160"
-			(at 106.086 132.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "2.2uF/25V"
-			(at 106.086 134.4 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 101.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 101.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 101.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: input capacitor of the -12V regulator UX2"
-			(at 101.6 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "1b92f724-64f9-5a1b-8a94-fe310c19253e")
-		)
-		(pin "2"
-			(uuid "ff6ff0dc-35e3-5c2d-8a44-b367d58406b9")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C160")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 101.6 190.5 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "67cc1590-a8e5-5fd0-8627-f506baca09da")
-		(property "Reference" "C156"
-			(at 106.086 189.45 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "2.2uF/25V"
-			(at 106.086 191.55 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 101.6 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 101.6 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 101.6 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: input capacitor of the -5V regulator UX3"
-			(at 101.6 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "9d41fd6a-cb81-5951-960e-b8d5d05347e8")
-		)
-		(pin "2"
-			(uuid "a9098b0c-72fd-5a74-800b-aebc738e3ec2")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C156")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "f4231330-80fd-5bf0-b95e-e3c6feac85a2")
 	)
 	(symbol
 		(lib_id "oem_patent:F5F_REG")
@@ -2378,7 +1455,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6a57eed2-135f-5d75-a0bd-32d95279d032")
+		(uuid "05e32ae5-1152-59a4-ae4f-f9247019f83c")
 		(property "Reference" "UX2_5F"
 			(at 121.92 113.03 0)
 			(show_name no)
@@ -2479,13 +1556,13 @@
 			)
 		)
 		(pin "IN"
-			(uuid "adbbbd21-e9a6-5541-b5c3-5f97ee40ab37")
+			(uuid "8c0f48ee-c6e6-5170-b7c4-f614ac367258")
 		)
 		(pin "OUT"
-			(uuid "44caca2f-74c3-5625-ad3c-858527f00fa5")
+			(uuid "0ec0e107-4995-59f0-8cb2-7935a5d97ed5")
 		)
 		(pin "COM"
-			(uuid "ee74a53d-10e3-5a3c-8399-0352bd828239")
+			(uuid "ba9fe709-bb09-5cb6-9df1-c76fdd4df099")
 		)
 		(instances
 			(project "oem-controller"
@@ -2497,40 +1574,40 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 101.6 146.05 0)
+		(lib_id "Device:C_Polarized")
+		(at 152.4 133.35 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "709a7243-92c6-5d10-b0d6-7dbd4b7db464")
-		(property "Reference" "#PWR363"
-			(at 101.6 146.05 0)
-			(hide yes)
+		(uuid "1ba2ccd7-2617-568f-8a01-796dc7fd1823")
+		(property "Reference" "C159B"
+			(at 156.886 132.3 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Value" "GND"
-			(at 101.6 146.05 0)
-			(hide yes)
+		(property "Value" "2.2uF/25V"
+			(at 156.886 134.4 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 101.6 146.05 0)
+			(at 152.4 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2541,7 +1618,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 101.6 146.05 0)
+			(at 152.4 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2551,8 +1628,41 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 101.6 146.05 0)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 152.4 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Printed_Ref" "C159"
+			(at 152.4 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Note" "C159 printed on 5F-1 and 5F-2"
+			(at 152.4 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: output capacitor of the -12V regulator UX2"
+			(at 152.4 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2563,52 +1673,55 @@
 			)
 		)
 		(pin "1"
-			(uuid "b5f5e504-6ce7-5f6b-9e5e-619dd9dfbe71")
+			(uuid "3e5e4920-31e1-541e-bf76-d8b4dd459235")
+		)
+		(pin "2"
+			(uuid "8703a30d-6b81-5405-bac0-f72e711ba2a1")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR363")
+					(reference "C159B")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 101.6 203.2 0)
+		(lib_id "Device:C_Polarized")
+		(at 101.6 190.5 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "74640904-3499-589d-a473-c950f7eb4a39")
-		(property "Reference" "#PWR364"
-			(at 101.6 203.2 0)
-			(hide yes)
+		(uuid "28a1ebdf-9859-526e-8895-84a8663468f6")
+		(property "Reference" "C156"
+			(at 106.086 189.45 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Value" "GND"
-			(at 101.6 203.2 0)
-			(hide yes)
+		(property "Value" "2.2uF/25V"
+			(at 106.086 191.55 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 101.6 203.2 0)
+			(at 101.6 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2619,7 +1732,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 101.6 203.2 0)
+			(at 101.6 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2629,8 +1742,19 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 101.6 203.2 0)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 101.6 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: input capacitor of the -5V regulator UX3"
+			(at 101.6 190.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2641,12 +1765,261 @@
 			)
 		)
 		(pin "1"
-			(uuid "53f172b8-189f-510b-97bc-786c11fab6e1")
+			(uuid "5f3b4125-0a39-5be0-bfb9-f645e5bf7c56")
+		)
+		(pin "2"
+			(uuid "7aa7772a-ccb0-5b28-9010-7ed8db06e27e")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR364")
+					(reference "C156")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 152.4 190.5 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3783de1c-8f5d-5832-9d39-cf4376da8a38")
+		(property "Reference" "C162"
+			(at 156.886 189.45 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "2.2uF/25V"
+			(at 156.886 191.55 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 152.4 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: output capacitor of the -5V regulator UX3"
+			(at 152.4 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "189edd93-6e0c-522a-9330-2a9da46193d1")
+		)
+		(pin "2"
+			(uuid "114722e7-659f-5862-9547-288dd60a99ba")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "C162")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:-12V")
+		(at 165.1 120.65 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3c9c1531-f74c-5e45-88b4-ca95b8cbaaa6")
+		(property "Reference" "#PWR350"
+			(at 165.1 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-12V"
+			(at 165.1 117.094 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 165.1 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.1 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"-12V\\\""
+			(at 165.1 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "600526ee-9d0e-59bf-bfef-3df96c8b61fd")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR350")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:-15V")
+		(at 88.9 120.65 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5d6fd78f-9fe8-5836-8b52-93fdb29f3283")
+		(property "Reference" "#PWR348"
+			(at 88.9 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-15V"
+			(at 88.9 117.094 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 88.9 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
+			(at 88.9 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "72b861e1-81d4-5a7f-ad72-2cf0048e0219")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR348")
 					(unit 1)
 				)
 			)
@@ -2662,8 +2035,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9a37afdc-7bbe-5092-a9dc-7adc7d03934d")
-		(property "Reference" "#PWR361"
+		(uuid "6540504c-6cc5-543f-bfe2-97f94461e96a")
+		(property "Reference" "#PWR343"
 			(at 88.9 63.5 0)
 			(hide yes)
 			(show_name no)
@@ -2718,12 +2091,491 @@
 			)
 		)
 		(pin "1"
-			(uuid "d01c92fd-4cf8-555a-8520-5ce95d5720fe")
+			(uuid "793bec33-1057-5268-88c7-d50669839c1f")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "#PWR361")
+					(reference "#PWR343")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 101.6 203.2 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "67cc1590-a8e5-5fd0-8627-f506baca09da")
+		(property "Reference" "#PWR346"
+			(at 101.6 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 101.6 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 101.6 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "87bc5d8a-f4d0-5412-bda9-964610e2c290")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR346")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 101.6 88.9 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "6a57eed2-135f-5d75-a0bd-32d95279d032")
+		(property "Reference" "#PWR344"
+			(at 101.6 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 101.6 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 101.6 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b6b5605a-a7ed-51b8-a87e-d299f82832f2")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR344")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:-5V")
+		(at 165.1 177.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "709a7243-92c6-5d10-b0d6-7dbd4b7db464")
+		(property "Reference" "#PWR351"
+			(at 165.1 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-5V"
+			(at 165.1 174.244 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 165.1 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.1 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"-5V\\\""
+			(at 165.1 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "171ba952-bc33-5b74-af08-e181411935d6")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR351")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 101.6 76.2 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "854e7104-482c-56df-9df3-92297a4fc745")
+		(property "Reference" "C129"
+			(at 106.086 75.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2.2uF/25V"
+			(at 106.086 77.25 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 101.6 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: input capacitor of the +12V regulator UX1"
+			(at 101.6 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "78962802-66d4-59b8-932e-124a03a02810")
+		)
+		(pin "2"
+			(uuid "ec61c8c0-58c2-5f98-a3a9-44fa5be25fd2")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "C129")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:-15V")
+		(at 88.9 177.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "9a37afdc-7bbe-5092-a9dc-7adc7d03934d")
+		(property "Reference" "#PWR349"
+			(at 88.9 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-15V"
+			(at 88.9 174.244 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 88.9 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"-15V\\\""
+			(at 88.9 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "175ad5b9-f125-5107-868c-297d807881f6")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR349")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+12V")
+		(at 165.1 63.5 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "9ad8171c-6d28-5d44-bb4e-98041eff9093")
+		(property "Reference" "#PWR347"
+			(at 165.1 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+12V"
+			(at 165.1 59.944 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 165.1 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.1 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+12V\\\""
+			(at 165.1 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a70d193b-1783-54ec-9b89-7d6c2567a33f")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR347")
 					(unit 1)
 				)
 			)
@@ -2739,7 +2591,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9ad8171c-6d28-5d44-bb4e-98041eff9093")
+		(uuid "a5c7185a-6d1c-546b-b8dd-5b9dbd8f7106")
 		(property "Reference" "UX3"
 			(at 121.92 170.18 0)
 			(show_name no)
@@ -2829,18 +2681,280 @@
 			)
 		)
 		(pin "IN"
-			(uuid "be3644af-3ecc-5413-84ae-7b19b5fb01e1")
+			(uuid "bdbbd9cd-8a5d-5200-84a5-eea3cc51fae4")
 		)
 		(pin "OUT"
-			(uuid "9eb99bc5-e669-598c-972f-c22197dbc968")
+			(uuid "191a4e0a-e88a-510e-a441-dac330108b81")
 		)
 		(pin "COM"
-			(uuid "98b308f7-f5c0-5c75-bd69-9d0ec0bf23a6")
+			(uuid "bbd7d57d-1a5d-5fa2-bbdb-32066d601b7d")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
 					(reference "UX3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 101.6 133.35 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c2a0a7a5-d13d-5979-9685-ebe812f0f748")
+		(property "Reference" "C160"
+			(at 106.086 132.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "2.2uF/25V"
+			(at 106.086 134.4 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 101.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: input capacitor of the -12V regulator UX2"
+			(at 101.6 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1006584b-c23e-5708-9d1a-51bebe26fb7a")
+		)
+		(pin "2"
+			(uuid "81fc7828-fde3-54af-9620-4e6216cc8763")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "C160")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 152.4 76.2 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dcd3283b-d345-5fbf-9349-5bdbc202fde2")
+		(property "Reference" "C114"
+			(at 156.886 75.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2.2uF/25V"
+			(at 156.886 77.25 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor, 2.2uF/25V"
+			(at 152.4 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Function" "Inferred from the circuit: output capacitor of the +12V regulator UX1"
+			(at 152.4 76.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d583449a-f2e4-5d20-b64b-c8a8833d6c8c")
+		)
+		(pin "2"
+			(uuid "b81da665-8d80-52c3-8389-c90d02e50444")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "C114")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 101.6 146.05 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e5364d9a-42aa-5320-bccb-0319893cece8")
+		(property "Reference" "#PWR345"
+			(at 101.6 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 101.6 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 101.6 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1abcf0ee-c6f8-5ae2-a2c0-857ad9c48565")
+		)
+		(instances
+			(project "oem-controller"
+				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
+					(reference "#PWR345")
 					(unit 1)
 				)
 			)
@@ -2856,7 +2970,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a5c7185a-6d1c-546b-b8dd-5b9dbd8f7106")
+		(uuid "fcd9224e-1f4b-549d-aad6-07d944f8b3bb")
 		(property "Reference" "UX1_5F"
 			(at 121.92 55.88 0)
 			(show_name no)
@@ -2957,132 +3071,18 @@
 			)
 		)
 		(pin "IN"
-			(uuid "0c94c41d-408b-5c20-9c74-759aa66f8452")
+			(uuid "7e4e8eb2-88f8-5a56-972c-251f608bd353")
 		)
 		(pin "OUT"
-			(uuid "685ea0f7-4b9a-59ee-aee9-06c45b4b035f")
+			(uuid "d62517f9-a830-5ac1-a213-44a8f28f5770")
 		)
 		(pin "COM"
-			(uuid "18a71fc6-fec8-5f3c-b5a6-54a6b544de93")
+			(uuid "f856ddc3-322a-59d0-9fbc-30b63604b3ae")
 		)
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
 					(reference "UX1_5F")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 152.4 133.35 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e5364d9a-42aa-5320-bccb-0319893cece8")
-		(property "Reference" "C159B"
-			(at 156.886 132.3 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "2.2uF/25V"
-			(at 156.886 134.4 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Polarized capacitor, 2.2uF/25V"
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Printed_Ref" "C159"
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Note" "C159 printed on 5F-1 and 5F-2"
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Function" "Inferred from the circuit: output capacitor of the -12V regulator UX2"
-			(at 152.4 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f29e50e0-667d-5b57-b0b6-a6c0c3f622d5")
-		)
-		(pin "2"
-			(uuid "ac9c9a51-8c97-55e7-bb8c-99b94c4a3099")
-		)
-		(instances
-			(project "oem-controller"
-				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb/6d71c165-f78b-5ce0-8e57-a36a20ec377c"
-					(reference "C159B")
 					(unit 1)
 				)
 			)

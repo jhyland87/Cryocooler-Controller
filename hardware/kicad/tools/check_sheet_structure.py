@@ -10,10 +10,13 @@ schematic_checks.json beside it:
       "allowed_globals": ["{SPI}"],    global labels allowed anywhere
       "max_parts_per_sheet": 30,       power symbols and flags not counted
       "long_net_mm": 85,               closer label pairs should be a wire
+      "allowed_copies": [["a.kicad_sch", "b.kicad_sch"]],
+                                       copied sheets the profile lists as an
+                                       exception (user-approved)
       "baseline": "tools/sheet_structure_baseline.json"
     }
 
-Every key is optional (defaults: none allowed, 30, 85, no baseline). The
+Every key is optional (defaults: none allowed, 30, 85, none, no baseline). The
 baseline path is relative to the project folder.
 
 Usage (--project defaults to hardware/kicad/cryocooler.kicad_pro):
@@ -63,6 +66,9 @@ class Project:
         self.allowed_globals = set(config.get('allowed_globals', []))
         self.max_parts = config.get('max_parts_per_sheet', 30)
         self.long_net_mm = config.get('long_net_mm', 85)
+        self.allowed_copies = {
+            frozenset(pair) for pair in config.get('allowed_copies', [])
+        }
         baseline = config.get('baseline')
         self.baseline = self.dir / baseline if baseline else None
 
@@ -208,6 +214,8 @@ def find_problems(project):
     # a page that only holds sheet blocks has no circuit to copy
     for (first, a), (second, b) in combinations(sorted(sheets.items()), 2):
         if a[1] and a[3] == b[3]:
+            if frozenset((first, second)) in project.allowed_copies:
+                continue
             problems['copied_sheet'].append(f'{first} and {second}')
     return problems
 

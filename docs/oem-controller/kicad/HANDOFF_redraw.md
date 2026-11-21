@@ -11,8 +11,9 @@ and the "Schematic profile" in `README.md`.
 | 5F | **Pilot redrawn**, reviewer fixes applied; waiting for the user's review |
 | 5C | **Redrawn** (session 2), seven child sheets; user: "pretty good" (2026-11-21); U28 pin order and heading changed since |
 | 5A | **Redrawn** (session 2), three child sheets; reviewed by the user 2026-11-21 ("looks good") |
-| 5B | **Redrawn** (session 3), five child sheets; waiting for the user's review |
-| 5D, 5E, 5G, 5H, 6A, 6B, 6C | Not started (old drawing: labels on pins, global labels). Next: 5D or 5E |
+| 5B | **Redrawn** (session 3), five child sheets; user: "they look good" (2026-11-21) |
+| 5D | **Redrawn** (session 3), six child sheets; waiting for the user's review |
+| 5E, 5G, 5H, 6A, 6B, 6C | Not started (old drawing: labels on pins, global labels). Next: 5E |
 
 Stop after the pilot until the user has looked at it. Then one figure at a time, at most three per session.
 
@@ -227,6 +228,51 @@ wire_near_body 1 (baseline updated; R199's is gone).
   drawn differently, text crowding on SUM/INTEG/POT/SWITCH. Off-page-flag net labels (OF_OFFSET, NSP_SER9)
   kept as on 5A/5C/5F; the README profile's "Net names" row now says so. Round 2: U35 reference moved.
   Round 3: every FIG 5B sheet and the patent sheet PASS.
+
+## FIG 5D (session 3)
+
+5F/5C/5A/5B were committed as 2d63166 on `oem-schematic-redraw`, fast-forwarded into `rev6-schematic` and pushed
+(user, 2026-11-21). 5D is uncommitted on top.
+
+| Sheet | Function | Ports |
+|-------|----------|-------|
+| `bw1`..`bw6` [BW1..BW6] | One butter warmer circuit: MC2030 pot, LT1124 P channel (pins 5/6/7) and R channel (2/3/1), decoupling | NSP_PROG/READ/CLK, SER in/out, its BWT_/BWH_ lines |
+
+Counts after 5D: ERC as the baseline (104/11/30); netlist 2362 pins, 0 problems; text overlap 0; compare 0
+differences except J12/UR3 values, 202 renamed; check_symbols 0/0/12/0; check_sheet_structure global_label 235,
+close_label_pair 425, too_many_parts 5, copied_sheet 0, wire_near_body 1 (baseline updated).
+
+### Decisions (5D)
+
+- **Six sheet files drawn by one function** (`bw_child()`), not one file placed six times (user, 2026-11-21).
+  Tested in KiCad 10.0.6: placements of one file share one value in the default netlist (CR13/CR17/CR19 print
+  1N4140, the others 1N4148); a design variant varies it only in a BOM exported with `--variant`. README
+  exception 1 says so; bw1/bw4 and bw3/bw6 draw identically and are listed in `allowed_copies`.
+- Figure page in the patent's 2 x 3 order (5D-1, 5D-2, 5D-3 columns). Row 1 blocks take the NSP pins at the
+  bottom of their left edge, row 2 at the top in reverse order, so each column's three lines nest between the rows
+  with no crossing; column 1's lines carry the figure ports, columns 2 and 3 hierarchical labels of the same name
+  (over 85 mm apart). Serial chains run block to block (row 1 straight, row 2 with one jog).
+- Chain nets (5D_SER_*) are named by their hierarchical labels; the page has no extra net label on them.
+- NSP_SER5, NSP_SER8 and BWK_5P (printed off-page flags no other figure uses) are net labels on their circuit's
+  sheet, as on 5A/5B/5C/5F. BWT_1P (#1) and BWH_4P (#4), printed at both ends of a channel, have a hierarchical
+  label at each end and one sheet pin.
+- Pot symbol re-laid by function: serial lines (in and out) left, pot ends right (numbers and names unchanged).
+
+### Generator changes (5D)
+
+- `gen_oem_schematic.py`: patent-sheet blocks go in the shortest column (was round robin, which ran off the page
+  with the tall 5D block) with a wider left margin for the first column's global labels.
+- `oemsch.port(slot=n)`: a sheet pin on row n of its block side (gaps above), so the row-2 SER outputs line up
+  with the next block's SER input and the chain wires are straight.
+- `hardware/kicad/tools/check_sheet_structure.py`: optional `allowed_copies` (pairs of sheet files) in a
+  project's `schematic_checks.json`, for a copy the profile lists as an exception. The cryocooler project has none
+  and is unchanged (copied_sheet 2, its baseline).
+- Reviewer round 1 (fixed): bottom-row chain jogs, crowded PLUS labels, decoupling heading without part names,
+  CR16 text beside the BWK_5P label. Kept: SER.OUT on the pot's left edge (on the right its label would cross the
+  WFB route); no channel sub-headings (they pushed the feedback resistor text below the parts). Open for 5E:
+  NSP_SERI could be wired 5B to 5D on the patent sheet once 5E is redrawn; 5A and 5D list the BWT pins in
+  opposite orders.
+- Reviewer round 2: the FIG 5D page, BW1-BW6 and the patent sheet all PASS.
 
 ## User review notes for figures not yet redrawn (2026-11-21)
 

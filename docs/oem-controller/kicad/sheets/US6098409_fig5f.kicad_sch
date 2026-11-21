@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "c3e06a41-a0a5-5e4a-809c-add8cd6a2374")
+	(uuid "acecf915-01d6-5a09-bfb9-6db093f06e9d")
 	(paper "A3")
 	(title_block
 		(title "FIG 5F - References and power supply")
@@ -19,18 +19,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "20d19f53-d328-5f6d-bf2a-65f8f777b84f")
-	)
-	(text "Rails in: +15V from INPUT (UR3).\nOut: +5V (two L-C outputs)."
-		(exclude_from_sim no)
-		(at 152.4 210.82 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left top)
-		)
-		(uuid "73134af5-6163-50c3-9194-b6ac6494bace")
+		(uuid "1fb8c584-be55-5c68-bb3b-d8e0aeb03b1a")
 	)
 	(text "FIG 5F-1: 10 V reference, +5VA and 10V outputs (top).  FIG 5F-2: input, converter, monitor\nand regulators (bottom). Each block is one function; see its sheet."
 		(exclude_from_sim no)
@@ -41,7 +30,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "a313280e-4f85-5f80-85d0-3a4762b542b5")
+		(uuid "720232cd-17bd-5884-a29f-8ec5f342a7e0")
+	)
+	(text "Rails in: +15V from INPUT (UR3).\nOut: +5V (two L-C outputs)."
+		(exclude_from_sim no)
+		(at 152.4 210.82 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left top)
+		)
+		(uuid "ddc66cf2-cb11-52a2-b3d0-b1d38d2aa66e")
 	)
 	(text "Rails in: +15V, -15V from INPUT (UR3).\nOut: +12V, -12V, -5V."
 		(exclude_from_sim no)
@@ -52,129 +52,19 @@
 			)
 			(justify left top)
 		)
-		(uuid "d3c97dde-80c7-5c88-aa6f-e4b5b4876260")
+		(uuid "eec71e63-fb33-5520-9c4b-df3e474c0207")
 	)
 	(junction
 		(at 120.65 55.88)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5046d465-1990-5418-a083-bb023a722022")
+		(uuid "519723b8-f9e2-5f53-a849-993588cc6ce2")
 	)
 	(junction
 		(at 120.65 50.8)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "a863f6e0-471b-5e93-a23e-6d5942b25c60")
-	)
-	(wire
-		(pts
-			(xy 120.65 38.1) (xy 209.55 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "032bdfc3-26ef-5be8-a2ed-ae8888dca9e6")
-	)
-	(wire
-		(pts
-			(xy 120.65 55.88) (xy 120.65 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09139a3f-fde5-58b7-8f3f-48f68ce9b7db")
-	)
-	(wire
-		(pts
-			(xy 120.65 38.1) (xy 120.65 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "186e876a-e7b7-5b3a-bdab-533f8e29b024")
-	)
-	(wire
-		(pts
-			(xy 88.9 149.86) (xy 91.44 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "24400f60-c6cf-540c-b9d6-e9df3e134f55")
-	)
-	(wire
-		(pts
-			(xy 120.65 50.8) (xy 120.65 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "27a5efc6-843b-5a62-8921-5fcacd9a2e6b")
-	)
-	(wire
-		(pts
-			(xy 120.65 88.9) (xy 152.4 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "44e964fc-aa20-5f6d-ab60-e3a936fc3901")
-	)
-	(wire
-		(pts
-			(xy 91.44 149.86) (xy 152.4 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "487eae27-25b4-51dc-9adb-0a17c386b523")
-	)
-	(wire
-		(pts
-			(xy 88.9 144.78) (xy 91.44 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e1e2bae-8b7b-581b-83e9-f6c8b42abdf9")
-	)
-	(wire
-		(pts
-			(xy 120.65 50.8) (xy 152.4 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a938d1e-21cb-511b-83ae-5ce0095efbf0")
-	)
-	(wire
-		(pts
-			(xy 91.44 144.78) (xy 152.4 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b8ea0a86-70e8-5182-90b4-cbc0361ceeb9")
-	)
-	(wire
-		(pts
-			(xy 88.9 55.88) (xy 120.65 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbc9fad1-5319-5b24-ab98-cf1521f0f1b2")
+		(uuid "832f1226-d202-5760-8138-ba7c00e5ae3f")
 	)
 	(wire
 		(pts
@@ -184,7 +74,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e089fd52-400a-51da-bd9a-f3a70c9f0f39")
+		(uuid "00746ef0-19d9-5c94-9277-1170a3ba0dec")
 	)
 	(wire
 		(pts
@@ -194,7 +84,17 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f4b236c2-7ac6-5cca-8df7-d87432514d3c")
+		(uuid "11856300-2a78-524a-9f23-a8d306234703")
+	)
+	(wire
+		(pts
+			(xy 91.44 144.78) (xy 152.4 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "282c127e-cbe1-57b6-b85c-c73bd58c7b9c")
 	)
 	(wire
 		(pts
@@ -204,7 +104,107 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f9e684e6-e5bd-5ed8-9a17-720467966a50")
+		(uuid "3561bcbb-6e46-54d2-bec5-94c6b542e08a")
+	)
+	(wire
+		(pts
+			(xy 120.65 55.88) (xy 120.65 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6f3c2372-e906-51c8-8fa3-c495a156b43b")
+	)
+	(wire
+		(pts
+			(xy 120.65 88.9) (xy 152.4 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a0ecada-ac0a-59d0-b09b-4b2440897901")
+	)
+	(wire
+		(pts
+			(xy 120.65 50.8) (xy 152.4 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92df60af-17fb-599c-9184-cd0290a842d5")
+	)
+	(wire
+		(pts
+			(xy 91.44 149.86) (xy 152.4 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9a45421-0770-58b8-9642-e83b16c6ea34")
+	)
+	(wire
+		(pts
+			(xy 88.9 55.88) (xy 120.65 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dbd6edb9-5221-5938-beb3-1c522b8e3098")
+	)
+	(wire
+		(pts
+			(xy 120.65 38.1) (xy 120.65 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1231649-e9a3-5e62-b06e-c9fcdb0e4e05")
+	)
+	(wire
+		(pts
+			(xy 120.65 38.1) (xy 209.55 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e2066566-c14d-59df-adbc-7a16f36dd951")
+	)
+	(wire
+		(pts
+			(xy 88.9 149.86) (xy 91.44 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e39a075e-0c3f-5178-bb4c-d5ce0f0fb61c")
+	)
+	(wire
+		(pts
+			(xy 88.9 144.78) (xy 91.44 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7d11aa4-4dfe-518f-ba40-daaeb651ec26")
+	)
+	(wire
+		(pts
+			(xy 120.65 50.8) (xy 120.65 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7f8cb24-384d-51b3-879e-ac66bfe96298")
 	)
 	(label "5F_VIN_RTN"
 		(at 91.44 149.86 0)
@@ -214,7 +214,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "10659981-9ff1-564e-8a04-d4d9cf05f2ec")
+		(uuid "22a922ef-8ff4-531f-989e-98f6ee2d4095")
 		(property "Description" "Inferred from the circuit: input supply return (J12 pins 5/6) to the UR3 converter -INPUT and the input monitor"
 			(at 91.44 149.86 0)
 			(hide yes)
@@ -236,7 +236,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "5b3c7627-aa6e-5503-be84-3447e7a4669d")
+		(uuid "e79d0089-c64e-51c2-932a-fa778a519a8e")
 		(property "Description" "Inferred from the circuit: fused input supply (after FX1) to the UR3 converter +INPUT and the input monitor"
 			(at 91.44 144.78 0)
 			(hide yes)
@@ -250,52 +250,6 @@
 			)
 		)
 	)
-	(hierarchical_label "REF_1"
-		(shape output)
-		(at 209.55 38.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "47097b99-78a7-5ef3-acbc-2bc405490601")
-		(property "Description" "Patent: FIG 5F-1 off-page flag REF_1. Inferred from the circuit: the U47/U50 reference output; used here by the +5VA and 10V stages and on FIGS 5A, 6A-6C"
-			(at 209.55 38.1 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-	)
-	(hierarchical_label "FAULT_NO"
-		(shape passive)
-		(at 35.56 149.86 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "63f2cc68-1ca5-5762-8b06-4e3a2e87541c")
-		(property "Description" "Patent: FIG 5F-2 flag FAULT_NO on J12 pins 2 and 10. Inferred from the circuit: relay contact line from FIG 5G (K3) out to J12"
-			(at 35.56 149.86 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-	)
 	(hierarchical_label "FAULT_O"
 		(shape passive)
 		(at 35.56 144.78 180)
@@ -305,7 +259,7 @@
 			)
 			(justify right)
 		)
-		(uuid "6ada84a2-8da6-56fa-abc6-9ea8a6a1637f")
+		(uuid "2c0eb88f-f553-5f12-a6d1-b216531a59e1")
 		(property "Description" "Patent: FIG 5F-2 flag FAULT_O on J12 pin 1. Inferred from the circuit: relay contact line from FIG 5G (K3) out to J12"
 			(at 35.56 144.78 0)
 			(hide yes)
@@ -319,6 +273,52 @@
 			)
 		)
 	)
+	(hierarchical_label "FAULT_NO"
+		(shape passive)
+		(at 35.56 149.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ad1186a0-2cdd-5377-a6a4-b3904f22e322")
+		(property "Description" "Patent: FIG 5F-2 flag FAULT_NO on J12 pins 2 and 10. Inferred from the circuit: relay contact line from FIG 5G (K3) out to J12"
+			(at 35.56 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+	)
+	(hierarchical_label "REF_1"
+		(shape output)
+		(at 209.55 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e7c3a37b-4af9-595e-bb3f-68bcba8a959a")
+		(property "Description" "Patent: FIG 5F-1 off-page flag REF_1. Inferred from the circuit: the U47/U50 reference output; used here by the +5VA and 10V stages and on FIGS 5A, 6A-6C"
+			(at 209.55 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+	)
 	(hierarchical_label "PWR_MON"
 		(shape output)
 		(at 205.74 144.78 0)
@@ -328,7 +328,7 @@
 			)
 			(justify left)
 		)
-		(uuid "c22ecf65-3a94-5268-b9c1-776c5d2cd4c0")
+		(uuid "f1b68d66-028c-5a32-a07a-38cb9b913aed")
 		(property "Description" "Patent: FIG 5F-2 off-page flag PWR_MON. Inferred from the circuit: U45 (monitor) output proportional to the input supply, read by the microcontroller ADC (FIG 5G PE6)"
 			(at 205.74 144.78 0)
 			(hide yes)
@@ -393,7 +393,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "26")
+					(page "32")
 				)
 			)
 		)
@@ -439,7 +439,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "29")
+					(page "35")
 				)
 			)
 		)
@@ -515,7 +515,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "28")
+					(page "34")
 				)
 			)
 		)
@@ -561,7 +561,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "30")
+					(page "36")
 				)
 			)
 		)
@@ -617,7 +617,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "24")
+					(page "30")
 				)
 			)
 		)
@@ -673,7 +673,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "25")
+					(page "31")
 				)
 			)
 		)
@@ -759,7 +759,7 @@
 		(instances
 			(project "oem-controller"
 				(path "/b0f66ecf-3448-59ee-b6a9-8bf091796314/e6f0d361-8d74-57a7-ad88-ebc0b4431525/7f915e16-71e0-5d85-8802-9387146525eb"
-					(page "27")
+					(page "33")
 				)
 			)
 		)
