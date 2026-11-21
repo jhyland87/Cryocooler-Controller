@@ -174,7 +174,9 @@ class TextLayout:
         return not any(hits(box, other) for other in extra)
 
     def wire_hits(self, box):
-        return sum(1 for wire in self.wires if hits(box, wire, 0.15))
+        # a sheet may ask for more clearance (redrawn OEM sheets)
+        margin = getattr(self.sheet, 'wire_margin', 0.15)
+        return sum(1 for wire in self.wires if hits(box, wire, margin))
 
     # ── field candidates ─────────────────────────────────────────────────
     def candidates(self, part, widths):

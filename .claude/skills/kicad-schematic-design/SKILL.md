@@ -41,7 +41,8 @@ These were each corrected more than once. No exceptions for tight spots.
    Offset one branch so a cross becomes two T's.
 5. **Resistors use the US zig-zag symbol** (`Device:R_US`). Capacitors keep the
    standard symbols.
-6. **Every power symbol shows its net name.**
+6. **Every power symbol shows its net name**, except plain `GND`, whose symbol says it.
+   Other grounds are named (`DGND`, `ISOGND`), and each is a power symbol, not a global label.
 7. **Signals between sheets use hierarchical labels and sheet pins, not global
    labels.** Global labels only for the communication buses in the project's
    `allowed_globals`.
