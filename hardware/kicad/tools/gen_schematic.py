@@ -640,7 +640,9 @@ def build_power_button(sh):
         (drain[0] + 4, drain[1] + 2),
         (drain[0] + 8, drain[1] + 2),
     )
-    rail_symbol(sh, 'VSW', (drain[0] + 4, drain[1] + 2))
+    vsw = rail_symbol(sh, 'VSW', (drain[0] + 4, drain[1] + 2))
+    # name over its own arrow, not over the PWR_FLAG beside it
+    vsw.pinned_value = (vsw.x, vsw.y - 3.64, 'center')
     rail_flag(sh, (drain[0] + 8, drain[1] + 2))
     # power-state LED: CL25 limiter feeding a bi-colour LED in an H-bridge of
     # N-FETs
@@ -869,16 +871,17 @@ def drop_ground(sh, cell, length=2):
 
 def gnd_bus(sh, cells, net='GND', length=2):
     """Joins several ground pin tips on one bar below them and drops a ground
-    symbol from the middle pin.
+    symbol from the last pin (under an inner pin the bar, the pin and the drop
+    would meet four ways).
     """
     ordered = sorted(cells)
     bar = max(cell[1] for cell in ordered) + length
-    middle = ordered[len(ordered) // 2]
+    last = ordered[-1][0]
     for column, row in ordered:
         wire(sh, (column, row), (column, bar))
-    wire(sh, (ordered[0][0], bar), (ordered[-1][0], bar))
-    wire(sh, (middle[0], bar), (middle[0], bar + 2))
-    rail_symbol(sh, net, (middle[0], bar + 2))
+    wire(sh, (ordered[0][0], bar), (last, bar))
+    wire(sh, (last, bar), (last, bar + 2))
+    rail_symbol(sh, net, (last, bar + 2))
 
 
 def net_label(sh, net, cell, angle=0, is_global=False):
@@ -1349,8 +1352,13 @@ def power_good_node(
     """
     rail_symbol(sh, rail, (column, row))
     with high_refs('R'):
-        vres(sh, values[0], column, row, fp=R0402)
+        upper = vres(sh, values[0], column, row, fp=R0402)
         vres(sh, values[1], column, row + 6, fp=R0402)
+    # upper text held clear of the node's label below it
+    upper.pinned_fields = {
+        'Reference': (upper.x + 3.216, upper.y - 2.32),
+        'Value': (upper.x + 3.216, upper.y - 0.22),
+    }
     drop_ground(sh, (column, row + 12), 0)
     wire(sh, (column, row + 6), (column + 4, row + 6))
     net_label(sh, label, (column + 4, row + 6), 0, is_global=True)
@@ -1942,7 +1950,9 @@ def build_amp_current(sh):
     en = pin_cell(dc, '8')
     wire(sh, en, (46, en[1]))
     vres(sh, '100k', 46, en[1] - 6)
-    rail_symbol(sh, '+5V_ISO', (46, en[1] - 6))
+    pull_up = rail_symbol(sh, '+5V_ISO', (46, en[1] - 6))
+    # main's original spot, kept as it was (it crosses the PS1 VIN wire)
+    pull_up.pinned_value = (pull_up.x + 2.4, pull_up.y - 4.91, 'left')
     drop_ground(sh, pin_cell(dc, '1'), 2)
     vout = pin_cell(dc, '5_6')
     wire(sh, vout, (vout[0], vout[1]), (96, vout[1]))
@@ -1988,7 +1998,9 @@ def build_amp_current(sh):
     wire(sh, vcc, (vcc[0], vcc[1] - 4), (vcc[0] + 4, vcc[1] - 4))
     rail_symbol(sh, 'ISO_3V3', (vcc[0] + 4, vcc[1] - 4))
     vinn = spur(sh, acs, '15', 2)
-    rail_symbol(sh, 'ISO_GND', vinn)
+    vinn_gnd = rail_symbol(sh, 'ISO_GND', vinn)
+    # main's original spot, kept as it was (it touches the VINP wire)
+    vinn_gnd.pinned_value = (vinn_gnd.x + 2.4, vinn_gnd.y + 1.1, 'left')
     vinp = pin_cell(acs, '16')
     wire(sh, vinp, (124, vinp[1]), (124, 38), (150, 38))
     wire(sh, (124, 46), (130, 46))
@@ -2025,12 +2037,15 @@ def build_amp_current(sh):
     for connector in (j_out, j_load):
         spur(sh, connector, '2', 2)
         # turned sideways so it clears the GND symbol on J12 pin 3 below
-        rail_symbol(
+        iso_gnd = rail_symbol(
             sh,
             'ISO_GND',
             (pin_cell(connector, '2')[0] - 2, pin_cell(connector, '2')[1]),
             270,
         )
+        if connector is j_load:
+            # name on the pin-2 row, clear of the GND on pin 3
+            iso_gnd.pinned_value = (iso_gnd.x - 2.4, iso_gnd.y + 1.1, 'right')
     place_blocks(
         sh,
         [

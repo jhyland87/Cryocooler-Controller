@@ -37,8 +37,13 @@ matching files. Other tools: read the ones relevant to your change before starti
 | [`telemetry.md`](.claude/rules/telemetry.md) | `proto/`, telemetry encoders, TS decoder | Two output paths, never renumber proto fields |
 | [`safety-limits.md`](.claude/rules/safety-limits.md) | state machine, cold head / compressor / amplifier / cooling, `include/config/` | Never loosen a limit or interlock silently; fail safe |
 | [`dashboard.md`](.claude/rules/dashboard.md) | `dashboard/` | Preact/TS conventions, preview server, type-check and build |
+| [`schematic-drawing.md`](.claude/rules/schematic-drawing.md) | every KiCad schematic (`*.kicad_sch`, `*.kicad_pro`, `**/kicad/**`) | Each project's schematic profile; hierarchy and label scope; descriptions; rules never bent; no shortcuts |
 | [`hardware-schematic.md`](.claude/rules/hardware-schematic.md) | `hardware/`, `pin_config.h` | Generated schematic, datasheet verification, part selection, drawing conventions |
 | [`hardware-pcb.md`](.claude/rules/hardware-pcb.md) | `hardware/` | PCB layout directives, silkscreen and labels, board ID, renders |
+
+Subagents live in [`.claude/agents/`](.claude/agents/): `schematic-reviewer` checks
+changed sheets in any schematic project against the drawing rules (used by the
+`kicad-schematic-design` skill; give it the project's `.kicad_pro`).
 
 ## Repository layout
 

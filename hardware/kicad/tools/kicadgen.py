@@ -8,6 +8,7 @@ from collections import Counter
 from contextlib import contextmanager
 from pathlib import Path
 
+import active_low
 from sexpr import (
     find_all,
     pins,
@@ -20,6 +21,8 @@ from sexpr import (
 )
 
 PROJECT = 'cryocooler'
+# uuid namespace; another project (imu/) sets its own so its ids differ
+UUID_NAMESPACE = 'cryocooler-schematic'
 VERSION = '20260306'
 CUSTOM_LIB_PATH = (
     Path(__file__).resolve().parent.parent / 'lib' / 'cryocooler.kicad_sym'
@@ -41,13 +44,41 @@ def reset_uuids():
 
 
 def new_uuid():
+    if _uuid_scope:
+        _uuid_scope[1] += 1
+        return stable_uuid(f'item/{_uuid_scope[0]}/{_uuid_scope[1]}')
     _uuid_counter[0] += 1
     return stable_uuid(f'item/{_uuid_counter[0]}')
 
 
+@contextmanager
+def named_part_uuids(key):
+    """Parts added inside take their ids from `key` and their order, not from
+    the shared sequence, so adding them leaves every later sheet's ids alone."""
+    saved = _uuid_counter[0]
+    start = len(_named_parts)
+    yield
+    _uuid_counter[0] = saved
+    for index, part in enumerate(_named_parts[start:]):
+        part.uid = stable_uuid(f'part/{key}/{index}')
+    del _named_parts[start:]
+
+
+_named_parts = []
+
+
+# Redrawn sheets number their wires and labels in a sequence of their own, so
+# redrawing one sheet leaves every other file as it was. The value is how many
+# ids the sheet took from the shared sequence before its redraw (rev 6,
+# bb886ee); the shared sequence still skips that many. Add a sheet when it is
+# redrawn. Once every sheet is listed, drop the shared sequence from render.
+OWN_UUID_SEQUENCE = {}
+_uuid_scope = []
+
+
 def stable_uuid(name):
     """Name-based uuid so ids do not change between runs."""
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, f'cryocooler-schematic/{name}'))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f'{UUID_NAMESPACE}/{name}'))
 
 
 def kicad_format(text):
@@ -108,6 +139,7 @@ ITEM_ORDER = [
     'wire',
     'label',
     'global_label',
+    'hierarchical_label',
     'symbol',
     'sheet',
     'sheet_instances',
@@ -335,6 +367,7 @@ class Part:
         self.auto = auto
         self.near = near
         self.uid = new_uuid()
+        _named_parts.append(self)
         symbol = get_symbol(lib_id)
         self.extent = symbol_extent(symbol, unit)
         self.body_extent = symbol_extent(symbol, unit, with_pins=False)
@@ -385,8 +418,8 @@ class Part:
         return (min(xs), min(ys), max(xs), max(ys))
 
 
-# Global-label direction seen from the ESP32 (root) sheet: 'out' = root drives
-# the net, 'in' = root reads it.
+# Direction of a global label, hierarchical label or sheet pin, seen from the
+# ESP32 (root) sheet: 'out' = root drives the net, 'in' = root reads it.
 LABEL_DIRECTION = {
     'SPI_MOSI': 'out',
     'SPI_SCK': 'out',
@@ -417,17 +450,58 @@ LABEL_DIRECTION = {
     'COMP_RELAY_EN': 'out',
     'NTC_ADC': 'in',
 }
+# Nets the root only passes from one sheet to another: sheet file -> shape of
+# the net's label there and of its pin on that sheet's block.
+PASSED_BETWEEN_SHEETS = {
+    'SIG_SINE': {
+        'signal_gen.kicad_sch': 'output',
+        'amp_control.kicad_sch': 'input',
+    },
+}
+
+
+# Nets between the universal I/O sheets: (name pattern, sheet the shape is
+# seen from, shape there). The other sheets on the net get the opposite shape;
+# with no sheet named, every end has the shape.
+IO_NET_SHAPES = ()
+
+
+# Draw active-low nets with an overbar (`active_low.py`). The IMU board's
+# generator turns this off until its board nets are renamed too.
+BAR_ACTIVE_LOW = False
+
+
+def label_text(net):
+    """The text a label or sheet pin shows for a net."""
+    return active_low.drawn(net) if BAR_ACTIVE_LOW else net
+
+
+def label_size(net):
+    """Text size of a label or sheet pin: barred text is drawn smaller so its
+    bar clears the row 2.54 mm above.
+    """
+    return BARRED_TEXT if label_text(net).startswith('~{') else 1.27
+
+
+BARRED_TEXT = 1.0
 
 
 def label_shape(net, is_root, filename):
-    """KiCad global-label shape for a net on a given sheet (bidirectional when
-    the direction is not fixed).
+    """KiCad shape of a global or hierarchical label for a net on a given
+    sheet (bidirectional when the direction is not fixed).
     """
-    if net == 'SIG_SINE':
-        return {
-            'signal_gen.kicad_sch': 'output',
-            'amp_control.kicad_sch': 'input',
-        }.get(filename, 'bidirectional')
+    if net in PASSED_BETWEEN_SHEETS:
+        shapes = PASSED_BETWEEN_SHEETS[net]
+        if filename in shapes:
+            return shapes[filename]
+        # one driver named: every other sheet reads the net
+        return 'input' if set(shapes.values()) == {'output'} else 'bidirectional'
+    for pattern, source, shape in IO_NET_SHAPES:
+        if re.fullmatch(pattern, net):
+            if source is None:
+                return shape
+            other = 'input' if shape == 'output' else 'output'
+            return shape if filename == source else other
     direction = LABEL_DIRECTION.get(net)
     if direction is None:
         return 'bidirectional'
@@ -650,13 +724,19 @@ class Sheet:
         self.title = title
         self.filename = filename
         self.paper = paper
-        self.uid = new_uuid()
+        # replaced by the generator's name-based id; a sheet the redraw added
+        # must not take one from the shared sequence (see screen_uid)
+        self.uid = '' if OWN_UUID_SEQUENCE.get(filename) == 0 else new_uuid()
         self.parts = []
         self.wires = []
+        self.buses = []  # ((x1, y1), (x2, y2)) in mm
+        self.bus_entries = []  # (x, y, dx, dy): wire end and offset to the bus
         self.labels = []
         self.no_connects = []
         self.junctions = []
         self.text_items = []
+        self.label_descriptions = {}  # label name -> hidden Description text
+        self.shapes = []  # ('rectangle' | 'polyline', points in mm, line width)
         self.sheet_symbols = []
         self.used_libs = []
         self.conns = []
@@ -664,9 +744,11 @@ class Sheet:
         self.path = ''
         self.finalized = False
         self.handwired = False
-        self.screen_uid = (
-            new_uuid()
-        )  # a sheet file's own uuid differs from its sheet block's uuid
+        # a sheet file's own uuid differs from its sheet block's uuid. A sheet
+        # added by the redraw takes its id from its name, so the shared
+        # sequence, and with it every other sheet's ids, stays as it was.
+        added = OWN_UUID_SEQUENCE.get(filename) == 0
+        self.screen_uid = stable_uuid('screen/' + filename) if added else new_uuid()
 
     @staticmethod
     def snap(value):
@@ -710,8 +792,17 @@ class Sheet:
         self.connect(part, '1', net)
         return part
 
-    def note(self, text, x, y, size=1.8):
-        self.text_items.append((text, x, y, size))
+    def note(self, text, x, y, size=1.8, color=None):
+        """Free text; color is an (r, g, b) tuple or None for the theme."""
+        self.text_items.append((text, x, y, size, color))
+
+    def rectangle(self, x0, y0, x1, y1, width=0.25):
+        """Drawing-only rectangle (mm); it connects nothing."""
+        self.shapes.append(('rectangle', ((x0, y0), (x1, y1)), width))
+
+    def polyline(self, points, width=0.25):
+        """Drawing-only line through (x, y) points in mm; it connects nothing."""
+        self.shapes.append(('polyline', tuple(points), width))
 
     def finalize(self):
         if self.finalized:
@@ -762,17 +853,22 @@ class Sheet:
                 # pad test points are bare copper: nothing to order
                 '\t\t(in_bom yes)'
                 if not getattr(part, 'is_power', False)
+                and not getattr(part, 'off_board', False)
                 and not part.ref.startswith('#')
                 and 'TestPoint_Pad' not in (part.footprint or '')
+                and not getattr(part, 'dnp', False)
                 else '\t\t(in_bom no)'
             ),
             (
+                # off_board: drawn for reference only, e.g. the display's terminals
                 '\t\t(on_board yes)'
                 if not part.ref.startswith('#')
+                and not getattr(part, 'off_board', False)
                 else '\t\t(on_board no)'
             ),
             '\t\t(in_pos_files yes)',
-            '\t\t(dnp no)',
+            # dnp: a land left empty at assembly, e.g. the unfitted jumper of a pair
+            '\t\t(dnp yes)' if getattr(part, 'dnp', False) else '\t\t(dnp no)',
             f'\t\t(uuid {q(part.uid)})',
         ]
         is_power = part.ref.startswith('#')
@@ -879,12 +975,26 @@ class Sheet:
                 (p.x, p.y) for p in self.parts if p.ref.startswith('#')
             ]
             wires = split_wires_at(wires, nodes)
+        # a wire that ends on the middle of another meets both of its halves
+        # there (a ground bar with a drop under an inner pin is a 4-way)
+        wires = split_wires_at(wires, [end for wire in wires for end in wire])
         counts = connection_counts(wires, pins)
         return [
             (x / 1.27, y / 1.27, c) for (x, y), c in counts.items() if c >= 4
         ]
 
     def render(self, root_uuid):
+        skipped = OWN_UUID_SEQUENCE.get(self.filename)
+        if skipped is None:
+            return self.render_items(root_uuid)
+        _uuid_scope[:] = [self.filename, 0]
+        try:
+            return self.render_items(root_uuid)
+        finally:
+            _uuid_scope.clear()
+            _uuid_counter[0] += skipped
+
+    def render_items(self, root_uuid):
         self.finalize()
         self.wires = merge_overlapping_wires(self.wires)
         if self.handwired:
@@ -939,21 +1049,48 @@ class Sheet:
             out.append(
                 f'\t(no_connect (at {fmt(x)} {fmt(y)}) (uuid {q(new_uuid())}))'
             )
+        for (x1, y1), (x2, y2) in merge_overlapping_wires(self.buses):
+            out.append(
+                f'\t(bus (pts (xy {fmt(x1)} {fmt(y1)}) (xy {fmt(x2)} '
+                f'{fmt(y2)})) '
+                f'(stroke (width 0) (type default)) (uuid {q(new_uuid())}))'
+            )
+        for x, y, dx, dy in self.bus_entries:
+            out.append(
+                f'\t(bus_entry (at {fmt(x)} {fmt(y)}) (size {fmt(dx)} {fmt(dy)}) '
+                f'(stroke (width 0) (type default)) (uuid {q(new_uuid())}))'
+            )
         for kind, net, (x, y), angle in self.labels:
             rotation = int(angle) % 360
             justify = 'right' if rotation in (180, 270) else 'left'
+            described = ''
+            if net in self.label_descriptions:
+                described = (
+                    f' (property "Description" {q(self.label_descriptions[net])} '
+                    f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
+                    f'(do_not_autoplace no) '
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                )
             if kind == 'label':
                 out.append(
-                    f'\t(label {q(net)} (at {fmt(x)} {fmt(y)} {rotation}) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify} '
-                    f'bottom)) (uuid {q(new_uuid())}))'
+                    f'\t(label {q(label_text(net))} (at {fmt(x)} {fmt(y)} {rotation}) '
+                    f'(effects (font (size {label_size(net)} {label_size(net)})) (justify {justify} '
+                    f'bottom)) (uuid {q(new_uuid())}){described})'
+                )
+            elif kind == 'hierarchical_label':
+                shape = label_shape(net, False, self.filename)
+                out.append(
+                    f'\t(hierarchical_label {q(label_text(net))} (shape {shape}) '
+                    f'(at {fmt(x)} {fmt(y)} {rotation}) '
+                    f'(effects (font (size {label_size(net)} {label_size(net)})) (justify {justify})) '
+                    f'(uuid {q(new_uuid())}){described})'
                 )
             else:
                 shape = label_shape(
                     net, self.path == '/' + root_uuid, self.filename
                 )
                 out.append(
-                    f'\t(global_label {q(net)} (shape {shape}) '
+                    f'\t(global_label {q(label_text(net))} (shape {shape}) '
                     f'(at {fmt(x)} {fmt(y)} {rotation}) '
                     f'(fields_autoplaced yes) (effects (font (size 1.27 '
                     f'1.27)) (justify {justify})) '
@@ -961,13 +1098,31 @@ class Sheet:
                     f'"${{INTERSHEET_REFS}}" '
                     f'(at {fmt(x)} {fmt(y)} 0) (hide yes) (show_name no) '
                     f'(do_not_autoplace no) '
-                    f'(effects (font (size 1.27 1.27)) (justify {justify}))))'
+                    f'(effects (font (size 1.27 1.27)) (justify {justify})))'
+                    f'{described})'
                 )
-        for text, x, y, size in self.text_items:
+        for kind, points, width in self.shapes:
+            stroke = f'(stroke (width {fmt(width)}) (type default))'
+            if kind == 'rectangle':
+                (x0, y0), (x1, y1) = points
+                out.append(
+                    f'\t(rectangle (start {fmt(x0)} {fmt(y0)}) (end {fmt(x1)} '
+                    f'{fmt(y1)}) {stroke} (fill (type none)) '
+                    f'(uuid {q(new_uuid())}))'
+                )
+            else:
+                pts = ' '.join(f'(xy {fmt(x)} {fmt(y)})' for x, y in points)
+                out.append(
+                    f'\t(polyline (pts {pts}) {stroke} (uuid {q(new_uuid())}))'
+                )
+        for text, x, y, size, color in self.text_items:
+            font = f'(size {size} {size})'
+            if color:
+                font += ' (color {} {} {} 1)'.format(*color)
             out.append(
                 f'\t(text {q(text)} (exclude_from_sim no) (at {fmt(x)} '
                 f'{fmt(y)} 0) '
-                f'(effects (font (size {size} {size})) (justify left top)) '
+                f'(effects (font {font}) (justify left top)) '
                 f'(uuid {q(new_uuid())}))'
             )
         for part in self.parts:

@@ -7,7 +7,7 @@ satisfies the rule; a field is hidden only when no position exists.
 `check_text` re-verifies.
 """
 
-from kicadgen import get_symbol
+from kicadgen import get_symbol, label_size, label_text
 from sexpr import find_all, pins as symbol_pins, sval
 
 CHAR_MM = 1.2  # width per character at 1.27 mm text (rendered ~1.2 mm)
@@ -40,13 +40,34 @@ def hits(a, b, margin=MARGIN):
     )
 
 
+def drawn_label(kind, net):
+    """Width of a label as drawn and how far its text (or its overbar) reaches
+    above the wire. A bar sits about 1.8 x the text size above the baseline,
+    which a local label puts just above its wire.
+    """
+    text, size = label_text(net), label_size(net)
+    barred = text.startswith('~{')
+    width = text_width(text.replace('~{', '').replace('}', ''), size)
+    if kind == 'label':
+        top = 0.3 + 1.8 * size if barred else 1.9
+    else:
+        top = 1.3 * size if barred else 1.3
+    return width, top
+
+
 def label_box(kind, net, x, y, angle):
-    length = text_width(net) + (2.2 if kind == 'global_label' else 0.3)
+    width, top = drawn_label(kind, net)
+    length = width + (0.3 if kind == 'label' else 2.2)
+    if kind == 'label':
+        top, bottom = max(top, 1.9), 0.3
+    else:
+        # centred on its wire; underscores reach about 0.75 x size below
+        top, bottom = max(top, 1.3), 0.75 * label_size(net)
     angle = int(angle) % 360
     if angle == 0:
-        return (x, y - 1.9, x + length, y + 0.3)
+        return (x, y - top, x + length, y + bottom)
     if angle == 180:
-        return (x - length, y - 1.9, x, y + 0.3)
+        return (x - length, y - top, x, y + bottom)
     if angle == 90:
         return (x - 1.5, y - length, x + 1.5, y)
     return (x - 1.5, y, x + 1.5, y + length)
@@ -88,7 +109,7 @@ class TextLayout:
                 max(a[0], b[0]),
                 max(a[1], b[1]),
             )
-            for a, b in sheet.wires
+            for a, b in sheet.wires + sheet.buses
         ]
         for part in sheet.parts:
             if part.ref.startswith('#'):
@@ -115,7 +136,7 @@ class TextLayout:
                 )
         for kind, net, (x, y), angle in sheet.labels:
             self.fixed_text.append(label_box(kind, net, x, y, angle))
-        for text, x, y, size in sheet.text_items:
+        for text, x, y, size, _ in sheet.text_items:
             self.fixed_text.append(
                 (x, y, x + text_width(text, size) * 1.0, y + size * 1.5)
             )
@@ -153,7 +174,9 @@ class TextLayout:
         return not any(hits(box, other) for other in extra)
 
     def wire_hits(self, box):
-        return sum(1 for wire in self.wires if hits(box, wire, 0.15))
+        # a sheet may ask for more clearance (redrawn OEM sheets)
+        margin = getattr(self.sheet, 'wire_margin', 0.15)
+        return sum(1 for wire in self.wires if hits(box, wire, margin))
 
     # ── field candidates ─────────────────────────────────────────────────
     def candidates(self, part, widths):
@@ -193,10 +216,19 @@ class TextLayout:
                     placement[name] = (anchor_x, line_y, justify)
                 yield rank * 4 + abs(shift_steps) * 0.35, placement
 
+    def place_pinned(self, part):
+        """Keep the Reference/Value positions given in part.pinned_fields."""
+        part.fields = {}
+        for name, (x, y) in part.pinned_fields.items():
+            text = part.ref if name == 'Reference' else part.value
+            part.fields[name] = {'x': x, 'y': y, 'justify': 'left', 'hide': False}
+            self.placed.append(field_box(x, y, text_width(text), 'left'))
+
     def place_part(self, part):
         fields = {
             'Reference': text_width(part.ref),
-            'Value': text_width(part.value),
+            # capitals run wider than the estimate; see Part.value_margin users
+            'Value': text_width(part.value) + getattr(part, 'value_margin', 0.0),
         }
         for names in (('Reference', 'Value'), ('Reference',), ('Value',)):
             widths = {name: fields[name] for name in names}
@@ -247,8 +279,26 @@ class TextLayout:
         )
 
     def place_power_text(self):
-        for part in self.sheet.parts:
-            if not part.ref.startswith('#'):
+        # names a generator pins (part.pinned_value = (x, y, justify)) go
+        # first, so the automatic ones are laid out around them
+        power = [p for p in self.sheet.parts if p.ref.startswith('#')]
+        for part in power:
+            pinned = getattr(part, 'pinned_value', None)
+            if not pinned:
+                continue
+            x, y, justify = pinned
+            part.fields = {
+                'Reference': {'hide': True},
+                'Value': {
+                    'x': x,
+                    'y': y,
+                    'justify': None if justify == 'center' else justify,
+                    'hide': False,
+                },
+            }
+            self.placed.append(field_box(x, y, text_width(part.value), justify))
+        for part in power:
+            if getattr(part, 'pinned_value', None):
                 continue
             part.fields = {
                 'Reference': {'hide': True},
@@ -275,17 +325,22 @@ class TextLayout:
             for reach in (2.0, 3.5, 5.0):
                 candidates.append((part.x, graphic[1] - reach, 'center'))
                 candidates.append((part.x, graphic[3] + reach, 'center'))
-            for x, y, justify in candidates:
-                box = field_box(x, y, width, justify)
-                if not self.hard_free(box):
+            # prefer a spot off every wire; fall back to any free spot
+            for avoid_wires in (True, False):
+                for x, y, justify in candidates:
+                    box = field_box(x, y, width, justify)
+                    if not self.hard_free(box) or (avoid_wires and self.wire_hits(box)):
+                        continue
+                    part.fields['Value'] = {
+                        'x': x,
+                        'y': y,
+                        'justify': None if justify == 'center' else justify,
+                        'hide': False,
+                    }
+                    self.placed.append(box)
+                    break
+                else:
                     continue
-                part.fields['Value'] = {
-                    'x': x,
-                    'y': y,
-                    'justify': None if justify == 'center' else justify,
-                    'hide': False,
-                }
-                self.placed.append(box)
                 break
 
     def run(self):
@@ -296,10 +351,15 @@ class TextLayout:
                 -(p.bbox()[2] - p.bbox()[0]) * (p.bbox()[3] - p.bbox()[1]),
             )
         )
+        # hand-placed fields first, so the rest are laid out around them
+        for part in parts:
+            if getattr(part, 'pinned_fields', None):
+                self.place_pinned(part)
         # power-symbol names are laid out last, so reserve their boxes while
         # placing fields
         for part in parts:
-            self.place_part(part)
+            if not getattr(part, 'pinned_fields', None):
+                self.place_part(part)
         self.place_power_text()
 
 
@@ -315,6 +375,59 @@ def unlabeled_power(sheet):
         if fields.get('Value', {}).get('hide', True):
             missing.append(f'{part.value} at ({part.x:.1f}, {part.y:.1f})')
     return missing
+
+
+def label_text_box(kind, net, x, y, angle):
+    """Area a label's text (and a global or hierarchical label's flag) covers.
+    A local label's text sits beside its wire; the others are centred on it.
+    """
+    width, top = drawn_label(kind, net)
+    length = width + (0.3 if kind == 'label' else 2.2)
+    near, far = (-top, -0.2) if kind == 'label' else (-top, 1.3)
+    angle = int(angle) % 360
+    if angle == 0:
+        return (x, y + near, x + length, y + far)
+    if angle == 180:
+        return (x - length, y + near, x, y + far)
+    if angle == 90:
+        return (x + near, y - length, x + far, y)
+    return (x + near, y, x + far, y + length)
+
+
+def segment_inside(start, end, box, trim=0.1):
+    """True if more than a point of the segment lies inside the box shrunk by
+    `trim`, so a wire that only ends on the box edge does not count.
+    """
+    x0, y0, x1, y1 = box[0] + trim, box[1] + trim, box[2] - trim, box[3] - trim
+    low, high = 0.0, 1.0
+    for origin, delta, near, far in (
+        (start[0], end[0] - start[0], x0, x1),
+        (start[1], end[1] - start[1], y0, y1),
+    ):
+        if abs(delta) < 1e-9:
+            if not near < origin < far:
+                return False
+            continue
+        first, second = sorted(((near - origin) / delta, (far - origin) / delta))
+        low, high = max(low, first), min(high, second)
+    return high - low > 1e-6
+
+
+def wires_over_labels(sheet):
+    """Wires and buses drawn across a label's text. The wire a label sits on
+    ends at a global label's connection point and runs under a local label's
+    text, so neither is reported.
+    """
+    problems = []
+    for kind, net, (x, y), angle in sheet.labels:
+        box = label_text_box(kind, net, x, y, angle)
+        for start, end in sheet.wires + sheet.buses:
+            if segment_inside(start, end, box):
+                problems.append(
+                    f'wire ({start[0]:.2f}, {start[1]:.2f}) to '
+                    f'({end[0]:.2f}, {end[1]:.2f}) crosses label {net}'
+                )
+    return problems
 
 
 def place_text(sheet):
@@ -344,13 +457,19 @@ def check_text(sheet):
             )
     for kind, net, (x, y), angle in sheet.labels:
         items.append((f'label {net}', label_box(kind, net, x, y, angle)))
-    for text, x, y, size in sheet.text_items:
+    for text, x, y, size, _ in sheet.text_items:
         items.append(
             (
                 f'note "{text[:20]}"',
                 (x, y, x + text_width(text, size), y + size * 1.5),
             )
         )
+    # the user placed these by hand, so they may sit close to their own body
+    pinned = {
+        f'{part.ref}.{name}'
+        for part in sheet.parts
+        for name in getattr(part, 'pinned_fields', None) or ()
+    }
     problems = []
     for index, (name, box) in enumerate(items):
         for other_name, other in items[index + 1 :]:
@@ -358,7 +477,7 @@ def check_text(sheet):
                 problems.append(f'text {name} overlaps text {other_name}')
         for part, symbol in layout.symbols:
             if name.startswith(part.ref + '.'):
-                if hits(box, symbol, 0.05):
+                if name not in pinned and hits(box, symbol, 0.05):
                     problems.append(f'text {name} overlaps its own symbol')
                 continue
             if name.startswith('label'):
