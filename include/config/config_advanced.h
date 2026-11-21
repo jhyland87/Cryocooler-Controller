@@ -106,6 +106,15 @@
 // At AMPLIFIER_RESOLUTION = 4095, each step is ~4.9 % of full scale.
 #define BACKOFF_DAC_STEP              static_cast<uint16_t>(200)
 
+// Back-off recovery, after the OEM SuperFilter's back-off counter (US6098409
+// FIG 5C: ~30 s hold, ~10 s decay; estimates from its printed part values).
+// Hits closer together than this count once.
+#define BACKOFF_MIN_INTERVAL_MS       static_cast<uint32_t>(200)
+// The offset holds this long after the last hit...
+#define BACKOFF_HOLD_MS               static_cast<uint32_t>(3e4)
+// ...then decays exponentially with this time constant.
+#define BACKOFF_DECAY_TAU_MS          static_cast<float>(1e4f)
+
 // =============================================================================
 // Indicator LED timing
 // =============================================================================

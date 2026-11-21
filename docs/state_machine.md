@@ -163,7 +163,8 @@ continuously in-band before the transition to Baseline fires.
 and `main.cpp` ORs them into `update()`'s `overstroke` argument:
 
 - **IMU tap** (`imu::hasOverstroke()`): the LSM6DSOX single-tap interrupt on
-  INT1 (2 g) sees the piston hitting its stop.
+  INT1 (2 g) sees the piston hitting its stop.  The accelerometer runs at
+  3333 Hz so the tap detector sees impact vibration up to about 1.67 kHz.
 - **Electrical** (`amplifier::hasElectricalOverstroke()`): the amplifier
   module estimates the motor back-EMF from the ACS37800 readings
   (`include/back_emf.h`).  With the current as phase reference,
@@ -185,10 +186,14 @@ and `main.cpp` ORs them into `update()`'s `overstroke` argument:
 
 Each event, while running, increments `backoffCount`, steps the DAC down by
 `BACKOFF_DAC_STEP` at once, and lowers the cooldown drive target by the
-accumulated `backoffDacOffset`.  The reduction lasts for the rest of the run
-(no decay).  At `BACKOFF_MAX_COUNT` events the `TooManyBackoffs` fault is
-raised.  The offset and counter both reset on `start()`, `clearFault()` and
-`reinit()`.
+accumulated `backoffDacOffset`.  Events less than `BACKOFF_MIN_INTERVAL_MS`
+(200 ms) after the last one count once.  Like the OEM controller's back-off
+counter (US6098409 FIG 5C, `docs/oem-controller/analysis/OVERSTROKE.md`), the
+offset holds for `BACKOFF_HOLD_MS` (30 s) after the last event, then decays
+with time constant `BACKOFF_DECAY_TAU_MS` (10 s), so the drive recovers once
+overstrokes stop.  `backoffCount` does not decay: at `BACKOFF_MAX_COUNT` events
+since `start()` the `TooManyBackoffs` fault is raised.  The offset and counter
+both reset on `start()`, `clearFault()` and `reinit()`.
 
 **Delay state** — A generic timed hold reachable from any non-Fault state via
 `startDelay(nowMs, durationMs, nextState)`.  The destination is either Idle or
