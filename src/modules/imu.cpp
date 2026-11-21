@@ -7,9 +7,10 @@
  * and exposes motion/overstroke detection via hasOverstroke().
  *
  * FIFO mode:
- *   The LSM6DSOX FIFO is configured in continuous mode at 833 Hz for both
- *   accelerometer and gyroscope.  service() drains the FIFO each tick,
- *   processing all available samples.
+ *   The accelerometer runs at 3333 Hz so the on-chip tap detector sees the
+ *   piston-impact band (up to ~1.67 kHz); the gyroscope runs at 833 Hz.  The
+ *   FIFO batches both at 833 Hz in continuous mode, and service() drains it
+ *   each tick, processing all available samples.
  *
  * Frequency detection:
  *   Z-axis accelerometer samples are accumulated from the FIFO into an FFT
@@ -74,10 +75,11 @@ static constexpr uint8_t REG_MD2_CFG    = 0x5F;  // Functions routing on INT2
 // Start at 2 g (8 × 0.25 g); tune based on observed overstroke amplitude.
 static constexpr uint8_t TAP_THS_STEPS  = 8u;
 
-// SHOCK: max tap duration [1:0], LSB = 8 / ODR.  At 833 Hz → 9.6 ms per step.
-// QUIET: dead-time after tap [1:0], LSB = 4 / ODR → 4.8 ms per step.
-static constexpr uint8_t TAP_SHOCK      = 0x02;  // 2 × 9.6 ms = 19.2 ms
-static constexpr uint8_t TAP_QUIET      = 0x01;  // 1 × 4.8 ms = 4.8 ms
+// SHOCK: max tap duration [1:0], LSB = 8 / ODR_XL; QUIET: dead time after a
+// tap [1:0], LSB = 4 / ODR_XL (DS12814 Rev 4, INT_DUR2).  Both fields are 2
+// bits, so at 3333 Hz the longest windows are 7.2 ms and 3.6 ms.
+static constexpr uint8_t TAP_SHOCK      = 0x03;  // 3 × 2.4 ms = 7.2 ms
+static constexpr uint8_t TAP_QUIET      = 0x03;  // 3 × 1.2 ms = 3.6 ms
 
 // How long to hold the overstroke flag after a tap event (ms).
 static constexpr uint32_t OVERSTROKE_HOLD_MS = 500u;
@@ -557,11 +559,14 @@ static bool configureSensor() {
     disableI2cInterface();
 
     sensor.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
-    sensor.setAccelDataRate(LSM6DS_RATE_833_HZ);
+    // Tap runs at ODR_XL; LPF1 cuts off at ODR/2 in high-performance mode
+    // (DS12814 Rev 4 §6.4.1), so 3333 Hz passes the impact band up to ~1.67 kHz.
+    sensor.setAccelDataRate(LSM6DS_RATE_3_33K_HZ);
     sensor.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS);
     sensor.setGyroDataRate(LSM6DS_RATE_833_HZ);
 
-    // Enable FIFO in continuous mode at the same rate as the ODR.
+    // FIFO batches both sensors at 833 Hz (BDR is set apart from the ODR,
+    // DS12814 Rev 4 Table 37), so FFT_FS_HZ and the SPI load are unchanged.
     sensor.setFIFOAccelBatchRate(LSM6DS_FIFO_RATE_833_HZ);
     sensor.setFIFOGyroBatchRate(LSM6DS_FIFO_RATE_833_HZ);
     sensor.setFIFOMode(LSM6DS_FIFO_CONTINUOUS);

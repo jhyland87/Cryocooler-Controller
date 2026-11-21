@@ -101,9 +101,14 @@ static uint32_t     offStateMs          = 0;
 static uint32_t     settleStartMs       = 0;
 static bool         settleTimerActive   = false;
 
-// Back-EMF backoff tracking
+// Back-EMF backoff tracking. backoffCount counts every hit since start()
+// (it drives the fault and never decays); the DAC offset holds after the last
+// hit, then decays (decayBackoff()).
 static uint16_t     backoffCount        = 0;
 static uint16_t     backoffDacOffset    = 0;
+static float        backoffOffsetCounts = 0.0f;  ///< unrounded offset, DAC counts
+static uint32_t     lastBackoffMs       = 0;
+static uint32_t     lastBackoffDecayMs  = 0;
 
 // Delay state configuration — set by startDelay() before EVT_ENTER_DELAY fires.
 static uint32_t     delayMs           = 0;  ///< duration to hold in Delay state
@@ -246,6 +251,25 @@ static const char* statusTextForState(State state) {
 #undef X
     }
     return "Unknown state";
+}
+
+/**
+ * Let the overstroke back-off recover: it holds for BACKOFF_HOLD_MS after the
+ * last hit, then decays with BACKOFF_DECAY_TAU_MS, as the OEM controller does.
+ * @param nowMs  Current tick time.
+ */
+static void decayBackoff(uint32_t nowMs) {
+    const uint32_t sinceDecayMs = nowMs - lastBackoffDecayMs;
+    lastBackoffDecayMs = nowMs;
+    if (backoffOffsetCounts <= 0.0f) { return; }
+    const uint32_t sinceHitMs = nowMs - lastBackoffMs;
+    if (sinceHitMs < BACKOFF_HOLD_MS) { return; }
+    // only time past the end of the hold counts
+    const uint32_t sinceHoldEndMs = sinceHitMs - BACKOFF_HOLD_MS;
+    const uint32_t decayMs = (sinceDecayMs < sinceHoldEndMs) ? sinceDecayMs : sinceHoldEndMs;
+    backoffOffsetCounts *= expf(-static_cast<float>(decayMs) / BACKOFF_DECAY_TAU_MS);
+    if (backoffOffsetCounts < 1.0f) { backoffOffsetCounts = 0.0f; }
+    backoffDacOffset = static_cast<uint16_t>(backoffOffsetCounts + 0.5f);
 }
 
 /**
@@ -513,6 +537,7 @@ static void onExitFault() {
     faultReason            = FaultReason::None;
     backoffCount           = 0;
     backoffDacOffset       = 0;
+    backoffOffsetCounts = 0.0f;
     histTakeOscillationFaultPending();  // drain deferred flag; restart oscillation window
     dependencyFaultPending = false;     // clear any pending dependency fault from a previous run attempt
 }
@@ -656,6 +681,7 @@ module::InitStatus init() {
     faultReason             = FaultReason::None;
     backoffCount            = 0;
     backoffDacOffset        = 0;
+    backoffOffsetCounts     = 0.0f;
     settleTimerActive       = false;
     settleStartMs           = 0;
     delayMs                 = 0;
@@ -684,6 +710,7 @@ Output update(float    tempC,
 {
     const uint32_t nowMs = tick::nowMs();
     sNowMs = nowMs;
+    decayBackoff(nowMs);
 
     // ------------------------------------------------------------------
     // 1. Fault detection — all conditions checked independently so that
@@ -765,16 +792,17 @@ Output update(float    tempC,
 
         // Overstroke / back-EMF backoff — accumulates a counter independently
         // of other fault conditions so both can be recorded simultaneously.
-        if (overstroke && running) {
+        // Hits within BACKOFF_MIN_INTERVAL_MS of the last one count once.
+        const bool backoffDue = (backoffCount == 0u) ||
+                                ((nowMs - lastBackoffMs) >= BACKOFF_MIN_INTERVAL_MS);
+        if (overstroke && running && backoffDue) {
             ++backoffCount;
+            lastBackoffMs = nowMs;
             _Log.printf("Overstroke backoff %u of %u\n", backoffCount,
                         static_cast<unsigned>(BACKOFF_MAX_COUNT));
-            const uint32_t newOffset =
-                static_cast<uint32_t>(backoffDacOffset) +
-                static_cast<uint32_t>(BACKOFF_DAC_STEP);
-            backoffDacOffset = (newOffset > static_cast<uint32_t>(AMPLIFIER_RESOLUTION))
-                                   ? static_cast<uint16_t>(AMPLIFIER_RESOLUTION)
-                                   : static_cast<uint16_t>(newOffset);
+            backoffOffsetCounts = fminf(backoffOffsetCounts + static_cast<float>(BACKOFF_DAC_STEP),
+                                        static_cast<float>(AMPLIFIER_RESOLUTION));
+            backoffDacOffset = static_cast<uint16_t>(backoffOffsetCounts + 0.5f);
             // Step the drive down now; this also covers the states that hold
             // the DAC without re-targeting it each tick.
             const uint16_t dacNow = amplifier::getDacCurrent();
@@ -959,6 +987,7 @@ void start(float tempC) {
     faultReason      = FaultReason::None;
     backoffCount     = 0;
     backoffDacOffset = 0;
+    backoffOffsetCounts = 0.0f;
 
     ESP_LOGD(TAG, "start() tempC=%.2f", tempC);
 
@@ -1053,6 +1082,7 @@ void reinit() {
     faultReason         = FaultReason::None;
     backoffCount        = 0;
     backoffDacOffset    = 0;
+    backoffOffsetCounts = 0.0f;
     settleTimerActive   = false;
     settleStartMs       = 0;
     delayMs             = 0;

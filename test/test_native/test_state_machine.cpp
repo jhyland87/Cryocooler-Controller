@@ -646,8 +646,8 @@ void test_overstroke_triggers_fault_at_max_count(void) {
     // Fault with reason TooManyBackoffs.
     const uint32_t tStart = initAndStart();
     state_machine::Output out{};
-    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT; ++attempt) {
-        tick::setNowMs(tStart + 1u + attempt);
+    for (uint8_t hit = 0; hit < BACKOFF_MAX_COUNT; ++hit) {
+        tick::setNowMs(tStart + 1u + hit * BACKOFF_MIN_INTERVAL_MS);
         out = state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
@@ -670,15 +670,80 @@ void test_backoff_count_resets_on_start(void) {
     // Accumulate backoffs up to (MAX - 1) so we stay just below the fault
     // threshold.  After stop() + start() the count must reset to zero.
     const uint32_t tStart = initAndStart();
-    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT - 1u; ++attempt) {
-        tick::setNowMs(tStart + 1u + attempt);
+    for (uint8_t hit = 0; hit < BACKOFF_MAX_COUNT - 1u; ++hit) {
+        tick::setNowMs(tStart + 1u + hit * BACKOFF_MIN_INTERVAL_MS);
         state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
-    tick::setNowMs(tStart + 500u); state_machine::stop();
-    tick::setNowMs(tStart + 600u); state_machine::start();
-    tick::setNowMs(tStart + 601u);
+    const uint32_t tAfter = tStart + BACKOFF_MAX_COUNT * BACKOFF_MIN_INTERVAL_MS;
+    tick::setNowMs(tAfter + 500u); state_machine::stop();
+    tick::setNowMs(tAfter + 600u); state_machine::start();
+    tick::setNowMs(tAfter + 601u);
     auto out = state_machine::update(200.0f, 0.5f, 0.0f, false, false);
     TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+}
+
+void test_backoff_hits_inside_min_interval_count_once(void) {
+    // Two hits closer than BACKOFF_MIN_INTERVAL_MS are one event; the next
+    // hit at the interval counts again.
+    const uint32_t tStart = initAndStart();
+    tick::setNowMs(tStart + 1u);
+    state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    tick::setNowMs(tStart + BACKOFF_MIN_INTERVAL_MS);
+    auto out = state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    TEST_ASSERT_EQUAL_UINT16(1, out.backoffCount);
+    tick::setNowMs(tStart + 1u + BACKOFF_MIN_INTERVAL_MS);
+    out = state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    TEST_ASSERT_EQUAL_UINT16(2, out.backoffCount);
+}
+
+/// Cooldown target at -150 C with no back-off, then one hit at tStart + 2.
+static uint16_t baseTargetThenOneHit(uint32_t tStart) {
+    tick::setNowMs(tStart + 1u);
+    const auto baseOut = state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    TEST_ASSERT_TRUE(baseOut.dacTarget > BACKOFF_DAC_STEP);
+    tick::setNowMs(tStart + 2u);
+    state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    return baseOut.dacTarget;
+}
+
+void test_backoff_offset_holds_through_hold_time(void) {
+    const uint32_t tStart = initAndStart();
+    const uint16_t base = baseTargetThenOneHit(tStart);
+    tick::setNowMs(tStart + 2u + BACKOFF_HOLD_MS - 1u);
+    const auto out = state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    TEST_ASSERT_EQUAL_UINT16(base - BACKOFF_DAC_STEP, out.dacTarget);
+}
+
+void test_backoff_offset_decays_after_hold(void) {
+    // One time constant after the hold the offset is about e^-1 of a step;
+    // after seven it has gone. A long gap between updates must not count the
+    // hold itself as decay time.
+    const uint32_t tStart = initAndStart();
+    const uint16_t base = baseTargetThenOneHit(tStart);
+    const uint32_t tauMs = static_cast<uint32_t>(BACKOFF_DECAY_TAU_MS);
+    tick::setNowMs(tStart + 2u + BACKOFF_HOLD_MS + tauMs);
+    auto out = state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    const float expected = static_cast<float>(BACKOFF_DAC_STEP) * expf(-1.0f);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, expected, static_cast<float>(base - out.dacTarget));
+    tick::setNowMs(tStart + 2u + BACKOFF_HOLD_MS + 7u * tauMs);
+    out = state_machine::update(-150.0f, 0.5f, 0.0f, false, false);
+    TEST_ASSERT_EQUAL_UINT16(base, out.dacTarget);
+    TEST_ASSERT_EQUAL_UINT16(1, out.backoffCount);
+}
+
+void test_backoff_fault_counts_hits_across_decay(void) {
+    // The offset decays between hits, but the fault still counts every hit.
+    const uint32_t tStart = initAndStart();
+    const uint32_t gapMs = 2u * BACKOFF_HOLD_MS;
+    state_machine::Output out{};
+    for (uint8_t hit = 0; hit < BACKOFF_MAX_COUNT; ++hit) {
+        tick::setNowMs(tStart + 1u + hit * gapMs);
+        out = state_machine::update(-150.0f, 0.5f, 0.0f, false, true);
+    }
+    TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
+                      static_cast<int8_t>(out.state));
+    TEST_ASSERT_EQUAL(static_cast<uint8_t>(state_machine::FaultReason::TooManyBackoffs),
+                      static_cast<uint8_t>(state_machine::getFaultReason()));
 }
 
 // ---------------------------------------------------------------------------
@@ -1192,19 +1257,20 @@ void test_clear_fault_resets_backoff_state(void) {
     // Accumulate backoffs up to (MAX - 1), trigger a fault via RMS, then clear.
     // After clear the backoff count reported by the next update() must be 0.
     const uint32_t tStart = initAndStart();
-    for (uint8_t attempt = 0; attempt < BACKOFF_MAX_COUNT - 1u; ++attempt) {
-        tick::setNowMs(tStart + 1u + attempt);
+    for (uint8_t hit = 0; hit < BACKOFF_MAX_COUNT - 1u; ++hit) {
+        tick::setNowMs(tStart + 1u + hit * BACKOFF_MIN_INTERVAL_MS);
         state_machine::update(200.0f, 0.5f, 0.0f, false, true);
     }
     // Now trigger fault via RMS.
+    const uint32_t tAfter = tStart + BACKOFF_MAX_COUNT * BACKOFF_MIN_INTERVAL_MS;
     stub_amplifier_setRmsVoltage(AMPLIFIER_MAX_VOLTAGE_VAC + 1.0f);
-    tick::setNowMs(tStart + 100u);
+    tick::setNowMs(tAfter + 100u);
     state_machine::update(200.0f, 0.5f, AMPLIFIER_MAX_VOLTAGE_VAC + 1.0f, false);
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Fault),
                       static_cast<int8_t>(state_machine::getState()));
 
-    tick::setNowMs(tStart + 101u); state_machine::clearFault();
-    tick::setNowMs(tStart + 102u);
+    tick::setNowMs(tAfter + 101u); state_machine::clearFault();
+    tick::setNowMs(tAfter + 102u);
     auto out = state_machine::update(200.0f, 0.5f, 0.0f, false);
     // backoffCount in Output must have been reset to 0 by onExitFault().
     TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
@@ -1660,6 +1726,10 @@ int main(int argc, char **argv) {
     RUN_TEST(test_overstroke_triggers_fault_at_max_count);
     RUN_TEST(test_overstroke_ignored_when_not_running);
     RUN_TEST(test_backoff_count_resets_on_start);
+    RUN_TEST(test_backoff_hits_inside_min_interval_count_once);
+    RUN_TEST(test_backoff_offset_holds_through_hold_time);
+    RUN_TEST(test_backoff_offset_decays_after_hold);
+    RUN_TEST(test_backoff_fault_counts_hits_across_decay);
 
     // stateName: non-null (existing smoke test)
     RUN_TEST(test_stateName_returns_non_null);
