@@ -254,10 +254,6 @@ static const char* statusTextForState(State s) {
 }
 
 /**
- * Convert a drive fraction to DAC counts with the accumulated overstroke
- * backoff subtracted (floor at 0).
- */
-/**
  * Let the overstroke back-off recover: it holds for BACKOFF_HOLD_MS after the
  * last hit, then decays with BACKOFF_DECAY_TAU_MS, as the OEM controller does.
  * @param nowMs  Current tick time.
@@ -276,6 +272,10 @@ static void decayBackoff(uint32_t nowMs) {
     backoffDacOffset = static_cast<uint16_t>(backoffOffsetCounts + 0.5f);
 }
 
+/**
+ * Convert a drive fraction to DAC counts with the accumulated overstroke
+ * backoff subtracted (floor at 0).
+ */
 static uint16_t backedOffDacTarget(float fraction) {
     const uint16_t dacTarget = static_cast<uint16_t>(
         fraction * static_cast<float>(AMPLIFIER_RESOLUTION));
