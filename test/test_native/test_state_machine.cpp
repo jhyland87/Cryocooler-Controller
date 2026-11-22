@@ -655,14 +655,21 @@ void test_overstroke_triggers_fault_at_max_count(void) {
                       static_cast<uint8_t>(state_machine::getFaultReason()));
 }
 
-void test_overstroke_ignored_when_not_running(void) {
-    // An overstroke event while in Off state must be silently ignored.
+void test_overstroke_counted_when_stopped_without_drive_or_fault(void) {
+    // BACKOFF_MONITOR_WHEN_STOPPED: hits in Off are counted and shown, but
+    // never step the drive or fault, even past BACKOFF_MAX_COUNT.
     tick::setNowMs(0); state_machine::init();
-    tick::setNowMs(1);
-    auto out = state_machine::update(295.0f, 0.0f, 0.0f, false, true);
+    const float rampBefore = stub_amplifier_lastRampFraction();
+    state_machine::Output out{};
+    for (uint8_t hit = 0; hit < BACKOFF_MAX_COUNT + 2u; ++hit) {
+        tick::setNowMs(1u + hit * BACKOFF_MIN_INTERVAL_MS);
+        out = state_machine::update(295.0f, 0.0f, 0.0f, false, true);
+    }
     TEST_ASSERT_EQUAL(static_cast<int8_t>(state_machine::State::Off),
                       static_cast<int8_t>(out.state));
-    TEST_ASSERT_EQUAL_UINT16(0, out.backoffCount);
+    TEST_ASSERT_EQUAL_UINT16(BACKOFF_MAX_COUNT + 2u, out.backoffCount);
+    TEST_ASSERT_TRUE(state_machine::getBackoffPct() > 0.0f);
+    TEST_ASSERT_EQUAL_FLOAT(rampBefore, stub_amplifier_lastRampFraction());
 }
 
 void test_backoff_count_resets_on_start(void) {
@@ -1736,7 +1743,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_missing_current_reading_faults_while_running);
     RUN_TEST(test_missing_reading_ignored_when_not_running);
     RUN_TEST(test_overstroke_triggers_fault_at_max_count);
-    RUN_TEST(test_overstroke_ignored_when_not_running);
+    RUN_TEST(test_overstroke_counted_when_stopped_without_drive_or_fault);
     RUN_TEST(test_backoff_count_resets_on_start);
     RUN_TEST(test_backoff_hits_inside_min_interval_count_once);
     RUN_TEST(test_backoff_offset_holds_through_hold_time);

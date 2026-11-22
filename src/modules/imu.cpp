@@ -737,9 +737,18 @@ module::ServiceStatus service() {
             const char axisX = (wuSrc & 0x04) ? 'X' : '-';
             const char axisY = (wuSrc & 0x02) ? 'Y' : '-';
             const char axisZ = (wuSrc & 0x01) ? 'Z' : '-';
-            _Log.printf("OVERSTROKE(WAKE) #%u  WU_SRC=0x%02X  axes=%c%c%c  [%.2fg threshold]\n",
+            // Tap diagnostics: TAP_SRC bit 5 set with INT1 never firing means
+            // the INT1 line is not reaching the ESP32; bit 5 clear means the
+            // hit did not fit the SHOCK/QUIET windows.
+            const uint8_t tapSrc = lsmReadReg(REG_TAP_SRC);
+            _Log.printf("OVERSTROKE(WAKE) #%u  WU_SRC=0x%02X  axes=%c%c%c  [%.2fg threshold]"
+                        "  TAP_SRC=0x%02X  INT1=%d\n",
                         wakeupCount_, wuSrc, axisX, axisY, axisZ,
-                        WAKEUP_THS_STEPS * 0.125f);
+                        WAKEUP_THS_STEPS * 0.125f, tapSrc,
+                        digitalRead(LSM6DSOX_INT1_PIN));
+            if ((tapSrc & 0x20) && !overstrokeDetected_) {
+                _Log.println(F("Single tap latched but the INT1 interrupt did not fire"));
+            }
         }
     }
 

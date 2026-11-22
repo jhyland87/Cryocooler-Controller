@@ -194,6 +194,9 @@ with time constant `BACKOFF_DECAY_TAU_MS` (10 s), so the drive recovers once
 overstrokes stop.  `backoffCount` does not decay: at `BACKOFF_MAX_COUNT` events
 since `start()` the `TooManyBackoffs` fault is raised.  The offset and counter
 both reset on `start()`, `clearFault()` and `reinit()`.
+With `BACKOFF_MONITOR_WHEN_STOPPED` (on for bench testing), events while stopped
+are also counted and decay the same way, so telemetry and the dashboard show
+them; they never step the DAC or raise the fault, and `start()` clears them.
 
 **Delay state** — A generic timed hold reachable from any non-Fault state via
 `startDelay(nowMs, durationMs, nextState)`.  The destination is either Idle or

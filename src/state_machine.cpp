@@ -795,7 +795,9 @@ Output update(float    tempC,
         // Hits within BACKOFF_MIN_INTERVAL_MS of the last one count once.
         const bool backoffDue = (backoffCount == 0u) ||
                                 ((nowMs - lastBackoffMs) >= BACKOFF_MIN_INTERVAL_MS);
-        if (overstroke && running && backoffDue) {
+        const bool hitCounted = overstroke && backoffDue &&
+                                (running || BACKOFF_MONITOR_WHEN_STOPPED);
+        if (hitCounted) {
             ++backoffCount;
             lastBackoffMs = nowMs;
             _Log.printf("Overstroke backoff %u of %u\n", backoffCount,
@@ -803,6 +805,9 @@ Output update(float    tempC,
             backoffOffsetCounts = fminf(backoffOffsetCounts + static_cast<float>(BACKOFF_DAC_STEP),
                                         static_cast<float>(AMPLIFIER_RESOLUTION));
             backoffDacOffset = static_cast<uint16_t>(backoffOffsetCounts + 0.5f);
+        }
+        // Stopped there is no drive to step down and nothing to protect.
+        if (hitCounted && running) {
             // Step the drive down now; this also covers the states that hold
             // the DAC without re-targeting it each tick.
             const uint16_t dacNow = amplifier::getDacCurrent();

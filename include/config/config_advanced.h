@@ -114,6 +114,9 @@
 #define BACKOFF_HOLD_MS               static_cast<uint32_t>(3e4)
 // ...then decays exponentially with this time constant.
 #define BACKOFF_DECAY_TAU_MS          static_cast<float>(1e4f)
+// Bench testing: also count hits while stopped, so the dashboard shows them.
+// Stopped hits never move the DAC or fault, and start() clears them.
+#define BACKOFF_MONITOR_WHEN_STOPPED  true
 
 // =============================================================================
 // Indicator LED timing
