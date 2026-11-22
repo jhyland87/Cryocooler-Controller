@@ -131,7 +131,8 @@ DESCRIPTIONS = {
     'U54': 'ESD clamp on the reset line from the display header J15',
     'R515': 'Pull-up resistor for CAN_TX: bus stays recessive while GPIO17 floats '
             'at reset',
-    'R516': 'CAN bus termination resistor (120 R) at this end of the cable',
+    'R516': 'CAN bus termination resistor (120 R) at this end of the cable, in circuit '
+            'while its 0 R link is fitted',
     'R517': 'Series resistor on the reset line from the display (to ESP32 EN)',
     'R518': 'Series resistor on the power button line from the display (to the '
             'LTC2954 PB pin)',
@@ -443,8 +444,10 @@ NET_DESCRIPTIONS = {
     # display link
     'CAN_TX': 'CAN transmit data from the ESP32 (GPIO17) to the transceiver U52',
     'CAN_RX': 'CAN receive data from the transceiver U52 to the ESP32 (GPIO12)',
-    'CAN_H': 'CAN bus high line to the display header J15',
-    'CAN_L': 'CAN bus low line to the display header J15',
+    'CAN_H': 'CAN bus high line from the TCAN3414 to the display header J15, the pass-through '
+             'header J42 and the 120 R terminator (through JP20)',
+    'CAN_L': 'CAN bus low line from the TCAN3414 to the display header J15, the pass-through '
+             'header J42 and the 120 R terminator',
     # monitors and sensors
     'INA239_ALERT': 'INA239 ALERT output, open drain, active low: lights D6 and is '
                     'read on expander GP6',
@@ -468,12 +471,12 @@ NET_DESCRIPTIONS = {
     'FLOW_TACH': 'Coolant flow sensor pulses to GPIO18',
     'NTC_ADC': 'Coolant NTC divider voltage to GPIO4 (ADC1)',
     # universal I/O fast channels
-    'AUX_IO11': 'GPIO11 to the AUX header J40 pin 3 through 100 R: spare pin for a UART, '
-                'I2C, 1-Wire, touch (T11) or GPIO',
-    'AUX_IO13': 'GPIO13 to the AUX header J40 pin 4 through 100 R: spare pin for a UART, '
-                'I2C, 1-Wire, touch (T13) or GPIO',
-    'AUX11_HDR': 'GPIO11 line at the AUX header J40 pin 3, after its series resistor',
-    'AUX13_HDR': 'GPIO13 line at the AUX header J40 pin 4, after its series resistor',
+    'AUX_IO11': 'GPIO11 to the AUX header J40 pin 3 and the Qwiic header (SDA) through '
+                '100 R: UART, I2C SDA, 1-Wire, touch (T11) or GPIO',
+    'AUX_IO13': 'GPIO13 to the AUX header J40 pin 4 and the Qwiic header (SCL) through '
+                '100 R: UART, I2C SCL, 1-Wire, touch (T13) or GPIO',
+    'AUX11_HDR': 'GPIO11 line at J40 pin 3 and Qwiic pin 3 (SDA), after its series resistor',
+    'AUX13_HDR': 'GPIO13 line at J40 pin 4 and Qwiic pin 4 (SCL), after its series resistor',
     'AUX_IO5': 'GPIO5: PWM gate and pulse input of universal I/O channel 1, '
                'MCU side of the two 1 k resistors',
     'AUX_IO7': 'GPIO7: PWM gate and pulse input of universal I/O channel 2, '
@@ -566,7 +569,12 @@ IO_PART_ROLES = {
     'expander_decoupling': 'Decoupling capacitor for the universal I/O expanders',
     'display_fuse': 'Resettable fuse in the 12 V feed to the display (J15 pin 2): 0.5 A '
                     'hold, so a shorted cable does not blow the main fuse F1',
-    'can_clamp': 'ESD clamp on CAN_H and CAN_L at the display connector J15',
+    'can_clamp': 'ESD clamp on CAN_H and CAN_L at the display connector J15 and the CAN '
+                 'pass-through header',
+    'can_term_link': '0 R link (fitted) in series with the 120 R CAN termination: remove it '
+                     'when this board sits mid-bus, so only the two ends terminate',
+    'can_pass_through': 'CAN pass-through header (JST PH, top entry): 1 CAN_L, 2 CAN_H, '
+                        '3 GND, in parallel with J15, to carry the bus on to another device',
     'auto_on_jumper': 'Fit for auto power-on: connects the 2.2 uF capacitor to the LTC2954 '
                       'PB pin (left open by default)',
     'auto_on_cap': 'Auto power-on capacitor: holds PB low for a moment after 12 V '
@@ -635,9 +643,11 @@ IO_PART_ROLES = {
     'aux_clamp': 'ESD clamp on the AUX header line of GPIO{gpio}, on the cable side of its '
                  'series resistor',
     'aux_pull': 'Pull-up resistor for the AUX header line of GPIO{gpio}, not fitted: fit '
-                'for I2C or 1-Wire',
+                'for I2C (J40 or the Qwiic header) or 1-Wire',
     'aux_header': 'AUX header (JST PH, top entry): 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, '
                   '5 GND; UART, I2C, 1-Wire, touch or GPIO, chosen in firmware',
+    'qwiic_header': 'Qwiic / STEMMA QT I2C header (JST SH 1.0 mm, top entry): 1 GND, '
+                    '2 +3V3, 3 SDA (GPIO11), 4 SCL (GPIO13); shares both lines with J40',
     'pull_exp_miso': 'Pull-down resistor on the expansion header MISO: defined level with '
                      'no daughterboard fitted',
     'expansion_decoupling': 'Decoupling capacitor for the RS-485 port or the expansion '

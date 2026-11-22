@@ -24,6 +24,18 @@ tested, not ordered. Details and reasons: `kicad/DESIGN_REVIEW.md`, "Rev 6".
 - **In-board top-entry JST PH headers:** J15 display (6-pin, replaces J15 + J21),
   J34 RS-485 (4), J35 SPI expansion (10), J40 AUX (5).
 - **J40 AUX (new):** 5 V, 3V3, GPIO11, GPIO13, GND. UART, I2C, 1-Wire, touch or GPIO.
+- **Rev 6.1 (branch `rev6.1-schematic`), added to the routed board without a re-route**
+  (`tools/rev61_headers_board.py`, hand-drawn tracks):
+  - **J41 Qwiic / STEMMA QT** (JST SH BM04B-SRSS-TB, top entry): 1 GND, 2 +3V3,
+    3 SDA = GPIO11, 4 SCL = GPIO13, on the same lines as J40 (shared 100 R, clamps and
+    the unfitted 4.7 k pull-ups, R693 / R695: fit them for I2C unless the module has its own).
+  - **J42 CAN out** (JST PH B3B-PH-SM4-TB): 1 CAN_L, 2 CAN_H, 3 GND, in parallel with J15.
+  - **JP20** 0 R link (0603, fitted) in series with the 120 R terminator R516: remove it
+    when the bus runs on through J42 and this board is no longer an end.
+  - J15's pin names are now below its pins (J42 takes the space above) and J41 / J42
+    have no pin names yet. DRC with parity is back to the rev 6 baseline.
+  - J41 and J42 use JST's STEP models (user's files BM04B-SRSS-TB.STEP and B3B-PH-SM4-TB.STEP,
+    `LOCAL_STEP_MODELS`), attached by `tools/rev61_headers_board.py`.
 - **LT3045EDD** (3 x 3 mm DFN) replaces the LT3045HMSE (MSOP).
 - **Rules:** 0.15 mm track and clearance for signals, 0.45 / 0.2 mm vias, no 0.1 mm
   exceptions, `Power12V` 0.5 mm for the router, new `iso_barrier` rule (1.5 mm).

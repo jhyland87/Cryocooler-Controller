@@ -146,6 +146,14 @@ PARTS = {
         'Bourns', 'MF-MSMF050/24X-2', 'PTC RESET FUSE 24V 500MA 1812', 'design',
         'display feed: 0.5 A hold, 1 A trip; the display draws about 0.2 A'),
     # JST PH top-entry SMT headers (rev 6): 2 A, 100 V, 6.6 mm tall (JST ePH.pdf)
+    ('', 'JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical'): (
+        'JST', 'B3B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 3POS 2MM, 2 A', 'design',
+        'J42 CAN pass-through (1 CAN_L, 2 CAN_H, 3 GND); mates with a JST PHR-3 housing. JLCPCB stock not checked'),
+    # Qwiic / STEMMA QT: JST SH top entry, 1 A, 50 V (JST eSH.pdf)
+    ('', 'JST_SH_BM04B-SRSS-TB_1x04-1MP_P1.00mm_Vertical'): (
+        'JST', 'BM04B-SRSS-TB(LF)(SN)', 'CONN HEADER SMD 4POS 1MM, 1 A', 'design',
+        'J41 Qwiic / STEMMA QT I2C; mates with a JST SHR-04V-S cable. JLCPCB stock not '
+        'checked'),
     ('', 'JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical'): (
         'JST', 'B4B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 4POS 2MM, 2 A', 'design',
         'J34 RS-485; mates with a JST PHR-4 housing'),
@@ -659,6 +667,9 @@ def classify(value, footprint):
     if value == 'RS485 TERM':
         return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
                 'RS-485 termination jumper: land left empty unless this board ends the bus')
+    if value == 'CAN 0R':
+        return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
+                'CAN termination link: fitted; remove when this board sits mid-bus')
     if re.fullmatch(r'IO\d (5|12)V', value):
         return ('Keystone', '5110', 'JUMPER SMT 0603 ZERO OHM', 'design',
                 'sensor supply voltage jumpers of the universal I/O channels: one per '
@@ -741,7 +752,7 @@ def classify(value, footprint):
 
 CONNECTOR_FOOTPRINTS = (
     'PhoenixContact', 'TE_', 'JST_XH', 'Adafruit_', 'FanHeader_', 'Wurth_', 'Sullins_', 'Tensility_', 'SameSky_', 'TestPoint_Keystone',
-    'XKB_', 'Molex_Mini-Fit', 'JST_PH_',
+    'XKB_', 'Molex_Mini-Fit', 'JST_PH_', 'JST_SH_',
 )
 
 

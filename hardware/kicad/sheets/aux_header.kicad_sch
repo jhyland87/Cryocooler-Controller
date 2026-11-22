@@ -10,6 +10,222 @@
 		(company "Cryocooler Controller")
 	)
 	(lib_symbols
+		(symbol "Connector_Generic:Conn_01x04"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x04"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Conn_01x04_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Connector_Generic:Conn_01x05"
 			(pin_names
 				(offset 1.016)
@@ -966,7 +1182,18 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "AUX HEADER: GPIO11 AND GPIO13"
+	(text "AUX header: 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND. Both pins are touch (T11, T13) and ADC2 inputs; ADC2 is not usable while WiFi is on."
+		(exclude_from_sim no)
+		(at 20 15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "30a0f121-9337-5c5e-8810-c09766603742")
+	)
+	(text "AUX AND QWIIC HEADERS: GPIO11 AND GPIO13"
 		(exclude_from_sim no)
 		(at 38.1 50.8 0)
 		(effects
@@ -975,7 +1202,18 @@
 			)
 			(justify left top)
 		)
-		(uuid "8cd1efb5-d06c-50d2-a776-5b7b266ff4ed")
+		(uuid "3cc51e96-1a1d-5b20-bd65-72added05637")
+	)
+	(text "Qwiic / STEMMA QT J41 (JST SH): 1 GND, 2 +3V3, 3 SDA = GPIO11, 4 SCL = GPIO13, on the same lines as J40. For I2C fit the two 4.7k pull-ups unless the module has its own."
+		(exclude_from_sim no)
+		(at 20 21 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left top)
+		)
+		(uuid "ad01f63f-7d4c-5d5b-b106-a7cc7ee008a3")
 	)
 	(text "UART, I2C, 1-Wire, touch or GPIO"
 		(exclude_from_sim no)
@@ -986,46 +1224,47 @@
 			)
 			(justify left top)
 		)
-		(uuid "a77741b2-abaa-5a36-a5b7-97311fe214d6")
+		(uuid "bcfafc2a-70ea-5b44-8c71-6b6337f467f1")
 	)
-	(text "AUX header: 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND. Both pins are touch (T11, T13) and ADC2 inputs; ADC2 is not usable while WiFi is on."
-		(exclude_from_sim no)
-		(at 20 15 0)
-		(effects
-			(font
-				(size 1.8 1.8)
-			)
-			(justify left top)
-		)
-		(uuid "ae0e54cf-c081-55fc-bc30-4719e574d8b8")
+	(junction
+		(at 68.58 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0ce06e5c-21df-5f57-b966-3feb1777c86b")
+	)
+	(junction
+		(at 104.14 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "49471995-f422-5249-980e-b7e6498ba76b")
+	)
+	(junction
+		(at 101.6 73.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7c4fe299-fbf0-5ec4-9391-82466bf58595")
+	)
+	(junction
+		(at 91.44 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8512dab6-65c3-5d05-89c3-638076b65d51")
 	)
 	(junction
 		(at 91.44 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "0a2111b4-4d6f-5d1a-8af0-051916e9d972")
-	)
-	(junction
-		(at 91.44 104.14)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aa12aa55-36c2-533b-a54b-6d40cfd2f0b5")
-	)
-	(junction
-		(at 68.58 104.14)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e58f5841-591e-5f55-b815-4ba7e36393fb")
+		(uuid "a77741b2-abaa-5a36-a5b7-97311fe214d6")
 	)
 	(junction
 		(at 68.58 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "fd22bcfa-ca3d-52cb-95c4-3f8f35d4ed87")
+		(uuid "c46cf0c8-6751-5c3e-b111-bdea6f379d8c")
 	)
 	(wire
 		(pts
-			(xy 142.24 81.28) (xy 147.32 81.28)
+			(xy 162.56 81.28) (xy 167.64 81.28)
 		)
 		(stroke
 			(width 0)
@@ -1035,7 +1274,17 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 83.82) (xy 147.32 83.82)
+			(xy 152.4 80.01) (xy 152.4 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a2111b4-4d6f-5d1a-8af0-051916e9d972")
+	)
+	(wire
+		(pts
+			(xy 152.4 83.82) (xy 167.64 83.82)
 		)
 		(stroke
 			(width 0)
@@ -1045,7 +1294,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 88.9) (xy 76.2 91.44)
+			(xy 162.56 91.44) (xy 167.64 91.44)
 		)
 		(stroke
 			(width 0)
@@ -1055,7 +1304,7 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 73.66) (xy 124.46 86.36)
+			(xy 162.56 77.47) (xy 162.56 81.28)
 		)
 		(stroke
 			(width 0)
@@ -1065,7 +1314,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 88.9) (xy 147.32 88.9)
+			(xy 144.78 86.36) (xy 167.64 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1075,7 +1324,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 73.66) (xy 68.58 78.74)
+			(xy 119.38 88.9) (xy 127 88.9)
 		)
 		(stroke
 			(width 0)
@@ -1085,7 +1334,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 104.14) (xy 53.34 104.14)
+			(xy 45.72 111.76) (xy 53.34 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1095,7 +1344,27 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 104.14) (xy 68.58 109.22)
+			(xy 111.76 88.9) (xy 111.76 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "666488e5-e65e-586f-aeb9-a9c26687ab1c")
+	)
+	(wire
+		(pts
+			(xy 116.84 83.82) (xy 116.84 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "668e1e63-eabe-5589-95bd-c624f4cb1fc6")
+	)
+	(wire
+		(pts
+			(xy 149.86 88.9) (xy 167.64 88.9)
 		)
 		(stroke
 			(width 0)
@@ -1105,7 +1374,7 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 86.36) (xy 147.32 86.36)
+			(xy 101.6 86.36) (xy 114.3 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1115,7 +1384,7 @@
 	)
 	(wire
 		(pts
-			(xy 60.96 104.14) (xy 91.44 104.14)
+			(xy 60.96 111.76) (xy 91.44 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1125,7 +1394,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 104.14) (xy 129.54 104.14)
+			(xy 91.44 111.76) (xy 149.86 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1135,7 +1404,17 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 73.66) (xy 124.46 73.66)
+			(xy 127 88.9) (xy 127 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cd1efb5-d06c-50d2-a776-5b7b266ff4ed")
+	)
+	(wire
+		(pts
+			(xy 91.44 73.66) (xy 144.78 73.66)
 		)
 		(stroke
 			(width 0)
@@ -1145,7 +1424,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 119.38) (xy 76.2 121.92)
+			(xy 68.58 73.66) (xy 68.58 78.74)
 		)
 		(stroke
 			(width 0)
@@ -1155,7 +1434,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 91.44) (xy 142.24 93.98)
+			(xy 76.2 88.9) (xy 76.2 91.44)
 		)
 		(stroke
 			(width 0)
@@ -1165,7 +1444,27 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 80.01) (xy 132.08 83.82)
+			(xy 144.78 73.66) (xy 144.78 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa12aa55-36c2-533b-a54b-6d40cfd2f0b5")
+	)
+	(wire
+		(pts
+			(xy 119.38 88.9) (xy 119.38 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae0e54cf-c081-55fc-bc30-4719e574d8b8")
+	)
+	(wire
+		(pts
+			(xy 76.2 127) (xy 76.2 129.54)
 		)
 		(stroke
 			(width 0)
@@ -1195,7 +1494,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 77.47) (xy 142.24 81.28)
+			(xy 68.58 111.76) (xy 68.58 116.84)
 		)
 		(stroke
 			(width 0)
@@ -1205,7 +1504,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 88.9) (xy 129.54 104.14)
+			(xy 162.56 91.44) (xy 162.56 93.98)
 		)
 		(stroke
 			(width 0)
@@ -1215,7 +1514,17 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 91.44) (xy 147.32 91.44)
+			(xy 101.6 73.66) (xy 101.6 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e58f5841-591e-5f55-b815-4ba7e36393fb")
+	)
+	(wire
+		(pts
+			(xy 104.14 88.9) (xy 111.76 88.9)
 		)
 		(stroke
 			(width 0)
@@ -1223,17 +1532,47 @@
 		)
 		(uuid "e999f4dc-e273-5d7e-9ace-1c076e65bd14")
 	)
+	(wire
+		(pts
+			(xy 114.3 86.36) (xy 114.3 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eac4dbe4-31e6-5ac6-aa0e-ac7bfaad3e3a")
+	)
+	(wire
+		(pts
+			(xy 104.14 88.9) (xy 104.14 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec4cb805-a512-5bb4-8418-ceef6da06fa7")
+	)
+	(wire
+		(pts
+			(xy 149.86 88.9) (xy 149.86 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd22bcfa-ca3d-52cb-95c4-3f8f35d4ed87")
+	)
 	(label "AUX13_HDR"
-		(at 99.06 104.14 0)
+		(at 132.08 111.76 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "668e1e63-eabe-5589-95bd-c624f4cb1fc6")
-		(property "Description" "GPIO13 line at the AUX header J40 pin 4, after its series resistor"
-			(at 99.06 104.14 0)
+		(uuid "1923a189-82cc-5c94-b9a3-0e9e11391a76")
+		(property "Description" "GPIO13 line at J40 pin 4 and Qwiic pin 4 (SCL), after its series resistor"
+			(at 132.08 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1246,16 +1585,16 @@
 		)
 	)
 	(label "AUX11_HDR"
-		(at 99.06 73.66 0)
+		(at 132.08 73.66 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "ec4cb805-a512-5bb4-8418-ceef6da06fa7")
-		(property "Description" "GPIO11 line at the AUX header J40 pin 3, after its series resistor"
-			(at 99.06 73.66 0)
+		(uuid "5808f44a-7ec0-5a19-b7ed-385c84ffb717")
+		(property "Description" "GPIO11 line at J40 pin 3 and Qwiic pin 3 (SDA), after its series resistor"
+			(at 132.08 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1269,16 +1608,16 @@
 	)
 	(hierarchical_label "AUX_IO13"
 		(shape bidirectional)
-		(at 45.72 104.14 180)
+		(at 45.72 111.76 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "666488e5-e65e-586f-aeb9-a9c26687ab1c")
-		(property "Description" "GPIO13 to the AUX header J40 pin 4 through 100 R: spare pin for a UART, I2C, 1-Wire, touch (T13) or GPIO"
-			(at 45.72 104.14 0)
+		(uuid "db314fc0-8acf-5ab5-9065-2b0ccf1a5607")
+		(property "Description" "GPIO13 to the AUX header J40 pin 4 and the Qwiic header (SCL) through 100 R: UART, I2C SCL, 1-Wire, touch (T13) or GPIO"
+			(at 45.72 111.76 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1299,8 +1638,8 @@
 			)
 			(justify right)
 		)
-		(uuid "eac4dbe4-31e6-5ac6-aa0e-ac7bfaad3e3a")
-		(property "Description" "GPIO11 to the AUX header J40 pin 3 through 100 R: spare pin for a UART, I2C, 1-Wire, touch (T11) or GPIO"
+		(uuid "edd1fcb0-0128-5c1e-8e5c-8ffc8865cf1d")
+		(property "Description" "GPIO11 to the AUX header J40 pin 3 and the Qwiic header (SDA) through 100 R: UART, I2C SDA, 1-Wire, touch (T11) or GPIO"
 			(at 45.72 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -1315,7 +1654,97 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 91.44 100.33 0)
+		(at 57.15 111.76 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "08db8cd6-1b21-5857-8672-a87b895a2287")
+		(property "Reference" "R694"
+			(at 57.15 105.644 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100"
+			(at 57.15 107.744 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 57.15 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
+			(at 57.15 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Series resistor between GPIO13 and the AUX header: limits the damage a shorted cable can do"
+			(at 57.15 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
+			(at 57.15 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "83767f4a-70ea-5422-9f30-0fa1f59561ab")
+		)
+		(pin "2"
+			(uuid "99cf148f-656f-5e2a-81a8-38230f2c8399")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "R694")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 91.44 69.85 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1323,9 +1752,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp yes)
-		(uuid "08db8cd6-1b21-5857-8672-a87b895a2287")
-		(property "Reference" "R695"
-			(at 94.656 98.01 0)
+		(uuid "28efc886-9ad6-53f3-950b-9c85b2f8d0d4")
+		(property "Reference" "R693"
+			(at 94.656 68.8 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1336,7 +1765,7 @@
 			)
 		)
 		(property "Value" "4.7k"
-			(at 94.656 100.11 0)
+			(at 94.656 70.9 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1347,7 +1776,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 91.44 100.33 0)
+			(at 91.44 69.85 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1358,7 +1787,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
-			(at 91.44 100.33 0)
+			(at 91.44 69.85 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1368,8 +1797,8 @@
 				)
 			)
 		)
-		(property "Description" "Pull-up resistor for the AUX header line of GPIO13, not fitted: fit for I2C or 1-Wire"
-			(at 91.44 100.33 0)
+		(property "Description" "Pull-up resistor for the AUX header line of GPIO11, not fitted: fit for I2C (J40 or the Qwiic header) or 1-Wire"
+			(at 91.44 69.85 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1380,7 +1809,252 @@
 			)
 		)
 		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
-			(at 91.44 100.33 0)
+			(at 91.44 69.85 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "afd7784d-87dc-5de8-838c-7a81a9fe64f9")
+		)
+		(pin "2"
+			(uuid "1097ec51-4af9-58a0-9965-6b7f9d9f6deb")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "R693")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 162.56 77.47 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3bed852e-2913-5b54-a8f5-49c00dcac2a9")
+		(property "Reference" "#PWR431"
+			(at 162.56 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 162.56 73.914 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 162.56 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 162.56 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+5V\\\""
+			(at 162.56 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "18bd49eb-b7fd-5aba-860c-3c526caf2074")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR431")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 127 96.52 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "415731ad-7796-5007-9796-1c582edbdaf1")
+		(property "Reference" "#PWR435"
+			(at 127 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 127 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 127 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 127 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d5dae094-43ba-56a4-b38c-118b05ee1b49")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR435")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 57.15 73.66 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "48675988-cecd-567e-9af9-6f849a192176")
+		(property "Reference" "R692"
+			(at 57.15 67.544 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100"
+			(at 57.15 69.644 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 57.15 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
+			(at 57.15 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Series resistor between GPIO11 and the AUX header: limits the damage a shorted cable can do"
+			(at 57.15 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
+			(at 57.15 73.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1399,15 +2073,15 @@
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "R695")
+					(reference "R692")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "cryocooler:TPD1E05U06DPYR")
-		(at 76.2 111.76 0)
+		(lib_id "Connector_Generic:Conn_01x05")
+		(at 172.72 86.36 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1415,9 +2089,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "28efc886-9ad6-53f3-950b-9c85b2f8d0d4")
-		(property "Reference" "U124"
-			(at 83.48 111.98 0)
+		(uuid "4df9ad01-61c5-522e-979d-19b0963096d9")
+		(property "Reference" "J40"
+			(at 167.64 74.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1427,8 +2101,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "TPD1E05U06DPYR"
-			(at 83.48 114.08 0)
+		(property "Value" "AUX HEADER"
+			(at 167.64 77.01 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1438,8 +2112,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
-			(at 76.2 111.76 0)
+		(property "Footprint" "Connector_JST:JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical"
+			(at 172.72 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1449,8 +2123,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
-			(at 76.2 111.76 0)
+		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/ePH.pdf"
+			(at 172.72 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1460,8 +2134,8 @@
 				)
 			)
 		)
-		(property "Description" "ESD clamp on the AUX header line of GPIO13, on the cable side of its series resistor"
-			(at 76.2 111.76 0)
+		(property "Description" "AUX header (JST PH, top entry): 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND; UART, I2C, 1-Wire, touch or GPIO, chosen in firmware"
+			(at 172.72 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1471,8 +2145,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=TPD1E05U06DPYR"
-			(at 76.2 111.76 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=B5B-PH-SM4-TB%28LF%29%28SN%29"
+			(at 172.72 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1483,15 +2157,333 @@
 			)
 		)
 		(pin "1"
-			(uuid "ad01f63f-7d4c-5d5b-b106-a7cc7ee008a3")
+			(uuid "e1c19561-d41a-5f88-8ca0-ab9f77e26b5d")
 		)
 		(pin "2"
-			(uuid "3cc51e96-1a1d-5b20-bd65-72added05637")
+			(uuid "39f888e3-af56-557d-9660-567435a92c69")
+		)
+		(pin "3"
+			(uuid "c1a0c175-1cb5-5ac0-99b3-ec9185a105d9")
+		)
+		(pin "4"
+			(uuid "a4d3805f-9387-5392-afca-6f1b085c4bed")
+		)
+		(pin "5"
+			(uuid "5623e36b-7486-5a64-9e95-223c9b8ac3bd")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "U124")
+					(reference "J40")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 152.4 80.01 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4fab72ee-7c7b-57de-9027-107833b7b4b3")
+		(property "Reference" "#PWR432"
+			(at 152.4 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 152.4 76.454 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 152.4 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "5cfc130b-3706-5345-9875-fc1376954720")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR432")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 116.84 83.82 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7382740e-53ef-5d46-ad00-917c7141e0e8")
+		(property "Reference" "#PWR434"
+			(at 116.84 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 116.84 80.264 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 116.84 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 116.84 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 116.84 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a905a05c-1edb-5765-bc32-7272f2f3c6f0")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR434")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 76.2 129.54 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "98b79446-371d-55cb-909e-f2c07ce22d60")
+		(property "Reference" "#PWR429"
+			(at 76.2 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 76.2 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 76.2 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 76.2 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4424ac19-210a-5dc5-9aca-0b9582b56ba2")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR429")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 91.44 104.14 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a708eabc-4591-533b-89cb-4b5d033e941b")
+		(property "Reference" "#PWR430"
+			(at 91.44 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 91.44 100.584 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 91.44 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 91.44 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 91.44 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "fd4125e8-5d84-54e6-ac75-b9bcaabca2d5")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "#PWR430")
 					(unit 1)
 				)
 			)
@@ -1507,7 +2499,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "480966d2-16a6-57d5-ade3-975f6f44ebac")
+		(uuid "b2370698-1ccd-5632-b915-9b9458f33f3e")
 		(property "Reference" "U123"
 			(at 83.48 81.5 0)
 			(show_name no)
@@ -1575,275 +2567,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "0ce06e5c-21df-5f57-b966-3feb1777c86b")
+			(uuid "7521cbd7-8596-5e01-b11d-9f177c03dbf3")
 		)
 		(pin "2"
-			(uuid "7c4fe299-fbf0-5ec4-9391-82466bf58595")
+			(uuid "3893c1d4-9e3a-5a54-a5f9-fbf73157a184")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
 					(reference "U123")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 91.44 69.85 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp yes)
-		(uuid "48675988-cecd-567e-9af9-6f849a192176")
-		(property "Reference" "R693"
-			(at 94.656 67.53 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "4.7k"
-			(at 94.656 69.63 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 91.44 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
-			(at 91.44 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Pull-up resistor for the AUX header line of GPIO11, not fitted: fit for I2C or 1-Wire"
-			(at 91.44 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
-			(at 91.44 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "edd1fcb0-0128-5c1e-8e5c-8ffc8865cf1d")
-		)
-		(pin "2"
-			(uuid "5808f44a-7ec0-5a19-b7ed-385c84ffb717")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "R693")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 142.24 93.98 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "4df9ad01-61c5-522e-979d-19b0963096d9")
-		(property "Reference" "#PWR432"
-			(at 142.24 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 142.24 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 142.24 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 142.24 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 142.24 93.98 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7628cc83-fbf5-5767-90f8-e115c87892b7")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR432")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 57.15 73.66 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7e43ce6b-22d7-5670-8a66-3c0dbcf7e099")
-		(property "Reference" "R692"
-			(at 57.15 67.544 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 57.15 69.644 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 57.15 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
-			(at 57.15 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Series resistor between GPIO11 and the AUX header: limits the damage a shorted cable can do"
-			(at 57.15 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
-			(at 57.15 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8512dab6-65c3-5d05-89c3-638076b65d51")
-		)
-		(pin "2"
-			(uuid "c46cf0c8-6751-5c3e-b111-bdea6f379d8c")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "R692")
 					(unit 1)
 				)
 			)
@@ -1859,8 +2591,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "96327278-5b7d-5242-9d1e-1f84a7bb0cc6")
-		(property "Reference" "#PWR426"
+		(uuid "c92bacc9-1f3b-5c57-a634-65fd898791dd")
+		(property "Reference" "#PWR427"
 			(at 76.2 91.44 0)
 			(hide yes)
 			(show_name no)
@@ -1916,20 +2648,20 @@
 			)
 		)
 		(pin "1"
-			(uuid "49471995-f422-5249-980e-b7e6498ba76b")
+			(uuid "50173e2c-a9ae-5699-88fe-7c3095055f2c")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR426")
+					(reference "#PWR427")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x05")
-		(at 152.4 86.36 0)
+		(lib_id "Connector_Generic:Conn_01x04")
+		(at 116.84 96.52 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1937,9 +2669,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "98b79446-371d-55cb-909e-f2c07ce22d60")
-		(property "Reference" "J40"
-			(at 147.32 74.91 0)
+		(uuid "d86e8c99-1f88-55de-866b-3b106b129cf8")
+		(property "Reference" "J41"
+			(at 106.39 100.52 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1949,8 +2681,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AUX (5V / 3V3 / IO11 / IO13 / GND)"
-			(at 147.32 77.01 0)
+		(property "Value" "QWIIC / STEMMA QT"
+			(at 106.39 102.62 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1960,8 +2692,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical"
-			(at 152.4 86.36 0)
+		(property "Footprint" "Connector_JST:JST_SH_BM04B-SRSS-TB_1x04-1MP_P1.00mm_Vertical"
+			(at 116.84 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1971,8 +2703,8 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/ePH.pdf"
-			(at 152.4 86.36 0)
+		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/eSH.pdf"
+			(at 116.84 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1982,8 +2714,8 @@
 				)
 			)
 		)
-		(property "Description" "AUX header (JST PH, top entry): 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND; UART, I2C, 1-Wire, touch or GPIO, chosen in firmware"
-			(at 152.4 86.36 0)
+		(property "Description" "Qwiic / STEMMA QT I2C header (JST SH 1.0 mm, top entry): 1 GND, 2 +3V3, 3 SDA (GPIO11), 4 SCL (GPIO13); shares both lines with J40"
+			(at 116.84 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1993,8 +2725,8 @@
 				)
 			)
 		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=B5B-PH-SM4-TB%28LF%29%28SN%29"
-			(at 152.4 86.36 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=BM04B-SRSS-TB%28LF%29%28SN%29"
+			(at 116.84 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2005,42 +2737,61 @@
 			)
 		)
 		(pin "1"
-			(uuid "3893c1d4-9e3a-5a54-a5f9-fbf73157a184")
+			(uuid "345a3977-77e1-5e71-9e84-407fc8955c3d")
 		)
 		(pin "2"
-			(uuid "50173e2c-a9ae-5699-88fe-7c3095055f2c")
+			(uuid "aac18c11-d481-501b-98a3-5961be9b9a37")
 		)
 		(pin "3"
-			(uuid "afd7784d-87dc-5de8-838c-7a81a9fe64f9")
+			(uuid "c9980408-5883-5aa7-8895-767f683c624b")
 		)
 		(pin "4"
-			(uuid "1097ec51-4af9-58a0-9965-6b7f9d9f6deb")
-		)
-		(pin "5"
-			(uuid "1223dde2-184f-53b1-91e5-1c95ccb443c1")
+			(uuid "46ebc1e4-fabb-5efb-bea1-ef14c83465ac")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "J40")
+					(reference "J41")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 132.08 80.01 0)
+		(lib_id "cryocooler:TPD1E05U06DPYR")
+		(at 76.2 119.38 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a708eabc-4591-533b-89cb-4b5d033e941b")
-		(property "Reference" "#PWR431"
-			(at 132.08 80.01 0)
+		(uuid "e37191c6-e49a-5f73-8c99-9130a9110e79")
+		(property "Reference" "U124"
+			(at 83.48 119.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 83.48 121.7 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 76.2 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2050,18 +2801,8 @@
 				)
 			)
 		)
-		(property "Value" "+3V3"
-			(at 132.08 76.454 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 132.08 80.01 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 76.2 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2071,8 +2812,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 132.08 80.01 0)
+		(property "Description" "ESD clamp on the AUX header line of GPIO13, on the cable side of its series resistor"
+			(at 76.2 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2082,8 +2823,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 132.08 80.01 0)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=TPD1E05U06DPYR"
+			(at 76.2 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2094,12 +2835,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "99cf148f-656f-5e2a-81a8-38230f2c8399")
+			(uuid "7628cc83-fbf5-5767-90f8-e115c87892b7")
+		)
+		(pin "2"
+			(uuid "a5b8aac0-db32-5e59-89ee-b33379edbdf3")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR431")
+					(reference "U124")
 					(unit 1)
 				)
 			)
@@ -2115,8 +2859,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b2370698-1ccd-5632-b915-9b9458f33f3e")
-		(property "Reference" "#PWR427"
+		(uuid "e6127730-09af-54f5-b0a4-8a0b252476a6")
+		(property "Reference" "#PWR428"
 			(at 91.44 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -2171,252 +2915,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "db314fc0-8acf-5ab5-9065-2b0ccf1a5607")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR427")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 57.15 104.14 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c92bacc9-1f3b-5c57-a634-65fd898791dd")
-		(property "Reference" "R694"
-			(at 57.15 98.024 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 57.15 100.124 270)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 57.15 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
-			(at 57.15 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Series resistor between GPIO13 and the AUX header: limits the damage a shorted cable can do"
-			(at 57.15 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-07100RL"
-			(at 57.15 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "1923a189-82cc-5c94-b9a3-0e9e11391a76")
-		)
-		(pin "2"
-			(uuid "30a0f121-9337-5c5e-8810-c09766603742")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "R694")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 91.44 96.52 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e37191c6-e49a-5f73-8c99-9130a9110e79")
-		(property "Reference" "#PWR429"
-			(at 91.44 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 91.44 92.964 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 91.44 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 91.44 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 91.44 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7521cbd7-8596-5e01-b11d-9f177c03dbf3")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR429")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 76.2 121.92 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e6127730-09af-54f5-b0a4-8a0b252476a6")
-		(property "Reference" "#PWR428"
-			(at 76.2 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 76.2 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 76.2 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 76.2 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 76.2 121.92 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "bcfafc2a-70ea-5b44-8c71-6b6337f467f1")
+			(uuid "1223dde2-184f-53b1-91e5-1c95ccb443c1")
 		)
 		(instances
 			(project "cryocooler"
@@ -2428,8 +2927,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+5V")
-		(at 142.24 77.47 0)
+		(lib_id "power:GND")
+		(at 162.56 93.98 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2437,9 +2936,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f2559922-e60c-5930-9e2c-2b10e17c0898")
-		(property "Reference" "#PWR430"
-			(at 142.24 77.47 0)
+		(uuid "eb00719e-e069-5e17-b2f8-f4900a1891b5")
+		(property "Reference" "#PWR433"
+			(at 162.56 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2449,8 +2948,9 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
-			(at 142.24 73.914 0)
+		(property "Value" "GND"
+			(at 162.56 93.98 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2460,7 +2960,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 142.24 77.47 0)
+			(at 162.56 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2471,7 +2971,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 142.24 77.47 0)
+			(at 162.56 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2481,8 +2981,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+5V\\\""
-			(at 142.24 77.47 0)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 162.56 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2493,12 +2993,104 @@
 			)
 		)
 		(pin "1"
-			(uuid "83767f4a-70ea-5422-9f30-0fa1f59561ab")
+			(uuid "bad721ee-d047-594e-aefc-f60df13c2d4a")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
-					(reference "#PWR430")
+					(reference "#PWR433")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 91.44 107.95 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp yes)
+		(uuid "f2559922-e60c-5930-9e2c-2b10e17c0898")
+		(property "Reference" "R695"
+			(at 94.656 106.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7k"
+			(at 94.656 109 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 91.44 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
+			(at 91.44 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Pull-up resistor for the AUX header line of GPIO13, not fitted: fit for I2C (J40 or the Qwiic header) or 1-Wire"
+			(at 91.44 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Product" "https://www.digikey.com/en/products/result?keywords=RC0402FR-074K7L"
+			(at 91.44 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "29934c47-4718-5f28-8b4e-b3c83f9c0c39")
+		)
+		(pin "2"
+			(uuid "27d94108-4270-5a1a-a65d-81c457c86aa6")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/b6518b37-788b-5ca5-a5fd-d51a66219fbc"
+					(reference "R695")
 					(unit 1)
 				)
 			)

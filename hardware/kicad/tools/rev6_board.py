@@ -64,7 +64,7 @@ base.EDGE_PLAN = [
     ('J30', 'right', 'top', 54.7, 0.24),
 ]
 # connectors inside the board: placed like any other part, with its spacing
-INBOARD_CONNECTORS = {'J15', 'J34', 'J35', 'J40'}
+INBOARD_CONNECTORS = {'J15', 'J34', 'J35', 'J40', 'J41', 'J42'}
 
 # Preferred spots, nudged to the nearest free one: ref -> (x, y, rotation, side)
 base.PREFERRED = {
@@ -121,6 +121,10 @@ base.PREFERRED = {
     'J35': (87.5, 31.0, 0, 'top'),
     'J34': (95.0, 42.0, 0, 'top'),
     'J40': (87.0, 52.0, 0, 'top'),
+    # rev 6.1, added to the routed board by rev61_headers_board.py
+    'J41': (97.5, 52.0, 90, 'top'),
+    'J42': (48.0, 6.5, 270, 'top'),
+    'JP20': (59.1, 10.0, 180, 'top'),
     'U111': (85.0, 42.0, 0, 'top'),
     'U110': (77.0, 41.0, 0, 'top'),
     'J15': (56.0, 18.0, 0, 'top'),
@@ -295,7 +299,7 @@ def run_freerouting(board, work_dir, rounds):
 base.run_freerouting = run_freerouting
 
 base.LABEL_FUNCTIONS = {**{ref: name for ref, name in base.LABEL_FUNCTIONS.items() if ref != 'J21'},
-                        'J40': 'AUX'}
+                        'J40': 'AUX', 'J41': 'QWIIC', 'J42': 'CAN', 'JP20': 'CAN TERM'}
 # connector -> [(body sides to try: N/S/E/W on the board, {pad: name})]
 rev5.PIN_NAMES = {
     **{ref: rows for ref, rows in rev5.PIN_NAMES.items() if ref != 'J21'},

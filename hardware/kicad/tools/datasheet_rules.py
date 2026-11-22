@@ -496,11 +496,11 @@ RULES = [
     # 100 R; supplies on pins 1 and 2
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '19', 'AUX_IO11'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '21', 'AUX_IO13'),
-    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '1', '+5V'),
-    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '2', '+3V3'),
-    ('net', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', '5', 'GND'),
-    ('between', '100', ('AUX (5V / 3V3 / IO11 / IO13 / GND)', '3'), ('NET', 'AUX_IO11')),
-    ('between', '100', ('AUX (5V / 3V3 / IO11 / IO13 / GND)', '4'), ('NET', 'AUX_IO13')),
+    ('net', 'AUX HEADER', '1', '+5V'),
+    ('net', 'AUX HEADER', '2', '+3V3'),
+    ('net', 'AUX HEADER', '5', 'GND'),
+    ('between', '100', ('AUX HEADER', '3'), ('NET', 'AUX_IO11')),
+    ('between', '100', ('AUX HEADER', '4'), ('NET', 'AUX_IO13')),
     # Output drivers: TSB582 (ST DS13378 rev 2, DFN8): 1 Out1, 2 In1-, 3 In1+, 4 VCC-,
     # 5 In2+, 6 In2-, 7 Out2, 8 VCC+, pad floating or VCC-. 4-36 V, inputs from VCC- to
     # VCC+ - 1.5 V (0-2.5 V is inside), 150 mA min output. Gain 1 + 191k / 49.9k = 4.83,
@@ -558,6 +558,12 @@ RULES = [
     ('same', 'THVD2410DRBR', '3', '2'),
     ('res', 'THVD2410DRBR', '3', '10k', '+3V3'),
     ('res', 'THVD2410DRBR', '1', '10k', '+3V3'),
+    # Qwiic / STEMMA QT pin order (SparkFun Qwiic spec; Adafruit STEMMA QT technical
+    # specs: 1 GND, 2 V+, 3 SDA, 4 SCL), on the same lines as J40 pins 3 and 4
+    ('net', 'QWIIC / STEMMA QT', '1', 'GND'),
+    ('net', 'QWIIC / STEMMA QT', '2', '+3V3'),
+    ('join', 'QWIIC / STEMMA QT', '3', 'AUX HEADER', '3'),
+    ('join', 'QWIIC / STEMMA QT', '4', 'AUX HEADER', '4'),
     ('join', 'THVD2410DRBR', '6', 'RS-485 (A / B / GND / NC)', '1'),
     ('join', 'THVD2410DRBR', '7', 'RS-485 (A / B / GND / NC)', '2'),
     ('net', 'RS-485 (A / B / GND / NC)', '3', 'GND'),
@@ -725,13 +731,19 @@ RULES = [
     ('net', 'TCAN3414DRBR', '1', 'CAN_TX'),
     ('net', 'TCAN3414DRBR', '4', 'CAN_RX'),
     ('res', 'TCAN3414DRBR', '1', '10k', '+3V3'),
-    ('between', '120', ('TCAN3414DRBR', '7'), ('TCAN3414DRBR', '6')),
-    ('join', 'TCAN3414DRBR', '7', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '3'),
-    ('join', 'TCAN3414DRBR', '6', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '4'),
-    ('net', 'DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '1', 'GND'),
+    # 120 R from CAN_L through the fitted 0 R link JP20 to CAN_H
+    ('between', '120', ('TCAN3414DRBR', '6'), ('CAN 0R', '2')),
+    ('join', 'TCAN3414DRBR', '7', 'CAN 0R', '1'),
+    # pass-through header J42: 1 CAN_L, 2 CAN_H, 3 GND
+    ('join', 'TCAN3414DRBR', '6', 'CAN OUT', '1'),
+    ('join', 'TCAN3414DRBR', '7', 'CAN OUT', '2'),
+    ('net', 'CAN OUT', '3', 'GND'),
+    ('join', 'TCAN3414DRBR', '7', 'DISPLAY CABLE', '3'),
+    ('join', 'TCAN3414DRBR', '6', 'DISPLAY CABLE', '4'),
+    ('net', 'DISPLAY CABLE', '1', 'GND'),
     # the display feed has its own resettable fuse (Bourns MF-MSMF050/24X: 24 V, 0.5 A
     # hold, 1 A trip)
-    ('between', 'MF-MSMF050/24X', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '2'),
+    ('between', 'MF-MSMF050/24X', ('DISPLAY CABLE', '2'),
      ('NET', 'VIN')),
     # ESD2CAN24 (TI SLVSFW5D): 1 and 2 the bus lines, 3 GND
     ('net', 'ESD2CAN24DBZR', '1', 'CAN_H'),
@@ -740,8 +752,8 @@ RULES = [
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '10', 'CAN_TX'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '20', 'CAN_RX'),
     # the display's open-collector outputs act as the power and reset buttons
-    ('between', '100', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '5'), ('NET', 'PWR_BTN')),
-    ('between', '100', ('DISPLAY (GND / 12V / CAN H / L / BTN / RST)', '6'), ('NET', 'ESP_EN')),
+    ('between', '100', ('DISPLAY CABLE', '5'), ('NET', 'PWR_BTN')),
+    ('between', '100', ('DISPLAY CABLE', '6'), ('NET', 'ESP_EN')),
     # J12 pin 3 (cryocooler protective ground) on board GND; J11 / J12 minus
     # on the isolated side
     ('net', 'CRYOCOOLER (+ / - / GND)', '3', 'GND'),

@@ -125,6 +125,8 @@ DATASHEETS = {
     'TCAN3414': 'https://www.ti.com/lit/ds/symlink/tcan3414.pdf',
     '5110': 'https://www.keyelco.com/userAssets/file/K75p60.pdf',
     'S3B-XH': 'https://www.jst-mfg.com/product/pdf/eng/eXH.pdf',
+    'B3B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
+    'BM04B-SRSS': 'https://www.jst-mfg.com/product/pdf/eng/eSH.pdf',
     'B4B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
     'B5B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',
     'B6B-PH-SM4': 'https://www.jst-mfg.com/product/pdf/eng/ePH.pdf',

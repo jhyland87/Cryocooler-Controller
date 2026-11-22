@@ -64,6 +64,9 @@ PH_V4 = 'Connector_JST:JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical'
 PH_V5 = 'Connector_JST:JST_PH_B5B-PH-SM4-TB_1x05-1MP_P2.00mm_Vertical'
 PH_V6 = 'Connector_JST:JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical'
 PH_V10 = 'Connector_JST:JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical'
+PH_V3 = 'Connector_JST:JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical'
+# Qwiic / STEMMA QT: JST SH 1.0 mm, top entry
+SH_V4 = 'Connector_JST:JST_SH_BM04B-SRSS-TB_1x04-1MP_P1.00mm_Vertical'
 POWER_JACK = 'cryocooler:Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'
 SIGNAL_JACK = 'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'
 # pluggable SMT headers: TE 2305908 (15 A) for the amp current, Phoenix MC 0,5
@@ -3954,6 +3957,28 @@ CAN_PHY_COLUMN = 130  # transceiver column: its bus pins end under 85 mm from J1
 CAN_PHY_ROW = 78
 
 
+# last references before the rev 6.1 CAN link and pass-through header
+CAN_LINK_AFTER = {'JP': 19, 'J': 41}
+
+
+def display_can_tap(sh, end, dip, low):
+    """CAN pass-through between the bus pair, right of the terminator, pins left:
+    CAN_L drops onto pin 1, CAN_H rises to pin 2 (clear of JP20's text and of
+    pin 3's ground) and GND drops away."""
+    tap = sh.add(
+        'Connector_Generic:Conn_01x03', next_ref('J'), 'CAN OUT',
+        (end + 20) * 1.27, (low[1] + 6) * 1.27, auto=False, footprint=PH_V3,
+    )
+    role(tap, 'can_pass_through')
+    can_l, can_h, ground = (pin_cell(tap, pin) for pin in '123')
+    tip = can_l[0]
+    assert tip - 6 >= end + 10 and low[1] + 4 <= can_l[1] and ground[1] + 7 <= dip, (can_l, ground)
+    wire(sh, (tip - 2, low[1]), (tip - 2, can_l[1]), can_l)
+    wire(sh, (tip - 6, dip), (tip - 6, can_h[1]), can_h)
+    corner = spur(sh, tap, '3', 2)
+    drop_ground(sh, corner, 2)
+
+
 def display_link(sh):
     """Hand-laid: the off-board Waveshare ESP32-S3-Touch-LCD-4.3B runs its own
     firmware. CAN transceiver on the left with the digital-output circuits below
@@ -3970,7 +3995,8 @@ def display_link(sh):
     )
     sh.note(
         'It is fed from VIN, ahead of the power switch, so it runs while this board is '
-        'off. 120 R ends the bus at this board.',
+        'off. 120 R ends the bus here through the 0 R link JP20: remove JP20 when J42 '
+        'carries the bus on and this board is no longer an end.',
         20,
         21,
     )
@@ -4049,7 +4075,7 @@ def display_link(sh):
             link_ref = next_ref('J')
         link = sh.add(
             'Connector_Generic:Conn_01x06', link_ref,
-            'DISPLAY (GND / 12V / CAN H / L / BTN / RST)',
+            'DISPLAY CABLE',
             link_cell[0] * 1.27, (link_cell[1] + 4) * 1.27, rot=180, mirror=True, auto=False,
             footprint=PH_V6,
         )
@@ -4061,10 +4087,25 @@ def display_link(sh):
         low, high = pin_cell(phy, '6'), pin_cell(phy, '7')
         can_l, can_h = pin_cell(link, '4'), pin_cell(link, '3')
         assert (low[1], high[1]) == (can_l[1], can_h[1]), (low, high, can_l, can_h)
-        end, dip, rise, clamp_column = low[0] + 8, low[1] + 6, can_h[0] - 16, can_h[0] - 36
+        end, dip, rise = low[0] + 8, low[1] + 18, can_h[0] - 16
+        clamp_column = end + 30
+        assert clamp_column + 8 <= rise, (clamp_column, rise)
         wire(sh, low, (end, low[1]), (clamp_column, low[1]), (can_l[0] - 14, low[1]), can_l)
         # turned so pin 1 stays on CAN_H, as it was
         res(sh, '120', '', '', pose=at(end, low[1] + 3, 180), fp=R1206)
+        # 0 R link under the 120 R, fitted: remove it when this board is mid-bus
+        with kicadgen.pinned_refs('JP', CAN_LINK_AFTER['JP']):
+            link_0r = sh.add(
+                'Jumper:Jumper_2_Small_Bridged', next_ref('JP'), 'CAN 0R',
+                end * 1.27, (low[1] + 9) * 1.27, rot=90, auto=False, footprint=SWITCH_HEADER,
+            )
+        role(link_0r, 'can_term_link')
+        ends = sorted((pin_cell(link_0r, '1'), pin_cell(link_0r, '2')), key=lambda cell: cell[1])
+        wire(sh, (end, low[1] + 6), ends[0])
+        wire(sh, ends[1], (end, dip))
+        with kicadgen.pinned_refs('J', CAN_LINK_AFTER['J']):
+            display_can_tap(sh, end, dip, low)
+        sh.note('CAN OUT AND TERMINATION', (end - 2) * 1.27, (low[1] - 10) * 1.27, 1.5)
         wire(
             sh, high, (high[0] + 4, high[1]), (high[0] + 4, dip), (end, dip),
             (clamp_column, dip), (rise, dip), (rise, high[1]), (can_h[0] - 14, high[1]), can_h,
@@ -4076,16 +4117,18 @@ def display_link(sh):
         # resettable fuse in the display feed, below the bus pair: a shorted cable
         # no longer takes F1
         feed = spur(sh, link, '2', 6)
-        fuse_row = feed[1] + 16
+        fuse_row = feed[1] + 10
         fuse = sh.add(
-            'Device:Polyfuse', 'F2', 'MF-MSMF050/24X', (feed[0] - 8) * 1.27, fuse_row * 1.27,
-            rot=90, auto=False, footprint='Fuse:Fuse_1812_4532Metric',
+            'Device:Polyfuse', 'F2', 'MF-MSMF050/24X', (feed[0] + 8) * 1.27, fuse_row * 1.27,
+            rot=270, auto=False, footprint='Fuse:Fuse_1812_4532Metric',
         )
         role(fuse, 'display_fuse')
+        # fuse and VIN to the right of the feed, clear of the CAN clamp
         wire(sh, feed, (feed[0], fuse_row), pin_cell(fuse, '2'))
-        left = pin_cell(fuse, '1')
-        wire(sh, left, (left[0] - 8, left[1]))
-        rail_symbol(sh, 'VIN', (left[0] - 8, left[1]))
+        right = pin_cell(fuse, '1')
+        assert right[0] > feed[0], (right, feed)
+        wire(sh, right, (right[0] + 8, right[1]))
+        rail_symbol(sh, 'VIN', (right[0] + 8, right[1]))
         sh.note('CAN CLAMP GROUND (D101 SITS BESIDE J15 ON THE BOARD)', 130 * 1.27, 136 * 1.27, 1.8)
         clamp = esd_array(
             sh, ((clamp_column, dip, False), (clamp_column, low[1], True)), (160, 148),
@@ -4097,9 +4140,9 @@ def display_link(sh):
             sh,
             [('TCAN3414 DECOUPLING CAPACITOR', '+3V3', ('100nF',))],
             40,
-            156,
+            170,
         )
-    display_buttons(sh, 100, 124)
+    display_buttons(sh, 100, 134)
 
 
 def build_indicators(sh):
@@ -5314,14 +5357,14 @@ def expansion_aux(sh):
     100 R in series, an ESD clamp on the cable side and an unfitted pull-up, so
     firmware can use the pair as a UART, I2C, 1-Wire, touch or plain GPIO.
     """
-    sh.note('AUX HEADER: GPIO11 AND GPIO13', 60 * 1.27, 124 * 1.27, 1.8)
+    sh.note('AUX AND QWIIC HEADERS: GPIO11 AND GPIO13', 60 * 1.27, 124 * 1.27, 1.8)
     sh.note('UART, I2C, 1-Wire, touch or GPIO', 60 * 1.27, 128 * 1.27, 1.5)
-    rows = {11: 142, 13: 166}
+    rows = {11: 142, 13: 172}
     for gpio, row in rows.items():
         net_label(sh, f'AUX_IO{gpio}', (66, row), 180, is_global=True)
         wire(sh, (66, row), (72, row))
         role(hres(sh, '100', 75, row), 'aux_series', gpio=gpio)
-        net_label(sh, f'AUX{gpio}_HDR', (108, row), 0)
+        net_label(sh, f'AUX{gpio}_HDR', (134, row), 0)
         clamp = sh.add(
             'cryocooler:TPD1E05U06DPYR', next_ref('U'), 'TPD1E05U06DPYR', 90 * 1.27,
             (row + 6) * 1.27, auto=False, footprint='Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm',
@@ -5333,7 +5376,7 @@ def expansion_aux(sh):
         pull.dnp = True
         rail_symbol(sh, '+3V3', (102, row - 6))
     header = conn(
-        sh, 'Connector_Generic:Conn_01x05', 'AUX (5V / 3V3 / IO11 / IO13 / GND)', 150 * 1.27,
+        sh, 'Connector_Generic:Conn_01x05', 'AUX HEADER', 166 * 1.27,
         152 * 1.27, {}, PH_V5,
     )
     role(header, 'aux_header')
@@ -5342,10 +5385,32 @@ def expansion_aux(sh):
         wire(sh, end, (end[0], end[1] - 3))
         rail_symbol(sh, rail, (end[0], end[1] - 3))
     # both lines run straight to the header and turn onto their pins
-    for pin, gpio, column in (('3', 11, 128), ('4', 13, 132)):
+    for pin, gpio, column in (('3', 11, 144), ('4', 13, 148)):
         tip = pin_cell(header, pin)
         wire(sh, (78, rows[gpio]), (column, rows[gpio]), (column, tip[1]), tip)
     drop_ground(sh, spur(sh, header, '5', 4), 2)
+    expansion_qwiic(sh, rows)
+
+
+def expansion_qwiic(sh, rows):
+    """Qwiic / STEMMA QT header between the two lines, pins up (pin 4 on the
+    left): SDA is GPIO11 and SCL GPIO13. Both signals come in over the pin tips
+    from the left, so the supply rises straight to its symbol."""
+    column, tips = 122, 156
+    qwiic = sh.add(
+        'Connector_Generic:Conn_01x04', next_ref('J'), 'QWIIC / STEMMA QT',
+        column * 1.27, (tips + 4) * 1.27, rot=270, auto=False, footprint=SH_V4,
+    )
+    role(qwiic, 'qwiic_header')
+    ground, supply, sda, scl = (pin_cell(qwiic, pin) for pin in '1234')
+    assert [scl, sda, supply, ground] == [(column + dx, tips) for dx in (-4, -2, 0, 2)], scl
+    wire(sh, (column - 12, rows[11]), (column - 12, tips - 4), (sda[0], tips - 4), sda)
+    wire(sh, (column - 10, rows[13]), (column - 10, tips - 2), (scl[0], tips - 2), scl)
+    end = spur(sh, qwiic, '2', 6)
+    rail_symbol(sh, '+3V3', end)
+    corner = spur(sh, qwiic, '1', 2)
+    wire(sh, corner, (corner[0] + 6, corner[1]))
+    drop_ground(sh, (corner[0] + 6, corner[1]), 6)
 
 
 def build_expansion(sh):
@@ -5408,6 +5473,11 @@ def build_aux_header(sh):
         'AUX header: 1 +5V, 2 +3V3, 3 GPIO11, 4 GPIO13, 5 GND. Both pins are touch '
         '(T11, T13) and ADC2 inputs; ADC2 is not usable while WiFi is on.',
         20, 15,
+    )
+    sh.note(
+        'Qwiic / STEMMA QT J41 (JST SH): 1 GND, 2 +3V3, 3 SDA = GPIO11, 4 SCL = GPIO13, on the '
+        'same lines as J40. For I2C fit the two 4.7k pull-ups unless the module has its own.',
+        20, 21,
     )
     marks = sheet_marks(sh)
     with kicadgen.pinned_refs('R', REV6_AUX_AFTER['R']), kicadgen.pinned_refs(
@@ -5713,7 +5783,7 @@ SHEETS += [
 # keyed by sheet file, final reference and unit; text layout keeps them.
 PINNED_FIELDS = {
     # below the connector: beside it the long value runs into the display outline
-    ('display.kicad_sch', 'J15', 1): ((236.22, 110.49), (236.22, 112.59)),
+    ('display.kicad_sch', 'J15', 1): ((256.54, 81.28), (256.54, 83.38)),
     # the fast channels' buffer: text left of the VCC riser
     ('io_ch1.kicad_sch', 'U116', 1): ((72.39, 207.9), (72.39, 210.0)),
     ('io_ch2.kicad_sch', 'U119', 1): ((72.39, 207.9), (72.39, 210.0)),
@@ -5902,9 +5972,10 @@ FIELD_SIDES = {
     'ldo_15v.kicad_sch': {'right': 'C59 C60 C57 C58', 'left': 'R76 R77'},
     'rails_15v.kicad_sch': {'above@3.5': 'D4 D5'},
     'compressor_relay.kicad_sch': {'right': 'D14'},
+    'aux_header.kicad_sch': {'below@4': 'J41'},
     'cold_head.kicad_sch': {'left': 'R62', 'right': 'C70'},
     'indicators.kicad_sch': {'left': 'R10'},
-    'display.kicad_sch': {'above': 'F2', 'below': 'R517 R518'},
+    'display.kicad_sch': {'below': 'F2 R517 R518', 'right': 'J42 JP20'},
     'rails_logic.kicad_sch': {'left': 'C3', 'right': 'C5 C30 C87'},
     'supply_switches.kicad_sch': {'above@4.5': 'FB3 FB4', 'below@3.5': 'JP1 JP2 JP3 JP4 JP5 JP6'},
 }

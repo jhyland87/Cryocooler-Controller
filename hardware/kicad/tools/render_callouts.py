@@ -50,6 +50,8 @@ PORTS = {
         'J38': ('IO3', 'V+ / IO / GND / NC'),
         'J39': ('IO4', 'V+ / IO / GND / NC'),
         'J40': ('AUX', 'JST PH: 5 V / 3V3 / GPIO11 / GPIO13 / GND'),
+        'J41': ('Qwiic / STEMMA QT', 'JST SH: GND / 3V3 / SDA (IO11) / SCL (IO13)'),
+        'J42': ('CAN out', 'JST PH: CAN L / CAN H / GND'),
         'SW1': ('Reset button', 'ESP32 EN'),
         'SW2': ('Boot button', 'ESP32 download mode'),
         'SW3': ('Power button', 'on / off'),

@@ -153,6 +153,10 @@ ENVELOPES = {
     ),
     # JST PH top-entry SMT headers (ePH.pdf): B wide, 5.0 deep, 6.6 high; the body
     # spans footprint y -4.25 .. 0.75
+    'JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical': (
+        'JST_PH_B3B_vertical_envelope',
+        [(9.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
+    ),
     'JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical': (
         'JST_PH_B4B_vertical_envelope',
         [(11.95, 5.0, 6.6, 0.0, 1.75, IVORY)],
@@ -326,11 +330,19 @@ LOCAL_STEP_MODELS = {
     'MF-MSMF050/24X': ('MF-MSMF050_24X-2.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
     'R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm': ('WSK2512 shunt.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0)),
     # JST PH top-entry headers (JST STEP files, user's files and poses)
+    # B3B-PH-SM4-TB.STEP faces the other way from the B6B / B10B files: a half turn
+    'JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical': (
+        'B3B-PH-SM4-TB.STEP', (0.0, 1.7, -0.1), (-90.0, 0.0, 180.0),
+    ),
     'JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical': (
         'B6B-PH-SM4-TB--3DModel-STEP-56544.STEP', (0.0, 1.7, -0.1), (-90.0, 0.0, 0.0),
     ),
     'JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical': (
         'B10B-PH-SM4-TB--3DModel-STEP-56544.STEP', (0.0, 1.5, -0.1), (-90.0, 0.0, 0.0),
+    ),
+    # JST SH BM04B-SRSS-TB Qwiic header (JST STEP, user's file), Y-up
+    'JST_SH_BM04B-SRSS-TB_1x04-1MP_P1.00mm_Vertical': (
+        'BM04B-SRSS-TB.STEP', (0.0, 0.0, 0.0), (-90.0, 0.0, 0.0),
     ),
     # USB4205-GF-A.stp (GCT via CADENAS PARTsolutions, CC BY-ND 4.0, user's file):
     # Y-up, origin on the board plane at the mouth, body towards -z. Placed like
