@@ -145,6 +145,14 @@ PARTS = {
     ('MF-MSMF050/24X', 'Fuse_1812_4532Metric'): (
         'Bourns', 'MF-MSMF050/24X-2', 'PTC RESET FUSE 24V 500MA 1812', 'design',
         'display feed: 0.5 A hold, 1 A trip; the display draws about 0.2 A'),
+    ('MF-MSMF050/24X', 'Bourns_MF-MSMF_1812_4532Metric'): (
+        'Bourns', 'MF-MSMF050/24X-2', 'PTC RESET FUSE 24V 500MA 1812', 'design',
+        'F3 fan header +12 V: 0.5 A hold (0.40 A at 50 C), 1 A trip; 3 fans draw 0.15 A max. '
+        'Bourns land pattern (F2 uses the KiCad 1812 footprint)'),
+    ('MF-MSMF250/16X', 'Bourns_MF-MSMF_1812_4532Metric'): (
+        'Bourns', 'MF-MSMF250/16X-2', 'PTC RESET FUSE 16V 2.5A 1812', 'design',
+        'F4 pump header +12 V: 2.5 A hold (1.98 A at 50 C), 5 A trip; pump draws up to 1.5 A. '
+        'Digi-Key stock figures were not confirmed'),
     # JST PH top-entry SMT headers (rev 6): 2 A, 100 V, 6.6 mm tall (JST ePH.pdf)
     ('', 'JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical'): (
         'JST', 'B3B-PH-SM4-TB(LF)(SN)', 'CONN HEADER SMD 3POS 2MM, 2 A', 'design',

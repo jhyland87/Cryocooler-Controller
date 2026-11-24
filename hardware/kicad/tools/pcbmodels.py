@@ -219,6 +219,12 @@ ENVELOPES = {
         'Fuse_1812_envelope',
         [(4.5, 3.2, 1.2, 0.0, 0.0, BLACK)],
     ),
+    # Bourns MF-MSMF250/16X (F4): maximum body from mfmsmf.pdf page 6, A 4.83, B 3.41, C 1.60 mm
+    # (F3 has the vendor STEP through LOCAL_STEP_MODELS)
+    'Bourns_MF-MSMF_1812_4532Metric': (
+        'MF-MSMF250_envelope',
+        [(4.83, 3.41, 1.6, 0.0, 0.0, BLACK)],
+    ),
     'R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm': (
         'WSK2512_envelope',
         [(6.35, 3.18, 0.65, 0.0, 0.0, SILVER)],

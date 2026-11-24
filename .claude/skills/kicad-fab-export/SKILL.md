@@ -1,6 +1,6 @@
 ---
 name: kicad-fab-export
-description: Export the PCB fabrication files (Gerbers, drill files, JLCPCB zip) and the board renders (front and back with port callouts, angled, four edge views), regenerate only the renders, and stamp the board ID with the git revision. Use after any change to hardware/kicad/cryocooler.kicad_pcb, when the renders in hardware/kicad/fabrication look stale, or when preparing a board order.
+description: Export the PCB fabrication files (Gerbers, drill files, JLCPCB zip) and the board renders (front and back with port callouts, angled, four edge views), regenerate only the renders, and stamp the board ID with the git revision. Use after any change to the board in hardware/kicad, when the renders in hardware/kicad/fabrication look stale, or when preparing a board order.
 ---
 
 # Fab export, renders and board ID
@@ -38,6 +38,22 @@ renders.
 - Gerber headers carry a creation date, so every export shows a git diff even if
   the board didn't change.
 
+`export_fab.py` ends by running `check_gerbers.py` on what it wrote and exits
+non-zero if it fails: every expected layer present and non-empty, copper and drill
+hits inside the Edge.Cuts extents, drill files matching `drill_report.txt`, and the
+zip holding exactly the Gerber and drill files in the folder. Constructs its reader
+does not handle come out as info findings. Run it alone on an existing export:
+
+```bash
+python3 hardware/kicad/tools/check_gerbers.py [--fab-dir DIR] [--project path.kicad_pro] [--json out]
+```
+
+## Layer-stack GIF
+
+`python3 hardware/kicad/tools/layer_stack_gif.py` writes
+`fabrication/pcb-layer-stack.gif`, one labelled frame per layer. `export_fab.py`
+does not run it; run it after a layout change.
+
 ## Renders only
 
 ```bash
@@ -70,8 +86,8 @@ writes `imu/fabrication/` (2 layers, `imu_jlcpcb.zip`). Its board ID is stamped 
 ## Board ID stamp
 
 The back silkscreen carries `Cryocooler Control Unit` / `BETA rev <short hash>`, the commit the
-fab files come from (`.claude/rules/hardware-pcb.md`, "Board ID block"). On the routed rev 3
-board no script restamps it (`gen_pcb.py` stamps only on a full rebuild, which
+fab files come from (`.claude/rules/hardware-pcb.md`, "Board ID block"). On a routed board
+no script restamps it (`gen_pcb.py` stamps only on a full rebuild, which
 must not be run). The repo's pattern:
 
 1. Commit the board change, after the user has reviewed it. Note its hash with
@@ -79,16 +95,18 @@ must not be run). The repo's pattern:
 2. Change the `gr_text "BETA rev <old>"` on `B.SilkS` to the new hash, either in
    KiCad or with a one-line pcbnew edit. Don't move it: the block stays in the same
    place on every revision.
-3. Run the full export, update the `rev` mentions in `hardware/HANDOFF_rev3.md`, and
-   commit as `UCS 145-125: stamp board ID with <hash>, re-export fab files`.
+3. Run the full export, update the hash mentions in the current handoff, and
+   commit as `<board name>: stamp board ID with <hash>, re-export fab files`.
 
 Commit only when the user asks.
 
 ## Before an order
 
-- DRC at the accepted baseline (`kicad-pcb-edit` skill).
+- DRC at the baseline in the board profile, and `board_checks.py` passing
+  (`kicad-pcb-edit` skill). `export_fab.py` runs `check_gerbers.py` itself.
+- The `pcb-reviewer` agent run once over the finished board.
 - `python3 hardware/kicad/tools/gen_bom.py` so `bom/cryocooler_cpl.csv` matches the
   board. Check JLCPCB's placement preview for rotations (`ROTATION_OFFSETS` in
   `gen_bom.py`). Through-hole parts (J12 and others) aren't in the CPL.
 - Go through "Order settings to check" in `fabrication/README.md` and the "To
-  confirm" / "Still open" lists in `hardware/HANDOFF_rev3.md`.
+  confirm" / "Still open" lists in the current handoff.

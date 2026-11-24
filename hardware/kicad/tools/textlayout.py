@@ -7,7 +7,9 @@ satisfies the rule; a field is hidden only when no position exists.
 `check_text` re-verifies.
 """
 
-from kicadgen import get_symbol, label_size, label_text
+import math
+
+from kicadgen import get_symbol, label_shape, label_size, label_text
 from sexpr import find_all, pins as symbol_pins, sval
 
 CHAR_MM = 1.2  # width per character at 1.27 mm text (rendered ~1.2 mm)
@@ -469,4 +471,89 @@ def check_text(sheet):
         for graphic in layout.power_graphics:
             if hits(box, graphic, 0.0):
                 problems.append(f'text {name} overlaps a power symbol')
+    return problems
+
+
+NEAR_MISS_MM = 0.05  # a point this close to a wire, but off it, looks joined
+ON_WIRE_MM = 1e-4  # a point this close to a wire is on it
+DIAGONAL_MIN_MM = 0.1  # shorter off-axis wires are rounding noise
+STUB_MM = 1.0  # shorter wires are stubs
+
+
+def _distance_to_segment(point, start, end):
+    """Distance from a point to a wire, and the distance to its nearest end."""
+    (px, py), (x1, y1), (x2, y2) = point, start, end
+    dx, dy = x2 - x1, y2 - y1
+    length_sq = dx * dx + dy * dy
+    t = 0.0 if not length_sq else ((px - x1) * dx + (py - y1) * dy) / length_sq
+    t = max(0.0, min(1.0, t))
+    body = math.hypot(px - (x1 + t * dx), py - (y1 + t * dy))
+    ends = min(math.hypot(px - x1, py - y1), math.hypot(px - x2, py - y2))
+    return body, ends
+
+
+def _connection_points(sheet):
+    """Pin ends (reference, point) and label anchors (name, point)."""
+    points = {}
+    for part in sheet.parts:
+        for number in part.pin_table:
+            x, y = part.pin_point(number)
+            points[(round(x, 3), round(y, 3))] = (
+                f'pin {part.ref}.{number}', (x, y)
+            )
+    for _kind, net, (x, y), _angle in sheet.labels:
+        points.setdefault((round(x, 3), round(y, 3)), (f'label {net}', (x, y)))
+    return list(points.values())
+
+
+def geometry_problems(sheet):
+    """Wire geometry that looks right and is wrong, on the wires as written:
+    near misses, pins in the middle of a wire, diagonal wires and stubs.
+    """
+    wires, junctions = sheet.routed()
+    problems = []
+    for start, end in wires:
+        length = math.dist(start, end)
+        where = f'({start[0]:.2f}, {start[1]:.2f}) to ({end[0]:.2f}, {end[1]:.2f})'
+        off_axis = min(abs(start[0] - end[0]), abs(start[1] - end[1]))
+        if off_axis > ON_WIRE_MM and length > DIAGONAL_MIN_MM:
+            problems.append(f'diagonal wire {where}')
+        if length < STUB_MM:
+            problems.append(f'stub wire {length:.2f} mm long {where}')
+    for name, point in _connection_points(sheet):
+        at = f'{point[0]:.2f}, {point[1]:.2f}'
+        joined = any(
+            math.dist(point, j) <= ON_WIRE_MM for j in junctions
+        ) or any(
+            math.dist(point, end) <= ON_WIRE_MM for wire in wires for end in wire
+        )
+        for start, end in wires:
+            body, ends = _distance_to_segment(point, start, end)
+            if ON_WIRE_MM < body <= NEAR_MISS_MM or (
+                ON_WIRE_MM < ends <= NEAR_MISS_MM
+            ):
+                problems.append(f'near miss: {name} just off a wire at {at}')
+            elif name.startswith('pin') and body <= ON_WIRE_MM < ends and not joined:
+                problems.append(
+                    f'{name} in the middle of a wire at {at}, not connected'
+                )
+    return problems
+
+
+def label_shape_mismatches(sheet, is_root):
+    """Hierarchical and global labels of one net drawn with different shapes."""
+    shapes = {}
+    for kind, net, (x, y), _angle in sheet.labels:
+        if kind == 'label':
+            continue
+        shape = label_shape(net, is_root and kind == 'global_label', sheet.filename)
+        shapes.setdefault(net, {}).setdefault(shape, (x, y))
+    problems = []
+    for net, found in shapes.items():
+        if len(found) > 1:
+            x, y = next(iter(found.values()))
+            problems.append(
+                f'label {net} has shapes {", ".join(sorted(found))} at '
+                f'{x:.2f}, {y:.2f}'
+            )
     return problems

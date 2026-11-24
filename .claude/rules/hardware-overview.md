@@ -17,24 +17,20 @@ Design rules are in `hardware-schematic.md` and `hardware-pcb.md`.
 | `hardware/kicad/lib/` | Project symbols, footprints, and `cryocooler.3dshapes/` 3D models. |
 | `hardware/kicad/fabrication/` | Gerbers, JLCPCB zip, and board renders, written by `tools/export_fab.py`. |
 | `hardware/kicad/imu/` | The 18 x 18 mm LSM6DSOX board on the J14 cable: its own KiCad project sharing `../lib`, built by `tools/gen_imu_schematic.py` and `tools/imu_board.py` (see `kicad/README.md`, "IMU board"). |
-| `hardware/HANDOFF_rev6.md` | Rev 6 (branch `rev6-schematic`): 212 x 84 mm board for the UCS 237-195 housing, JST PH headers, AUX header; board state and open items. |
-| `hardware/HANDOFF_rev5.md` | Rev 5 (branch `rev5-schematic`): UCS 145-125 board with universal I/O, board state and open items. |
-| `hardware/HANDOFF_ucs125_rev4.md` | Current board (branch `ucs-125-87-rev4`): what rev 4 changes on the UCS 125-87 board. |
-| `hardware/HANDOFF_ucs125_rev3.md` | Rev 3 on the 100 x 62 mm UCS 125-87 outline: the board rev 4 starts from. |
-| `hardware/HANDOFF_rev3.md` | Rev 3 on the UCS 145-125 board: status, PCB notes, bench list, open items. |
+| `hardware/HANDOFF_*.md` | One handoff per board: board state, counts, checks, open items. The "Board profile" in `kicad/README.md` names the current one. Older ones are history. |
 | `hardware/TODO.md` | Bench findings and open hardware items. |
-| `hardware/archive/` | Superseded handoffs (`HANDOFF_145.md`, `HANDOFF_rev2.md`). |
+| `hardware/archive/` | Superseded handoffs. |
 
 ## Reading the long docs
 
 The handoffs and `kicad/README.md` are 15-25 KB each, so read only what the task
 needs:
 
-- Start from `HANDOFF_ucs125_rev4.md` (this board), then `HANDOFF_ucs125_rev3.md` for the
-  board it grew from and `HANDOFF_rev3.md` for the circuit's history. Grep their `## ` headings and read the relevant sections, not
-  the whole file.
+- Start from the current handoff named in the "Board profile" of `kicad/README.md`, then the
+  older handoffs it points to for history. Grep their `## ` headings and read the relevant
+  sections, not the whole file.
 - Open `archive/` only when the current handoff points there or the user asks about
-  an older revision.
+  an older board.
 - Read `kicad/README.md` by section, the same way.
 - Query the board with pcbnew scripts or `grep`. `cryocooler.kicad_pcb` is ~5 MB, and
   reads of it are blocked in `.claude/settings.json`.

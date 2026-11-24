@@ -338,6 +338,10 @@ DESCRIPTIONS = {
     # ── water cooling ────────────────────────────────────────────────────
     'J3': 'Radiator fan header (4-pin PWM): GND, +12 V, tach, PWM',
     'J4': 'Coolant pump header (4-pin PWM): GND, +12 V, tach, PWM',
+    'F3': 'Resettable fuse (0.5 A hold, 1 A trip) in the +12 V feed to the radiator fan '
+          'header J3 (net +12V_FAN): a shorted fan cable trips it instead of F1',
+    'F4': 'Resettable fuse (2.5 A hold, 5 A trip) in the +12 V feed to the coolant pump '
+          'header J4 (net +12V_PUMP): a shorted pump cable trips it instead of F1',
     'J5': 'Alphacool ES flow sensor header: GND, +12 V, flow pulses',
     'J6': 'Alphacool ES coolant NTC (10 k) header',
     'Q61': 'Dual N-FET: open-drain PWM drivers for the fan and the pump',

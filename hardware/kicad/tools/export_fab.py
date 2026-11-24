@@ -188,6 +188,18 @@ def render_board(board=BOARD, renders=None):
         add_callouts(board)
 
 
+def check_output(board):
+    """Runs check_gerbers.py on the written files; raises if it fails."""
+    import check_gerbers
+
+    code = check_gerbers.run(
+        fab_dir(board), Path(board).with_suffix('.kicad_pro'),
+        expected=zip_files(board),
+    )
+    if code != 0:
+        raise RuntimeError('check_gerbers.py found problems in the fab output')
+
+
 def export_fabrication(board=BOARD, renders=None):
     """Regenerates the Gerbers, drill files, JLCPCB zip and board renders
     from the current PCB; does nothing if SKIP_FAB_EXPORT is set.
@@ -202,6 +214,7 @@ def export_fabrication(board=BOARD, renders=None):
     build_zip(board)
     render_board(board, renders)
     print(f'fabrication files and renders written to {fab_dir(board)}')
+    check_output(board)
     return True
 
 

@@ -45,3 +45,11 @@
 (rule iso_barrier
   (condition "(A.NetName == 'ISO_GND' || A.NetName == 'ISO_5V' || A.NetName == 'Net-(J11-Pin_1)' || A.NetName == 'Net-(J12-Pin_1)' || A.NetName == 'Net-(U18-VINP)' || A.NetName == '/Debug/ISO_5V_LED_A' || A.NetName == 'Net-(R64-Pad2)' || A.NetName == 'Net-(R65-Pad2)' || A.NetName == 'Net-(R66-Pad2)' || A.NetName == 'Net-(U17-IND)' || A.NetName == 'Net-(U17-OUTA)' || A.NetName == 'Net-(U17-OUTB)' || A.NetName == 'Net-(U17-OUTC)') && !(B.NetName == 'ISO_GND' || B.NetName == 'ISO_5V' || B.NetName == 'Net-(J11-Pin_1)' || B.NetName == 'Net-(J12-Pin_1)' || B.NetName == 'Net-(U18-VINP)' || B.NetName == '/Debug/ISO_5V_LED_A' || B.NetName == 'Net-(R64-Pad2)' || B.NetName == 'Net-(R65-Pad2)' || B.NetName == 'Net-(R66-Pad2)' || B.NetName == 'Net-(U17-IND)' || B.NetName == 'Net-(U17-OUTA)' || B.NetName == 'Net-(U17-OUTB)' || B.NetName == 'Net-(U17-OUTC)') && B.NetName != '' && B.NetName != 'unconnected-(D10-RK-Pad3)' && B.NetName != 'unconnected-(D10-RA-Pad4)'")
   (constraint clearance (min 1.5mm)))
+
+# Amplifier line to its return: J11 / J12 pin 1 (the two ends of U18's current conductor, so no rule
+# between them) and the three high-side divider nodes (R64-R66 pad 2) against ISO_GND, 1.25 mm on all
+# layers. IPC-2221 uncoated-external figure for 0-120 VAC, from memory, not checked (user-approved
+# 2026-11-23). The low-side node Net-(U18-VINP) is left out: R63 and U18 pins 15 / 16 sit closer.
+(rule iso_line_to_return
+  (condition "(A.NetName == 'ISO_GND' && (B.NetName == 'Net-(J11-Pin_1)' || B.NetName == 'Net-(J12-Pin_1)' || B.NetName == 'Net-(R64-Pad2)' || B.NetName == 'Net-(R65-Pad2)' || B.NetName == 'Net-(R66-Pad2)')) || (B.NetName == 'ISO_GND' && (A.NetName == 'Net-(J11-Pin_1)' || A.NetName == 'Net-(J12-Pin_1)' || A.NetName == 'Net-(R64-Pad2)' || A.NetName == 'Net-(R65-Pad2)' || A.NetName == 'Net-(R66-Pad2)'))")
+  (constraint clearance (min 1.25mm)))

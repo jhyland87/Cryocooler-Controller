@@ -1569,7 +1569,7 @@ class PcbBuilder:
                 0.8,
                 0.7,
                 0.35,
-                ['VIN', 'VSW', '+12V', 'Net-(F1-Pad1)'],
+                ['VIN', 'VSW', '+12V', 'Net-(F1-Pad1)', '+12V_FAN', '+12V_PUMP'],
             ),
             'Usb': (
                 0.2,

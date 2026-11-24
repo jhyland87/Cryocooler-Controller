@@ -144,6 +144,7 @@ PRODUCT_PAGES = {
     '505448-0891': 'https://www.molex.com/en-us/products/part-detail/5054480891',
     'SRL05P7-TP': 'https://www.digikey.com/en/products/detail/mcc-micro-commercial-components/SRL05P7-TP/12177202',
     'SP3422-04UTG': 'https://www.digikey.com/en/products/detail/littelfuse-inc/SP3422-04UTG/7897437',
+    'MF-MSMF250/16X-2': 'https://www.digikey.com/en/products/detail/bourns-inc/MF-MSMF250-16X-2/2563289',
     '74AHCT1G125GM,115': 'https://www.digikey.com/en/products/detail/nexperia-usa-inc/74AHCT1G125GM-115/2606148',
     '74LV1T34GXH': 'https://www.nexperia.com/pip/74LV1T34GX',
     'NUF6401MNT1G': 'https://www.digikey.com/en/products/detail/onsemi/NUF6401MNT1G/1484990',

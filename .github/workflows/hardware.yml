@@ -1,0 +1,40 @@
+name: Hardware
+
+# Unverified until it first runs on GitHub: the image tag, kicad-cli and pcbnew
+# working headless in it, and the scripts' Python dependencies being present.
+
+on:
+  push:
+    paths:
+      - 'hardware/**'
+      - '.github/workflows/hardware.yml'
+      - 'Makefile'
+  pull_request:
+    paths:
+      - 'hardware/**'
+      - '.github/workflows/hardware.yml'
+      - 'Makefile'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:10.0.6
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Schematic and board checks
+        run: make checks KICAD_CLI=kicad-cli KICAD_PYTHON=python3
+
+      - name: Upload ERC and DRC reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hardware-check-reports
+          path: build/hardware-checks/*.json
+          if-no-files-found: warn

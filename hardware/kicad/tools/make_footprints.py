@@ -85,9 +85,21 @@ def npth(x, y, drill):
 '''
 
 
-def footprint(name, description, body, pads, extra='', courtyard=None):
+def corner_ticks(half_x, half_y, along_x, along_y, layer, width):
+    """L-shaped ticks at the four corners of a rectangle, for an outline that would cross pads."""
+    ticks = ''
+    for sign_x in (-1, 1):
+        for sign_y in (-1, 1):
+            corner = (sign_x * half_x, sign_y * half_y)
+            ticks += line(*corner, round(corner[0] - sign_x * along_x, 3), corner[1], layer, width)
+            ticks += line(*corner, corner[0], round(corner[1] - sign_y * along_y, 3), layer, width)
+    return ticks
+
+
+def footprint(name, description, body, pads, extra='', courtyard=None, ticks=None):
     """body = (half_x, half_y) of the part outline; courtyard defaults to the
-    outline plus 0.5 mm, so pass it when pads reach past that.
+    outline plus 0.5 mm, so pass it when pads reach past that. ticks = (x, y)
+    lengths draws corner ticks instead of the silkscreen rectangle.
     """
     half_x, half_y = body
     courtyard = courtyard or (round(half_x + 0.5, 2), round(half_y + 0.5, 2))
@@ -101,7 +113,8 @@ def footprint(name, description, body, pads, extra='', courtyard=None):
         + text('Value', name, 0, half_y + 1.2, 'F.Fab')
         + '\t(attr smd)\n'
         + rect(half_x, half_y, 'F.Fab', 0.1)
-        + rect(half_x + 0.3, half_y + 0.3, 'F.SilkS', 0.12)
+        + (corner_ticks(half_x + 0.3, half_y + 0.3, *ticks, 'F.SilkS', 0.12) if ticks
+           else rect(half_x + 0.3, half_y + 0.3, 'F.SilkS', 0.12))
         + rect(*courtyard, 'F.CrtYd', 0.05)
         + extra
         + ''.join(pads)
@@ -580,6 +593,7 @@ def te_2305908(positions):
     left, right = -3.5, span + 3.5
     body_back, body_front = 1.95, 11.75
     silk_back = round(body_back + 1.0, 2)  # clear of the pads
+    silk_front = 8.4  # J11 sits 8.755 from the edge
     pads = [smd_pad(number + 1, round(number * 5.0, 2), 0, 2.0, 5.5)
             for number in range(positions)]
     silk = ''.join(
@@ -592,8 +606,8 @@ def te_2305908(positions):
         + silk
         + line(left, silk_back, -1.3, silk_back, 'F.SilkS', 0.12)
         + line(span + 1.3, silk_back, right, silk_back, 'F.SilkS', 0.12)
-        + line(left, silk_back, left, body_front, 'F.SilkS', 0.12)
-        + line(right, silk_back, right, body_front, 'F.SilkS', 0.12)
+        + line(left, silk_back, left, silk_front, 'F.SilkS', 0.12)
+        + line(right, silk_back, right, silk_front, 'F.SilkS', 0.12)
         + polygon(((left - 0.25, 1.7), (-1.25, 1.7), (-1.25, -3.0), (span + 1.25, -3.0),
                    (span + 1.25, 1.7), (right + 0.25, 1.7), (right + 0.25, body_front + 0.25),
                    (left - 0.25, body_front + 0.25)), 'F.CrtYd', 0.05)
@@ -947,6 +961,34 @@ def littelfuse_dfn5():
     )
 
 
+def bourns_mf_msmf():
+    """Bourns MF-MSMF 1812 PTC, style 2 (mfmsmf.pdf, page 7, recommended pad layout):
+    1.68 x 2.95 mm pads, 3.1 mm apart (centres 4.78 mm). Body 4.83 x 3.41 mm max.
+    KiCad's stock Fuse_1812_4532Metric has 1.125 x 3.4 mm pads, 3.15 mm apart.
+    """
+    pads = [smd_pad('1', -2.39, 0, 1.68, 2.95), smd_pad('2', 2.39, 0, 1.68, 2.95)]
+    outline = (
+        rect(2.415, 1.705, 'F.Fab', 0.1)
+        + line(-1.4, -1.9, 1.4, -1.9, 'F.SilkS', 0.12)
+        + line(-1.4, 1.9, 1.4, 1.9, 'F.SilkS', 0.12)
+        + rect(3.73, 2.0, 'F.CrtYd', 0.05)
+    )
+    return (
+        '(footprint "Bourns_MF-MSMF_1812_4532Metric"\n'
+        '\t(version 20260206)\n'
+        '\t(generator "make_footprints")\n'
+        '\t(layer "F.Cu")\n'
+        '\t(descr "Bourns MF-MSMF 1812 PTC resettable fuse, style 2; land pattern from '
+        'https://www.bourns.com/docs/Product-Datasheets/mfmsmf.pdf page 7")\n'
+        + text('Reference', 'REF**', 0, -3.1, 'F.SilkS')
+        + text('Value', 'MF-MSMF', 0, 3.1, 'F.Fab')
+        + '\t(attr smd)\n'
+        + outline
+        + ''.join(pads)
+        + ')\n'
+    )
+
+
 def ti_dsg0008a():
     """TI DSG0008A WSON-8, 2 x 2 x 0.8 mm, 0.5 mm pitch (OPA2991 datasheet, DSG
     land pattern example): 0.5 x 0.25 mm pads on 1.9 mm row centres and a
@@ -1236,6 +1278,7 @@ def nexperia_sot815_1():
         pads,
         circle(-2.3, -3.2, 0.15, 'F.SilkS', 0.12, fill=True),
         courtyard=(2.35, 3.4),
+        ticks=(0.85, 0.45),  # a full rectangle would cross the pads
     )
 
 
@@ -1582,6 +1625,7 @@ FOOTPRINTS = {
     'OnSemi_DFN-12-1EP_506AD': onsemi_dfn12_506ad,
     'Littelfuse_DFN-5_1.0x0.6mm_P0.35mm': littelfuse_dfn5,
     'MCC_DFN1510-6_1.5x1.0mm_P0.5mm': mcc_dfn1510_6,
+    'Bourns_MF-MSMF_1812_4532Metric': bourns_mf_msmf,
     'TI_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm': ti_dsg0008a,
     'Nexperia_XSON-6_SOT886_1.0x1.45mm_P0.5mm': nexperia_sot886,
     'Nexperia_X2SON-5_SOT1226-3_0.8x0.8mm_P0.5mm': nexperia_sot1226_3,

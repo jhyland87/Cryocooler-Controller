@@ -23,7 +23,7 @@ on 2026-10-14; if the two ever disagree, the schematic and `pin_config.h` win.
 | `amp_current` | ACS37800-015B5 (SPI, ±15 A at 5 V) + ISOW7741 (isolated 5 V and SPI in one part) with FB1 / FB2, 4×1 MΩ + 4.02 kΩ divider, TE 2305908-2 SMT pluggable header J11, TE 643228-1 through-hole header J12. Rev 4: on the shared SPI bus through two SN74LVC1G125 gates enabled by `ACS_CS` (U41 passes SCK in, U42 passes MISO out), with 10 kΩ pull-ups on the gated SCK and on `ACS_CS` Rev 5 (2026-11-15): the ISOW7741 (no stock) is replaced by an ISOW7841AQDWERQ1 on `+3V3_ISO` (40 mA at 5 V out); FB1 / FB2 and the EN/FLT pull-up are gone. |
 | `system_current` | INA239 (SPI mode 1, decoder Y2) + 15 mΩ shunt in the switched 12 V rail, 49.9 Ω / 470 nF input filter, ALERT to expander GP6, ALERT and 3V3 power LEDs Rev 5: the shunt is a 4-terminal part whose sense pads feed the filter, and VBUS sits on `+12V` directly. Later (2026-11-16): the shunt is a 10 mΩ Vishay WSK2512 (16.4 A full scale). |
 | `gpio_expander` ("GPIO Expander") | MCP23S08 QFN-20 on the shared SPI bus (mode 0, decoder Y3), on unswitched `+3V3`: GP0-1 power-good flags, GP6 INA239 ALERT, GP2/GP3 ADT7320 INT/CT, GP4, GP5 and GP7 spare (rev 5; GP4 was the display backlight enable and GP7 the touch IRQ); RESET tied to +3V3, A0/A1 and exposed pad to GND, INT to a test point Rev 5 universal I/O: GP4 is `IO_EXP_INT_N` and GP5 `IO_ADC_DRDY_N`; only GP7 is spare. |
-| `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through the two halves of one BSS138DW (Q61) as open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 4.7 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail. Rev 4: XKB X2510WRS headers (J5 is a 4-pin part with pin 4 unused), 4.7 kΩ and 10 kΩ resistors in arrays RN1 / RN2 |
+| `cooling` ("Water Cooling") | Fan and pump: LEDC PWM through the two halves of one BSS138DW (Q61) as open-drain drivers (gates held on by 10 kΩ to `+3V3`, so 0% drive at reset), tach through 4.7 kΩ to PCNT; Alphacool ES flow tach and NTC; connector-side pull-ups sit on the switched `+3V3_COOL` rail. 2026-11-23: the +12 V pin of J3 and J4 is fed through resettable fuses F3 (MF-MSMF050/24X, net `+12V_FAN`) and F4 (MF-MSMF250/16X, net `+12V_PUMP`), each with its 22 uF cap on the header side; on the rev 7 board both stand on the back above J4, with the pump fuse's pad 1 straight to J4 pin 2 and the fan fuse's through two vias to J3 pin 2. Rev 4: XKB X2510WRS headers (J5 is a 4-pin part with pin 4 unused), 4.7 kΩ and 10 kΩ resistors in arrays RN1 / RN2 |
 | `cold_head` ("Cold Head Temp") | ADS1220 (SPI mode 1, CS on GPIO44), 4-wire PT1000, 3.9 kΩ Rref, DRDY pull-up + test point; powered from the switched `+3V3_CH` rail |
 | `imu` | J14, a Molex Micro-Lock Plus 2x4 header (505448-0891, 1.25 mm, right angle, positive lock) for the off-board Adafruit LSM6DSOX module: SPI bus, CS, INT1/INT2, +3V3, GND; one NUF6401MN six-channel filter (100 Ω series, 17 pF and ESD clamp each side) |
 | `compressor_relay` | GPIO16 → BSS138 → BSS84 high-side +12 V switch, flyback diode, red/green state LED, 2-pin right-angle XKB X2510WRS-02 output |
@@ -95,6 +95,22 @@ How this project applies the repo-wide drawing rules (`.claude/rules/schematic-d
 
 The IMU board (`imu/`, below) is a second project with its own generator, `tools/gen_imu_schematic.py`. It has
 no `schematic_checks.json` yet, so `check_sheet_structure.py --project imu/imu.kicad_pro` uses the defaults.
+
+## Board profile
+
+The counterpart of the schematic profile: the one place that names, for the project in this tree, the files
+the repo-wide PCB rules (`.claude/rules/hardware-pcb.md`), the board skills and the `pcb-reviewer` agent point
+at. Counts, baselines and accepted exceptions live in these files, never in the rules.
+
+| | |
+|---|---|
+| Board | `cryocooler.kicad_pcb` (project `cryocooler.kicad_pro`; fab rules in `cryocooler.kicad_dru`) |
+| Board script | `tools/rev7_board.py` (density-driven placement, pre-route and finish; other `tools/*_board.py` scripts are one-off). **This board draws no section outlines or names**: parts are grouped by connectivity and pad density, not by schematic sheet, so there is no `sections` step and the placement preview colours parts by sheet |
+| Handoff | `hardware/HANDOFF_rev7.md`: board outline, directives, current state, how it was routed, check results, decisions, open items. Rev 7 (UCS 195-145, 170 x 120 mm, 4 layers) is routed and installed; `rev7_board.py place` no longer reproduces it, so the board file is the source |
+| Check config | `board_checks.json` beside the `.kicad_pro`: `suppress` entries (each with a reason), the `placement`, `hot_loops`, `net_currents` and `board` sections, and the `baseline` file name |
+| Baselines | `tools/board_checks_baseline.json` (down-only; `placement_gate` `TESTPOINT_MISSING` 53). Accepted DRC warnings: `silk_edge_clearance` 4 (all J2, stock Molex footprint) and `lib_footprint_mismatch` 2 (U1, U18); errors, unconnected and parity 0. `board_checks.py` has one suppression (0.2 mm `+12V` neck into U23 pad 8) |
+| Checks | `tools/placement_gate.py` (placed, unrouted board), then `tools/board_checks.py` (routed board), `make drc`, `make checks`; `tools/check_gerbers.py` runs at the end of `tools/export_fab.py` |
+| Fab folder | `fabrication/` (Gerbers, JLCPCB zip, renders; `fabrication/README.md` has the order settings) |
 
 ## Drawing conventions
 
@@ -175,7 +191,7 @@ of the BOM, the netlist and the board.
 
 **No-overlap text rule.** Reference, value, net-label and note text may not overlap other text or a symbol body
 (plus 1 mm for pin numbers). `tools/textlayout.py` places each field in the first free spot, hides a field only
-if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. The same check fails on a wire or bus drawn across a label's text or a global label's flag (`wires_over_labels`). Pin names and
+if none exists, and `gen_schematic.py` exits non-zero if `text overlap check` reports any overlap. The same check fails on a wire or bus drawn across a label's text or a global label's flag (`wires_over_labels`). `gen_schematic.py` also exits non-zero on wire geometry (`wire geometry check`): a pin or label within 0.05 mm of a wire but not on it, a pin in the middle of a wire with no junction, a diagonal wire, a wire under 1 mm, and one net's labels drawn with different shapes. Pin names and
 numbers drawn inside a library symbol, and labels that sit on their own wire, are outside the rule.
 
 ## Regenerating
@@ -213,6 +229,14 @@ the generated sheets, `tools/count_crossings.py` counts wire crossings per sheet
 passing through each other away from their ends; buses not counted), and `tools/datasheet_rules.py` checks
 datasheet-critical connections.
 
+### CI
+
+`make sch-checks` runs ERC, the netlist export and the schematic checks, `make drc` runs DRC with schematic
+parity, and `make checks` runs both plus `tools/board_checks.py` when it exists and the board has tracks. The
+KiCad paths default to the macOS app; set `KICAD_CLI=` and `KICAD_PYTHON=` elsewhere, and `OUT=` for the
+report folder (default `build/hardware-checks`). `.github/workflows/hardware.yml` runs `make checks` in the
+`kicad/kicad` container on every push or pull request that touches `hardware/`, and uploads the ERC and DRC JSON.
+
 ## Review status
 
 Every IC was audited against its datasheet; see [`DESIGN_REVIEW.md`](DESIGN_REVIEW.md) for the
@@ -222,43 +246,36 @@ the 12 V → 5 V stage is now an AP63205 buck instead of the over-limit LD1117S5
 
 ## PCB layout
 
-**Rev 3:** the schematic, `cryocooler.kicad_pcb`, `fabrication/` and `bom/cryocooler_cpl.csv` all describe rev 3. See
-`../HANDOFF_rev3.md` for its pipeline and the hand edits that live only in the board file. The layout notes below are older
-and describe earlier boards where they differ.
+**Rev 7 (2026-11-23):** the schematic, `cryocooler.kicad_pcb`, `fabrication/` and the BOM / CPL files describe rev 7:
+Phoenix UCS 195-145, 170 x 120 mm, 4 layers, placed, fully routed and installed, not bench tested, no board ID stamp yet.
+Its state, routing sequence, checks, decisions and open items are in [`../HANDOFF_rev7.md`](../HANDOFF_rev7.md).
+The rev 3 notes further down (`gen_pcb.py` pipeline) are kept where they describe code rev 7 still shares.
 
-`cryocooler.kicad_pcb` is generated by `tools/gen_pcb.py` (run with KiCad's bundled python, which provides
-`pcbnew`); don't hand-edit it and expect the edits to survive a regeneration.
+**The routed board is the source of truth.** `tools/rev7_board.py place` no longer reproduces it (the placer reacts
+to the current netlist, and hand copper lives only in the board file), so edit the installed board with the
+`kicad-pcb-edit` tools and do not regenerate it.
 
-* **Board:** 130 x 110 mm (was 130 x 100; the extra 10 mm at the bottom edge makes room for a label beside every part), 4 layers: F.Cu signal / In1 solid GND (ISO_GND island) / In2 signal + 3V3 pour / B.Cu signal,
-  GND pours and stitching vias on the outer layers. Net classes (Power, Power5V, PowerAnalogPos, PowerAnalogNeg and PowerIso 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`; SPI, Analog, Control and Ground there are colour classes with the Default rules.
-* **Floor plan:** every schematic module has its own outlined, labelled box on the front silkscreen
-  (`MODULE_REGIONS` in `tools/pcbfloorplan.py`): signal generator and amp control top left, indicators top
-  middle, MCU & USB top right (antenna overhanging the right edge over a copper keep-out), the isolated amp
-  current block middle left (ISO_GND island with 1.5 mm keep-out bands), +-15 V rails in the middle, compressor
-  relay and the IMU cable header (J14) down the right, 12 V input / button / 5 V and 3.3 V rails / system current
-  bottom left, and bottom right the WATER COOLING box (EMC2303, I2C bridge, flow sensor, NTC; fan/pump/flow/NTC
-  headers on the bottom edge) and the COLD HEAD TEMP box (ADS1220 + PT1000 header on the right edge). Parts and
-  their passives are placed only inside their own box, debug test points join the box of the part they sit beside
-  (the cooling-section ones overflow into free spots of the power box, since those two boxes are full), and `gen_pcb.py` fails if a part leaves its box or two boxes are closer than 1.8 mm.
-  Lines stop short of the mounting holes; labels sit on a box border.
-* **Supply jumpers (JP1-JP5):** to debug one section at a time, pull the shunt from its jumper and that supply
-  is cut. Each jumper sits in its own section next to the load, with a name printed beside it and a green LED
-  (D15 D16 D17 D18 D19, resistor R106 R48 R49 R107 R108) that lights while the switched rail is present. Pin 1 is the main rail, pin 2 the
-  switched rail. They are 1.27 mm headers, rated only about 1 A per pin, which is plenty for these logic rails.
-  A part whose supply is pulled can still be fed through its signal pins (the ESD diodes), so disconnect its
-  cable too when you need it fully dead.
-
-  | Jumper | Label | Cuts | Section |
-  |---|---|---|---|
-  | JP1 | SG 3V3 | +3.3 V to the signal generator (U3, U4, AD5453) | Signal Generator |
-  | JP2 | ±15V EN | +5 V into the ±15 V generator (ADP5071), the only source of both ±15 V rails: pull it to disable +15 V and -15 V | Rails ±15V |
-  | JP3 | ISO PS | +5 V into the ISOW7741 integrated isolated supply, which powers the whole isolated side | Amp Current (Isolated) |
-  | JP4 | WATER EN | switched +3.3 V net `+3V3_COOL`: fan and pump PWM and tach pull-ups, flow tach pull-up and the NTC divider | Water Cooling |
-  | JP5 | HEAD EN | switched +3.3 V net `+3V3_CH`: the ADS1220 PT1000 ADC and its DRDY pull-up | Cold Head Temp |
-
-  Pulling JP4 cuts only the 3.3 V logic: the 12 V fans, pump and flow sensor stay powered, the BSS138 drivers still
-  control PWM (they run from GPIOs on `+3V3`), but tach, flow and NTC readings stop. An unpowered ADS1220 can still clamp the shared
-  SPI MISO line through its ESD diodes while other devices are being read, so leave JP5 fitted during normal operation.
+* **Board:** 170 x 120 mm, 1.6 mm, 4 layers: F.Cu signal / In1 solid GND (ISO_GND island) / In2 signal + `+3V3` pour /
+  B.Cu signal, GND pours and stitching vias on the outer layers. Four 3.2 mm mounting holes on 161.6 x 111.6 mm, 4.45 mm
+  corner squares without mask, antenna notch in the top edge (x 74.5-93.5, y 0-6). Net classes (Power, Power5V,
+  PowerAnalogPos, PowerAnalogNeg and PowerIso 0.3 mm, Power12V 0.8 mm, Usb) live in `cryocooler.kicad_pro`; SPI, Analog,
+  Control and Ground there are colour classes with the Default rules.
+* **Placement:** no section boxes. `tools/rev7_board.py` groups parts by connectivity and pad density (about 0.09 pads/mm2
+  per 5 mm cell), with the wall connectors, the 12 V block, the isolated amplifier island (x 0-30, y 37.2-71) and a
+  fan-out ring round fine-pitch ICs fixed first. The preview colours parts by sheet.
+* **Locked current copper:** `tools/rev7_current.py` holds the 12 V path, the amplifier current path (J11 / U18 / J12), the
+  fan and pump stubs and the ISO_GND return as locked tracks and vias inside the `CORRIDORS` in `rev7_board.py`.
+  `board_checks.py` sizes them against `net_currents` in `board_checks.json` (IPC-2221, 10 C, 1.25 x margin).
+* **120 VAC spacing:** the rule `iso_line_to_return` in `cryocooler.kicad_dru` keeps ISO_GND 1.25 mm from the line-side
+  copper (figure from memory of IPC-2221, not checked against the standard).
+* **Checks (2026-11-23):** DRC with schematic parity: 0 errors, 0 unconnected, 0 parity; baseline warnings
+  `silk_edge_clearance` 4 (all J2, KiCad's stock Molex footprint) and `lib_footprint_mismatch` 2 (U1, U18).
+  `board_checks.py` exit 0 with one suppression (0.2 mm `+12V` neck into U23 pad 8, user-accepted).
+  `placement_gate.py` at its baseline (`TESTPOINT_MISSING` 53). Not done: part labels, pin names, board ID block, test
+  points, housing-fit checks.
+* **Supply jumpers:** the rev 3 table (JP1-JP5) no longer applies; the jumpers are on the sheets (JP2, JP11-JP20 ...).
+  Pulling one cuts that supply only; a part whose supply is pulled can still be fed through its signal pins (the ESD
+  diodes), so disconnect its cable too when you need it fully dead.
 
 * **IMU cable (J14, Molex Micro-Lock Plus 2x4):** the LSM6DSOX is the Adafruit breakout (product 4438) mounted on the
   cryocooler. The cable is 8 wires crimped into a Molex 505432 series 8-circuit dual-row housing; odd pins are
@@ -284,12 +301,9 @@ and describe earlier boards where they differ.
   facing the board interior (`PIN_LABELS` in `tools/gen_pcb.py`): J2 +12V/GND, J3/J4 GND/+12V/TACH/PWM, J5
   GND/+12V/TACH/NC, J6 NTC/GND, J8 REM/GND, J9 GND/SIG (sleeve, tip), J10 F+/S+/S-/F- (4-wire PT1000: force, sense),
   J11 +/-, J12 +/-/GND, J13 12V/GND, J16-J20 IOn/GND (no J19 in rev 5). Pin 1 is the first label in each list. J14 has no pin labels; use the table above.
-* **Current path:** J11 (TE 2305908-2) -> ACS37800 pins 1-4 / 5-8 -> J12 (TE 643228-1) on 2 mm traces, narrowing to 1.6 mm past J12's GND tab. J11 - and J12 - share a F.Cu link inside the ISO_GND island, 2 mm narrowing to 1.2 mm at the same tab. Along the left wall J12 reads GND, -, + from north to south (molded 3, 2, 1). See `hardware/HANDOFF_rev3.md`.
-* **Flow:** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
+* **Rev 3 flow (`gen_pcb.py`, not used for rev 7):** `gen_pcb.py place` (placement only) or `gen_pcb.py route freerouting.jar` (placement, Freerouting
   autoroute in two rounds on F.Cu/In2/B.Cu, pours, stitching vias, island vias). `finish` re-opens the routed board
-  and redoes the pours and stitching. Freerouting 2.4.1 needs Java 25.
-* **Checks (2026-10-17):** `kicad-cli pcb drc` reports 0 unconnected items and no copper violations; the only warnings are 6 silkscreen ones (reference text against reference text or a neighbour's outline, and the back-side logo over the JP2 / JP3 pads). Schematic ERC is 0 and all 175 datasheet rules pass. 302 footprints. After the water-cooling / cold-head split, Freerouting left four connections open (+12V to the amp REM section, a +15V link to C21, VIN at U11, the J12 net at R67) and two stitching vias too close to inner tracks; they were completed with a small grid router (clearance-aware, using the board's own copper as obstacles) and a 0.13 mm via nudge, then the zones were refilled.
-* **Checks (2026-10-20, LT3097 revision):** `kicad-cli pcb drc --schematic-parity` reports 0 unconnected items, 0 parity issues and no copper violations; what remains is the TP24 / U1 courtyard overlap (also present on the previous board, the ESP32 courtyard includes its antenna keep-out), 43 silkscreen warnings (more reference texts share the ±15 V box). Schematic ERC is 0 and all 193 datasheet rules pass. 310 footprints.
+  and redoes the pours and stitching. Freerouting 2.5 needs Java 25.
 * **Fabrication export:** every `gen_pcb.py` run and `link_usb_vbus.py` ends by running `tools/export_fab.py` (Gerbers, drill files, the JLCPCB zip and the board renders in `fabrication/`); set `SKIP_FAB_EXPORT=1` to skip it, or run the script yourself after a manual board edit.
 * **After `route`:** run `python3 tools/link_usb_vbus.py` (KiCad's python). Freerouting leaves the A4/B9 pair of the USB-C VBUS pads unconnected; the script adds a stub, two vias and a short B.Cu link, trying positions until DRC is clean.
 * **After `route` (LT3097 revision, Freerouting 2.5.0):** run `tools/fix_route.py` (KiCad's python) on the routed board. It removes GND vias that short or crowd a foreign-net track, gives pour fragments that lost their via a new one, removes signal vias that touch one layer only, links R67 pad 2 to the J12 current path and pulls the Q2 gate track away from Q4. Its two track edits match one routing result, so re-check them after any re-route. This run did not need `link_usb_vbus.py` (the VBUS pair routed). `gen_pcb.py` also joins the LT3097's same-net 0.5 mm-pitch pads with locked 0.2 mm stubs (`PAD_BRIDGES`) and pre-places its GND pad vias before routing, and it does not write the board stackup, so copy the `(stackup ...)` block from the previous board into `(setup` after a regeneration.

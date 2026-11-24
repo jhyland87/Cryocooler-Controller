@@ -56,6 +56,7 @@ R_ARRAY = 'Resistor_SMD:R_Array_Convex_4x0402'  # Yageo YC124, four isolated ele
 # wafers are all-SMD (4 A) and take X2510H housings, not PC fan plugs.
 X2510_4P = 'cryocooler:XKB_X2510WRS-04-9TSN_1x04_P2.54mm_Horizontal'
 X2510_2P = 'cryocooler:XKB_X2510WRS-02-9TSN_1x02_P2.54mm_Horizontal'
+MSMF_FP = 'cryocooler:Bourns_MF-MSMF_1812_4532Metric'
 USB_C_FLAG = 'cryocooler:USB_C_Receptacle_GCT_USB4205-GF-A_16P_Flag'
 PH_4P = 'cryocooler:Adafruit_4392_JST-PH_1x04_P2.00mm_Horizontal_SMD'  # 2 A
 # Top-entry JST PH (2 A, datasheet ePH.pdf): cabled inside the housing, so these
@@ -67,7 +68,6 @@ PH_V10 = 'Connector_JST:JST_PH_B10B-PH-SM4-TB_1x10-1MP_P2.00mm_Vertical'
 PH_V3 = 'Connector_JST:JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical'
 # Qwiic / STEMMA QT: JST SH 1.0 mm, top entry
 SH_V4 = 'Connector_JST:JST_SH_BM04B-SRSS-TB_1x04-1MP_P1.00mm_Vertical'
-POWER_JACK = 'cryocooler:Tensility_54-00164_5.5x2.1mm_Horizontal_SMD'
 SIGNAL_JACK = 'cryocooler:SameSky_MJ-3523-SMT-TR_3.5mm_Horizontal_SMD'
 # pluggable SMT headers: TE 2305908 (15 A) for the amp current, Phoenix MC 0,5
 # (6 A) for the amp control line
@@ -3496,14 +3496,16 @@ def esd_array(sh, taps, ground_at, lib='SP3422-04UTG', prefix='U', fp=None):
     return first
 
 
-def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
+def fan_channel(sh, title, pwm_net, tach_net, row, index, shared, fuse_spec):
     """One 4-pin fan channel, drawn left to right from `row`: GPIO -> BSS138
     open-drain PWM driver -> connector, and connector -> tach pull-up -> 4.7k ->
     GPIO, which limits a 12 V short on the connector to about 2 mA. The gate
     pull-up to +3V3 holds the PWM line low (0% drive) while the GPIO floats during
     boot and reset. `shared` holds the references of the parts both channels use:
     the BSS138DW ('fet'), the 4.7k tach array ('tach') and the 10k array ('pull').
+    `fuse_spec` is (reference, value, net) of the resettable fuse in the +12 V feed.
     """
+    fuse_ref, fuse_value, fuse_net = fuse_spec
     first_resistor = LAST_RESISTOR_BEFORE_FAN_DRIVERS + index * 3
     net_label(sh, pwm_net, (28, row), 180, to_parent=True)
     with kicadgen.pinned_refs('R', first_resistor):
@@ -3550,15 +3552,28 @@ def fan_channel(sh, title, pwm_net, tach_net, row, index, shared):
     wire(sh, (95, tach_pin[1]), (70, tach_pin[1]))
     net_label(sh, tach_net, (70, tach_pin[1]), 180, to_parent=True)
     plus = pin_cell(connector, '2')
-    # jogs down so the +12V symbol stays clear of the tach wire above it
-    # (all of it right of the tach series resistor, clear of its body)
-    jog = (plus[0] - 14, plus[1] + 5)
-    wire(sh, plus, (plus[0] - 10, plus[1]), (plus[0] - 10, jog[1]), jog)
-    rail_symbol(sh, '+12V', jog)
+    # +12 V reaches the pin through a resettable fuse hung below the pin row,
+    # clear of the tach wire above; the net after the fuse is named by a rail
+    # symbol on a short branch, the 22 uF cap stays on the pin side
+    drop = plus[0] - 10
+    fuse = sh.add(
+        'Device:Polyfuse', fuse_ref, fuse_value, drop * 1.27, (plus[1] + 9) * 1.27,
+        rot=0, auto=False, footprint=MSMF_FP,
+    )
+    top, bottom = sorted((pin_cell(fuse, '1'), pin_cell(fuse, '2')), key=lambda cell: cell[1])
+    wire(sh, plus, (drop, plus[1]), top)
+    wire(sh, (drop, plus[1] + 4), (drop - 12, plus[1] + 4))
+    rail_symbol(sh, fuse_net, (drop - 12, plus[1] + 4))
+    rail_flag(sh, (drop - 5, plus[1] + 4))  # the fuse is passive: nothing drives the rail
+    wire(sh, bottom, (bottom[0], bottom[1] + 2), (drop + 7, bottom[1] + 2))
+    rail_symbol(sh, '+12V', (drop + 7, bottom[1] + 2))
     vcap(sh, '22uF/25V', plus[0] - 6, plus[1], fp=C1210)
     drop_ground(sh, (plus[0] - 6, plus[1] + 6), 0)
     ground(sh, spur(sh, connector, '1', 2))
     return tach_pin[1]
+
+
+FLOW_SHIFT = 18
 
 
 def build_cooling(sh):
@@ -3586,11 +3601,13 @@ def build_cooling(sh):
     kicadgen.retire_refs('D', 1)
     with rev4_refs('Q', 'RN'):
         shared = {'fet': next_ref('Q'), 'tach': next_ref('RN'), 'pull': next_ref('RN')}
-    for heading, row in (('FAN', 46), ('PUMP', 82), ('FLOW SENSOR', 114), ('COOLANT NTC', 144)):
+    for heading, row in (('FAN', 46), ('PUMP', 90), ('FLOW SENSOR', 124), ('COOLANT NTC', 154)):
         sh.note(heading, 20 * 1.27, row * 1.27, 1.8)
-    fan_tach = fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0, shared)
-    pump_tach = fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 92, 1, shared)
-    # Alphacool ES flow sensor and NTC, drawn then moved 8 rows down
+    fan_tach = fan_channel(sh, 'FAN (4-pin PWM)', 'FAN_PWM', 'FAN_TACH', 60, 0, shared,
+                           ('F3', 'MF-MSMF050/24X', '+12V_FAN'))
+    pump_tach = fan_channel(sh, 'PUMP (4-pin PWM)', 'PUMP_PWM', 'PUMP_TACH', 100, 1, shared,
+                            ('F4', 'MF-MSMF250/16X', '+12V_PUMP'))
+    # Alphacool ES flow sensor and NTC, drawn then moved 18 rows down
     marks = sheet_marks(sh)
     # pin 1 at the bottom, like the fan and pump headers, so GND has room; the
     # header family has no 3-pin part, so pin 4 is unused
@@ -3642,10 +3659,10 @@ def build_cooling(sh):
     vcap(sh, '100nF', ntc[0] - 22, ntc[1])
     drop_ground(sh, (ntc[0] - 22, ntc[1] + 6), 0)
     ground(sh, spur(sh, j_ntc, '2', 2))
-    shift_since(sh, marks, 0, 8)
+    shift_since(sh, marks, 0, FLOW_SHIFT)
     # ESD clamp on the GPIO side of the tach resistors: J3-J5 carry 12 V beside the
     # tach pin, and a 5 V clamp on the connector side would not survive that short.
-    # One unit on each line; the flow and NTC rows moved 8 down above
+    # One unit on each line; the flow and NTC rows moved down above
     sh.note('ESD CLAMP GROUND', 150 * 1.27, 112 * 1.27, 1.8)
     with rev3_refs('U'):
         esd_array(
@@ -3653,8 +3670,8 @@ def build_cooling(sh):
             (
                 (76, fan_tach, False),
                 (76, pump_tach, False),
-                (raw[0] - 24, raw[1] + 8, False),
-                (ntc[0] - 27, ntc[1] + 8, False),
+                (raw[0] - 24, raw[1] + FLOW_SHIFT, False),
+                (ntc[0] - 27, ntc[1] + FLOW_SHIFT, False),
             ),
             (180, 124),
         )
@@ -5839,7 +5856,14 @@ NET_CLASSES = [
         ['+5V', '+5V_OR', '+5V_PS15', '+5V_IO', 'USB_VBUS'],
         'Power',
     ),
-    ('Power12V', (175, 140, 0), (255, 220, 0), '12 V input (yellow)', [], None),
+    (
+        'Power12V',
+        (175, 140, 0),
+        (255, 220, 0),
+        '12 V input (yellow)',
+        ['VIN', 'VSW', '+12V', 'Net-(F1-Pad1)', '+12V_FAN', '+12V_PUMP'],
+        None,
+    ),
     (
         'PowerAnalogPos',
         (130, 0, 0),
@@ -5958,7 +5982,7 @@ FIELD_SIDES = {
     'cryocooler.kicad_sch': {'above': 'R23', 'above>-1': 'R24', 'left': 'C63'},
     'power_button.kicad_sch': {'right': 'C84 C41', 'left': 'D100 R56', 'below': 'R7', 'below@3.5': 'JP10'},
     'system_current.kicad_sch': {'below': 'R80', 'right': 'C68'},
-    'cooling.kicad_sch': {'left': 'R15 R16'},
+    'cooling.kicad_sch': {'left': 'R15 R16 F3 F4'},
     'io_precision.kicad_sch': {'right': 'R627', 'left': 'R626 C428 C431 C423'},
     'io_drivers.kicad_sch': {
         'below>4': 'R600 R602 R604 R606', 'above': 'R601 R603 R605 R607',
@@ -6115,6 +6139,27 @@ def describe_parts(sheets):
     return len(missing) + len(stale) + len(unnamed) + len(unused)
 
 
+# False lists a geometry hit without failing the build
+FAIL_ON_GEOMETRY = True
+
+
+def check_geometry(sheets):
+    """Runs the wire geometry and label shape checks; returns the problem
+    count. Call after check_sheets() has finalized the sheets.
+    """
+    import textlayout
+
+    count = 0
+    for sheet in sheets:
+        found = textlayout.geometry_problems(sheet)
+        found += textlayout.label_shape_mismatches(sheet, sheet is sheets[0])
+        for problem in found:
+            print(f'  [{sheet.title}] {problem}')
+        count += len(found)
+    print(f'wire geometry check: {count} problems')
+    return count
+
+
 def check_sheets(sheets):
     """Finalizes the sheets and runs the text overlap (including wires drawn
     across labels), 4-way junction and duplicate reference checks; returns the
@@ -6192,6 +6237,7 @@ def main():
     undescribed = describe_parts([root] + children)
     pin_fields([root] + children)
     overlaps, junctions, duplicates = check_sheets([root] + children)
+    geometry = check_geometry([root] + children)
     (ROOT_DIR / 'sheets').mkdir(exist_ok=True)
     (ROOT_DIR / 'cryocooler.kicad_sch').write_text(root.render(root_uuid))
     for child in children:
@@ -6213,6 +6259,8 @@ def main():
         sys.exit(1)
     print(f'4-way junction check: {junctions} found')
     if overlaps or junctions or undescribed:
+        sys.exit(1)
+    if geometry and FAIL_ON_GEOMETRY:
         sys.exit(1)
 
 

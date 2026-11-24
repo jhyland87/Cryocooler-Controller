@@ -206,36 +206,76 @@ def move_q2_gate_track(board):
     return True
 
 
+BUCKET = 2.0
+_INDEX = {}
+
+
+def copper_index(board):
+    """Bucketed copper of the board: (net, kind, geometry, bounding box) per track,
+    via and pad. Pads are read once per board; tracks again when their count changes."""
+    entry = _INDEX.get(id(board))
+    if entry is None:
+        pads = []
+        for footprint in board.GetFootprints():
+            for pad in footprint.Pads():
+                box = pad.GetBoundingBox()
+                pads.append((pad.GetNetname(), 'pad',
+                             (mm(box.GetLeft()), mm(box.GetTop()), mm(box.GetRight()), mm(box.GetBottom())),
+                             (mm(box.GetLeft()), mm(box.GetTop()), mm(box.GetRight()), mm(box.GetBottom()))))
+        entry = _INDEX[id(board)] = {'pads': pads, 'count': -1, 'grid': None}
+    if entry['count'] != len(board.Tracks()):
+        items = list(entry['pads'])
+        for item in board.GetTracks():
+            net = item.GetNetname()
+            if item.Type() == pcbnew.PCB_VIA_T:
+                x, y, r = mm(item.GetPosition().x), mm(item.GetPosition().y), mm(item.GetWidth(pcbnew.F_Cu)) / 2
+                items.append((net, 'via', (x, y, r), (x - r, y - r, x + r, y + r)))
+                continue
+            start = (mm(item.GetStart().x), mm(item.GetStart().y))
+            end = (mm(item.GetEnd().x), mm(item.GetEnd().y))
+            r = mm(item.GetWidth()) / 2
+            items.append((net, 'seg', (start, end, r), (min(start[0], end[0]) - r, min(start[1], end[1]) - r,
+                                                       max(start[0], end[0]) + r, max(start[1], end[1]) + r)))
+        grid = {}
+        for item in items:
+            x0, y0, x1, y1 = item[3]
+            for i in range(int(x0 // BUCKET), int(x1 // BUCKET) + 1):
+                for j in range(int(y0 // BUCKET), int(y1 // BUCKET) + 1):
+                    grid.setdefault((i, j), []).append(item)
+        entry['grid'], entry['count'] = grid, len(board.Tracks())
+    return entry['grid']
+
+
+def item_gap(item, x, y, radius):
+    _net, kind, geometry, _box = item
+    if kind == 'via':
+        return math.dist((x, y), geometry[:2]) - geometry[2] - radius
+    if kind == 'seg':
+        return segment_distance((x, y), geometry[0], geometry[1]) - geometry[2] - radius
+    left, top, right, bottom = geometry
+    return math.hypot(max(left - x, x - right, 0.0), max(top - y, y - bottom, 0.0)) - radius
+
+
 def foreign_gap(board, x, y, radius, net):
     """Smallest gap in mm between a via of the given radius at (x, y) and
-    copper of any other net (tracks on every layer, vias, pads).
+    copper of any other net (tracks on every layer, vias, pads). Searches
+    outwards from the point, so the answer is exact but not a scan of the board.
     """
-    gap = 1e9
-    for item in board.GetTracks():
-        if item.GetNetname() == net:
-            continue
-        if item.Type() == pcbnew.PCB_VIA_T:
-            centre = (mm(item.GetPosition().x), mm(item.GetPosition().y))
-            reach = mm(item.GetWidth()) / 2
-            gap = min(gap, math.dist((x, y), centre) - reach - radius)
-            continue
-        start = (mm(item.GetStart().x), mm(item.GetStart().y))
-        end = (mm(item.GetEnd().x), mm(item.GetEnd().y))
-        gap = min(
-            gap,
-            segment_distance((x, y), start, end)
-            - mm(item.GetWidth()) / 2
-            - radius,
-        )
-    for footprint in board.GetFootprints():
-        for pad in footprint.Pads():
-            if pad.GetNetname() == net:
-                continue
-            box = pad.GetBoundingBox()
-            delta_x = max(mm(box.GetLeft()) - x, x - mm(box.GetRight()), 0.0)
-            delta_y = max(mm(box.GetTop()) - y, y - mm(box.GetBottom()), 0.0)
-            gap = min(gap, math.hypot(delta_x, delta_y) - radius)
-    return gap
+    grid = copper_index(board)
+    half = BUCKET
+    while True:
+        seen, gap = set(), 1e9
+        for i in range(int((x - half) // BUCKET), int((x + half) // BUCKET) + 1):
+            for j in range(int((y - half) // BUCKET), int((y + half) // BUCKET) + 1):
+                for item in grid.get((i, j), ()):
+                    if item[0] == net or id(item) in seen:
+                        continue
+                    seen.add(id(item))
+                    gap = min(gap, item_gap(item, x, y, radius))
+        # anything outside the window is at least `half` from the point
+        if gap <= half - radius or half > 400:
+            return gap
+        half *= 2
 
 
 def reconnect_ground_islands(board, diameter=0.5, drill=0.3, margin=0.2):

@@ -1,0 +1,180 @@
+{
+  "baseline": "tools/board_checks_baseline.json",
+  "ground_nets": [
+    "GND",
+    "ISO_GND"
+  ],
+  "power_nets": [
+    "+3V3",
+    "+3V3_*",
+    "+5V",
+    "+5V_*",
+    "+12V",
+    "+15V",
+    "-15V",
+    "+16V5",
+    "-16V5",
+    "VIN",
+    "ISO_5V"
+  ],
+  "fast_signals": {
+    "classes": [
+      "SPI",
+      "Usb"
+    ],
+    "nets": [
+      "/Display/CAN_H",
+      "/Display/CAN_L",
+      "/CAN_TX",
+      "/CAN_RX",
+      "Net-(U3-OUT)",
+      "/Expansion/UART_CLK",
+      "/Expansion/EXP_SCK",
+      "/Expansion/EXP_MOSI",
+      "/Expansion/EXP_MISO",
+      "Net-(J14-SCK)",
+      "Net-(J14-MOSI)",
+      "Net-(J14-MISO)",
+      "Net-(U110-TX)",
+      "Net-(U110-RX)",
+      "Net-(J34-Pin_1)",
+      "Net-(J34-Pin_2)"
+    ]
+  },
+  "ground_via": {
+    "reach_mm": 3
+  },
+  "return_path": {
+    "min_gap_mm": 3
+  },
+  "placement": {
+    "power_nets": [
+      "+3V3",
+      "+5V",
+      "+15V",
+      "-15V",
+      "+12V",
+      "VIN"
+    ],
+    "edge_parts": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J8",
+      "J9",
+      "J10",
+      "J11",
+      "J12",
+      "J13",
+      "J14",
+      "J30",
+      "J31",
+      "J32",
+      "J33",
+      "J36",
+      "J37",
+      "J38",
+      "J39",
+      "SW3",
+      "U1"
+    ],
+    "antenna_modules": [
+      "U1"
+    ],
+    "topmost_on_edge": [
+      "SW3"
+    ],
+    "bottommost_on_edge": [
+      "J2"
+    ]
+  },
+  "hot_loops": {
+    "U15_input": [
+      "C28.1",
+      "U15.3",
+      "U15.4",
+      "C28.2"
+    ],
+    "U15_switch": [
+      "U15.5",
+      "L1.1",
+      "L1.2",
+      "C4.1",
+      "C4.2",
+      "U15.4"
+    ],
+    "U16_input": [
+      "C3.1",
+      "U16.7",
+      "U16.5",
+      "C3.2"
+    ],
+    "U16_switch": [
+      "U16.6",
+      "L4.1",
+      "L4.2",
+      "C5.1",
+      "C5.2",
+      "U16.5"
+    ],
+    "U20_input": [
+      "C11.1",
+      "U20.15",
+      "U20.19",
+      "C11.2"
+    ],
+    "U20_boost": [
+      "U20.20",
+      "D4.2",
+      "D4.1",
+      "C56.1",
+      "C56.2",
+      "U20.19"
+    ],
+    "U20_boost_inductor": [
+      "U20.1",
+      "L2.1",
+      "L2.2",
+      "U20.20",
+      "U20.19"
+    ],
+    "U20_inverting": [
+      "D5.2",
+      "D5.1",
+      "L3.1",
+      "L3.2",
+      "C62.2",
+      "C62.1"
+    ]
+  },
+  "net_currents": {
+    "Net-(F1-Pad1)": 10,
+    "VIN": 10,
+    "VSW": 10,
+    "+12V": 10,
+    "+12V_FAN": 0.5,
+    "+12V_PUMP": 2,
+    "Net-(J11-Pin_1)": 15,
+    "Net-(J12-Pin_1)": 15,
+    "ISO_GND": 15,
+    "+5V": 2,
+    "+16V5": 0.5,
+    "-16V5": 0.5,
+    "+15V": 0.5,
+    "-15V": 0.5
+  },
+  "suppress": [
+    {
+      "rule_id": "TRACE_CURRENT",
+      "nets": "+12V",
+      "at": [
+        46.95,
+        93.0
+      ],
+      "reason": "0.2 mm neck, 0.2 mm long, into U23 pad 8 (INA239 VBUS sense pin, no load current); user accepted 2026-11-23"
+    }
+  ]
+}

@@ -36,7 +36,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 **General-purpose I/O:** each of the five pins has 100 Ω in series, 200 kΩ to ground (the LED driver's divider) and an ESD clamp, and is 3.3 V only. GPIO 5 and 7 are ADC1 and can read analog with WiFi on; GPIO 11-13 are ADC2, so digital only. The firmware defines the pins (`AUX_IO*_PIN`) but does not use them yet.
 
-**Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 4.7 kΩ series resistor, a clamp on the GPIO side, and a 4.7 kΩ pull-up to 3.3 V.
+**Fan and pump:** each PWM GPIO drives a BSS138 (GPIO high = PWM line low = 0 % drive), because the fan PWM line can reach 5.25 V. A 10 kΩ gate pull-up holds 0 % drive during boot. Each tach line has a 4.7 kΩ series resistor, a clamp on the GPIO side, and a 4.7 kΩ pull-up to 3.3 V. The 12 V pin of each header is fed through its own Bourns resettable fuse (F3 fan: MF-MSMF050/24X, 0.5 A hold; F4 pump: MF-MSMF250/16X, 2.5 A hold; nets `+12V_FAN`, `+12V_PUMP`), so a shorted cable trips it instead of F1. The parts are on the schematic and on the rev 7 board.
 
 **INA239 ALERT:** drives its red LED only; it is not wired to the MCU, and the firmware does not read it.
 
@@ -44,7 +44,7 @@ Firmware for an ESP32-S3 DevKit that automates the cooldown sequence of a cryoge
 
 ![Front of the controller PCB (3D render)](hardware/kicad/fabrication/circuit-board-render-front.png)
 
-The 4-layer board (rev 6: 212 x 84 mm, for the Phoenix UCS 237-195 housing; see [`hardware/HANDOFF_rev6.md`](hardware/HANDOFF_rev6.md)) is generated from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). Each module has its own outlined, labelled box on the silkscreen, and the sections with their own supply jumper and LED can be switched off one at a time.
+The 4-layer board (rev 7: 170 x 120 mm, for the Phoenix UCS 195-145 housing, routed, not bench tested; see [`hardware/HANDOFF_rev7.md`](hardware/HANDOFF_rev7.md)) is routed from the KiCad schematic in [`hardware/kicad/`](hardware/kicad/README.md). It has no section boxes on the silkscreen.
 
 ### System wiring
 

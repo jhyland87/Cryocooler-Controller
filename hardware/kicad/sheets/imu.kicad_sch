@@ -2,7 +2,7 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "7c33a96f-00ef-5eab-9633-9005d273afc3")
+	(uuid "0e632b20-4629-5082-a6e6-ab58a9d02b19")
 	(paper "A3")
 	(title_block
 		(title "IMU")
@@ -1270,8 +1270,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 198.12 121.92 0)
+		(lib_id "power:+3V3")
+		(at 254 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1279,9 +1279,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "11d7390d-56c5-5e13-8312-95065ad35810")
-		(property "Reference" "#PWR172"
-			(at 198.12 121.92 0)
+		(uuid "59fece85-7c6b-5087-98d8-9c19f1376f33")
+		(property "Reference" "#PWR174"
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1291,9 +1291,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 198.12 121.92 0)
-			(hide yes)
+		(property "Value" "+3V3"
+			(at 254 87.884 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1303,7 +1302,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 198.12 121.92 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1314,7 +1313,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 198.12 121.92 0)
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1324,8 +1323,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
-			(at 198.12 121.92 0)
+		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
+			(at 254 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1336,123 +1335,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3cff7fa0-334a-5d46-be60-a65499e5652a")
+			(uuid "a0cab20e-adde-554d-8226-cd25f9105333")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/7d11f024-8900-51b3-95f7-00062a4ac386"
-					(reference "#PWR172")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "cryocooler:Conn_02x04_IMU_Cable")
-		(at 254 106.68 0)
-		(mirror y)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3908c97c-abf8-5aba-8ed7-2b37c334ae66")
-		(property "Reference" "J14"
-			(at 237.49 88.88 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "505448-0891"
-			(at 237.49 90.98 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal"
-			(at 254 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf"
-			(at 254 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "IMU cable header: SPI, chip select, two interrupts and 3.3 V to the LSM6DSOX on the cryocooler"
-			(at 254 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Product" "https://www.molex.com/en-us/products/part-detail/5054480891"
-			(at 254 106.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "8"
-			(uuid "01b2ab63-0b87-5acc-8311-743a88865984")
-		)
-		(pin "7"
-			(uuid "f97e6cae-8737-5a1c-a299-fde19425dc53")
-		)
-		(pin "6"
-			(uuid "d1a569f5-ae65-5b8d-8825-949f19545e8c")
-		)
-		(pin "5"
-			(uuid "c0a32898-85ba-5ec6-85f7-ad663a08784b")
-		)
-		(pin "3"
-			(uuid "d6711fee-aa78-5aa9-87e0-596c0f05dd2d")
-		)
-		(pin "1"
-			(uuid "9deaaa70-4d9b-51df-8874-6e287bc6ba96")
-		)
-		(pin "4"
-			(uuid "68556da3-e8dd-53e2-a2cc-017f2147978a")
-		)
-		(pin "2"
-			(uuid "9803f7e3-2216-5d39-92e9-1674c898e90a")
-		)
-		(instances
-			(project "cryocooler"
-				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/7d11f024-8900-51b3-95f7-00062a4ac386"
-					(reference "J14")
+					(reference "#PWR174")
 					(unit 1)
 				)
 			)
@@ -1468,7 +1356,7 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3d1cc0b1-a605-58ec-bb5a-968ae1aec543")
+		(uuid "823f29ff-df29-54cd-a54f-ab624971c454")
 		(property "Reference" "U36"
 			(at 187.96 91.42 0)
 			(show_name no)
@@ -1584,18 +1472,41 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 254 91.44 0)
+		(lib_id "cryocooler:Conn_02x04_IMU_Cable")
+		(at 254 106.68 0)
+		(mirror y)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
+		(in_bom yes)
+		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8db01fa8-7b96-5ca2-8de8-6c25c3cbb121")
-		(property "Reference" "#PWR170"
-			(at 254 91.44 0)
+		(uuid "8ff4a1f8-c3d9-5e04-87c0-9fd6335e08f4")
+		(property "Reference" "J14"
+			(at 237.49 88.88 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "505448-0891"
+			(at 237.49 90.98 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal"
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1605,18 +1516,8 @@
 				)
 			)
 		)
-		(property "Value" "+3V3"
-			(at 254 87.884 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 254 91.44 0)
+		(property "Datasheet" "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/505/505448/5054480891_sd.pdf"
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1626,8 +1527,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 254 91.44 0)
+		(property "Description" "IMU cable header: SPI, chip select, two interrupts and 3.3 V to the LSM6DSOX on the cryocooler"
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1637,8 +1538,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \\\"+3V3\\\""
-			(at 254 91.44 0)
+		(property "Product" "https://www.molex.com/en-us/products/part-detail/5054480891"
+			(at 254 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1647,14 +1548,35 @@
 					(size 1.27 1.27)
 				)
 			)
+		)
+		(pin "8"
+			(uuid "01b2ab63-0b87-5acc-8311-743a88865984")
+		)
+		(pin "7"
+			(uuid "f97e6cae-8737-5a1c-a299-fde19425dc53")
+		)
+		(pin "6"
+			(uuid "d1a569f5-ae65-5b8d-8825-949f19545e8c")
+		)
+		(pin "5"
+			(uuid "c0a32898-85ba-5ec6-85f7-ad663a08784b")
+		)
+		(pin "3"
+			(uuid "d6711fee-aa78-5aa9-87e0-596c0f05dd2d")
 		)
 		(pin "1"
-			(uuid "a0cab20e-adde-554d-8226-cd25f9105333")
+			(uuid "9deaaa70-4d9b-51df-8874-6e287bc6ba96")
+		)
+		(pin "4"
+			(uuid "68556da3-e8dd-53e2-a2cc-017f2147978a")
+		)
+		(pin "2"
+			(uuid "9803f7e3-2216-5d39-92e9-1674c898e90a")
 		)
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/7d11f024-8900-51b3-95f7-00062a4ac386"
-					(reference "#PWR170")
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -1670,8 +1592,8 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d1b8532c-98f7-5751-b695-6a6c1164669f")
-		(property "Reference" "#PWR171"
+		(uuid "9708676d-9d96-55b4-887b-f0d89aafeb8c")
+		(property "Reference" "#PWR175"
 			(at 254 121.92 0)
 			(hide yes)
 			(show_name no)
@@ -1732,7 +1654,85 @@
 		(instances
 			(project "cryocooler"
 				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/7d11f024-8900-51b3-95f7-00062a4ac386"
-					(reference "#PWR171")
+					(reference "#PWR175")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 198.12 121.92 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c6694fc1-045a-5f4a-b15b-61bf58aa166c")
+		(property "Reference" "#PWR176"
+			(at 198.12 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 198.12 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 198.12 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \\\"GND\\\" , ground"
+			(at 198.12 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3cff7fa0-334a-5d46-be60-a65499e5652a")
+		)
+		(instances
+			(project "cryocooler"
+				(path "/8aa5b67b-a486-4448-878d-4d9f2d51f462/7d11f024-8900-51b3-95f7-00062a4ac386"
+					(reference "#PWR176")
 					(unit 1)
 				)
 			)

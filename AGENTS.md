@@ -41,11 +41,12 @@ your area. New rules go in the file for their area.
 | [`hardware-overview.md`](.claude/rules/hardware-overview.md) | `hardware/` | Where things are, how to read the long handoffs, read-blocked board |
 | [`schematic-drawing.md`](.claude/rules/schematic-drawing.md) | every KiCad schematic (`*.kicad_sch`, `*.kicad_pro`, `**/kicad/**`) | Each project's schematic profile; hierarchy and label scope; descriptions; rules never bent; no shortcuts |
 | [`hardware-schematic.md`](.claude/rules/hardware-schematic.md) | `hardware/`, `pin_config.h` | Generated cryocooler schematic, datasheet verification, part selection, this board's drawing specifics |
-| [`hardware-pcb.md`](.claude/rules/hardware-pcb.md) | `hardware/` | PCB layout directives, STEP models, silkscreen and labels, board ID, renders |
+| [`hardware-pcb.md`](.claude/rules/hardware-pcb.md) | `hardware/` | PCB placement approval, layout thresholds, board checks, STEP models, silkscreen and labels, board ID, renders |
 
 Subagents live in [`.claude/agents/`](.claude/agents/): `schematic-reviewer` checks
 changed sheets in any schematic project against the drawing rules (used by the
-`kicad-schematic-design` skill; give it the project's `.kicad_pro`).
+`kicad-schematic-design` skill; give it the project's `.kicad_pro`). `pcb-reviewer` checks a placed or routed
+board against the PCB rules (give it the `.kicad_pro` and the board's state).
 
 ## Repository layout
 

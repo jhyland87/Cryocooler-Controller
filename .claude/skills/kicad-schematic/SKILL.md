@@ -9,7 +9,7 @@ The `.kicad_sch` files, `lib/cryocooler.kicad_sym` and `lib/cryocooler.pretty` a
 generated. Edit the Python and re-run; never hand-edit the outputs. How a sheet should be drawn
 is in the `kicad-schematic-design` skill and `.claude/rules/schematic-drawing.md` (this project's profile: `hardware/kicad/README.md`, "Schematic profile"); the helpers in `gen_schematic.py` are in
 `hardware/kicad/README.md` ("Drawing conventions", "Regenerating"). Layout rules are in `.claude/rules/hardware-pcb.md`. Current
-board state: `hardware/HANDOFF_rev3.md`.
+board state: the handoff named in the board profile (`hardware/kicad/README.md`).
 
 These scripts don't need `pcbnew`, so the system `python3` works. Run from
 `hardware/kicad/`:
@@ -31,8 +31,13 @@ python3 tools/gen_schematic.py     # root + sheets/*.kicad_sch; in cryocooler.ki
 `gen_schematic.py` exits 1 on any text overlap, wire drawn across a label,
 duplicate reference, 4-way junction, or part or net label without a description
 in `tools/part_descriptions.py` (what the part does, what the net carries). Add
-the entry when you add the symbol or label. It prints the count for each check, so read the output, not just the
-exit code.
+the entry when you add the symbol or label. It also fails on wire geometry
+(`check_geometry`): a pin or label within 0.05 mm of a wire but not on it, a
+pin in the middle of a wire with no junction or wire end, a diagonal wire, a
+wire under 1 mm, and a net whose hierarchical or global labels differ in shape
+on one sheet. It prints the count for each check, so read the output, not just
+the exit code. Unit tests for these checks:
+`python3 -m unittest discover -s tools/tests` from `hardware/kicad/`.
 
 - Every sheet is rewritten. UUIDs reshuffle after an inserted part (diff noise).
   The handoff notes the D13 Product link in `sheets/indicators.kicad_sch` also
@@ -54,11 +59,12 @@ python3 tools/check_sheet_structure.py            # label scope, label pairs, sh
 python3 sim/run_ngspice.py sim/sine_chain_ideal.cir   # only when the signal chain changed
 ```
 
-Expected (from `HANDOFF_rev3.md` "Checks", 2026-11-06): ERC 0, `datasheet_rules`
-319 of 319, `verify_netlist` no mismatches with 306 parts and 211 nets,
-`check_symbols` 0 in all four checks. Sine chain: 0, 2.49, 4.98, 7.47 and 9.96 Vpp
-at codes 0, 4096, 8192, 12288 and 16383. If the counts change, make sure the change
-was intended and update the handoff.
+Expected counts (ERC, `datasheet_rules` rules passed, parts and nets in
+`verify_netlist`, `check_symbols`, the sine-chain levels) are in the "Checks" section
+of the current handoff. If the counts change, make sure the change was intended and
+update the handoff. `make sch-checks` runs the checks that need no extra setup.
+`gen_schematic.py` also runs geometry self-checks (near miss, pin mid-wire, diagonal
+wire, stub, label shape) and fails on any.
 
 - Run ERC on the root. Sub-sheets can't be checked on their own. ERC JSON positions
   are in 1/100 mm.
@@ -108,11 +114,12 @@ python3 tools/gen_bom.py --imu                     # imu/bom/imu_*.csv
 
 ## References
 
-R, C and D were renumbered on 2026-11-06 (`tools/renumber_refs.py`, `tools/ref_map.py`).
-Older notes, commits, `tools/rev3_board.py` and `tools/rev3_placement.json` use the
-old numbers. Translate them with `tools/ref_map_rev3.py`.
+R, C and D were renumbered once (`tools/renumber_refs.py`, `tools/ref_map.py`). Older
+notes, commits and the older `tools/*_board.py` scripts use the old numbers. Translate
+them with the `ref_map*.py` tools.
 
 ## Next
 
 A connection or footprint change has to reach the board too: see the
-`kicad-pcb-edit` skill (`gen_pcb.py link`, then DRC with schematic parity).
+`kicad-pcb-edit` skill (`gen_pcb.py link`, then DRC with schematic parity and
+`board_checks.py`).

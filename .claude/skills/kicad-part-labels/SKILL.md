@@ -9,7 +9,7 @@ Every referenced part has a label printed beside it. Most are solder-mask openin
 over ground pour (exposed copper forms the letters, so the board is ENIG). Where
 mask won't fit, the label is 0.7 mm silk. Silkscreen rules (no overlaps, board
 I/O labels, pin 1, board ID) are in `.claude/rules/hardware-pcb.md`. Board-specific notes are
-under "Labels" and "U1 pin names" in `hardware/HANDOFF_rev3.md`.
+in the current handoff named in the board profile (`hardware/kicad/README.md`).
 
 ```bash
 cd hardware/kicad
@@ -21,8 +21,7 @@ KPY=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/
 This is a list of labels. Each one has `kind` (`ref`, `value` or `board`), `text`,
 `side` (`F`/`B`), `x`, `y`, `angle`, `size` (0.5, or 0.7 on large parts and
 connector pins), and optionally `ref`, `uuid` (the board text it replaces),
-`silk: true` and `arrow`. As of 2026-11-08 it holds 342 labels: 287 mask, 55 silk,
-0 arrows.
+`silk: true` and `arrow`. The current counts are in the handoff.
 
 `$KPY tools/mask_labels.py cryocooler.kicad_pcb` turns the JSON into board text.
 It removes its previous mask text and silk labels and hides the footprint
@@ -36,7 +35,7 @@ argument: `$KPY tools/mask_labels.py imu/imu.kicad_pcb imu/mask_labels.json`. Ru
 after every `imu_board.py` rebuild. That script keeps its stitching vias clear of
 these labels, so move a label in the JSON before rebuilding.
 
-## Placement rule (from the user's hand edits of 2026-11-06)
+## Placement rule
 
 1. Horizontal text, centred right above or below the part, about 0.3-0.6 mm away.
    Next best is horizontal beside the part, then vertical beside it.
@@ -68,19 +67,21 @@ add arrows: remove any it adds and place those labels by the rule. Then run
 
 ## Text that isn't in the JSON
 
-- **U1 pin names:** 40 F.Silkscreen texts at 0.7 mm / 0.1 mm stroke, outside the
-  module body. Names follow Espressif's WROOM-2 datasheet v1.7 Table 3-1 (pads
-  13/14 `IO19`/`IO20`, pads 28-30 `NC`). Edit them directly in the board.
+- **MCU pin names:** F.Silkscreen texts at 0.7 mm / 0.1 mm stroke, outside the
+  module body. Names follow the module datasheet's pin table. Edit them directly in
+  the board.
 - Section names, box lines, the board ID and part-body IC names. `mask_labels.py`
   leaves these alone.
 - Footprint fields of TP5, TP7 and TP34.
 
 ## Check
 
-1. DRC (`kicad-pcb-edit` skill). Text-size warnings stay at 102 `text_thickness`
-   and 102 `text_height`, and no new `silk_overlap` should appear.
-2. Mask text against mask text: DRC doesn't compare these. Check by script against
-   the true stroke outlines. No checker is committed, so write one in the scratchpad.
+1. DRC (`kicad-pcb-edit` skill). Text-size warnings stay at the baseline in the board
+   profile, and no new `silk_overlap` should appear.
+2. Mask text against mask text: DRC doesn't compare these. `board_checks.py` does
+   (`MASK_TEXT_OVERLAP`, against the true stroke outlines). Run it and clear every hit.
 3. Mask text has to sit on solid pour. Silk may cross vias only because the board
    is ordered with filled and capped vias.
 4. Regenerate the renders and look at the area (`kicad-fab-export` skill).
+5. Once at the end, run the `pcb-reviewer` agent for the placement and readability
+   rules no script checks.

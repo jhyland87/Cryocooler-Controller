@@ -73,13 +73,18 @@ RULES = [
     ('res', 'FAN (4-pin PWM)', '4', '10k', '+3V3_COOL'),
     ('res', 'FAN (4-pin PWM)', '3', '4.7k', '+3V3_COOL'),
     ('between', '4.7k', ('FAN (4-pin PWM)', '3'), ('NET', 'FAN_TACH')),
-    ('net', 'FAN (4-pin PWM)', '2', '+12V'),
+    # each header's +12 V goes through its own Bourns MF-MSMF resettable fuse
+    # (mfmsmf.pdf p. 1-2, 9-10): fan F3 MF-MSMF050/24X, 0.5 A hold (0.40 A at 50 C)
+    # for 3 fans at 0.15 A; pump F4 MF-MSMF250/16X, 2.5 A hold (1.98 A at 50 C) for 1.5 A
+    ('net', 'FAN (4-pin PWM)', '2', '+12V_FAN'),
+    ('between', 'MF-MSMF050/24X', ('FAN (4-pin PWM)', '2'), ('NET', '+12V')),
     ('net', 'FAN (4-pin PWM)', '1', 'GND'),
     ('fetdrive', 'PUMP (4-pin PWM)', '4', '1k', 'PUMP_PWM'),
     ('res', 'PUMP (4-pin PWM)', '4', '10k', '+3V3_COOL'),
     ('res', 'PUMP (4-pin PWM)', '3', '4.7k', '+3V3_COOL'),
     ('between', '4.7k', ('PUMP (4-pin PWM)', '3'), ('NET', 'PUMP_TACH')),
-    ('net', 'PUMP (4-pin PWM)', '2', '+12V'),
+    ('net', 'PUMP (4-pin PWM)', '2', '+12V_PUMP'),
+    ('between', 'MF-MSMF250/16X', ('PUMP (4-pin PWM)', '2'), ('NET', '+12V')),
     ('net', 'PUMP (4-pin PWM)', '1', 'GND'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '17', 'FAN_PWM'),
     ('net', 'ESP32-S3-WROOM-2-N32R16V', '22', 'PUMP_PWM'),

@@ -1084,25 +1084,31 @@ class Sheet:
             _uuid_scope.clear()
             _uuid_counter[0] += skipped
 
-    def render_items(self, root_uuid):
+    def routed(self):
+        """Wires and junctions as written to the file: overlaps merged, wires
+        split at pins on a hand-wired sheet, T junctions added.
+        """
         self.finalize()
-        self.wires = merge_overlapping_wires(self.wires)
+        wires = merge_overlapping_wires(self.wires)
         if self.handwired:
             # a pin or symbol in the middle of a wire is not connected in
             # KiCad, so split wires there
             nodes = [p.pin_point(n) for p in self.parts for n in p.pin_table]
             nodes += [(p.x, p.y) for p in self.parts if p.ref.startswith('#')]
-            self.wires = split_wires_at(self.wires, nodes)
+            wires = split_wires_at(wires, nodes)
             keep = list(nodes) + [(x, y) for _, _, (x, y), _ in self.labels]
-            self.wires = merge_touching_wires(self.wires, keep)
-        known = {(round(x, 3), round(y, 3)) for x, y in self.junctions}
+            wires = merge_touching_wires(wires, keep)
+        junctions = list(self.junctions)
+        known = {(round(x, 3), round(y, 3)) for x, y in junctions}
         if self.handwired:
-            self.junctions.extend(
-                meeting_points(self.wires, distinct_pins(self.parts))
-            )
-        for point in t_junctions(self.wires):
+            junctions.extend(meeting_points(wires, distinct_pins(self.parts)))
+        for point in t_junctions(wires):
             if (round(point[0], 3), round(point[1], 3)) not in known:
-                self.junctions.append(point)
+                junctions.append(point)
+        return wires, junctions
+
+    def render_items(self, root_uuid):
+        self.wires, self.junctions = self.routed()
         out = [
             '(kicad_sch',
             f'\t(version {VERSION})',
@@ -1251,6 +1257,8 @@ POWER_SYMBOLS = {
     '+5V': '+5V',
     '+5V_OR': '+5V',
     '+12V': '+12V',
+    '+12V_FAN': '+12V',
+    '+12V_PUMP': '+12V',
     '+15V': '+15V',
     '-15V': '-15V',
     'VIN': '+12V',

@@ -1,13 +1,16 @@
 """Draws a placed board as two SVGs (front, back seen through the board) with the
 section floorplan. Usage (KiCad's python, from hardware/kicad/tools):
-    placement_view.py board.kicad_pcb out_prefix
+    placement_view.py board.kicad_pcb out_prefix [board_module]
+board_module is the board script that holds the floorplan (default rev7_board). A module
+that sets PLACEMENT_VIEW_BY_SHEET = True has no sections: its parts are coloured by schematic
+sheet instead and no boxes are drawn.
 """
+import importlib
 import sys
 
 import pcbnew
 
 sys.path.insert(0, '.')
-import rev6_board as rev6  # noqa: E402
 import rev5_board as rev5  # noqa: E402
 import ucs125_board as base  # noqa: E402
 
@@ -15,6 +18,12 @@ SCALE = 8.0
 PAD = 14.0
 COLOURS = ['#dbeafe', '#fde68a', '#d1fae5', '#fce7f3', '#e0e7ff', '#fee2e2', '#ccfbf1', '#fef3c7',
            '#ede9fe', '#dcfce7', '#ffe4e6', '#e0f2fe', '#f5f5f4', '#fae8ff', '#ecfccb', '#ffedd5']
+
+
+BOARD_MODULE = importlib.import_module(sys.argv[3] if len(sys.argv) > 3 else 'rev7_board')
+BY_SHEET = getattr(BOARD_MODULE, 'PLACEMENT_VIEW_BY_SHEET', False)
+SHEET_COLOURS = ['#60a5fa', '#f59e0b', '#34d399', '#f472b6', '#a78bfa', '#f87171', '#2dd4bf', '#fbbf24',
+                 '#818cf8', '#4ade80', '#fb7185', '#38bdf8', '#a3a3a3', '#e879f9', '#a3e635', '#fb923c']
 
 
 def mm(value):
@@ -30,16 +39,18 @@ def box_of(footprint):
 
 def draw(board, side, path):
     width, height = base.WIDTH, base.HEIGHT
-    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{(width + 2 * PAD) * SCALE:.0f}" '
-           f'height="{(height + 2 * PAD) * SCALE:.0f}" viewBox="{-PAD} {-PAD} {width + 2 * PAD} {height + 2 * PAD}" '
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{(width + 2 * PAD + (30 if BY_SHEET else 0)) * SCALE:.0f}" '
+           f'height="{(height + 2 * PAD) * SCALE:.0f}" viewBox="{-PAD} {-PAD} {width + 2 * PAD + (30 if BY_SHEET else 0)} {height + 2 * PAD}" '
            'font-family="Helvetica, Arial, sans-serif">',
-           f'<rect x="{-PAD}" y="{-PAD}" width="{width + 2 * PAD}" height="{height + 2 * PAD}" fill="white"/>']
+           f'<rect x="{-PAD}" y="{-PAD}" width="{width + 2 * PAD + (30 if BY_SHEET else 0)}" height="{height + 2 * PAD}" fill="white"/>']
     notch = base.NOTCH
     points = [(0, 0), (notch.min_x, 0), (notch.min_x, notch.max_y), (notch.max_x, notch.max_y),
               (notch.max_x, 0), (width, 0), (width, height), (0, height)]
     out.append('<polygon points="' + ' '.join(f'{x},{y}' for x, y in points)
                + '" fill="#f8fafc" stroke="black" stroke-width="0.4"/>')
-    sections = dict(rev5.PRINTED_SECTIONS)
+    sections = {} if BY_SHEET else dict(rev5.PRINTED_SECTIONS)
+    sheet_of = {ref: part['sheet'] for ref, part in rev5.load_netlist()[0].items()} if BY_SHEET else {}
+    sheets = sorted(set(sheet_of.values()))
     for index, (name, rects) in enumerate(sections.items()):
         for rect in rects:
             out.append(f'<rect x="{rect.min_x}" y="{rect.min_y}" width="{rect.max_x - rect.min_x}" '
@@ -59,7 +70,9 @@ def draw(board, side, path):
         if not ref or footprint.IsFlipped() != (side == 'back'):
             continue
         left, top, right, bottom = box_of(footprint)
-        if ref.startswith(('J', 'SW')):
+        if BY_SHEET and ref in sheet_of:
+            fill, stroke = SHEET_COLOURS[sheets.index(sheet_of[ref]) % len(SHEET_COLOURS)], '#1f2937'
+        elif ref.startswith(('J', 'SW')):
             fill, stroke = '#2563eb', '#1e3a8a'
         elif ref.startswith('U'):
             fill, stroke = '#f59e0b', '#92400e'
@@ -84,15 +97,13 @@ def draw(board, side, path):
         rect = rects[0]
         out.append(f'<text x="{rect.min_x + 0.6}" y="{rect.max_y - 0.8}" font-size="1.5" fill="#334155" '
                    f'stroke="white" stroke-width="0.2" paint-order="stroke">{name.replace("&", "&amp;")}</text>')
-    title = f'Rev 6 trial placement, {side} ({width:g} x {height:g} mm)' + (
+    for index, name in enumerate(sheets):
+        out.append(f'<rect x="{width + 3}" y="{index * 3.2}" width="2.4" height="2.4" '
+                   f'fill="{SHEET_COLOURS[index % len(SHEET_COLOURS)]}" stroke="#1f2937" stroke-width="0.1"/>')
+        out.append(f'<text x="{width + 6.2}" y="{index * 3.2 + 1.9}" font-size="1.8">{name.replace("&", "&amp;")}</text>')
+    title = f'Placement, {side} ({width:g} x {height:g} mm)' + (
         ', seen through the board' if side == 'back' else '')
     out.append(f'<text x="0" y="-8" font-size="3">{title}</text>')
-    for edge, x, y in (('free edge (glue domes), antenna notch', width / 2, -3), ('long wall (housing)', width / 2, height + 5)):
-        out.append(f'<text x="{x}" y="{y}" font-size="2.4" text-anchor="middle" fill="#475569">{edge}</text>')
-    out.append(f'<text x="-4" y="{height / 2}" font-size="2.4" text-anchor="middle" fill="#475569" '
-               f'transform="rotate(-90 -4 {height / 2})">side wall</text>')
-    out.append(f'<text x="{width + 5}" y="{height / 2}" font-size="2.4" text-anchor="middle" fill="#475569" '
-               f'transform="rotate(90 {width + 5} {height / 2})">side wall</text>')
     out.append('</svg>')
     with open(path, 'w') as handle:
         handle.write('\n'.join(out))

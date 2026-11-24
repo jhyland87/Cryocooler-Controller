@@ -3,8 +3,13 @@
 Usage: gridroute.py board.kicad_pcb drc.json [out.kicad_pcb [NET,...]]
 Routes each unconnected pair from a kicad-cli DRC report on F.Cu / In2.Cu /
 B.Cu (In1 is the GND plane), with 0.45/0.2 through vias, then saves.
+LINKS=NET (with `-` for drc.json): joins the separate copper islands of NET (pads, tracks, vias,
+pour islands) instead of the DRC list, nearest items first, for a pour the signals have cut up.
+NECK=REF.PAD,...: when one of these pads cannot be left at its class width, a 0.2 mm neck of at most 1 mm out of
+it, then class width again (off by default; run it last; only for a pad that serves one low-current load, never
+on the locked-current nets).
 Env knobs: FIRST=U20,U21 (pairs on those parts first), CLEAR=0.15 (clearance, mm), FINE=1 (0.1 mm
-clearance), VIA_TRACK_CLEAR=0.15 (new via to tracks and vias, mm), IN1=1 / IN1_COST, VIA_COST,
+clearance), VIA_TRACK_CLEAR=0.15 (new via to tracks and vias, mm; not below the board clearance), IN1=1 / IN1_COST, VIA_COST,
 HWEIGHT, MAX_EXPAND.
 """
 import heapq
@@ -19,24 +24,28 @@ import pcbnew
 CELL = 0.05
 
 
-def board_size():
-    """Right and bottom of the board edge (the outline starts at 0, 0)."""
+def load_argv_board():
+    """The board named on the command line; the router needs its outline."""
     path = next((arg for arg in sys.argv[1:] if arg.endswith('.kicad_pcb')), None)
     if path is None:
-        return 120.0, 100.0
-    box = pcbnew.LoadBoard(path).GetBoardEdgesBoundingBox()
+        sys.exit('gridroute: no .kicad_pcb on the command line')
+    return pcbnew.LoadBoard(path)
+
+
+BOARD = load_argv_board()
+
+
+def board_size():
+    """Right and bottom of the board edge (the outline starts at 0, 0)."""
+    box = BOARD.GetBoardEdgesBoundingBox()
     return box.GetRight() / 1e6, box.GetBottom() / 1e6
 
 
 def top_notch():
     """(x0, y0, x1, y1) of a notch cut into the top edge: the outline corners
     strictly inside the board box in its top half. A far-off box if none."""
-    path = next((arg for arg in sys.argv[1:] if arg.endswith('.kicad_pcb')), None)
-    if path is None:
-        return (60.0, 0.0, 80.0, 6.6)
-    board = pcbnew.LoadBoard(path)
     outlines = pcbnew.SHAPE_POLY_SET()
-    board.GetBoardPolygonOutlines(outlines, False)
+    BOARD.GetBoardPolygonOutlines(outlines, False)
     box = outlines.BBox()
     inner = []
     for index in range(outlines.OutlineCount()):
@@ -64,8 +73,8 @@ SOFT_COST = float(os.environ.get('SOFT_COST', '6'))
 HWEIGHT = float(os.environ.get('HWEIGHT', '1.0'))
 MAX_EXPAND = int(os.environ.get('MAX_EXPAND', '3000000'))
 VIA_CLEAR = 0.1  # new via to a surface-mount pad (kicad_dru via_in_pad_clearance)
-# new via to tracks, vias and through-hole pads; rev 6 keeps the full 0.15 mm there
-VIA_TRACK_CLEAR = float(os.environ.get('VIA_TRACK_CLEAR', VIA_CLEAR))
+# new via to tracks, vias and through-hole pads: the full board clearance, never VIA_CLEAR
+VIA_TRACK_CLEAR = float(os.environ.get('VIA_TRACK_CLEAR', 0.15))
 NPTH_CLEAR = 0.25  # kicad_dru jlc_npth_to_copper is 0.2 mm; the grid adds a cell
 NOTCH = top_notch()  # antenna notch in the top edge
 SKIP_NETS = set(os.environ.get('SKIP', 'GND').split(','))  # nets the pours connect
@@ -286,6 +295,22 @@ NEIGHBOURS = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
               (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
 
 
+VIA_SPACING_CELLS = 9  # a path's own vias stay this many cells (0.45 mm) apart
+
+
+def via_behind(parent, state):
+    """True if the path to `state` changed layer within the last VIA_SPACING_CELLS cells: a second
+    via there would put two holes closer than the board allows (the grid only knows existing vias)."""
+    for _ in range(VIA_SPACING_CELLS):
+        before = parent[state]
+        if before is None:
+            return False
+        if before[0] != state[0]:
+            return True
+        state = before
+    return False
+
+
 def astar(grid, starts, goals):
     goal_cells = {index for _, index in goals}
     goal_set = set(goals)
@@ -336,7 +361,7 @@ def astar(grid, starts, goals):
                 best[nstate] = ncost
                 parent[nstate] = state
                 heapq.heappush(frontier, (ncost + heuristic(nindex), ncost, nstate))
-        if not grid.via_blocked[index]:
+        if not grid.via_blocked[index] and not via_behind(parent, state):
             for other in ROUTE_LAYERS:
                 if other == layer or grid.blocked[other][index]:
                     continue
@@ -414,16 +439,23 @@ def parse_item(board, item):
     return net, pos, [layer for layer in layers if layer in ROUTE_LAYERS]
 
 
-def width_for(board, net):
+def class_width(board, net):
+    """The net class track width of `net` in mm: the narrowest a route of it may be."""
+    settings = board.GetDesignSettings().m_NetSettings
+    return mm(settings.GetEffectiveNetClass(net).GetTrackWidth())
+
+
+def widths_for(board, net):
+    """Track widths to try, widest first. The net class width is the floor."""
     # WIDTH forces a width, e.g. for a power net's low-current feedback tap
     if os.environ.get('WIDTH'):
-        return float(os.environ['WIDTH'])
+        return [float(os.environ['WIDTH'])]
     netinfo = board.FindNet(net)
     name = netinfo.GetNetClassName() if netinfo else 'Default'
-    for key, value in WIDTHS.items():
-        if key == name or name.endswith(',' + key) or name.startswith(key + ','):
-            return value
-    return SIGNAL_WIDTH
+    wanted = next((value for key, value in WIDTHS.items()
+                   if key == name or name.endswith(',' + key) or name.startswith(key + ',')), SIGNAL_WIDTH)
+    floor = class_width(board, net)
+    return sorted({max(wanted, floor), floor}, reverse=True)
 
 
 def add_route(board, net, runs, start_pos, end_pos, width):
@@ -454,33 +486,252 @@ def add_route(board, net, runs, start_pos, end_pos, width):
             board.Add(via)
 
 
-def route_pair(board, pair, margin):
-    net, start_pos, start_layers = parse_item(board, pair[0])
-    _, end_pos, end_layers = parse_item(board, pair[1])
-    if net in SKIP_NETS:
-        return 'skip'
-    code = board.FindNet(net).GetNetCode()
-    base = width_for(board, net)
-    for width in sorted({base, min(base, SIGNAL_WIDTH), 0.15}, reverse=True):
+def pad_cells(board, code, pos, layers, grid):
+    """(layer, cell) states on the net's own pad at `pos` that a track of the grid's width fits."""
+    cells = []
+    point = pcbnew.VECTOR2I(nm(pos[0]), nm(pos[1]))
+    for pad in board.GetPads():
+        if pad.GetNetCode() != code or not pad.HitTest(point):
+            continue
+        box = pad.GetBoundingBox()
+        for layer in layers:
+            if not pad.IsOnLayer(layer):
+                continue
+            for cy in range(int(mm(box.GetTop()) / CELL), int(mm(box.GetBottom()) / CELL) + 2):
+                for cx in range(int(mm(box.GetLeft()) / CELL), int(mm(box.GetRight()) / CELL) + 2):
+                    index = cy * NX + cx
+                    if (not grid.blocked[layer][index] and pad.HitTest(pcbnew.VECTOR2I(nm(cx * CELL), nm(cy * CELL)))):
+                        cells.append((layer, index))
+    return cells
+
+
+NECK = {name for name in os.environ.get('NECK', '').split(',') if name}  # pads (REF.PAD) that may get a neck, last repair step
+NECK_WIDTH, NECK_MAX = 0.2, 1.0
+NECK_SKIP = {'Net-(F1-Pad1)', 'VIN', 'VSW', 'Net-(J12-Pin_1)', 'Net-(J11-Pin_1)'}  # the locked-current nets
+
+
+def route_between(board, net, code, start_pos, start_layers, end_pos, end_layers, margin, widths):
+    """A* between two points, widest width first; a result text, or None if no width worked."""
+    for width in widths:
         region = (min(start_pos[0], end_pos[0]) - margin, min(start_pos[1], end_pos[1]) - margin,
                   max(start_pos[0], end_pos[0]) + margin, max(start_pos[1], end_pos[1]) + margin)
         grid = Grid(board, code, width, region)
         sc, gc = cell_of(*start_pos), cell_of(*end_pos)
         starts = [(layer, sc[1] * NX + sc[0]) for layer in start_layers]
         goals = [(layer, gc[1] * NX + gc[0]) for layer in end_layers]
-        for layer, index in starts:
+        # a wide track must fit at its pads; only the narrowest width may force it
+        if width > widths[-1] and not all(any(not grid.blocked[layer][index] for layer, index in group)
+                                          for group in (starts, goals)):
+            continue
+        # a track may also begin or end anywhere on its pad where it clears the neighbours
+        # (a pad's centre can be too close to a neighbour for the track's width)
+        centres = (set(starts), set(goals))
+        starts = starts + [cell for cell in pad_cells(board, code, start_pos, start_layers, grid) if cell not in starts]
+        goals = goals + [cell for cell in pad_cells(board, code, end_pos, end_layers, grid) if cell not in goals]
+        for layer, index in centres[0]:
             grid.blocked[layer][index] = 0
         path = astar(grid, starts, goals)
         if path:
             runs = smooth(grid, path)
+            first, last = path[0], path[-1]
+            if first not in centres[0]:
+                start_pos = (first[1] % NX * CELL, first[1] // NX * CELL)
+            if last not in centres[1]:
+                end_pos = (last[1] % NX * CELL, last[1] // NX * CELL)
             add_route(board, net, runs, start_pos, end_pos, width)
             return f'ok w={width} vias={len(runs) - 1}'
+    return None
+
+
+def free_region(grid, layer, index, limit=4000):
+    """True if the cell is part of a free area of at least `limit` cells on its layer."""
+    seen, queue = {index}, [index]
+    for current in queue:
+        x, y = current % NX, current // NX
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nxt = (y + dy) * NX + x + dx
+            if 0 <= nxt < N and not grid.blocked[layer][nxt] and nxt not in seen:
+                seen.add(nxt)
+                queue.append(nxt)
+                if len(seen) >= limit:
+                    return True
+    return False
+
+
+def neck_out(board, net, code, pos, layers, class_width, margin=4.0):
+    """Finds a NECK_WIDTH track from the pad at `pos` to the nearest cell (within NECK_MAX mm) where a
+    track of the class width fits in open copper; returns (cell position, layer, length, pad name, a function
+    that draws the neck) or None."""
+    region = (pos[0] - margin, pos[1] - margin, pos[0] + margin, pos[1] + margin)
+    narrow, wide = Grid(board, code, NECK_WIDTH, region), Grid(board, code, class_width, region)
+    for layer in layers:
+        starts = [cell for cell in pad_cells(board, code, pos, [layer], narrow)]
+        if not starts:
+            continue
+        best, parent, frontier = {cell: 0.0 for cell in starts}, {cell: None for cell in starts}, [(0.0, cell) for cell in starts]
+        while frontier:
+            dist, cell = heapq.heappop(frontier)
+            if dist > best.get(cell, 1e9):
+                continue
+            index = cell[1]
+            if cell not in starts and not wide.blocked[layer][index] and free_region(wide, layer, index):
+                path = []
+                while cell is not None:
+                    path.append(cell)
+                    cell = parent[cell]
+                path.reverse()
+                runs = smooth(narrow, path)
+                begin, end = (path[0][1] % NX * CELL, path[0][1] // NX * CELL), (path[-1][1] % NX * CELL, path[-1][1] // NX * CELL)
+                name = pad_name(board, code, pos)
+                return end, layer, dist, name, lambda: add_route(board, net, runs, begin, end, NECK_WIDTH)
+            x, y = index % NX, index // NX
+            for dx, dy, step in NEIGHBOURS:
+                nxt = (y + dy) * NX + x + dx
+                if 0 <= nxt < N and not narrow.blocked[layer][nxt] and dist + step * CELL <= NECK_MAX:
+                    state = (layer, nxt)
+                    if dist + step * CELL < best.get(state, 1e9):
+                        best[state] = dist + step * CELL
+                        parent[state] = cell
+                        heapq.heappush(frontier, (best[state], state))
+    return None
+
+
+def pad_name(board, code, pos):
+    """REF.PAD of the net's pad at `pos`, or '?'."""
+    point = pcbnew.VECTOR2I(nm(pos[0]), nm(pos[1]))
+    return next((f'{p.GetParentFootprint().GetReference()}.{p.GetNumber()}' for p in board.GetPads()
+                 if p.GetNetCode() == code and p.HitTest(point)), '?')
+
+
+def route_pair(board, pair, margin):
+    net, start_pos, start_layers = parse_item(board, pair[0])
+    _, end_pos, end_layers = parse_item(board, pair[1])
+    if net in SKIP_NETS:
+        return 'skip'
+    code = board.FindNet(net).GetNetCode()
+    widths = widths_for(board, net)
+    result = route_between(board, net, code, start_pos, start_layers, end_pos, end_layers, margin, widths)
+    if result:
+        return result
+    if not NECK or net in NECK_SKIP or widths[-1] <= NECK_WIDTH:
+        return 'FAILED'
+    for ends in ((start_pos, start_layers, end_pos, end_layers), (end_pos, end_layers, start_pos, start_layers)):
+        if pad_name(board, code, ends[0]) not in NECK:
+            continue
+        found = neck_out(board, net, code, ends[0], ends[1], widths[-1])
+        if found is None:
+            continue
+        cell, layer, length, name, draw = found
+        result = route_between(board, net, code, cell, [layer], ends[2], ends[3], margin, widths)
+        if result:
+            draw()
+            print(f'neck {net} pad {name}: {NECK_WIDTH:g} mm wide, {length:.2f} mm long')
+            return result + ' (neck)'
     return 'FAILED'
 
 
+def fragment_links(board, net):
+    """DRC-style unconnected pairs joining each smaller copper cluster of `net` (pads, tracks,
+    vias and filled pour islands, joined by overlap) to the largest one at their nearest
+    via or pad."""
+    code = board.FindNet(net).GetNetCode()
+    nodes = []
+    for track in board.GetTracks():
+        if track.GetNetCode() == code:
+            nodes.append(('via' if track.GetClass() == 'PCB_VIA' else 'trk', track, track.GetPosition()))
+    for pad in board.GetPads():
+        if pad.GetNetCode() == code:
+            nodes.append(('pad', pad, pad.GetPosition()))
+    for zone in board.Zones():
+        if zone.GetIsRuleArea() or zone.GetNetCode() != code:
+            continue
+        for layer in zone.GetLayerSet().Seq():
+            filled = zone.GetFilledPolysList(layer)
+            nodes += [('isl', (filled, index, layer), None) for index in range(filled.OutlineCount())]
+    parent = list(range(len(nodes)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    def join(i, j):
+        parent[find(i)] = find(j)
+
+    kinds = {kind: [i for i, node in enumerate(nodes) if node[0] == kind] for kind in ('via', 'trk', 'pad', 'isl')}
+    accuracy = nm(0.001)
+    for i in kinds['trk']:
+        track = nodes[i][1]
+        for j in kinds['trk']:
+            other = nodes[j][1]
+            if j > i and other.GetLayer() == track.GetLayer() and (
+                    track.HitTest(other.GetStart(), accuracy) or track.HitTest(other.GetEnd(), accuracy)
+                    or other.HitTest(track.GetStart(), accuracy) or other.HitTest(track.GetEnd(), accuracy)):
+                join(i, j)
+        for j in kinds['via']:
+            if track.HitTest(nodes[j][2], accuracy):
+                join(i, j)
+        for j in kinds['pad']:
+            pad = nodes[j][1]
+            if pad.IsOnLayer(track.GetLayer()) and (pad.HitTest(track.GetStart()) or pad.HitTest(track.GetEnd())
+                                                    or track.HitTest(pad.GetPosition(), accuracy)):
+                join(i, j)
+    for j in kinds['via']:
+        via = nodes[j][1]
+        for k in kinds['pad']:
+            if nodes[k][1].HitTest(nodes[j][2]):
+                join(j, k)
+        for k in kinds['via']:
+            other = nodes[k][1]
+            if k > j and math.dist((nodes[j][2].x, nodes[j][2].y), (nodes[k][2].x, nodes[k][2].y)) < (
+                    via.GetWidth(pcbnew.F_Cu) + other.GetWidth(pcbnew.F_Cu)) / 2:
+                join(j, k)
+    for k in kinds['isl']:
+        filled, index, layer = nodes[k][1]
+        for j in kinds['via']:
+            if filled.Contains(nodes[j][2], index):
+                join(k, j)
+        for j in kinds['pad']:
+            if nodes[j][1].IsOnLayer(layer) and filled.Contains(nodes[j][2], index):
+                join(k, j)
+        for j in kinds['trk']:
+            track = nodes[j][1]
+            if track.GetLayer() == layer and (filled.Contains(track.GetStart(), index) or filled.Contains(track.GetEnd(), index)):
+                join(k, j)
+    clusters = {}
+    for i in range(len(nodes)):
+        clusters.setdefault(find(i), []).append(i)
+    clusters = sorted((c for c in clusters.values() if any(nodes[i][0] != 'isl' for i in c)), key=len, reverse=True)
+
+    def anchors(cluster):
+        return [nodes[i] for i in cluster if nodes[i][0] in ('via', 'pad')]
+
+    def item(node):
+        kind, obj, pos = node
+        if kind == 'via':
+            text = f'Via [{net}] on F.Cu - B.Cu'
+        elif obj.GetAttribute() == pcbnew.PAD_ATTRIB_PTH:
+            text = f'PTH pad {obj.GetNumber()} [{net}] of {obj.GetParentFootprint().GetReference()}'
+        else:
+            text = (f'Pad {obj.GetNumber()} [{net}] of {obj.GetParentFootprint().GetReference()} on '
+                    f'{"B" if obj.GetParentFootprint().IsFlipped() else "F"}.Cu')
+        return {'description': text, 'pos': {'x': mm(pos.x), 'y': mm(pos.y)}}
+
+    pairs = []
+    for cluster in clusters[1:]:
+        small = anchors(cluster)
+        if small:
+            a, b = min(((x, y) for x in small for y in anchors(clusters[0])),
+                       key=lambda pair: math.dist((pair[0][2].x, pair[0][2].y), (pair[1][2].x, pair[1][2].y)))
+            pairs.append({'items': [item(a), item(b)]})
+    return pairs
+
+
 def main():
-    board = pcbnew.LoadBoard(sys.argv[1])
-    report = json.load(open(sys.argv[2]))
+    board = BOARD
+    links = os.environ.get('LINKS')
+    report = {'unconnected_items': fragment_links(board, links)} if links else json.load(open(sys.argv[2]))
     out = sys.argv[3] if len(sys.argv) > 3 else sys.argv[1]
     only = set(sys.argv[4].split(',')) if len(sys.argv) > 4 else None
     first = os.environ.get('FIRST', '').split(',')

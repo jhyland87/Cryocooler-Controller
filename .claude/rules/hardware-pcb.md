@@ -5,7 +5,9 @@ paths:
 
 # PCB layout
 
-Standing rules for `hardware/kicad/cryocooler.kicad_pcb` and any new board. Part
+Standing rules for every board in `hardware/kicad/`. The "Board profile" in
+`hardware/kicad/README.md` names this project's board script, handoff, check config
+and baselines; counts and exceptions live there, not here. Part
 verification and selection rules are in `hardware-schematic.md`.
 
 ## Before editing the board
@@ -25,9 +27,11 @@ verification and selection rules are in `hardware-schematic.md`.
 
 - **Every part on the board.** An unplaced part (at the origin or off the edge) is a
   layout failure, not a warning.
-- **Sections mirror the schematic.** Group each sheet's components into its own
-  region and outline it on silkscreen. Adjacent sections may share a border line.
-  Parts stay inside their section.
+- **Group by schematic sheet where routing allows.** Keep each sheet's components
+  together, but this may be bent: when a circuit is too dense to route, spread it into
+  quieter areas so pad density is even across the board. Section outlines go on
+  silkscreen only if the board profile says so; where they are drawn, adjacent
+  sections may share a border line and parts stay inside their outline.
 - **Repeated circuits get the same layout.** Identical channels or blocks (I/O
   channels, LED drivers, matched rails) use the same relative placement, orientation
   and routing, stepped or mirrored as a group. Lay one out, then repeat it; a block
@@ -36,6 +40,14 @@ verification and selection rules are in `hardware-schematic.md`.
   (keep-outs, thermal, isolation clearance) or no other arrangement works. When a
   label won't fit beside its part, spread parts within their section, or grow the
   section a little, rather than adding an arrow.
+- **Placement approval.** After placing, run `placement_gate.py`, render a placement
+  preview and get the user's approval **before any routing** (pre-route, plane ties,
+  autorouter). Never route an unapproved placement.
+- **Power button and 12 V connector.** The power button is easy to reach and is the
+  topmost part on whichever side of the board it is on. The 12 V power cable connector
+  is the bottommost part on whichever side it is on (seen from the front). Both are
+  listed in `board_checks.json` (`placement.topmost_on_edge`, `bottommost_on_edge`) so
+  the gate checks them.
 - **Test points.** Every IC gets at least supply, ground, and its key signals/buses.
   Each test point sits on the same side as the part it tests, as close as possible.
   Name test points by function (`-16V5`), not TP number.
@@ -72,13 +84,13 @@ verification and selection rules are in `hardware-schematic.md`.
   `IO1`, `TXD0`, …).
 - **Board I/O labelled:** power input and its voltage, ground, and outputs.
   Connector pin names run vertically above their pins, with the connector's name just
-  below them. A switch's function and reference share one row. On the UCS 125-87
-  board a connector's function also sits beside its pins near the edge (a vertical
-  1.0 mm "Label" field), so it stays visible with the cable unplugged.
+  below them. A switch's function and reference share one row. Where the profile says so, a
+  connector's function also sits beside its pins near the edge (a vertical 1.0 mm
+  "Label" field), so it stays visible with the cable unplugged.
 - **Board ID block** on every board: the board name (KiCad project or repo name,
   e.g. `Cryocooler-Controller`) and `rev <short commit>` from
   `git rev-parse --short HEAD` of the commit the fab files come from. Keep it in the
-  same place and format across revisions. It is stamped after review
+  same place and format on every board. It is stamped after review
   (`git-workflow.md`).
 
 ## After any board change
@@ -89,7 +101,28 @@ verification and selection rules are in `hardware-schematic.md`.
   JLCPCB zip; see the `kicad-fab-export` skill). Commit them with the board
   change, and check the front render. A new or removed `J` connector needs its
   callout text in `PORTS` in `tools/render_callouts.py`.
-- Run DRC and fix anything new before reporting the layout done.
+- Run DRC with schematic parity and fix anything new before reporting the layout done.
+- Run `board_checks.py` on the routed board. It must pass, or each exception is a
+  `suppress` entry with a reason the user accepted. Baselines only go down.
+- Run the `pcb-reviewer` agent once over the finished change (once at the end, not
+  per edit) before calling it done.
+
+## Layout rules of thumb
+
+The thresholds the tools enforce (`placement_gate.py`, `board_checks.py`):
+
+- Decoupling cap pad within 5 mm of its power pin; aim for 3 mm. Measure to the
+  module's power pins, not its centre.
+- Switcher hot loop under 25 mm².
+- Fast nets only (`fast_signals` in `board_checks.json`: classes SPI and Usb, plus named
+  clock, CAN, RS-485 and UART nets; slow and DC nets have no requirement): no track over
+  a 3 mm or longer gap in its reference plane, and a ground via or ground through-hole
+  pad within 3 mm of each via that moves the net to or from B.Cu. F.Cu to In2.Cu keeps
+  In1 as the reference on both sides and needs no ground via. (`finish_route.py --stitch`
+  still adds ground vias within 1 mm where they fit; the check is the looser rule.)
+- Size trace width by IPC-2221 for the net's current (`net_currents` in
+  `board_checks.json`).
+- Thermal pads get their via count.
 
 ## When to re-render
 

@@ -7,7 +7,7 @@
   and the final `hardware/kicad/tools/export_fab.py` run. Uncommitted renders for
   review are fine.
 - **Never push to `main`** and never force-push it. Commit on a new, descriptively
-  named branch (e.g. `ina239-spi-migration`), push that, and tell the user the branch
+  named branch (e.g. `sensor-spi-migration`), push that, and tell the user the branch
   name. The user merges into `main` themselves.
 - Only push when asked.
 - Check `git status` before starting. Don't sweep unrelated changes the user has in

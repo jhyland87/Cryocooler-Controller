@@ -13,6 +13,12 @@ This covers part numbers, pinouts, register maps, library APIs and macros, file
 locations, build behaviour, and what the user intends. If something still can't be
 confirmed, say so plainly and name what is unverified. Never present a guess as a fact.
 
+Label every claim in a design-review entry or report with its evidence:
+
+- **datasheet-verified:** cite the document and page. Only this may be called "verified".
+- **script-checked:** name the script.
+- **inferred:** reasoned, not checked.
+
 ## Respect earlier decisions
 
 Before changing a part, design trade-off, or convention, check whether it was a
