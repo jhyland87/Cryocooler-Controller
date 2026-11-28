@@ -730,3 +730,37 @@ IO_NET_ROLES = {
     'buf_oe': ('IO{n}_BUF_OE_N', 'Expander output, low enables the channel {n} input buffer '
                                  'to the ESP32 pin; pulled high'),
 }
+
+# IMU board (imu/, gen_imu_schematic.py): its own references and labels.
+# Roles are from DESIGN_REVIEW.md, "IMU board", and ST DS12814.
+IMU_DESCRIPTIONS = {
+    'J1': 'Cable connector to J14 on the main board, wired pin for pin: +3V3, GND, the '
+          'SPI bus, chip select and both interrupts',
+    'U1': 'LSM6DSOX accelerometer and gyroscope in 4-wire SPI mode (DS12814 Mode 1), '
+          'read by the main board over the J14 cable',
+    'R1': 'Pull-up on the IMU chip select: keeps U1 deselected while the cable is '
+          'unplugged',
+    'R2': 'Series resistor for the power LED D1: sets its current to (3.3 V - Vf) / 1.5 kOhm',
+    'D1': 'Green power LED: lit while +3V3 arrives over the cable',
+    'C1': '100 nF filter capacitor on U1 VDD (DS12814 Table 1 note 1)',
+    'C2': '100 nF filter capacitor on U1 VDDIO (DS12814 Table 1 note 1)',
+    'C3': '10 uF bulk capacitor at J1 for the +3V3 supply that arrives over the cable',
+    'TP1': 'Test point on +3V3',
+    'TP2': 'Test point on GND',
+    'TP3': 'Test point on the SPI clock',
+    'TP4': 'Test point on SPI data in (MOSI)',
+    'TP5': 'Test point on SPI data out (MISO)',
+    'TP6': 'Test point on the IMU chip select',
+    'TP7': 'Test point on interrupt 1',
+    'TP8': 'Test point on interrupt 2',
+}
+IMU_NET_DESCRIPTIONS = {
+    'SPI_SCK': 'SPI clock from the main board (J1 pin 1) to U1 SPC',
+    'SPI_MOSI': 'SPI data from the main board (J1 pin 3) to U1 SDI',
+    'SPI_MISO': 'SPI data from U1 SDO to the main board (J1 pin 6)',
+    'IMU_CS': 'Chip select from the main board (J1 pin 5) to U1 CS, active low, pulled '
+              'up to +3V3 by R1',
+    'IMU_INT1': 'U1 INT1 to the main board (J1 pin 7, GPIO 2); must be low or open at '
+                'power-up (DS12814 Table 20)',
+    'IMU_INT2': 'U1 INT2 to the main board (J1 pin 8, GPIO 39)',
+}

@@ -18,23 +18,24 @@ from gen_schematic import (
     LED0402,
     drop_ground,
     gnd_bus,
-    hres,
     net_label,
     pin_cell,
     place_blocks,
     place_ic,
     rail_flag,
     rail_symbol,
+    side_fields,
     spur,
+    vcap,
     vres,
     wire,
     link_parts,
     check_sheets,
+    check_geometry,
+    describe_parts,
 )
 import gen_schematic
-
-# no overbars yet: the IMU board's nets keep their plain names
-kicadgen.BAR_ACTIVE_LOW = False
+import part_descriptions
 
 ROOT_DIR = gen_schematic.ROOT_DIR
 IMU_DIR = ROOT_DIR / 'imu'
@@ -42,17 +43,6 @@ PROJECT = 'imu'
 MICRO_LOCK = 'cryocooler:Molex_Micro-Lock_Plus_505448-0891_2x04_P1.25mm_Horizontal'
 LGA14 = 'Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y'
 
-# J1 pin -> net, the J14 map on the main board
-CABLE = {
-    '1': 'SPI_SCK',
-    '2': 'GND',
-    '3': 'SPI_MOSI',
-    '4': '+3V3',
-    '5': 'IMU_CS',
-    '6': 'SPI_MISO',
-    '7': 'IMU_INT1',
-    '8': 'IMU_INT2',
-}
 # test point name (printed on the board) -> net
 TEST_POINTS = (
     ('3V3', '+3V3'),
@@ -65,22 +55,24 @@ TEST_POINTS = (
     ('INT2', 'IMU_INT2'),
 )
 
-# global-label shapes from this board's side: the IMU reads the clock, data in
-# and select, and drives data out and the interrupts
-kicadgen.LABEL_DIRECTION.update({
-    'SPI_SCK': 'in',
-    'SPI_MOSI': 'in',
-    'IMU_CS': 'in',
-    'SPI_MISO': 'out',
-    'IMU_INT1': 'out',
-    'IMU_INT2': 'out',
-})
+# J1 pin -> U1 pin for each signal
+SIGNALS = {
+    'IMU_INT2': ('8', '9'),
+    'IMU_INT1': ('7', '4'),
+    'SPI_MISO': ('6', '1'),
+    'IMU_CS': ('5', '12'),
+    'SPI_MOSI': ('3', '14'),
+    'SPI_SCK': ('1', '13'),
+}
+LABEL_ROOM = 9  # cells of wire at J1 that carry the net labels
+STEP = 7  # cells of wire each signal keeps to itself for its test point
+PULL_UP_ROOM = 8  # extra cells in the CS step for R1
 
 
 def build_connector(sh, column, row):
-    """J1 on the left, pins facing right: rails tied off, signals to labels."""
+    """J1 on the left, pins facing right."""
     header = sh.add(
-        'cryocooler:Conn_02x04_Rails_At_Ends',
+        'cryocooler:Conn_02x04_IMU_Cable',
         next_ref('J'),
         '505448-0891',
         column * 1.27,
@@ -88,34 +80,39 @@ def build_connector(sh, column, row):
         auto=False,
         footprint=MICRO_LOCK,
     )
-    rail_symbol(sh, '+3V3', spur(sh, header, '4', 4))
-    rail_symbol(sh, 'GND', spur(sh, header, '2', 4))
-    for pin, net in CABLE.items():
-        if net in ('+3V3', 'GND'):
-            continue
-        net_label(sh, net, spur(sh, header, pin, 4), 0, is_global=True)
     return header
 
 
+def build_supply(sh, header):
+    """J1's supply pins: a rail from each runs left past the bulk capacitor
+    and the supply's test point to a flag (J1 is passive, so the flags mark
+    the rails as driven).
+    """
+    top, bottom = spur(sh, header, '4', 2), spur(sh, header, '2', 2)
+    rail_symbol(sh, '+3V3', spur(sh, header, '4', 4))
+    rail_symbol(sh, 'GND', spur(sh, header, '2', 4))
+    column = top[0] - 14
+    wire(sh, top, (column - 12, top[1]))
+    wire(sh, bottom, (column - 12, bottom[1]))
+    wire(sh, (column, top[1]), (column, top[1] + 4))
+    beside(vcap(sh, '10uF', column, top[1] + 4), 'right')
+    wire(sh, (column, top[1] + 10), (column, bottom[1]))
+    rail_flag(sh, (column - 12, top[1]))
+    rail_flag(sh, (column - 12, bottom[1]))
+    return {'+3V3': (column - 6, top[1]), 'GND': (column - 6, bottom[1])}
+
+
 def build_imu(sh, column, row):
-    """LSM6DSOX in 4-wire SPI mode (DS12814 Mode 1)."""
+    """LSM6DSOX in 4-wire SPI mode (DS12814 Mode 1) with its supply and
+    strap pins tied off.
+    """
     imu = place_ic(sh, 'cryocooler:LSM6DSOXTR', 'LSM6DSOXTR', column, row, LGA14)
-    for pin, net in (
-        ('12', 'IMU_CS'),
-        ('13', 'SPI_SCK'),
-        ('14', 'SPI_MOSI'),
-        ('1', 'SPI_MISO'),
-    ):
-        net_label(sh, net, spur(sh, imu, pin, 12), 180, is_global=True)
-    # CS pull-up: keeps the part deselected while the cable is unplugged
-    cs = pin_cell(imu, '12')
-    vres(sh, '10k', cs[0] - 6, cs[1] - 6)
-    rail_symbol(sh, '+3V3', (cs[0] - 6, cs[1] - 6))
+    # text at the top left corner, clear of the supply wires
+    left, top = imu.bbox()[:2]
+    imu.pinned_fields = {'Reference': (left - 5.08, top + 0.5), 'Value': (left - 5.08, top + 2.6)}
     # OCS_Aux and SDO_Aux: "leave unconnected", Mode 1
     sh.nc(imu, '10')
     sh.nc(imu, '11')
-    for pin, net in (('4', 'IMU_INT1'), ('9', 'IMU_INT2')):
-        net_label(sh, net, spur(sh, imu, pin, 3), 0, is_global=True)
     vdd, vddio = pin_cell(imu, '8'), pin_cell(imu, '5')
     bar = min(vdd[1], vddio[1]) - 4
     wire(sh, vdd, (vdd[0], bar), (vddio[0], bar), vddio)
@@ -125,43 +122,66 @@ def build_imu(sh, column, row):
     return imu
 
 
+def wire_signals(sh, header, imu):
+    """Wires each J1 pin to its U1 pin. The lines leave J1 together, then
+    turn up one after another, top line first, so none crosses another and
+    each has a stretch with clear space above it. Returns that stretch's
+    middle cell per net, where its test point taps.
+    """
+    taps = {}
+    turn = None
+    for net, (cable_pin, imu_pin) in SIGNALS.items():
+        start, end = pin_cell(header, cable_pin), pin_cell(imu, imu_pin)
+        begin = start[0] + LABEL_ROOM if turn is None else turn
+        turn = begin + STEP
+        taps[net] = (begin + STEP // 2, start[1])
+        if net == 'IMU_CS':
+            # pull-up: keeps the part deselected while the cable is unplugged
+            turn += PULL_UP_ROOM
+            column = begin + STEP + 2
+            vres(sh, '10k', column, start[1] - 8)
+            rail_symbol(sh, '+3V3', (column, start[1] - 8))
+            wire(sh, (column, start[1] - 2), (column, start[1]))
+        if end[0] - turn < 2:
+            sys.exit(f'{net}: U1 is too close for a stub at its pin')
+        wire(sh, start, (turn, start[1]), (turn, end[1]), end)
+        net_label(sh, net, (start[0] + 2, start[1]), 0)
+    return taps
+
+
 def build_power_led(sh, column, row):
-    """+3V3 -> 1.5k -> green LED -> ground (about 1 mA)."""
-    sh.note('POWER LED', column * 1.27, (row - 8) * 1.27, 1.8)
+    """+3V3 -> 1.5k -> green LED -> ground, top to bottom."""
+    sh.note('POWER LED', (column - 6) * 1.27, (row - 10) * 1.27, 1.8)
     rail_symbol(sh, '+3V3', (column, row))
-    wire(sh, (column, row), (column + 3, row))
-    hres(sh, '1.5k', column + 6, row)
-    wire(sh, (column + 9, row), (column + 11, row))
+    vres(sh, '1.5k', column, row)
     led = sh.add(
         'Device:LED',
         next_ref('D'),
         'POWER',
-        (column + 14) * 1.27,
-        row * 1.27,
-        rot=180,
+        column * 1.27,
+        (row + 11) * 1.27,
+        rot=90,
         auto=False,
         footprint=LED0402,
     )
+    beside(led, 'right')
+    wire(sh, (column, row + 6), pin_cell(led, '2'))
     drop_ground(sh, pin_cell(led, '1'), 2)
     return led
 
 
-def build_test_points(sh, column, row, pitch=16):
-    """One pad per cable net, each on a power symbol or global label."""
-    sh.note('TEST POINTS', (column - 16) * 1.27, (row - 8) * 1.27, 1.8)
+def build_test_points(sh, taps):
+    """One pad per cable net, each on a short stub above its own wire."""
     for name, net in TEST_POINTS:
-        if net == 'GND':
-            test_point(sh, name, (column, row))
-            wire(sh, (column, row), (column, row + 3))
-            rail_symbol(sh, 'GND', (column, row + 3))
-        else:
-            if net == '+3V3':
-                rail_symbol(sh, net, (column, row))
-            else:
-                net_label(sh, net, (column, row), 180, is_global=True)
-            wire(sh, (column, row), (column, row + 3))
-            test_point(sh, name, (column, row + 3), rot=180)
-        column += pitch
+        tap = taps[net]
+        wire(sh, tap, (tap[0], tap[1] - 2))
+        # text above the pad: beside it sits the next wire
+        beside(test_point(sh, name, (tap[0], tap[1] - 2)), 'above@5.5')
+
+
+def beside(part, side):
+    """Fixes a part's reference and value on one side of it."""
+    part.pinned_fields = dict(zip(('Reference', 'Value'), side_fields(part, side)))
 
 
 def test_point(sh, name, cell, rot=0):
@@ -196,51 +216,33 @@ def build(sh):
         20,
         27,
     )
-    build_connector(sh, 40, 80)
-    build_imu(sh, 125, 80)
+    sh.note('IMU AND CABLE CONNECTOR', 26 * 1.27, 46 * 1.27, 1.8)
+    header = build_connector(sh, 52, 88)
+    imu = build_imu(sh, 138, 74)
+    taps = wire_signals(sh, header, imu)
     place_blocks(
-        sh,
-        [('DECOUPLING (C3 BULK AT J1)', '+3V3', ('100nF', '100nF', '10uF'))],
-        165,
-        52,
+        sh, [('U1 DECOUPLING CAPACITORS', '+3V3', ('100nF', '100nF'))], 176, 54
     )
-    # the supplies enter on J1, a passive connector: flag them as driven at the
-    # right end of the block's rails (last cap at column 165 + 6 + 2 * 12)
-    for row in (52, 58):
-        wire(sh, (195, row), (201, row))
-        rail_flag(sh, (201, row))
-    build_power_led(sh, 168, 92)
-    build_test_points(sh, 36, 122)
+    taps.update(build_supply(sh, header))
+    build_power_led(sh, 182, 80)
+    build_test_points(sh, taps)
 
 
 def write_project(root_uuid):
-    """imu.kicad_pro from the main project's: same rules and defaults, its own
-    sheet list, the Default and Power net classes only.
+    """Updates imu.kicad_pro in place: its sheet list and the Power net class
+    patterns. The board rules and net classes in it are this board's own.
     """
-    project = json.loads((ROOT_DIR / 'cryocooler.kicad_pro').read_text())
-    project['meta']['filename'] = f'{PROJECT}.kicad_pro'
+    path = IMU_DIR / f'{PROJECT}.kicad_pro'
+    project = json.loads(path.read_text())
     project['sheets'] = [[root_uuid, PROJECT]]
     project['schematic']['top_level_sheets'] = [
         {'filename': f'{PROJECT}.kicad_sch', 'name': PROJECT, 'uuid': root_uuid}
     ]
-    project['pcbnew']['last_paths'] = {
-        key: '' for key in project['pcbnew']['last_paths']
-    }
-    # the main board's SPI bus alias; this board draws no bus
-    project['schematic']['bus_aliases'] = {}
-    net_settings = project['net_settings']
-    net_settings['classes'] = [
-        net_class for net_class in net_settings['classes']
-        if net_class['name'] in ('Default', 'Power')
-    ]
-    net_settings['netclass_patterns'] = [
+    project['net_settings']['netclass_patterns'] = [
         {'netclass': 'Power', 'pattern': '+3V3'},
         {'netclass': 'Power', 'pattern': 'GND'},
     ]
-    project['board']['design_settings']['drc_exclusions'] = []
-    (IMU_DIR / f'{PROJECT}.kicad_pro').write_text(
-        json.dumps(project, indent=2) + '\n'
-    )
+    path.write_text(json.dumps(project, indent=2) + '\n')
 
 
 def main():
@@ -253,13 +255,18 @@ def main():
     sheet.path = '/' + root_uuid
     build(sheet)
     link_parts([sheet])
+    undescribed = describe_parts(
+        [sheet],
+        part_descriptions.IMU_DESCRIPTIONS,
+        part_descriptions.IMU_NET_DESCRIPTIONS,
+    )
     overlaps, junctions, duplicates = check_sheets([sheet])
-    IMU_DIR.mkdir(exist_ok=True)
+    geometry = check_geometry([sheet])
     (IMU_DIR / f'{PROJECT}.kicad_sch').write_text(sheet.render(root_uuid))
     write_project(root_uuid)
     print('wrote', IMU_DIR / f'{PROJECT}.kicad_sch')
     print(f'4-way junction check: {junctions} found')
-    if overlaps or junctions or duplicates:
+    if overlaps or junctions or duplicates or undescribed or geometry:
         sys.exit(1)
 
 

@@ -171,7 +171,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "10 uF bulk capacitor at J1 for the +3V3 supply that arrives over the cable"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -333,7 +333,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "100 nF filter capacitor on U1 VDD (DS12814 Table 1 note 1)"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -497,7 +497,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on the IMU chip select"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -551,7 +551,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "IMU_CS")
+			(net "/~{IMU_CS}")
 			(uuid "9d269ba1-4525-4aef-ad37-8acf02e0efca")
 		)
 		(embedded_fonts no)
@@ -596,7 +596,7 @@
 				)
 			)
 		)
-		(property "Description" "Generic connector, double row, 02x04, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "Cable connector to J14 on the main board, wired pin for pin: +3V3, GND, the SPI bus, chip select and both interrupts"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -738,7 +738,7 @@
 			(at 1.875 -3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "SPI_SCK")
+			(net "/SPI_SCK")
 			(uuid "5ab594b1-5eb0-406b-9596-5011a05881f3")
 		)
 		(pad "2" smd rect
@@ -752,7 +752,7 @@
 			(at 0.625 -3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "SPI_MOSI")
+			(net "/SPI_MOSI")
 			(uuid "67354877-d2f7-486c-9fa2-10ce14256b9b")
 		)
 		(pad "4" smd rect
@@ -766,28 +766,28 @@
 			(at -0.625 -3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "IMU_CS")
+			(net "/~{IMU_CS}")
 			(uuid "a0471f21-e0a1-48f7-8ee1-95fddf840f8b")
 		)
 		(pad "6" smd rect
 			(at -0.625 3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "SPI_MISO")
+			(net "/SPI_MISO")
 			(uuid "d56bdfa5-3316-42d0-a88e-d206474ed30b")
 		)
 		(pad "7" smd rect
 			(at -1.875 -3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "IMU_INT1")
+			(net "/IMU_INT1")
 			(uuid "ab7f9f14-e193-4572-8438-2d441c48eb03")
 		)
 		(pad "8" smd rect
 			(at -1.875 3.7)
 			(size 0.8 2)
 			(layers "F.Cu" "F.Mask" "F.Paste")
-			(net "IMU_INT2")
+			(net "/IMU_INT2")
 			(uuid "7c66961b-b278-4cbe-8e65-0f870f1fe65d")
 		)
 		(pad "MP" smd rect
@@ -856,7 +856,7 @@
 				)
 			)
 		)
-		(property "Description" "ST iNEMO 6-axis IMU (3D accelerometer + 3D gyroscope), SPI/I2C/I3C, VDD 1.71-3.6 V, VDDIO 1.62-3.6 V, LGA-14L 2.5 x 3.0 x 0.83 mm"
+		(property "Description" "LSM6DSOX accelerometer and gyroscope in 4-wire SPI mode (DS12814 Mode 1), read by the main board over the J14 cable"
 			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -1026,7 +1026,7 @@
 			(size 0.625 0.35)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "SPI_MISO")
+			(net "/SPI_MISO")
 			(uuid "da49483a-edea-43fe-8134-076cf5522f9c")
 		)
 		(pad "2" smd roundrect
@@ -1050,7 +1050,7 @@
 			(size 0.625 0.35)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "IMU_INT1")
+			(net "/IMU_INT1")
 			(uuid "762d2941-4ae5-4d8b-8332-037a6ed7242a")
 		)
 		(pad "5" smd roundrect
@@ -1090,7 +1090,7 @@
 			(size 0.625 0.35)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "IMU_INT2")
+			(net "/IMU_INT2")
 			(uuid "c8eb45dd-2d57-4e10-a8f4-90e62a3d41cb")
 		)
 		(pad "10" smd roundrect
@@ -1114,7 +1114,7 @@
 			(size 0.35 0.625)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "IMU_CS")
+			(net "/~{IMU_CS}")
 			(uuid "dd5e55ad-6b69-443c-ba02-f68319d0b27b")
 		)
 		(pad "13" smd roundrect
@@ -1122,7 +1122,7 @@
 			(size 0.35 0.625)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "SPI_SCK")
+			(net "/SPI_SCK")
 			(uuid "61805234-c817-4ff1-bf71-eacfa9709a9e")
 		)
 		(pad "14" smd roundrect
@@ -1130,7 +1130,7 @@
 			(size 0.35 0.625)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "SPI_MOSI")
+			(net "/SPI_MOSI")
 			(uuid "c4979ebd-6995-4f40-b3ae-1d7f94b8718f")
 		)
 		(embedded_fonts no)
@@ -1187,7 +1187,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Series resistor for the power LED D1: sets its current to (3.3 V - Vf) / 1.5 kOhm"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1349,7 +1349,7 @@
 				)
 			)
 		)
-		(property "Description" "Light emitting diode"
+		(property "Description" "Green power LED: lit while +3V3 arrives over the cable"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1524,7 +1524,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on SPI data out (MISO)"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -1578,7 +1578,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "SPI_MISO")
+			(net "/SPI_MISO")
 			(uuid "23c6f9d8-2356-47b9-8b1d-3c737fc79cb8")
 		)
 		(embedded_fonts no)
@@ -1626,7 +1626,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on interrupt 2"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -1680,7 +1680,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "IMU_INT2")
+			(net "/IMU_INT2")
 			(uuid "eb843cfd-f9fa-450e-ab87-ab41a8601710")
 		)
 		(embedded_fonts no)
@@ -1728,7 +1728,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on SPI data in (MOSI)"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -1782,7 +1782,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "SPI_MOSI")
+			(net "/SPI_MOSI")
 			(uuid "12e107e2-ed6a-412e-9afc-5c55cbce2cb4")
 		)
 		(embedded_fonts no)
@@ -1830,7 +1830,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on interrupt 1"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -1884,7 +1884,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "IMU_INT1")
+			(net "/IMU_INT1")
 			(uuid "e3352381-2d9d-4236-a718-2b5ef32c869b")
 		)
 		(embedded_fonts no)
@@ -1930,7 +1930,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "100 nF filter capacitor on U1 VDDIO (DS12814 Table 1 note 1)"
 			(at 0 0 270)
 			(layer "F.Fab")
 			(hide yes)
@@ -2094,7 +2094,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on the SPI clock"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -2148,7 +2148,7 @@
 			(at 0 0)
 			(size 1 1)
 			(layers "F.Cu" "F.Mask")
-			(net "SPI_SCK")
+			(net "/SPI_SCK")
 			(uuid "d05f274e-aae2-4f7f-b788-4a8448ae3cb2")
 		)
 		(embedded_fonts no)
@@ -2196,7 +2196,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on GND"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -2406,7 +2406,7 @@
 				)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "Test point on +3V3"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -2506,7 +2506,7 @@
 				)
 			)
 		)
-		(property "Description" "Resistor, US symbol"
+		(property "Description" "Pull-up on the IMU chip select: keeps U1 deselected while the cable is unplugged"
 			(at 0 0 270)
 			(layer "F.Fab")
 			(hide yes)
@@ -2611,7 +2611,7 @@
 			(size 0.54 0.64)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
-			(net "IMU_CS")
+			(net "/~{IMU_CS}")
 			(uuid "33ec3b73-9e6f-4e4a-8b74-e7d893637615")
 		)
 		(embedded_fonts no)
@@ -3731,7 +3731,7 @@
 		(end 2.4 4.4)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "02437f1a-9719-46cf-9175-321d2d212ab2")
 	)
 	(segment
@@ -3739,7 +3739,7 @@
 		(end 10.6 6.7)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "37d1e41a-e659-4a83-9e2b-7ff0b0e89b38")
 	)
 	(segment
@@ -3747,7 +3747,7 @@
 		(end 12.55 4.75)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "44c44f99-cf29-46cf-855d-fd9c337ac2e8")
 	)
 	(segment
@@ -3755,7 +3755,7 @@
 		(end 6.2 6.7)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "5babb6d8-1f6c-4a64-b083-2177076f68f5")
 	)
 	(segment
@@ -3763,7 +3763,7 @@
 		(end 5.4 5.9)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "a719bc79-854e-4742-8094-37f8dd918a5f")
 	)
 	(segment
@@ -3771,7 +3771,7 @@
 		(end 1.6 3.6)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "a87d8eea-fe0e-4090-932a-e5c596cca921")
 	)
 	(segment
@@ -3779,7 +3779,7 @@
 		(end 8.375 9.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "aea3703f-78c7-477d-9adf-3f4cf1ecd349")
 	)
 	(segment
@@ -3787,7 +3787,7 @@
 		(end 4.9 4.4)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "b30094df-c4c8-46f6-ab68-e5d94a031e3b")
 	)
 	(segment
@@ -3795,7 +3795,7 @@
 		(end 13.1 3.5)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "bce85b69-edc2-4b7e-a8b3-d5f325780a69")
 	)
 	(segment
@@ -3803,7 +3803,7 @@
 		(end 8.375 6.7)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "bfe81dd1-a5ca-4b4c-8863-816ae9333f44")
 	)
 	(segment
@@ -3811,7 +3811,7 @@
 		(end 5.4 4.9)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "c880fbcb-1224-411f-93cf-13d225e24fb0")
 	)
 	(segment
@@ -3819,7 +3819,7 @@
 		(end 12.55 3.5)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_CS")
+		(net "/~{IMU_CS}")
 		(uuid "e8cd4e80-99f5-4b22-b3dc-2d8fd7644239")
 	)
 	(segment
@@ -3827,7 +3827,7 @@
 		(end 12.95 4)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "02af48e1-326b-43df-837b-bf54144a5fb0")
 	)
 	(segment
@@ -3835,7 +3835,7 @@
 		(end 10.875 7.1)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "3ad2e66a-8574-4eab-a95e-3d484fcc6d21")
 	)
 	(segment
@@ -3843,7 +3843,7 @@
 		(end 10.875 9.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "5075636f-a1ce-41e3-9572-5184ad65fbbf")
 	)
 	(segment
@@ -3851,7 +3851,7 @@
 		(end 11 7.1)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "a046a5fe-2928-4b45-b928-86bcba5d33d4")
 	)
 	(segment
@@ -3859,7 +3859,7 @@
 		(end 15.2 9.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "c07e95d7-c76b-4684-ba21-83ea3400561e")
 	)
 	(segment
@@ -3867,7 +3867,7 @@
 		(end 12.95 5.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_SCK")
+		(net "/SPI_SCK")
 		(uuid "ed355335-0037-4819-9494-f94fbcf80875")
 	)
 	(segment
@@ -3875,7 +3875,7 @@
 		(end 1.6 5.6)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "646658a9-e5c5-419d-92ab-0972277ddb96")
 	)
 	(segment
@@ -3883,7 +3883,7 @@
 		(end 11.85 7.05)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "7611c170-67aa-43ae-8097-040a6e95d1c2")
 	)
 	(segment
@@ -3891,7 +3891,7 @@
 		(end 13.35 4.5)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "b42157dc-4273-4f9c-a0b9-3fba2e4e7f43")
 	)
 	(segment
@@ -3899,7 +3899,7 @@
 		(end 11.85 7.75)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "db7735e8-bb67-4708-b5ca-fac80f2868c2")
 	)
 	(segment
@@ -3907,7 +3907,7 @@
 		(end 13.35 5.55)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "e137547c-3624-497a-bfbb-bd96ef042e71")
 	)
 	(segment
@@ -3915,7 +3915,7 @@
 		(end 9.625 9.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "e5f88792-1109-4637-a215-8561437043a6")
 	)
 	(via
@@ -3923,7 +3923,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "2fb6c1af-e534-442f-945f-309ec95e9850")
 	)
 	(via
@@ -3931,7 +3931,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "6f525dbd-e4d9-4827-a244-942273ccb31e")
 	)
 	(via
@@ -3939,7 +3939,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "745f3d6c-28cd-4450-9487-221c5e321169")
 	)
 	(segment
@@ -3947,7 +3947,7 @@
 		(end 11.75 7.65)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "0045e255-38c6-4a50-9bf8-c0d45ba2d882")
 	)
 	(segment
@@ -3955,7 +3955,7 @@
 		(end 4.05 7.65)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "85c168a4-957b-4a99-8abd-86f1bd6c695d")
 	)
 	(segment
@@ -3963,7 +3963,7 @@
 		(end 1.6 6.7)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "a00f319e-29d9-457f-9399-1d475826a0db")
 	)
 	(segment
@@ -3971,7 +3971,7 @@
 		(end 3.1 6.7)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MOSI")
+		(net "/SPI_MOSI")
 		(uuid "cc9d2031-8130-47d9-8e4e-9f9a2df485bd")
 	)
 	(segment
@@ -3979,7 +3979,7 @@
 		(end 14.45 5.75)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "0767bea3-e7df-4f12-82b9-be04d5c9da92")
 	)
 	(segment
@@ -3987,7 +3987,7 @@
 		(end 14 6.2)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "45398c4e-5f7c-4b65-be29-8d1189e3320a")
 	)
 	(segment
@@ -3995,7 +3995,7 @@
 		(end 1.6 12.2)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "c1fe2a27-a8b7-4f36-a6f8-3a9c53bc4249")
 	)
 	(segment
@@ -4003,7 +4003,7 @@
 		(end 8.375 16.55)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "ed4a9d0d-b9f7-4746-9821-76712132f797")
 	)
 	(via
@@ -4011,7 +4011,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "3a3153cc-2289-4370-a7bb-1e7a8c6cbdb5")
 	)
 	(via
@@ -4019,7 +4019,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "7c3745fb-95af-4dd5-ad58-0cfa761a3fab")
 	)
 	(via
@@ -4027,7 +4027,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "bd48983a-3a04-4c9a-b7d6-874bc0418270")
 	)
 	(segment
@@ -4035,7 +4035,7 @@
 		(end 1.6 13.3)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "04e77291-c40e-4447-840e-61271fef60c2")
 	)
 	(segment
@@ -4043,7 +4043,7 @@
 		(end 8.375 15.9)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "1b696abb-d250-446f-835d-bfa76e7ccb71")
 	)
 	(segment
@@ -4051,7 +4051,7 @@
 		(end 14 9.275)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "2807a93d-0549-4313-9bc5-b4bcc409ba03")
 	)
 	(segment
@@ -4059,7 +4059,7 @@
 		(end 2.1 13.3)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "49de9ecd-cc59-41ea-b291-15bd9a4ff266")
 	)
 	(segment
@@ -4067,7 +4067,7 @@
 		(end 2.6 15.9)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "5dc59369-7454-4381-b48b-1c3cab5dbf64")
 	)
 	(segment
@@ -4075,7 +4075,7 @@
 		(end 2.6 13.8)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "d827e6f6-af22-40d7-ac1b-07093636d9c2")
 	)
 	(segment
@@ -4083,7 +4083,7 @@
 		(end 8.375 14.9)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "SPI_MISO")
+		(net "/SPI_MISO")
 		(uuid "e324022a-647e-4e90-9895-04759f16adf5")
 	)
 	(segment
@@ -4091,7 +4091,7 @@
 		(end 15.95 9.85)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "1a08a9e1-bba6-4e2c-85f6-db51236249e7")
 	)
 	(segment
@@ -4099,7 +4099,7 @@
 		(end 7.125 10.85)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "45530682-3fe5-4aef-ba44-b0ce9413ac38")
 	)
 	(segment
@@ -4107,7 +4107,7 @@
 		(end 1.6 7.8)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "96b63fd2-e368-491e-a0a8-1cad338c57d0")
 	)
 	(segment
@@ -4115,7 +4115,7 @@
 		(end 14.95 10.85)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "c3efb7c7-8558-4a9a-8ea9-b7e64698d6a4")
 	)
 	(segment
@@ -4123,7 +4123,7 @@
 		(end 2.5 8.7)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "c8ed2677-3eef-4c20-bb5f-b197320e6a61")
 	)
 	(segment
@@ -4131,7 +4131,7 @@
 		(end 7.125 9.15)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT1")
+		(net "/IMU_INT1")
 		(uuid "e8e16cb4-c054-46c2-a504-93acc7f2fce8")
 	)
 	(segment
@@ -4139,7 +4139,7 @@
 		(end 1.6 10)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "3fd40107-b18f-4e24-bdf1-45f096b24097")
 	)
 	(segment
@@ -4147,7 +4147,7 @@
 		(end 15.45 1.4)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "d38ecef1-b9c6-42ce-824e-d43cb1c083d3")
 	)
 	(segment
@@ -4155,7 +4155,7 @@
 		(end 7.125 16.55)
 		(width 0.2)
 		(layer "F.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "e4aefb69-786f-4821-a021-91c65c16f13d")
 	)
 	(via
@@ -4163,7 +4163,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "0c7502fd-daa0-4de0-8835-9bbfd058fcdd")
 	)
 	(via
@@ -4171,7 +4171,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "1071963c-8d09-419e-8f9e-58db44810178")
 	)
 	(via
@@ -4179,7 +4179,7 @@
 		(size 0.6)
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "2049ef42-9e2a-4607-b332-ac55a3b309d9")
 	)
 	(segment
@@ -4187,7 +4187,7 @@
 		(end 13.4 3.45)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "04963426-c05e-486d-8d2c-c2e557e9475b")
 	)
 	(segment
@@ -4195,7 +4195,7 @@
 		(end 6.6 11.1)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "108f4f08-6143-46ae-97c3-6c0ce17e187b")
 	)
 	(segment
@@ -4203,7 +4203,7 @@
 		(end 1.6 11.1)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "3473c2bf-4f13-4b88-8c56-be9f8702a003")
 	)
 	(segment
@@ -4211,7 +4211,7 @@
 		(end 13.4 8.6)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "7e0e5ef6-574d-45a5-a263-bb526cfbf08b")
 	)
 	(segment
@@ -4219,7 +4219,7 @@
 		(end 7.125 11.6)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "7e7edee4-3de9-40ff-8917-b52bb90734e1")
 	)
 	(segment
@@ -4227,7 +4227,7 @@
 		(end 7.125 14.875)
 		(width 0.2)
 		(layer "B.Cu")
-		(net "IMU_INT2")
+		(net "/IMU_INT2")
 		(uuid "8e0721b1-c32d-449d-8e73-ef902f75ab54")
 	)
 	(segment

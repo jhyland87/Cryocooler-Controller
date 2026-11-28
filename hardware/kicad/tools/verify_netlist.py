@@ -126,8 +126,7 @@ def main(path):
     }
     print('single-node nets:', list(single))
     print('parts:', len(comps), 'nets:', len(nets))
-    # the IMU board's nets are not barred yet (gen_imu_schematic.py)
-    unbarred = active_low.problems(load(path)[1]) if esp else []
+    unbarred = active_low.problems(load(path)[1])
     print('unbarred active-low nets:', unbarred)
     problems += len(unbarred)
     return problems

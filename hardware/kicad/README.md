@@ -93,8 +93,20 @@ How this project applies the repo-wide drawing rules (`.claude/rules/schematic-d
 | Helpers | `net_label(..., to_parent=True)` and `SHEET_PINS` (sheet pins), `root_links()` (joins blocks on the root), `IO_BLOCKS` and `NESTED_SHEETS` (child sheets), `spi_bus()` (the `{SPI}` bus), `gnd_bus` (ground bars), `place_blocks` / `decoupling_block` (decoupling blocks), `LABEL_DIRECTION` in `tools/kicadgen.py` (label shapes), `from_stock` in `tools/make_lib.py` (pin layout), `PINNED_FIELDS` (text moved by hand in KiCad) |
 | Exceptions | None |
 
-The IMU board (`imu/`, below) is a second project with its own generator, `tools/gen_imu_schematic.py`. It has
-no `schematic_checks.json` yet, so `check_sheet_structure.py --project imu/imu.kicad_pro` uses the defaults.
+The IMU board (`imu/`, below) is a second project with its own profile:
+
+| | |
+|---|---|
+| Root sheet | `imu/imu.kicad_sch` (project `imu/imu.kicad_pro`), the only sheet |
+| Made by | `tools/gen_imu_schematic.py`, with the main generator's helpers; never hand-edit the `.kicad_sch`. It updates the sheet list and net class patterns in `imu.kicad_pro` and leaves that file's board rules alone |
+| Descriptions | `tools/part_descriptions.py`: `IMU_DESCRIPTIONS` by reference, `IMU_NET_DESCRIPTIONS` by label name. The generator fails on a part or label without one |
+| Check config | `imu/schematic_checks.json`: no allowed globals, 30 parts, 85 mm, baseline `imu/sheet_structure_baseline.json` (all 0) |
+| Checks | generator checks, ERC 0, `datasheet_rules.py --imu` 25/25, `verify_netlist.py`, `check_symbols.py`, `check_sheet_structure.py --project imu/imu.kicad_pro` |
+| Connectivity gate | `tools/compare_netlists.py --strict` against a baseline netlist (`--renamed` when nets were renamed on the board too) |
+| Routed board | Yes: `imu/imu.kicad_pcb`, and `tools/imu_board.py` names nets in its track and via tables. A rename reaches the board through `tools/rename_board_nets.py --board imu/imu.kicad_pcb` (names only) and the same names in `imu_board.py` |
+| Net names | One sheet, so every signal is a wire from J1 to U1 with one net label naming it (`/SPI_SCK`, `/~{IMU_CS}`); no global labels. Active-low nets barred through `ACTIVE_LOW` |
+| Helpers | `wire_signals()` (J1 to U1 without a crossing, a clear stretch per signal for its test point), `build_supply()` (J1's rails with the bulk capacitor, supply test points and flags), plus the main generator's `gnd_bus`, `place_blocks`, `side_fields` |
+| Exceptions | None |
 
 ## Board profile
 
@@ -134,7 +146,7 @@ in `tools/active_low.py`, applied in `kicadgen.label_text()`. Barred labels, she
 drawn at 1.0 mm (`kicadgen.label_size()`, `make_lib.pin_line()`) so the bar clears the row 2.54 mm above, and
 `textlayout.py` counts the bar's height in its overlap check. `verify_netlist.py` maps the drawn names back for
 its checks and fails on an unbarred active-low net. Add a new active-low net to that list. The IMU board
-(`gen_imu_schematic.py`) is not barred yet.
+(`gen_imu_schematic.py`) uses the same list.
 
 **Sheet pins and root links.** A net that leaves a sheet through a pin is drawn with `net_label(..., to_parent=True)`
 (a hierarchical label) on the sheet and listed in `SHEET_PINS` (block edge and row) in `tools/gen_schematic.py`.
@@ -350,6 +362,6 @@ python3 hardware/kicad/tools/gen_bom.py --imu       # imu/bom/
 ```
 
 After review and commit, `$KPY hardware/kicad/tools/imu_board.py boardid` stamps `Cryocooler IMU` / `BETA rev <hash>`
-on the back silk; a rebuild drops it, so stamp again after one. Checks (2026-11-12): ERC 0, `datasheet_rules.py --imu`
-25/25, and `kicad-cli pcb drc --schematic-parity --severity-all` 0 errors, 0 unconnected, 0 parity, with 22
+on the back silk; a rebuild drops it, so stamp again after one. Checks (2026-11-27): ERC 0, `datasheet_rules.py --imu`
+25/25, `check_sheet_structure.py` 0 on every count, and `kicad-cli pcb drc --schematic-parity --severity-all` 0 errors, 0 unconnected, 0 parity, with 22
 `text_height` warnings for the 0.5 mm mask and 0.7 mm silk labels (the accepted baseline).

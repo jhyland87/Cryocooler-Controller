@@ -4,8 +4,9 @@ parent). Names only: every `(net "NAME")` of a renamed net is rewritten and
 nothing else, which the script proves by undoing the names in memory and
 comparing with the file it read.
 
-Usage: python3 rename_board_nets.py baseline.net new.net
-baseline.net is the netlist the board was routed from (rev6-schematic).
+Usage: python3 rename_board_nets.py [--board other.kicad_pcb] baseline.net new.net
+baseline.net is the netlist the board was routed from (rev6-schematic). The
+main board is renamed unless --board names another (the IMU board).
 Then run DRC with schematic parity.
 """
 
@@ -17,7 +18,7 @@ from compare_netlists import board_view
 BOARD = Path(__file__).resolve().parent.parent / 'cryocooler.kicad_pcb'
 
 
-def main(baseline, new):
+def main(baseline, new, board=BOARD):
     (_, base_nets), (_, new_nets) = board_view(baseline), board_view(new)
     new_names = {tuple(pins): name for name, pins in new_nets.items()}
     renames = {
@@ -25,7 +26,7 @@ def main(baseline, new):
         for name, pins in base_nets.items()
         if name not in new_nets and tuple(pins) in new_names
     }
-    before = BOARD.read_text()
+    before = board.read_text()
     # the board may hold an in-between name from an earlier run: find each
     # net under the name it has now
     current = {}
@@ -51,7 +52,7 @@ def main(baseline, new):
     if undone != before:
         print('undoing the names does not give the board back; nothing written')
         return 1
-    BOARD.write_text(text)
+    board.write_text(text)
     print(f'{len(done)} nets renamed on the board '
           f'({sum(count for _, count in done.values())} entries)')
     for held, (name, _) in sorted(done.items()):
@@ -60,4 +61,7 @@ def main(baseline, new):
 
 
 if __name__ == '__main__':
-    sys.exit(main(*sys.argv[1:]))
+    arguments = sys.argv[1:]
+    if arguments[0] == '--board':
+        sys.exit(main(*arguments[2:], board=Path(arguments[1])))
+    sys.exit(main(*arguments))

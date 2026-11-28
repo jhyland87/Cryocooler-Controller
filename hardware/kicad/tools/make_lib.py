@@ -16,14 +16,14 @@ def f(value):
     return '0' if text in ('-0', '') else text
 
 
-def pin_line(side, number, name, ptype, x, y, hide=False):
+def pin_line(side, number, name, ptype, x, y, hide=False, length=GRID):
     angle = {'left': 0, 'right': 180, 'top': 270, 'bottom': 90}[side]
     hidden = ' (hide yes)' if hide else ''
     # a barred name is drawn smaller so its bar clears the pin above
     size = '1' if '~{' in name else '1.27'
     return (
         f'\t\t\t(pin {ptype} line (at {f(x)} {f(y)} {angle}) (length '
-        f'{GRID}){hidden}\n'
+        f'{length}){hidden}\n'
         f'\t\t\t\t(name "{name}" (effects (font (size {size} {size}))))\n'
         f'\t\t\t\t(number "{number}" (effects (font (size 1.27 '
         f'1.27))))\n\t\t\t)'
@@ -44,12 +44,14 @@ def symbol(
     y_override=None,
     tip_x=None,
     half_height_min=0.0,
+    pin_length=GRID,
 ):
     """Each pin: (number_or_list, name, type). A list of numbers stacks them on
     one location.
 
     y_override maps a pin number to its fixed y (mm) on the left/right sides;
-    tip_x fixes the side-pin tip x.
+    tip_x fixes the side-pin tip x. pin_length is for a part whose two-digit
+    pin numbers need more room than one grid step.
     """
     y_override = y_override or {}
 
@@ -94,16 +96,16 @@ def symbol(
                     round((half_height - GRID - index * GRID) / 1.27) * 1.27,
                 )
                 x = (
-                    -(half_width + GRID)
+                    -(half_width + pin_length)
                     if side == 'left'
-                    else half_width + GRID
+                    else half_width + pin_length
                 )
             else:
                 x = (index - (count - 1) / 2) * 2 * GRID
                 y = (
-                    half_height + GRID
+                    half_height + pin_length
                     if side == 'top'
-                    else -(half_height + GRID)
+                    else -(half_height + pin_length)
                 )
             numbers = numbers if isinstance(numbers, list) else [numbers]
             for position, number in enumerate(numbers):
@@ -118,6 +120,7 @@ def symbol(
                         x,
                         y,
                         hide=position > 0,
+                        length=pin_length,
                     )
                 )
 
@@ -611,25 +614,6 @@ SYMBOLS = [
         half_height_min=7.62,
         y_map={'4': 2.54, '3': 2.54, '6': 0.0, '1': 0.0},
     ),
-    from_stock(
-        'Connector',
-        '8P8C_Shielded',
-        '8P8C_Shielded_Rails_At_Ends',
-        'J',
-        right=['4', '8', '7', '6', '5', '3', '1', '2'],
-        bottom=['SH'],
-        keywords='rj45 8p8c',
-    ),
-    # J14 Molex Micro-Lock Plus 2x4: pins in the RJ45 symbol's order, so the
-    # IMU sheet keeps its layout
-    from_stock(
-        'Connector_Generic',
-        'Conn_02x04_Odd_Even',
-        'Conn_02x04_Rails_At_Ends',
-        'J',
-        right=['4', '8', '7', '6', '5', '3', '1', '2'],
-        keywords='connector 2x04 micro-lock',
-    ),
     # J14 on the controller: pins named for the signals, in the IMU filter's
     # channel order, supply on top and ground below (pin numbers as the
     # Molex part, drawing 5054480003-SD)
@@ -974,15 +958,18 @@ SYMBOLS = [
         'VDD 1.71-3.6 V, VDDIO 1.62-3.6 V, LGA-14L 2.5 x 3.0 x 0.83 mm',
         'https://www.st.com/resource/en/datasheet/lsm6dsox.pdf',
         'Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y',
+        # every cable signal on the left, in J1's pin order, so the IMU board
+        # wires them straight across
         left=[
-            ('12', '~{CS}', 'input'),
-            ('13', 'SPC', 'input'),
-            ('14', 'SDI', 'input'),
+            ('9', 'INT2', 'output'),
+            ('4', 'INT1', 'output'),
             ('1', 'SDO', 'tri_state'),
-            ('10', 'OCS_Aux', 'passive'),
-            ('11', 'SDO_Aux', 'passive'),
+            ('12', '~{CS}', 'input'),
+            ('14', 'SDI', 'input'),
+            ('13', 'SPC', 'input'),
         ],
-        right=[('4', 'INT1', 'output'), ('9', 'INT2', 'output')],
+        # below the vertical supply names
+        right=[None, None, None, None, ('10', 'OCS_Aux', 'passive'), ('11', 'SDO_Aux', 'passive')],
         top=[('8', 'VDD', 'power_in'), ('5', 'VDDIO', 'power_in')],
         bottom=[
             ('2', 'SDx', 'passive'),
@@ -991,6 +978,7 @@ SYMBOLS = [
         ],
         keywords='imu accelerometer gyroscope',
         half_height_min=15.24,
+        pin_length=5.08,
     ),
     symbol(
         'APGB0607G22R23C',

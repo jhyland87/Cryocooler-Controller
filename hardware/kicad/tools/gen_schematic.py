@@ -6104,14 +6104,15 @@ def link_parts(sheets):
           ' '.join(unlinked))
 
 
-def describe_parts(sheets):
-    """Writes each part's role and each labelled net's meaning
-    (part_descriptions.py) into the Description fields; returns the number of
-    parts and labels without one plus stale entries.
+def describe_parts(sheets, table=None, nets=None):
+    """Writes each part's role and each labelled net's meaning into the
+    Description fields, from the main board's tables in part_descriptions.py
+    unless others are given; returns the number of parts and labels without
+    one plus stale entries.
     """
     import part_descriptions
 
-    table = part_descriptions.DESCRIPTIONS
+    table = part_descriptions.DESCRIPTIONS if table is None else table
     refs = {
         part.ref
         for sheet in sheets
@@ -6127,7 +6128,7 @@ def describe_parts(sheets):
     print(f'part descriptions: {len(missing)} parts without one:', ' '.join(missing))
     if stale:
         print('  descriptions for parts that no longer exist:', ' '.join(stale))
-    nets = part_descriptions.NET_DESCRIPTIONS
+    nets = part_descriptions.NET_DESCRIPTIONS if nets is None else nets
     labels = {net for sheet in sheets for _kind, net, _at, _angle in sheet.labels}
     for sheet in sheets:
         sheet.label_descriptions = nets

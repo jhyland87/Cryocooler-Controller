@@ -99,6 +99,7 @@ $KC sch erc --severity-all imu/imu.kicad_sch       # 0
 $KC sch export netlist -o $OUT/imu.net imu/imu.kicad_sch
 python3 tools/datasheet_rules.py --imu $OUT/imu.net   # RULES_IMU, 25 of 25
 python3 tools/verify_netlist.py $OUT/imu.net       # skips the GPIO map (no ESP32)
+python3 tools/check_sheet_structure.py --project imu/imu.kicad_pro   # 0 on every count
 python3 tools/gen_bom.py --imu                     # imu/bom/imu_*.csv
 ```
 
